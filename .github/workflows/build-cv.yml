@@ -1,0 +1,37 @@
+name: Build CV PDFs
+
+on:
+  push:
+    branches: [main]
+    paths: ['cv/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tectonic
+        uses: wtfjoke/setup-tectonic@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build CV PDF
+        run: |
+          cd cv
+          tectonic jess_sullivan_cv.tex || echo "CV build failed (may need header_image.png)"
+          tectonic jess_sullivan_resume.tex || echo "Resume build failed"
+
+      - name: Copy PDFs to static
+        run: |
+          cp cv/*.pdf static/cv/ 2>/dev/null || true
+
+      - name: Commit updated PDFs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: rebuild CV PDFs'
+          file_pattern: 'static/cv/*.pdf'

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import Search from '$lib/components/Search.svelte';
 	let { data }: { data: PageData } = $props();
 
 	const POSTS_PER_PAGE = 20;
@@ -26,6 +27,8 @@
 		<h1 class="text-3xl font-bold">Blog</h1>
 		<span class="text-sm text-surface-500">{data.posts.length} posts</span>
 	</div>
+
+	<Search />
 
 	{#if allTags.length > 0}
 		<div class="flex flex-wrap gap-2 mb-8">

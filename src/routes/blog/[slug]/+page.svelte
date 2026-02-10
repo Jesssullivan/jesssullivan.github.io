@@ -1,7 +1,25 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import GiscusComments from '$lib/components/GiscusComments.svelte';
+	import { onMount } from 'svelte';
 	let { data }: { data: PageData } = $props();
+
+	onMount(async () => {
+		const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-code]');
+		if (diagrams.length === 0) return;
+		const mermaid = (await import('mermaid')).default;
+		mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+		for (const el of diagrams) {
+			const code = atob(el.getAttribute('data-mermaid-code') || '');
+			const id = el.getAttribute('data-mermaid-id') || 'mermaid';
+			try {
+				const { svg } = await mermaid.render(id, code);
+				el.innerHTML = svg;
+			} catch {
+				el.innerHTML = `<pre class="text-red-500">${code}</pre>`;
+			}
+		}
+	});
 </script>
 
 <svelte:head>

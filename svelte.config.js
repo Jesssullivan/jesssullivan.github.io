@@ -14,6 +14,12 @@ const mdsvexOptions = {
 	extensions: ['.md', '.svx'],
 	highlight: {
 		highlighter: async (code, lang) => {
+			// Intercept mermaid code blocks — Base64 encode for client-side rendering
+			if (lang === 'mermaid') {
+				const encoded = Buffer.from(code.trim()).toString('base64');
+				const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+				return `<div class="mermaid-diagram my-6 not-prose" data-mermaid-code="${encoded}" data-mermaid-id="${id}"></div>`;
+			}
 			const html = escapeSvelte(
 				highlighter.codeToHtml(code, { lang: lang || 'text', theme })
 			);

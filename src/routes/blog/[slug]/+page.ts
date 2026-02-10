@@ -1,5 +1,25 @@
-import type { PageLoad } from './$types';
+import type { PageLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
+
+export const entries: EntryGenerator = async () => {
+	const modules = import.meta.glob('/src/posts/*.md', { eager: true });
+	const result: { slug: string }[] = [];
+
+	for (const [path, module] of Object.entries(modules)) {
+		const mod = module as { metadata: Record<string, unknown> };
+		const metadata = mod.metadata;
+		if (!metadata?.published) continue;
+
+		const filename = path.split('/').pop()?.replace('.md', '') ?? '';
+		const slug =
+			(metadata.slug as string) ??
+			filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+
+		result.push({ slug });
+	}
+
+	return result;
+};
 
 export const load: PageLoad = async ({ params }) => {
 	const modules = import.meta.glob('/src/posts/*.md');
