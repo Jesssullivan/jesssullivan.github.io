@@ -1,0 +1,3015 @@
+{
+  "posts": [
+    {
+      "title": "This and That!",
+      "date": "2022-04-08T23:18:35+00:00",
+      "slug": "this-and-that",
+      "file": "2022-04-08-this-and-that.md",
+      "source": "site_backup/2022/04/08/this-and-that/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2022/04/08/this-and-that/"
+    },
+    {
+      "title": "This and That!",
+      "date": "2022-05-23T02:18:35+00:00",
+      "slug": "this-and-that",
+      "file": "2022-05-23-this-and-that.md",
+      "source": "site_backup/2022/05/23/this-and-that/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2022/05/23/this-and-that/"
+    },
+    {
+      "title": "Makerspace financial reporting w/ ipython",
+      "date": "2022-02-06T04:11:53+00:00",
+      "slug": "makerspace-financial-reporting-w-ipython",
+      "file": "2022-02-06-makerspace-financial-reporting-w-ipython.md",
+      "source": "site_backup/2022/02/06/makerspace-financial-reporting-w-ipython/index.html",
+      "categories": [
+        "DIY",
+        "Featured"
+      ],
+      "url": "https://www.transscendsurvival.org/2022/02/06/makerspace-financial-reporting-w-ipython/"
+    },
+    {
+      "title": "Datasets, Plots, Graphs, Charts",
+      "date": "2022-01-01T19:16:44+00:00",
+      "slug": "datasets-plots-graphs-charts",
+      "file": "2022-01-01-datasets-plots-graphs-charts.md",
+      "source": "site_backup/2022/01/01/datasets-plots-graphs-charts/index.html",
+      "categories": [
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://www.transscendsurvival.org/2022/01/01/datasets-plots-graphs-charts/"
+    },
+    {
+      "title": "What have I been up to these last few months?",
+      "date": "2024-05-22T18:49:36+00:00",
+      "slug": "what-have-i-been-up-to-these-last-few-months",
+      "file": "2024-05-22-what-have-i-been-up-to-these-last-few-months.md",
+      "source": "site_backup/2024/05/22/what-have-i-been-up-to-these-last-few-months/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2024/05/22/what-have-i-been-up-to-these-last-few-months/"
+    },
+    {
+      "title": "I wrote a mutual aid mental health service",
+      "date": "2024-02-22T19:25:29+00:00",
+      "slug": "i-wrote-a-mutual-aid-mental-health-service",
+      "file": "2024-02-22-i-wrote-a-mutual-aid-mental-health-service.md",
+      "source": "site_backup/2024/02/22/i-wrote-a-mutual-aid-mental-health-service/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2024/02/22/i-wrote-a-mutual-aid-mental-health-service/"
+    },
+    {
+      "title": "AccuWix Report CLI",
+      "date": "2024-01-02T15:54:15+00:00",
+      "slug": "accuwix",
+      "file": "2024-01-02-accuwix.md",
+      "source": "site_backup/2024/01/02/accuwix/index.html",
+      "categories": [
+        "DIY",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://www.transscendsurvival.org/2024/01/02/accuwix/"
+    },
+    {
+      "title": "Fusion 360 for 3d Printing w/ Jess!",
+      "date": "2023-03-01T00:20:12+00:00",
+      "slug": "fusion-360-for-3d-printing-w-jess",
+      "file": "2023-03-01-fusion-360-for-3d-printing-w-jess.md",
+      "source": "site_backup/2023/03/01/fusion-360-for-3d-printing-w-jess/index.html",
+      "categories": [
+        "Classes"
+      ],
+      "url": "https://www.transscendsurvival.org/2023/03/01/fusion-360-for-3d-printing-w-jess/"
+    },
+    {
+      "title": "Turkey Probe",
+      "date": "2023-11-27T15:00:31+00:00",
+      "slug": "turkey-probe",
+      "file": "2023-11-27-turkey-probe.md",
+      "source": "site_backup/2023/11/27/turkey-probe/index.html",
+      "categories": [
+        "DIY"
+      ],
+      "url": "https://www.transscendsurvival.org/2023/11/27/turkey-probe/"
+    },
+    {
+      "title": "Lets write a simple, efficient and fast flask-based image server in an afternoon",
+      "date": "2023-12-18T15:21:03+00:00",
+      "slug": "lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon",
+      "file": "2023-12-18-lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon.md",
+      "source": "site_backup/2023/12/18/lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://www.transscendsurvival.org/2023/12/18/lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #3: 3/3/17, Noon-ish time - Trans Scend Survival",
+      "date": "2017-03-04T19:25:10+00:00",
+      "slug": "wolf-pine-fox-park-3-3317-noon-ish-time",
+      "file": "2017-03-04-wolf-pine-fox-park-3-3317-noon-ish-time.md",
+      "source": "site_backup/2017/03/04/wolf-pine-fox-park-3-3317-noon-ish-time/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/04/wolf-pine-fox-park-3-3317-noon-ish-time/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #4: 3/5/17, Noon-ish time - Trans Scend Survival",
+      "date": "2017-03-05T22:05:06+00:00",
+      "slug": "wolf-pine-fox-park-4-3517-noon-ish-time",
+      "file": "2017-03-05-wolf-pine-fox-park-4-3517-noon-ish-time.md",
+      "source": "site_backup/2017/03/05/wolf-pine-fox-park-4-3517-noon-ish-time/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/05/wolf-pine-fox-park-4-3517-noon-ish-time/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #2 (2/27/17) - Trans Scend Survival",
+      "date": "2017-03-02T12:17:51+00:00",
+      "slug": "wolf-pine-fox-park-2-22717",
+      "file": "2017-03-02-wolf-pine-fox-park-2-22717.md",
+      "source": "site_backup/2017/03/02/wolf-pine-fox-park-2-22717/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/02/wolf-pine-fox-park-2-22717/"
+    },
+    {
+      "title": "Boutique everything: When The Hobby Grows Up - Trans Scend Survival",
+      "date": "2017-03-20T09:03:56+00:00",
+      "slug": "boutique-everything-when-the-hobby-grows-up",
+      "file": "2017-03-20-boutique-everything-when-the-hobby-grows-up.md",
+      "source": "site_backup/2017/03/20/boutique-everything-when-the-hobby-grows-up/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/20/boutique-everything-when-the-hobby-grows-up/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #6: 3/10/17, Theoretical Owls and Real Tree Bark - Trans Scend Survival",
+      "date": "2017-03-11T17:53:06+00:00",
+      "slug": "wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark",
+      "file": "2017-03-11-wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark.md",
+      "source": "site_backup/2017/03/11/wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/11/wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #9: 3/26/17, Everyone Is On Vacation - Trans Scend Survival",
+      "date": "2017-03-28T11:10:36+00:00",
+      "slug": "wolf-pine-fox-park-9-32617-everyone-is-on-vacation",
+      "file": "2017-03-28-wolf-pine-fox-park-9-32617-everyone-is-on-vacation.md",
+      "source": "site_backup/2017/03/28/wolf-pine-fox-park-9-32617-everyone-is-on-vacation/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/28/wolf-pine-fox-park-9-32617-everyone-is-on-vacation/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #8: 3/16/17, Someone Bumped The Snow Machine - Trans Scend Survival",
+      "date": "2017-03-17T12:47:00+00:00",
+      "slug": "wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine",
+      "file": "2017-03-17-wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine.md",
+      "source": "site_backup/2017/03/17/wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/17/wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine/"
+    },
+    {
+      "title": "Parking Lot/Sit Spot @ Fox Park #10: 3/31/17, Whoo's Clues - Trans Scend Survival",
+      "date": "2017-03-31T11:10:38+00:00",
+      "slug": "parking-lotsit-spot-fox-park-10-33117-whoos-clues",
+      "file": "2017-03-31-parking-lotsit-spot-fox-park-10-33117-whoos-clues.md",
+      "source": "site_backup/2017/03/31/parking-lotsit-spot-fox-park-10-33117-whoos-clues/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/31/parking-lotsit-spot-fox-park-10-33117-whoos-clues/"
+    },
+    {
+      "title": "Beaver Dam @ Quincy Bog #1: 3/30/17, The World Has Gone Mad - Trans Scend Survival",
+      "date": "2017-03-30T22:21:40+00:00",
+      "slug": "beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad",
+      "file": "2017-03-30-beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad.md",
+      "source": "site_backup/2017/03/30/beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/30/beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #7: 3/12/17, Surprise! It's Cold - Trans Scend Survival",
+      "date": "2017-03-12T20:21:44+00:00",
+      "slug": "wolf-pine-fox-park-7-31217-surprise-its-cold",
+      "file": "2017-03-12-wolf-pine-fox-park-7-31217-surprise-its-cold.md",
+      "source": "site_backup/2017/03/12/wolf-pine-fox-park-7-31217-surprise-its-cold/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/12/wolf-pine-fox-park-7-31217-surprise-its-cold/"
+    },
+    {
+      "title": "Sit spot #N.1: The GHO Talk - Trans Scend Survival",
+      "date": "2017-03-13T01:51:25+00:00",
+      "slug": "sit-spot-n-1-the-gho-talk",
+      "file": "2017-03-13-sit-spot-n-1-the-gho-talk.md",
+      "source": "site_backup/2017/03/13/sit-spot-n-1-the-gho-talk/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/03/13/sit-spot-n-1-the-gho-talk/"
+    },
+    {
+      "title": "Parking Lot/Sit Spot @ Fox Park #12: 4/3/17, Owling 2 Hours Before Sunrise - Trans Scend Survival",
+      "date": "2017-04-03T10:13:58+00:00",
+      "slug": "parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise",
+      "file": "2017-04-03-parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise.md",
+      "source": "site_backup/2017/04/03/parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/03/parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise/"
+    },
+    {
+      "title": "Preview: Learning Fusion 360 and Next-Level CAD Craziness - Trans Scend Survival",
+      "date": "2017-04-04T13:04:13+00:00",
+      "slug": "603",
+      "file": "2017-04-04-603.md",
+      "source": "site_backup/2017/04/04/603/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/04/603/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #11: 4/1/17, It Is A Snow-Show, Debunking The Melanistic Dogamount - Trans Scend Survival",
+      "date": "2017-04-02T11:25:51+00:00",
+      "slug": "wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount",
+      "file": "2017-04-02-wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount.md",
+      "source": "site_backup/2017/04/02/wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/02/wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount/"
+    },
+    {
+      "title": "Addendum to \"Secret Beach Area\" Natural History Class Walk - Trans Scend Survival",
+      "date": "2017-04-20T22:50:15+00:00",
+      "slug": "addendum-to-secret-beach-area-natural-history-class-walk",
+      "file": "2017-04-20-addendum-to-secret-beach-area-natural-history-class-walk.md",
+      "source": "site_backup/2017/04/20/addendum-to-secret-beach-area-natural-history-class-walk/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/20/addendum-to-secret-beach-area-natural-history-class-walk/"
+    },
+    {
+      "title": "Bird Observations Today- Langdon Woods - Trans Scend Survival",
+      "date": "2017-04-11T18:32:29+00:00",
+      "slug": "bird-observations-today-langdon-woods",
+      "file": "2017-04-11-bird-observations-today-langdon-woods.md",
+      "source": "site_backup/2017/04/11/bird-observations-today-langdon-woods/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/11/bird-observations-today-langdon-woods/"
+    },
+    {
+      "title": "Fox Park #16 and #17: 4/16/17,Big Toad: Small Vireo. Yay. - Trans Scend Survival",
+      "date": "2017-04-17T01:45:34+00:00",
+      "slug": "fox-park-16-and-17-41617big-toad-small-vireo-yay",
+      "file": "2017-04-17-fox-park-16-and-17-41617big-toad-small-vireo-yay.md",
+      "source": "site_backup/2017/04/17/fox-park-16-and-17-41617big-toad-small-vireo-yay/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/17/fox-park-16-and-17-41617big-toad-small-vireo-yay/"
+    },
+    {
+      "title": "Fox Park #18: 4/19/17, In Class Roamings - Trans Scend Survival",
+      "date": "2017-04-19T12:25:45+00:00",
+      "slug": "fox-park-18-41917-in-class-roamings",
+      "file": "2017-04-19-fox-park-18-41917-in-class-roamings.md",
+      "source": "site_backup/2017/04/19/fox-park-18-41917-in-class-roamings/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/19/fox-park-18-41917-in-class-roamings/"
+    },
+    {
+      "title": "pt. 2: Reflecting On Stunt Culture (Scooters) - Trans Scend Survival",
+      "date": "2017-04-08T19:47:43+00:00",
+      "slug": "pt-2-reflecting-on-stunt-culture-scooters",
+      "file": "2017-04-08-pt-2-reflecting-on-stunt-culture-scooters.md",
+      "source": "site_backup/2017/04/08/pt-2-reflecting-on-stunt-culture-scooters/index.html",
+      "categories": [
+        "Wheels and Fitness"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/08/pt-2-reflecting-on-stunt-culture-scooters/"
+    },
+    {
+      "title": "pt. 1: Reflecting On Stunt Culture (Theories and Frisbee) - Trans Scend Survival",
+      "date": "2017-04-08T19:48:40+00:00",
+      "slug": "pt-1-reflecting-on-stunt-culture-theories-and-frisbee",
+      "file": "2017-04-08-pt-1-reflecting-on-stunt-culture-theories-and-frisbee.md",
+      "source": "site_backup/2017/04/08/pt-1-reflecting-on-stunt-culture-theories-and-frisbee/index.html",
+      "categories": [
+        "Wheels and Fitness"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/08/pt-1-reflecting-on-stunt-culture-theories-and-frisbee/"
+    },
+    {
+      "title": "Fox Park #15: 4/12/17, “1 if by land, 17 if by ear” - Trans Scend Survival",
+      "date": "2017-04-12T15:37:14+00:00",
+      "slug": "fox-park-15-41217-1-if-by-land-17-if-by-ear",
+      "file": "2017-04-12-fox-park-15-41217-1-if-by-land-17-if-by-ear.md",
+      "source": "site_backup/2017/04/12/fox-park-15-41217-1-if-by-land-17-if-by-ear/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/12/fox-park-15-41217-1-if-by-land-17-if-by-ear/"
+    },
+    {
+      "title": "Fox Park #14: 4/10/17, \"1 if by land, 16 if by ear\" - Trans Scend Survival",
+      "date": "2017-04-12T15:32:39+00:00",
+      "slug": "fox-park-14-41017-1-if-by-land-16-if-by-ear",
+      "file": "2017-04-12-fox-park-14-41017-1-if-by-land-16-if-by-ear.md",
+      "source": "site_backup/2017/04/12/fox-park-14-41017-1-if-by-land-16-if-by-ear/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/04/12/fox-park-14-41017-1-if-by-land-16-if-by-ear/"
+    },
+    {
+      "title": "The Big Len List - Trans Scend Survival",
+      "date": "2017-05-03T00:43:57+00:00",
+      "slug": "the-big-len-list",
+      "file": "2017-05-03-the-big-len-list.md",
+      "source": "site_backup/2017/05/03/the-big-len-list/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/03/the-big-len-list/"
+    },
+    {
+      "title": "Fox Park to Langdon: Morning Birds! - Trans Scend Survival",
+      "date": "2017-05-04T21:10:01+00:00",
+      "slug": "fox-park-to-langdon-morning-birds",
+      "file": "2017-05-04-fox-park-to-langdon-morning-birds.md",
+      "source": "site_backup/2017/05/04/fox-park-to-langdon-morning-birds/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/04/fox-park-to-langdon-morning-birds/"
+    },
+    {
+      "title": "Early Morning Guitar Session. ala Laundry - Trans Scend Survival",
+      "date": "2017-05-04T08:14:26+00:00",
+      "slug": "early-morning-guitar-session-ala-laundry",
+      "file": "2017-05-04-early-morning-guitar-session-ala-laundry.md",
+      "source": "site_backup/2017/05/04/early-morning-guitar-session-ala-laundry/index.html",
+      "categories": [
+        "Featured",
+        "Music Sketches"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/04/early-morning-guitar-session-ala-laundry/"
+    },
+    {
+      "title": "New Photo/Promotional Media Business pages in the works! - Trans Scend Survival",
+      "date": "2017-05-05T11:47:02+00:00",
+      "slug": "new-photopromotional-media-business-pages-in-the-works",
+      "file": "2017-05-05-new-photopromotional-media-business-pages-in-the-works.md",
+      "source": "site_backup/2017/05/05/new-photopromotional-media-business-pages-in-the-works/index.html",
+      "categories": [
+        "Jess Sullivan Photography"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/05/new-photopromotional-media-business-pages-in-the-works/"
+    },
+    {
+      "title": "Langdon Woods with Kurt: Plants! - Trans Scend Survival",
+      "date": "2017-05-02T19:09:58+00:00",
+      "slug": "langdon-woods-with-kurt-plants",
+      "file": "2017-05-02-langdon-woods-with-kurt-plants.md",
+      "source": "site_backup/2017/05/02/langdon-woods-with-kurt-plants/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/02/langdon-woods-with-kurt-plants/"
+    },
+    {
+      "title": "Rugby Morning #3.6 - Trans Scend Survival",
+      "date": "2017-05-18T21:26:10+00:00",
+      "slug": "rugby-morning-3-6",
+      "file": "2017-05-18-rugby-morning-3-6.md",
+      "source": "site_backup/2017/05/18/rugby-morning-3-6/index.html",
+      "categories": [
+        "Birding"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/"
+    },
+    {
+      "title": "Rugby Morning #2 - Trans Scend Survival",
+      "date": "2017-05-17T14:56:45+00:00",
+      "slug": "rugby-morning-2",
+      "file": "2017-05-17-rugby-morning-2.md",
+      "source": "site_backup/2017/05/17/rugby-morning-2/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/17/rugby-morning-2/"
+    },
+    {
+      "title": "MEGA LANGDON - Trans Scend Survival",
+      "date": "2017-05-07T22:01:59+00:00",
+      "slug": "mega-langdon",
+      "file": "2017-05-07-mega-langdon.md",
+      "source": "site_backup/2017/05/07/mega-langdon/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/07/mega-langdon/"
+    },
+    {
+      "title": "Hunting for Trees = BIRDS - Trans Scend Survival",
+      "date": "2017-05-07T19:27:49+00:00",
+      "slug": "hunting-for-trees-birds",
+      "file": "2017-05-07-hunting-for-trees-birds.md",
+      "source": "site_backup/2017/05/07/hunting-for-trees-birds/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/07/hunting-for-trees-birds/"
+    },
+    {
+      "title": "New Business Site- Up And Running! - Trans Scend Survival",
+      "date": "2017-05-08T00:29:21+00:00",
+      "slug": "new-business-site-up-and-running",
+      "file": "2017-05-08-new-business-site-up-and-running.md",
+      "source": "site_backup/2017/05/08/new-business-site-up-and-running/index.html",
+      "categories": [
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/08/new-business-site-up-and-running/"
+    },
+    {
+      "title": "Pre-dawn Fox Park Lot Walk (Birding by Ear) - Trans Scend Survival",
+      "date": "2017-05-08T09:32:50+00:00",
+      "slug": "pre-dawn-fox-park-lot-walk-birding-by-ear",
+      "file": "2017-05-08-pre-dawn-fox-park-lot-walk-birding-by-ear.md",
+      "source": "site_backup/2017/05/08/pre-dawn-fox-park-lot-walk-birding-by-ear/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/08/pre-dawn-fox-park-lot-walk-birding-by-ear/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park: Silence? - Trans Scend Survival",
+      "date": "2017-05-12T01:16:01+00:00",
+      "slug": "wolf-pine-fox-park-silence",
+      "file": "2017-05-12-wolf-pine-fox-park-silence.md",
+      "source": "site_backup/2017/05/12/wolf-pine-fox-park-silence/index.html",
+      "categories": [
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2017/05/12/wolf-pine-fox-park-silence/"
+    },
+    {
+      "title": "Wolf Pine @ Fox Park #1 +Bonus Winter Birds - Trans Scend Survival",
+      "date": "2017-02-20T23:02:26+00:00",
+      "slug": "wolf-pine-fox-park-1-bonus-winter-birds",
+      "file": "2017-02-20-wolf-pine-fox-park-1-bonus-winter-birds.md",
+      "source": "site_backup/2017/02/20/wolf-pine-fox-park-1-bonus-winter-birds/index.html",
+      "categories": [
+        "Birding",
+        "Nature Observations",
+        "Sit Spot Observations",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2017/02/20/wolf-pine-fox-park-1-bonus-winter-birds/"
+    },
+    {
+      "title": "Birding Beyond Binos: 5 Bird apps vs. “the Guide”. - Trans Scend Survival",
+      "date": "2017-07-03T15:23:26+00:00",
+      "slug": "birding-beyond-binos-bird-apps-and-the-guide",
+      "file": "2017-07-03-birding-beyond-binos-bird-apps-and-the-guide.md",
+      "source": "site_backup/2017/07/03/birding-beyond-binos-bird-apps-and-the-guide/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas",
+        "Reviews"
+      ],
+      "url": "https://transscendsurvival.org/2017/07/03/birding-beyond-binos-bird-apps-and-the-guide/"
+    },
+    {
+      "title": "Gallery of \"Warblers in the Hand\" - Trans Scend Survival",
+      "date": "2017-07-27T15:32:09+00:00",
+      "slug": "gallery-of-warblers-in-the-hand",
+      "file": "2017-07-27-gallery-of-warblers-in-the-hand.md",
+      "source": "site_backup/2017/07/27/gallery-of-warblers-in-the-hand/index.html",
+      "categories": [
+        "Birding"
+      ],
+      "url": "https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/"
+    },
+    {
+      "title": "Gallery of my \"proper photos\"- NH warbler research - Trans Scend Survival",
+      "date": "2017-07-27T15:41:31+00:00",
+      "slug": "gallery-of-my-proper-photos-nh-warbler-research",
+      "file": "2017-07-27-gallery-of-my-proper-photos-nh-warbler-research.md",
+      "source": "site_backup/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/"
+    },
+    {
+      "title": "MPCNC: It moves! - Trans Scend Survival",
+      "date": "2017-07-25T08:11:34+00:00",
+      "slug": "mpcnc-it-moves",
+      "file": "2017-07-25-mpcnc-it-moves.md",
+      "source": "site_backup/2017/07/25/mpcnc-it-moves/index.html",
+      "categories": [
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2017/07/25/mpcnc-it-moves/"
+    },
+    {
+      "title": "The Canon Takes its Shape! - Trans Scend Survival",
+      "date": "2017-01-22T11:38:39+00:00",
+      "slug": "the-canon-takes-its-shape",
+      "file": "2017-01-22-the-canon-takes-its-shape.md",
+      "source": "site_backup/2017/01/22/the-canon-takes-its-shape/index.html",
+      "categories": [
+        "Featured",
+        "Music Sketches"
+      ],
+      "url": "https://transscendsurvival.org/2017/01/22/the-canon-takes-its-shape/"
+    },
+    {
+      "title": "Watters, Campbell, Cheney. - Trans Scend Survival",
+      "date": "2019-03-04T16:59:29+00:00",
+      "slug": "watters-campbell-cheney",
+      "file": "2019-03-04-watters-campbell-cheney.md",
+      "source": "site_backup/2019/03/04/watters-campbell-cheney/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/03/04/watters-campbell-cheney/"
+    },
+    {
+      "title": "Gregorian - Trans Scend Survival",
+      "date": "2019-03-05T12:18:42+00:00",
+      "slug": "gregorian",
+      "file": "2019-03-05-gregorian.md",
+      "source": "site_backup/2019/03/05/gregorian/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/03/05/gregorian/"
+    },
+    {
+      "title": "IDS: Web & Why - Trans Scend Survival",
+      "date": "2019-03-19T18:10:10+00:00",
+      "slug": "ids-web-why",
+      "file": "2019-03-19-ids-web-why.md",
+      "source": "site_backup/2019/03/19/ids-web-why/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/03/19/ids-web-why/"
+    },
+    {
+      "title": "Notes on a Free and Open Source Notes App:  Joplin - Trans Scend Survival",
+      "date": "2019-03-21T18:01:27+00:00",
+      "slug": "notes-on-a-free-and-open-source-notes-app-joplin",
+      "file": "2019-03-21-notes-on-a-free-and-open-source-notes-app-joplin.md",
+      "source": "site_backup/2019/03/21/notes-on-a-free-and-open-source-notes-app-joplin/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Reviews"
+      ],
+      "url": "https://transscendsurvival.org/2019/03/21/notes-on-a-free-and-open-source-notes-app-joplin/"
+    },
+    {
+      "title": "Warbler Trillers of the Charles - Trans Scend Survival",
+      "date": "2019-04-18T21:43:31+00:00",
+      "slug": "warbler-trillers-of-the-charles",
+      "file": "2019-04-18-warbler-trillers-of-the-charles.md",
+      "source": "site_backup/2019/04/18/warbler-trillers-of-the-charles/index.html",
+      "categories": [
+        "Birding",
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/18/warbler-trillers-of-the-charles/"
+    },
+    {
+      "title": "PLN Portfolio - Trans Scend Survival",
+      "date": "2019-04-28T23:41:59+00:00",
+      "slug": "pln-portfolio",
+      "file": "2019-04-28-pln-portfolio.md",
+      "source": "site_backup/2019/04/28/pln-portfolio/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/28/pln-portfolio/"
+    },
+    {
+      "title": "IDS #6 - Trans Scend Survival",
+      "date": "2019-04-17T02:55:30+00:00",
+      "slug": "ids-6",
+      "file": "2019-04-17-ids-6.md",
+      "source": "site_backup/2019/04/17/ids-6/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/17/ids-6/"
+    },
+    {
+      "title": "IDS #7 Musings - Trans Scend Survival",
+      "date": "2019-04-21T16:25:08+00:00",
+      "slug": "ids-7-musings",
+      "file": "2019-04-21-ids-7-musings.md",
+      "source": "site_backup/2019/04/21/ids-7-musings/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/21/ids-7-musings/"
+    },
+    {
+      "title": "IDS #6.3.1 - Trans Scend Survival",
+      "date": "2019-04-30T17:05:39+00:00",
+      "slug": "ids-6-3-1",
+      "file": "2019-04-30-ids-6-3-1.md",
+      "source": "site_backup/2019/04/30/ids-6-3-1/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/30/ids-6-3-1/"
+    },
+    {
+      "title": "IDS Revision #7.02 - Trans Scend Survival",
+      "date": "2019-04-30T16:51:56+00:00",
+      "slug": "ids-revision-7-02",
+      "file": "2019-04-30-ids-revision-7-02.md",
+      "source": "site_backup/2019/04/30/ids-revision-7-02/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/30/ids-revision-7-02/"
+    },
+    {
+      "title": "IDS : Take Home Exam - Trans Scend Survival",
+      "date": "2019-04-30T18:56:17+00:00",
+      "slug": "ids-take-home-exam",
+      "file": "2019-04-30-ids-take-home-exam.md",
+      "source": "site_backup/2019/04/30/ids-take-home-exam/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/30/ids-take-home-exam/"
+    },
+    {
+      "title": "IDS: Web & Why .2 - Trans Scend Survival",
+      "date": "2019-04-30T17:15:59+00:00",
+      "slug": "ids-web-why-2",
+      "file": "2019-04-30-ids-web-why-2.md",
+      "source": "site_backup/2019/04/30/ids-web-why-2/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/30/ids-web-why-2/"
+    },
+    {
+      "title": "IDS #6.1 - Trans Scend Survival",
+      "date": "2019-04-13T11:37:39+00:00",
+      "slug": "1342",
+      "file": "2019-04-13-1342.md",
+      "source": "site_backup/2019/04/13/1342/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/04/13/1342/"
+    },
+    {
+      "title": "Musings On Chapel Language and Parallel Processing - Trans Scend Survival",
+      "date": "2019-02-20T17:15:18+00:00",
+      "slug": "installing-chapel-language-on-mac-and-linux",
+      "file": "2019-02-20-installing-chapel-language-on-mac-and-linux.md",
+      "source": "site_backup/2019/02/20/installing-chapel-language-on-mac-and-linux/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2019/02/20/installing-chapel-language-on-mac-and-linux/"
+    },
+    {
+      "title": "PLN (Updated 9/12/19) - Trans Scend Survival",
+      "date": "2019-02-20T17:08:03+00:00",
+      "slug": "pln",
+      "file": "2019-02-20-pln.md",
+      "source": "site_backup/2019/02/20/pln/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/02/20/pln/"
+    },
+    {
+      "title": "Experiential Investigation in Ecological Science - Trans Scend Survival",
+      "date": "2019-02-28T23:36:25+00:00",
+      "slug": "experiential-investigation-in-ecological-science",
+      "file": "2019-02-28-experiential-investigation-in-ecological-science.md",
+      "source": "site_backup/2019/02/28/experiential-investigation-in-ecological-science/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/02/28/experiential-investigation-in-ecological-science/"
+    },
+    {
+      "title": "IDS Interview - Trans Scend Survival",
+      "date": "2019-02-07T23:25:16+00:00",
+      "slug": "1257",
+      "file": "2019-02-07-1257.md",
+      "source": "site_backup/2019/02/07/1257/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2019/02/07/1257/"
+    },
+    {
+      "title": "IDS: Précis - Trans Scend Survival",
+      "date": "2019-10-16T21:32:19+00:00",
+      "slug": "ids-precis",
+      "file": "2019-10-16-ids-precis.md",
+      "source": "site_backup/2019/10/16/ids-precis/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/10/16/ids-precis/"
+    },
+    {
+      "title": "Small Updates to GDAL Notes - Trans Scend Survival",
+      "date": "2019-10-07T15:55:26+00:00",
+      "slug": "gdal-for-gis-on-unix-using-a-mac-or-better-linux",
+      "file": "2019-10-07-gdal-for-gis-on-unix-using-a-mac-or-better-linux.md",
+      "source": "site_backup/2019/10/07/gdal-for-gis-on-unix-using-a-mac-or-better-linux/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2019/10/07/gdal-for-gis-on-unix-using-a-mac-or-better-linux/"
+    },
+    {
+      "title": "Open Source Methodology at the University - Trans Scend Survival",
+      "date": "2019-10-09T18:24:07+00:00",
+      "slug": "open-source-methodology-at-the-university",
+      "file": "2019-10-09-open-source-methodology-at-the-university.md",
+      "source": "site_backup/2019/10/09/open-source-methodology-at-the-university/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/10/09/open-source-methodology-at-the-university/"
+    },
+    {
+      "title": "QEMU for Raspian ARM! - Trans Scend Survival",
+      "date": "2019-10-30T18:23:11+00:00",
+      "slug": "qemu-for-raspian-arm",
+      "file": "2019-10-30-qemu-for-raspian-arm.md",
+      "source": "site_backup/2019/10/30/qemu-for-raspian-arm/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2019/10/30/qemu-for-raspian-arm/"
+    },
+    {
+      "title": "Summer 2019 Update! - Trans Scend Survival",
+      "date": "2019-07-05T18:52:27+00:00",
+      "slug": "summer-2019-update",
+      "file": "2019-07-05-summer-2019-update.md",
+      "source": "site_backup/2019/07/05/summer-2019-update/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To",
+        "Wheels and Fitness"
+      ],
+      "url": "https://transscendsurvival.org/2019/07/05/summer-2019-update/"
+    },
+    {
+      "title": "IDS: RA & AP - Trans Scend Survival",
+      "date": "2019-09-18T23:03:24+00:00",
+      "slug": "ids-ra-ap",
+      "file": "2019-09-18-ids-ra-ap.md",
+      "source": "site_backup/2019/09/18/ids-ra-ap/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/09/18/ids-ra-ap/"
+    },
+    {
+      "title": "IDS: Brief Musings on Life Work - Trans Scend Survival",
+      "date": "2019-09-28T14:30:34+00:00",
+      "slug": "ids-brief-musings-on-life-work",
+      "file": "2019-09-28-ids-brief-musings-on-life-work.md",
+      "source": "site_backup/2019/09/28/ids-brief-musings-on-life-work/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/09/28/ids-brief-musings-on-life-work/"
+    },
+    {
+      "title": "Decentralized Pi Video Monitoring w/ motioneye & BATMAN - Trans Scend Survival",
+      "date": "2019-09-30T03:03:28+00:00",
+      "slug": "decentralized-pi-video-monitoring-w-motioneye-batman",
+      "file": "2019-09-30-decentralized-pi-video-monitoring-w-motioneye-batman.md",
+      "source": "site_backup/2019/09/30/decentralized-pi-video-monitoring-w-motioneye-batman/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2019/09/30/decentralized-pi-video-monitoring-w-motioneye-batman/"
+    },
+    {
+      "title": "Persistent, Live Ubuntu for College - Trans Scend Survival",
+      "date": "2019-08-04T06:54:51+00:00",
+      "slug": "persistent-live-ubuntu-for-college",
+      "file": "2019-08-04-persistent-live-ubuntu-for-college.md",
+      "source": "site_backup/2019/08/04/persistent-live-ubuntu-for-college/index.html",
+      "categories": [
+        "DIY"
+      ],
+      "url": "https://transscendsurvival.org/2019/08/04/persistent-live-ubuntu-for-college/"
+    },
+    {
+      "title": "2019 Application Documents - Trans Scend Survival",
+      "date": "2019-08-28T22:53:47+00:00",
+      "slug": "2019-application-documents",
+      "file": "2019-08-28-2019-application-documents.md",
+      "source": "site_backup/2019/08/28/2019-application-documents/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/08/28/2019-application-documents/"
+    },
+    {
+      "title": "IDS Post 1 - Trans Scend Survival",
+      "date": "2019-01-28T20:35:45+00:00",
+      "slug": "response-to-dweck",
+      "file": "2019-01-28-response-to-dweck.md",
+      "source": "site_backup/2019/01/28/response-to-dweck/index.html",
+      "categories": [
+        "IDS"
+      ],
+      "url": "https://transscendsurvival.org/2019/01/28/response-to-dweck/"
+    },
+    {
+      "title": "Bits & Bobs, Mushstools & Toadrooms",
+      "date": "2021-03-18T04:02:54+00:00",
+      "slug": "bits-bobs-mushstools-toadrooms",
+      "file": "2021-03-18-bits-bobs-mushstools-toadrooms.md",
+      "source": "site_backup/2021/03/18/bits-bobs-mushstools-toadrooms/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/03/18/bits-bobs-mushstools-toadrooms/"
+    },
+    {
+      "title": "Morning Metal 4.22.21 “Sleepish”",
+      "date": "2021-04-23T02:57:35+00:00",
+      "slug": "morning-metal-4-22-21",
+      "file": "2021-04-23-morning-metal-4-22-21.md",
+      "source": "site_backup/2021/04/23/morning-metal-4-22-21/index.html",
+      "categories": [
+        "All Music",
+        "Featured",
+        "Music Sketches"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/04/23/morning-metal-4-22-21/"
+    },
+    {
+      "title": "Merlin AI Demos!",
+      "date": "2021-02-17T14:00:58+00:00",
+      "slug": "tmpui-the-merlin-sound-id-project",
+      "file": "2021-02-17-tmpui-the-merlin-sound-id-project.md",
+      "source": "site_backup/2021/02/17/tmpui-the-merlin-sound-id-project/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/02/17/tmpui-the-merlin-sound-id-project/"
+    },
+    {
+      "title": "This and that, bits and bobs…",
+      "date": "2021-11-30T02:29:30+00:00",
+      "slug": "2393",
+      "file": "2021-11-30-2393.md",
+      "source": "site_backup/2021/11/30/2393/index.html",
+      "categories": [
+        "DIY",
+        "Featured"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/11/30/2393/"
+    },
+    {
+      "title": "Datasets, Plots, Graphs, Charts",
+      "date": "2021-08-27T19:16:44+00:00",
+      "slug": "datasets-plots-graphs-charts",
+      "file": "2021-08-27-datasets-plots-graphs-charts.md",
+      "source": "site_backup/2021/08/27/datasets-plots-graphs-charts/index.html",
+      "categories": [
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/08/27/datasets-plots-graphs-charts/"
+    },
+    {
+      "title": "This and that, bits and bobs…",
+      "date": "2021-08-26T02:29:30+00:00",
+      "slug": "2393",
+      "file": "2021-08-26-2393.md",
+      "source": "site_backup/2021/08/26/2393/index.html",
+      "categories": [
+        "DIY",
+        "Featured"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/08/26/2393/"
+    },
+    {
+      "title": "naive distance measurements with opencv",
+      "date": "2021-01-02T08:27:34+00:00",
+      "slug": "naive-shenanigans-measuring-distance-to-roi-w-opencv",
+      "file": "2021-01-02-naive-shenanigans-measuring-distance-to-roi-w-opencv.md",
+      "source": "site_backup/2021/01/02/naive-shenanigans-measuring-distance-to-roi-w-opencv/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/01/02/naive-shenanigans-measuring-distance-to-roi-w-opencv/"
+    },
+    {
+      "title": "Chindōgu ASCII art",
+      "date": "2021-01-23T22:57:36+00:00",
+      "slug": "chindogu-ascii-art-i-suppose",
+      "file": "2021-01-23-chindogu-ascii-art-i-suppose.md",
+      "source": "site_backup/2021/01/23/chindogu-ascii-art-i-suppose/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/01/23/chindogu-ascii-art-i-suppose/"
+    },
+    {
+      "title": "Datasets, Plots, Graphs, Charts",
+      "date": "2021-06-22T19:16:44+00:00",
+      "slug": "datasets-plots-graphs-charts",
+      "file": "2021-06-22-datasets-plots-graphs-charts.md",
+      "source": "site_backup/2021/06/22/datasets-plots-graphs-charts/index.html",
+      "categories": [
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://www.transscendsurvival.org/2021/06/22/datasets-plots-graphs-charts/"
+    },
+    {
+      "title": "When it must be Windows.... - Trans Scend Survival",
+      "date": "2020-03-17T01:30:10+00:00",
+      "slug": "when-it-must-be-windows",
+      "file": "2020-03-17-when-it-must-be-windows.md",
+      "source": "site_backup/2020/03/17/when-it-must-be-windows/index.html",
+      "categories": [
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2020/03/17/when-it-must-be-windows/"
+    },
+    {
+      "title": "Some GDAL shell macros from R instead of rgdal - Trans Scend Survival",
+      "date": "2020-03-23T04:00:17+00:00",
+      "slug": "1607",
+      "file": "2020-03-23-1607.md",
+      "source": "site_backup/2020/03/23/1607/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/03/23/1607/"
+    },
+    {
+      "title": "D&M Shields - Fusion 360 - Trans Scend Survival",
+      "date": "2020-04-05T02:38:07+00:00",
+      "slug": "dm-shields-fusion-360",
+      "file": "2020-04-05-dm-shields-fusion-360.md",
+      "source": "site_backup/2020/04/05/dm-shields-fusion-360/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/05/dm-shields-fusion-360/"
+    },
+    {
+      "title": "ppe & whatnot - Trans Scend Survival",
+      "date": "2020-04-02T15:05:21+00:00",
+      "slug": "ppe-me",
+      "file": "2020-04-02-ppe-me.md",
+      "source": "site_backup/2020/04/02/ppe-me/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/02/ppe-me/"
+    },
+    {
+      "title": "oes - Trans Scend Survival",
+      "date": "2020-04-27T23:59:04+00:00",
+      "slug": "oes",
+      "file": "2020-04-27-oes.md",
+      "source": "site_backup/2020/04/27/oes/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/27/oes/"
+    },
+    {
+      "title": "Convert .heic -> .png - Trans Scend Survival",
+      "date": "2020-04-09T19:34:43+00:00",
+      "slug": "convert-heic-png",
+      "file": "2020-04-09-convert-heic-png.md",
+      "source": "site_backup/2020/04/09/convert-heic-png/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/09/convert-heic-png/"
+    },
+    {
+      "title": "xOES: Fomitopsis betulina & Huperzia lucidula - Trans Scend Survival",
+      "date": "2020-04-12T16:21:45+00:00",
+      "slug": "xoes-fomitopsis-betulina-huperzia-lucidula",
+      "file": "2020-04-12-xoes-fomitopsis-betulina-huperzia-lucidula.md",
+      "source": "site_backup/2020/04/12/xoes-fomitopsis-betulina-huperzia-lucidula/index.html",
+      "categories": [
+        "Nature Observations",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/12/xoes-fomitopsis-betulina-huperzia-lucidula/"
+    },
+    {
+      "title": "xOES: Plot Review - Trans Scend Survival",
+      "date": "2020-04-12T16:28:10+00:00",
+      "slug": "xoes-plot-review",
+      "file": "2020-04-12-xoes-plot-review.md",
+      "source": "site_backup/2020/04/12/xoes-plot-review/index.html",
+      "categories": [
+        "Nature Observations",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/12/xoes-plot-review/"
+    },
+    {
+      "title": "Install Adobe Applications on AWS WorkSpaces - Trans Scend Survival",
+      "date": "2020-04-25T17:28:39+00:00",
+      "slug": "install-adobe-applications-on-aws-workspaces",
+      "file": "2020-04-25-install-adobe-applications-on-aws-workspaces.md",
+      "source": "site_backup/2020/04/25/install-adobe-applications-on-aws-workspaces/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/04/25/install-adobe-applications-on-aws-workspaces/"
+    },
+    {
+      "title": "While at a safe distance... - Trans Scend Survival",
+      "date": "2020-05-18T21:55:43+00:00",
+      "slug": "while-at-a-safe-distance",
+      "file": "2020-05-18-while-at-a-safe-distance.md",
+      "source": "site_backup/2020/05/18/while-at-a-safe-distance/index.html",
+      "categories": [
+        "All Music",
+        "DIY",
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2020/05/18/while-at-a-safe-distance/"
+    },
+    {
+      "title": "Merlin AI Demos! - Trans Scend Survival",
+      "date": "2020-11-23T05:07:58+00:00",
+      "slug": "tmpui-the-merlin-sound-id-project",
+      "file": "2020-11-23-tmpui-the-merlin-sound-id-project.md",
+      "source": "site_backup/2020/11/23/tmpui-the-merlin-sound-id-project/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/11/23/tmpui-the-merlin-sound-id-project/"
+    },
+    {
+      "title": "Client-side, asynchronous HTTP methods- TypeScript - Trans Scend Survival",
+      "date": "2020-10-28T01:49:19+00:00",
+      "slug": "asynchronous-http-methods-from-typescript",
+      "file": "2020-10-28-asynchronous-http-methods-from-typescript.md",
+      "source": "site_backup/2020/10/28/asynchronous-http-methods-from-typescript/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/10/28/asynchronous-http-methods-from-typescript/"
+    },
+    {
+      "title": "...In other news... - Trans Scend Survival",
+      "date": "2020-10-28T05:46:11+00:00",
+      "slug": "evening-metal-9-14-20",
+      "file": "2020-10-28-evening-metal-9-14-20.md",
+      "source": "site_backup/2020/10/28/evening-metal-9-14-20/index.html",
+      "categories": [
+        "All Music",
+        "Featured",
+        "Music Sketches"
+      ],
+      "url": "https://transscendsurvival.org/2020/10/28/evening-metal-9-14-20/"
+    },
+    {
+      "title": "clipi CLI! - Trans Scend Survival",
+      "date": "2020-07-11T14:00:35+00:00",
+      "slug": "1784",
+      "file": "2020-07-11-1784.md",
+      "source": "site_backup/2020/07/11/1784/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/07/11/1784/"
+    },
+    {
+      "title": "...Ever tried to Chrome Remote ➡️ Ubuntu Budgie? xD - Trans Scend Survival",
+      "date": "2020-07-23T21:44:30+00:00",
+      "slug": "ever-tried-to-chrome-remote-ubuntu-xd",
+      "file": "2020-07-23-ever-tried-to-chrome-remote-ubuntu-xd.md",
+      "source": "site_backup/2020/07/23/ever-tried-to-chrome-remote-ubuntu-xd/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/07/23/ever-tried-to-chrome-remote-ubuntu-xd/"
+    },
+    {
+      "title": "This, That, etc - Trans Scend Survival",
+      "date": "2020-07-15T20:39:45+00:00",
+      "slug": "this-that-7-15",
+      "file": "2020-07-15-this-that-7-15.md",
+      "source": "site_backup/2020/07/15/this-that-7-15/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/07/15/this-that-7-15/"
+    },
+    {
+      "title": "KVM does Fruit: Xcode from QEMU - Trans Scend Survival",
+      "date": "2020-09-05T01:34:55+00:00",
+      "slug": "kvm-does-fruit-xcode-from-qemu",
+      "file": "2020-09-05-kvm-does-fruit-xcode-from-qemu.md",
+      "source": "site_backup/2020/09/05/kvm-does-fruit-xcode-from-qemu/index.html",
+      "categories": [
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2020/09/05/kvm-does-fruit-xcode-from-qemu/"
+    },
+    {
+      "title": "tmpUI & the Merlin Sound ID Project - Trans Scend Survival",
+      "date": "2020-09-01T02:35:58+00:00",
+      "slug": "tmpui-the-merlin-sound-id-project",
+      "file": "2020-09-01-tmpui-the-merlin-sound-id-project.md",
+      "source": "site_backup/2020/09/01/tmpui-the-merlin-sound-id-project/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/09/01/tmpui-the-merlin-sound-id-project/"
+    },
+    {
+      "title": "Obliterate non-removable MDM profiles enforced by Apple's Device Enrollment Program - Trans Scend Survival",
+      "date": "2020-09-06T20:30:27+00:00",
+      "slug": "1984",
+      "file": "2020-09-06-1984.md",
+      "source": "site_backup/2020/09/06/1984/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/09/06/1984/"
+    },
+    {
+      "title": "Evening Metal 9.14.20 - Trans Scend Survival",
+      "date": "2020-09-15T03:31:11+00:00",
+      "slug": "evening-metal-9-14-20",
+      "file": "2020-09-15-evening-metal-9-14-20.md",
+      "source": "site_backup/2020/09/15/evening-metal-9-14-20/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/09/15/evening-metal-9-14-20/"
+    },
+    {
+      "title": "Purple Prius Parts - Trans Scend Survival",
+      "date": "2020-08-23T01:30:43+00:00",
+      "slug": "purple-prius-parts",
+      "file": "2020-08-23-purple-prius-parts.md",
+      "source": "site_backup/2020/08/23/purple-prius-parts/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/08/23/purple-prius-parts/"
+    },
+    {
+      "title": "Prius, Printers - Trans Scend Survival",
+      "date": "2020-06-04T23:33:55+00:00",
+      "slug": "prius-printers",
+      "file": "2020-06-04-prius-printers.md",
+      "source": "site_backup/2020/06/04/prius-printers/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/06/04/prius-printers/"
+    },
+    {
+      "title": "OSS+ELC -> Monday - Trans Scend Survival",
+      "date": "2020-06-29T00:44:04+00:00",
+      "slug": "osselc-monday",
+      "file": "2020-06-29-osselc-monday.md",
+      "source": "site_backup/2020/06/29/osselc-monday/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/06/29/osselc-monday/"
+    },
+    {
+      "title": "Dover's Enclosure - Trans Scend Survival",
+      "date": "2020-06-24T15:18:58+00:00",
+      "slug": "1768",
+      "file": "2020-06-24-1768.md",
+      "source": "site_backup/2020/06/24/1768/index.html",
+      "categories": [
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/06/24/1768/"
+    },
+    {
+      "title": "Parse fdisk -l in Python - Trans Scend Survival",
+      "date": "2020-06-24T19:10:20+00:00",
+      "slug": "1820",
+      "file": "2020-06-24-1820.md",
+      "source": "site_backup/2020/06/24/1820/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2020/06/24/1820/"
+    },
+    {
+      "title": "The eBird API & regionCode - Trans Scend Survival",
+      "date": "2020-06-14T02:05:49+00:00",
+      "slug": "the-ebird-api-regioncode",
+      "file": "2020-06-14-the-ebird-api-regioncode.md",
+      "source": "site_backup/2020/06/14/the-ebird-api-regioncode/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2020/06/14/the-ebird-api-regioncode/"
+    },
+    {
+      "title": "some boilerplate code, ?, etc",
+      "date": "2020-12-23T05:18:32+00:00",
+      "slug": "a-boilerplate-for-flask-react-typescript-mongodb",
+      "file": "2020-12-23-a-boilerplate-for-flask-react-typescript-mongodb.md",
+      "source": "site_backup/2020/12/23/a-boilerplate-for-flask-react-typescript-mongodb/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://www.transscendsurvival.org/2020/12/23/a-boilerplate-for-flask-react-typescript-mongodb/"
+    },
+    {
+      "title": "EBPP: My Epic Birding Prediction Project in R - Trans Scend Survival",
+      "date": "2018-03-19T01:21:00+00:00",
+      "slug": "ebpp-my-epic-birding-prediction-project-in-r",
+      "file": "2018-03-19-ebpp-my-epic-birding-prediction-project-in-r.md",
+      "source": "site_backup/2018/03/19/ebpp-my-epic-birding-prediction-project-in-r/index.html",
+      "categories": [
+        "Birding",
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2018/03/19/ebpp-my-epic-birding-prediction-project-in-r/"
+    },
+    {
+      "title": "How to make a AWS R server - Trans Scend Survival",
+      "date": "2018-03-08T12:13:45+00:00",
+      "slug": "how-to-make-a-aws-r-server",
+      "file": "2018-03-08-how-to-make-a-aws-r-server.md",
+      "source": "site_backup/2018/03/08/how-to-make-a-aws-r-server/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2018/03/08/how-to-make-a-aws-r-server/"
+    },
+    {
+      "title": "Pages, fresh from the book - Trans Scend Survival",
+      "date": "2018-03-13T19:59:30+00:00",
+      "slug": "pages-fresh-from-the-book",
+      "file": "2018-03-13-pages-fresh-from-the-book.md",
+      "source": "site_backup/2018/03/13/pages-fresh-from-the-book/index.html",
+      "categories": [
+        "Featured",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2018/03/13/pages-fresh-from-the-book/"
+    },
+    {
+      "title": "Using ESRI ArcGIS / ArcMap on Mac OSX: 2 methods - Trans Scend Survival",
+      "date": "2018-04-03T14:48:37+00:00",
+      "slug": "using-esri-arcgis-arcmap-on-mac-osx-2-methods",
+      "file": "2018-04-03-using-esri-arcgis-arcmap-on-mac-osx-2-methods.md",
+      "source": "site_backup/2018/04/03/using-esri-arcgis-arcmap-on-mac-osx-2-methods/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/04/03/using-esri-arcgis-arcmap-on-mac-osx-2-methods/"
+    },
+    {
+      "title": "Using ESRI ArcGIS / ArcMap in the AWS Cloud - Trans Scend Survival",
+      "date": "2018-04-05T19:17:34+00:00",
+      "slug": "using-esri-arcgis-arcmap-in-the-aws-cloud",
+      "file": "2018-04-05-using-esri-arcgis-arcmap-in-the-aws-cloud.md",
+      "source": "site_backup/2018/04/05/using-esri-arcgis-arcmap-in-the-aws-cloud/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/04/05/using-esri-arcgis-arcmap-in-the-aws-cloud/"
+    },
+    {
+      "title": "Signs of Thoughts of Possible Spring? - Trans Scend Survival",
+      "date": "2018-04-18T12:47:07+00:00",
+      "slug": "signs-of-thoughts-of-possible-spring",
+      "file": "2018-04-18-signs-of-thoughts-of-possible-spring.md",
+      "source": "site_backup/2018/04/18/signs-of-thoughts-of-possible-spring/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Jess Sullivan Photography"
+      ],
+      "url": "https://transscendsurvival.org/2018/04/18/signs-of-thoughts-of-possible-spring/"
+    },
+    {
+      "title": "Intro to the AWS Cloud 9 IDE - Trans Scend Survival",
+      "date": "2018-04-10T17:48:46+00:00",
+      "slug": "intro-to-the-aws-cloud-9-ide",
+      "file": "2018-04-10-intro-to-the-aws-cloud-9-ide.md",
+      "source": "site_backup/2018/04/10/intro-to-the-aws-cloud-9-ide/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To",
+        "Reviews"
+      ],
+      "url": "https://transscendsurvival.org/2018/04/10/intro-to-the-aws-cloud-9-ide/"
+    },
+    {
+      "title": "Gathering point data using Compass 55 on Apple iOS - Trans Scend Survival",
+      "date": "2018-05-28T18:01:20+00:00",
+      "slug": "gathering-point-data-using-compass-55-on-apple-ios",
+      "file": "2018-05-28-gathering-point-data-using-compass-55-on-apple-ios.md",
+      "source": "site_backup/2018/05/28/gathering-point-data-using-compass-55-on-apple-ios/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2018/05/28/gathering-point-data-using-compass-55-on-apple-ios/"
+    },
+    {
+      "title": "Solar upgrades! - Trans Scend Survival",
+      "date": "2018-05-31T22:11:48+00:00",
+      "slug": "solar-upgrades",
+      "file": "2018-05-31-solar-upgrades.md",
+      "source": "site_backup/2018/05/31/solar-upgrades/index.html",
+      "categories": [
+        "Birding",
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/05/31/solar-upgrades/"
+    },
+    {
+      "title": "Research Year Two: Three Photos - Trans Scend Survival",
+      "date": "2018-05-31T07:15:51+00:00",
+      "slug": "research-year-two-three-photos",
+      "file": "2018-05-31-research-year-two-three-photos.md",
+      "source": "site_backup/2018/05/31/research-year-two-three-photos/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Jess Sullivan Photography",
+        "Nature Observations",
+        "Sit Spot Observations"
+      ],
+      "url": "https://transscendsurvival.org/2018/05/31/research-year-two-three-photos/"
+    },
+    {
+      "title": "840 Watts of Solar Power! - Trans Scend Survival",
+      "date": "2018-05-24T12:16:37+00:00",
+      "slug": "840-watts-of-solar-power",
+      "file": "2018-05-24-840-watts-of-solar-power.md",
+      "source": "site_backup/2018/05/24/840-watts-of-solar-power/index.html",
+      "categories": [
+        "Birding",
+        "DIY",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2018/05/24/840-watts-of-solar-power/"
+    },
+    {
+      "title": "Birding at Plumb Island! - Trans Scend Survival",
+      "date": "2018-05-23T22:34:05+00:00",
+      "slug": "birding-at-plumb-island",
+      "file": "2018-05-23-birding-at-plumb-island.md",
+      "source": "site_backup/2018/05/23/birding-at-plumb-island/index.html",
+      "categories": [
+        "Birding",
+        "Featured"
+      ],
+      "url": "https://transscendsurvival.org/2018/05/23/birding-at-plumb-island/"
+    },
+    {
+      "title": "Recycled Personal \"Cloud Computing\" under NAT - Trans Scend Survival",
+      "date": "2018-11-05T15:47:40+00:00",
+      "slug": "recycled-personal-cloud-computing-under-nat",
+      "file": "2018-11-05-recycled-personal-cloud-computing-under-nat.md",
+      "source": "site_backup/2018/11/05/recycled-personal-cloud-computing-under-nat/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Reviews"
+      ],
+      "url": "https://transscendsurvival.org/2018/11/05/recycled-personal-cloud-computing-under-nat/"
+    },
+    {
+      "title": "Deploy Shiny R apps along Node.JS - Trans Scend Survival",
+      "date": "2018-11-25T21:14:47+00:00",
+      "slug": "deploy-shiny-r-apps-along-node-js",
+      "file": "2018-11-25-deploy-shiny-r-apps-along-node-js.md",
+      "source": "site_backup/2018/11/25/deploy-shiny-r-apps-along-node-js/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/11/25/deploy-shiny-r-apps-along-node-js/"
+    },
+    {
+      "title": "New App:  KML Search and Convert - Trans Scend Survival",
+      "date": "2018-07-27T02:10:52+00:00",
+      "slug": "new-app-kml-search-and-convert",
+      "file": "2018-07-27-new-app-kml-search-and-convert.md",
+      "source": "site_backup/2018/07/27/new-app-kml-search-and-convert/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2018/07/27/new-app-kml-search-and-convert/"
+    },
+    {
+      "title": "INFO: Deploy a Shiny web app in R using AWS (EC2 Red Hat) - Trans Scend Survival",
+      "date": "2018-07-16T02:23:41+00:00",
+      "slug": "deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat",
+      "file": "2018-07-16-deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat.md",
+      "source": "site_backup/2018/07/16/deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2018/07/16/deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat/"
+    },
+    {
+      "title": "Shiny App-specific Repo - Trans Scend Survival",
+      "date": "2018-07-28T21:07:56+00:00",
+      "slug": "shiny-app-specific-repo-live",
+      "file": "2018-07-28-shiny-app-specific-repo-live.md",
+      "source": "site_backup/2018/07/28/shiny-app-specific-repo-live/index.html",
+      "categories": [
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/07/28/shiny-app-specific-repo-live/"
+    },
+    {
+      "title": "GDAL for R Server on Ubuntu - KML Spatial Libraries and More - Trans Scend Survival",
+      "date": "2018-07-23T02:18:41+00:00",
+      "slug": "gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more",
+      "file": "2018-07-23-gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more.md",
+      "source": "site_backup/2018/07/23/gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more/index.html",
+      "categories": [
+        "DIY",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2018/07/23/gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more/"
+    },
+    {
+      "title": "Github UPDATE 9.12.18:  Shiny Apps - Trans Scend Survival",
+      "date": "2018-09-12T08:42:41+00:00",
+      "slug": "github-update-9-12-18-shiny-apps",
+      "file": "2018-09-12-github-update-9-12-18-shiny-apps.md",
+      "source": "site_backup/2018/09/12/github-update-9-12-18-shiny-apps/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/09/12/github-update-9-12-18-shiny-apps/"
+    },
+    {
+      "title": "Quick fix: 254 character limit in ESRI Story Map? - Trans Scend Survival",
+      "date": "2018-09-12T08:59:16+00:00",
+      "slug": "quick-fix-254-character-limit-in-esri-story-map",
+      "file": "2018-09-12-quick-fix-254-character-limit-in-esri-story-map.md",
+      "source": "site_backup/2018/09/12/quick-fix-254-character-limit-in-esri-story-map/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/09/12/quick-fix-254-character-limit-in-esri-story-map/"
+    },
+    {
+      "title": "How to Query KML point data as CSV using QGIS and R - Trans Scend Survival",
+      "date": "2018-06-10T22:06:34+00:00",
+      "slug": "how-to-query-kml-point-data-as-csv-using-qgis-and-r",
+      "file": "2018-06-10-how-to-query-kml-point-data-as-csv-using-qgis-and-r.md",
+      "source": "site_backup/2018/06/10/how-to-query-kml-point-data-as-csv-using-qgis-and-r/index.html",
+      "categories": [
+        "Birding",
+        "DIY",
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2018/06/10/how-to-query-kml-point-data-as-csv-using-qgis-and-r/"
+    },
+    {
+      "title": "How To Generate convex hull polygons and centroids from KML - Trans Scend Survival",
+      "date": "2018-06-24T10:42:45+00:00",
+      "slug": "how-to-generate-convex-hull-polygons-and-centroids-from-kml",
+      "file": "2018-06-24-how-to-generate-convex-hull-polygons-and-centroids-from-kml.md",
+      "source": "site_backup/2018/06/24/how-to-generate-convex-hull-polygons-and-centroids-from-kml/index.html",
+      "categories": [
+        "Birding",
+        "Featured",
+        "Good Ideas",
+        "Uncategorized"
+      ],
+      "url": "https://transscendsurvival.org/2018/06/24/how-to-generate-convex-hull-polygons-and-centroids-from-kml/"
+    },
+    {
+      "title": "Off-Grid File Sharing with SAMBA / GL.iNet - Trans Scend Survival",
+      "date": "2018-06-25T16:38:47+00:00",
+      "slug": "off-grid-file-sharing-with-samba-gl-inet",
+      "file": "2018-06-25-off-grid-file-sharing-with-samba-gl-inet.md",
+      "source": "site_backup/2018/06/25/off-grid-file-sharing-with-samba-gl-inet/index.html",
+      "categories": [
+        "DIY",
+        "Good Ideas"
+      ],
+      "url": "https://transscendsurvival.org/2018/06/25/off-grid-file-sharing-with-samba-gl-inet/"
+    },
+    {
+      "title": "Music Sketches 2: Rethinking \"Canon in D\" \"guitar\" Discipline & Tone pt. 1 - Trans Scend Survival",
+      "date": "2016-12-16T14:58:16+00:00",
+      "slug": "music-sketches-2-rethinking-funtwos-guitar-tone-discipline",
+      "file": "2016-12-16-music-sketches-2-rethinking-funtwos-guitar-tone-discipline.md",
+      "source": "site_backup/2016/12/16/music-sketches-2-rethinking-funtwos-guitar-tone-discipline/index.html",
+      "categories": [
+        "Music Sketches"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/16/music-sketches-2-rethinking-funtwos-guitar-tone-discipline/"
+    },
+    {
+      "title": "Develop A Limitless & Habitual \"SoIThen_SoICould_\" Ethos - Trans Scend Survival",
+      "date": "2016-12-21T18:52:54+00:00",
+      "slug": "develop-limitless-habitual-soithen_soicould_-ethos",
+      "file": "2016-12-21-develop-limitless-habitual-soithen_soicould_-ethos.md",
+      "source": "site_backup/2016/12/21/develop-limitless-habitual-soithen_soicould_-ethos/index.html",
+      "categories": [
+        "Featured",
+        "Good Ideas",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/21/develop-limitless-habitual-soithen_soicould_-ethos/"
+    },
+    {
+      "title": "Building Electrostatic \"Earspeakers\" - Trans Scend Survival",
+      "date": "2016-12-15T01:19:50+00:00",
+      "slug": "building-electrostatic-earspeakers",
+      "file": "2016-12-15-building-electrostatic-earspeakers.md",
+      "source": "site_backup/2016/12/15/building-electrostatic-earspeakers/index.html",
+      "categories": [
+        "Electrostatic",
+        "Headphones",
+        "Waxwing audio"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/15/building-electrostatic-earspeakers/"
+    },
+    {
+      "title": "DIY Electrostatic Amp Options - Trans Scend Survival",
+      "date": "2016-12-15T01:15:19+00:00",
+      "slug": "diy-electrostatic-amp-options",
+      "file": "2016-12-15-diy-electrostatic-amp-options.md",
+      "source": "site_backup/2016/12/15/diy-electrostatic-amp-options/index.html",
+      "categories": [
+        "Electrostatic",
+        "Headphones",
+        "Waxwing audio"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/15/diy-electrostatic-amp-options/"
+    },
+    {
+      "title": "Music Sketches 1: Playing with rhythm, division, and jazzy chords - Trans Scend Survival",
+      "date": "2016-12-15T20:29:41+00:00",
+      "slug": "music-sketches-1-playing-with-rhythm-division-and-jazzy-chords",
+      "file": "2016-12-15-music-sketches-1-playing-with-rhythm-division-and-jazzy-chords.md",
+      "source": "site_backup/2016/12/15/music-sketches-1-playing-with-rhythm-division-and-jazzy-chords/index.html",
+      "categories": [
+        "Music Sketches"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/15/music-sketches-1-playing-with-rhythm-division-and-jazzy-chords/"
+    },
+    {
+      "title": "(beta) - How to build \"The Phone Charger\" - Trans Scend Survival",
+      "date": "2016-12-15T01:07:33+00:00",
+      "slug": "beta-how-to-build-the-phone-charger",
+      "file": "2016-12-15-beta-how-to-build-the-phone-charger.md",
+      "source": "site_backup/2016/12/15/beta-how-to-build-the-phone-charger/index.html",
+      "categories": [
+        "DIY",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/15/beta-how-to-build-the-phone-charger/"
+    },
+    {
+      "title": "Waxwing Audio: - Trans Scend Survival",
+      "date": "2016-12-13T20:07:46+00:00",
+      "slug": "waxwing-audio",
+      "file": "2016-12-13-waxwing-audio.md",
+      "source": "site_backup/2016/12/13/waxwing-audio/index.html",
+      "categories": [
+        "Headphones",
+        "Waxwing audio"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/13/waxwing-audio/"
+    },
+    {
+      "title": "The Audeasy Build - Trans Scend Survival",
+      "date": "2016-12-13T21:17:58+00:00",
+      "slug": "the-audeasy-build",
+      "file": "2016-12-13-the-audeasy-build.md",
+      "source": "site_backup/2016/12/13/the-audeasy-build/index.html",
+      "categories": [
+        "Headphones",
+        "Planar",
+        "Waxwing audio"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/13/the-audeasy-build/"
+    },
+    {
+      "title": "Example Photo Work - Trans Scend Survival",
+      "date": "2016-12-13T20:44:06+00:00",
+      "slug": "example-photo-work",
+      "file": "2016-12-13-example-photo-work.md",
+      "source": "site_backup/2016/12/13/example-photo-work/index.html",
+      "categories": [
+        "Featured",
+        "Jess Sullivan Photography"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/13/example-photo-work/"
+    },
+    {
+      "title": "Required Custom Tools? - Trans Scend Survival",
+      "date": "2016-12-13T21:04:19+00:00",
+      "slug": "required-custom-tools",
+      "file": "2016-12-13-required-custom-tools.md",
+      "source": "site_backup/2016/12/13/required-custom-tools/index.html",
+      "categories": [
+        "Headphones",
+        "Waxwing audio"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/13/required-custom-tools/"
+    },
+    {
+      "title": "Opportunistic birding: 14/12/2016 - Trans Scend Survival",
+      "date": "2016-12-14T20:53:52+00:00",
+      "slug": "opportunistic-birding-14122016",
+      "file": "2016-12-14-opportunistic-birding-14122016.md",
+      "source": "site_backup/2016/12/14/opportunistic-birding-14122016/index.html",
+      "categories": [
+        "Birding",
+        "Lifestyle/How-To"
+      ],
+      "url": "https://transscendsurvival.org/2016/12/14/opportunistic-birding-14122016/"
+    }
+  ],
+  "pages": [],
+  "media": [
+    {
+      "filename": "rss.png",
+      "path": "wp-includes/images/rss.png",
+      "size": 608,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "loader.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/loader.svg",
+      "size": 553,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "visa.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/visa.svg",
+      "size": 3014,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "laser.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/laser.svg",
+      "size": 4901,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "maestro.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/maestro.svg",
+      "size": 16174,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "diners.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/diners.svg",
+      "size": 2031,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "discover.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/discover.svg",
+      "size": 4937,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "mastercard.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/mastercard.svg",
+      "size": 12391,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "amex.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/amex.svg",
+      "size": 10424,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "jcb.svg",
+      "path": "wp-content/plugins/woocommerce/assets/images/icons/credit-cards/jcb.svg",
+      "size": 5879,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "WooCommerce.svg",
+      "path": "wp-content/plugins/woocommerce/assets/fonts/WooCommerce.svg",
+      "size": 50742,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "star.svg",
+      "path": "wp-content/plugins/woocommerce/assets/fonts/star.svg",
+      "size": 1391,
+      "type": "svg",
+      "upload_date": null
+    },
+    {
+      "filename": "carousel-sprite.png",
+      "path": "wp-content/plugins/jetpack/modules/carousel/images/carousel-sprite.png",
+      "size": 1318,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "carousel-sprite-2x.png",
+      "path": "wp-content/plugins/jetpack/modules/carousel/images/carousel-sprite-2x.png",
+      "size": 2076,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "arrows.png",
+      "path": "wp-content/plugins/jetpack/modules/carousel/images/arrows.png",
+      "size": 4529,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "arrows-2x.png",
+      "path": "wp-content/plugins/jetpack/modules/carousel/images/arrows-2x.png",
+      "size": 10063,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "collapse.png",
+      "path": "wp-content/plugins/jetpack/modules/shortcodes/images/collapse.png",
+      "size": 2072,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "expand.png",
+      "path": "wp-content/plugins/jetpack/modules/shortcodes/images/expand.png",
+      "size": 2039,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "slide-nav.png",
+      "path": "wp-content/plugins/jetpack/modules/shortcodes/images/slide-nav.png",
+      "size": 5704,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "slideshow-controls.png",
+      "path": "wp-content/plugins/jetpack/modules/shortcodes/img/slideshow-controls.png",
+      "size": 1009,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "slideshow-controls-2x.png",
+      "path": "wp-content/plugins/jetpack/modules/shortcodes/img/slideshow-controls-2x.png",
+      "size": 1944,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "side_bar_badge.png",
+      "path": "wp-content/plugins/jetpack/modules/widgets/internet-defense-league/side_bar_badge.png",
+      "size": 7337,
+      "type": "png",
+      "upload_date": null
+    },
+    {
+      "filename": "JessSullivanResumeG.pdf",
+      "path": "wp-content/uploads/2022/09/JessSullivanResumeG.pdf",
+      "size": 103098,
+      "type": "pdf",
+      "upload_date": "2022-09"
+    },
+    {
+      "filename": "JessCV.pdf",
+      "path": "wp-content/uploads/2024/05/JessCV.pdf",
+      "size": 626377,
+      "type": "pdf",
+      "upload_date": "2024-05"
+    },
+    {
+      "filename": "JessSullivanResume_10_23_23.pdf",
+      "path": "wp-content/uploads/2023/10/JessSullivanResume_10_23_23.pdf",
+      "size": 105630,
+      "type": "pdf",
+      "upload_date": "2023-10"
+    },
+    {
+      "filename": "Trunnion_table_Fusion_360.gif",
+      "path": "wp-content/uploads/2017/04/Trunnion_table_Fusion_360.gif",
+      "size": 333493,
+      "type": "gif",
+      "upload_date": "2017-04"
+    },
+    {
+      "filename": "Trunnion_table_Fusion_360-2.gif",
+      "path": "wp-content/uploads/2017/04/Trunnion_table_Fusion_360-2.gif",
+      "size": 333493,
+      "type": "gif",
+      "upload_date": "2017-04"
+    },
+    {
+      "filename": "Trunnion_table_Fusion_360-1.gif",
+      "path": "wp-content/uploads/2017/04/Trunnion_table_Fusion_360-1.gif",
+      "size": 333493,
+      "type": "gif",
+      "upload_date": "2017-04"
+    },
+    {
+      "filename": "DSC07256.jpg",
+      "path": "wp-content/uploads/2017/05/DSC07256.jpg",
+      "size": 568663,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "dsc08956.jpg",
+      "path": "wp-content/uploads/2017/05/dsc08956.jpg",
+      "size": 538495,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "DSC09022.jpg",
+      "path": "wp-content/uploads/2017/05/DSC09022.jpg",
+      "size": 442202,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "DSC04068.jpg",
+      "path": "wp-content/uploads/2017/05/DSC04068.jpg",
+      "size": 483573,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "DSC08812.jpg",
+      "path": "wp-content/uploads/2017/05/DSC08812.jpg",
+      "size": 537090,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "DSC02137.jpg",
+      "path": "wp-content/uploads/2017/05/DSC02137.jpg",
+      "size": 340916,
+      "type": "jpg",
+      "upload_date": "2017-05"
+    },
+    {
+      "filename": "IMG_2075-Edit-Edit.jpg",
+      "path": "wp-content/uploads/2017/07/IMG_2075-Edit-Edit.jpg",
+      "size": 284783,
+      "type": "jpg",
+      "upload_date": "2017-07"
+    },
+    {
+      "filename": "IMG_2366.jpg",
+      "path": "wp-content/uploads/2017/07/IMG_2366.jpg",
+      "size": 564188,
+      "type": "jpg",
+      "upload_date": "2017-07"
+    },
+    {
+      "filename": "IMG_2227-Edit.jpg",
+      "path": "wp-content/uploads/2017/07/IMG_2227-Edit.jpg",
+      "size": 542712,
+      "type": "jpg",
+      "upload_date": "2017-07"
+    },
+    {
+      "filename": "IMG_0895-Edit.jpg",
+      "path": "wp-content/uploads/2017/07/IMG_0895-Edit.jpg",
+      "size": 374567,
+      "type": "jpg",
+      "upload_date": "2017-07"
+    },
+    {
+      "filename": "IMG_3553-Edit-Edit2.jpg",
+      "path": "wp-content/uploads/2017/07/IMG_3553-Edit-Edit2.jpg",
+      "size": 423423,
+      "type": "jpg",
+      "upload_date": "2017-07"
+    },
+    {
+      "filename": "Network-Driven-Open-Source-Collaboration-and-Higher-Education_-Academic-Parallels.pdf",
+      "path": "wp-content/uploads/2019/11/Network-Driven-Open-Source-Collaboration-and-Higher-Education_-Academic-Parallels.pdf",
+      "size": 98904,
+      "type": "pdf",
+      "upload_date": "2019-11"
+    },
+    {
+      "filename": "JessSullivanCV-1.pdf",
+      "path": "wp-content/uploads/2021/08/JessSullivanCV-1.pdf",
+      "size": 84412,
+      "type": "pdf",
+      "upload_date": "2021-08"
+    },
+    {
+      "filename": "JessS_OESReview9.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview9.png",
+      "size": 120956,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview8.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview8.png",
+      "size": 426334,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview12.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview12.png",
+      "size": 110541,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview11.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview11.png",
+      "size": 616476,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview10.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview10.png",
+      "size": 190965,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-08.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-08.png",
+      "size": 581433,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-09.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-09.png",
+      "size": 629232,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessForage2x.pdf",
+      "path": "wp-content/uploads/2020/04/JessForage2x.pdf",
+      "size": 1048576,
+      "type": "pdf",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-18.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-18.png",
+      "size": 171061,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-16.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-16.png",
+      "size": 1048576,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessForage2.png",
+      "path": "wp-content/uploads/2020/04/JessForage2.png",
+      "size": 992277,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-03.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-03.png",
+      "size": 777761,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-17.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-17.png",
+      "size": 1048576,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview-1.jpg",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview-1.jpg",
+      "size": 87027,
+      "type": "jpg",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-01.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-01.png",
+      "size": 1048576,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-15.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-15.png",
+      "size": 386983,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview-1.pdf",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview-1.pdf",
+      "size": 790870,
+      "type": "pdf",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-14.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-14.png",
+      "size": 467259,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-04.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-04.png",
+      "size": 500319,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-10.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-10.png",
+      "size": 911696,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-11.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-11.png",
+      "size": 139568,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-05.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-05.png",
+      "size": 610210,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-13.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-13.png",
+      "size": 458164,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-07.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-07.png",
+      "size": 648596,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-06.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-06.png",
+      "size": 582256,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-12.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-12.png",
+      "size": 106923,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview3.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview3.png",
+      "size": 517520,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview2.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview2.png",
+      "size": 364389,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview1.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview1.png",
+      "size": 514876,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview5.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview5.png",
+      "size": 742817,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview.jpg",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview.jpg",
+      "size": 87027,
+      "type": "jpg",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview4.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview4.png",
+      "size": 461967,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JESSSOES-01-2.png",
+      "path": "wp-content/uploads/2020/04/JESSSOES-01-2.png",
+      "size": 1048576,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview6.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview6.png",
+      "size": 450970,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "pJessS_OESReview.png",
+      "path": "wp-content/uploads/2020/04/pJessS_OESReview.png",
+      "size": 613928,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "JessS_OESReview7.png",
+      "path": "wp-content/uploads/2020/04/JessS_OESReview7.png",
+      "size": 95796,
+      "type": "png",
+      "upload_date": "2020-04"
+    },
+    {
+      "filename": "jesssullivanresume.pdf",
+      "path": "wp-content/uploads/2020/11/jesssullivanresume.pdf",
+      "size": 80245,
+      "type": "pdf",
+      "upload_date": "2020-11"
+    },
+    {
+      "filename": "JessSullivanResumeGeo.pdf",
+      "path": "wp-content/uploads/2020/10/JessSullivanResumeGeo.pdf",
+      "size": 80106,
+      "type": "pdf",
+      "upload_date": "2020-10"
+    },
+    {
+      "filename": "unnamed-225x300.jpg",
+      "path": "wp-content/uploads/2020/07/unnamed-225x300.jpg",
+      "size": 15985,
+      "type": "jpg",
+      "upload_date": "2020-07"
+    },
+    {
+      "filename": "unnamed-scaled.jpg",
+      "path": "wp-content/uploads/2020/08/unnamed-scaled.jpg",
+      "size": 750433,
+      "type": "jpg",
+      "upload_date": "2020-08"
+    },
+    {
+      "filename": "unnamed-1-scaled.jpg",
+      "path": "wp-content/uploads/2020/08/unnamed-1-scaled.jpg",
+      "size": 768424,
+      "type": "jpg",
+      "upload_date": "2020-08"
+    },
+    {
+      "filename": "jess379print.pdf",
+      "path": "wp-content/uploads/2020/06/jess379print.pdf",
+      "size": 40776,
+      "type": "pdf",
+      "upload_date": "2020-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.36.59-AM-253x300.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.36.59-AM-253x300.png",
+      "size": 75955,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.43-AM-300x207.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.43-AM-300x207.png",
+      "size": 26751,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.20-AM-300x171.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.20-AM-300x171.png",
+      "size": 19255,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.36.59-AM.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.36.59-AM.png",
+      "size": 356015,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.43-AM.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.43-AM.png",
+      "size": 191448,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.20-AM.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.20-AM.png",
+      "size": 136403,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.38-AM.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.38-AM.png",
+      "size": 166175,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "Screen-Shot-2018-04-03-at-9.52.38-AM-300x213.png",
+      "path": "wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.38-AM-300x213.png",
+      "size": 25167,
+      "type": "png",
+      "upload_date": "2018-04"
+    },
+    {
+      "filename": "IMG_3357-e1527804133507-300x150.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3357-e1527804133507-300x150.jpg",
+      "size": 28353,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_8895-Edit-2.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_8895-Edit-2.jpg",
+      "size": 453632,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_8381-Edit-200x300.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_8381-Edit-200x300.jpg",
+      "size": 34145,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3355-1-e1527804648975.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3355-1-e1527804648975.jpg",
+      "size": 2515892,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3313-1-300x225.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3313-1-300x225.jpg",
+      "size": 33294,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7265-Edit-300x200.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7265-Edit-300x200.jpg",
+      "size": 33449,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3355-1-e1527804648975-300x225.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3355-1-e1527804648975-300x225.jpg",
+      "size": 35539,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_9176-Edit-2.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_9176-Edit-2.jpg",
+      "size": 395939,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3356.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3356.jpg",
+      "size": 3548509,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7265-Edit.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7265-Edit.jpg",
+      "size": 387910,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7227-Edit.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7227-Edit.jpg",
+      "size": 410590,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3357-e1527804133472.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3357-e1527804133472.jpg",
+      "size": 931324,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7227-Edit-300x200.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7227-Edit-300x200.jpg",
+      "size": 38423,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7092-Edit-300x200.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7092-Edit-300x200.jpg",
+      "size": 49072,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_8381-Edit.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_8381-Edit.jpg",
+      "size": 379296,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3312-1.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3312-1.jpg",
+      "size": 3968427,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7320-Edit.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7320-Edit.jpg",
+      "size": 680338,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3312-1-300x225.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3312-1-300x225.jpg",
+      "size": 36057,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3356-300x225.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3356-300x225.jpg",
+      "size": 35895,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7320-Edit-300x300.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7320-Edit-300x300.jpg",
+      "size": 48156,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_9176-Edit-2-300x200.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_9176-Edit-2-300x200.jpg",
+      "size": 34664,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_7092-Edit.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_7092-Edit.jpg",
+      "size": 560220,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3311-1.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3311-1.jpg",
+      "size": 1990952,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3313-1.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3313-1.jpg",
+      "size": 2341880,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_8895-Edit-2-300x200.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_8895-Edit-2-300x200.jpg",
+      "size": 42476,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3311-1-300x225.jpg",
+      "path": "wp-content/uploads/2018/05/IMG_3311-1-300x225.jpg",
+      "size": 34960,
+      "type": "jpg",
+      "upload_date": "2018-05"
+    },
+    {
+      "filename": "IMG_3369-1-300x225.jpg",
+      "path": "wp-content/uploads/2018/06/IMG_3369-1-300x225.jpg",
+      "size": 44264,
+      "type": "jpg",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "SAMBA-File-Sharing-with-Open-WRT.pdf",
+      "path": "wp-content/uploads/2018/06/SAMBA-File-Sharing-with-Open-WRT.pdf",
+      "size": 4703778,
+      "type": "pdf",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-06-10-at-8.32.27-AM-300x145.png",
+      "path": "wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.32.27-AM-300x145.png",
+      "size": 20478,
+      "type": "png",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-06-10-at-8.28.54-AM-267x300.png",
+      "path": "wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.28.54-AM-267x300.png",
+      "size": 27842,
+      "type": "png",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "IMG_0205-Edit-300x200.jpg",
+      "path": "wp-content/uploads/2018/06/IMG_0205-Edit-300x200.jpg",
+      "size": 57807,
+      "type": "jpg",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "IMG_9896-Edit-300x200.jpg",
+      "path": "wp-content/uploads/2018/06/IMG_9896-Edit-300x200.jpg",
+      "size": 29514,
+      "type": "jpg",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Generate-convex-hull-polygons-and-centroids-from-KML.pdf",
+      "path": "wp-content/uploads/2018/06/Generate-convex-hull-polygons-and-centroids-from-KML.pdf",
+      "size": 727489,
+      "type": "pdf",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "IMG_3368-1-300x225.jpg",
+      "path": "wp-content/uploads/2018/06/IMG_3368-1-300x225.jpg",
+      "size": 24310,
+      "type": "jpg",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-06-10-at-8.28.16-AM-300x181.png",
+      "path": "wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.28.16-AM-300x181.png",
+      "size": 104183,
+      "type": "png",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-06-10-at-5.55.15-PM-300x250.png",
+      "path": "wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-5.55.15-PM-300x250.png",
+      "size": 77983,
+      "type": "png",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "IMG_0257-Edit-200x300.jpg",
+      "path": "wp-content/uploads/2018/06/IMG_0257-Edit-200x300.jpg",
+      "size": 24093,
+      "type": "jpg",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "Screen-Shot-2018-06-10-at-8.30.07-AM-300x153.png",
+      "path": "wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.30.07-AM-300x153.png",
+      "size": 36787,
+      "type": "png",
+      "upload_date": "2018-06"
+    },
+    {
+      "filename": "dsc07334.jpg",
+      "path": "wp-content/uploads/2016/12/dsc07334.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-img_86942.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-img_86942.jpg",
+      "size": 127877,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-img_86943.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-img_86943.jpg",
+      "size": 255737,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc04370.jpg",
+      "path": "wp-content/uploads/2016/12/dsc04370.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_2827.jpg",
+      "path": "wp-content/uploads/2016/12/img_2827.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-img_8694.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-img_8694.jpg",
+      "size": 183071,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-img_86941.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-img_86941.jpg",
+      "size": 202476,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-orange-wood-ducks1.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-orange-wood-ducks1.jpg",
+      "size": 128594,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-orange-wood-ducks.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-orange-wood-ducks.jpg",
+      "size": 132085,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_8694-2.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_8694-2.jpg",
+      "size": 56316,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "mg_9479.jpg",
+      "path": "wp-content/uploads/2016/12/mg_9479.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_8694-1.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_8694-1.jpg",
+      "size": 101523,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc07424.jpg",
+      "path": "wp-content/uploads/2016/12/dsc07424.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc04700.jpg",
+      "path": "wp-content/uploads/2016/12/dsc04700.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "orange-wood-ducks.jpg",
+      "path": "wp-content/uploads/2016/12/orange-wood-ducks.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_86943.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_86943.jpg",
+      "size": 368648,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "CodeCogsEqn-1.png",
+      "path": "wp-content/uploads/2016/12/CodeCogsEqn-1.png",
+      "size": 4686,
+      "type": "png",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_86942.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_86942.jpg",
+      "size": 16933,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_5674.jpg",
+      "path": "wp-content/uploads/2016/12/img_5674.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc03925.jpg",
+      "path": "wp-content/uploads/2016/12/dsc03925.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc03930.jpg",
+      "path": "wp-content/uploads/2016/12/dsc03930.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-img_8694-1.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-img_8694-1.jpg",
+      "size": 102836,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_6354.jpg",
+      "path": "wp-content/uploads/2016/12/img_6354.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "header.jpg",
+      "path": "wp-content/uploads/2016/12/header.jpg",
+      "size": 251371,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "kq8q8111.jpg",
+      "path": "wp-content/uploads/2016/12/kq8q8111.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_8694.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_8694.jpg",
+      "size": 359868,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_86942-1.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_86942-1.jpg",
+      "size": 45821,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_8419.jpg",
+      "path": "wp-content/uploads/2016/12/img_8419.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc07549.jpg",
+      "path": "wp-content/uploads/2016/12/dsc07549.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc04096.jpg",
+      "path": "wp-content/uploads/2016/12/dsc04096.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_86942-2.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_86942-2.jpg",
+      "size": 14591,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc09997.jpg",
+      "path": "wp-content/uploads/2016/12/dsc09997.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_8694.jpg",
+      "path": "wp-content/uploads/2016/12/img_8694.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_8723.jpg",
+      "path": "wp-content/uploads/2016/12/img_8723.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "img_2209.jpg",
+      "path": "wp-content/uploads/2016/12/img_2209.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc09144_1.jpg",
+      "path": "wp-content/uploads/2016/12/dsc09144_1.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-cropped-img_86943.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-cropped-img_86943.jpg",
+      "size": 94067,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc09398_1.jpg",
+      "path": "wp-content/uploads/2016/12/dsc09398_1.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "dsc08157.jpg",
+      "path": "wp-content/uploads/2016/12/dsc08157.jpg",
+      "size": 1048576,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-cropped-img_8694.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-cropped-img_8694.jpg",
+      "size": 259470,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    },
+    {
+      "filename": "cropped-cropped-img_86943-1.jpg",
+      "path": "wp-content/uploads/2016/12/cropped-cropped-img_86943-1.jpg",
+      "size": 56680,
+      "type": "jpg",
+      "upload_date": "2016-12"
+    }
+  ],
+  "stats": {
+    "total_posts": 148,
+    "total_pages": 0,
+    "total_media": 170,
+    "extraction_date": "2026-01-01T21:20:01.847569"
+  }
+}

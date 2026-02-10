@@ -23,14 +23,14 @@
 						{#if post.description}
 							<p class="text-surface-600-400 mt-2">{post.description}</p>
 						{/if}
-						{#if post.tags.length > 0}
-							<div class="flex gap-2 mt-3">
-								{#each post.tags as tag}
-									<span class="badge preset-outlined-primary-500 text-xs">{tag}</span>
-								{/each}
-							</div>
-						{/if}
 					</a>
+					{#if post.tags.length > 0}
+						<div class="flex gap-2 mt-3">
+							{#each post.tags as tag}
+								<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
+							{/each}
+						</div>
+					{/if}
 				</article>
 			{/each}
 		</div>
