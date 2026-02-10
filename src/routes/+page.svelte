@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import type { PageData } from './$types';
+	let { data }: { data: PageData } = $props();
 </script>
 
 <svelte:head>
@@ -24,7 +25,24 @@
 
 	<section class="mb-12">
 		<h2 class="text-2xl font-semibold mb-4">Recent Posts</h2>
-		<p class="text-surface-500">Blog posts coming soon &mdash; migrating content from the old WordPress site.</p>
+		{#if data.posts.length > 0}
+			<div class="space-y-4">
+				{#each data.posts as post}
+					<a href="/blog/{post.slug}" class="block card p-4 hover:ring-2 ring-primary-500 transition-all">
+						<div class="flex items-baseline justify-between gap-4">
+							<h3 class="font-semibold">{post.title}</h3>
+							<time class="text-xs text-surface-500 whitespace-nowrap">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+						</div>
+						{#if post.description}
+							<p class="text-sm text-surface-500 mt-1 line-clamp-2">{post.description}</p>
+						{/if}
+					</a>
+				{/each}
+			</div>
+			<a href="/blog" class="inline-block mt-4 text-sm text-primary-500 hover:underline">View all posts &rarr;</a>
+		{:else}
+			<p class="text-surface-500">No posts yet.</p>
+		{/if}
 	</section>
 
 	<section>
