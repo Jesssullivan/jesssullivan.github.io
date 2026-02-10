@@ -9,6 +9,11 @@
 	{#if data.metadata.description}
 		<meta name="description" content={data.metadata.description} />
 	{/if}
+	<meta property="og:title" content={data.metadata.title} />
+	<meta property="og:type" content="article" />
+	{#if data.metadata.description}
+		<meta property="og:description" content={data.metadata.description} />
+	{/if}
 </svelte:head>
 
 <article class="container mx-auto px-4 py-12 max-w-3xl">
@@ -32,8 +37,8 @@
 	</div>
 
 	{#if data.metadata.original_url}
-		<p class="text-sm text-surface-500 mt-8 italic">
-			Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{data.metadata.original_url}</a>
+		<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
+			Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{new URL(data.metadata.original_url).hostname}</a>
 		</p>
 	{/if}
 
