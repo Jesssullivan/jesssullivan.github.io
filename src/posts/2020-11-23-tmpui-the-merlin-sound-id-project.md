@@ -4,7 +4,7 @@ date: "2020-11-23"
 description: "post updated 11/23/20 Demos, interpreter implementations & data ingress tools for annotating, interpreting, and deploying trained models. Visit the web demos..."
 tags: ["Birding", "Featured", "Ideas"]
 published: true
-slug: "tmpui-the-merlin-sound-id-project"
+slug: "tmpui-the-merlin-sound-id-project-november-2020"
 original_url: "https://transscendsurvival.org/2020/11/23/tmpui-the-merlin-sound-id-project/"
 ---
 
