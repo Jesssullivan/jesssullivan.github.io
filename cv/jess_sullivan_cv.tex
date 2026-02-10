@@ -1,0 +1,393 @@
+%!TEX program = xelatex
+%==============================================================================
+%                    JESS SULLIVAN — CV / RESUME / FUN FACTS / PROJECTS
+%==============================================================================
+% Compile with XeLaTeX for modern font support
+% Run twice for proper cross-references
+%==============================================================================
+
+\documentclass[11pt,letterpaper]{article}
+
+%------------------------------------------------------------------------------
+% PACKAGES
+%------------------------------------------------------------------------------
+\usepackage[margin=0.85in, top=0.7in, bottom=0.8in]{geometry}
+\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{bookmark}
+\usepackage{calc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{setspace}
+
+%------------------------------------------------------------------------------
+% COLOR PALETTE
+%------------------------------------------------------------------------------
+\definecolor{primary}{HTML}{1a365d}
+\definecolor{secondary}{HTML}{2c5282}
+\definecolor{accent}{HTML}{3182ce}
+\definecolor{muted}{HTML}{4a5568}
+\definecolor{light}{HTML}{e2e8f0}
+\definecolor{linkcolor}{HTML}{2b6cb0}
+
+%------------------------------------------------------------------------------
+% FONTS
+%------------------------------------------------------------------------------
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+
+%------------------------------------------------------------------------------
+% HYPERREF CONFIGURATION
+%------------------------------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=linkcolor,
+    citecolor=secondary,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    bookmarksopenlevel=1,
+    pdfauthor={Jess Sullivan},
+    pdftitle={Jess Sullivan — Cover Letter, Resume, Fun Facts, Projects},
+    pdfsubject={Full Stack Engineer, Musician, Birdwatcher},
+    pdfkeywords={DevSecOps, Machine Learning, Full Stack, HPC, Chapel, Haskell, SvelteKit},
+    pdfstartview={FitH},
+    pdfpagemode={UseOutlines}
+}
+
+%------------------------------------------------------------------------------
+% HEADER & FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small\color{muted} Jess Sullivan \quad$\cdot$\quad Page \thepage\ of \pageref{LastPage}}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}
+    {\Large\bfseries\sffamily\color{primary}}
+    {}
+    {0em}
+    {}
+    [\vspace{-0.5em}\textcolor{accent}{\rule{\linewidth}{1.5pt}}]
+
+\titleformat{\subsection}
+    {\large\bfseries\sffamily\color{secondary}}
+    {}
+    {0em}
+    {}
+
+\titleformat{\subsubsection}
+    {\normalsize\bfseries\color{muted}}
+    {}
+    {0em}
+    {}
+
+\titlespacing*{\section}{0pt}{1.5em}{0.8em}
+\titlespacing*{\subsection}{0pt}{1em}{0.5em}
+\titlespacing*{\subsubsection}{0pt}{0.8em}{0.3em}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist[itemize]{
+    leftmargin=1.5em,
+    itemsep=0.2em,
+    parsep=0em,
+    topsep=0.3em,
+    label={\textcolor{accent}{\textbullet}}
+}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\role}[2]{%
+    \noindent\textbf{\color{secondary}#1} \hfill \textit{\color{muted}(#2)}\par\vspace{0.3em}
+}
+
+\newcommand{\tech}[1]{\texttt{\small\color{secondary}#1}}
+\newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}\underline{#2}}}
+
+%------------------------------------------------------------------------------
+% DOCUMENT START
+%------------------------------------------------------------------------------
+\begin{document}
+
+%==============================================================================
+% HEADER
+%==============================================================================
+\begin{center}
+    \begin{tikzpicture}
+        \fill[primary] (0,0) rectangle (\textwidth, 0.15);
+    \end{tikzpicture}
+    
+    \vspace{1.2em}
+    
+    % === HEADER IMAGE ===
+    \includegraphics[width=0.85\textwidth]{header_image.png}
+    
+    \vspace{0.8em}
+    
+    {\Huge\bfseries\sffamily\color{primary} Jess Sullivan}
+    
+    \vspace{0.6em}
+    
+    {\large\itshape\color{muted} Cover Letter, Resume, Fun Facts, Projects}
+    
+    \vspace{1em}
+    
+    {\color{secondary}
+    Lewiston, ME}
+    
+    \vspace{0.5em}
+    \begin{tikzpicture}
+        \fill[accent] (0,0) rectangle (\textwidth, 0.08);
+    \end{tikzpicture}
+\end{center}
+
+\vspace{0.5em}
+
+%==============================================================================
+% INTRODUCTION
+%==============================================================================
+My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher, currently based in Lewiston, ME. Find below a cover letter highlighting my recent and current activities and an up-to-date technical resume.
+
+\vspace{0.5em}
+
+%------------------------------------------------------------------------------
+% NAVIGATION
+%------------------------------------------------------------------------------
+\begin{center}
+\small\color{muted}
+\hyperref[sec:resume]{\textsc{Technical Resume}} $\cdot$ 
+\hyperref[sec:foss]{\textsc{Full Stack \& FOSS}} $\cdot$ 
+\hyperref[sec:volunteer]{\textsc{Volunteer \& Community}} $\cdot$
+\hyperref[sec:ventures]{\textsc{Ventures}} $\cdot$ 
+\hyperref[sec:funfacts]{\textsc{Fun Facts}}
+\end{center}
+
+\vspace{0.5em}
+
+%==============================================================================
+% TECHNICAL RESUME
+%==============================================================================
+\section{Technical Resume}
+\label{sec:resume}
+
+%--- Computer Vision ---
+\role{Computer Vision Software Engineer @ Macaulay Library}{2018--2022}
+
+Developed \& launched \textbf{Merlin Sound ID} \& The Machine Learning Blog @ Macaulay Library. Worked on the R\&D and implementation of internal fine-grained machine learning annotation tools for audio classification. Built internal classification and model evaluation web APIs. Streamlined Macaulay Library MLOps and asset ingestion pipeline.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}My stack:}
+\begin{itemize}
+    \item \textbf{Model Training:} Python (\tech{tensorflow}, \tech{numpy}, \tech{pandas}, \tech{matplotlib}, \tech{JUPYTER})
+    \item \textbf{Web \& training annotation stack:} \tech{Flask} \& \tech{TypeScript} (\cvlink{http://fft.js}{fft.js}, \tech{Leaflet}, \tech{React}, \tech{Vue}, \tech{Node}, \tech{Docker}, \tech{WebAssembly}, \tech{Purrr}), live demos written in \tech{React Native} and \tech{Swift}
+    \item \textbf{Training and development Infra:} Project managed in Confluence + BitBucket, hosting on EC2 \& Heroku
+\end{itemize}
+
+\vspace{0.8em}
+
+%--- Fab Lab ---
+\role{Fabrication Laboratory Manager for the Landscape Architecture Makerspace @ Cornell CALS}{2021--2022}
+
+Developed and taught rapid fabrication curricula for DLA students and faculty.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}My stack:}
+\begin{itemize}
+    \item \tech{OpenSCAD} \& \tech{Fusion 360}; \tech{Inkscape} for vector work. Some tiler development with TAs in \tech{C++}.
+    \item Project management in GitHub \& Linear. Built a small Discord ticketing system and OBS printer monitoring system.
+\end{itemize}
+
+\vspace{0.8em}
+
+%--- Systems Analyst ---
+\role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
+
+Building and maintaining reliable, scalable enterprise systems directly supporting staff, faculty and the technical ILS team. Responsibilities include the maintenance and modernization of legacy systems; the development of bespoke Ansible extensions, roles, and plugins; 24/7 availability for CVE mitigation; SAML and application interoperability integration work; Open Telemetry and reporting development; the development of CI/CD pipelines (extensive work in GitLab AutoDevOps, OpenTofu and RKE2 + Rancher clusters) as well as leading IaC adoption across the College. I enjoy a fair amount of autonomy, and can be found wriggling across a wide variety of languages, projects and epics throughout any given week.
+
+\subsubsection{Noteworthy projects include:}
+\begin{itemize}
+    \item Developed high performance orchestrator and instrumentation tooling for degree management and degree auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for development, FPM for packaging and autodevops for CI/CD); uplifted ``unautomatable'' 1980s morris-worm era code unique to higher ed into a verifiable, traceable, k8s friendly workload
+    \item Overhauled and completely automated the lifecycle of our event management system (extensive development in \tech{C\#}, \tech{Go}, \tech{Ansible})
+    \item Led adoption of horizontally scalable \tech{Apache Solr} instances for multiple public and private indexing and search applications
+    \item Led adoption and built out numerous internal ACME-first certificate management and DNS libraries, templates and tooling
+    \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
+\end{itemize}
+
+%==============================================================================
+\newpage
+%==============================================================================
+
+%==============================================================================
+% FULL STACK & FOSS
+%==============================================================================
+\section{Full Stack Contracting and FOSS}
+\label{sec:foss}
+
+Long term committer, member and supporter of numerous organizations including \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{keepassxc}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
+
+\begin{itemize}
+    \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
+    \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG conference}
+    \item \textbf{Machine Learning} with \textbf{MushroomObserver.org} and \textbf{Visipedia:} Collaborated on the development and adoption of fine-grained image classification models among crowd-sourced community science niches
+    \item \textbf{Expanded client list} on request. Current clients include the entire business stack for \cvlink{https://MassageIthaca.com}{\textbf{MassageIthaca.com}} (grown through four business expansions over 3 years!), \textbf{Rossel \& Co}, Tetrahedron Services, R\&D for TimberBuddy hydraulic sawmill systems, many more.
+\end{itemize}
+
+\vspace{0.8em}
+
+\noindent\textit{\color{muted}My current stack:}
+\begin{itemize}
+    \item \textbf{Web:} \tech{SvelteKit}, Runes, TS7, Vite 8 (Rolldown). I am deeply embedded in SvelteKit and have developed a (largely proprietary, alas) fairly large library of novel SvelteKit packages and expertise ranging from fingerprinting, mapping, authentication to horizontal data scalability and telemetry.
+    \item \textbf{HPC} and performance oriented code written in \textbf{Chapel} and increasingly \textbf{Haskell}.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textit{\color{muted}Goals:}
+
+I have begun learning the \tech{Nix} build system and have started to dip my toes in \tech{Rust} SIMD development; I've done a fair amount of WASM development in TypeScript, but with years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox) 2026 may be my first year of learning Rust.
+
+%==============================================================================
+% VOLUNTEER & COMMUNITY
+%==============================================================================
+\section{Volunteer, Community Involvement and Board Positions}
+\label{sec:volunteer}
+
+\role{First Fellow @ the D\&M Makerspace at Plymouth State University (``PSU'')}{2017--2020}
+
+\begin{itemize}
+    \item Taught \textbf{Advanced GIS Programming} \& \textbf{Intro to Electromechanics} at PSU
+    \item Coordinated the development and manufacture of ventilators, shields and positive pressure masks with makerspaces throughout New England at the onset of the COVID-19 pandemic; worked with the Artisans Asylum (Cambridge, MA) and the NH hospital system to deliver 3d printed and lasercut medical supplies, used and distributed throughout the state.
+\end{itemize}
+
+\vspace{0.5em}
+
+\role{Membership Chair and 3d Printing Captain of the Ithaca Generator (``IG'')}{2020--2022}
+
+\begin{itemize}
+    \item Led IG, a local 501(c)3 non-profit Makerspace through a period of rapid growth, profitable outreach and massive educational expansion
+    \item Coached hundreds of students through my popular, portable \& public-facing ``\textbf{Fusion 360 for 3d printing}'' class series throughout New York
+\end{itemize}
+
+%==============================================================================
+\newpage
+%==============================================================================
+
+%==============================================================================
+% VENTURES
+%==============================================================================
+\section{Ventures}
+\label{sec:ventures}
+
+\role{Columbari.us LLC}{2017--2021}
+
+Independent contractor / contributor business while in the GIS \& ML space. Fully insured and registered in both NH and NY. Structured solely to better negotiate contracts with UNH, NH municipal works and later Cornell.
+
+\vspace{0.8em}
+
+\role{Moonlight Coworking LLC}{2021--2024}
+
+Formed in NY to raise capital and interest in a for-profit hackerspace with a focus on mathematics and high performance computing alongside my nonprofit work leading the Ithaca Generator; shelved due to move to Maine.
+
+\vspace{0.8em}
+
+\role{``Tinyland.dev, Inc''}{2024--present}
+
+(not?) just another AI startup, targeting the higher ed / academic enterprise space for semiautonomous infrastructure maintenance and resource convergence. Intended to become entirely zlib / dual license / source available eventually, when it is appropriate to do so.
+
+Currently in stealth mode, funded by me.
+
+Spans 5 bespoke SLMs, a bespoke chat interpreter and over a hundred tools autonomously callable by the system.
+
+Sits at every part of the IaC lifecycle, connected through a multicloud harness (``Mariolex''; written in Chapel and python, itself backed by a bespoke implementation of git written in Chapel):
+
+\begin{itemize}
+    \item ``\textbf{Huskycat}'' is a multithreaded githook SLM application that automatically runs PBT, linting, autoformatters, and verification tasks. Operates in any git repo--- on a user's machine or in a CI pipeline. Currently builds for Apple Silicon and Rocky.
+    
+    \item ``\textbf{Outbot}'' is a repo management SLM application. Outbot interacts with the Mariolex harness to complete zoned git summaries, resolve downstream conflicts, perform zone-wise and commit-wise research and relevance to upstream PRs. Outbot is slated to make its debut with the rest of the project as part of the GitLab Duo Agent Platform, and currently supports dispatching text-to-text tasks to a wide variety of LLMs including via Duo credits. Outbot currently supports basic tag, repo, container, pages, and release parity between GitHub and GitLab, but eventually I want to have full git host facet parity. Outbot is written in Python primarily and adopts a composable factory architecture such that LLMs and humans can model the temporal flow of IP through these large IaC systems.
+    
+    \item ``\textbf{FuzzyBot}'' is a chat TUI written in Chapel and Go that currently integrates with IntelliJ and Emacs with native awareness of git identity and access to the Mariolex harness, gaining immense memory skills and the ability to offload SAE and learning tasks to the harness, largely powered by Apache Solr.
+    
+    \item ``\textbf{Mariolex}'' is the kubernetes native harness that handles model hosting and the actual tool workloads dispatched by the agent's tool calls for fuzzing, indexing, property testing and agent federation. Written in Chapel and Go. Topology is based on Liqo as a multicloud orchestrator.
+\end{itemize}
+
+%==============================================================================
+\newpage
+%==============================================================================
+
+%==============================================================================
+% FUN FACTS
+%==============================================================================
+\section{Some More Fun Facts About Me and My Eclectic Work History}
+\label{sec:funfacts}
+
+\subsection{Professional Photography}
+
+Commercial photography business--- paid my way through my undergraduate degree!
+
+\begin{itemize}
+    \item I cut my teeth professionally with the \textbf{world renowned aerial photographer Alex Maclean} and with \textbf{Mike Nyman Wedding Photography} prior to going into business as \textbf{J.S. Event Photography}.
+    \item \textbf{I wrote} (and taught for three years!) \textbf{the youth photography curriculum} at the \textbf{Joppa Flats} and \textbf{Drumlin Farm} Mass Audubon Wildlife sanctuaries, \textbf{programs still going strong} to this day!
+    \item Some public clients and superlatives of this chapter of my life included \textbf{extensive} work for the \textbf{corporate branding offices} of the \textbf{YMCA}, The \textbf{Watertown Savings Bank}, photography and videography for the \textbf{YCCA} youth programs, \textbf{FUUSN} and serving as the \textbf{Staff Photographer for MCCS @ PSU} among others.
+    \item My work has been featured, displayed and sold at numerous photo shows, venues and art sales throughout New England, including many shows with \textbf{Celebrate Newton}, The \textbf{Newton Public Library}, The \textbf{Pease Public Library} in NH, \textbf{Newtonville Cinema}, \textbf{Just Next Door Card Shop}, The \textbf{Newton Camera Club}, \textbf{Broadmoor Wildlife Sanctuary}, featured in the \textbf{Newton Tab newspaper} and many others.
+    \item I did much of my own printing with a heavily modified inkjet printer. \textbf{Was completely burnt out} from photography by the end of 2017 or thereabouts, sold all my gear by the end of college.
+\end{itemize}
+
+\vspace{0.8em}
+
+\subsection{Bartending, Music and Bagels}
+
+I am a multiinstrumentalist and am usually practicing guitar or organ when I am not writing code or looking for birds outside.
+
+\begin{itemize}
+    \item I have played guitar pretty seriously for over 20 years; I currently play a custom 9 string electric guitar made for me in NH and a 12 string acoustic.
+    \item I've been playing the piano for over 25 years; my keyboard playing these days is primarily on my wacky rotary Yamaha organ.
+\end{itemize}
+
+I enjoy bartending, baking and music as social hobbies, adjacent to my oddball enthusiasm for esoteric spirits, distilling technologies, gluten and rock \& roll. As such, I've held a number of delightful evening bartender \& bakery positions:
+
+\begin{itemize}
+    \item I was an evening bartender and event organizer at \textbf{Modern Alchemy Game Bar} in Ithaca. I organized and hosted monthly Goth Nights, art shows and many other private functions for various organizations I've been affiliated with in this cozy board game bar.
+    \item I was a bartender at \textbf{The Downstairs} Listening room \& Tavern as well as at \textbf{the Watershed} in New York.
+    \item I was a casual Bagel Baker at Tandem Bagel Co in Northampton MA throughout the Spring of 2024. I made many terrific friends here and learned a great deal about baking professionally.
+\end{itemize}
+
+\vspace{1.5em}
+
+\begin{center}
+    \textcolor{muted}{\rule{0.4\textwidth}{0.5pt}}
+    
+    \vspace{0.8em}
+    
+    {\large\itshape\color{muted} If there were no computers I'd probably be a baker, a minstrel or a bard.}
+\end{center}
+
+%==============================================================================
+% END
+%==============================================================================
+
+\vfill
+
+\begin{center}
+    \begin{tikzpicture}
+        \fill[primary] (0,0) rectangle (\textwidth, 0.1);
+    \end{tikzpicture}
+\end{center}
+
+\end{document}

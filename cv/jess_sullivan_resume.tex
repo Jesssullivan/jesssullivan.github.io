@@ -1,0 +1,293 @@
+%!TEX program = xelatex
+%==============================================================================
+%                    JESS SULLIVAN — RESUME
+%==============================================================================
+% Compile with XeLaTeX for modern font support
+% Run twice for proper cross-references
+%==============================================================================
+
+\documentclass[10pt,letterpaper]{article}
+
+%------------------------------------------------------------------------------
+% PACKAGES
+%------------------------------------------------------------------------------
+\usepackage[margin=0.65in, top=0.5in, bottom=0.6in]{geometry}
+\usepackage{fontspec}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{bookmark}
+\usepackage{calc}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{setspace}
+
+%------------------------------------------------------------------------------
+% COLOR PALETTE
+%------------------------------------------------------------------------------
+\definecolor{primary}{HTML}{1a365d}
+\definecolor{secondary}{HTML}{2c5282}
+\definecolor{accent}{HTML}{3182ce}
+\definecolor{muted}{HTML}{4a5568}
+\definecolor{light}{HTML}{e2e8f0}
+\definecolor{linkcolor}{HTML}{2b6cb0}
+
+%------------------------------------------------------------------------------
+% FONTS
+%------------------------------------------------------------------------------
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+
+%------------------------------------------------------------------------------
+% HYPERREF CONFIGURATION
+%------------------------------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    urlcolor=linkcolor,
+    citecolor=secondary,
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+    bookmarksopenlevel=1,
+    pdfauthor={Jess Sullivan},
+    pdftitle={Jess Sullivan — Resume},
+    pdfsubject={Full Stack Engineer, DevSecOps, ML/HPC},
+    pdfkeywords={DevSecOps, Machine Learning, Full Stack, HPC, Chapel, Haskell, SvelteKit},
+    pdfstartview={FitH},
+    pdfpagemode={UseOutlines}
+}
+
+%------------------------------------------------------------------------------
+% HEADER & FOOTER
+%------------------------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small\color{muted} Jess Sullivan \quad$\cdot$\quad Page \thepage\ of \pageref{LastPage}}
+
+%------------------------------------------------------------------------------
+% SECTION FORMATTING
+%------------------------------------------------------------------------------
+\titleformat{\section}
+    {\Large\bfseries\sffamily\color{primary}}
+    {}
+    {0em}
+    {}
+    [\vspace{-0.5em}\textcolor{accent}{\rule{\linewidth}{1.5pt}}]
+
+\titleformat{\subsection}
+    {\large\bfseries\sffamily\color{secondary}}
+    {}
+    {0em}
+    {}
+
+\titleformat{\subsubsection}
+    {\normalsize\bfseries\color{muted}}
+    {}
+    {0em}
+    {}
+
+\titlespacing*{\section}{0pt}{1.2em}{0.6em}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.4em}
+\titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
+
+%------------------------------------------------------------------------------
+% LIST FORMATTING
+%------------------------------------------------------------------------------
+\setlist[itemize]{
+    leftmargin=1.5em,
+    itemsep=0.15em,
+    parsep=0em,
+    topsep=0.25em,
+    label={\textcolor{accent}{\textbullet}}
+}
+
+%------------------------------------------------------------------------------
+% CUSTOM COMMANDS
+%------------------------------------------------------------------------------
+\newcommand{\role}[2]{%
+    \noindent\textbf{\color{secondary}#1} \hfill \textit{\color{muted}(#2)}\par\vspace{0.3em}
+}
+
+\newcommand{\tech}[1]{\texttt{\small\color{secondary}#1}}
+\newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}\underline{#2}}}
+
+%------------------------------------------------------------------------------
+% DOCUMENT START
+%------------------------------------------------------------------------------
+\begin{document}
+
+%==============================================================================
+% HEADER
+%==============================================================================
+\begin{center}
+    \begin{tikzpicture}
+        \fill[primary] (0,0) rectangle (\textwidth, 0.12);
+    \end{tikzpicture}
+    
+    \vspace{0.4em}
+    
+    {\Huge\bfseries\sffamily\color{primary} Jess Sullivan}
+    
+    \vspace{0.4em}
+    
+    {\color{muted} Agent Orchestration \quad$\cdot$\quad Computer Vision \quad$\cdot$\quad Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad ML/HPC}
+    
+    \vspace{0.4em}
+    
+    {\small\color{secondary} Lewiston, ME \quad$\cdot$\quad 617-795-6912 \quad$\cdot$\quad \href{mailto:jess@sulliwood.org}{jess@sulliwood.org} \quad$\cdot$\quad \href{https://github.com/jesssullivan}{github.com/jesssullivan}}
+    
+    \vspace{0.4em}
+    \begin{tikzpicture}
+        \fill[accent] (0,0) rectangle (\textwidth, 0.06);
+    \end{tikzpicture}
+\end{center}
+
+\vspace{0.3em}
+
+%==============================================================================
+% CORE COMPETENCIES
+%==============================================================================
+\vspace{-0.3em}
+\begin{center}
+\footnotesize
+\begin{tabular}{@{}l@{\hspace{1.2em}}l@{\hspace{1.2em}}l@{}}
+\textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
+Python (10+ yrs, enterprise) & Fine-grained classification & CI/CD pipelines (expert) \\
+TypeScript (fluent) & Horizontal parallelism in ML/AI & Global-scale deployments \\
+Chapel (expert) & WASM-native inference & Realtime \& time-series pipelines \\
+SvelteKit (SOTA) & MLOps \& model evaluation & Kubernetes orchestration \\
+\end{tabular}
+\end{center}
+
+\vspace{0.1em}
+
+%==============================================================================
+% TECHNICAL RESUME
+%==============================================================================
+\section{Experience}
+\label{sec:resume}
+
+%--- Full Stack Contracting & FOSS ---
+\role{Full Stack Contracting and FOSS}{Ongoing}
+
+Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation} (Solr web security), \textbf{Caddy}/xcaddy, \textbf{libdns}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), \textbf{Liqo} (K8s topology fabric, used by CERN), \textbf{Budgie DE}, \textbf{Mason}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
+
+\begin{itemize}
+    \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
+    \item Web GIS tools for \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, \textbf{Northern Border Regional Commission}. Presented at 2019 \textbf{AAG conference}.
+    \item Fine-grained image classification with \textbf{MushroomObserver.org} and \textbf{Visipedia}; early adopter of CNN-based species ID at scale.
+\end{itemize}
+
+\vspace{0.4em}
+\noindent\textit{\color{muted}Current stack:}
+\begin{itemize}
+    \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Proprietary SvelteKit libraries for fingerprinting, auth, mapping, telemetry.
+    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}. Performance-oriented systems and property-based testing.
+\end{itemize}
+
+\vspace{0.3em}
+\noindent\textit{\color{muted}Learning:} \tech{Nix}, \tech{Rust} (SIMD), deeper WASM integration.
+
+\vspace{0.4em}
+
+%--- Systems Analyst ---
+\role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
+
+Scalable enterprise systems supporting staff, faculty, and ILS team. Legacy modernization; bespoke Ansible extensions/roles/plugins; 24/7 CVE mitigation; SAML and application interoperability; OpenTelemetry reporting; CI/CD pipelines (GitLab AutoDevOps, OpenTofu, RKE2 + Rancher); leading IaC adoption college-wide.
+
+\subsubsection{Noteworthy projects:}
+\begin{itemize}
+    \item Developed high performance orchestrator and instrumentation tooling for degree management and degree auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for development, FPM for packaging and autodevops for CI/CD); uplifted ``unautomatable'' 1980s morris-worm era code unique to higher ed into a verifiable, traceable, k8s friendly workload
+    \item Overhauled and completely automated the lifecycle of our event management system (extensive development in \tech{C\#}, \tech{Go}, \tech{Ansible})
+    \item Led adoption of horizontally scalable \tech{Apache Solr} instances for multiple public and private indexing and search applications
+    \item Led adoption and built out numerous internal ACME-first certificate management and DNS libraries, templates and tooling
+    \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
+\end{itemize}
+
+\vspace{0.4em}
+
+%--- Fab Lab ---
+\role{Fabrication Laboratory Manager @ Cornell CALS}{2021--2022}
+
+Developed and taught rapid fabrication curricula. \tech{OpenSCAD}, \tech{Fusion 360}, \tech{Inkscape}, \tech{C++}. GitHub/Linear project management.
+
+\vspace{0.4em}
+
+%--- Computer Vision ---
+\role{Computer Vision Software Engineer @ Macaulay Library, Cornell Lab of Ornithology}{2018--2022}
+
+Developed \& launched \cvlink{https://merlin.allaboutbirds.org/download/}{\textbf{Merlin Sound ID}}, a production fine-grained audio classification system now used by millions worldwide. Led R\&D on internal ML annotation tooling, model evaluation APIs, and end-to-end MLOps pipelines. Built real-time inference demos deployed at scale.
+
+\vspace{0.4em}
+\noindent\textit{\color{muted}Stack:}
+\begin{itemize}
+    \item \textbf{Model Training:} Python (\tech{TensorFlow}, \tech{NumPy}, \tech{Pandas}, \tech{Matplotlib}, \tech{Jupyter})
+    \item \textbf{Web \& Inference:} \tech{Flask}, \tech{TypeScript}, \tech{React}, \tech{Vue}, \tech{Docker}, \tech{WebAssembly}, \tech{React Native}, \tech{Swift}
+    \item \textbf{Infrastructure:} EC2, Heroku, BitBucket CI/CD, production model deployment at scale
+\end{itemize}
+
+%==============================================================================
+% VOLUNTEER & COMMUNITY
+%==============================================================================
+\section{Volunteer \& Community}
+\label{sec:volunteer}
+
+\role{First Fellow @ D\&M Makerspace, Plymouth State University}{2017--2020}
+
+Taught \textbf{Advanced GIS Programming} \& \textbf{Intro to Electromechanics}. COVID-19 response: coordinated regional makerspace network for medical PPE manufacturing.
+
+\vspace{0.3em}
+
+\role{Membership Chair \& 3D Printing Captain @ Ithaca Generator}{2020--2022}
+
+Led 501(c)(3) makerspace through rapid growth; coached hundreds via ``Fusion 360 for 3D printing'' series.
+
+%==============================================================================
+% BUSINESS VENTURES
+%==============================================================================
+\section{Business Ventures}
+\label{sec:ventures}
+
+\role{xoxd.ai}{2024--present}
+
+AI/ML platform for semiautonomous infrastructure maintenance in higher ed. Currently bootstrapped and in stealth.
+
+\vspace{0.2em}
+\noindent\textit{\color{muted}Architecture:} 5 bespoke SLMs, 100+ callable tools, full IaC lifecycle coverage via multicloud harness. Horizontal scaling with Chapel-based parallelism.
+
+\vspace{0.2em}
+\noindent\textit{\color{muted}Components:}
+\begin{itemize}
+    \item \textbf{Huskycat} --- Multithreaded githook SLM for PBT, linting, formatting, verification. Builds for Apple Silicon and Rocky.
+    \item \textbf{Outbot} --- Repo management SLM. Zoned summaries, conflict resolution, upstream PR analysis. Python with composable factory architecture.
+    \item \textbf{FuzzyBot} --- Chat TUI (Chapel + Go) with IntelliJ/Emacs integration, git-aware identity, Solr-backed memory and SAE offloading.
+    \item \textbf{Mariolex} --- K8s-native harness for model hosting, tool dispatch, fuzzing, indexing, PBT, and agent federation. Chapel + Go. Liqo-based multicloud topology.
+\end{itemize}
+
+\vspace{0.3em}
+
+\noindent\textit{\color{muted}Previous:} \textbf{Columbari.us LLC} (2017--2021) --- GIS \& ML contracting for UNH, NH municipal, Cornell. HPC hackerspace venture (2021--2024).
+
+%==============================================================================
+% END
+%==============================================================================
+
+\vspace{0.4em}
+
+\begin{center}
+    \begin{tikzpicture}
+        \fill[primary] (0,0) rectangle (\textwidth, 0.1);
+    \end{tikzpicture}
+\end{center}
+
+\end{document}
