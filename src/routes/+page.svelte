@@ -4,8 +4,17 @@
 </script>
 
 <svelte:head>
-	<title>transscendsurvival.org</title>
-	<meta name="description" content="Jess Sullivan - Blog and portfolio" />
+	<title>Jess Sullivan | transscendsurvival.org</title>
+	<meta name="description" content="Hardware hacker, FOSS contributor, birder. Blog and portfolio by Jess Sullivan." />
+	<meta property="og:title" content="Jess Sullivan | transscendsurvival.org" />
+	<meta property="og:description" content="Hardware hacker, FOSS contributor, birder. Blog and portfolio by Jess Sullivan." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://transscendsurvival.org" />
+	<meta property="og:site_name" content="transscendsurvival.org" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="Jess Sullivan | transscendsurvival.org" />
+	<meta name="twitter:description" content="Hardware hacker, FOSS contributor, birder. Blog and portfolio by Jess Sullivan." />
+	<link rel="canonical" href="https://transscendsurvival.org" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">
