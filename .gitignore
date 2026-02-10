@@ -6,3 +6,18 @@ build
 !.env.example
 .DS_Store
 *.log
+
+# Legacy GIS_Shortcuts files (old repo content)
+Docker-App/
+Flask-Manager/
+FreeTier-Node_App/
+GDAL_Bash_DEM_Merge.png
+GE_4050/
+Python_Results.png
+Raster_To_STL/
+_config.yml
+archives/
+kmlXamples/
+regioncodes.void
+vmsetup/
+src/posts-import/

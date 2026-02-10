@@ -1,11 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import GiscusComments from '$lib/components/GiscusComments.svelte';
 	let { data }: { data: PageData } = $props();
-
-	const readingTime = (text: string) => {
-		const words = text?.split(/\s+/).length ?? 0;
-		return Math.max(1, Math.ceil(words / 200));
-	};
 </script>
 
 <svelte:head>
@@ -25,7 +21,7 @@
 		{#if data.metadata.tags?.length}
 			<div class="flex gap-2 mt-3">
 				{#each data.metadata.tags as tag}
-					<span class="badge preset-outlined-primary-500 text-xs">{tag}</span>
+					<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
 				{/each}
 			</div>
 		{/if}
@@ -34,4 +30,12 @@
 	<div class="prose prose-lg max-w-none">
 		{@render data.content()}
 	</div>
+
+	{#if data.metadata.original_url}
+		<p class="text-sm text-surface-500 mt-8 italic">
+			Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{data.metadata.original_url}</a>
+		</p>
+	{/if}
+
+	<GiscusComments />
 </article>
