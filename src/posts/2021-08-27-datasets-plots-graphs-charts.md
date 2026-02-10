@@ -4,7 +4,7 @@ date: "2021-08-27"
 description: "This and that, bits and bobs… …Overengineering a replacement TPU lens bumper for my beloved binoculars: – …Check out the awesome new Machine Learning Blog at..."
 tags: ["Ideas", "How-To"]
 published: true
-slug: "datasets-plots-graphs-charts"
+slug: "datasets-plots-graphs-charts-august-2021"
 original_url: "https://www.transscendsurvival.org/2021/08/27/datasets-plots-graphs-charts/"
 ---
 

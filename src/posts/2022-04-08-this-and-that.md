@@ -4,7 +4,7 @@ date: "2022-04-08"
 description: "Letsee…. It’s almost springtime in Ithaca! Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the DLA..."
 tags: []
 published: true
-slug: "this-and-that"
+slug: "this-and-that-april-2022"
 original_url: "https://www.transscendsurvival.org/2022/04/08/this-and-that/"
 ---
 

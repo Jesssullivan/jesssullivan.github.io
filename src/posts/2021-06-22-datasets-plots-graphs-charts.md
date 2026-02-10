@@ -4,7 +4,7 @@ date: "2021-06-22"
 description: "This and that, bits and bobs… – …Check out the awesome new Machine Learning Blog at Macaulay Library! – …Download Merlin! – …Join the Merlin Sound ID Beta!…"
 tags: ["Ideas", "How-To"]
 published: true
-slug: "datasets-plots-graphs-charts"
+slug: "datasets-plots-graphs-charts-june-2021"
 original_url: "https://www.transscendsurvival.org/2021/06/22/datasets-plots-graphs-charts/"
 ---
 
