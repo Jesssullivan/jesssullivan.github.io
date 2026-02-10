@@ -7,9 +7,9 @@
 		const script = document.createElement('script');
 		script.src = 'https://giscus.app/client.js';
 		script.setAttribute('data-repo', 'Jesssullivan/jesssullivan.github.io');
-		script.setAttribute('data-repo-id', '');
-		script.setAttribute('data-category', 'Blog Comments');
-		script.setAttribute('data-category-id', '');
+		script.setAttribute('data-repo-id', 'R_kgDORMp11w');
+		script.setAttribute('data-category', 'General');
+		script.setAttribute('data-category-id', 'DIC_kwDORMp1184C2H4C');
 		script.setAttribute('data-mapping', 'pathname');
 		script.setAttribute('data-strict', '0');
 		script.setAttribute('data-reactions-enabled', '1');
