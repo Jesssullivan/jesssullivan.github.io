@@ -63,7 +63,24 @@
 		<h3>Ventures</h3>
 
 		<h4>Tinyland.dev, Inc <span class="text-surface-500 font-normal">(2024&ndash;Present)</span></h4>
-		<p>Semiautonomous infrastructure maintenance platform for higher ed. 5 bespoke SLMs, 100+ autonomous tools. Chapel, Python, Go, Kubernetes (Liqo), Apache Solr.</p>
+		<p>Semiautonomous infrastructure maintenance platform for higher ed. C corporation, self-funded.</p>
+		<ul>
+			<li>5 bespoke SLMs, 100+ autonomous tools</li>
+			<li>SvelteKit 5 CMS with Svelte 5 runes, TypeScript, Vite</li>
+			<li>K8s native &mdash; Talos OS, Civo cloud, RKE2 + Rancher</li>
+			<li>i18n &mdash; 6 languages via Paraglide.js</li>
+			<li>Chapel, Python, Go, Kubernetes (Liqo), Apache Solr</li>
+		</ul>
+
+		<h4>xoxd.ai <span class="text-surface-500 font-normal">(2025&ndash;Present)</span></h4>
+		<p>Provably Autonomous Recursive Lattice (PARL) design &mdash; orchestrating massively parallel, provable agent infrastructure. 130+ agents, 5 models.</p>
+		<ul>
+			<li><strong>Marolex</strong> &mdash; K8s-native multicloud harness (Chapel + Go, Liqo topology)</li>
+			<li><strong>Huskycat</strong> &mdash; Deterministic verification middleware (multithreaded githook SLM)</li>
+			<li><strong>Outbot</strong> &mdash; Repo management agent (zone-wise git summaries, conflict resolution)</li>
+			<li><strong>FuzzyBot</strong> &mdash; Chat TUI with native IDE integration (Chapel + Go)</li>
+		</ul>
+		<p>Built on: Liqo, RKE2, CoreDNS, MetalLB, Apache Solr, pgvector, vLLM, LangGraph. Models: 2 custom mxbai embeddings, custom functiongemma SLM, Qwen v3, GLM 4.7.</p>
 
 		<h4>Columbari.us LLC <span class="text-surface-500 font-normal">(2017&ndash;2021)</span></h4>
 		<p>Independent contractor in GIS &amp; ML. Clients included National Park Service, Foundation for Healthy Communities, GPRED, Northern Border Regional Commission.</p>
@@ -77,6 +94,29 @@
 			<li>Taught Advanced GIS Programming &amp; Intro to Electromechanics at PSU</li>
 			<li>Membership Chair &amp; 3D Printing Captain &mdash; Ithaca Generator (2020&ndash;2022)</li>
 			<li>COVID-19 PPE manufacturing coordination across New England makerspaces</li>
+		</ul>
+
+		<h3>Photography</h3>
+		<p>Commercial photography business &mdash; paid my way through my undergraduate degree.</p>
+		<ul>
+			<li>Cut my teeth professionally with world-renowned aerial photographer Alex MacLean and Mike Nyman Wedding Photography, then launched J.S. Event Photography</li>
+			<li>Wrote and taught the youth photography curriculum at Joppa Flats and Drumlin Farm Mass Audubon Wildlife Sanctuaries &mdash; programs still going strong</li>
+			<li>Work featured at Celebrate Newton, Newton Public Library, Pease Public Library, Newtonville Cinema, Newton Camera Club, Broadmoor Wildlife Sanctuary, and in the Newton Tab</li>
+			<li>Did my own printing on a heavily modified inkjet printer. Completely burnt out from photography by end of 2017, sold all gear by end of college</li>
+		</ul>
+
+		<h3>Music &amp; Creative</h3>
+		<ul>
+			<li>20+ years of guitar &mdash; currently play a custom 9-string electric made in NH and a 12-string acoustic</li>
+			<li>25+ years of piano/organ &mdash; primarily on a rotary Yamaha organ these days</li>
+		</ul>
+		<p><em>&ldquo;If there were no computers I&rsquo;d probably be a baker, a minstrel or a bard.&rdquo;</em></p>
+
+		<h3>Hospitality</h3>
+		<ul>
+			<li>Evening bartender &amp; event organizer at Modern Alchemy Game Bar in Ithaca &mdash; organized monthly Goth Nights, art shows &amp; private events</li>
+			<li>Bartender at The Downstairs Listening Room &amp; Tavern and The Watershed in New York</li>
+			<li>Casual bagel baker at Tandem Bagel Co in Northampton, MA (Spring 2024)</li>
 		</ul>
 
 		<h3>Current Stack</h3>
