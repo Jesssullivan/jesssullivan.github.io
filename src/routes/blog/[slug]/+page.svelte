@@ -29,9 +29,34 @@
 	{/if}
 	<meta property="og:title" content={data.metadata.title} />
 	<meta property="og:type" content="article" />
+	<meta property="og:url" content="https://transscendsurvival.org/blog/{data.metadata.slug}" />
+	<meta property="og:site_name" content="transscendsurvival.org" />
+	<meta property="article:published_time" content={data.metadata.date} />
+	<meta property="article:author" content="Jess Sullivan" />
 	{#if data.metadata.description}
 		<meta property="og:description" content={data.metadata.description} />
 	{/if}
+	{#if data.metadata.tags?.length}
+		{#each data.metadata.tags as tag}
+			<meta property="article:tag" content={tag} />
+		{/each}
+	{/if}
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content={data.metadata.title} />
+	{#if data.metadata.description}
+		<meta name="twitter:description" content={data.metadata.description} />
+	{/if}
+	<link rel="canonical" href="https://transscendsurvival.org/blog/{data.metadata.slug}" />
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		"headline": data.metadata.title,
+		"datePublished": data.metadata.date,
+		"author": { "@type": "Person", "name": "Jess Sullivan", "url": "https://github.com/Jesssullivan" },
+		"publisher": { "@type": "Person", "name": "Jess Sullivan" },
+		"url": `https://transscendsurvival.org/blog/${data.metadata.slug}`,
+		...(data.metadata.description ? { "description": data.metadata.description } : {})
+	})}</script>`}
 </svelte:head>
 
 <article class="container mx-auto px-4 py-12 max-w-3xl">

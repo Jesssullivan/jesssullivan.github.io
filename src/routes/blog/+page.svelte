@@ -19,7 +19,13 @@
 
 <svelte:head>
 	<title>Blog | transscendsurvival.org</title>
-	<meta name="description" content="Blog posts by Jess Sullivan" />
+	<meta name="description" content="Blog posts by Jess Sullivan — hardware, FOSS, birding, ecology, and more." />
+	<meta property="og:title" content="Blog | transscendsurvival.org" />
+	<meta property="og:description" content="Blog posts by Jess Sullivan — hardware, FOSS, birding, ecology, and more." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://transscendsurvival.org/blog" />
+	<meta name="twitter:card" content="summary" />
+	<link rel="canonical" href="https://transscendsurvival.org/blog" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">

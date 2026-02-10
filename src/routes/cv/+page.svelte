@@ -1,6 +1,12 @@
 <svelte:head>
 	<title>CV | transscendsurvival.org</title>
-	<meta name="description" content="Jess Sullivan - CV and Resume" />
+	<meta name="description" content="Jess Sullivan — CV and Resume. Systems Analyst, FOSS contributor, hardware hacker." />
+	<meta property="og:title" content="CV | transscendsurvival.org" />
+	<meta property="og:description" content="Jess Sullivan — CV and Resume. Systems Analyst, FOSS contributor, hardware hacker." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://transscendsurvival.org/cv" />
+	<meta name="twitter:card" content="summary" />
+	<link rel="canonical" href="https://transscendsurvival.org/cv" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">

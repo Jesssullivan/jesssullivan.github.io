@@ -1,6 +1,12 @@
 <svelte:head>
 	<title>About | transscendsurvival.org</title>
-	<meta name="description" content="About Jess Sullivan" />
+	<meta name="description" content="About Jess Sullivan — hardware hacker, FOSS contributor, birder based in Lewiston, ME." />
+	<meta property="og:title" content="About | transscendsurvival.org" />
+	<meta property="og:description" content="About Jess Sullivan — hardware hacker, FOSS contributor, birder based in Lewiston, ME." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://transscendsurvival.org/about" />
+	<meta name="twitter:card" content="summary" />
+	<link rel="canonical" href="https://transscendsurvival.org/about" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">
