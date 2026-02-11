@@ -78,6 +78,21 @@ test-e2e-headed:
 # Run all tests (redirects + E2E)
 test: test-redirects test-e2e
 
+# Run full CI pipeline locally
+ci: check build test-redirects validate-frontmatter test-e2e
+
+# =============================================================================
+# Changelog
+# =============================================================================
+
+# Generate changelog
+changelog:
+    git-cliff --output CHANGELOG.md
+
+# Preview changelog without writing
+changelog-preview:
+    git-cliff --unreleased
+
 # =============================================================================
 # Cleanup
 # =============================================================================
@@ -97,6 +112,10 @@ clean-all: clean
 # Sync SvelteKit types
 sync:
     npx svelte-kit sync
+
+# Build with bundle analysis
+analyze:
+    BUILD_ANALYZE=true npm run build && open build/stats.html || open .svelte-kit/output/client/stats.html
 
 # Show environment info
 info:
