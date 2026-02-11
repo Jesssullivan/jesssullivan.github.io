@@ -120,6 +120,14 @@
 		<h1 class="hero-banner-title text-2xl sm:text-3xl lg:text-4xl">
 			Trans Scend Survival
 		</h1>
+		<div class="hero-banner-separator" aria-hidden="true"></div>
+		<p class="hero-banner-description">
+			<span class="hero-banner-description-word"><strong>Trans:</strong> Latin prefix implying &ldquo;across&rdquo; or &ldquo;Beyond&rdquo;, often used in gender nonconforming situations</span>
+			<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+			<span class="hero-banner-description-word"><strong>Scend:</strong> Archaic word describing a strong &ldquo;surge&rdquo; or &ldquo;wave&rdquo;, originating with 15th century english sailors</span>
+			<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+			<span class="hero-banner-description-word"><strong>Survival:</strong> 15th century english compound word describing an existence only worth transcending</span>
+		</p>
 		<p class="hero-banner-subtitle text-sm sm:text-base">
 			Jess Sullivan
 		</p>
