@@ -89,21 +89,27 @@
 			<meta property="article:tag" content={tag} />
 		{/each}
 	{/if}
+	<meta property="og:image" content={data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : 'https://transscendsurvival.org/images/header.png'} />
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content={data.metadata.title} />
 	{#if data.metadata.description}
 		<meta name="twitter:description" content={data.metadata.description} />
 	{/if}
+	<meta name="twitter:image" content={data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : 'https://transscendsurvival.org/images/header.png'} />
 	<link rel="canonical" href="https://transscendsurvival.org/blog/{data.metadata.slug}" />
 	{@html `<script type="application/ld+json">${JSON.stringify({
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
 		"headline": data.metadata.title,
 		"datePublished": data.metadata.date,
+		"dateModified": data.metadata.date,
 		"author": { "@type": "Person", "name": "Jess Sullivan", "url": "https://github.com/Jesssullivan" },
 		"publisher": { "@type": "Person", "name": "Jess Sullivan" },
 		"url": `https://transscendsurvival.org/blog/${data.metadata.slug}`,
-		...(data.metadata.description ? { "description": data.metadata.description } : {})
+		"image": data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : "https://transscendsurvival.org/images/header.png",
+		"mainEntityOfPage": { "@type": "WebPage", "@id": `https://transscendsurvival.org/blog/${data.metadata.slug}` },
+		...(data.metadata.description ? { "description": data.metadata.description } : {}),
+		...(data.metadata.tags?.length ? { "keywords": data.metadata.tags.join(", ") } : {})
 	})}</script>`}
 </svelte:head>
 

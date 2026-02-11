@@ -66,6 +66,17 @@
 	}
 </script>
 
+<svelte:head>
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"name": "transscendsurvival.org",
+		"url": "https://transscendsurvival.org",
+		"author": { "@type": "Person", "name": "Jess Sullivan", "url": "https://github.com/Jesssullivan" },
+		"description": "Blog and portfolio by Jess Sullivan — full stack engineer, musician, and birdwatcher."
+	})}</script>`}
+</svelte:head>
+
 <BlobBackground />
 
 <div class="min-h-screen flex flex-col relative">

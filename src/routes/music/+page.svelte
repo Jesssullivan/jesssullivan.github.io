@@ -33,7 +33,10 @@
 	<meta property="og:description" content="Music by Jess Sullivan — guitar, piano, organ recordings and musings." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/music" />
+	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
+	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/music" />
 </svelte:head>
 

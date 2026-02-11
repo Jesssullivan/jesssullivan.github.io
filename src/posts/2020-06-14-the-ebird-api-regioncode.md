@@ -32,14 +32,14 @@ I'm not sure why, but some methods use normal latitude / longitude in decimal de
 
 For example, recent observations uses `regionCode`:
 
-```
+```text
 # GET Recent observations in a region:
 # https://api.ebird.org/v2/data/obs/REGIONCODE/recent
 ```
 
 ...But nearby recent observations uses latitude / longitude:
 
-```
+```text
 # GET Recent nearby observations:
 # https://api.ebird.org/v2/data/obs/geo/recent?lat=LAT&lng=LNG
 ```

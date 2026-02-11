@@ -5,8 +5,25 @@
 	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/about" />
+	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
+	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/about" />
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "Person",
+		"name": "Jess Sullivan",
+		"url": "https://transscendsurvival.org",
+		"jobTitle": "Systems Analyst (DevSecOps)",
+		"worksFor": { "@type": "Organization", "name": "Bates College" },
+		"sameAs": [
+			"https://github.com/Jesssullivan",
+			"https://gitlab.com/jesssullivan",
+			"https://soundcloud.com/jesssullivan"
+		],
+		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME."
+	})}</script>`}
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">

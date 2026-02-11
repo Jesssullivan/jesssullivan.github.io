@@ -35,9 +35,9 @@ iPhone | 1.7 | 2 | 3.4 |
 AAs | 11.2 | 0.3 | 3.36 |   
 Camera | 2.6 | 1 | 2.6 |   
   
-***The milk crate system below can charge a 100 watt MacBook Pro around 8-9 times from being completely empty.**
+**The milk crate system below can charge a 100 watt MacBook Pro around 8-9 times from being completely empty.**
 
-****Remember: V*A=W, W/V=A, and Watts over time is Wh.**
+**Remember: V\*A=W, W/V=A, and Watts over time is Wh.**
 
 -Jess
 
