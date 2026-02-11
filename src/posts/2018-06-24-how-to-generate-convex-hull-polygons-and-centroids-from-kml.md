@@ -10,7 +10,7 @@ original_url: "https://transscendsurvival.org/2018/06/24/how-to-generate-convex-
 
 Click here for the PDF:
 
-[Generate convex hull polygons and centroids from KML](https://transscendsurvival.org/wp-content/uploads/2018/06/Generate-convex-hull-polygons-and-centroids-from-KML.pdf)
+*The PDF that was hosted here has been lost with the WordPress site.*
 
   
 

@@ -68,6 +68,6 @@ With no arguments & in a new folder, Raspian "stretch-lite" (no desktop environm
     
     qemu-img convert -f qcow2 -O raw file.qcow2 file.img
 
-![Four Pi Emulations ala QEMU](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2019/10/imgs.png?resize=676%2C410&ssl=1)
+*The image of "Four Pi Emulations ala QEMU" is no longer available.*
 
 ### _Related_

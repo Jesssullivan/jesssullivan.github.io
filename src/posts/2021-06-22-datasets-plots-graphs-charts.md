@@ -23,4 +23,4 @@ This and that, bits and bobs...
   * [**ai.columbari.us/reports/daejun**](https://ai.columbari.us/reports/daejun):
 
   * **Boxes, Boxes, Boxes!**  
-![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2021/06/boxs.gif?resize=300%2C169&ssl=1)
+*Image no longer available -- a reminder that digital things are impermanent too.*

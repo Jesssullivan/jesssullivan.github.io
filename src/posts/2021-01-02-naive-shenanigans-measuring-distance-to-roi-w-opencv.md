@@ -116,7 +116,7 @@ python3 measure.py
 
 #### Results:
 
-...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool! |  ![](https://i2.wp.com/raw.githubusercontent.com/Jesssullivan/misc-roi-distance-notes/main/measured.gif?w=676&ssl=1)  
+...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool! |  *This image has been lost to time. The original was hosted on WordPress.*  
 ---|---  
   
 -Jess

@@ -24,7 +24,7 @@ The idea of “group buys” is elementary in DIY audio circles. Folks going in 
 
 The folks building audio equipment in their basement, garage, or bedroom are, in essence, artists exploring art through avenues otherwise devoid of artisan qualities. It is easy to reproduce sound commercially- Apple supplies those iBud-earPod-headBeats with every phone they sell. Yet, the people in DIY audio are taking on audio components exactly how a great potter would craft a new bowl or coffee cup; functional sculpture, art in one of its oldest forms.
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-20-at-4.23.19-AM.png?resize=318%2C321&ssl=1)](http://jazzman-esl-page.blogspot.com/)
+*The photograph that was here has since disappeared from the web.*
 
 Screenshot of Jazzman's blog (http://jazzman-esl-page.blogspot.com/)
 

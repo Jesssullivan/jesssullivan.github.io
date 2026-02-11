@@ -25,17 +25,17 @@ Here we have one of these big dogs. things to note:
 
 These traits are interesting, though they get way cooler and silly when we look at the crazy, unique, and very artistically rendered "black panther" prints I found in the PSU dining hall:
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/IMG_2030.jpg?resize=300%2C225&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/IMG_2030.jpg?ssl=1)I realize this is the worst iPhone-picture-while-scooping-ice-cream example, but...
+*This image was a casualty of the WordPress migration.*I realize this is the worst iPhone-picture-while-scooping-ice-cream example, but...
 
 ...I do not think these prints are for a black panther. I do not think they are for a dog. These are the one of a kind "melanistic dogamount" prints!
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/IMG_2031.jpg?resize=389%2C184&ssl=1)Here we have the local catamount (cougar) vs the dog (similar to the big dog I found).
+*Another image lost in the great WordPress decommission.*Here we have the local catamount (cougar) vs the dog (similar to the big dog I found).
 
 Remember, the PSU mascot is a [melanistic jaguar](https://en.wikipedia.org/wiki/Jaguar#Color_morphism) named "Pemi". Jaguar prints are anatomically very similar to the puma/cougar version that is theoretically in new england, if only on occasion. Indeed, these "uber crazy level" cats have an (average) range of about 300 square miles. Which is 192,000 acres, if you weren't so hot on math. 🙂
 
 This range makes tracking a single cougar extremely difficult, and as far as I can tell, nobody has been particularly successful- thus, finding photos of actual paw prints is really, really hard, and makes the far larger melanistic jaguar prints impossible to find. Below is a cougar paw from captivity.
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/1024px-Puma_concolor_paw-2.jpg?resize=300%2C201&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/1024px-Puma_concolor_paw-2.jpg?ssl=1)
+*The server that hosted this image has long since gone dark.*
 
 *Image: paw of cougar (Puma concolor). Source: "No Place for Predators?" Gross L, PLoS Biology Vol. 6, No. 2, e40*
 

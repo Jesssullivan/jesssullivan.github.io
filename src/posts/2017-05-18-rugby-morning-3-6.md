@@ -12,22 +12,22 @@ original_url: "https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/"
 
 -Jess
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9839.jpg?fit=300%2C200&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9839/)
+*This space once held an image. The WordPress CDN has since gone quiet.*
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9773.jpg?fit=200%2C300&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9773/)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
   
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9823.jpg?fit=300%2C200&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9823/)
+*This image has been lost to time. The original was hosted on WordPress.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9722.jpg?fit=200%2C300&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9722/)
+*The photograph that was here has since disappeared from the web.*
   
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9878.jpg?fit=200%2C300&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9878/)
+*Image no longer available -- a reminder that digital things are impermanent too.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9899.jpg?fit=300%2C200&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9899/)
+*This image didn't survive the migration from WordPress. Such is the web.*
   
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9728.jpg?fit=300%2C300&ssl=1)](https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/img_9728/)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
   
 
 ### _Related_

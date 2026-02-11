@@ -12,7 +12,7 @@ original_url: "https://transscendsurvival.org/2020/09/05/kvm-does-fruit-xcode-fr
 
 #### https://github.com/kholia/OSX-KVM
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2020/09/Screenshot-from-2020-09-04-23-39-16.png?w=676&ssl=1)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
 
 _Hmmmm....._
 

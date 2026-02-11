@@ -12,7 +12,7 @@ original_url: "https://www.transscendsurvival.org/2021/08/27/datasets-plots-grap
 
 ...Overengineering a replacement TPU lens bumper for my beloved binoculars:
 
-![](https://i2.wp.com/www.transscendsurvival.org/wp-content/uploads/2021/06/IMG_2823.png?resize=300%2C225&ssl=1) | ![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2021/06/maven_b3_bumper.gif?resize=300%2C210&ssl=1)  
+*The bits that made up this image have scattered to the wind.* | *Gone with the WordPress -- this image no longer exists online.*  
 ---|---  
   
 ##### \- [...Check out the awesome new Machine Learning Blog at Macaulay Library!](https://www.macaulaylibrary.org/machine-learning/)
@@ -28,4 +28,4 @@ original_url: "https://www.transscendsurvival.org/2021/08/27/datasets-plots-grap
   * [**ai.columbari.us/reports/daejun**](https://ai.columbari.us/reports/daejun):
 
   * **Boxes, Boxes, Boxes!**  
-![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2021/06/boxs.gif?resize=300%2C169&ssl=1)
+*This image was a casualty of the WordPress migration.*

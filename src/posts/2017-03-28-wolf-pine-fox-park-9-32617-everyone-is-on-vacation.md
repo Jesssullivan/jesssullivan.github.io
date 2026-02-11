@@ -16,17 +16,17 @@ Let us see where the warblers are today, ehh?
 
 Here we have the most up to date info on the Palm warblers. If you are not used to the [eBird species range map](https://ebird.org/ebird/map/), you should click the link and get used to it. This is the most efficient way to find where species are, assuming there are people around the areas in question to report sightings. Here, I narrowed the time frame to this year and this month. We can see the Palm warbler crew is still in Florida for the most part. This is where many Palm warblers go when they go south, the farthest ones only ferrying over the Cuba. Up the coast they go, but the leaders of the pack are not really in New England yet.
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.38.16-AM.png?resize=647%2C319&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.38.16-AM.png?ssl=1)
+*Image no longer available -- a reminder that digital things are impermanent too.*
 
 Palm warblers are an early warbler in my experience around here. They often will be showing up as the buds on the trees begin to get serious about leaves. They simply don't cross the Gulf of Mexico or the Caribbean, unlike many of their peers.
 
 Another early bird is the pine warbler. They don't really migrate much, but in the spring they wander up from the south, making for regular sightings in MA in NH.
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.38.46-AM.png?resize=650%2C331&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.38.46-AM.png?ssl=1)
+*This image didn't survive the migration from WordPress. Such is the web.*
 
 But what about the real warbler crew? Blackburnians! Chestnut sided! Well, as you can see below, they are all still singing songs in portuguese and spanish, as far south as Ecuador (for the blackburnians) right now.
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.39.32-AM.png?resize=676%2C388&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-6.39.32-AM.png?ssl=1) [![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-7.04.58-AM.png?resize=676%2C320&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-28-at-7.04.58-AM.png?ssl=1)
+*The original image, once hosted on WordPress, has been lost to the digital ether.* *This visual has drifted away with the old WordPress site.*
 
 Remarkable! Both of those birds will fly between 2,000 and 3,000+ miles, just to visit us in NH! Special indeed.
 

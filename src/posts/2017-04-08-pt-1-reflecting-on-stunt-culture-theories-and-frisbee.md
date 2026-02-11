@@ -16,7 +16,7 @@ Oddly enough, even the most elite athletes in frisbee, climbing, and scootering 
 
 I had a great friend a few years back- nicest fellow in town. Not only was he extremely well educated and respected in the doctoral-level health services community, he was one of the top competitive ultimate frisbee players in the country, heralding from Boston. This dude is the definitive quarterback of frisbee for crying out loud- upon entering a stadium where he was playing on evening (I had not realized his elite-ness yet, I was just going to a game to be nice), I quickly realized the crowd was chanting, screaming my friend's last name- when he came roaring into the field leading the team, I could feel the adrenaline in the crowd like helium in my lungs. Yet: this was just his game, not even a "sport" (like pro baseball) to him as far as I could tell... ...My friend had unearthed the "ultimate" way to deal with stress from his lofty academic and work positions. Despite the immense amount of time, energy, and failure put into a complicated, dangerous game (he definitely tore more ankles, shoulders, and labrums "playing" than he ever would working on his doctorate) he was able to find a balance between relaxation, play, and work while maintaining a cheery attitude and high octane, dedicated mindset.
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-22-at-11.25.54-AM.png?resize=676%2C361&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/03/Screen-Shot-2017-03-22-at-11.25.54-AM.png?ssl=1)
+*Digital entropy claimed this image when the WordPress site was retired.*
 
 Photo by Bob Durling – Ultiphotos.com
 
