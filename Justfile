@@ -63,6 +63,10 @@ check:
 test-redirects:
     npm run test:redirects
 
+# Run Vitest unit tests
+test-unit:
+    npx vitest run
+
 # Run Playwright E2E tests (builds + serves automatically)
 test-e2e:
     npx playwright test
@@ -75,11 +79,11 @@ test-e2e-file file:
 test-e2e-headed:
     npx playwright test --headed
 
-# Run all tests (redirects + E2E)
-test: test-redirects test-e2e
+# Run all tests (unit + redirects + E2E)
+test: test-unit test-redirects test-e2e
 
 # Run full CI pipeline locally
-ci: check build test-redirects validate-frontmatter test-e2e
+ci: check test-unit build test-redirects validate-frontmatter test-e2e
 
 # =============================================================================
 # Changelog
