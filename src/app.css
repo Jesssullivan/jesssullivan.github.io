@@ -167,3 +167,30 @@ code, pre, .font-mono {
 	border: 1px solid var(--color-surface-300);
 	text-align: left;
 }
+
+/* Accessibility: Focus indicators */
+:focus-visible {
+	outline: 2px solid var(--color-primary-500);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* Skip link already in layout — ensure visible on focus */
+a[href="#main-content"]:focus {
+	clip: auto;
+	clip-path: none;
+	height: auto;
+	width: auto;
+	overflow: visible;
+	position: absolute;
+}
+
+/* Reduced motion: disable all animations and transitions */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

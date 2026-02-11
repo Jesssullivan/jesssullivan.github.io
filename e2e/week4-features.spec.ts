@@ -53,24 +53,24 @@ test.describe('Theme Switcher', () => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
 		await expect(page.getByLabel('Theme settings')).toHaveAttribute('aria-expanded', 'true');
-		await expect(page.getByRole('button', { name: 'Light' })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'Light' })).toBeVisible();
 	});
 
 	test('dropdown closes when clicking outside', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
-		await expect(page.getByRole('button', { name: 'Light' })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'Light' })).toBeVisible();
 
 		// Click outside
 		await page.locator('main').click();
-		await expect(page.getByRole('button', { name: 'Light' })).not.toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'Light' })).not.toBeVisible();
 	});
 
 	test('active mode is highlighted', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
 		// System should be the default (no stored preference)
-		const systemBtn = page.getByRole('button', { name: 'System' });
+		const systemBtn = page.getByRole('menuitem', { name: 'System' });
 		const classes = await systemBtn.getAttribute('class');
 		expect(classes).toContain('text-primary-500');
 	});

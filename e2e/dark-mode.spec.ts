@@ -12,15 +12,15 @@ test.describe('Dark Mode', () => {
 		const switcher = page.getByLabel('Theme settings');
 		await switcher.click();
 
-		await expect(page.getByRole('button', { name: 'Light' })).toBeVisible();
-		await expect(page.getByRole('button', { name: 'Dark' })).toBeVisible();
-		await expect(page.getByRole('button', { name: 'System' })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'Light' })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'Dark' })).toBeVisible();
+		await expect(page.getByRole('menuitem', { name: 'System' })).toBeVisible();
 	});
 
 	test('switching to dark mode works', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
-		await page.getByRole('button', { name: 'Dark' }).click();
+		await page.getByRole('menuitem', { name: 'Dark' }).click();
 
 		const mode = await page.locator('html').getAttribute('data-mode');
 		expect(mode).toBe('dark');
@@ -33,19 +33,19 @@ test.describe('Dark Mode', () => {
 		await page.goto('/');
 		// Switch to dark
 		await page.getByLabel('Theme settings').click();
-		await page.getByRole('button', { name: 'Dark' }).click();
+		await page.getByRole('menuitem', { name: 'Dark' }).click();
 		expect(await page.locator('html').getAttribute('data-mode')).toBe('dark');
 
 		// Switch back to light
 		await page.getByLabel('Theme settings').click();
-		await page.getByRole('button', { name: 'Light' }).click();
+		await page.getByRole('menuitem', { name: 'Light' }).click();
 		expect(await page.locator('html').getAttribute('data-mode')).toBe('light');
 	});
 
 	test('system mode respects localStorage removal', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
-		await page.getByRole('button', { name: 'System' }).click();
+		await page.getByRole('menuitem', { name: 'System' }).click();
 
 		// System mode removes explicit color-mode from localStorage
 		const stored = await page.evaluate(() => localStorage.getItem('color-mode'));
