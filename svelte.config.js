@@ -117,6 +117,9 @@ const mdsvexOptions = {
 const config = {
 	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [vitePreprocess(), mdsvex(mdsvexOptions)],
+	compilerOptions: {
+		runes: true
+	},
 	kit: {
 		adapter: adapter({
 			pages: 'build',

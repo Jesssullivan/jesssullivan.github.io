@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
 import prettier from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default ts.config(
 	js.configs.recommended,
@@ -12,25 +13,8 @@ export default ts.config(
 	{
 		languageOptions: {
 			globals: {
-				window: 'readonly',
-				document: 'readonly',
-				localStorage: 'readonly',
-				setTimeout: 'readonly',
-				clearTimeout: 'readonly',
-				requestAnimationFrame: 'readonly',
-				cancelAnimationFrame: 'readonly',
-				HTMLElement: 'readonly',
-				HTMLDivElement: 'readonly',
-				HTMLIFrameElement: 'readonly',
-				MutationObserver: 'readonly',
-				WheelEvent: 'readonly',
-				MouseEvent: 'readonly',
-				IntersectionObserver: 'readonly',
-				URL: 'readonly',
-				performance: 'readonly',
-				console: 'readonly',
-				Buffer: 'readonly',
-				process: 'readonly',
+				...globals.browser,
+				...globals.node,
 			},
 			parserOptions: {
 				extraFileExtensions: ['.svelte'],
@@ -54,13 +38,6 @@ export default ts.config(
 			'svelte/no-dom-manipulating': 'off',
 			'svelte/require-each-key': 'warn',
 			'svelte/no-navigation-without-resolve': 'off',
-		},
-	},
-	{
-		// Disable parsing for files with JSON-LD {@html} blocks that trip the svelte parser
-		files: ['**/Breadcrumbs.svelte', '**/blog/\\[slug\\]/+page.svelte'],
-		rules: {
-			// These files have valid Svelte but the ESLint parser can't handle @html with JSON-LD
 		},
 	},
 	{
