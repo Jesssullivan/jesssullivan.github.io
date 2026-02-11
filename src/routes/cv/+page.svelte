@@ -38,72 +38,66 @@
 
 		<h4>Systems Analyst (DevSecOps) &mdash; Bates College <span class="text-surface-500 font-normal">(2024&ndash;Present)</span></h4>
 		<ul>
-			<li>Maintenance and modernization of legacy systems; bespoke Ansible extensions, roles, and plugins</li>
-			<li>Degree audit orchestration tooling in Haskell + Python (QuickCheck, Cabal, FPM, autodevops)</li>
-			<li>Event management system overhaul (C#, Go, Ansible)</li>
-			<li>Apache Solr adoption for indexing and search</li>
-			<li>ACME-first certificate management, SAML integrations, KeePassXC declarative workflows</li>
-			<li>CI/CD pipelines: GitLab AutoDevOps, OpenTofu, RKE2 + Rancher</li>
+			<li>Legacy modernization, bespoke Ansible extensions, roles &amp; plugins</li>
+			<li>Apache Solr, ACME cert management, SAML integrations</li>
+			<li>GitLab AutoDevOps, RKE2 + Rancher, promoter of IaC practices</li>
+			<li>Orchestration, packaging &amp; tooling work (Haskell + Python, QuickCheck, Cabal, FPM)</li>
 		</ul>
 
-		<h4>Computer Vision Software Engineer &mdash; Macaulay Library <span class="text-surface-500 font-normal">(2018&ndash;2022)</span></h4>
+		<h4>CV/ML Software Engineer &mdash; Macaulay Library <span class="text-surface-500 font-normal">(2018&ndash;2022)</span></h4>
 		<ul>
-			<li>Developed &amp; launched Merlin Sound ID &amp; The Machine Learning Blog</li>
+			<li>Developed &amp; launched <a href="https://merlin.allaboutbirds.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Merlin Sound ID</a> &amp; The Machine Learning Blog</li>
 			<li>Fine-grained ML annotation tools for audio classification</li>
-			<li>Internal classification and model evaluation web APIs</li>
-			<li>Stack: Python (TensorFlow, NumPy, Pandas), Flask, TypeScript, Docker, WebAssembly</li>
+			<li>Internal classification &amp; model evaluation web APIs</li>
+			<li>Python (TensorFlow, NumPy, Pandas), Flask, TypeScript, Docker, WASM</li>
 		</ul>
 
 		<h4>Fabrication Lab Manager &mdash; Cornell CALS <span class="text-surface-500 font-normal">(2021&ndash;2022)</span></h4>
 		<ul>
-			<li>Rapid fabrication curricula for Landscape Architecture students and faculty</li>
+			<li>Rapid fabrication curricula for Landscape Architecture students &amp; faculty</li>
 			<li>OpenSCAD, Fusion 360, C++ tiler development</li>
 		</ul>
 
 		<h3>Ventures</h3>
 
-		<h4>Tinyland.dev, Inc <span class="text-surface-500 font-normal">(2024&ndash;Present)</span></h4>
-		<p>Semiautonomous infrastructure maintenance platform for higher ed. C corporation, self-funded.</p>
-		<ul>
-			<li>5 bespoke SLMs, 100+ autonomous tools</li>
-			<li>SvelteKit 5 CMS with Svelte 5 runes, TypeScript, Vite</li>
-			<li>K8s native &mdash; Talos OS, Civo cloud, RKE2 + Rancher</li>
-			<li>i18n &mdash; 6 languages via Paraglide.js</li>
-			<li>Chapel, Python, Go, Kubernetes (Liqo), Apache Solr</li>
-		</ul>
+		<h4><a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland.dev, Inc</a> <span class="text-surface-500 font-normal">(2024&ndash;Present)</span></h4>
+		<p>Funded, stealthmode.</p>
 
-		<h4>xoxd.ai <span class="text-surface-500 font-normal">(2025&ndash;Present)</span></h4>
-		<p>Provably Autonomous Recursive Lattice (PARL) design &mdash; orchestrating massively parallel, provable agent infrastructure. 130+ agents, 5 models.</p>
-		<ul>
-			<li><strong>Marolex</strong> &mdash; K8s-native multicloud harness (Chapel + Go, Liqo topology)</li>
-			<li><strong>Huskycat</strong> &mdash; Deterministic verification middleware (multithreaded githook SLM)</li>
-			<li><strong>Outbot</strong> &mdash; Repo management agent (zone-wise git summaries, conflict resolution)</li>
-			<li><strong>FuzzyBot</strong> &mdash; Chat TUI with native IDE integration (Chapel + Go)</li>
-		</ul>
-		<p>Built on: Liqo, RKE2, CoreDNS, MetalLB, Apache Solr, pgvector, vLLM, LangGraph. Models: 2 custom mxbai embeddings, custom functiongemma SLM, Qwen v3, GLM 4.7.</p>
+		<h4><a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a> <span class="text-surface-500 font-normal">(2024&ndash;Present)</span></h4>
+		<p>Massively parallel, provable, ownable agent infrastructure. 130+ agents, 5 custom models, Chapel + Go + K8s. Seeking funding, stealthmode.</p>
 
 		<h4>Columbari.us LLC <span class="text-surface-500 font-normal">(2017&ndash;2021)</span></h4>
-		<p>Independent contractor in GIS &amp; ML. Clients included National Park Service, Foundation for Healthy Communities, GPRED, Northern Border Regional Commission.</p>
+		<p>Independent contractor in GIS &amp; ML.</p>
 
-		<h3>FOSS Contributions</h3>
-		<p>Rocky Enterprise Linux Foundation, Liqo (CERN), Apache Solr, Caddy, libdns, Skeleton UI, Klipper, KeePassXC, SearXNG, BrainFlow, EyeTrackVR, and more.</p>
+		<h4>Moonlight Coworking LLC <span class="text-surface-500 font-normal">(2024)</span></h4>
+		<p>Shelved rapidfab / HPC hackerspace initiative in NY.</p>
+
+		<h4>Kitten Spit Labs <span class="text-surface-500 font-normal">(2022&ndash;Present)</span></h4>
+		<p>Ultrasonic phantom network gel synthesis. Currently on mfg. pause.</p>
+
+		<h3>Clients</h3>
+		<p>National Park Service, Foundation for Healthy Communities, GPRED, Northern Border Regional Commission, Plymouth State University.</p>
 
 		<h3>Community</h3>
 		<ul>
-			<li>First Fellow &mdash; D&amp;M Makerspace at Plymouth State University (2017&ndash;2020)</li>
+			<li><strong>RESF Community Member</strong> &mdash; Rocky Enterprise Linux Foundation</li>
+			<li><strong>First Fellow</strong> &mdash; D&amp;M Makerspace at Plymouth State University (2017&ndash;2020)</li>
 			<li>Taught Advanced GIS Programming &amp; Intro to Electromechanics at PSU</li>
-			<li>Membership Chair &amp; 3D Printing Captain &mdash; Ithaca Generator (2020&ndash;2022)</li>
+			<li><strong>Membership Chair &amp; 3D Printing Captain</strong> &mdash; Ithaca Generator (2020&ndash;2022)</li>
 			<li>COVID-19 PPE manufacturing coordination across New England makerspaces</li>
 		</ul>
 
 		<h3>Photography</h3>
-		<p>Commercial photography business &mdash; paid my way through my undergraduate degree.</p>
-		<ul>
-			<li>Cut my teeth professionally with world-renowned aerial photographer Alex MacLean and Mike Nyman Wedding Photography, then launched J.S. Event Photography</li>
-			<li>Wrote and taught the youth photography curriculum at Joppa Flats and Drumlin Farm Mass Audubon Wildlife Sanctuaries &mdash; programs still going strong</li>
-			<li>Work featured at Celebrate Newton, Newton Public Library, Pease Public Library, Newtonville Cinema, Newton Camera Club, Broadmoor Wildlife Sanctuary, and in the Newton Tab</li>
-			<li>Did my own printing on a heavily modified inkjet printer. Completely burnt out from photography by end of 2017, sold all gear by end of college</li>
-		</ul>
+		<p>
+			Cut my teeth professionally with world-renowned aerial photographer Alex MacLean
+			and Mike Nyman Wedding Photography before going into business as J.S. Event Photography.
+			Wrote and taught the youth photography curriculum at Joppa Flats and Drumlin Farm
+			Mass Audubon Wildlife Sanctuaries &mdash; programs still going strong.
+			Work featured at Celebrate Newton, Newton Public Library, Pease Public Library,
+			Newtonville Cinema, Newton Camera Club, Broadmoor Wildlife Sanctuary, and in the Newton Tab.
+			Did my own printing on a heavily modified inkjet printer.
+			Completely burnt out from photography by end of 2017, sold all gear by end of college.
+		</p>
 
 		<h3>Music &amp; Creative</h3>
 		<ul>
@@ -117,14 +111,6 @@
 			<li>Evening bartender &amp; event organizer at Modern Alchemy Game Bar in Ithaca &mdash; organized monthly Goth Nights, art shows &amp; private events</li>
 			<li>Bartender at The Downstairs Listening Room &amp; Tavern and The Watershed in New York</li>
 			<li>Casual bagel baker at Tandem Bagel Co in Northampton, MA (Spring 2024)</li>
-		</ul>
-
-		<h3>Current Stack</h3>
-		<ul>
-			<li><strong>Web</strong>: SvelteKit, Svelte 5 runes, TypeScript, Vite (rolldown)</li>
-			<li><strong>HPC</strong>: Chapel, Haskell</li>
-			<li><strong>Infrastructure</strong>: Ansible, GitLab CI, Kubernetes (RKE2, Liqo), OpenTofu</li>
-			<li><strong>Learning</strong>: Nix, Rust SIMD</li>
 		</ul>
 	</section>
 </div>

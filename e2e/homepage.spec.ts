@@ -5,12 +5,11 @@ test.describe('Homepage', () => {
 		await page.goto('/');
 	});
 
-	test('renders parallax hero with banner image and title', async ({ page }) => {
-		await expect(page.locator('section.hero-parallax')).toBeVisible();
+	test('renders hero banner with image and title', async ({ page }) => {
+		await expect(page.locator('section.hero-banner')).toBeVisible();
 		await expect(page.locator('img[alt="Great Blue Heron"]')).toBeVisible();
 		await expect(page.getByRole('heading', { name: 'Trans Scend Survival', level: 1 })).toBeVisible();
 		await expect(page.getByText('Jess Sullivan')).toBeVisible();
-		await expect(page.getByText('Lewiston, ME')).toBeVisible();
 	});
 
 	test('has correct meta tags', async ({ page }) => {
