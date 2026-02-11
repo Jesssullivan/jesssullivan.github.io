@@ -4,6 +4,7 @@
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
+	import ReadingProgressRing from '$lib/components/ReadingProgressRing.svelte';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	let { data }: { data: PageData } = $props();
@@ -223,10 +224,17 @@
 			<GiscusComments />
 		</div>
 
-		<div class="hidden lg:block space-y-6">
-			<ProfileSidebar />
-			<hr class="border-surface-300-700" />
-			<TableOfContents />
+		<div class="hidden lg:block">
+			<div class="sticky top-4 space-y-6">
+				{#if browser && readingProgress > 0}
+					<div class="flex flex-col items-center">
+						<ReadingProgressRing progress={readingProgress} />
+					</div>
+				{/if}
+				<TableOfContents />
+				<hr class="border-surface-300-700" />
+				<ProfileSidebar />
+			</div>
 		</div>
 	</div>
 </article>
