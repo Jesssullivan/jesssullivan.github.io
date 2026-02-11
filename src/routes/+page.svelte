@@ -138,16 +138,53 @@
 		</div>
 	</section>
 
+	<!-- Featured Posts -->
+	{#if data.featured.length > 0}
+		<section class="mb-12">
+			<h2 class="text-2xl font-semibold mb-4">Featured</h2>
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				{#each data.featured as post, i}
+					{@const variants = ['preset-filled-primary-500', 'preset-filled-secondary-500', 'preset-filled-tertiary-500', 'preset-filled-success-500', 'preset-filled-warning-500', 'preset-filled-error-500']}
+					<a href="/blog/{post.slug}" class="block card p-5 hover:ring-2 ring-primary-500 transition-all {data.featured.length === 1 ? 'sm:col-span-2' : ''}">
+						<div class="flex items-start justify-between gap-3">
+							<div>
+								<h3 class="text-lg font-bold">{post.title}</h3>
+								{#if post.description}
+									<p class="text-sm text-surface-500 mt-1 line-clamp-3">{post.description}</p>
+								{/if}
+							</div>
+							{#if post.category}
+								<span class="badge {variants[i % variants.length]} text-xs whitespace-nowrap">{post.category}</span>
+							{/if}
+						</div>
+						<div class="flex items-center gap-3 mt-3">
+							<time class="text-xs text-surface-500">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+							{#if post.reading_time}
+								<span class="text-xs text-surface-400">{post.reading_time} min read</span>
+							{/if}
+						</div>
+					</a>
+				{/each}
+			</div>
+		</section>
+	{/if}
+
 	<!-- Recent Posts -->
 	<section class="mb-12">
 		<h2 class="text-2xl font-semibold mb-4">Recent Posts</h2>
 		{#if data.posts.length > 0}
 			<div class="space-y-4">
-				{#each data.posts as post}
+				{#each data.posts as post, i}
+					{@const variants = ['preset-outlined-primary-500', 'preset-outlined-secondary-500', 'preset-outlined-tertiary-500', 'preset-outlined-success-500', 'preset-outlined-warning-500', 'preset-outlined-error-500']}
 					<a href="/blog/{post.slug}" class="block card p-4 hover:ring-2 ring-primary-500 transition-all">
 						<div class="flex items-baseline justify-between gap-4">
 							<h3 class="font-semibold">{post.title}</h3>
-							<time class="text-xs text-surface-500 whitespace-nowrap">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+							<div class="flex items-center gap-2">
+								{#if post.category}
+									<span class="badge {variants[i % variants.length]} text-xs">{post.category}</span>
+								{/if}
+								<time class="text-xs text-surface-500 whitespace-nowrap">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+							</div>
 						</div>
 						{#if post.description}
 							<p class="text-sm text-surface-500 mt-1 line-clamp-2">{post.description}</p>
