@@ -1,12 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { enhancedImages } from '@sveltejs/enhanced-img';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		enhancedImages(),
 		tailwindcss(),
 		sveltekit(),
 		...(process.env.BUILD_ANALYZE ? [
