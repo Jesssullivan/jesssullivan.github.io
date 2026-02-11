@@ -25,8 +25,8 @@
 		script.src = 'https://giscus.app/client.js';
 		script.setAttribute('data-repo', 'Jesssullivan/jesssullivan.github.io');
 		script.setAttribute('data-repo-id', 'R_kgDORMp11w');
-		script.setAttribute('data-category', 'General');
-		script.setAttribute('data-category-id', 'DIC_kwDORMp1184C2H4C');
+		script.setAttribute('data-category', 'Announcements');
+		script.setAttribute('data-category-id', 'DIC_kwDORMp1184C2H4B');
 		script.setAttribute('data-mapping', 'pathname');
 		script.setAttribute('data-strict', '0');
 		script.setAttribute('data-reactions-enabled', '1');
