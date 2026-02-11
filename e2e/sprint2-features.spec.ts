@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Parallax Hero', () => {
+test.describe('Hero Banner', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto('/');
 	});
 
-	test('hero section exists with .hero-parallax class', async ({ page }) => {
-		const hero = page.locator('section.hero-parallax');
+	test('hero section exists with .hero-banner class', async ({ page }) => {
+		const hero = page.locator('section.hero-banner');
 		await expect(hero).toBeVisible();
 	});
 
-	test('hero background image is visible', async ({ page }) => {
-		const heroImg = page.locator('.hero-parallax .hero-parallax-bg');
+	test('hero banner image is visible', async ({ page }) => {
+		const heroImg = page.locator('.hero-banner .hero-banner-img');
 		await expect(heroImg).toBeVisible();
 	});
 
@@ -22,10 +22,8 @@ test.describe('Parallax Hero', () => {
 	});
 
 	test('hero subtitle with "Jess Sullivan" is visible', async ({ page }) => {
-		const hero = page.locator('section.hero-parallax');
+		const hero = page.locator('section.hero-banner');
 		await expect(hero.getByText('Jess Sullivan')).toBeVisible();
-		await expect(hero.getByText('Systems Analyst')).toBeVisible();
-		await expect(hero.getByText('Lewiston, ME')).toBeVisible();
 	});
 });
 

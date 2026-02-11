@@ -46,7 +46,7 @@
 		shadow="shadow-sm"
 	>
 		{#snippet lead()}
-			<a href="/" class="text-lg font-bold font-heading hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
+			<a href="/" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
 				transscendsurvival.org
 			</a>
 		{/snippet}

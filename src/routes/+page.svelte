@@ -1,33 +1,10 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { browser } from '$app/environment';
 	let { data }: { data: PageData } = $props();
-
-	let scrollY = $state(0);
-	let parallaxOffset = $derived(scrollY * 0.33);
-	let titleOpacity = $derived(Math.max(0, 1 - scrollY / 300));
-
-	$effect(() => {
-		if (!browser) return;
-
-		let ticking = false;
-		function onScroll() {
-			if (!ticking) {
-				requestAnimationFrame(() => {
-					scrollY = window.scrollY;
-					ticking = false;
-				});
-				ticking = true;
-			}
-		}
-
-		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
-	});
 
 	const ventures = [
 		{ name: 'Tinyland.dev', url: 'https://tinyland.dev', period: '2024-Present', desc: 'Funded, stealthmode. Tinyland is big, more to come very soon.' },
-		{ name: 'xoxd.ai', url: 'https://xoxd.ai', period: '2024-Present', desc: 'Massively parallel, provable, ownable agent infrastructure. 130+ agents, 5 custom models.' },
+		{ name: 'xoxd.ai', url: 'https://xoxd.ai', period: '2024-Present', desc: 'Massively parallel, provable, ownable agent infrastructure. 130+ agents, 5 custom models, Chapel + Go + K8s.' },
 		{ name: 'Columbari.us', url: 'https://columbari.us', period: '2017-2021', desc: 'Independent Gov. contractor in GIS & ML.' },
 		{ name: 'Moonlight Coworking', url: null, period: '2024', desc: 'Shelved rapidfab / HPC hackerspace initiative in NY.' },
 		{ name: 'Kitten Spit Labs', url: null, period: '2022-Present', desc: 'Ultrasonic phantom network gel synthesis. Currently on mfg. pause.' },
@@ -102,6 +79,10 @@
 		'GPRED',
 		'Northern Border Regional Commission',
 		'Plymouth State University',
+		'Massage Ithaca',
+		'Tetrahedron',
+		'Rossel',
+		'STNWL',
 	];
 </script>
 
@@ -119,26 +100,24 @@
 	<link rel="canonical" href="https://transscendsurvival.org" />
 </svelte:head>
 
-<!-- Hero with parallax -->
-<section class="hero-parallax">
+<!-- Hero banner — Hemingway WP faithful -->
+<section class="hero-banner">
 	<img
 		src="/images/header.png"
 		alt="Great Blue Heron"
-		class="hero-parallax-bg"
-		style="transform: translate3d(0, {parallaxOffset}px, 0)"
+		class="hero-banner-img"
+		width="672"
+		height="219"
 		fetchpriority="high"
 		decoding="sync"
 	/>
-	<div class="hero-overlay"></div>
-	<div class="hero-title-wrap" style="opacity: {titleOpacity}">
-		<div class="container mx-auto max-w-3xl">
-			<h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg tracking-wide">
-				Trans Scend Survival
-			</h1>
-			<p class="text-lg sm:text-xl text-surface-200 mt-2 drop-shadow font-heading tracking-wider">
-				Jess Sullivan &mdash; Systems Analyst | Lewiston, ME
-			</p>
-		</div>
+	<div class="hero-banner-overlay">
+		<h1 class="hero-banner-title text-2xl sm:text-3xl lg:text-4xl">
+			Trans Scend Survival
+		</h1>
+		<p class="hero-banner-subtitle text-sm sm:text-base">
+			Jess Sullivan
+		</p>
 	</div>
 </section>
 
@@ -280,7 +259,7 @@
 			<div class="card p-4">
 				<h3 class="font-semibold mb-1">Photography</h3>
 				<p class="text-sm text-surface-500">
-					Worked with aerial photographer Alex MacLean. Wrote youth photography curricula for Mass Audubon. Work featured across New England galleries and libraries.
+					Worked with aerial photographer Alex MacLean and Mike Nyman. Wrote youth photography curricula for Mass Audubon. Work featured at Newton Public Library, Broadmoor Wildlife Sanctuary, and more.
 				</p>
 			</div>
 			<div class="card p-4">
