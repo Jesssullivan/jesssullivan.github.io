@@ -39,10 +39,45 @@
 		{ role: 'Fabrication Lab Manager', org: 'Cornell CALS', period: '2021-2022', highlights: 'Rapid fabrication curricula, OpenSCAD, Fusion 360, C++ tiler development' },
 	];
 
-	const fossProjects = [
-		{ name: 'quickchpl', url: 'https://github.com/Jesssullivan/quickchpl', desc: 'Property-Based Testing for Chapel' },
-		{ name: 'GloriousFlywheel', url: 'https://github.com/Jesssullivan/GloriousFlywheel', desc: 'Recursive IaC flywheel for GitLab' },
-		{ name: 'XoxdWM', url: 'https://github.com/Jesssullivan/XoxdWM', desc: 'Eye-gesture VR & BCI XWayland Emacs WM' },
+	const fossCategories = [
+		{
+			label: 'Languages & Compilers',
+			projects: [
+				{ name: 'quickchpl', url: 'https://github.com/Jesssullivan/quickchpl', desc: 'Property-Based Testing for Chapel' },
+				{ name: 'RemoteJuggler', url: 'https://github.com/Jesssullivan/RemoteJuggler', desc: 'Multi-identity git credential resolver in Chapel' },
+				{ name: 'pixelwise-research', url: 'https://github.com/Jesssullivan/pixelwise-research', desc: 'WebGPU glyph compositor demo in Futhark' },
+			]
+		},
+		{
+			label: 'Infrastructure & DevOps',
+			projects: [
+				{ name: 'GloriousFlywheel', url: 'https://github.com/Jesssullivan/GloriousFlywheel', desc: 'Recursive IaC flywheel for GitLab' },
+				{ name: 'Ansible-DAG-Harness', url: 'https://github.com/Jesssullivan/Ansible-DAG-Harness', desc: 'LangGraph DAG harness for Ansible iteration cycles' },
+				{ name: 'searchies', url: 'https://github.com/Jesssullivan/searchies', desc: 'SearXNG infrastructure with Caddy & OpenTofu' },
+			]
+		},
+		{
+			label: 'Hardware & Maker',
+			projects: [
+				{ name: 'XoxdWM', url: 'https://github.com/Jesssullivan/XoxdWM', desc: 'Eye-gesture VR & BCI XWayland Emacs WM' },
+				{ name: 'TurkeyProbe', url: 'https://github.com/Jesssullivan/TurkeyProbe', desc: 'ESP8266 thermistor probe with WebSocket UI' },
+				{ name: 'hiberpower-ntfs', url: 'https://github.com/Jesssullivan/hiberpower-ntfs', desc: 'ASM2362 NVMe FTL corruption recovery research' },
+			]
+		},
+		{
+			label: 'Web & Apps',
+			projects: [
+				{ name: 'tetrahedron', url: 'https://github.com/Jesssullivan/tetrahedron', desc: 'Mental health social service application' },
+				{ name: 'timberbuddy', url: 'https://github.com/Jesssullivan/timberbuddy', desc: 'Control package for Amish sawmill robotics' },
+				{ name: 'FastPhotoAPI', url: 'https://github.com/Jesssullivan/FastPhotoAPI', desc: 'Flask image server with Lanczos resampling' },
+			]
+		},
+		{
+			label: 'ML & Data',
+			projects: [
+				{ name: 'gnucashr', url: 'https://github.com/Jesssullivan/gnucashr', desc: 'High-performance R package for GNUCash accounting' },
+			]
+		},
 	];
 
 	const fossContributions = [
@@ -52,6 +87,21 @@
 		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
 		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
 		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
+		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy' },
+		{ name: 'fft.js', url: 'https://github.com/nicbarker/fft.js' },
+		{ name: 'libdns', url: 'https://github.com/libdns/libdns' },
+		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
+		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
+		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms' },
+		{ name: 'Klipper', url: 'https://github.com/Klipper3d/klipper' },
+	];
+
+	const clients = [
+		'National Park Service',
+		'Foundation for Healthy Communities',
+		'GPRED',
+		'Northern Border Regional Commission',
+		'Plymouth State University',
 	];
 </script>
 
@@ -152,6 +202,16 @@
 		</div>
 	</section>
 
+	<!-- Clients -->
+	<section class="mb-12">
+		<h3 class="text-sm font-semibold uppercase text-surface-500 mb-3">Clients</h3>
+		<div class="flex flex-wrap gap-2">
+			{#each clients as client}
+				<span class="badge preset-outlined-surface-500">{client}</span>
+			{/each}
+		</div>
+	</section>
+
 	<!-- Experience -->
 	<section class="mb-12">
 		<h2 class="text-2xl font-semibold mb-4">Experience</h2>
@@ -183,15 +243,18 @@
 	<section class="mb-12">
 		<h2 class="text-2xl font-semibold mb-4">FOSS</h2>
 		<h3 class="text-sm font-semibold uppercase text-surface-500 mb-3">Original Projects</h3>
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-			{#each fossProjects as proj}
-				<a href={proj.url} class="card p-4 hover:ring-2 ring-primary-500 transition-all" target="_blank" rel="noopener">
-					<h4 class="font-semibold">{proj.name}</h4>
-					<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
-				</a>
-			{/each}
-		</div>
-		<h3 class="text-sm font-semibold uppercase text-surface-500 mb-3">Contributor & Maintainer</h3>
+		{#each fossCategories as cat}
+			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-4 mb-2">{cat.label}</h4>
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+				{#each cat.projects as proj}
+					<a href={proj.url} class="card p-4 hover:ring-2 ring-primary-500 transition-all" target="_blank" rel="noopener">
+						<h5 class="font-semibold">{proj.name}</h5>
+						<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
+					</a>
+				{/each}
+			</div>
+		{/each}
+		<h3 class="text-sm font-semibold uppercase text-surface-500 mt-6 mb-3">Contributor & Maintainer</h3>
 		<div class="flex flex-wrap gap-2">
 			{#each fossContributions as c}
 				<a href={c.url} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all">{c.name}</a>
