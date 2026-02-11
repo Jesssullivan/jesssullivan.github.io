@@ -6,13 +6,6 @@
 	import { onMount } from 'svelte';
 	let { data }: { data: PageData } = $props();
 
-	let readingTime = $state('');
-
-	$effect(() => {
-		// Reset reading time when data changes
-		readingTime = '';
-	});
-
 	onMount(async () => {
 		// Mermaid diagrams
 		const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-code]');
@@ -30,15 +23,6 @@
 					el.innerHTML = `<pre class="text-red-500">${code}</pre>`;
 				}
 			}
-		}
-
-		// Reading time
-		const prose = document.querySelector('.prose');
-		if (prose) {
-			const text = prose.textContent || '';
-			const words = text.trim().split(/\s+/).length;
-			const mins = Math.max(1, Math.round(words / 230));
-			readingTime = `${mins} min read`;
 		}
 
 		// Code copy buttons
@@ -134,9 +118,9 @@
 				<h1 class="text-3xl font-bold mt-2">{data.metadata.title}</h1>
 				<div class="flex items-center gap-3 mt-3 text-sm text-surface-500">
 					<time>{new Date(data.metadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-					{#if readingTime}
+					{#if data.reading_time}
 						<span>&middot;</span>
-						<span>{readingTime}</span>
+						<span>{data.reading_time} min read</span>
 					{/if}
 				</div>
 				{#if data.metadata.tags?.length}
