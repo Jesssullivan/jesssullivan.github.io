@@ -51,6 +51,10 @@ preview-only:
 # Validation
 # =============================================================================
 
+# Validate post frontmatter
+validate-frontmatter:
+    node scripts/validate-frontmatter.mjs
+
 # Type check with svelte-check
 check:
     npm run check
