@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { Post, PostFrontmatter } from './types';
+import type { Post, PostFrontmatter, PostCategory } from './types';
+import { POST_CATEGORIES } from './types';
 
 // Type-level tests: these verify that the interfaces enforce the expected shape
 // at compile time. If the types change, these tests will fail to compile.
@@ -27,6 +28,7 @@ describe('PostFrontmatter type', () => {
 			slug: 'full-post',
 			original_url: 'https://example.com/full-post',
 			excerpt: 'Short excerpt',
+			category: 'software',
 			categories: ['cat1'],
 			reading_time: 5,
 			feature_image: '/images/hero.jpg',
@@ -35,6 +37,7 @@ describe('PostFrontmatter type', () => {
 			author_slug: 'jess'
 		};
 		expect(fm.slug).toBe('full-post');
+		expect(fm.category).toBe('software');
 		expect(fm.reading_time).toBe(5);
 		expect(fm.featured).toBe(true);
 		expect(fm.author_slug).toBe('jess');
@@ -51,6 +54,7 @@ describe('PostFrontmatter type', () => {
 		expect(fm.slug).toBeUndefined();
 		expect(fm.original_url).toBeUndefined();
 		expect(fm.excerpt).toBeUndefined();
+		expect(fm.category).toBeUndefined();
 		expect(fm.categories).toBeUndefined();
 		expect(fm.reading_time).toBeUndefined();
 		expect(fm.feature_image).toBeUndefined();
@@ -115,6 +119,51 @@ describe('Post type', () => {
 		};
 		expect(post.tags).toHaveLength(3);
 		expect(post.tags.every((t) => typeof t === 'string')).toBe(true);
+	});
+});
+
+describe('PostCategory type', () => {
+	it('POST_CATEGORIES contains all expected values', () => {
+		expect(POST_CATEGORIES).toEqual([
+			'hardware',
+			'software',
+			'ecology',
+			'music',
+			'photography',
+			'personal',
+			'tutorial',
+			'devops'
+		]);
+	});
+
+	it('POST_CATEGORIES is readonly (frozen at type level)', () => {
+		// The const assertion means the array is readonly at the type level.
+		// At runtime, verify the values are the expected set.
+		expect(POST_CATEGORIES).toHaveLength(8);
+	});
+
+	it('accepts valid category values in PostFrontmatter', () => {
+		for (const cat of POST_CATEGORIES) {
+			const fm: PostFrontmatter = {
+				title: 'Test',
+				date: '2024-01-01',
+				description: 'Desc',
+				tags: [],
+				published: true,
+				category: cat
+			};
+			expect(fm.category).toBe(cat);
+		}
+	});
+
+	it('can validate a string against POST_CATEGORIES at runtime', () => {
+		const isValidCategory = (s: string): s is PostCategory =>
+			(POST_CATEGORIES as readonly string[]).includes(s);
+
+		expect(isValidCategory('software')).toBe(true);
+		expect(isValidCategory('ecology')).toBe(true);
+		expect(isValidCategory('invalid-category')).toBe(false);
+		expect(isValidCategory('')).toBe(false);
 	});
 });
 

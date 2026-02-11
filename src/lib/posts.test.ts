@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { POST_CATEGORIES } from './types';
+import type { PostCategory } from './types';
 
 // ---- helpers extracted from the module under test ----
 // Since getPosts() uses import.meta.glob (Vite API), we re-implement the
@@ -140,6 +142,7 @@ describe('getPosts (mocked glob)', () => {
 			published: boolean;
 			original_url?: string;
 			excerpt?: string;
+			category?: PostCategory;
 			categories?: string[];
 			reading_time?: number;
 			feature_image?: string;
@@ -154,22 +157,31 @@ describe('getPosts (mocked glob)', () => {
 
 			const slug = deriveSlug(path, metadata);
 
+			// Validate category against allowed values (mirrors posts.ts)
+			const rawCategory = metadata.category as string | undefined;
+			const category: PostCategory | undefined =
+				rawCategory &&
+				(POST_CATEGORIES as readonly string[]).includes(rawCategory)
+					? (rawCategory as PostCategory)
+					: undefined;
+
 			posts.push({
 				title: (metadata.title as string) ?? slug,
 				slug,
 				date: (metadata.date as string) ?? '',
 				description:
-					(metadata.description as string) ?? (metadata.excerpt as string) ?? '',
+					(metadata.excerpt as string) ?? (metadata.description as string) ?? '',
 				tags: (metadata.tags as string[]) ?? [],
 				published: true,
 				original_url: (metadata.original_url as string) ?? undefined,
 				excerpt: (metadata.excerpt as string) ?? undefined,
+				category,
 				categories: (metadata.categories as string[]) ?? undefined,
 				reading_time: (metadata.reading_time as number) ?? undefined,
 				feature_image: (metadata.feature_image as string) ?? undefined,
 				thumbnail_image: (metadata.thumbnail_image as string) ?? undefined,
 				featured: (metadata.featured as boolean) ?? undefined,
-				author_slug: (metadata.author_slug as string) ?? undefined
+				author_slug: (metadata.author_slug as string) ?? 'jesssullivan'
 			});
 		}
 
@@ -351,6 +363,149 @@ describe('getPosts (mocked glob)', () => {
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts).toEqual([]);
+	});
+
+	// ---- category field tests ----
+
+	it('preserves a valid category value', () => {
+		const modules = {
+			'/src/posts/2024-01-01-cat-post.md': {
+				metadata: {
+					title: 'Category Post',
+					date: '2024-01-01',
+					description: 'Has category',
+					tags: [],
+					published: true,
+					category: 'software'
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].category).toBe('software');
+	});
+
+	it('rejects invalid category values (sets to undefined)', () => {
+		const modules = {
+			'/src/posts/2024-01-01-bad-cat.md': {
+				metadata: {
+					title: 'Bad Category',
+					date: '2024-01-01',
+					description: 'Invalid category',
+					tags: [],
+					published: true,
+					category: 'not-a-real-category'
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].category).toBeUndefined();
+	});
+
+	it('leaves category undefined when not specified', () => {
+		const modules = {
+			'/src/posts/2024-01-01-no-cat.md': {
+				metadata: {
+					title: 'No Category',
+					date: '2024-01-01',
+					description: 'No category',
+					tags: [],
+					published: true
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].category).toBeUndefined();
+	});
+
+	it('accepts all valid category values', () => {
+		for (const cat of POST_CATEGORIES) {
+			const modules = {
+				'/src/posts/2024-01-01-test.md': {
+					metadata: {
+						title: `Cat: ${cat}`,
+						date: '2024-01-01',
+						description: 'test',
+						tags: [],
+						published: true,
+						category: cat
+					}
+				}
+			};
+			const posts = getPostsFromModules(modules);
+			expect(posts[0].category).toBe(cat);
+		}
+	});
+
+	// ---- excerpt / description priority tests ----
+
+	it('uses excerpt over description when both are present', () => {
+		const modules = {
+			'/src/posts/2024-01-01-both.md': {
+				metadata: {
+					title: 'Both Fields',
+					date: '2024-01-01',
+					description: 'The description',
+					tags: [],
+					published: true,
+					excerpt: 'The excerpt'
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].description).toBe('The excerpt');
+		expect(posts[0].excerpt).toBe('The excerpt');
+	});
+
+	it('uses description when excerpt is absent', () => {
+		const modules = {
+			'/src/posts/2024-01-01-desc-only.md': {
+				metadata: {
+					title: 'Desc Only',
+					date: '2024-01-01',
+					description: 'Just description',
+					tags: [],
+					published: true
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].description).toBe('Just description');
+		expect(posts[0].excerpt).toBeUndefined();
+	});
+
+	// ---- author_slug defaulting tests ----
+
+	it('defaults author_slug to jesssullivan when not specified', () => {
+		const modules = {
+			'/src/posts/2024-01-01-no-author.md': {
+				metadata: {
+					title: 'No Author',
+					date: '2024-01-01',
+					description: 'test',
+					tags: [],
+					published: true
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].author_slug).toBe('jesssullivan');
+	});
+
+	it('uses explicit author_slug when specified', () => {
+		const modules = {
+			'/src/posts/2024-01-01-guest.md': {
+				metadata: {
+					title: 'Guest Post',
+					date: '2024-01-01',
+					description: 'test',
+					tags: [],
+					published: true,
+					author_slug: 'guest-author'
+				}
+			}
+		};
+		const posts = getPostsFromModules(modules);
+		expect(posts[0].author_slug).toBe('guest-author');
 	});
 });
 

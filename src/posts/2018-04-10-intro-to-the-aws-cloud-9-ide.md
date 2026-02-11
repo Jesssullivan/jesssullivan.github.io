@@ -14,8 +14,11 @@ Similarly, other network programs work just as well- I am running a MySQL server
 
 **Getting going: The only prerequisite is you have an AWS account.** Students: get $40 EC2 dollars below:
 
-https://aws.amazon.com/education/awseducate/[  
-*What was once an image here is now just a memory of a URL.*](*The bits that made up this image have scattered to the wind.*)Open the cloud 9 tab under services.
+https://aws.amazon.com/education/awseducate/
+
+*The image that was here didn't survive the WordPress migration.*
+
+Open the cloud 9 tab under services.
 
 Setup is very fast- just know if others are going to be editing to, understand the [IAM policies](https://aws.amazon.com/iam/) and what [VPC settings](https://aws.amazon.com/vpc/) you actually want.
 

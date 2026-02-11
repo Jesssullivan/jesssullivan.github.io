@@ -18,7 +18,7 @@ The greatest solution I've settled on for ArcMap use continues to be [Chrome Rem
 
 _VirtualBox, Bootcamp, etc:_  
 [Oracle's VirtualBox](https://www.virtualbox.org/wiki/Downloads) is a longstanding (and free!) virtualization software. A Windows virtual machine is vastly preferable over [Bootcamp](https://support.apple.com/boot-camp) or further [partition tomfoolery](https://www.digitalocean.com/community/tutorials/how-to-partition-and-format-storage-devices-in-linux).  
-One can start / stop the VM only when its needed, store it on a usb stick, avoid [insane pmbr issues](https://www.transscendsurvival.org/2019/02/27/mac-osx-fixing-gpt-and-pmbr-tables/), etc. 
+One can start / stop the VM only when its needed, store it on a usb stick, avoid insane pmbr issues, etc. 
 
   * Bootcamp will consume at least 40gb of space at all times before even attempting to function, whereas even a fully configured Windows VirtualBox VDI will only consume ~22gb, and can be moved elsewhere if not in use. 
   * There are better (not free) virtualization tools such as [Parallels](https://www.parallels.com/), though any way you slice it a dedicated machine will almost always be a better solution. 

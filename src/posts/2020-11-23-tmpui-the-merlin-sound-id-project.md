@@ -42,7 +42,7 @@ Demo | Description
 [deploy/demos/spec_record_crop_dl](https://github.com/Jesssullivan/tmpUI/tree/master/demos)   
 [deploy/demos/spec_record_crop_post](https://github.com/Jesssullivan/tmpUI/tree/master/demos) | Experiments with record --> crop --> classify --> download; both client-side & server-side classifications methods  
 [deploy/demos/load_audio](https://github.com/Jesssullivan/tmpUI/tree/master/demos)   
-[deploy/demos/spec_display](demos/spec_display.ts) | Experiment with Macaulay audio sources --> spectrogram  
+[deploy/demos/spec_display](https://github.com/Jesssullivan/tmpUI/tree/master/demos) | Experiment with Macaulay audio sources --> spectrogram
 [deploy/demos/spec_record_crop_v3](https://github.com/Jesssullivan/tmpUI/tree/master/demos)   
 [deploy/demos/spec_record_v2](https://github.com/Jesssullivan/tmpUI/tree/master/demos)   
 [deploy/demos/spec_record_v2](https://github.com/Jesssullivan/tmpUI/tree/master/demos) | Single page feature experiments  
@@ -103,9 +103,9 @@ _Hack on Annotator:_
 
 Demo | Description  
 ---|---  
-[deploy/demos/annotator_audio](demos/annotator_audio.ts) | Leaflet.annotator tool implementations for generating, labeling, exporting mel spectrogams as annotation data  
-[deploy/demos/annotator_photo](demos/annotator_photo.ts) | Leaflet.annotator tool implementations for labeling & exporting photo annotations  
-[deploy/src/annotator_tool](src/annotator_tool.js) | epic `Annotator_tool` entrypoint, contains class handler functions  
+[deploy/demos/annotator_audio](https://github.com/Jesssullivan/tmpUI/tree/master/demos) | Leaflet.annotator tool implementations for generating, labeling, exporting mel spectrogams as annotation data
+[deploy/demos/annotator_photo](https://github.com/Jesssullivan/tmpUI/tree/master/demos) | Leaflet.annotator tool implementations for labeling & exporting photo annotations
+[deploy/src/annotator_tool](https://github.com/Jesssullivan/tmpUI/blob/master/src/annotator_tool.js) | epic `Annotator_tool` entrypoint, contains class handler functions
   
 ### Swift Native:
     

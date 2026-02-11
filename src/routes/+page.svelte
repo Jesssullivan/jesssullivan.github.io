@@ -1,6 +1,29 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { browser } from '$app/environment';
 	let { data }: { data: PageData } = $props();
+
+	let scrollY = $state(0);
+	let parallaxOffset = $derived(scrollY * 0.33);
+	let titleOpacity = $derived(Math.max(0, 1 - scrollY / 300));
+
+	$effect(() => {
+		if (!browser) return;
+
+		let ticking = false;
+		function onScroll() {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					scrollY = window.scrollY;
+					ticking = false;
+				});
+				ticking = true;
+			}
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
 
 	const ventures = [
 		{ name: 'Tinyland.dev', url: 'https://tinyland.dev', period: '2024-Present', desc: 'Funded, stealthmode. Tinyland is big, more to come very soon.' },
@@ -46,18 +69,23 @@
 	<link rel="canonical" href="https://transscendsurvival.org" />
 </svelte:head>
 
-<!-- Hero -->
-<section class="relative overflow-hidden">
+<!-- Hero with parallax -->
+<section class="hero-parallax">
 	<img
 		src="/images/header.png"
 		alt="Great Blue Heron"
-		class="w-full h-64 sm:h-80 object-cover object-center"
+		class="hero-parallax-bg"
+		style="transform: translate3d(0, {parallaxOffset}px, 0)"
 	/>
-	<div class="absolute inset-0 bg-gradient-to-t from-surface-900/80 to-transparent"></div>
-	<div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+	<div class="hero-overlay"></div>
+	<div class="hero-title-wrap" style="opacity: {titleOpacity}">
 		<div class="container mx-auto max-w-3xl">
-			<h1 class="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">Jess Sullivan</h1>
-			<p class="text-lg text-surface-200 mt-1 drop-shadow">Systems Analyst | Lewiston, ME</p>
+			<h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg tracking-wide">
+				Trans Scend Survival
+			</h1>
+			<p class="text-lg sm:text-xl text-surface-200 mt-2 drop-shadow font-heading tracking-wider">
+				Jess Sullivan &mdash; Systems Analyst | Lewiston, ME
+			</p>
 		</div>
 	</div>
 </section>

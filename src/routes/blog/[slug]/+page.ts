@@ -1,5 +1,6 @@
 import type { PageLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
+import { computeReadingTime } from '$lib/posts';
 
 interface PostMeta {
 	title: string;
@@ -9,6 +10,7 @@ interface PostMeta {
 	description?: string;
 	tags?: string[];
 	original_url?: string;
+	reading_time?: number;
 	[key: string]: unknown;
 }
 
@@ -22,6 +24,14 @@ function getEagerModules() {
 		string,
 		{ metadata: PostMeta }
 	>;
+}
+
+function getRawModules() {
+	return import.meta.glob('/src/posts/*.md', {
+		eager: true,
+		query: '?raw',
+		import: 'default'
+	}) as Record<string, string>;
 }
 
 function getSortedPosts(): { slug: string; title: string; date: string }[] {
@@ -60,6 +70,7 @@ export const entries: EntryGenerator = async () => {
 
 export const load: PageLoad = async ({ params }) => {
 	const lazyModules = import.meta.glob('/src/posts/*.md');
+	const rawModules = getRawModules();
 	const pathMap = slugToPath();
 	const matchedPath = pathMap.get(params.slug);
 
@@ -69,6 +80,11 @@ export const load: PageLoad = async ({ params }) => {
 			metadata: PostMeta;
 		};
 
+		// Compute reading time from raw markdown at build time
+		const rawContent = rawModules[matchedPath] ?? '';
+		const reading_time =
+			post.metadata.reading_time ?? computeReadingTime(rawContent);
+
 		const sorted = getSortedPosts();
 		const idx = sorted.findIndex((p) => p.slug === params.slug);
 		const prev = idx < sorted.length - 1 ? sorted[idx + 1] : null;
@@ -77,6 +93,7 @@ export const load: PageLoad = async ({ params }) => {
 		return {
 			content: post.default,
 			metadata: post.metadata,
+			reading_time,
 			prev,
 			next
 		};
