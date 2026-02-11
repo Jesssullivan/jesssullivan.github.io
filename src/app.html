@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="en" data-theme="pine" class="dark">
+<html lang="en" data-theme="pine" data-mode="light">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="alternate" type="application/feed+json" title="transscendsurvival.org JSON Feed" href="/feed.json" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml" />
+		<script>
+			(function(){var m=localStorage.getItem('color-mode');if(!m)m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-mode',m);document.documentElement.style.colorScheme=m;})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
