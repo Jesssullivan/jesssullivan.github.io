@@ -36,6 +36,10 @@
 </script>
 
 <div class="min-h-screen flex flex-col">
+	<a
+		href="#main-content"
+		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
+	>Skip to content</a>
 	<AppBar
 		border="border-b border-surface-300-700"
 		padding="px-4 py-2"
@@ -109,7 +113,7 @@
 		</nav>
 	{/if}
 
-	<main class="flex-1">
+	<main id="main-content" class="flex-1">
 		{@render children()}
 	</main>
 
