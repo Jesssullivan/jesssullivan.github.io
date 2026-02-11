@@ -17,6 +17,19 @@ h1, h2, h3, h4, h5, h6,
 	font-family: 'Raleway', sans-serif;
 }
 
+/* Ensure fonts swap even if Google Fonts CSS is delayed */
+@font-face {
+	font-family: 'Lato';
+	font-display: swap;
+	src: local('Lato');
+}
+
+@font-face {
+	font-family: 'Raleway';
+	font-display: swap;
+	src: local('Raleway');
+}
+
 /* Hero parallax container */
 .hero-parallax {
 	position: relative;

@@ -76,6 +76,8 @@
 		alt="Great Blue Heron"
 		class="hero-parallax-bg"
 		style="transform: translate3d(0, {parallaxOffset}px, 0)"
+		fetchpriority="high"
+		decoding="sync"
 	/>
 	<div class="hero-overlay"></div>
 	<div class="hero-title-wrap" style="opacity: {titleOpacity}">
