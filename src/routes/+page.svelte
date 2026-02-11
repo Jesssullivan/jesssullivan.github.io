@@ -94,9 +94,11 @@
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org" />
 	<meta property="og:site_name" content="transscendsurvival.org" />
+	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="Jess Sullivan | transscendsurvival.org" />
 	<meta name="twitter:description" content="Full stack engineer, musician, and birdwatcher. Blog and portfolio by Jess Sullivan." />
+	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org" />
 </svelte:head>
 

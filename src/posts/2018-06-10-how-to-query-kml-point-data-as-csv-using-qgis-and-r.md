@@ -32,7 +32,9 @@ Next, under “Vector”, select “Merge vector layers” via Data Management T
 
 Select CSV and elect to save the file instead of use a temporary/scratch file (this is a common error).
 
-**Open your csv in Excel for verification!********![](/images/posts/Screen-Shot-2018-06-10-at-8.32.27-AM.png)**
+**Open your csv in Excel for verification!**
+
+![Excel CSV verification](/images/posts/Screen-Shot-2018-06-10-at-8.32.27-AM.png)
 
 **The R bit:**
     

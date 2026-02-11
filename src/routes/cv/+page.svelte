@@ -5,7 +5,10 @@
 	<meta property="og:description" content="Jess Sullivan — CV and Resume. Systems Analyst, FOSS contributor, hardware hacker." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/cv" />
+	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
+	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/cv" />
 </svelte:head>
 

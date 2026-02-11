@@ -26,6 +26,6 @@ We see here a balance of playing, chilling, and working in this multifaceted fel
 
 These boundary-pushing sports we engage with for fun teach us to teach ourselves things and support others doing the same thing; in this way, it is a self-serving cycle. This learning, teaching, and progressing through extreme sport is simply a way of living and experiencing life through a lens already suited for play, relaxation, and hard work.
 
-[Next up: Scooters + Youtube = ?](/blog/pt-2-reflecting-on-stunt-culture-scooters)
+[Next up: Scooters + Youtube = ?](/blog/pt-2-reflecting-on-stunt-culture-scooters/)
 
 ### _Related_

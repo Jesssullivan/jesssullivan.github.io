@@ -10,7 +10,7 @@ original_url: "https://transscendsurvival.org/2018/07/16/deploy-a-shiny-web-app-
 
 **Info on deploying a Shiny web app in R using AWS (EC2 Redhat)**
 
-As [a follow-up to my post on how to create an AWS RStudio server](/blog/how-to-make-a-aws-r-server), the next logical step is to host some useful apps you created in R for people to use. A common way to do this is the R-specific tool Shiny, which is built in to RStudio. Learning the syntax to convert R code into a Shiny app is rather subtle, and can be hard. I plan to do a more thorough demo on this- particularly the use of the $ symbol, as in “input$output”- later. 🙂
+As [a follow-up to my post on how to create an AWS RStudio server](/blog/how-to-make-a-aws-r-server/), the next logical step is to host some useful apps you created in R for people to use. A common way to do this is the R-specific tool Shiny, which is built in to RStudio. Learning the syntax to convert R code into a Shiny app is rather subtle, and can be hard. I plan to do a more thorough demo on this- particularly the use of the $ symbol, as in “input$output”- later. 🙂
 
 It turns out hosting a Shiny Web app provides a large number of opportunities for things to go wrong…. I will share what worked for me. All of this info is accessed via SSH, to the server running Shiny and RStudio.
 
