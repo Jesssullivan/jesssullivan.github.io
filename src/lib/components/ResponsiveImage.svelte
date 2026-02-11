@@ -7,11 +7,11 @@
 	} = $props();
 
 	// Derive WebP source path from the original image path
-	const ext = src.substring(src.lastIndexOf('.'));
-	const basePath = src.substring(0, src.lastIndexOf('.'));
-	const webpSrc = basePath + '.webp';
-	const isLocal = src.startsWith('/images/posts/');
-	const hasWebp = isLocal && ext !== '.webp';
+	let ext = $derived(src.substring(src.lastIndexOf('.')));
+	let basePath = $derived(src.substring(0, src.lastIndexOf('.')));
+	let webpSrc = $derived(basePath + '.webp');
+	let isLocal = $derived(src.startsWith('/images/posts/'));
+	let hasWebp = $derived(isLocal && ext !== '.webp');
 </script>
 
 {#if hasWebp}
