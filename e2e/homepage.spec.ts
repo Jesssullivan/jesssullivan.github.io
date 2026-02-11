@@ -5,9 +5,11 @@ test.describe('Homepage', () => {
 		await page.goto('/');
 	});
 
-	test('renders hero with banner image and title', async ({ page }) => {
+	test('renders parallax hero with banner image and title', async ({ page }) => {
+		await expect(page.locator('section.hero-parallax')).toBeVisible();
 		await expect(page.locator('img[alt="Great Blue Heron"]')).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Jess Sullivan', level: 1 })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Trans Scend Survival', level: 1 })).toBeVisible();
+		await expect(page.getByText('Jess Sullivan')).toBeVisible();
 		await expect(page.getByText('Lewiston, ME')).toBeVisible();
 	});
 
