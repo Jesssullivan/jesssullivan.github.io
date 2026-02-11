@@ -138,8 +138,8 @@ test.describe('Blog listing — visual QA across viewports', () => {
 
 			test('search input is accessible', async ({ page }) => {
 				// Pagefind search loads async; the input appears once loaded.
-				// Use a generous timeout because pagefind initializes after mount.
-				const searchInput = page.locator('input[type="search"]');
+				// Use .first() because main content and sidebar both have search inputs at wide viewports.
+				const searchInput = page.locator('input[type="search"]').first();
 				await expect(searchInput).toBeVisible({ timeout: 10_000 });
 				await expect(searchInput).toHaveAttribute('placeholder', /[Ss]earch/);
 			});
