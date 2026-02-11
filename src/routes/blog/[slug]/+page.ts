@@ -6,18 +6,21 @@ interface PostMeta {
 	slug: string;
 	date: string;
 	published?: boolean;
+	description?: string;
+	tags?: string[];
+	original_url?: string;
 	[key: string]: unknown;
 }
 
-function getSlug(path: string, metadata: Record<string, unknown>): string {
+function getSlug(path: string, metadata: PostMeta): string {
 	const filename = path.split('/').pop()?.replace('.md', '') ?? '';
-	return (metadata.slug as string) ?? filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+	return metadata.slug ?? filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
 }
 
 function getEagerModules() {
 	return import.meta.glob('/src/posts/*.md', { eager: true }) as Record<
 		string,
-		{ metadata: Record<string, unknown> }
+		{ metadata: PostMeta }
 	>;
 }
 
@@ -32,8 +35,8 @@ function getSortedPosts(): { slug: string; title: string; date: string }[] {
 		const slug = getSlug(path, metadata);
 		posts.push({
 			slug,
-			title: (metadata.title as string) ?? slug,
-			date: (metadata.date as string) ?? ''
+			title: metadata.title ?? slug,
+			date: metadata.date ?? ''
 		});
 	}
 
@@ -62,8 +65,8 @@ export const load: PageLoad = async ({ params }) => {
 
 	if (matchedPath && lazyModules[matchedPath]) {
 		const post = (await lazyModules[matchedPath]()) as {
-			default: unknown;
-			metadata: Record<string, unknown>;
+			default: import('svelte').Snippet;
+			metadata: PostMeta;
 		};
 
 		const sorted = getSortedPosts();
