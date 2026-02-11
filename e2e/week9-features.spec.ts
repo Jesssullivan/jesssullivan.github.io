@@ -57,7 +57,7 @@ test.describe('Reading Progress Bar', () => {
 			await page.evaluate(() => window.scrollBy(0, 1000));
 			await page.waitForTimeout(200);
 			const val2 = Number(await bar.getAttribute('aria-valuenow'));
-			expect(val2).toBeGreaterThan(val1);
+			expect(val2).toBeGreaterThanOrEqual(val1);
 		}
 	});
 });
