@@ -86,4 +86,38 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 		const bgColor = await banner.evaluate((el) => getComputedStyle(el).backgroundColor);
 		expect(bgColor).toBe('rgb(29, 29, 29)');
 	});
+
+	test('etymology description is visible with all three definitions', async ({ page }) => {
+		const desc = page.locator('.hero-banner-description');
+		await expect(desc).toBeVisible();
+		await expect(desc).toContainText('Trans:');
+		await expect(desc).toContainText('Scend:');
+		await expect(desc).toContainText('Survival:');
+		await expect(desc).toContainText('gender nonconforming');
+		await expect(desc).toContainText('surge');
+		await expect(desc).toContainText('transcending');
+	});
+
+	test('etymology description has rainbow gradient text', async ({ page }) => {
+		const desc = page.locator('.hero-banner-description');
+		const bgClip = await desc.evaluate((el) => getComputedStyle(el).backgroundClip);
+		expect(bgClip).toBe('text');
+		const bgImage = await desc.evaluate((el) => getComputedStyle(el).backgroundImage);
+		expect(bgImage).toContain('gradient');
+	});
+
+	test('separator line exists between title and description', async ({ page }) => {
+		const sep = page.locator('.hero-banner-separator');
+		await expect(sep).toBeVisible();
+		const width = await sep.evaluate((el) => getComputedStyle(el).width);
+		expect(width).toBe('100px');
+		const height = await sep.evaluate((el) => getComputedStyle(el).height);
+		expect(height).toBe('2px');
+	});
+
+	test('etymology uses Raleway font', async ({ page }) => {
+		const desc = page.locator('.hero-banner-description');
+		const fontFamily = await desc.evaluate((el) => getComputedStyle(el).fontFamily);
+		expect(fontFamily.toLowerCase()).toContain('raleway');
+	});
 });
