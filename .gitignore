@@ -21,3 +21,15 @@ kmlXamples/
 regioncodes.void
 vmsetup/
 src/posts-import/
+
+# AI/LLM tooling
+.claude/
+CLAUDE.md
+
+# direnv
+.direnv/
+
+# Test artifacts
+test-results/
+playwright-report/
+coverage/
