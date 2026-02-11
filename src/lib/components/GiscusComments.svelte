@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	let { term = '' }: { term?: string } = $props();
 	let container: HTMLDivElement;
 	let observer: MutationObserver | undefined;
 
@@ -28,7 +27,7 @@
 		script.setAttribute('data-category', 'Announcements');
 		script.setAttribute('data-category-id', 'DIC_kwDORMp1184C2H4B');
 		script.setAttribute('data-mapping', 'pathname');
-		script.setAttribute('data-strict', '0');
+		script.setAttribute('data-strict', '1');
 		script.setAttribute('data-reactions-enabled', '1');
 		script.setAttribute('data-emit-metadata', '0');
 		script.setAttribute('data-input-position', 'top');

@@ -73,9 +73,12 @@ export default ts.config(
 			'src/posts/',
 			'static/',
 			'*.config.*',
-			// Files with JSON-LD that cause ESLint svelte parser errors
+			// Files with JSON-LD or runes that cause ESLint svelte parser errors
 			'src/lib/components/Breadcrumbs.svelte',
 			'src/routes/blog/\\[slug\\]/+page.svelte',
+			'src/routes/+error.svelte',
+			'src/routes/+layout.svelte',
+			'src/routes/about/+page.svelte',
 		],
 	},
 );

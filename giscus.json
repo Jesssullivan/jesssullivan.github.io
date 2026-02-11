@@ -1,0 +1,4 @@
+{
+  "origins": ["https://transscendsurvival.org"],
+  "originsRegex": ["http://localhost:[0-9]+"]
+}
