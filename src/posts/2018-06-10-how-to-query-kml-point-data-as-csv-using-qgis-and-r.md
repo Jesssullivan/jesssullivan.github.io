@@ -10,7 +10,7 @@ original_url: "https://transscendsurvival.org/2018/06/10/how-to-query-kml-point-
 
 How to Query KML point data as CSV using QGIS and R
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.28.16-AM.png?resize=300%2C181&ssl=1)
+![](/images/posts/Screen-Shot-2018-06-10-at-8.28.16-AM.png)
 
 Here you can see more than 800 points, each describing an observation of an individual bird. This data is in the form of KML, a sort of XML document from Google for spatial data.
 
@@ -22,17 +22,17 @@ robust, as I can work immediately with the output as a data frame in R, rather t
 
 First, open an instance of QGIS. I am running ~2.8 on OSX. Add a vector layer of your KML.
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.28.54-AM.png?resize=145%2C163&ssl=1)
+![](/images/posts/Screen-Shot-2018-06-10-at-8.28.54-AM.png)
 
 “Command-A” in the point dialog to select all before import!
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.30.07-AM.png?resize=300%2C153&ssl=1)
+![](/images/posts/Screen-Shot-2018-06-10-at-8.30.07-AM.png)
 
 Next, under “Vector”, select “Merge vector layers” via Data Management Tools.
 
 Select CSV and elect to save the file instead of use a temporary/scratch file (this is a common error).
 
-**Open your csv in Excel for verification!********![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-8.32.27-AM.png?resize=445%2C215&ssl=1)**
+**Open your csv in Excel for verification!********![](/images/posts/Screen-Shot-2018-06-10-at-8.32.27-AM.png)**
 
 **The R bit:**
     
@@ -57,7 +57,7 @@ Select CSV and elect to save the file instead of use a temporary/scratch file (t
 
 **Tada!**
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/06/Screen-Shot-2018-06-10-at-5.55.15-PM.png?resize=300%2C250&ssl=1)
+![](/images/posts/Screen-Shot-2018-06-10-at-5.55.15-PM.png)
 
 **-Jess**
 

@@ -19,12 +19,12 @@ original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-ph
 
 [![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_9468.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_9468/)
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_3553-Edit-Edit2.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_3553-edit-edit2/)
+[![](/images/posts/IMG_3553-Edit-Edit2.jpg)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_3553-edit-edit2/)
   
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2227-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2227-edit/)
+[![](/images/posts/IMG_2227-Edit.jpg)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2227-edit/)
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2075-Edit-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2075-edit-edit/)
+[![](/images/posts/IMG_2075-Edit-Edit.jpg)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2075-edit-edit/)
 
 [![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_3163-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_3163-edit/)
   
@@ -36,7 +36,7 @@ original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-ph
 [![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_1244-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_1244-edit/)
   
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2366.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2366/)
+[![](/images/posts/IMG_2366.jpg)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_2366/)
 
 [![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_3299-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_3299-edit/)
 
@@ -52,7 +52,7 @@ original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-ph
 
 [![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_0962.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_0962/)
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_0895-Edit.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_0895-edit/)
+[![](/images/posts/IMG_0895-Edit.jpg)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_0895-edit/)
 
 [![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_0848.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/img_0848/)
   

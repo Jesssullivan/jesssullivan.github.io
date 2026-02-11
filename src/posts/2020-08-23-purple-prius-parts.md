@@ -17,6 +17,6 @@ original_url: "https://transscendsurvival.org/2020/08/23/purple-prius-parts/"
 
 ![drawing](https://i.chzbgr.com/full/8543536128/h60BDA31C/and-now-for-something-completely-different )
 
-![drawing](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2020/08/unnamed.jpg?fit=676%2C180&ssl=1) ![drawing](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2020/08/unnamed-1.jpg?fit=676%2C180&ssl=1)
+![drawing](/images/posts/unnamed.jpg) ![drawing](/images/posts/unnamed-1.jpg)
 
 ### _Related_

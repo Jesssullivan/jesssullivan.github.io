@@ -12,7 +12,7 @@ I slipped and slid my way into Fox park Saturday, 4/1/17 at about 4pm. About 7 i
 
 I heard some confused titmice and a lonely Hairy woodpecker over (almost) the whole time out, though a the crow crew started up yakking away just as I left. I had really come for the tracks in the snow, but because of the rain and rapidly melting cover, I could only make out big dogs.
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/unnamed.jpg?resize=225%2C300&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/04/unnamed.jpg?ssl=1)
+[![](/images/posts/unnamed.jpg)](/images/posts/unnamed.jpg)
 
 "Big Dog"
 
