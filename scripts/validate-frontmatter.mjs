@@ -71,6 +71,17 @@ function stripQuotes(s) {
 // Validation helpers
 // ---------------------------------------------------------------------------
 
+const VALID_CATEGORIES = [
+	'hardware',
+	'software',
+	'ecology',
+	'music',
+	'photography',
+	'personal',
+	'tutorial',
+	'devops'
+];
+
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function isValidISODate(s) {
@@ -147,6 +158,15 @@ for (const file of files) {
 	}
 	if (fm.excerpt != null && typeof fm.excerpt !== 'string') {
 		fileWarns.push(`"excerpt" should be a string, got ${typeof fm.excerpt}`);
+	}
+	if (fm.category != null) {
+		if (typeof fm.category !== 'string') {
+			fileWarns.push(`"category" should be a string, got ${typeof fm.category}`);
+		} else if (!VALID_CATEGORIES.includes(fm.category)) {
+			fileWarns.push(
+				`"category" must be one of [${VALID_CATEGORIES.join(', ')}], got "${fm.category}"`
+			);
+		}
 	}
 	if (fm.categories != null && !Array.isArray(fm.categories)) {
 		fileWarns.push(`"categories" should be an array, got ${typeof fm.categories}`);
