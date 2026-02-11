@@ -5,7 +5,33 @@
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	let { data }: { data: PageData } = $props();
+
+	let readingProgress = $state(0);
+
+	function updateReadingProgress() {
+		const article = document.querySelector('article');
+		if (!article) return;
+		const rect = article.getBoundingClientRect();
+		const totalHeight = rect.height - window.innerHeight;
+		if (totalHeight <= 0) { readingProgress = 100; return; }
+		const scrolled = -rect.top;
+		readingProgress = Math.min(100, Math.max(0, (scrolled / totalHeight) * 100));
+	}
+
+	onMount(() => {
+		// Reading progress bar
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (!prefersReducedMotion) {
+			updateReadingProgress();
+			window.addEventListener('scroll', updateReadingProgress, { passive: true });
+		}
+
+		return () => {
+			window.removeEventListener('scroll', updateReadingProgress);
+		};
+	});
 
 	onMount(async () => {
 		// Mermaid diagrams
@@ -113,6 +139,18 @@
 	})}</script>`}
 </svelte:head>
 
+{#if browser && readingProgress > 0}
+	<div
+		class="reading-progress"
+		role="progressbar"
+		aria-valuenow={Math.round(readingProgress)}
+		aria-valuemin={0}
+		aria-valuemax={100}
+		aria-label="Reading progress"
+		style="width: {readingProgress}%"
+	></div>
+{/if}
+
 <article class="container mx-auto px-4 py-12 max-w-5xl">
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<div class="min-w-0">
@@ -168,6 +206,20 @@
 				</nav>
 			{/if}
 
+			{#if data.relatedPosts?.length}
+				<section class="mt-10 pt-6 border-t border-surface-300-700" aria-label="Related posts">
+					<h2 class="text-lg font-semibold mb-4">Related Posts</h2>
+					<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						{#each data.relatedPosts as related}
+							<a href="/blog/{related.slug}" class="block p-4 rounded-lg border border-surface-300-700 hover:border-primary-500 transition-colors">
+								<h3 class="text-sm font-semibold line-clamp-2">{related.title}</h3>
+								<time class="text-xs text-surface-500 mt-1 block">{new Date(related.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+							</a>
+						{/each}
+					</div>
+				</section>
+			{/if}
+
 			<GiscusComments />
 		</div>
 
@@ -180,6 +232,16 @@
 </article>
 
 <style>
+	.reading-progress {
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 3px;
+		background: var(--color-primary-500);
+		z-index: 100;
+		transition: width 0.1s linear;
+		pointer-events: none;
+	}
 	:global(.heading-anchor) {
 		opacity: 0;
 		margin-right: 0.25rem;

@@ -34,9 +34,9 @@ function getRawModules() {
 	}) as Record<string, string>;
 }
 
-function getSortedPosts(): { slug: string; title: string; date: string }[] {
+function getSortedPosts(): { slug: string; title: string; date: string; tags: string[] }[] {
 	const modules = getEagerModules();
-	const posts: { slug: string; title: string; date: string }[] = [];
+	const posts: { slug: string; title: string; date: string; tags: string[] }[] = [];
 
 	for (const [path, module] of Object.entries(modules)) {
 		const metadata = module.metadata;
@@ -46,11 +46,38 @@ function getSortedPosts(): { slug: string; title: string; date: string }[] {
 		posts.push({
 			slug,
 			title: metadata.title ?? slug,
-			date: metadata.date ?? ''
+			date: metadata.date ?? '',
+			tags: metadata.tags ?? []
 		});
 	}
 
 	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+function computeRelatedPosts(
+	currentSlug: string,
+	currentTags: Set<string>,
+	posts: { slug: string; title: string; date: string; tags: string[] }[]
+): { slug: string; title: string; date: string }[] {
+	if (currentTags.size === 0) {
+		// No tags — return 3 most recent posts (excluding current)
+		return posts.filter((p) => p.slug !== currentSlug).slice(0, 3);
+	}
+
+	const scored = posts
+		.filter((p) => p.slug !== currentSlug)
+		.map((p) => {
+			const overlap = p.tags.filter((t) => currentTags.has(t)).length;
+			return { ...p, score: overlap };
+		})
+		.sort((a, b) => {
+			// Primary: tag overlap descending
+			if (b.score !== a.score) return b.score - a.score;
+			// Secondary: recency descending
+			return new Date(b.date).getTime() - new Date(a.date).getTime();
+		});
+
+	return scored.slice(0, 3);
 }
 
 function slugToPath(): Map<string, string> {
@@ -90,12 +117,17 @@ export const load: PageLoad = async ({ params }) => {
 		const prev = idx < sorted.length - 1 ? sorted[idx + 1] : null;
 		const next = idx > 0 ? sorted[idx - 1] : null;
 
+		// Compute related posts by tag overlap + recency
+		const currentTags = new Set(post.metadata.tags ?? []);
+		const relatedPosts = computeRelatedPosts(params.slug, currentTags, sorted);
+
 		return {
 			content: post.default,
 			metadata: post.metadata,
 			reading_time,
 			prev,
-			next
+			next,
+			relatedPosts
 		};
 	}
 
