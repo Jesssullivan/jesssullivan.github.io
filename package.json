@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "postbuild": "pagefind --site build",
+    "postbuild": "node scripts/generate-redirects.mjs && pagefind --site build",
+    "test:redirects": "npm run build && node scripts/validate-redirects.mjs",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
   },

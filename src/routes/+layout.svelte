@@ -127,6 +127,8 @@
 			<p>&copy; {new Date().getFullYear()} Jess Sullivan</p>
 			<span class="text-surface-400">|</span>
 			<a href="/feed.xml" class="hover:text-primary-500 transition-colors">RSS</a>
+			<span class="text-surface-400">|</span>
+			<a href="/feed.json" class="hover:text-primary-500 transition-colors">JSON</a>
 		</div>
 	</footer>
 </div>

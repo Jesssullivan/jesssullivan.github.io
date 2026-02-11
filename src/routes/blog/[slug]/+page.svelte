@@ -1,10 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import GiscusComments from '$lib/components/GiscusComments.svelte';
+	import TableOfContents from '$lib/components/TableOfContents.svelte';
+	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import { onMount } from 'svelte';
 	let { data }: { data: PageData } = $props();
 
 	let readingTime = $state('');
+
+	$effect(() => {
+		// Reset reading time when data changes
+		readingTime = '';
+	});
 
 	onMount(async () => {
 		// Mermaid diagrams
@@ -114,56 +121,66 @@
 	})}</script>`}
 </svelte:head>
 
-<article class="container mx-auto px-4 py-12 max-w-3xl">
-	<header class="mb-8">
-		<a href="/blog" class="text-sm text-primary-500 hover:underline mb-4 inline-block">&larr; Back to blog</a>
-		<h1 class="text-3xl font-bold mt-2">{data.metadata.title}</h1>
-		<div class="flex items-center gap-3 mt-3 text-sm text-surface-500">
-			<time>{new Date(data.metadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-			{#if readingTime}
-				<span>&middot;</span>
-				<span>{readingTime}</span>
-			{/if}
-		</div>
-		{#if data.metadata.tags?.length}
-			<div class="flex gap-2 mt-3">
-				{#each data.metadata.tags as tag}
-					<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
-				{/each}
+<article class="container mx-auto px-4 py-12 max-w-5xl">
+	<div class="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-8">
+		<div class="min-w-0">
+			<header class="mb-8">
+				<Breadcrumbs crumbs={[
+					{ label: 'Home', href: '/' },
+					{ label: 'Blog', href: '/blog' },
+					{ label: data.metadata.title, href: `/blog/${data.metadata.slug}` }
+				]} />
+				<h1 class="text-3xl font-bold mt-2">{data.metadata.title}</h1>
+				<div class="flex items-center gap-3 mt-3 text-sm text-surface-500">
+					<time>{new Date(data.metadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+					{#if readingTime}
+						<span>&middot;</span>
+						<span>{readingTime}</span>
+					{/if}
+				</div>
+				{#if data.metadata.tags?.length}
+					<div class="flex gap-2 mt-3">
+						{#each data.metadata.tags as tag}
+							<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
+						{/each}
+					</div>
+				{/if}
+			</header>
+
+			<div class="prose prose-lg max-w-none">
+				{@render data.content()}
 			</div>
-		{/if}
-	</header>
 
-	<div class="prose prose-lg max-w-none">
-		{@render data.content()}
+			{#if data.metadata.original_url}
+				<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
+					Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{new URL(data.metadata.original_url).hostname}</a>
+				</p>
+			{/if}
+
+			{#if data.prev || data.next}
+				<nav class="flex justify-between items-start mt-8 pt-6 border-t border-surface-300-700 gap-4">
+					{#if data.prev}
+						<a href="/blog/{data.prev.slug}" class="text-sm text-primary-500 hover:underline max-w-[45%]">
+							&larr; {data.prev.title}
+						</a>
+					{:else}
+						<span></span>
+					{/if}
+					{#if data.next}
+						<a href="/blog/{data.next.slug}" class="text-sm text-primary-500 hover:underline text-right max-w-[45%]">
+							{data.next.title} &rarr;
+						</a>
+					{:else}
+						<span></span>
+					{/if}
+				</nav>
+			{/if}
+
+			<GiscusComments />
+		</div>
+
+		<TableOfContents />
 	</div>
-
-	{#if data.metadata.original_url}
-		<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
-			Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{new URL(data.metadata.original_url).hostname}</a>
-		</p>
-	{/if}
-
-	{#if data.prev || data.next}
-		<nav class="flex justify-between items-start mt-8 pt-6 border-t border-surface-300-700 gap-4">
-			{#if data.prev}
-				<a href="/blog/{data.prev.slug}" class="text-sm text-primary-500 hover:underline max-w-[45%]">
-					&larr; {data.prev.title}
-				</a>
-			{:else}
-				<span></span>
-			{/if}
-			{#if data.next}
-				<a href="/blog/{data.next.slug}" class="text-sm text-primary-500 hover:underline text-right max-w-[45%]">
-					{data.next.title} &rarr;
-				</a>
-			{:else}
-				<span></span>
-			{/if}
-		</nav>
-	{/if}
-
-	<GiscusComments />
 </article>
 
 <style>
