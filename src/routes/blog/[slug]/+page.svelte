@@ -3,6 +3,7 @@
 	import GiscusComments from '$lib/components/GiscusComments.svelte';
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { onMount } from 'svelte';
 	let { data }: { data: PageData } = $props();
 
@@ -107,7 +108,7 @@
 </svelte:head>
 
 <article class="container mx-auto px-4 py-12 max-w-5xl">
-	<div class="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-8">
+	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<div class="min-w-0">
 			<header class="mb-8">
 				<Breadcrumbs crumbs={[
@@ -164,7 +165,11 @@
 			<GiscusComments />
 		</div>
 
-		<TableOfContents />
+		<div class="hidden lg:block space-y-6">
+			<ProfileSidebar />
+			<hr class="border-surface-300-700" />
+			<TableOfContents />
+		</div>
 	</div>
 </article>
 

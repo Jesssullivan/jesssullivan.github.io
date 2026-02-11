@@ -2,6 +2,7 @@
 	import type { PageData } from './$types';
 	import Search from '$lib/components/Search.svelte';
 	import BlogSidebar from '$lib/components/BlogSidebar.svelte';
+	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	let { data }: { data: PageData } = $props();
@@ -43,6 +44,11 @@
 	<div class="flex items-baseline justify-between mb-8">
 		<h1 class="font-heading text-3xl font-bold">Blog</h1>
 		<span class="text-sm text-surface-500">{data.posts.length} posts</span>
+	</div>
+
+	<!-- Mobile profile (visible on small screens only) -->
+	<div class="lg:hidden mb-6">
+		<ProfileSidebar compact={true} />
 	</div>
 
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
@@ -119,7 +125,9 @@
 
 		<!-- Sidebar column (hidden on mobile) -->
 		<div class="hidden lg:block">
-			<div class="sticky top-4">
+			<div class="sticky top-4 space-y-8">
+				<ProfileSidebar />
+				<hr class="border-surface-300-700" />
 				<BlogSidebar {recentPosts} {allTags} />
 			</div>
 		</div>
