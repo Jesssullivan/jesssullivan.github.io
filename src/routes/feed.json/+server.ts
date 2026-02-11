@@ -16,7 +16,6 @@ export async function GET() {
 		authors: [{ name: 'Jess Sullivan', url: 'https://github.com/Jesssullivan' }],
 		items: posts
 			.filter((p) => p.published)
-			.slice(0, 50)
 			.map((post) => ({
 				id: `${site}/blog/${post.slug}`,
 				url: `${site}/blog/${post.slug}`,

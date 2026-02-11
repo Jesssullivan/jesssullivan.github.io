@@ -14,10 +14,10 @@ _Letsee...._
   * Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the [DLA Makerspace at Cornell](https://cals.cornell.edu/landscape-architecture/facilities-resources/fabrication-laboratory)! 
   * I have been busy building out the [new Ithaca Generator website](https://ithacagenerator.org/), as well as new member mangegment & accounting software. I've taken over as IG's 3D Printer Area Captain too! 😸
 
-![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/jsPrintee.gif?resize=300%2C205&ssl=1) | ![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/micronklee.gif?w=676&ssl=1) | ![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/NoiseNight.jpg?resize=300%2C300&ssl=1)  
+*Image from the original post is no longer available -- nothing on the internet is forever.* | *This image has been lost to time. The original was hosted on WordPress.* | *The photograph that was here has since disappeared from the web.*  
 ---|---|---  
 [_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)  
-![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/IMG_4353.jpg?resize=292%2C300&ssl=1) | ![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/DD-Logo.png?resize=300%2C300&ssl=1) | ![](https://i0.wp.com/www.transscendsurvival.org/wp-content/uploads/2022/04/Screenshot-from-2022-04-08-18-35-54.png?resize=261%2C300&ssl=1)  
+*Image no longer available -- a reminder that digital things are impermanent too.* | *This image didn't survive the migration from WordPress. Such is the web.* | *The original image, once hosted on WordPress, has been lost to the digital ether.*  
 _See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_  
   
 ##### [Magic Fusion 360 for 3D Printing Class](https://ithacagenerator.org/home/fusion-360-class)

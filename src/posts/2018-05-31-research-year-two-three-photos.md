@@ -8,7 +8,7 @@ slug: "research-year-two-three-photos"
 original_url: "https://transscendsurvival.org/2018/05/31/research-year-two-three-photos/"
 ---
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_8381-Edit-200x300.jpg?resize=200%2C300&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_8381-Edit.jpg?ssl=1)
+[![](/images/posts/IMG_8381-Edit.jpg)](/images/posts/IMG_8381-Edit.jpg)
 
 Male Common Yellowthroat Warbler
 
@@ -22,11 +22,11 @@ Male Mourning Warbler (MOWA): This is a rare bird here. Even more amazing, it is
 
 -Jess
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_9176-Edit-2.jpg?resize=300%2C200&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_9176-Edit-2.jpg?ssl=1)
+[![](/images/posts/IMG_9176-Edit-2.jpg)](/images/posts/IMG_9176-Edit-2.jpg)
 
 Female Black-throated Blue Warbler
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_8895-Edit-2.jpg?resize=300%2C200&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_8895-Edit-2.jpg?ssl=1)
+[![](/images/posts/IMG_8895-Edit-2.jpg)](/images/posts/IMG_8895-Edit-2.jpg)
 
 Male Mourning Warbler
 

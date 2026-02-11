@@ -19,7 +19,7 @@ I need to run ESRI products on my MacBook Pro. QGIS is always the prefered solut
 
 I went about this two ways; 
 
-My first solution was to buy an ESRI Press textbook on amazon. A 180 day trial for $50- when taken as a college course, this isn't to bad. 🙂 The book is slow and recursive, but a 180 days to play with all the plugins and whistles allows for way deeper learning via the internet. 🙂[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.36.59-AM.png?resize=253%2C300&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.36.59-AM.png?ssl=1)
+My first solution was to buy an ESRI Press textbook on amazon. A 180 day trial for $50- when taken as a college course, this isn't to bad. 🙂 The book is slow and recursive, but a 180 days to play with all the plugins and whistles allows for way deeper learning via the internet. 🙂[![](/images/posts/Screen-Shot-2018-04-03-at-9.36.59-AM.png)](/images/posts/Screen-Shot-2018-04-03-at-9.36.59-AM.png)
 
 Do know there is a little-documented limit to the number of license transfers you may perform before getting either lock in or out of your software. I hit this limit, as I was also figuring out my virtual machine situation, which would occasionally need a re-installation. 
 
@@ -41,13 +41,13 @@ I used two drives, a 128 and a 64- this is great because I can store all my work
 
 Installation is straightforward, just install EVERYTHING on the usb drive and it will be fine. 🙂
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.43-AM.png?resize=300%2C207&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.43-AM.png?ssl=1) [![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.38-AM.png?resize=300%2C213&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.38-AM.png?ssl=1)
+[![](/images/posts/Screen-Shot-2018-04-03-at-9.52.43-AM.png)](/images/posts/Screen-Shot-2018-04-03-at-9.52.43-AM.png) [![](/images/posts/Screen-Shot-2018-04-03-at-9.52.38-AM.png)](/images/posts/Screen-Shot-2018-04-03-at-9.52.38-AM.png)
 
 **Problems** : Stability. Crashes, and python / some other script modules do not work well. This is a problem. ArcAdministrator gets confused about all kinds of things- FWIW, if you are googling to delete the FLEXnet folder to solve authentication file issues, move to option 2 🙂
 
 Speed is down, but actually the ~same speed as our school "super" PCs- (though I happened to know they are essentially glorified "hybrid" VMs too!) .
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.20-AM.png?resize=300%2C171&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-03-at-9.52.20-AM.png?ssl=1)
+[![](/images/posts/Screen-Shot-2018-04-03-at-9.52.20-AM.png)](/images/posts/Screen-Shot-2018-04-03-at-9.52.20-AM.png)
 
 **Option two: OSX Bootcamp**
 

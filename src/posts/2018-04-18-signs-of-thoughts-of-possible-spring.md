@@ -10,23 +10,23 @@ original_url: "https://transscendsurvival.org/2018/04/18/signs-of-thoughts-of-po
 
 Spring is (possibly) coming people! 🙂
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6256-Edit-300x200.jpg?resize=300%2C200&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6256-Edit.jpg?ssl=1)
+*Digital entropy claimed this image when the WordPress site was retired.*
 
 Scituate, MA - Osprey
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6069-Edit-300x200.jpg?resize=300%2C200&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6069-Edit.jpg?ssl=1)
+*This image existed once on WordPress, but the web moves on.*
 
 Scituate, MA - Killdeer
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6677-Edit-300x200.jpg?resize=300%2C200&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6677-Edit.jpg?ssl=1)
+*An image was here before the migration. It didn't make the journey.*
 
 Plymouth, NH - (FOY photo for me) Hermit Thrush
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6504.jpg?resize=300%2C200&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6504.jpg?ssl=1)
+*Lost to the void between WordPress and here.*
 
 Scituate, MA - Brant
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6649-Edit-200x300.jpg?resize=200%2C300&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/IMG_6649-Edit.jpg?ssl=1)
+*The original image has not survived the passage of time online.*
 
 Plymouth, NH - Savannah Sparrow
 

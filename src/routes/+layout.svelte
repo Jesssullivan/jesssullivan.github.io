@@ -7,7 +7,7 @@
 
 	let { children } = $props();
 	let mobileOpen = $state(false);
-	let darkMode = $state(true);
+	let darkMode = $state(false);
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
@@ -16,25 +16,16 @@
 	];
 
 	onMount(() => {
-		const stored = localStorage.getItem('theme');
-		if (stored === 'light') {
-			darkMode = false;
-			document.documentElement.classList.remove('dark');
-		} else {
-			darkMode = true;
-			document.documentElement.classList.add('dark');
-		}
+		darkMode = document.documentElement.getAttribute('data-mode') === 'dark';
 	});
 
 	function toggleTheme() {
-		darkMode = !darkMode;
-		if (darkMode) {
-			document.documentElement.classList.add('dark');
-			localStorage.setItem('theme', 'dark');
-		} else {
-			document.documentElement.classList.remove('dark');
-			localStorage.setItem('theme', 'light');
-		}
+		const current = document.documentElement.getAttribute('data-mode');
+		const next = current === 'dark' ? 'light' : 'dark';
+		document.documentElement.setAttribute('data-mode', next);
+		document.documentElement.style.colorScheme = next;
+		localStorage.setItem('color-mode', next);
+		darkMode = next === 'dark';
 	}
 
 	function isActive(href: string): boolean {

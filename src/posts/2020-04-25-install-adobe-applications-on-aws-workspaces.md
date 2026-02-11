@@ -14,10 +14,10 @@ By default, the browser based authentication used by Adobe’s Creative Cloud in
 
 Open Server Manager. Under “Local Server”, open the “Internet Explorer Enhanced Security Configuration”- *(mercy!)* - and turn it off. 
 
-![Good Lord](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2020/04/Screenshot-from-2020-04-25-12-46-12.png?resize=200%2C123&ssl=1)
+*An image described as "Good Lord" was here, but has since vanished from the web.*
 
 ##### Tada! The sign on handoff from the installer→Browser→ back to installer will now work fine. xD
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2020/04/Screenshot-from-2020-04-25-12-43-14-e1587835606433-300x167.png?resize=200%2C100&ssl=1)
+*Gone with the WordPress -- this image no longer exists online.*
 
 ### _Related_

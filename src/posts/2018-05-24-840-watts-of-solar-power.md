@@ -41,13 +41,13 @@ Camera | 2.6 | 1 | 2.6 |
 
 -Jess
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3311-1.jpg?resize=300%2C225&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3311-1.jpg?ssl=1)
+[![](/images/posts/IMG_3311-1.jpg)](/images/posts/IMG_3311-1.jpg)
 
 +/- relates to size of standard prongs
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3312-1.jpg?resize=300%2C225&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3312-1.jpg?ssl=1)
+[![](/images/posts/IMG_3312-1.jpg)](/images/posts/IMG_3312-1.jpg)
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3313-1.jpg?resize=300%2C225&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/05/IMG_3313-1.jpg?ssl=1)
+[![](/images/posts/IMG_3313-1.jpg)](/images/posts/IMG_3313-1.jpg)
 
 Parallel maintains 12v but doubles Ah. (Series would go to 24v at 35ah)
 

@@ -14,7 +14,7 @@ The following list was compiled mostly by Len and another student (who also is n
 
 The louisiana waterthrush, black and white warbler, and a glowing male redstart (all of which are warblers, despite the different naming conventions) really hit this walk out of the park for me.
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/Field-labs-2017.jpg?resize=676%2C875&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/Field-labs-2017.jpg?ssl=1)
+*Lost to the void between WordPress and here.*
 
 -Jess
 

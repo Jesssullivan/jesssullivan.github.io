@@ -14,199 +14,199 @@ Below is a gallery of photos taken today, comprised almost entirely out of bark,
 
 -Jess
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9079-1.jpg?fit=676%2C1014&ssl=1)
+*Image no longer available -- a reminder that digital things are impermanent too.*
      Red Maple bark 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9088-1.jpg?fit=676%2C451&ssl=1)
+*This image didn't survive the migration from WordPress. Such is the web.*
      Red Maple leaves from afar 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9100-1.jpg?fit=676%2C451&ssl=1)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
      Beech bark with scale beetle holes and resulting health condition 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9105-1.jpg?fit=676%2C451&ssl=1)
+*This visual has drifted away with the old WordPress site.*
      Sugar maple leaves. Note extra fingers. 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9108-1.jpg?fit=676%2C451&ssl=1)
+*Image unavailable -- it lived on a WordPress server that no longer exists.*
      More Sugar Maple leaves 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9116-1.jpg?fit=676%2C451&ssl=1)
+*What was once an image here is now just a memory of a URL.*
      Mossy Hop Hornbeam trunk. Note stringy bark pattern and and reddish inner bark. 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9120-1.jpg?fit=676%2C1014&ssl=1)
+*The bits that made up this image have scattered to the wind.*
      Hop Hornbeam bottom. Note the flaking pattern. 
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9123-1.jpg?fit=676%2C1014&ssl=1)
+*Gone with the WordPress -- this image no longer exists online.*
      Hemlock truck bottom 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9124-1.jpg?fit=676%2C451&ssl=1)
+*This image was a casualty of the WordPress migration.*
      Standard Hemlock view 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9127-1.jpg?fit=676%2C451&ssl=1)
+*Another image lost in the great WordPress decommission.*
      White Pine bark 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9132-1.jpg?fit=676%2C451&ssl=1)
+*The server that hosted this image has long since gone dark.*
      (Likely Red Maple) 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9138-1.jpg?fit=676%2C451&ssl=1)
+*Digital entropy claimed this image when the WordPress site was retired.*
      Young Beech branching 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9140-1.jpg?fit=676%2C451&ssl=1)
+*This image existed once on WordPress, but the web moves on.*
      Beech leaves – Young plant, recently opened. 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9142-1.jpg?fit=676%2C451&ssl=1)
+*An image was here before the migration. It didn't make the journey.*
      Purple Trillium. Note the three equal leaves whorled around the flower. 
   
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9148-1.jpg?fit=676%2C1014&ssl=1)
+*Lost to the void between WordPress and here.*
      “Yew! You’re a Shrubbery!” 
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9161.jpg?fit=676%2C451&ssl=1)
+*The original image has not survived the passage of time online.*
      Tough one: BigTooth Aspen. Note serrated baby leaves. 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9163.jpg?fit=676%2C451&ssl=1)
+*This space once held an image. The WordPress CDN has since gone quiet.*
      Canada Mayflower 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9169.jpg?fit=676%2C451&ssl=1)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
      Another likely Bigtooth Aspen leaf… 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9177.jpg?fit=676%2C451&ssl=1)
+*This image has been lost to time. The original was hosted on WordPress.*
      Fruticose Old man’s beard. Symbiosis between fungus and algae = Lichen 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9178.jpg?fit=676%2C451&ssl=1)
+*The photograph that was here has since disappeared from the web.*
      Red Oak bark 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9181.jpg?fit=676%2C451&ssl=1)
+*Image no longer available -- a reminder that digital things are impermanent too.*
      Dandelion greens 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9186.jpg?fit=676%2C451&ssl=1)
+*This image didn't survive the migration from WordPress. Such is the web.*
      Trout Lily 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9189.jpg?fit=676%2C451&ssl=1)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
      Wild Ginger AFAICT 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9194.jpg?fit=676%2C451&ssl=1)
+*This visual has drifted away with the old WordPress site.*
      Ostrich Ferns 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9195.jpg?fit=676%2C1014&ssl=1)
+*Image unavailable -- it lived on a WordPress server that no longer exists.*
      “Cool fern” 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9200.jpg?fit=676%2C451&ssl=1)
+*What was once an image here is now just a memory of a URL.*
      Ostrich Fern’s signature “drape” 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9202.jpg?fit=676%2C451&ssl=1)
+*The bits that made up this image have scattered to the wind.*
      Trout Lilys 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9210.jpg?fit=676%2C451&ssl=1)
+*Gone with the WordPress -- this image no longer exists online.*
      Quaking aspen 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9211.jpg?fit=676%2C451&ssl=1)
+*This image was a casualty of the WordPress migration.*
      Quaking Aspen leaves 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9214.jpg?fit=676%2C451&ssl=1)
+*Another image lost in the great WordPress decommission.*
      Japanese Knotweed babies 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9216.jpg?fit=676%2C451&ssl=1)
+*The server that hosted this image has long since gone dark.*
      Gall phenomenon (I think a wasp version) 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9220-1.jpg?fit=676%2C451&ssl=1)
+*Digital entropy claimed this image when the WordPress site was retired.*
      American Redstart 
   
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9272-1.jpg?fit=676%2C451&ssl=1)
+*This image existed once on WordPress, but the web moves on.*
      Black-And-White Warbler 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9287-1.jpg?fit=676%2C1014&ssl=1)
+*An image was here before the migration. It didn't make the journey.*
      Hermit thrush 
   
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9289.jpg?fit=676%2C451&ssl=1)
+*Lost to the void between WordPress and here.*
      Japanese Barberry 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9293.jpg?fit=676%2C451&ssl=1)
+*The original image has not survived the passage of time online.*
      Black Cherry Bark 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9296.jpg?fit=676%2C451&ssl=1)
+*This space once held an image. The WordPress CDN has since gone quiet.*
      Sugar Maple leaves 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9300.jpg?fit=676%2C451&ssl=1)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
      Sugar Maple bark, *young 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9301.jpg?fit=676%2C451&ssl=1)
+*This image has been lost to time. The original was hosted on WordPress.*
      Grape Vine 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9302.jpg?fit=676%2C1014&ssl=1)
+*The photograph that was here has since disappeared from the web.*
      American Ash tree bark 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9309.jpg?fit=676%2C451&ssl=1)
+*Image no longer available -- a reminder that digital things are impermanent too.*
      Japanese Barberry 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9310.jpg?fit=676%2C451&ssl=1)
+*This image didn't survive the migration from WordPress. Such is the web.*
      American Ash 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9312.jpg?fit=676%2C451&ssl=1)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
      Black Cherry Bark 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9319.jpg?fit=676%2C451&ssl=1)
+*This visual has drifted away with the old WordPress site.*
      Hornbeam “musclewood” 
   
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9332.jpg?fit=676%2C451&ssl=1)
+*Image unavailable -- it lived on a WordPress server that no longer exists.*
      Beech 
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9333.jpg?fit=676%2C1014&ssl=1)
+*What was once an image here is now just a memory of a URL.*
      Grey Birch 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9337.jpg?fit=676%2C451&ssl=1)
+*The bits that made up this image have scattered to the wind.*
      Classic Grey Birch view 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9354.jpg?fit=676%2C451&ssl=1)
+*Gone with the WordPress -- this image no longer exists online.*
      ????????????? 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9358.jpg?fit=676%2C451&ssl=1)
+*This image was a casualty of the WordPress migration.*
      ??????????????? 
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9359.jpg?fit=676%2C451&ssl=1)
+*Another image lost in the great WordPress decommission.*
      Sensitive Fern Fertile Frond 
   
 
-![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9362.jpg?fit=676%2C451&ssl=1)
+*The server that hosted this image has long since gone dark.*
      Beech 
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9367.jpg?fit=676%2C451&ssl=1)
+*Digital entropy claimed this image when the WordPress site was retired.*
      Hemlock 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9369.jpg?fit=676%2C451&ssl=1)
+*This image existed once on WordPress, but the web moves on.*
      Stand of Yellow Birches 
 
-![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9372.jpg?fit=676%2C1014&ssl=1)
+*An image was here before the migration. It didn't make the journey.*
      Yellow birch 
   
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9380.jpg?fit=676%2C1014&ssl=1)
+*Lost to the void between WordPress and here.*
      Big Quaking Aspen – note how it looks like a beech, but isn’t… 
 
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_9382.jpg?fit=676%2C451&ssl=1)
+*The original image has not survived the passage of time online.*
      Small quaking Aspen leaves 
   
 

@@ -43,11 +43,11 @@ This morning, I went birding across the campus starting at sunrise. Below is the
 
 Number of Taxa: 26 + 2
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_8889.jpg?resize=676%2C451&ssl=1)](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_8889.jpg?ssl=1)
+*The original image has not survived the passage of time online.*
 
 Above is a Ruby-crowned Kinglet. Note the crown is not ruby colored.
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_8933.jpg?resize=676%2C451&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/05/IMG_8933.jpg?ssl=1)
+*This space once held an image. The WordPress CDN has since gone quiet.*
 
 Above is a deeply-hued Yellow Warbler. A pure sounding, "Sweet-sweet-sweet, so-so Sweet!"- heard all over the forest an parking lots alike.
 

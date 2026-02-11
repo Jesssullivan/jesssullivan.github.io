@@ -12,7 +12,7 @@ original_url: "https://transscendsurvival.org/2016/12/14/opportunistic-birding-1
 
 The two Bohemian waxwings were still hanging around the museum of cedar waxwings, both of whom arrived yesterday. Bohemian waxwings special because they are far, far rarer than the cedar waxwings. The cedars are pretty snazzy-looking by themselves, and I look at them in my daily travels too. One can tell the bohemians apart by the crimson/burgundy/rufus color under the tail and around the face. They are also a bit bigger, but that's only helpful if one can compare a cedar with a bohemian at the same time (which is still useful because, as we can see, they like to travel around together). This was opportunistic because I "birded" only in transit, as my route to my dorm door takes me under the waxwing tree.
 
-![](https://i1.wp.com/localhost/wp-content/uploads/2016/12/Screen-Shot-2016-12-14-at-3.50.32-PM-300x200.png?resize=441%2C294)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
 
 **What does this mean?**
 
@@ -38,6 +38,6 @@ Then, once you know a robin and from a heron, a "murder" of fish crows from a "t
 
 ...This is opportunistic birding. Good Luck!
 
-![](https://i0.wp.com/localhost/wp-content/uploads/2016/12/Screen-Shot-2016-12-14-at-3.51.09-PM.png?resize=676%2C290)
+*This image has been lost to time. The original was hosted on WordPress.*
 
 ### _Related_

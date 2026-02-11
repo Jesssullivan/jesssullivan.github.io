@@ -1,53 +1,53 @@
 ---
 title: "Gallery of \"Warblers in the Hand\""
 date: "2017-07-27"
-description: ""
+description: "Photo gallery of warblers in the hand during bird banding research."
 tags: ["Birding"]
 published: true
 slug: "gallery-of-warblers-in-the-hand"
 original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/"
 ---
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_0981.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_0981/)
+*Gone with the WordPress -- this image no longer exists online.*
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2153.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_2153/)
+*This image was a casualty of the WordPress migration.*
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2166.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_2166/)
+*Another image lost in the great WordPress decommission.*
   
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2188.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_2188/)
+*The server that hosted this image has long since gone dark.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_2192.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_2192/)
+*Digital entropy claimed this image when the WordPress site was retired.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5324.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5324/)
+*This image existed once on WordPress, but the web moves on.*
   
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5328.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5328/)
+*An image was here before the migration. It didn't make the journey.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5331.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5331/)
+*Lost to the void between WordPress and here.*
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5335.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5335/)
+*The original image has not survived the passage of time online.*
   
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5349.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5349/)
+*This space once held an image. The WordPress CDN has since gone quiet.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5358.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5358/)
+*Image from the original post is no longer available -- nothing on the internet is forever.*
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5369.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5369/)
+*This image has been lost to time. The original was hosted on WordPress.*
   
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5370.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5370/)
+*The photograph that was here has since disappeared from the web.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5376.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5376/)
+*Image no longer available -- a reminder that digital things are impermanent too.*
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5380.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5380/)
+*This image didn't survive the migration from WordPress. Such is the web.*
   
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5393.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5393/)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5399.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5399/)
+*This visual has drifted away with the old WordPress site.*
 
-[![](https://i2.wp.com/transscendsurvival.org/wp-content/uploads/2017/07/IMG_5415-2.jpg?resize=150%2C150&ssl=1)](https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/img_5415-2/)
+*Image unavailable -- it lived on a WordPress server that no longer exists.*
   
 
 ### _Related_

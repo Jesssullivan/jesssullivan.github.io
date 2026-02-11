@@ -1,7 +1,7 @@
 ---
 title: "xOES: Plot Review"
 date: "2020-04-12"
-description: ""
+description: "Review of outdoor ecological study plots and observation data."
 tags: ["Nature Observations"]
 published: false
 slug: "xoes-plot-review"

@@ -32,7 +32,7 @@ $?: Casing- be creative. I want to make one in a shrink-wrapped tube or 3d print
 
 ...notice how when facing the shiny side of the chip, the left leg is in line with the left hand side of the USB port when looking into the port:
 
-![](https://i2.wp.com/localhost/wp-content/uploads/2016/12/IMG_1679-300x225.jpg?resize=300%2C225)
+*The photograph that was here has since disappeared from the web.*
 
 Then arrange them like so:
 
@@ -40,15 +40,15 @@ Then arrange them like so:
 
 ...The remaining leg is attached to the far left pin on the USB port (when facing the chip's shiny side remember).
 
-![](https://i1.wp.com/localhost/wp-content/uploads/2016/12/IMG_1677-300x225.jpg?resize=300%2C225)
+*Image no longer available -- a reminder that digital things are impermanent too.*
 
 Then it works!! YAY!
 
-![](https://i1.wp.com/localhost/wp-content/uploads/2016/12/IMG_1680-300x225.jpg?resize=300%2C225)
+*This image didn't survive the migration from WordPress. Such is the web.*
 
 Here I verify it works by charging my commercial usb charger with my DIY duct tape one:
 
-![](https://i1.wp.com/localhost/wp-content/uploads/2016/12/Screen-Shot-2016-12-14-at-8.05.43-PM-294x300.png?resize=294%2C300)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
 
 Good luck!
 

@@ -28,7 +28,7 @@ I am using the AWS “Linux 2” AMI, which is based on the Red Hat OS. For refe
 
 “**sudo nano /etc/shiny-server/shiny-server.conf** ” is how to access the config file for Shiny. The fresh install version I used _did not work_! There will be lots of excess in that file, much of which can causes issues in a bare-bones setup like mine. One important key is to ensure Shiny is using a root user- see my example file below. I am the root user here (jess)- change that to mirror- at least for the beginning- the user defined as root in your AWS installation. See my notes HERE on that- that is defined in the advanced settings of the EC2 instance.
 
-BEGIN CONFIG FILE: [(or click to download)](https://transscendsurvival.org/wp-content/uploads/2018/07/Jess-Config.rtf) *Download is properly indented
+BEGIN CONFIG FILE: *(the download link for this config file has been lost with the WordPress site)* *Download is properly indented
 
 `  
 # Define user: this should be the same user as the AWS root user!  
@@ -52,7 +52,7 @@ END CONFIG FILE
 
 Well, the proof is in the pudding. At least for now, you can access a basic app I made that cleans csv field data files that where entered into excel by hand. They start full of missing fields and have a weird two-column setup for distance- the app cleans all these issues and returns a 4 column (from 5 column) csv.
 
-Download the test file here: [2012_dirt_PCD-git](https://transscendsurvival.org/wp-content/uploads/2018/07/2012_dirt_PCD-git.csv)
+Download the test file here: *the test CSV file is no longer available -- it was hosted on the old WordPress site*
 
 And access the app here: [ Basic Shiny app on AWS!](http://ec2-34-228-197-7.compute-1.amazonaws.com:3838/sample-apps/Clean/)
 

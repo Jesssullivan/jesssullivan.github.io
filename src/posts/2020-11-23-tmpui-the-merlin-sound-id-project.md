@@ -17,8 +17,8 @@ _post updated 11/23/20_
 
 ## Web:
 
-[![demos](https://i2.wp.com/raw.githubusercontent.com/Jesssullivan/tmpUI/master/icons/tmpUI.MerlinAI-favicon-dark/android-chrome-192x192.png?resize=192%2C192&ssl=1)](https://merlinai.herokuapp.com/)   
-_Visit audio demos on Heroku_ |  [![demos](https://i2.wp.com/raw.githubusercontent.com/Jesssullivan/tmpUI/master/icons/Leaflet.annotation-favicon-dark/android-chrome-192x192.png?resize=192%2C192&ssl=1)](https://merlinai.herokuapp.com/leaflet_audio)   
+*The image "demos" didn't survive the WordPress migration.*   
+_Visit audio demos on Heroku_ |  *"demos" -- the original image is no longer hosted anywhere we can find.*   
 _Visit Leaflet.annotation demos on Heroku_  
 ---|---  
   
@@ -71,9 +71,9 @@ _Configure Flask in`config.py`:_
 
 ### Leaflet.annotation @ tmpUI:
 
-[![demos](https://i2.wp.com/raw.githubusercontent.com/Jesssullivan/tmpUI/master/icons/tmpUI.MerlinAI-favicon-light/android-chrome-192x192.png?resize=192%2C192&ssl=1)](https://merlinai.herokuapp.com/leaflet_audio)  
+*Where "demos" once appeared, only this note remains.*  
   
-_Visit Leaflet.annotation Audio demo_ |  [![demos](https://i2.wp.com/raw.githubusercontent.com/Jesssullivan/tmpUI/master/icons/Leaflet.annotation-favicon-dark/android-chrome-192x192.png?resize=192%2C192&ssl=1)](https://merlinai.herokuapp.com/leaflet_photo)  
+_Visit Leaflet.annotation Audio demo_ |  *The image of "demos" is no longer available.*  
   
 _Visit Leaflet.annotation Photo demo_  
 ---|---  

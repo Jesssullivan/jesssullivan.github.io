@@ -17,7 +17,7 @@ original_url: "https://www.transscendsurvival.org/2021/02/17/tmpui-the-merlin-so
 Vue UI: handling multiple clients- demo of MLD-1514 | Leaflet UI: handling multiple clients- demo of MLD-1514 | user trust schema experiments etc  
 |  |   
 Jest x Puppeteer Demos | Web Interpreter: upload / record, (re)crop & classify | Leaflet Annotator bits & bobs  
-| ![](https://i2.wp.com/www.transscendsurvival.org/wp-content/uploads/2021/02/uploadcrop.gif?resize=150%2C150&ssl=1) |   
+| *The photograph that was here has since disappeared from the web.* |   
   
 [_miscellaneous dregs, bits, bobs, demos in this playlist on youtube_](https://www.youtube.com/playlist?list=PL6y8N_vP4OopcvDfwcEyvx1Nz4MVSZK7R)
 

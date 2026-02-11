@@ -3,7 +3,7 @@ title: "Hello World"
 date: "2026-02-09"
 description: "I'm back online after a year offline. Rebuilding my blog with SvelteKit and Skeleton UI."
 tags: ["meta", "sveltekit"]
-published: true
+published: false
 ---
 
 # Hello World

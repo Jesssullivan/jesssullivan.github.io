@@ -2,6 +2,10 @@
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton/themes/pine';
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+@custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
+
+[data-mode="light"] { color-scheme: light; }
+[data-mode="dark"] { color-scheme: dark; }
 
 /* Blog prose styling for mdsvex content */
 .prose {

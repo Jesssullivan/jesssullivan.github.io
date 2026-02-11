@@ -15,23 +15,23 @@ Similarly, other network programs work just as well- I am running a MySQL server
 **Getting going: The only prerequisite is you have an AWS account.** Students: get $40 EC2 dollars below:
 
 https://aws.amazon.com/education/awseducate/[  
-![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.10.10-PM.png?resize=373%2C215&ssl=1)](https://transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.10.10-PM.png)Open the cloud 9 tab under services.
+*What was once an image here is now just a memory of a URL.*](*The bits that made up this image have scattered to the wind.*)Open the cloud 9 tab under services.
 
 Setup is very fast- just know if others are going to be editing to, understand the [IAM policies](https://aws.amazon.com/iam/) and what [VPC settings](https://aws.amazon.com/vpc/) you actually want.
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.21-PM.png?resize=376%2C260&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.21-PM.png?ssl=1)Know this ideally a browser-based service; I have tried to come up with a reason a SSH connection would be better and didn't get any where.
+*Gone with the WordPress -- this image no longer exists online.*Know this ideally a browser-based service; I have tried to come up with a reason a SSH connection would be better and didn't get any where.
 
 For one person, micro is fine. Know these virtual "RAMs" and "CPUs" are generous....
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.35-PM.png?resize=300%2C141&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.35-PM.png?ssl=1)The default network settings are set up for you. This follows good practice for one person; more than that (or if you are perhaps a far-travelling person) note these settings. They are always editable under the VPC and EC2 instance tabs.
+*This image was a casualty of the WordPress migration.*The default network settings are set up for you. This follows good practice for one person; more than that (or if you are perhaps a far-travelling person) note these settings. They are always editable under the VPC and EC2 instance tabs.
 
-[![](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.59-PM.png?resize=209%2C138&ssl=1)](https://i1.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.11.59-PM.png?ssl=1)
+*Another image lost in the great WordPress decommission.*
 
 That's it! Other use things to know:
 
 This is a linux machine maintained by Amazon. Packages you think should work and be up to date (arguably like any other linux machine I guess...) may not be. Check your basics like the NPM installer and versions of what your going to be working on, it very well may be different than what you are used to.
 
-[![](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.16.33-PM.png?resize=381%2C244&ssl=1)](https://i0.wp.com/transscendsurvival.org/wp-content/uploads/2018/04/Screen-Shot-2018-04-10-at-1.16.33-PM.png?ssl=1)
+*The server that hosted this image has long since gone dark.*
 
 **In the editor:**
 

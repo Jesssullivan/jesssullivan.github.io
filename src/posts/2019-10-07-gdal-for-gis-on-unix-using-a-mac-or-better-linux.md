@@ -10,7 +10,7 @@ original_url: "https://transscendsurvival.org/2019/10/07/gdal-for-gis-on-unix-us
 
 # GIS Shortcuts
 
-![](https://i0.wp.com/raw.githubusercontent.com/Jesssullivan/GIS_Shortcuts/master/Python_Results.png?w=676&ssl=1)
+*The original image, once hosted on WordPress, has been lost to the digital ether.*
 
 * * *
 
