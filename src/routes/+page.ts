@@ -3,5 +3,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	const posts = await getPosts();
-	return { posts: posts.slice(0, 5) };
+	const featured = posts.filter((p) => p.featured);
+	const recent = posts.filter((p) => !p.featured).slice(0, 5);
+	return { featured, posts: recent };
 };

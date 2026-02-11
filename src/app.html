@@ -7,7 +7,7 @@
 		<link rel="alternate" type="application/feed+json" title="transscendsurvival.org JSON Feed" href="/feed.json" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed.xml" />
 		<script>
-			(function(){var m=localStorage.getItem('color-mode');if(!m)m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-mode',m);document.documentElement.style.colorScheme=m;})();
+			(function(){var m=localStorage.getItem('color-mode');if(m!=='dark'&&m!=='light')m=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-mode',m);document.documentElement.style.colorScheme=m;})();
 		</script>
 		%sveltekit.head%
 	</head>

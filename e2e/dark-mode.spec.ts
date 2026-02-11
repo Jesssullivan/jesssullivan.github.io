@@ -7,29 +7,49 @@ test.describe('Dark Mode', () => {
 		expect(mode).toBe('light');
 	});
 
-	test('toggle switches to dark mode', async ({ page }) => {
+	test('theme switcher opens dropdown with 3 options', async ({ page }) => {
 		await page.goto('/');
-		const toggle = page.getByLabel('Toggle dark/light mode');
-		await toggle.click();
+		const switcher = page.getByLabel('Theme settings');
+		await switcher.click();
+
+		await expect(page.getByRole('button', { name: 'Light' })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Dark' })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'System' })).toBeVisible();
+	});
+
+	test('switching to dark mode works', async ({ page }) => {
+		await page.goto('/');
+		await page.getByLabel('Theme settings').click();
+		await page.getByRole('button', { name: 'Dark' }).click();
 
 		const mode = await page.locator('html').getAttribute('data-mode');
 		expect(mode).toBe('dark');
 
-		const colorScheme = await page.locator('html').evaluate(
-			(el) => el.style.colorScheme
-		);
+		const colorScheme = await page.locator('html').evaluate((el) => el.style.colorScheme);
 		expect(colorScheme).toBe('dark');
 	});
 
-	test('toggle switches back to light mode', async ({ page }) => {
+	test('switching back to light mode works', async ({ page }) => {
 		await page.goto('/');
-		const toggle = page.getByLabel('Toggle dark/light mode');
-
-		await toggle.click();
+		// Switch to dark
+		await page.getByLabel('Theme settings').click();
+		await page.getByRole('button', { name: 'Dark' }).click();
 		expect(await page.locator('html').getAttribute('data-mode')).toBe('dark');
 
-		await toggle.click();
+		// Switch back to light
+		await page.getByLabel('Theme settings').click();
+		await page.getByRole('button', { name: 'Light' }).click();
 		expect(await page.locator('html').getAttribute('data-mode')).toBe('light');
+	});
+
+	test('system mode respects localStorage removal', async ({ page }) => {
+		await page.goto('/');
+		await page.getByLabel('Theme settings').click();
+		await page.getByRole('button', { name: 'System' }).click();
+
+		// System mode removes explicit color-mode from localStorage
+		const stored = await page.evaluate(() => localStorage.getItem('color-mode'));
+		expect(stored).toBeNull();
 	});
 
 	test('persists dark mode across navigation', async ({ page }) => {
