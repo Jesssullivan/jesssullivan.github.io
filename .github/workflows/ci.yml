@@ -56,6 +56,12 @@ jobs:
         run: npx playwright test
         continue-on-error: false
 
+      - name: Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+        continue-on-error: true
+
       - name: Upload vitest results
         if: failure()
         uses: actions/upload-artifact@v4

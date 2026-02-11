@@ -104,15 +104,18 @@
 
 <!-- Hero banner — Hemingway WP faithful -->
 <section class="hero-banner">
-	<img
-		src="/images/header.png"
-		alt="Great Blue Heron"
-		class="hero-banner-img"
-		width="672"
-		height="219"
-		fetchpriority="high"
-		decoding="sync"
-	/>
+	<picture>
+		<source srcset="/images/header.webp" type="image/webp" />
+		<img
+			src="/images/header.png"
+			alt="Great Blue Heron"
+			class="hero-banner-img"
+			width="672"
+			height="219"
+			fetchpriority="high"
+			decoding="sync"
+		/>
+	</picture>
 	<div class="hero-banner-overlay">
 		<h1 class="hero-banner-title text-2xl sm:text-3xl lg:text-4xl">
 			Trans Scend Survival
