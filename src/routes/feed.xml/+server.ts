@@ -17,7 +17,6 @@ export async function GET() {
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${posts
 			.filter((p) => p.published)
-			.slice(0, 50)
 			.map(
 				(post) => `<item>
       <title><![CDATA[${post.title}]]></title>

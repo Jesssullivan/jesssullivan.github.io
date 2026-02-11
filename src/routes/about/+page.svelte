@@ -30,17 +30,17 @@
 		<ul class="list-disc list-inside text-surface-600-400 space-y-2">
 			<li>Parallel and GPU programming (Chapel, Futhark)</li>
 			<li>Hardware projects (Arduino, Raspberry Pi, 3D printing)</li>
-			<li>Machine learning for ecology (birdsong ID, mushroom ID, GIS)</li>
+			<li>Machine learning for ecology (birdsong ID, GIS)</li>
 			<li>Infrastructure &amp; DevOps (Ansible, GitLab CI, Kubernetes)</li>
-			<li>Privacy &amp; security tools (SearXNG, KeePassXC, BrainFlow)</li>
+			<li>Privacy &amp; security tools (SearXNG, KeePassXC)</li>
 		</ul>
 	</section>
 
 	<section class="mb-8">
 		<h2 class="text-xl font-semibold mb-3">FOSS Contributions</h2>
 		<p class="text-surface-600-400 leading-relaxed">
-			I contribute to and maintain forks of Chapel, Futhark, SearXNG, KeePassXC, BrainFlow,
-			Apache Solr, Skeleton UI, MeshCore, Liqo, EyeTrackVR, and more.
+			I contribute to and maintain forks of Chapel, Futhark, SearXNG, KeePassXC,
+			Apache Solr, Skeleton UI, quickchpl, and more.
 		</p>
 	</section>
 
