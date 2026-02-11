@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
+	interface PagefindResult { data: () => Promise<{ url: string; excerpt: string; meta: Record<string, string> }> }
+	interface Pagefind { init: () => Promise<void>; search: (q: string) => Promise<{ results: PagefindResult[] }> }
+
 	let query = $state('');
-	let results = $state<Array<{ url: string; title: string; excerpt: string }>>([]);
-	let pagefind: any = null;
+	let results = $state.raw<Array<{ url: string; title: string; excerpt: string }>>([]);
+	let pagefind: Pagefind | null = null;
 	let loaded = $state(false);
 
 	onMount(async () => {
 		try {
-			// Dynamic import from deployed path — not available during build or dev
 			const pagefindPath = `${window.location.origin}/pagefind/pagefind.js`;
-			pagefind = await import(/* @vite-ignore */ pagefindPath);
-			await pagefind.init();
+			const pf: Pagefind = await import(/* @vite-ignore */ pagefindPath);
+			await pf.init();
+			pagefind = pf;
 			loaded = true;
 		} catch {
 			// Pagefind not available (dev mode or first build)
@@ -24,8 +27,8 @@
 			return;
 		}
 		const res = await pagefind.search(query);
-		const items = await Promise.all(res.results.slice(0, 10).map((r: any) => r.data()));
-		results = items.map((item: any) => ({
+		const items = await Promise.all(res.results.slice(0, 10).map((r) => r.data()));
+		results = items.map((item) => ({
 			url: item.url,
 			title: item.meta?.title || 'Untitled',
 			excerpt: item.excerpt

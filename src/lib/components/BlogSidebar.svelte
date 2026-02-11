@@ -2,6 +2,9 @@
 	import type { Post } from '$lib/types';
 	import { onMount } from 'svelte';
 
+	interface PagefindResult { data: () => Promise<{ url: string; excerpt: string; meta: Record<string, string> }> }
+	interface Pagefind { init: () => Promise<void>; search: (q: string) => Promise<{ results: PagefindResult[] }> }
+
 	let {
 		recentPosts = [],
 		allTags = []
@@ -12,8 +15,8 @@
 
 	// Pagefind search state
 	let searchQuery = $state('');
-	let searchResults = $state<Array<{ url: string; title: string; excerpt: string }>>([]);
-	let pagefind: any = $state(null);
+	let searchResults = $state.raw<Array<{ url: string; title: string; excerpt: string }>>([]);
+	let pagefind: Pagefind | null = $state(null);
 	let searchAvailable = $state(false);
 	let searchUnavailableMsg = $state('');
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -21,8 +24,9 @@
 	onMount(async () => {
 		try {
 			const pagefindPath = `${window.location.origin}/pagefind/pagefind.js`;
-			pagefind = await import(/* @vite-ignore */ pagefindPath);
-			await pagefind.init();
+			const pf: Pagefind = await import(/* @vite-ignore */ pagefindPath);
+			await pf.init();
+			pagefind = pf;
 			searchAvailable = true;
 		} catch {
 			searchUnavailableMsg = 'Search unavailable in dev mode';
@@ -42,9 +46,9 @@
 			if (!pagefind) return;
 			const res = await pagefind.search(query);
 			const items = await Promise.all(
-				res.results.slice(0, 5).map((r: any) => r.data())
+				res.results.slice(0, 5).map((r) => r.data())
 			);
-			searchResults = items.map((item: any) => ({
+			searchResults = items.map((item) => ({
 				url: item.url,
 				title: item.meta?.title || 'Untitled',
 				excerpt: item.excerpt

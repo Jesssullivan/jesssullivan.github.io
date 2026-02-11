@@ -6,7 +6,7 @@
 	import { ScrollHandler } from './ScrollHandler.js';
 	import type { ConvexBlob } from './types.js';
 
-	let blobs = $state<ConvexBlob[]>([]);
+	let blobs = $state.raw<ConvexBlob[]>([]);
 	let animating = $state(false);
 	let prefersReducedMotion = $state(false);
 
