@@ -1,6 +1,7 @@
 {
   "name": "jesssullivan.github.io",
   "version": "0.0.1",
+  "license": "CC0-1.0",
   "private": true,
   "scripts": {
     "dev": "vite dev",

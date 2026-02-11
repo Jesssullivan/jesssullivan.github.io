@@ -124,11 +124,13 @@
 
 	<footer class="bg-surface-100-900 border-t border-surface-300-700 py-6 text-center text-sm text-surface-500">
 		<div class="container mx-auto px-4 flex items-center justify-center gap-4">
-			<p>&copy; {new Date().getFullYear()} Jess Sullivan</p>
+			<p>Dedicated to the <a href="https://creativecommons.org/publicdomain/zero/1.0/" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">public domain</a></p>
 			<span class="text-surface-400">|</span>
 			<a href="/feed.xml" class="hover:text-primary-500 transition-colors">RSS</a>
 			<span class="text-surface-400">|</span>
 			<a href="/feed.json" class="hover:text-primary-500 transition-colors">JSON</a>
+			<span class="text-surface-400">|</span>
+			<a href="/THIRD-PARTY-LICENSES" class="hover:text-primary-500 transition-colors">Licenses</a>
 		</div>
 	</footer>
 </div>
