@@ -1,7 +1,7 @@
 ---
 title: "Gallery of my \"proper photos\"- NH warbler research"
 date: "2017-07-27"
-description: ""
+description: "Photo gallery from warbler field research in New Hampshire."
 tags: []
 published: true
 slug: "gallery-of-my-proper-photos-nh-warbler-research"
