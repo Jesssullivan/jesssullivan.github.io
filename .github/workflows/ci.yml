@@ -27,6 +27,9 @@ jobs:
           restore-keys: |
             sveltekit-${{ runner.os }}-
 
+      - name: Lint
+        run: npm run lint
+
       - name: Type check
         run: npm run check
 
