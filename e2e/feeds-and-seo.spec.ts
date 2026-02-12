@@ -57,7 +57,7 @@ test.describe('Sitemap', () => {
 	test('includes homepage and blog posts', async ({ request }) => {
 		const response = await request.get('/sitemap.xml');
 		const body = await response.text();
-		expect(body).toContain('transscendsurvival.org</loc>');
+		expect(body).toContain('transscendsurvival.org/blog</loc>');
 		expect(body).toContain('/blog/');
 	});
 });

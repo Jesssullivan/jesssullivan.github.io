@@ -29,7 +29,7 @@ test.describe('Homepage — visual QA across viewports', () => {
 	for (const vp of VIEWPORTS) {
 		test.describe(`@ ${vp.label}`, () => {
 			test.beforeEach(async ({ page }) => {
-				await visitAt(page, '/', vp.width, vp.height);
+				await visitAt(page, '/about', vp.width, vp.height);
 			});
 
 			test('hero banner is visible', async ({ page }) => {
@@ -172,7 +172,7 @@ test.describe('Blog listing — visual QA across viewports', () => {
 test.describe('Dark mode consistency', () => {
 	test('homepage: switching to dark mode sets data-mode="dark"', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/', { waitUntil: 'networkidle' });
+		await page.goto('/about', { waitUntil: 'networkidle' });
 
 		// Open the theme menu and click "Dark"
 		const themeButton = page.getByRole('button', { name: 'Theme settings' });
@@ -195,7 +195,7 @@ test.describe('Dark mode consistency', () => {
 
 	test('dark mode persists across navigation', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/', { waitUntil: 'networkidle' });
+		await page.goto('/about', { waitUntil: 'networkidle' });
 
 		// Switch to dark
 		await page.getByRole('button', { name: 'Theme settings' }).click();
