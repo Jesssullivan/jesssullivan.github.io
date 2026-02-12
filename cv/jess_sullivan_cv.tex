@@ -59,8 +59,8 @@
     bookmarksopen=true,
     bookmarksopenlevel=1,
     pdfauthor={Jess Sullivan},
-    pdftitle={Jess Sullivan — Cover Letter, Resume, Fun Facts, Projects},
-    pdfsubject={Full Stack Engineer, Musician, Birdwatcher},
+    pdftitle={Jess Sullivan — CV},
+    pdfsubject={Full Stack Engineer, DevSecOps, ML/HPC},
     pdfkeywords={DevSecOps, Machine Learning, Full Stack, HPC, Chapel, Haskell, SvelteKit},
     pdfstartview={FitH},
     pdfpagemode={UseOutlines}
@@ -142,15 +142,14 @@
     \vspace{0.8em}
     
     {\Huge\bfseries\sffamily\color{primary} Jess Sullivan}
-    
+
     \vspace{0.6em}
-    
-    {\large\itshape\color{muted} Cover Letter, Resume, Fun Facts, Projects}
-    
-    \vspace{1em}
-    
-    {\color{secondary}
-    Lewiston, ME}
+
+    {\color{muted} Agent Orchestration \quad$\cdot$\quad Computer Vision \quad$\cdot$\quad Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad ML/HPC}
+
+    \vspace{0.4em}
+
+    {\small\color{secondary} Lewiston, ME \quad$\cdot$\quad 617-795-6912 \quad$\cdot$\quad \href{mailto:jess@sulliwood.org}{jess@sulliwood.org} \quad$\cdot$\quad \href{https://github.com/jesssullivan}{github.com/jesssullivan}}
     
     \vspace{0.5em}
     \begin{tikzpicture}
@@ -187,35 +186,6 @@ My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher
 \section{Technical Resume}
 \label{sec:resume}
 
-%--- Computer Vision ---
-\role{Computer Vision Software Engineer @ Macaulay Library}{2018--2022}
-
-Developed \& launched \textbf{Merlin Sound ID} \& The Machine Learning Blog @ Macaulay Library. Worked on the R\&D and implementation of internal fine-grained machine learning annotation tools for audio classification. Built internal classification and model evaluation web APIs. Streamlined Macaulay Library MLOps and asset ingestion pipeline.
-
-\vspace{0.5em}
-\noindent\textit{\color{muted}My stack:}
-\begin{itemize}
-    \item \textbf{Model Training:} Python (\tech{tensorflow}, \tech{numpy}, \tech{pandas}, \tech{matplotlib}, \tech{JUPYTER})
-    \item \textbf{Web \& training annotation stack:} \tech{Flask} \& \tech{TypeScript} (\cvlink{http://fft.js}{fft.js}, \tech{Leaflet}, \tech{React}, \tech{Vue}, \tech{Node}, \tech{Docker}, \tech{WebAssembly}, \tech{Purrr}), live demos written in \tech{React Native} and \tech{Swift}
-    \item \textbf{Training and development Infra:} Project managed in Confluence + BitBucket, hosting on EC2 \& Heroku
-\end{itemize}
-
-\vspace{0.8em}
-
-%--- Fab Lab ---
-\role{Fabrication Laboratory Manager for the Landscape Architecture Makerspace @ Cornell CALS}{2021--2022}
-
-Developed and taught rapid fabrication curricula for DLA students and faculty.
-
-\vspace{0.5em}
-\noindent\textit{\color{muted}My stack:}
-\begin{itemize}
-    \item \tech{OpenSCAD} \& \tech{Fusion 360}; \tech{Inkscape} for vector work. Some tiler development with TAs in \tech{C++}.
-    \item Project management in GitHub \& Linear. Built a small Discord ticketing system and OBS printer monitoring system.
-\end{itemize}
-
-\vspace{0.8em}
-
 %--- Systems Analyst ---
 \role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
 
@@ -230,6 +200,28 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
     \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
 \end{itemize}
 
+\vspace{0.8em}
+
+%--- Computer Vision ---
+\role{Computer Vision Software Engineer @ Macaulay Library, Cornell Lab of Ornithology}{2018--2022}
+
+Developed \& launched \textbf{Merlin Sound ID} \& The Machine Learning Blog @ Macaulay Library. Worked on the R\&D and implementation of internal fine-grained machine learning annotation tools for audio classification. Built internal classification and model evaluation web APIs. Streamlined Macaulay Library MLOps and asset ingestion pipeline.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}Stack:}
+\begin{itemize}
+    \item \textbf{Model Training:} Python (\tech{TensorFlow}, \tech{NumPy}, \tech{Pandas}, \tech{Matplotlib}, \tech{Jupyter})
+    \item \textbf{Web \& Inference:} \tech{Flask}, \tech{TypeScript} (\cvlink{http://fft.js}{fft.js}, \tech{Leaflet}, \tech{React}, \tech{Vue}, \tech{Docker}, \tech{WebAssembly}), live demos in \tech{React Native} and \tech{Swift}
+    \item \textbf{Infrastructure:} Confluence + BitBucket, EC2 \& Heroku, production model deployment at scale
+\end{itemize}
+
+\vspace{0.8em}
+
+%--- Fab Lab ---
+\role{Fabrication Laboratory Manager @ Cornell CALS}{2021--2022}
+
+Developed and taught rapid fabrication curricula for DLA students and faculty. \tech{OpenSCAD}, \tech{Fusion 360}, \tech{Inkscape}, \tech{C++}. GitHub/Linear project management.
+
 %==============================================================================
 \newpage
 %==============================================================================
@@ -240,7 +232,7 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
 \section{Full Stack Contracting and FOSS}
 \label{sec:foss}
 
-Long term committer, member and supporter of numerous organizations including \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{keepassxc}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
+Long term committer, member and supporter of numerous organizations including \textbf{Futhark} (WebGPU/WGSL compiler backend---modernized C runtime for Emscripten 4.x/Dawn, authored WebGPU test suite), \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \textbf{SearXNG}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
 
 \begin{itemize}
     \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
@@ -254,14 +246,14 @@ Long term committer, member and supporter of numerous organizations including \t
 \noindent\textit{\color{muted}My current stack:}
 \begin{itemize}
     \item \textbf{Web:} \tech{SvelteKit}, Runes, TS7, Vite 8 (Rolldown). I am deeply embedded in SvelteKit and have developed a (largely proprietary, alas) fairly large library of novel SvelteKit packages and expertise ranging from fingerprinting, mapping, authentication to horizontal data scalability and telemetry.
-    \item \textbf{HPC} and performance oriented code written in \textbf{Chapel} and increasingly \textbf{Haskell}.
+    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}, \tech{Futhark} (WGSL/WebGPU compiler backend). Performance-oriented systems and property-based testing.
 \end{itemize}
 
 \vspace{0.5em}
 
 \noindent\textit{\color{muted}Goals:}
 
-I have begun learning the \tech{Nix} build system and have started to dip my toes in \tech{Rust} SIMD development; I've done a fair amount of WASM development in TypeScript, but with years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox) 2026 may be my first year of learning Rust.
+I have begun learning the \tech{Nix} build system and have started to dip my toes in \tech{Rust} SIMD development. Active contributor to \textbf{Futhark}'s WebGPU compiler backend---modernizing the WGSL code generation pipeline, writing the WebGPU test suite, and working toward mainlining the backend. Deeper WASM integration across the stack.
 
 %==============================================================================
 % VOLUNTEER & COMMUNITY
@@ -307,25 +299,27 @@ Formed in NY to raise capital and interest in a for-profit hackerspace with a fo
 
 \vspace{0.8em}
 
-\role{``Tinyland.dev, Inc''}{2024--present}
+\role{xoxd.ai}{2024--present}
 
-(not?) just another AI startup, targeting the higher ed / academic enterprise space for semiautonomous infrastructure maintenance and resource convergence. Intended to become entirely zlib / dual license / source available eventually, when it is appropriate to do so.
+Massively parallel, provable, \textbf{ownable} agent infrastructure. Currently seeking funding and in stealth.
 
-Currently in stealth mode, funded by me.
+\vspace{0.2em}
+\noindent\textit{\color{muted}Architecture:} 5 bespoke SLMs, 130+ callable tools, full IaC lifecycle coverage via multicloud harness. Horizontal scaling with Chapel-based parallelism.
 
-Spans 5 bespoke SLMs, a bespoke chat interpreter and over a hundred tools autonomously callable by the system.
-
-Sits at every part of the IaC lifecycle, connected through a multicloud harness (``Mariolex''; written in Chapel and python, itself backed by a bespoke implementation of git written in Chapel):
-
+\vspace{0.2em}
+\noindent\textit{\color{muted}Components:}
 \begin{itemize}
-    \item ``\textbf{Huskycat}'' is a multithreaded githook SLM application that automatically runs PBT, linting, autoformatters, and verification tasks. Operates in any git repo--- on a user's machine or in a CI pipeline. Currently builds for Apple Silicon and Rocky.
-    
-    \item ``\textbf{Outbot}'' is a repo management SLM application. Outbot interacts with the Mariolex harness to complete zoned git summaries, resolve downstream conflicts, perform zone-wise and commit-wise research and relevance to upstream PRs. Outbot is slated to make its debut with the rest of the project as part of the GitLab Duo Agent Platform, and currently supports dispatching text-to-text tasks to a wide variety of LLMs including via Duo credits. Outbot currently supports basic tag, repo, container, pages, and release parity between GitHub and GitLab, but eventually I want to have full git host facet parity. Outbot is written in Python primarily and adopts a composable factory architecture such that LLMs and humans can model the temporal flow of IP through these large IaC systems.
-    
-    \item ``\textbf{FuzzyBot}'' is a chat TUI written in Chapel and Go that currently integrates with IntelliJ and Emacs with native awareness of git identity and access to the Mariolex harness, gaining immense memory skills and the ability to offload SAE and learning tasks to the harness, largely powered by Apache Solr.
-    
-    \item ``\textbf{Mariolex}'' is the kubernetes native harness that handles model hosting and the actual tool workloads dispatched by the agent's tool calls for fuzzing, indexing, property testing and agent federation. Written in Chapel and Go. Topology is based on Liqo as a multicloud orchestrator.
+    \item \textbf{Huskycat} --- Multithreaded githook SLM for PBT, linting, formatting, verification. Builds for Apple Silicon and Rocky.
+    \item \textbf{Outbot} --- Repo management SLM. Zoned summaries, conflict resolution, upstream PR analysis. Python with composable factory architecture. Slated for debut on GitLab Duo Agent Platform.
+    \item \textbf{FuzzyBot} --- Chat TUI (Chapel + Go) with IntelliJ/Emacs integration, git-aware identity, Solr-backed memory and SAE offloading.
+    \item \textbf{Mariolex} --- K8s-native harness for model hosting, tool dispatch, fuzzing, indexing, PBT, and agent federation. Chapel + Go. Liqo-based multicloud topology.
 \end{itemize}
+
+\vspace{0.8em}
+
+\role{Tinyland.dev, Inc}{2024--present}
+
+Tinyland is big, more to come very soon. Funded hackerspace initiative. Currently in stealth mode.
 
 %==============================================================================
 \newpage
