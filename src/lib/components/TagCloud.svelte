@@ -46,7 +46,6 @@
 				{ label: 'Skeleton Labs', color: 'preset-outlined-primary-500', url: 'https://github.com/skeletonlabs' },
 				{ label: 'purpl3F0x', color: 'preset-outlined-primary-500', url: 'https://github.com/purpl3F0x' },
 				{ label: 'EFF', color: 'preset-outlined-primary-500', url: 'https://www.eff.org/' },
-				{ label: 'TES', color: 'preset-outlined-primary-500', url: 'https://www.tes.org.uk/' },
 				{ label: 'Erin in the Morning', color: 'preset-outlined-primary-500', url: 'https://www.erininthemorning.com/' },
 				{ label: 'The Onion', color: 'preset-outlined-primary-500', url: 'https://theonion.com/' },
 			]
