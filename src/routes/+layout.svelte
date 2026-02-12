@@ -10,6 +10,8 @@
 	let mobileOpen = $state(false);
 	let themeMode = $state<'light' | 'dark' | 'system'>('system');
 	let themeMenuOpen = $state(false);
+	let bannerRef: HTMLElement | undefined = $state();
+	let bannerOpacity = $state(1);
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
@@ -34,6 +36,20 @@
 			}
 		};
 		document.addEventListener('click', handleClickOutside);
+
+		// Scroll-fade for hero banner
+		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			const onScroll = () => {
+				if (!bannerRef) return;
+				bannerOpacity = Math.max(0, 1 - window.scrollY / bannerRef.offsetHeight);
+			};
+			window.addEventListener('scroll', onScroll, { passive: true });
+			return () => {
+				document.removeEventListener('click', handleClickOutside);
+				window.removeEventListener('scroll', onScroll);
+			};
+		}
+
 		return () => document.removeEventListener('click', handleClickOutside);
 	});
 
@@ -189,6 +205,38 @@
 			>GitHub</a>
 		</nav>
 	{/if}
+
+	<!-- Hero banner — visible on all pages, scroll-fades -->
+	<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
+		<picture>
+			<source srcset="/images/header.webp" type="image/webp" />
+			<img
+				src="/images/header.png"
+				alt="Great Blue Heron"
+				class="hero-banner-img"
+				width="672"
+				height="219"
+				fetchpriority="high"
+				decoding="sync"
+			/>
+		</picture>
+		<div class="hero-banner-overlay">
+			<p class="hero-banner-title text-2xl sm:text-3xl lg:text-4xl" role="banner">
+				Trans Scend Survival
+			</p>
+			<div class="hero-banner-separator" aria-hidden="true"></div>
+			<p class="hero-banner-description">
+				<span class="hero-banner-description-word"><strong>Trans:</strong> Latin prefix implying &ldquo;across&rdquo; or &ldquo;Beyond&rdquo;, often used in gender nonconforming situations</span>
+				<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+				<span class="hero-banner-description-word"><strong>Scend:</strong> Archaic word describing a strong &ldquo;surge&rdquo; or &ldquo;wave&rdquo;, originating with 15th century english sailors</span>
+				<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+				<span class="hero-banner-description-word"><strong>Survival:</strong> 15th century english compound word describing an existence only worth transcending</span>
+			</p>
+			<p class="hero-banner-subtitle text-sm sm:text-base">
+				Jess Sullivan
+			</p>
+		</div>
+	</section>
 
 	<main id="main-content" class="flex-1">
 		{@render children()}
