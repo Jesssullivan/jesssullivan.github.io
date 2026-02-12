@@ -39,12 +39,16 @@
 			]
 		},
 		{
-			label: 'Sponsors',
+			label: 'Sponsoring',
 			badges: [
 				{ label: 'The-Compiler', color: 'preset-outlined-primary-500', url: 'https://github.com/The-Compiler' },
-				{ label: 'Xe Iaso', color: 'preset-outlined-primary-500', url: 'https://xeiaso.net/' },
-				{ label: 'Skeleton', color: 'preset-outlined-primary-500', url: 'https://skeleton.dev/' },
-				{ label: 'svelte-superforms', color: 'preset-outlined-primary-500', url: 'https://github.com/ciscoheat/sveltekit-superforms' },
+				{ label: 'Xe Iaso', color: 'preset-outlined-primary-500', url: 'https://github.com/Xe' },
+				{ label: 'Skeleton Labs', color: 'preset-outlined-primary-500', url: 'https://github.com/skeletonlabs' },
+				{ label: 'purpl3F0x', color: 'preset-outlined-primary-500', url: 'https://github.com/purpl3F0x' },
+				{ label: 'EFF', color: 'preset-outlined-primary-500', url: 'https://www.eff.org/' },
+				{ label: 'TES', color: 'preset-outlined-primary-500', url: 'https://www.tes.org.uk/' },
+				{ label: 'Erin in the Morning', color: 'preset-outlined-primary-500', url: 'https://www.erininthemorning.com/' },
+				{ label: 'The Onion', color: 'preset-outlined-primary-500', url: 'https://theonion.com/' },
 			]
 		},
 		{

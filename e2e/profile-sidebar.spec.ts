@@ -88,7 +88,7 @@ test.describe('Tag Cloud', () => {
 		await expect(chapelLink).toHaveAttribute('href', 'https://chapel-lang.org/');
 	});
 
-	test('has sponsor badges', async ({ page }) => {
+	test('has sponsoring badges', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
@@ -109,7 +109,7 @@ test.describe('Tag Cloud', () => {
 		const tagCloud = page.locator('.sticky .tag-cloud');
 		await expect(tagCloud.getByText('Identity')).toBeVisible();
 		await expect(tagCloud.getByText('Tech / FOSS')).toBeVisible();
-		await expect(tagCloud.getByText('Sponsors')).toBeVisible();
+		await expect(tagCloud.getByText('Sponsoring')).toBeVisible();
 		await expect(tagCloud.getByText('Ventures')).toBeVisible();
 	});
 });
