@@ -28,7 +28,7 @@
 		<button
 			class="btn text-sm {activeTab === 'resume' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
 			onclick={() => activeTab = 'resume'}
-		>One-Page Resume</button>
+		>Resume</button>
 	</div>
 
 	<!-- Action bar -->

@@ -13,7 +13,7 @@ test.describe('CV page', () => {
 
 	test('tab switcher renders with CV active by default', async ({ page }) => {
 		const cvBtn = page.getByRole('button', { name: 'Full CV' });
-		const resumeBtn = page.getByRole('button', { name: 'One-Page Resume' });
+		const resumeBtn = page.getByRole('button', { name: 'Resume' });
 		await expect(cvBtn).toBeVisible();
 		await expect(resumeBtn).toBeVisible();
 		// CV tab is active by default
@@ -27,7 +27,7 @@ test.describe('CV page', () => {
 	});
 
 	test('switching to resume tab updates links', async ({ page }) => {
-		await page.getByRole('button', { name: 'One-Page Resume' }).click();
+		await page.getByRole('button', { name: 'Resume' }).click();
 		await expect(page.getByRole('link', { name: 'Download Resume PDF' })).toBeVisible();
 		await expect(page.getByRole('link', { name: 'View TeX Source' })).toBeVisible();
 	});
