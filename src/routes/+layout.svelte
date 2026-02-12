@@ -38,21 +38,18 @@
 		};
 		document.addEventListener('click', handleClickOutside);
 
-		// Scroll-fade for hero banner
-		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
-			const onScroll = () => {
-				if (!bannerRef || !bannerNaturalHeight) return;
-				bannerOpacity = Math.max(0, 1 - window.scrollY / bannerNaturalHeight);
-			};
-			window.addEventListener('scroll', onScroll, { passive: true });
-			return () => {
-				document.removeEventListener('click', handleClickOutside);
-				window.removeEventListener('scroll', onScroll);
-			};
-		}
+		// Scroll-fade for hero banner (always enabled — scroll-driven, not time-driven)
+		if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
+		const onScroll = () => {
+			if (!bannerRef || !bannerNaturalHeight) return;
+			bannerOpacity = Math.max(0, 1 - window.scrollY / bannerNaturalHeight);
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
 
-		return () => document.removeEventListener('click', handleClickOutside);
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+			window.removeEventListener('scroll', onScroll);
+		};
 	});
 
 	function setTheme(mode: 'light' | 'dark' | 'system') {
@@ -208,13 +205,11 @@
 		</nav>
 	{/if}
 
-	<!-- Hero banner — visible on all pages, scroll-fades and collapses -->
+	<!-- Hero banner — visible on all pages, scroll-fades -->
 	<section
 		class="hero-banner"
 		bind:this={bannerRef}
 		style:opacity={bannerOpacity}
-		style:max-height={bannerOpacity <= 0 ? '0px' : ''}
-		style:overflow={bannerOpacity < 1 ? 'hidden' : ''}
 	>
 		<picture>
 			<source srcset="/images/header.webp" type="image/webp" />
