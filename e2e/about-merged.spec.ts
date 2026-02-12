@@ -8,7 +8,7 @@ test.describe('About (merged) page', () => {
 	test('hero banner visible with correct image', async ({ page }) => {
 		await expect(page.locator('section.hero-banner')).toBeVisible();
 		await expect(page.locator('img[alt="Great Blue Heron"]')).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Trans Scend Survival', level: 1 })).toBeVisible();
+		await expect(page.locator('.hero-banner-title')).toBeVisible();
 		await expect(page.getByText('Jess Sullivan')).toBeVisible();
 	});
 

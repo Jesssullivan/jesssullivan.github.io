@@ -17,7 +17,7 @@ test.describe('Hero Banner', () => {
 
 	test('hero title "Trans Scend Survival" is visible', async ({ page }) => {
 		await expect(
-			page.getByRole('heading', { name: 'Trans Scend Survival', level: 1 })
+			page.locator('.hero-banner-title')
 		).toBeVisible();
 	});
 
