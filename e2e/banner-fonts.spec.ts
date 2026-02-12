@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Banner + Font Stack (Week 1)', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
+		await page.goto('/about');
 	});
 
 	test('banner image displays at native 672px width, uncropped', async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 			}
 		});
 
-		await page.goto('/');
+		await page.goto('/about');
 		await page.waitForLoadState('networkidle');
 		expect(externalFontRequests).toHaveLength(0);
 	});

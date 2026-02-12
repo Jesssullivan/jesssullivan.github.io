@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Hero Banner', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/');
+		await page.goto('/about');
 	});
 
 	test('hero section exists with .hero-banner class', async ({ page }) => {
