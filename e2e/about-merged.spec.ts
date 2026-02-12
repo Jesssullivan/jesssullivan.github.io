@@ -26,7 +26,7 @@ test.describe('About (merged) page', () => {
 		expect(Number(fadedOpacity)).toBeLessThan(1);
 	});
 
-	test('banner respects prefers-reduced-motion', async ({ page }) => {
+	test('banner fades even with prefers-reduced-motion (scroll-driven, not animated)', async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: 'reduce' });
 		await page.goto('/about');
 		const banner = page.locator('section.hero-banner');
@@ -35,7 +35,7 @@ test.describe('About (merged) page', () => {
 		await page.waitForTimeout(100);
 
 		const opacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
-		expect(Number(opacity)).toBe(1);
+		expect(Number(opacity)).toBeLessThan(1);
 	});
 
 	test('etymology description text present', async ({ page }) => {
