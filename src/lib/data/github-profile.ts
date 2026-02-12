@@ -1,5 +1,13 @@
 const PROFILE_BASE = 'https://raw.githubusercontent.com/Jesssullivan/Jesssullivan/feature/update-script';
 
+export interface Badge {
+	text: string;
+	color: string;
+	logo?: string;
+	emoji?: string;
+	url?: string;
+}
+
 export const TYPING_SVG_URL =
 	'https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=36BCF7&center=true&vCenter=true&width=800&lines=' +
 	[
@@ -41,14 +49,20 @@ export const CTA_BADGES = [
 	},
 ];
 
-export const IDENTITY_BADGES = [
+export const IDENTITY_BADGES: Badge[] = [
 	{ text: 'Trans Pride', emoji: '\u{1F3F3}\u{FE0F}\u{200D}\u{26A7}\u{FE0F}', color: '5BCEFA' },
 	{ text: 'bitbanger', color: '333333' },
 	{ text: 'NAT wanderer', color: '006D77' },
 	{ text: 'sillygoose', color: 'FF69B4' },
+	{ text: 'xoxd.ai', color: '8B5CF6' },
+	{ text: 'Coming Soon: tinyland.dev', color: '36BCF7' },
+	{ text: 'hehe gh chips are fun', color: 'FF69B4' },
+];
+
+export const TECH_FOSS_BADGES: Badge[] = [
+	{ text: 'Chapel', color: '3B4D61' },
 	{ text: 'Rocky Linux', color: '10B981', logo: 'rockylinux' },
 	{ text: 'Apache Solr', color: 'D22128', logo: 'apache' },
-	{ text: 'Chapel', color: '3B4D61' },
 	{ text: 'Skeleton UI', color: 'EC4899', logo: 'svelte' },
 	{ text: 'SearXNG', color: '2E8B57', logo: 'searxng' },
 	{ text: 'KeePassXC', color: '6CAC4D', logo: 'keepassxc' },
@@ -60,9 +74,6 @@ export const IDENTITY_BADGES = [
 	{ text: 'pytest', color: '0A9EDC', logo: 'pytest' },
 	{ text: 'svelte-superforms', color: 'FF3E00', logo: 'svelte' },
 	{ text: 'Klipper', color: 'B71C1C' },
-	{ text: 'xoxd.ai', color: '8B5CF6' },
-	{ text: 'Coming Soon: tinyland.dev', color: '36BCF7' },
-	{ text: 'hehe gh chips are fun', color: 'FF69B4' },
 ];
 
 export const THEMED_IMAGES = {
@@ -110,10 +121,13 @@ export const CLIENT_BADGES = [
 	{ text: 'STNWL', color: '546E7A' },
 ];
 
-export const SPONSOR_BADGES = [
-	{ text: 'EFF Member', color: 'EF4444', logo: 'eff', url: 'https://www.eff.org/' },
-	{ text: 'The-Compiler / Freya Bruhin', color: '8B5CF6', logo: 'githubsponsors' },
-	{ text: 'Xe Iaso / TequaroHQ', color: 'E91E63', logo: 'githubsponsors' },
-	{ text: 'Skeleton', color: 'EC4899', logo: 'githubsponsors' },
-	{ text: 'purpl3F0x', color: '9C27B0', logo: 'githubsponsors' },
+export const SPONSORING_BADGES: Badge[] = [
+	{ text: 'The-Compiler / Freya Bruhin', color: '8B5CF6', logo: 'githubsponsors', url: 'https://github.com/The-Compiler' },
+	{ text: 'Xe Iaso / TequaroHQ', color: 'E91E63', logo: 'githubsponsors', url: 'https://github.com/Xe' },
+	{ text: 'Skeleton Labs', color: 'EC4899', logo: 'githubsponsors', url: 'https://github.com/skeletonlabs' },
+	{ text: 'purpl3F0x', color: '9C27B0', logo: 'githubsponsors', url: 'https://github.com/purpl3F0x' },
+	{ text: 'EFF', color: 'EF4444', logo: 'eff', url: 'https://www.eff.org/' },
+	{ text: 'TES', color: '4A90D9', url: 'https://www.tes.org.uk/' },
+	{ text: 'Erin in the Morning', color: '36BCF7', url: 'https://www.erininthemorning.com/' },
+	{ text: 'The Onion', color: '2EA44F', url: 'https://theonion.com/' },
 ];

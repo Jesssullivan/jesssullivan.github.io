@@ -90,7 +90,7 @@ test.describe('About (merged) page', () => {
 	});
 
 	test('FOSS section with verified projects', async ({ page }) => {
-		await expect(page.getByRole('heading', { name: 'FOSS' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'FOSS', exact: true })).toBeVisible();
 		await expect(page.getByText('quickchpl')).toBeVisible();
 		await expect(page.getByText('GloriousFlywheel')).toBeVisible();
 		await expect(page.getByText('XoxdWM')).toBeVisible();

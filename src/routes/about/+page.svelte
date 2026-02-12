@@ -5,9 +5,10 @@
 		TYPING_SVG_URL,
 		CTA_BADGES,
 		IDENTITY_BADGES,
+		TECH_FOSS_BADGES,
 		THEMED_IMAGES,
 		CLIENT_BADGES,
-		SPONSOR_BADGES,
+		SPONSORING_BADGES,
 	} from '$lib/data/github-profile';
 
 	let { data }: { data: PageData } = $props();
@@ -195,8 +196,8 @@
 		</div>
 	</section>
 
-	<!-- 5. Identity / tech badge cloud -->
-	<section class="mb-8">
+	<!-- 5. Identity badges -->
+	<section class="mb-6">
 		<div class="flex flex-wrap gap-1.5 justify-center">
 			{#each IDENTITY_BADGES as badge}
 				<img
@@ -204,6 +205,36 @@
 					alt={badge.text}
 					height="20"
 				/>
+			{/each}
+		</div>
+	</section>
+
+	<!-- 5b. Tech / FOSS badges -->
+	<section class="mb-6">
+		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">Tech & FOSS</h3>
+		<div class="flex flex-wrap gap-1.5 justify-center">
+			{#each TECH_FOSS_BADGES as badge}
+				<img
+					src={badgeUrl(badge.text, badge.color, { logo: badge.logo })}
+					alt={badge.text}
+					height="20"
+				/>
+			{/each}
+		</div>
+	</section>
+
+	<!-- 5c. Sponsoring badges -->
+	<section class="mb-8">
+		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">Sponsoring</h3>
+		<div class="flex flex-wrap gap-1.5 justify-center">
+			{#each SPONSORING_BADGES as badge}
+				<a href={badge.url} target="_blank" rel="noopener">
+					<img
+						src={badgeUrl(badge.text, badge.color, { logo: badge.logo })}
+						alt={badge.text}
+						height="20"
+					/>
+				</a>
 			{/each}
 		</div>
 	</section>
