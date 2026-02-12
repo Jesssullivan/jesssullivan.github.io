@@ -221,7 +221,7 @@
 			/>
 		</picture>
 		<div class="hero-banner-overlay">
-			<p class="hero-banner-title text-2xl sm:text-3xl lg:text-4xl" role="banner">
+			<p class="hero-banner-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl" role="banner">
 				Trans Scend Survival
 			</p>
 			<div class="hero-banner-separator" aria-hidden="true"></div>
@@ -232,7 +232,7 @@
 				<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
 				<span class="hero-banner-description-word"><strong>Survival:</strong> 15th century english compound word describing an existence only worth transcending</span>
 			</p>
-			<p class="hero-banner-subtitle text-sm sm:text-base">
+			<p class="hero-banner-subtitle text-base sm:text-lg lg:text-xl">
 				Jess Sullivan
 			</p>
 		</div>
