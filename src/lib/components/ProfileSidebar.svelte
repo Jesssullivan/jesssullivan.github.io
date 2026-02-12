@@ -1,5 +1,7 @@
 <script lang="ts">
 	import TagCloud from './TagCloud.svelte';
+	import ThemedImage from './ThemedImage.svelte';
+	import { THEMED_IMAGES } from '$lib/data/github-profile';
 
 	let { compact = false }: { compact?: boolean } = $props();
 </script>
@@ -75,5 +77,44 @@
 
 		<!-- Tag Cloud -->
 		<TagCloud />
+
+		<!-- GitHub Activity widgets -->
+		<div class="mt-6 space-y-3">
+			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400">GitHub Activity</h4>
+			<ThemedImage
+				lightSrc={THEMED_IMAGES.githubStats.light}
+				darkSrc={THEMED_IMAGES.githubStats.dark}
+				alt={THEMED_IMAGES.githubStats.alt}
+				class="w-full rounded"
+			/>
+			<ThemedImage
+				lightSrc={THEMED_IMAGES.topLangs.light}
+				darkSrc={THEMED_IMAGES.topLangs.dark}
+				alt={THEMED_IMAGES.topLangs.alt}
+				class="w-full rounded"
+			/>
+			<ThemedImage
+				lightSrc={THEMED_IMAGES.snake.light}
+				darkSrc={THEMED_IMAGES.snake.dark}
+				alt={THEMED_IMAGES.snake.alt}
+				class="w-full rounded"
+			/>
+			<ThemedImage
+				lightSrc={THEMED_IMAGES.streak.light}
+				darkSrc={THEMED_IMAGES.streak.dark}
+				alt={THEMED_IMAGES.streak.alt}
+				class="w-full rounded"
+			/>
+		</div>
+
+		<!-- Learning formula -->
+		<div class="mt-4">
+			<img
+				src="/images/CodeCogsEqn-1.png"
+				alt="Learning = internet * (time + standards * Ambition) / Difficulty"
+				class="w-full"
+				loading="lazy"
+			/>
+		</div>
 	{/if}
 </div>

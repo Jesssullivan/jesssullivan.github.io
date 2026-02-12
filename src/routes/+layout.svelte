@@ -12,6 +12,7 @@
 	let themeMenuOpen = $state(false);
 	let bannerRef: HTMLElement | undefined = $state();
 	let bannerOpacity = $state(1);
+	let bannerNaturalHeight = 0;
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
@@ -39,9 +40,10 @@
 
 		// Scroll-fade for hero banner
 		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
 			const onScroll = () => {
-				if (!bannerRef) return;
-				bannerOpacity = Math.max(0, 1 - window.scrollY / bannerRef.offsetHeight);
+				if (!bannerRef || !bannerNaturalHeight) return;
+				bannerOpacity = Math.max(0, 1 - window.scrollY / bannerNaturalHeight);
 			};
 			window.addEventListener('scroll', onScroll, { passive: true });
 			return () => {
@@ -206,8 +208,14 @@
 		</nav>
 	{/if}
 
-	<!-- Hero banner — visible on all pages, scroll-fades -->
-	<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
+	<!-- Hero banner — visible on all pages, scroll-fades and collapses -->
+	<section
+		class="hero-banner"
+		bind:this={bannerRef}
+		style:opacity={bannerOpacity}
+		style:max-height={bannerOpacity <= 0 ? '0px' : ''}
+		style:overflow={bannerOpacity < 1 ? 'hidden' : ''}
+	>
 		<picture>
 			<source srcset="/images/header.webp" type="image/webp" />
 			<img

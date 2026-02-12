@@ -127,7 +127,6 @@ export const SPONSORING_BADGES: Badge[] = [
 	{ text: 'Skeleton Labs', color: 'EC4899', logo: 'githubsponsors', url: 'https://github.com/skeletonlabs' },
 	{ text: 'purpl3F0x', color: '9C27B0', logo: 'githubsponsors', url: 'https://github.com/purpl3F0x' },
 	{ text: 'EFF', color: 'EF4444', logo: 'eff', url: 'https://www.eff.org/' },
-	{ text: 'TES', color: '4A90D9', url: 'https://www.tes.org.uk/' },
 	{ text: 'Erin in the Morning', color: '36BCF7', url: 'https://www.erininthemorning.com/' },
 	{ text: 'The Onion', color: '2EA44F', url: 'https://theonion.com/' },
 ];
