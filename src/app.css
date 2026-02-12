@@ -83,10 +83,10 @@ code, pre, .font-mono {
 .hero-banner-description {
 	font-family: 'Raleway', sans-serif;
 	font-weight: 400;
-	font-size: 0.875rem;
-	line-height: 1.5;
+	font-size: 1rem;
+	line-height: 1.6;
 	text-align: center;
-	max-width: 600px;
+	max-width: 700px;
 	margin: 0 auto 1rem;
 	background: linear-gradient(
 		90deg,
@@ -123,7 +123,11 @@ code, pre, .font-mono {
 @media (max-width: 700px) {
 	.hero-banner-overlay { padding: 20px; }
 	.hero-banner-separator { margin: 15px auto; }
-	.hero-banner-description { font-size: 0.75rem; max-width: 90%; }
+	.hero-banner-description { font-size: 0.875rem; max-width: 90%; }
+}
+
+@media (min-width: 1024px) {
+	.hero-banner-description { font-size: 1.125rem; max-width: 800px; }
 }
 
 .hero-banner-subtitle {
