@@ -1,101 +1,5 @@
 [
   {
-    "src": "/images/posts/dsc03925.jpg",
-    "webp": null,
-    "width": 5964,
-    "height": 3439,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc03930.jpg",
-    "webp": null,
-    "width": 6000,
-    "height": 4000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc04096.jpg",
-    "webp": null,
-    "width": 5698,
-    "height": 3799,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc04370.jpg",
-    "webp": null,
-    "width": 5835,
-    "height": 3890,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc04700.jpg",
-    "webp": null,
-    "width": 6000,
-    "height": 4000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc07334.jpg",
-    "webp": null,
-    "width": 3305,
-    "height": 4957,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc07424.jpg",
-    "webp": null,
-    "width": 5050,
-    "height": 3367,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc07549.jpg",
-    "webp": null,
-    "width": 6000,
-    "height": 4000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc08157.jpg",
-    "webp": null,
-    "width": 6000,
-    "height": 4000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc09144_1.jpg",
-    "webp": null,
-    "width": 4000,
-    "height": 6000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc09398_1.jpg",
-    "webp": null,
-    "width": 6000,
-    "height": 4000,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/dsc09997.jpg",
-    "webp": null,
-    "width": 3194,
-    "height": 2555,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
     "src": "/images/posts/IMG_0536-Edit.jpg",
     "webp": "/images/posts/IMG_0536-Edit.webp",
     "width": 613,
@@ -192,14 +96,6 @@
     "post_title": "Gallery of my \\"
   },
   {
-    "src": "/images/posts/img_2209.jpg",
-    "webp": null,
-    "width": 2974,
-    "height": 1983,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
     "src": "/images/posts/IMG_2227-Edit.jpg",
     "webp": "/images/posts/IMG_2227-Edit.webp",
     "width": 920,
@@ -214,14 +110,6 @@
     "height": 613,
     "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
     "post_title": "Gallery of my \\"
-  },
-  {
-    "src": "/images/posts/img_2827.jpg",
-    "webp": null,
-    "width": 3053,
-    "height": 2035,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
   },
   {
     "src": "/images/posts/IMG_3163-Edit.jpg",
@@ -320,28 +208,12 @@
     "post_title": "Gallery of \\"
   },
   {
-    "src": "/images/posts/img_5674.jpg",
-    "webp": null,
-    "width": 2278,
-    "height": 1519,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
     "src": "/images/posts/IMG_6256-Edit.jpg",
     "webp": "/images/posts/IMG_6256-Edit.webp",
     "width": 1080,
     "height": 720,
     "post_slug": "signs-of-thoughts-of-possible-spring",
     "post_title": "Signs of Thoughts of Possible Spring?"
-  },
-  {
-    "src": "/images/posts/img_6354.jpg",
-    "webp": null,
-    "width": 2887,
-    "height": 1925,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
   },
   {
     "src": "/images/posts/IMG_7092-Edit.jpg",
@@ -382,22 +254,6 @@
     "height": 300,
     "post_slug": "research-year-two-three-photos",
     "post_title": "Research Year Two: Three Photos"
-  },
-  {
-    "src": "/images/posts/img_8419.jpg",
-    "webp": null,
-    "width": 3485,
-    "height": 2323,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/img_8723.jpg",
-    "webp": null,
-    "width": 4299,
-    "height": 2866,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
   },
   {
     "src": "/images/posts/IMG_8895-Edit-2.jpg",
@@ -472,34 +328,10 @@
     "post_title": "Rugby Morning #2"
   },
   {
-    "src": "/images/posts/IMG_9614.jpg",
-    "webp": null,
-    "width": 1440,
-    "height": 960,
-    "post_slug": "rugby-morning-2",
-    "post_title": "Rugby Morning #2"
-  },
-  {
-    "src": "/images/posts/IMG_9631.jpg",
-    "webp": null,
-    "width": 1440,
-    "height": 960,
-    "post_slug": "rugby-morning-2",
-    "post_title": "Rugby Morning #2"
-  },
-  {
     "src": "/images/posts/IMG_9638.jpg",
     "webp": "/images/posts/IMG_9638.webp",
     "width": 1200,
     "height": 800,
-    "post_slug": "rugby-morning-2",
-    "post_title": "Rugby Morning #2"
-  },
-  {
-    "src": "/images/posts/IMG_9651.jpg",
-    "webp": null,
-    "width": 1440,
-    "height": 960,
     "post_slug": "rugby-morning-2",
     "post_title": "Rugby Morning #2"
   },
@@ -542,22 +374,6 @@
     "height": 613,
     "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
     "post_title": "Gallery of my \\"
-  },
-  {
-    "src": "/images/posts/kq8q8111.jpg",
-    "webp": null,
-    "width": 2180,
-    "height": 1453,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
-  },
-  {
-    "src": "/images/posts/mg_9479.jpg",
-    "webp": null,
-    "width": 2076,
-    "height": 1384,
-    "post_slug": "example-photo-work",
-    "post_title": "Example Photo Work"
   },
   {
     "src": "/images/posts/IMG_0145-Edit.jpg",

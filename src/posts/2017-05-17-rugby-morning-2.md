@@ -23,17 +23,14 @@ Breaking in the new spot. Additionally, I saw Magnolia, Yellow, and Common Yello
 [![](/images/posts/IMG_9609.jpg)](/images/posts/IMG_9609.jpg)
      redstart chilling
 
-[![](/images/posts/IMG_9614.jpg)](/images/posts/IMG_9614.jpg)
-     Chestnut-Sided Warbler
+*Chestnut-Sided Warbler — image no longer available*
 
-[![](/images/posts/IMG_9631.jpg)](/images/posts/IMG_9631.jpg)
-     ?????
+*Unknown species — image no longer available*
 
 [![](/images/posts/IMG_9638.jpg)](/images/posts/IMG_9638.jpg)
      Scarlet Tanager "Tree pose"
 
-[![](/images/posts/IMG_9651.jpg)](/images/posts/IMG_9651.jpg)
-     Scarlet Tanager
+*Scarlet Tanager — image no longer available*
 
 [![](/images/posts/IMG_9660.jpg)](/images/posts/IMG_9660.jpg)
      Baltimore Oriole (quick grab)
