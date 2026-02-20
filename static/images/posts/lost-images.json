@@ -1,0 +1,171 @@
+{
+  "_description": "Images lost during WordPress migration. The WordPress server truncated all downloads at 1,048,576 bytes (1 MiB). The Wayback Machine only received truncated copies. The wp.com CDN (Jetpack/Photon) versions were never archived. These images were never on api.birdphoto.website.",
+  "_generated": "2026-02-20",
+  "images": [
+    {
+      "filename": "dsc03925.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc03925.jpg",
+      "original_size_bytes": 14882096,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203053",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc03930.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc03930.jpg",
+      "original_size_bytes": 13185408,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203058",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc04096.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc04096.jpg",
+      "original_size_bytes": 11751002,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203042",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc04370.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc04370.jpg",
+      "original_size_bytes": 10508991,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203109",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc04700.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc04700.jpg",
+      "original_size_bytes": 16275646,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203125",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc07334.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc07334.jpg",
+      "original_size_bytes": 16010931,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203100",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc07424.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc07424.jpg",
+      "original_size_bytes": 14641954,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203046",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc07549.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc07549.jpg",
+      "original_size_bytes": 16601158,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203114",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc08157.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc08157.jpg",
+      "original_size_bytes": 20781375,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203119",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc09144_1.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc09144_1.jpg",
+      "original_size_bytes": 26288881,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203049",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "dsc09398_1.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/dsc09398_1.jpg",
+      "original_size_bytes": 14842454,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203047",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "img_2209.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/img_2209.jpg",
+      "original_size_bytes": 4571259,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203120",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "img_8419.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/img_8419.jpg",
+      "original_size_bytes": 6411160,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203122",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "img_8723.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/img_8723.jpg",
+      "original_size_bytes": 8893654,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203123",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "kq8q8111.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2016/12/kq8q8111.jpg",
+      "original_size_bytes": 2488587,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190824203315",
+      "post_slug": "example-photo-work",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "IMG_9614.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2017/05/IMG_9614.jpg",
+      "original_size_bytes": 1190288,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190822090554",
+      "post_slug": "rugby-morning-2",
+      "caption": "Chestnut-Sided Warbler",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "IMG_9631.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2017/05/IMG_9631.jpg",
+      "original_size_bytes": 1565869,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190822094831",
+      "post_slug": "rugby-morning-2",
+      "caption": "Unknown species",
+      "status": "unrecoverable"
+    },
+    {
+      "filename": "IMG_9651.jpg",
+      "original_url": "https://transscendsurvival.org/wp-content/uploads/2017/05/IMG_9651.jpg",
+      "original_size_bytes": 1312227,
+      "wayback_size_bytes": 1048576,
+      "wayback_timestamp": "20190822101341",
+      "post_slug": "rugby-morning-2",
+      "caption": "Scarlet Tanager",
+      "status": "unrecoverable"
+    }
+  ]
+}

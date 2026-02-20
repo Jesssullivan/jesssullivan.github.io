@@ -191,6 +191,8 @@ pre.shiki, pre.shiki code, pre.shiki span {
 
 .prose li {
 	margin-bottom: 0.5em;
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .prose blockquote {
@@ -199,6 +201,8 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	margin: 1.5em 0;
 	font-style: italic;
 	color: var(--color-surface-500);
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .prose code {
@@ -269,6 +273,8 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	padding: 0.5em 0.75em;
 	border: 1px solid var(--color-surface-300);
 	text-align: left;
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 /* Giscus comments — full-width iframe */
