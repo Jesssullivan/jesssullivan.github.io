@@ -72,6 +72,7 @@ jobs:
         with:
           name: lighthouse-report
           path: .lighthouseci/
+          include-hidden-files: true
           retention-days: 14
 
       - name: CI Summary
