@@ -210,48 +210,48 @@
   {
     "src": "/images/posts/IMG_6256-Edit.jpg",
     "webp": "/images/posts/IMG_6256-Edit.webp",
-    "width": 1080,
-    "height": 720,
+    "width": 1200,
+    "height": 800,
     "post_slug": "signs-of-thoughts-of-possible-spring",
     "post_title": "Signs of Thoughts of Possible Spring?"
   },
   {
     "src": "/images/posts/IMG_7092-Edit.jpg",
     "webp": "/images/posts/IMG_7092-Edit.webp",
-    "width": 300,
-    "height": 200,
+    "width": 1100,
+    "height": 733,
     "post_slug": "birding-at-plumb-island",
     "post_title": "Birding at Plumb Island!"
   },
   {
     "src": "/images/posts/IMG_7227-Edit.jpg",
     "webp": "/images/posts/IMG_7227-Edit.webp",
-    "width": 300,
-    "height": 200,
+    "width": 1100,
+    "height": 733,
     "post_slug": "birding-at-plumb-island",
     "post_title": "Birding at Plumb Island!"
   },
   {
     "src": "/images/posts/IMG_7265-Edit.jpg",
     "webp": "/images/posts/IMG_7265-Edit.webp",
-    "width": 300,
-    "height": 200,
+    "width": 1100,
+    "height": 733,
     "post_slug": "birding-at-plumb-island",
     "post_title": "Birding at Plumb Island!"
   },
   {
     "src": "/images/posts/IMG_7320-Edit.jpg",
     "webp": "/images/posts/IMG_7320-Edit.webp",
-    "width": 300,
-    "height": 300,
+    "width": 1100,
+    "height": 1100,
     "post_slug": "birding-at-plumb-island",
     "post_title": "Birding at Plumb Island!"
   },
   {
     "src": "/images/posts/IMG_8381-Edit.jpg",
     "webp": "/images/posts/IMG_8381-Edit.webp",
-    "width": 200,
-    "height": 300,
+    "width": 734,
+    "height": 1100,
     "post_slug": "research-year-two-three-photos",
     "post_title": "Research Year Two: Three Photos"
   },
@@ -376,6 +376,14 @@
     "post_title": "Gallery of my \\"
   },
   {
+    "src": "/images/posts/dsc09997.jpg",
+    "webp": "/images/posts/dsc09997.webp",
+    "width": 1200,
+    "height": 960,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
     "src": "/images/posts/IMG_0145-Edit.jpg",
     "webp": "/images/posts/IMG_0145-Edit.webp",
     "width": 920,
@@ -384,7 +392,7 @@
     "post_title": null
   },
   {
-    "src": "/images/posts/IMG_0431.webp",
+    "src": "/images/posts/IMG_0431.jpg",
     "webp": "/images/posts/IMG_0431.webp",
     "width": 920,
     "height": 613,
@@ -408,7 +416,7 @@
     "post_title": null
   },
   {
-    "src": "/images/posts/IMG_0871.webp",
+    "src": "/images/posts/IMG_0871.jpg",
     "webp": "/images/posts/IMG_0871.webp",
     "width": 613,
     "height": 920,
@@ -440,6 +448,14 @@
     "post_title": null
   },
   {
+    "src": "/images/posts/img_2827.jpg",
+    "webp": "/images/posts/img_2827.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
     "src": "/images/posts/IMG_2967-Edit.jpg",
     "webp": "/images/posts/IMG_2967-Edit.webp",
     "width": 920,
@@ -456,7 +472,23 @@
     "post_title": null
   },
   {
-    "src": "/images/posts/IMG_6649-Edit.webp",
+    "src": "/images/posts/img_5674.jpg",
+    "webp": "/images/posts/img_5674.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/img_6354.jpg",
+    "webp": "/images/posts/img_6354.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_6649-Edit.jpg",
     "webp": "/images/posts/IMG_6649-Edit.webp",
     "width": 960,
     "height": 1440,
@@ -466,16 +498,24 @@
   {
     "src": "/images/posts/img_8694.jpg",
     "webp": "/images/posts/img_8694.webp",
-    "width": 1080,
-    "height": 900,
+    "width": 1200,
+    "height": 1000,
     "post_slug": null,
     "post_title": null
   },
   {
-    "src": "/images/posts/orange-wood-ducks.webp",
+    "src": "/images/posts/mg_9479.jpg",
+    "webp": "/images/posts/mg_9479.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/orange-wood-ducks.jpg",
     "webp": "/images/posts/orange-wood-ducks.webp",
-    "width": 1080,
-    "height": 864,
+    "width": 1200,
+    "height": 960,
     "post_slug": null,
     "post_title": null
   }
