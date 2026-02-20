@@ -126,6 +126,40 @@ test.describe('Giscus lazy loading', () => {
 	});
 });
 
+test.describe('Comments — full-width layout', () => {
+	test.use({ viewport: { width: 1280, height: 800 } });
+
+	test('comments section spans full article width on desktop', async ({ page }) => {
+		await page.goto('/blog');
+		const firstPost = page.locator('article.card a').first();
+		await firstPost.click();
+		await page.waitForLoadState('networkidle');
+
+		const article = page.locator('article');
+		const comments = page.locator('[data-testid="comments-section"]');
+		await comments.scrollIntoViewIfNeeded();
+
+		const articleBox = await article.boundingBox();
+		const commentsBox = await comments.boundingBox();
+		expect(commentsBox!.width).toBeGreaterThan(articleBox!.width * 0.9);
+	});
+
+	test('comments section is outside the grid container', async ({ page }) => {
+		await page.goto('/blog');
+		const firstPost = page.locator('article.card a').first();
+		await firstPost.click();
+		await page.waitForLoadState('networkidle');
+
+		const grid = page.locator('article .grid');
+		const commentsInGrid = grid.locator('[data-testid="comments-section"]');
+		expect(await commentsInGrid.count()).toBe(0);
+
+		const article = page.locator('article');
+		const commentsInArticle = article.locator('[data-testid="comments-section"]');
+		expect(await commentsInArticle.count()).toBe(1);
+	});
+});
+
 test.describe('Comments — mobile viewport', () => {
 	test.use({ viewport: { width: 375, height: 667 } });
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Post } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { loadPagefind, executeSearch, type Pagefind, type SearchItem } from '$lib/pagefind';
+	import { loadFlexSearch, searchFlexSearch, type SearchResult } from '$lib/search';
 
 	let {
 		recentPosts = [],
@@ -12,35 +12,22 @@
 	} = $props();
 
 	let searchQuery = $state('');
-	let searchResults = $state.raw<SearchItem[]>([]);
-	let pagefind: Pagefind | null = $state(null);
+	let searchResults = $state.raw<SearchResult[]>([]);
 	let searchAvailable = $state(false);
-	let searchUnavailableMsg = $state('');
-	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 	onMount(() => {
-		loadPagefind().then((state) => {
-			pagefind = state.instance;
-			searchAvailable = state.available;
-			searchUnavailableMsg = state.error;
+		loadFlexSearch().then((ok) => {
+			searchAvailable = ok;
 		});
 	});
 
 	$effect(() => {
 		const query = searchQuery;
-		clearTimeout(debounceTimer);
-
 		if (!query.trim()) {
 			searchResults = [];
 			return;
 		}
-
-		debounceTimer = setTimeout(async () => {
-			if (!pagefind) return;
-			searchResults = await executeSearch(pagefind, query, 5);
-		}, 300);
-
-		return () => clearTimeout(debounceTimer);
+		searchResults = searchFlexSearch(query, 5);
 	});
 </script>
 
@@ -62,15 +49,14 @@
 					{#each searchResults as result}
 						<li>
 							<a
-								href={result.url}
+								href="/blog/{result.slug}"
 								class="block hover:text-primary-500 transition-colors"
 							>
 								<span class="text-sm font-medium leading-tight line-clamp-2"
 									>{result.title}</span
 								>
-								<!-- pagefind excerpts contain only <mark> tags for highlighting -->
 								<span class="text-xs text-surface-500 mt-0.5 block line-clamp-2"
-									>{@html result.excerpt}</span
+									>{result.description}</span
 								>
 							</a>
 						</li>
@@ -79,8 +65,8 @@
 			{:else if searchQuery.trim() && searchResults.length === 0}
 				<p class="text-xs text-surface-500 mt-2">No results found.</p>
 			{/if}
-		{:else if searchUnavailableMsg}
-			<p class="text-xs text-surface-500 italic">{searchUnavailableMsg}</p>
+		{:else}
+			<p class="text-xs text-surface-500 italic">Search loading...</p>
 		{/if}
 	</div>
 

@@ -220,9 +220,31 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	margin: 1.5em 0;
 }
 
+.prose img[width][height] {
+	aspect-ratio: attr(width) / attr(height);
+}
+
 .prose hr {
 	margin: 2em 0;
 	border-color: var(--color-surface-300);
+}
+
+/* Missing image placeholder — lost WordPress images */
+.missing-image-notice {
+	display: block;
+	padding: 0.75rem 1rem;
+	margin: 1.5em 0;
+	border-left: 3px solid var(--color-surface-400);
+	background: color-mix(in srgb, var(--color-surface-200) 50%, transparent);
+	border-radius: 0 0.375rem 0.375rem 0;
+	font-style: italic;
+	font-size: 0.85em;
+	color: var(--color-surface-500);
+}
+
+[data-mode="dark"] .missing-image-notice {
+	background: color-mix(in srgb, var(--color-surface-800) 50%, transparent);
+	border-left-color: var(--color-surface-600);
 }
 
 .prose table {

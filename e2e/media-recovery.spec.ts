@@ -16,21 +16,14 @@ test.describe('Media Recovery & Image Integrity', () => {
 
 	test('no external WordPress CDN URLs in rendered blog posts', async ({ page }) => {
 		await page.goto('/blog', { waitUntil: 'networkidle' });
-		// Click the first post
 		const firstPost = page.locator('article a[href^="/blog/"]').first();
 		await firstPost.click();
 		await page.waitForLoadState('networkidle');
 
-		// Check that no images point to wp-content or i0-i2.wp.com
-		const images = page.locator('img');
-		const count = await images.count();
-		for (let i = 0; i < count; i++) {
-			const src = await images.nth(i).getAttribute('src');
-			if (src) {
-				expect(src).not.toContain('wp-content/uploads');
-				expect(src).not.toMatch(/i[0-2]\.wp\.com/);
-			}
-		}
+		// Check page HTML for WordPress CDN URLs rather than iterating images
+		const html = await page.content();
+		expect(html).not.toContain('wp-content/uploads');
+		expect(html).not.toMatch(/i[0-2]\.wp\.com/);
 	});
 
 	test('local post images load correctly', async ({ page }) => {

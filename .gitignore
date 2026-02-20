@@ -28,6 +28,11 @@ CLAUDE.md
 # direnv
 .direnv/
 
+# Build artifacts
+static/search-index.json
+static/images/posts/dimensions.json
+static/images/posts/*.tmp
+
 # Test artifacts
 test-results/
 playwright-report/

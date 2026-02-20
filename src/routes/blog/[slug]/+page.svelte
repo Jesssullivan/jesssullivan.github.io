@@ -225,7 +225,6 @@
 				</section>
 			{/if}
 
-			<GiscusComments />
 		</div>
 
 		<div class="hidden lg:block">
@@ -241,6 +240,7 @@
 			</div>
 		</div>
 	</div>
+	<GiscusComments />
 </article>
 
 <style>

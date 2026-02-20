@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Search — main blog page', () => {
-	test('search input is visible after pagefind loads', async ({ page }) => {
+	test('search input is visible after FlexSearch loads', async ({ page }) => {
 		await page.goto('/blog');
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
@@ -12,11 +12,20 @@ test.describe('Search — main blog page', () => {
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bird');
-		// Wait for debounce (200ms) + pagefind search + render
-		await page.waitForTimeout(1000);
-		// Results dropdown or "No results" should appear
-		const dropdown = page.locator('.relative .absolute');
+		await page.waitForTimeout(500);
+		const dropdown = page.locator('[role="listbox"]');
 		await expect(dropdown).toBeVisible({ timeout: 10_000 });
+	});
+
+	test('prefix matching works (typeahead)', async ({ page }) => {
+		await page.goto('/blog', { waitUntil: 'networkidle' });
+		const input = page.locator('input[type="search"]').first();
+		await expect(input).toBeVisible({ timeout: 10_000 });
+		await input.fill('bir');
+		await page.waitForTimeout(500);
+		const results = page.locator('[role="listbox"] li');
+		const count = await results.count();
+		expect(count).toBeGreaterThan(0);
 	});
 
 	test('typing a nonsense query shows "No results found"', async ({ page }) => {
@@ -45,12 +54,36 @@ test.describe('Search — main blog page', () => {
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bird');
-		await page.waitForTimeout(1000);
-		const firstResult = page.locator('.relative .absolute a').first();
+		await page.waitForTimeout(500);
+		const firstResult = page.locator('[role="listbox"] a').first();
 		if ((await firstResult.count()) > 0) {
 			const href = await firstResult.getAttribute('href');
 			expect(href).toMatch(/\/blog\//);
 		}
+	});
+
+	test('keyboard navigation works', async ({ page }) => {
+		await page.goto('/blog', { waitUntil: 'networkidle' });
+		const input = page.locator('input[type="search"]').first();
+		await expect(input).toBeVisible({ timeout: 10_000 });
+		await input.fill('bird');
+		await page.waitForTimeout(500);
+		// Arrow down to first result
+		await input.press('ArrowDown');
+		const firstOption = page.locator('[role="option"]').first();
+		await expect(firstOption).toHaveAttribute('aria-selected', 'true');
+		// Escape closes dropdown
+		await input.press('Escape');
+		const dropdown = page.locator('[role="listbox"]');
+		await expect(dropdown).not.toBeVisible();
+	});
+
+	test('search has ARIA combobox attributes', async ({ page }) => {
+		await page.goto('/blog');
+		const input = page.locator('input[type="search"]').first();
+		await expect(input).toBeVisible({ timeout: 10_000 });
+		await expect(input).toHaveAttribute('role', 'combobox');
+		await expect(input).toHaveAttribute('aria-autocomplete', 'list');
 	});
 });
 
