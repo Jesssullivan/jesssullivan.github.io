@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "prebuild": "node scripts/generate-search-index.mjs && node scripts/optimize-images.mjs",
+    "prebuild": "node scripts/generate-search-index.mjs && node scripts/optimize-images.mjs && node scripts/generate-blog-stats.mjs",
     "build": "vite build",
     "postbuild": "node scripts/generate-redirects.mjs && pagefind --site build",
     "test:redirects": "npm run build && node scripts/validate-redirects.mjs",

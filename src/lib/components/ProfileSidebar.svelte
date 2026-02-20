@@ -107,6 +107,12 @@
 				class="w-full rounded"
 			/>
 			<ThemedImage
+				lightSrc={THEMED_IMAGES.repoGraph.light}
+				darkSrc={THEMED_IMAGES.repoGraph.dark}
+				alt={THEMED_IMAGES.repoGraph.alt}
+				class="w-full rounded"
+			/>
+			<ThemedImage
 				lightSrc={THEMED_IMAGES.snake.light}
 				darkSrc={THEMED_IMAGES.snake.dark}
 				alt={THEMED_IMAGES.snake.alt}

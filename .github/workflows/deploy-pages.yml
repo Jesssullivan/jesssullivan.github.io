@@ -39,3 +39,17 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
+
+  refresh-profile:
+    needs: deploy
+    if: ${{ secrets.PROFILE_DISPATCH_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger profile repo README refresh
+        continue-on-error: true
+        run: |
+          gh api repos/Jesssullivan/Jesssullivan/dispatches \
+            -f event_type=blog-deployed \
+            -f 'client_payload[source]=jesssullivan.github.io'
+        env:
+          GH_TOKEN: ${{ secrets.PROFILE_DISPATCH_TOKEN }}

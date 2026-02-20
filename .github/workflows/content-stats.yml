@@ -1,0 +1,49 @@
+name: Content Analytics
+
+on:
+  schedule:
+    - cron: '30 6 * * 1'  # Weekly Monday 6:30 AM UTC
+  workflow_dispatch:
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate blog stats
+        run: node scripts/generate-blog-stats.mjs
+
+      - name: Summary
+        run: |
+          echo "## Blog Stats" >> $GITHUB_STEP_SUMMARY
+          node -e "
+            const s = require('./static/blog-stats.json');
+            console.log('| Metric | Value |');
+            console.log('|--------|-------|');
+            console.log('| Posts | ' + s.totals.posts + ' |');
+            console.log('| Total Words | ' + s.totals.words.toLocaleString() + ' |');
+            console.log('| Unique Tags | ' + s.totals.tags + ' |');
+            console.log('| Code Languages | ' + Object.keys(s.codeLanguages).length + ' |');
+            console.log('');
+            console.log('### Posts per Year');
+            console.log('| Year | Posts |');
+            console.log('|------|-------|');
+            for (const [y, c] of Object.entries(s.postsPerYear)) {
+              console.log('| ' + y + ' | ' + c + ' |');
+            }
+            console.log('');
+            console.log('### Top Tags');
+            console.log('| Tag | Count |');
+            console.log('|-----|-------|');
+            for (const [t, c] of Object.entries(s.topTags).slice(0, 10)) {
+              console.log('| ' + t + ' | ' + c + ' |');
+            }
+          " >> $GITHUB_STEP_SUMMARY
