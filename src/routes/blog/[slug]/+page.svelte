@@ -182,7 +182,7 @@
 				{/if}
 			</header>
 
-			<div class="prose prose-lg max-w-none" data-pagefind-body>
+			<div class="prose prose-lg max-w-none overflow-x-hidden" data-pagefind-body>
 				{@render data.content()}
 			</div>
 
