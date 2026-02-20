@@ -150,6 +150,10 @@ test.describe('Comments — full-width layout', () => {
 		await firstPost.click();
 		await page.waitForLoadState('networkidle');
 
+		// Wait for comments section to render
+		const comments = page.locator('[data-testid="comments-section"]');
+		await expect(comments).toBeVisible({ timeout: 10000 });
+
 		const grid = page.locator('article .grid');
 		const commentsInGrid = grid.locator('[data-testid="comments-section"]');
 		expect(await commentsInGrid.count()).toBe(0);

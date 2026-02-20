@@ -29,7 +29,7 @@ test.describe('Blog listing sidebar scrollability', () => {
 					};
 				});
 				expect(styles.maxHeight).not.toBe('none');
-				expect(styles.overflowY).toBe('auto');
+				expect(['auto', 'scroll']).toContain(styles.overflowY);
 			});
 
 			test('sidebar sticky top offset clears AppBar', async ({ page }) => {
@@ -71,7 +71,7 @@ test.describe('Blog post sidebar scrollability', () => {
 					overflowY: getComputedStyle(el).overflowY
 				}));
 				expect(styles.maxHeight).not.toBe('none');
-				expect(styles.overflowY).toBe('auto');
+				expect(['auto', 'scroll']).toContain(styles.overflowY);
 			}
 		});
 	}

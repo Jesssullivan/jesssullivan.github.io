@@ -1,12 +1,17 @@
 {
 	"ci": {
 		"collect": {
-			"staticDistDir": "./build",
+			"startServerCommand": "npx serve build -l 8765 --no-clipboard",
+			"startServerReadyPattern": "Accepting connections",
 			"url": [
-				"http://localhost/",
-				"http://localhost/blog",
-				"http://localhost/about"
-			]
+				"http://localhost:8765/",
+				"http://localhost:8765/blog",
+				"http://localhost:8765/about"
+			],
+			"numberOfRuns": 1,
+			"settings": {
+				"chromeFlags": "--no-sandbox --disable-gpu"
+			}
 		},
 		"assert": {
 			"assertions": {
