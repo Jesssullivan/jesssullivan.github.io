@@ -18,11 +18,12 @@
 	let searchUnavailableMsg = $state('');
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
-	onMount(async () => {
-		const state = await loadPagefind();
-		pagefind = state.instance;
-		searchAvailable = state.available;
-		searchUnavailableMsg = state.error;
+	onMount(() => {
+		loadPagefind().then((state) => {
+			pagefind = state.instance;
+			searchAvailable = state.available;
+			searchUnavailableMsg = state.error;
+		});
 	});
 
 	$effect(() => {

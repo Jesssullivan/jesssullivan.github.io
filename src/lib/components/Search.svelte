@@ -16,11 +16,12 @@
 
 	const debouncedSearch = debounce(doSearch, 200);
 
-	onMount(async () => {
-		const state = await loadPagefind();
-		pagefind = state.instance;
-		loaded = state.available;
-		errorMsg = state.error;
+	onMount(() => {
+		loadPagefind().then((state) => {
+			pagefind = state.instance;
+			loaded = state.available;
+			errorMsg = state.error;
+		});
 		return () => debouncedSearch.cancel();
 	});
 
