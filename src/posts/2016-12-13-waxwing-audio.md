@@ -14,8 +14,6 @@ High-Brow Foreword:
 
 To be frank:
 
-I am a dorm-dwelling college student, studying experiential education. Everything I make is made from scratch, in my dorm, when I’m not doing other things more pertinent to my BS in adventure experiential education. 
+I am a dorm-dwelling college student, studying experiential education. Everything I make is made from scratch, in my dorm, when I’m not doing other things more pertinent to my BS in adventure experiential education.
 
-As we know now, the only tools anyone needs to make anything these days is access to the internet, time, and a deep desire to learn… 
-
-### _Related_
+As we know now, the only tools anyone needs to make anything these days is access to the internet, time, and a deep desire to learn…

@@ -25,5 +25,3 @@ Double-sided MPCNC gcode, just for the holder part.....
 ...For this design:
 
 *The bits that made up this image have scattered to the wind.*
-
-### _Related_

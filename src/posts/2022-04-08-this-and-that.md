@@ -10,16 +10,16 @@ original_url: "https://www.transscendsurvival.org/2022/04/08/this-and-that/"
 
 _Letsee...._
 
-  * It's almost springtime in Ithaca! 
-  * Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the [DLA Makerspace at Cornell](https://cals.cornell.edu/landscape-architecture/facilities-resources/fabrication-laboratory)! 
+  * It's almost springtime in Ithaca!
+  * Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the [DLA Makerspace at Cornell](https://cals.cornell.edu/landscape-architecture/facilities-resources/fabrication-laboratory)!
   * I have been busy building out the [new Ithaca Generator website](https://ithacagenerator.org/), as well as new member mangegment & accounting software. I've taken over as IG's 3D Printer Area Captain too! 😸
 
-*Image from the original post is no longer available -- nothing on the internet is forever.* | *This image has been lost to time. The original was hosted on WordPress.* | *The photograph that was here has since disappeared from the web.*  
----|---|---  
-[_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)  
-*Image no longer available -- a reminder that digital things are impermanent too.* | *This image didn't survive the migration from WordPress. Such is the web.* | *The original image, once hosted on WordPress, has been lost to the digital ether.*  
-_See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_  
-  
+*Image from the original post is no longer available -- nothing on the internet is forever.* | *This image has been lost to time. The original was hosted on WordPress.* | *The photograph that was here has since disappeared from the web.*
+---|---|---
+[_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)
+*Image no longer available -- a reminder that digital things are impermanent too.* | *This image didn't survive the migration from WordPress. Such is the web.* | *The original image, once hosted on WordPress, has been lost to the digital ether.*
+_See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_
+
 ##### [Magic Fusion 360 for 3D Printing Class](https://ithacagenerator.org/home/fusion-360-class)
 
   * _Draw and print your mechanical daydreams! Watertight threads? Anneal-fit tolerances? Learn to design and print beautiful hardware and parts in this exciting workshop with Jess!_

@@ -51,5 +51,3 @@ Here I verify it works by charging my commercial usb charger with my DIY duct ta
 *The original image, once hosted on WordPress, has been lost to the digital ether.*
 
 Good luck!
-
-### _Related_

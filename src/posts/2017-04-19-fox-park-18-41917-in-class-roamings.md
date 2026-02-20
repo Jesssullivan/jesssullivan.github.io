@@ -14,5 +14,3 @@ At around 9:35 yesterday morning, the natural history class gathered in Fox Park
   * **The magnolia warblers have arrived.** [These are magnificent little birds. ](https://www.allaboutbirds.org/guide/Magnolia_Warbler/id) Famous for their "necklace with pendants", these warblers have officially arrived, and in full getup. A pair of them were calling to each other (which I did not get right away- they have a few calls) then chasing each other through the forest. What fun!
 
 -Jess
-
-### _Related_

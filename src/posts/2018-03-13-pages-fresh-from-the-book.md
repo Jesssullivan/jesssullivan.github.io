@@ -15,5 +15,3 @@ Additionally, my, "Epic Birding Prediction Project" is now on Github. Stay tuned
 https://github.com/Jesssullivan/EBPP
 
 In the realm of tunes, the dorm soundcloud @ PSU stays fresh with a new Metal Ukulele track- see below.
-
-### _Related_

@@ -25,5 +25,3 @@ The following photos are the result of chance and some enthusiastic "pishing" I 
 *The photograph that was here has since disappeared from the web.*
 
 -Jess
-
-### _Related_

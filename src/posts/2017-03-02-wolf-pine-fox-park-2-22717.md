@@ -23,5 +23,3 @@ Also: A fellow student recently told me quite possibly the most important pine t
 "White pine trees have bunches of 5 needles because the word "white" has 5 letters. So, logically, the red pine has bunches of 3 needles, because there are ONLY 3 LETTERS IN THE WORD "RED"."
 
 ...Crazy. Food for thought.
-
-### _Related_

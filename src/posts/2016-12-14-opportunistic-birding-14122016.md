@@ -20,7 +20,7 @@ Opportunistic birding is a easily one of the most rewarding ways to enhance life
 
   * Decide birds are fascinating, exciting, and scattered around you like a Where's Waldo? original
   * Allow the innate curiosity and "buzz" be way more important than immediate applicability
-  * Subsequently decide to read and research as much as possible in large binges about local birds... 
+  * Subsequently decide to read and research as much as possible in large binges about local birds...
     * Join [E-bird](http://ebird.org/ebird/MyEBird?cmd=Start)
     * Download [Merlin](http://merlin.allaboutbirds.org/) (North America and growing)
     * [subscribe](http://ebird.org/ebird/alerts) to all the local bird lists and updates
@@ -30,14 +30,12 @@ Then, once you know a robin and from a heron, a "murder" of fish crows from a "t
 
 ...Now the real fun begins! You will know you have reached part two when:
 
-  * You are walking to work or class and hear some chips and beeps... 
+  * You are walking to work or class and hear some chips and beeps...
     * it is winter: You are inland, in a light mixed habitat of new-growth trees and leafless shrubby plants:
     * 2+2=4: this must mean there are small passerines wintering, likely in a mixed flock
-  * You stop for 30 seconds; You hear fleeting piece of a sonorous whistle, then a flit with vertical slate and white stripes 
+  * You stop for 30 seconds; You hear fleeting piece of a sonorous whistle, then a flit with vertical slate and white stripes
     * 4+1+1=6: You feel euphoric and grandiose, then continue walking to class, thinking happily about the slate-colored-junco group you just witnessed containing a single white-throated sparrow. You arrive to your destination on time, unharmed, and in a jovial condition.
 
 ...This is opportunistic birding. Good Luck!
 
 *This image has been lost to time. The original was hosted on WordPress.*
-
-### _Related_

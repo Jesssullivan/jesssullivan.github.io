@@ -22,7 +22,7 @@ the solution: with GDAL or QGIS (alright, even in ArcMap), one can use GeoJSON a
 
 Merge vector layers -> save to file -> GeoJSON
 
-**arcpy:**  
+**arcpy:**
 import arcpy
 
 import os
@@ -31,8 +31,6 @@ arcpy.env.workspace = "/desktop/arcmapstuff"
 
 arcpy.FeaturesToJSON_conversion(os.path.join("outgdb.gdb", "myfeatures"), "output.json")
 
-**GDAL:  
-**&lt;  
+**GDAL:
+**&lt;
 ogr2ogr -f GeoJSON output.json input.kml
-
-### _Related_

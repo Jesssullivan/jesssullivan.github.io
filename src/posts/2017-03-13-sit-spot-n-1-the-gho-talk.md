@@ -14,7 +14,7 @@ Great horned owls. Except for the only exception feasible- [Which is of course t
 
 By shudrburg - http://www.flickr.com/photos/shudrbug/1502256414/in/set-72157594307880833/, CC BY 2.0, https://commons.wikimedia.org/w/index.php?curid=2882446
 
-**  
+**
 1.** The "ears"
 
 GHO's ears are essentially their entire head. The poky things are literally there to throw folks off, though the idea was originally to emulate some bark or a pair of pine cones, some think... Though horns, ears, or party hats are probably ok too. As I say above, one could say with a fair amount of accuracy the _entire_ head  _is_ a single, huge ear; Those pretty concentric eye rings? Chamfers and fillets on the face? these are funneling, _extracting_ every scuffle and heartbeat falling in the laser-like path of the big, round, swivel-face. Remember: these owls are seeing with their ears. The GHO is always sleepy during the day, even while other owls might be a bit active- ruling out light as a reliable system for vision.
@@ -44,5 +44,3 @@ In conclusion:
 I hope this has been both educational and convincing enough to be enthused about owling. Something this special _and_ this relavent in the northeast is too important to ignore.
 
 -Jess
-
-### _Related_

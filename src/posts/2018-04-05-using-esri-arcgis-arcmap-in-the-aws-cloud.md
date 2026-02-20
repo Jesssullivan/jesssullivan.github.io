@@ -23,5 +23,3 @@ Another plus is any client- netbook, macbook, VM, etc- will work equally well. I
 🙂
 
 https://docs.aws.amazon.com/workspaces/latest/adminguide/amazon-workspaces.html
-
-### _Related_

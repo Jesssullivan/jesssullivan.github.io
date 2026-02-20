@@ -19,5 +19,3 @@ _In other tangents..._
 **_....Dover Microsystem's Genesys 2 FPGA is moving into it's new home, v6:_**
 
 _....A quick polyphase hub motor sketch around a Toyota wheel bearing:_
-
-### _Related_

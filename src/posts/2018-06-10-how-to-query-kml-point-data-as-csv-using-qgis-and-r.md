@@ -37,24 +37,23 @@ Select CSV and elect to save the file instead of use a temporary/scratch file (t
 ![Excel CSV verification](/images/posts/Screen-Shot-2018-06-10-at-8.32.27-AM.png)
 
 **The R bit:**
-    
-    
+
     _# query for paired birds
-    
+
     #EDIT:  Libraries
     library(data.table)
     library(tidyverse)_
-    
+
     data &lt;- data.frame(fread("Bird_CSV.csv"))
-    
+
     pair_rows &lt;- contains("pair", vars = data$description)
-    
+
     fem_rows &lt;- contains("fem", vars = data$description)
-    
+
     result &lt;- combine(pair_rows, fem_rows)
-    
+
     result &lt;- data[result,]
-    
+
     write_csv(result, "Paired_Birds.csv")
 
 **Tada!**
@@ -62,5 +61,3 @@ Select CSV and elect to save the file instead of use a temporary/scratch file (t
 ![](/images/posts/Screen-Shot-2018-06-10-at-5.55.15-PM.png)
 
 **-Jess**
-
-### _Related_

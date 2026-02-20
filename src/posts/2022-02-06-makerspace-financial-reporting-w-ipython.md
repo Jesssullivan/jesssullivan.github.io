@@ -17,8 +17,7 @@ original_url: "https://www.transscendsurvival.org/2022/02/06/makerspace-financia
 (note, you'll need [nbconvert, pandoc, TeX to write to pdf](https://nbconvert.readthedocs.io/en/latest/))
 
 #### _...If all goes well, the output will look something like:_
-    
-    
+
     loaded **** paypal records
     loaded ** existing membershipworks records
     converted Date column to datetime objects

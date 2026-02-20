@@ -17,5 +17,3 @@ Myself and my father contributed 64 species, including the below Northern watert
 -Jess
 
 [![](/images/posts/IMG_7092-Edit.jpg)](/images/posts/IMG_7092-Edit.jpg) [![](/images/posts/IMG_7227-Edit.jpg)](/images/posts/IMG_7227-Edit.jpg) [![](/images/posts/IMG_7265-Edit.jpg)](/images/posts/IMG_7265-Edit.jpg) [![](/images/posts/IMG_7320-Edit.jpg)](/images/posts/IMG_7320-Edit.jpg)
-
-### _Related_

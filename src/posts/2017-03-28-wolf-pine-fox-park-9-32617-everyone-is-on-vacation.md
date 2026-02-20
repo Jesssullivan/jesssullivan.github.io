@@ -33,5 +33,3 @@ Remarkable! Both of those birds will fly between 2,000 and 3,000+ miles, just to
 Despite the snow, rain, and cold winds at my sit spot, the anticipation for spring is getting into gear.
 
 -Jess
-
-### _Related_

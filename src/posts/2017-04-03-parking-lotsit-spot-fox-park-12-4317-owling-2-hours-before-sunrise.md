@@ -25,5 +25,3 @@ So, I will tentatively stick with the current idea this is a GHO, because my oth
 The saga continues...
 
 -Jess
-
-### _Related_

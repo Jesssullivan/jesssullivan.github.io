@@ -37,5 +37,3 @@ If you are truly doing an eBird list for your trip, try this app for basic, quic
 This is a list of the Bird apps I use on my phone, most getting use many times a week or even every day (iBird Pro).
 
 -Jess
-
-### _Related_

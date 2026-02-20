@@ -8,22 +8,22 @@ slug: "using-esri-arcgis-arcmap-on-mac-osx-2-methods"
 original_url: "https://transscendsurvival.org/2018/04/03/using-esri-arcgis-arcmap-on-mac-osx-2-methods/"
 ---
 
-_Edit 07/26/2020:_  
+_Edit 07/26/2020:_
 [Check out the expanded GIS notes page here!](https://jesssullivan.github.io/GIS_Shortcuts/)
 
 **Using ESRI ArcGIS / ArcMap on Macs: 2 methods**
 
-I need to run ESRI products on my MacBook Pro. QGIS is always the prefered solution- open source, excellent free plugins, works on mac natively- but in a college / research environment, the only option that supports other people and school machines is ESRI. Despite the annoying bureaucracy and expense of the software, some things are faster (but not better!) in ESRI, like dealing with raster / multiband data. 
+I need to run ESRI products on my MacBook Pro. QGIS is always the prefered solution- open source, excellent free plugins, works on mac natively- but in a college / research environment, the only option that supports other people and school machines is ESRI. Despite the annoying bureaucracy and expense of the software, some things are faster (but not better!) in ESRI, like dealing with raster / multiband data.
 
 **First, you need a license.**
 
-I went about this two ways; 
+I went about this two ways;
 
 My first solution was to buy an ESRI Press textbook on amazon. A 180 day trial for $50- when taken as a college course, this isn't to bad. 🙂 The book is slow and recursive, but a 180 days to play with all the plugins and whistles allows for way deeper learning via the internet. 🙂[![](/images/posts/Screen-Shot-2018-04-03-at-9.36.59-AM.png)](/images/posts/Screen-Shot-2018-04-03-at-9.36.59-AM.png)
 
-Do know there is a little-documented limit to the number of license transfers you may perform before getting either lock in or out of your software. I hit this limit, as I was also figuring out my virtual machine situation, which would occasionally need a re-installation. 
+Do know there is a little-documented limit to the number of license transfers you may perform before getting either lock in or out of your software. I hit this limit, as I was also figuring out my virtual machine situation, which would occasionally need a re-installation.
 
-My current solution is “just buy a student license”. $100 per year is less than any adobe situation- so really not that bad. 
+My current solution is “just buy a student license”. $100 per year is less than any adobe situation- so really not that bad.
 
 **Now you need a windows ISO.**
 
@@ -37,7 +37,7 @@ Follow that link for the window 10, 64 bit ISO. YOU DO NOT NEED TO BUY WINDOWS. 
 
 [http://a.co/4FEYMNY](http://a.co/4FEYMNY), [http://a.co/hanHYl1](http://a.co/hanHYl1) Suitable USBs. the VM will take up most of a 128gb flash drive- ~70 gb just for windows and all the stuff you'll want from a PC. Add ESRI software and allocated space for a cache (where your GIS project works!), bigger is better. Format all drives in disk utility as ExFat! this is important, any other file system either won't fly or could wreak havoc (other FAT based ones may have too small file allocations!
 
-I used two drives, a 128 and a 64- this is great because I can store all my work on the 64, so I can easily plug it into other (school) machines running windows ArcMap and keep going, without causing issues with the massive VM in the 128. 
+I used two drives, a 128 and a 64- this is great because I can store all my work on the 64, so I can easily plug it into other (school) machines running windows ArcMap and keep going, without causing issues with the massive VM in the 128.
 
 Installation is straightforward, just install EVERYTHING on the usb drive and it will be fine. 🙂
 
@@ -70,5 +70,3 @@ ArcMap and GIS stuff is **blazing** fast on my modest 2015 i5/8gb macbook pro. C
 🙂
 
 -Jess
-
-### _Related_

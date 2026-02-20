@@ -17,5 +17,3 @@ _If you are actually in an "it must done in OpenWRT" scenario, Click Here for my
 ...While my sharing method wasn't actually adopted by others, I still think it is good to know!
 
 -Jess
-
-### _Related_

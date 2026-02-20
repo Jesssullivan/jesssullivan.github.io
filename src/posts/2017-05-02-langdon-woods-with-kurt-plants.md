@@ -31,5 +31,3 @@ Today- after an extremely productive 7am trip with the vertebrate zoology class 
 There are more plants we covered, but these are the ones I can remember the best.
 
 -Jess
-
-### _Related_

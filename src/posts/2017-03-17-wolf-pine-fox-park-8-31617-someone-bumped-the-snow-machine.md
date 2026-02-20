@@ -17,5 +17,3 @@ My owl friend was not home either; as we know from the GHO talk from a previous 
 The snow was definitely the "highlight" of this morning's sit spot, even as a snowshoed out of the park at 7:45.... For how long though? When will the spanish-speaking warbler team from Panama touch down?
 
 ?
-
-### _Related_

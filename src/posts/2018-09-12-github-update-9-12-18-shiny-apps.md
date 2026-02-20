@@ -15,5 +15,3 @@ Three of my KML tools are now stable and in Github. These are actually displayed
 https://github.com/Jesssullivan/Shiny-Apps
 
 -Jess
-
-### _Related_

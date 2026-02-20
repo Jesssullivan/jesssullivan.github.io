@@ -8,7 +8,7 @@ slug: "wolf-pine-fox-park-4-3517-noon-ish-time"
 original_url: "https://transscendsurvival.org/2017/03/05/wolf-pine-fox-park-4-3517-noon-ish-time/"
 ---
 
-*This image existed once on WordPress, but the web moves on.*This is the kind of day it is today. Not a cloud in the light blue sky, the sun casting sharp shadows from the bare branches. A bit blustery, and cold- I'd guess 25 degrees, not including wind chill. The snow is very hard, and has a icy surface. I wandered into Fox park at around noon- all I could hear was a few high peeps from chickadees and the occasional crow yelling at something. Notably, the woodpeckers seemed absent on my way into the woods toward my pine tree- could the extra-frozen trees deter all but the most robust woodpeckers? Usually at least a downy will be somewhere, tapping away.  
+*This image existed once on WordPress, but the web moves on.*This is the kind of day it is today. Not a cloud in the light blue sky, the sun casting sharp shadows from the bare branches. A bit blustery, and cold- I'd guess 25 degrees, not including wind chill. The snow is very hard, and has a icy surface. I wandered into Fox park at around noon- all I could hear was a few high peeps from chickadees and the occasional crow yelling at something. Notably, the woodpeckers seemed absent on my way into the woods toward my pine tree- could the extra-frozen trees deter all but the most robust woodpeckers? Usually at least a downy will be somewhere, tapping away.
 *An image was here before the migration. It didn't make the journey.*
 
 *Lost to the void between WordPress and here.*
@@ -32,5 +32,3 @@ As I left my sit spot, I found myself staring into the top of each pine tree I w
 Bonus: I found these well-preserved, flash-frozen crow footsteps literally wandering out of the parking lot and into the park, following the "human trail". *This image has been lost to time. The original was hosted on WordPress.*
 
 -Jess
-
-### _Related_

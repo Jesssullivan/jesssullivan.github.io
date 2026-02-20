@@ -21,5 +21,3 @@ I'm still working on a progress indicator; it currently lets you download before
 ...YMMV. xD
 
 ﻿
-
-### _Related_

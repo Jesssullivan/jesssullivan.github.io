@@ -31,5 +31,3 @@ Sharpe, Lynda. "So You Think You Know Why Animals Play..." _Scientific American 
 Thorpe, Holly. "Sign In: Registered Users." _Action Sports, Social Media, and New Technologies_. Te Oranga School of Human Development and Movement Studies, Faculty of Education, University of Waikato, Hamilton, New Zealand, 22 Mar. 2016. Web. 16 Mar. 2017.
 
 Wood, L., et al. (2014). Dispelling Stereotypes… Skate Parks as a Setting for Pro-Social Behavior among Young People. Current Urban Studies, 2, 62-73. http://dx.doi.org/10.4236/cus.2014.21007
-
-### _Related_

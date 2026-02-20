@@ -15,19 +15,13 @@ original_url: "https://transscendsurvival.org/2017/05/18/rugby-morning-3-6/"
 *This space once held an image. The WordPress CDN has since gone quiet.*
 
 *Image from the original post is no longer available -- nothing on the internet is forever.*
-  
 
 *This image has been lost to time. The original was hosted on WordPress.*
 
 *The photograph that was here has since disappeared from the web.*
-  
 
 *Image no longer available -- a reminder that digital things are impermanent too.*
 
 *This image didn't survive the migration from WordPress. Such is the web.*
-  
 
 *The original image, once hosted on WordPress, has been lost to the digital ether.*
-  
-
-### _Related_

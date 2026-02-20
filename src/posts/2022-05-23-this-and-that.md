@@ -14,16 +14,16 @@ _updated on 5/23/22_
 
   * Built out a lil web dashboard for DLA Makerspace- find the space's calendar, general information, technical documentation, printer livestreams for students and access the discord ticketing system over here: https://dlamaker.space/dashboard/home
 
-  * Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the [DLA Makerspace at Cornell](https://cals.cornell.edu/landscape-architecture/facilities-resources/fabrication-laboratory)! 
+  * Superduper excited to be hopping over to the Department of Landscape Architecture to explore and expand the [DLA Makerspace at Cornell](https://cals.cornell.edu/landscape-architecture/facilities-resources/fabrication-laboratory)!
 
   * I have been busy at the [Ithaca Generator](https://ithacagenerator.org/)\- building up our new website and writing new member mangegment & accounting software. I've taken over as IG's 3D Printer Area Captain too! 😸
 
-*This visual has drifted away with the old WordPress site.* | *Image unavailable -- it lived on a WordPress server that no longer exists.* | *What was once an image here is now just a memory of a URL.*  
----|---|---  
-[_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)  
-*The bits that made up this image have scattered to the wind.* | *Gone with the WordPress -- this image no longer exists online.* | *This image was a casualty of the WordPress migration.*  
-_See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_  
-  
+*This visual has drifted away with the old WordPress site.* | *Image unavailable -- it lived on a WordPress server that no longer exists.* | *What was once an image here is now just a memory of a URL.*
+---|---|---
+[_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)
+*The bits that made up this image have scattered to the wind.* | *Gone with the WordPress -- this image no longer exists online.* | *This image was a casualty of the WordPress migration.*
+_See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_
+
 ##### [Magic Fusion 360 for 3D Printing Class](https://ithacagenerator.org/home/fusion-360-class)
 
   * _Draw and print your mechanical daydreams! Watertight threads? Anneal-fit tolerances? Learn to design and print beautiful hardware and parts in this exciting workshop with Jess!_

@@ -12,12 +12,10 @@ By default, the browser based authentication used by Adobe’s Creative Cloud in
 
 [Charlie Brown Good Grief GIF](https://tenor.com/view/good-grief-charlie-brown-gif-10296718) from [Charliebrown GIFs](https://tenor.com/search/charliebrown-gifs)
 
-Open Server Manager. Under “Local Server”, open the “Internet Explorer Enhanced Security Configuration”- *(mercy!)* - and turn it off. 
+Open Server Manager. Under “Local Server”, open the “Internet Explorer Enhanced Security Configuration”- *(mercy!)* - and turn it off.
 
 *An image described as "Good Lord" was here, but has since vanished from the web.*
 
 ##### Tada! The sign on handoff from the installer→Browser→ back to installer will now work fine. xD
 
 *Gone with the WordPress -- this image no longer exists online.*
-
-### _Related_

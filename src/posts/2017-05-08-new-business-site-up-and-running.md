@@ -15,5 +15,3 @@ Check out my new Jess S. photography business website! It is up and running, hos
 If you are a student or faculty looking to build your website for free, you may contact me about that too (I work for the Plymouth Create team as well!)
 
 http://jessphoto.transscendsurvival.plymouthcreate.net/
-
-### _Related_

@@ -29,5 +29,3 @@ Female Black-throated Blue Warbler
 [![](/images/posts/IMG_8895-Edit-2.jpg)](/images/posts/IMG_8895-Edit-2.jpg)
 
 Male Mourning Warbler
-
-### _Related_

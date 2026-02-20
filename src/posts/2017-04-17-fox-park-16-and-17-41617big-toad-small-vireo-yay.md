@@ -20,5 +20,3 @@ I will cut right to the chase: *An image was here before the migration. It didn'
 I believe there are real wood warblers here, now. I hear the odd "zeeZEE" and "BeeZoo" and "ze,zee,ZEE", but no clear songs yet. These are warbler sounds, but not songs. Today was a 23 species day, all at Fox Park. Things should get pretty interesting this week.....
 
 -Jess
-
-### _Related_

@@ -35,5 +35,3 @@ Added battery indicator and button
 🙂
 
 -Jess
-
-### _Related_

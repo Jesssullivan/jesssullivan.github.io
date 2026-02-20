@@ -11,7 +11,3 @@ original_url: "https://transscendsurvival.org/2018/06/24/how-to-generate-convex-
 Click here for the PDF:
 
 *The PDF that was hosted here has been lost with the WordPress site.*
-
-  
-
-### _Related_

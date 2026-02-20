@@ -31,7 +31,7 @@ Firstly; things pushing against the evidence I do have for this owl. The owl lik
 Reasons this is a short eared owl:
 
   * We were standing in a prime hunting spot for a migrating short eared owl-an iced over bog should be riddled with yummy critters. A group of 20 people milling about the middle of this bog could be a good reason to do some gliding at some distance, waiting for the people to leave and the mammals to emerge again.
-  * The bird was a light grey color, with distinct black wing tips. That is the first mark we saw. A fat "buteo"-like (think a soaring red-tailed hawk) tail, creating almost a complete semicircle, was really built into the bird's body. This is totally different than a flared harrier tail, which is long. 
+  * The bird was a light grey color, with distinct black wing tips. That is the first mark we saw. A fat "buteo"-like (think a soaring red-tailed hawk) tail, creating almost a complete semicircle, was really built into the bird's body. This is totally different than a flared harrier tail, which is long.
 
 *The bits that made up this image have scattered to the wind.*
 
@@ -48,5 +48,3 @@ In summary: unless we find another bird with this wing shape and color pattern, 
 **...**(And it may have a migration buddy!)
 
 -Jess
-
-### _Related_

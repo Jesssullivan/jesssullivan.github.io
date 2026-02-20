@@ -17,5 +17,3 @@ This, to both my pair of ears and many pairs before me, is simply stunning. The 
 Observe the 75% "slow" speed (thanks youtube and guitarteacherdotcom for access to this stuff):
 
 # ....Coming up next: Unpacking discipline and learning through funtwo's "guitar"
-
-### _Related_

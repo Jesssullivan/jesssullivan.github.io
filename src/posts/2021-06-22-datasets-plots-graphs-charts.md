@@ -22,5 +22,5 @@ This and that, bits and bobs...
 
   * [**ai.columbari.us/reports/daejun**](https://ai.columbari.us/reports/daejun):
 
-  * **Boxes, Boxes, Boxes!**  
+  * **Boxes, Boxes, Boxes!**
 *Image no longer available -- a reminder that digital things are impermanent too.*

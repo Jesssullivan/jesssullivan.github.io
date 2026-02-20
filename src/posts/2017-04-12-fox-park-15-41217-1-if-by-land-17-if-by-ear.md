@@ -33,5 +33,3 @@ Species Count:
 Again, I am just recounting the notes I took with eBird. Other living things and systems are to come! Hurrah!
 
 -Jess
-
-### _Related_

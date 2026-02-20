@@ -12,16 +12,16 @@ When you need an R server and have lots of data to process, AWS is a great way t
 
 **Creating an AWS Rstudio server:**
 
-[https://aws.amazon.com/blogs/big-data/running-r-on-aws/](https://aws.amazon.com/blogs/big-data/running-r-on-aws/) \- using both the R snippet (works but the R core bits are NOT present and it will not work yet) and the JSON snippet provided 
+[https://aws.amazon.com/blogs/big-data/running-r-on-aws/](https://aws.amazon.com/blogs/big-data/running-r-on-aws/) \- using both the R snippet (works but the R core bits are NOT present and it will not work yet) and the JSON snippet provided
 
 [https://www.rstudio.com/products/rstudio/download-server/](https://www.rstudio.com/products/rstudio/download-server/) \- the suite being installed
 
 Follow most of the AWS blog AMI info, with the following items:
 
-**AMI** : Amazon Linux 2 (more packages and extras v. standard) 
+**AMI** : Amazon Linux 2 (more packages and extras v. standard)
 
   * t2.micro (free tier)
-  * IAM policy follows AWS blog JSON snippet 
+  * IAM policy follows AWS blog JSON snippet
   * Security Policy contains open inbound ports 22, 8787, 3838 (the latter two for R server specific communication)
   * Append user, username:password in the blog post’s initial r studio install text (pasted into the “advanced” text box when completing the AMI setup
 
@@ -35,7 +35,7 @@ sudo yum repolist
 
 wget https://download2.rstudio.org/rstudio-server-rhel-1.1.423-x86_64.rpm
 
-sudo yum update -y 
+sudo yum update -y
 
 sudo yum install -y R
 
@@ -49,10 +49,8 @@ In a web browser, tack on “:8787” to the end of the Instance’s public “c
 
   * S3 data is easiest to use if it is set to be public.
   * There are s3-specific tools for R, accessible as packages from CRAN directly from the R interface
-  * Note data (delimited text at least) hosted in S3 will behave differently than it does locally, e.g. spaces, “na”, “null” need to be “cleaned” in R before use. 
+  * Note data (delimited text at least) hosted in S3 will behave differently than it does locally, e.g. spaces, “na”, “null” need to be “cleaned” in R before use.
 
 There we have it!
 
 -Jess
-
-### _Related_

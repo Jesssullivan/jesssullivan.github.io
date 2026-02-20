@@ -9,5 +9,3 @@ original_url: "https://transscendsurvival.org/2016/12/15/diy-electrostatic-amp-o
 ---
 
 Embedded below is my current document highlighting the schematics, BOM, and cost of building a diy electrostatic amp.
-
-### _Related_

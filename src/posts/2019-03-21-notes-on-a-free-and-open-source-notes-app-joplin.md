@@ -10,9 +10,9 @@ original_url: "https://transscendsurvival.org/2019/03/21/notes-on-a-free-and-ope
 
 Joplin for all your Operating Systems and devices
 
-As a lifelong IOS + OSX user (Apple products), I have used many, many notes apps over the years. From big name apps like OmniFocus, Things 3, Notes+, to all the usual suspects like Trello, Notability, Notemaster, RTM, and others, I always eventually migrate back to Apple notes, simply because it is always available and always up to date. There are zero “features” besides this convenience, which is why I am perpetually willing to give a new app a spin. 
+As a lifelong IOS + OSX user (Apple products), I have used many, many notes apps over the years. From big name apps like OmniFocus, Things 3, Notes+, to all the usual suspects like Trello, Notability, Notemaster, RTM, and others, I always eventually migrate back to Apple notes, simply because it is always available and always up to date. There are zero “features” besides this convenience, which is why I am perpetually willing to give a new app a spin.
 
-Joplin is free, open source, and works on OSX, Windows, Linux operating systems and IOS and Android phones. 
+Joplin is free, open source, and works on OSX, Windows, Linux operating systems and IOS and Android phones.
 
 Find it here:
 
@@ -38,5 +38,3 @@ Hopefully this will be helpful.
 Cheers,
 
 -- Jess
-
-### _Related_

@@ -12,13 +12,13 @@ original_url: "https://www.transscendsurvival.org/2021/02/17/tmpui-the-merlin-so
 
 #### [_....Even more demos @ ai.columbari.us_](https://ai.columbari.us/classify/server)
 
-\--- | \--- | \---  
----|---|---  
-Vue UI: handling multiple clients- demo of MLD-1514 | Leaflet UI: handling multiple clients- demo of MLD-1514 | user trust schema experiments etc  
-|  |   
-Jest x Puppeteer Demos | Web Interpreter: upload / record, (re)crop & classify | Leaflet Annotator bits & bobs  
-| *The photograph that was here has since disappeared from the web.* |   
-  
+--- | --- | ---
+---|---|---
+Vue UI: handling multiple clients- demo of MLD-1514 | Leaflet UI: handling multiple clients- demo of MLD-1514 | user trust schema experiments etc
+|  |
+Jest x Puppeteer Demos | Web Interpreter: upload / record, (re)crop & classify | Leaflet Annotator bits & bobs
+| *The photograph that was here has since disappeared from the web.* |
+
 [_miscellaneous dregs, bits, bobs, demos in this playlist on youtube_](https://www.youtube.com/playlist?list=PL6y8N_vP4OopcvDfwcEyvx1Nz4MVSZK7R)
 
   * [handling multiple annotator clients- Vue UI, 2/17/21](https://www.youtube.com/watch?v=dxnAx0CXUqU)

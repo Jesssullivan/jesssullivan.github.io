@@ -30,5 +30,3 @@ Just a quick sit spot walk through. Every bird was found be ear first, or only b
 ...Getting through a sit spot backlog. Please excuse the short post!
 
 -Jess
-
-### _Related_

@@ -24,6 +24,6 @@ _Next class: April 3rd, 6pm - 8pm_
   * Scaling, threading & design considerations for FDM 3d printing
   * Utilize the McMaster-Carr library & manipulate meshes as BREP
   * Workflow interoperability with Tinkercad, Inkscape, MeshMixer, a360 & myhub services
-  * Versioning, Git & public collaboration 
+  * Versioning, Git & public collaboration
 
 Please share your enthusiasm, ask questions and join the conversation in IG’s lively Discord server.

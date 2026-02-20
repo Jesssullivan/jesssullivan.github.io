@@ -15,5 +15,3 @@ Laundry is best done early in the morning. The resulting time between cycles let
 *The audio recording that was embedded here has been lost with the WordPress site.*
 
 -Jess
-
-### _Related_

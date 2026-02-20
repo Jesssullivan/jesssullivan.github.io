@@ -45,5 +45,3 @@ Below there is a "runner" (shown with all the default options!) and a terminal w
 I hope this is useful, it sure is great for me.
 
 -Jess
-
-### _Related_

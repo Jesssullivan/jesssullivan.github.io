@@ -11,5 +11,3 @@ original_url: "https://transscendsurvival.org/2020/09/01/tmpui-the-merlin-sound-
 **_....Onward! xD_**
 
 #### Objectives & oodles more fun to be had [over here on github](https://github.com/Jesssullivan/tmpUI)
-
-### _Related_

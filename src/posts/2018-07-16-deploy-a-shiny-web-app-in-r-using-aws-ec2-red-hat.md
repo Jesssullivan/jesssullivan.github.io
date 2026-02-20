@@ -30,22 +30,22 @@ I am using the AWS “Linux 2” AMI, which is based on the Red Hat OS. For refe
 
 BEGIN CONFIG FILE: *(the download link for this config file has been lost with the WordPress site)* *Download is properly indented
 
-`  
-# Define user: this should be the same user as the AWS root user!  
-#  
-run_as jess;  
-#  
-# Define port and where the home (/) directory is  
-# Define site_dir/log_dir - these are the defaults  
-#  
-server&#123;  
-listen 3838;  
-location / &#123;  
-site_dir /srv/shiny-server;  
-log_dir /var/log/shiny-server;  
-directory_index on;  
-&#125;  
-&#125;  
+`
+# Define user: this should be the same user as the AWS root user!
+#
+run_as jess;
+#
+# Define port and where the home (/) directory is
+# Define site_dir/log_dir - these are the defaults
+#
+server&#123;
+listen 3838;
+location / &#123;
+site_dir /srv/shiny-server;
+log_dir /var/log/shiny-server;
+directory_index on;
+&#125;
+&#125;
 `
 
 END CONFIG FILE
@@ -56,9 +56,7 @@ Download the test file here: *the test CSV file is no longer available -- it was
 
 And access the app here: [ Basic Shiny app on AWS!](http://ec2-34-228-197-7.compute-1.amazonaws.com:3838/sample-apps/Clean/)
 
-Below is an iFrame into the app, just to show how very basic it is. Give it a go!  
+Below is an iFrame into the app, just to show how very basic it is. Give it a go!
 ﻿
 
 -Jess
-
-### _Related_

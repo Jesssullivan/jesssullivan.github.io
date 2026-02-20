@@ -56,5 +56,3 @@ All cats have retractable, grappling-hook shaped claws. These are rarely out and
 That concludes today's sit spot observation.
 
 -Jess
-
-### _Related_

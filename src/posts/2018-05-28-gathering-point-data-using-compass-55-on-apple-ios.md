@@ -17,5 +17,3 @@ Attached is our team's workflow with Compass 55. From the Kml, we go into Google
 Cheers,
 
 -Jess
-
-### _Related_

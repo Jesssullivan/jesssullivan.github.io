@@ -17,5 +17,3 @@ Here we have an interesting chord progression idea. In the 4/4 groove, the piano
 *This visual has drifted away with the old WordPress site.*
 
 With a root of C (what I played it in), this could be called C minor to D flat, major 7, while at the end of the fourth bar the progression finishes on G7.
-
-### _Related_

@@ -15,5 +15,3 @@ Moving into my sit spot, I heard a brown creeper singing and a muffled "beep!" f
 The local "hooligan crows" and their cronies (blue jays) were zipping around in little gangs occasionally. There was very little localization, so I think they were just rabble rousing and partaking in tomfoolery.
 
 I did not take photos today, despite hauling my equipment around. It seems like much of what I saw two days ago is solidly frozen in place from the time being.
-
-### _Related_

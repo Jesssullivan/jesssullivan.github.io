@@ -29,5 +29,3 @@ Scituate, MA - Brant
 *The original image has not survived the passage of time online.*
 
 Plymouth, NH - Savannah Sparrow
-
-### _Related_

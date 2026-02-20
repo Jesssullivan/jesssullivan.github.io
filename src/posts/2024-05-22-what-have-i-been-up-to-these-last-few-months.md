@@ -12,7 +12,7 @@ original_url: "https://www.transscendsurvival.org/2024/05/22/what-have-i-been-up
 
   * Picked up a passion for **Rock Climbing**!
   * I’ve learn how to make **bagels** and generally just had a terrific time playing bakery at [Tandem Bagel Co](https://www.tandembagelco.com/)!
-  * Developed a slew of client projects in **SvelteKit**! 
+  * Developed a slew of client projects in **SvelteKit**!
     * I continue to procrastinate rebuilding this blog of mine, which to be honest has contributed to the lack of recent activity. “ _Oh, I’ll write that post once I finish rebuilding the site_ ” I tell myself. Regardless, yes- at some point or another this site will migrate from wordpress to a sleeker SvelteKit [MDsveX](https://github.com/pngwn/MDsveX) blog.  _Eventually_ 😸
   * Playing lots of guitar!
   * Sporadically designing and 3d printing trivial and overly complicated things (7 versions of shower drain, 3 versions of dishrack clamp, bread shuriken, the usual tomfoolery)

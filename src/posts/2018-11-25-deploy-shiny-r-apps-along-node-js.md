@@ -16,13 +16,13 @@ original_url: "https://transscendsurvival.org/2018/11/25/deploy-shiny-r-apps-alo
 
 [https://github.com/Jesssullivan/Shiny-Apps](https://github.com/Jesssullivan/Shiny-Apps)
 
-After many iterations of ideas regarding deployment for a few research Shiny R apps, I am glad to say the current web-only setup is 100% free and simple to adapt. I thought I'd go through some of the Node.JS bits I have been fussing with. 
+After many iterations of ideas regarding deployment for a few research Shiny R apps, I am glad to say the current web-only setup is 100% free and simple to adapt. I thought I'd go through some of the Node.JS bits I have been fussing with.
 
 **The Current one:**
 
-Heroku has a free tier for node.js apps. See the pricing and limitations here: [https://www.heroku.com/pricing](https://www.heroku.com/pricing) as far as I can tell, there is little reason to read too far into a free plan; they don’t have my credit card, and thy seem to convert enough folks to paid customers to be nice enough to offer a free something to everyone. 
+Heroku has a free tier for node.js apps. See the pricing and limitations here: [https://www.heroku.com/pricing](https://www.heroku.com/pricing) as far as I can tell, there is little reason to read too far into a free plan; they don’t have my credit card, and thy seem to convert enough folks to paid customers to be nice enough to offer a free something to everyone.
 
-Shiny apps- [https://www.shinyapps.io/](https://www.shinyapps.io/)\- works straight from RStudio. They have a free plan. Similar to Heroku, I can care too much about limitations as it is completely free. 
+Shiny apps- [https://www.shinyapps.io/](https://www.shinyapps.io/)\- works straight from RStudio. They have a free plan. Similar to Heroku, I can care too much about limitations as it is completely free.
 
 The reasons to use Node.JS (even if it just a jade/html wrapper) are numerous, though may not be completely obvious. If nothing else, Heroku will serve it for free….
 
@@ -31,5 +31,3 @@ Using node is nice because you get all the web-layout-ux-ui stacks of stuff if y
 Another big one is using node.js with Electron. [https://electronjs.org/](https://electronjs.org/) The idea is a desktop app framework serves up your node app to itself, via the chromium. I had a bit of a foray with Electron- the node execa `npm install execa` package let me launch a shiny server from electron, wait a moment, then load a node/browser app that acts as a interface to the shiny process. While this _mostly_ worked, it is definitely overkill for my shiny stuff. Good to have as a tool though.
 
 -Jess
-
-### _Related_

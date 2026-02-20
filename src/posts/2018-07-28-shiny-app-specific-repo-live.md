@@ -17,5 +17,3 @@ With KML Search and Convert now fully functional (along with the tiny app "clean
 *This image has been lost to time. The original was hosted on WordPress.*
 
 -Jess
-
-### _Related_

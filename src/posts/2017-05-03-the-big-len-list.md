@@ -17,5 +17,3 @@ The louisiana waterthrush, black and white warbler, and a glowing male redstart 
 *Lost to the void between WordPress and here.*
 
 -Jess
-
-### _Related_

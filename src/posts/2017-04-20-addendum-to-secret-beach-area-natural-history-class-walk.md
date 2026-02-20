@@ -32,5 +32,3 @@ The 10 most notable birds:
   10. GHB - in flight, looks like pterodactyl but isn't, trust me...
 
 -Jess
-
-### _Related_

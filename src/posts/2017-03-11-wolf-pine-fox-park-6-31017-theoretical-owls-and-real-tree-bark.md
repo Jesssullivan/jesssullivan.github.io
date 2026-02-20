@@ -8,7 +8,7 @@ slug: "wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark"
 original_url: "https://transscendsurvival.org/2017/03/11/wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark/"
 ---
 
-I hit the trails at 5 am sharp Friday 3/10/17. Nice morning, some cloud cover but a reasonable temperature for prospective chipmunks for jaunt out of the subnivean environment.  
+I hit the trails at 5 am sharp Friday 3/10/17. Nice morning, some cloud cover but a reasonable temperature for prospective chipmunks for jaunt out of the subnivean environment.
 *The photograph that was here has since disappeared from the web.*
 
 This is where I started- within the vicinity of my theoretical big owl. The big murder of crows was there; that is a good start. Being around dawn-ish time however, the raucous birds dispersed within half an hour, perhaps implying my nocturnal friend either fell asleep in a huff or flew away for a less noisy and more welcoming environment (if there even is an environment that welcomes oversized, silent, essentially unrivalled killing machines...?).
@@ -52,5 +52,3 @@ The obligatory white oak leaf, in with some beech leaves. these do not seem to b
 To conclude, here we have a striped maple and a red maple. I assure you: both maples are well into adulthood! Despite one being green and thin and the other looking old and broken, this is in fact "how they do". Distinct barks, but also easy with the "opposite" branching pattern (not shown). In addition, the red maples are not only opposite branches but branch in a neon crimson color. This helps I.D. quite a bit.
 
 -Jess
-
-### _Related_

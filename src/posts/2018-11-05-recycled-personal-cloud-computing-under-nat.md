@@ -8,7 +8,7 @@ slug: "recycled-personal-cloud-computing-under-nat"
 original_url: "https://transscendsurvival.org/2018/11/05/recycled-personal-cloud-computing-under-nat/"
 ---
 
-As many may intuit, I like the AWS ecosystem; it is easy to navigate and usually just works. 
+As many may intuit, I like the AWS ecosystem; it is easy to navigate and usually just works.
 
 ...However- more than 1000 dollars later, I no longer use AWS for most things....
 
@@ -57,7 +57,7 @@ What I see: front end-
 - Manages heavy NAT and port restrictions well
 - GUI for everything, no tunneling around a CLI
 
-  * Instead of Workspaces, EC2 
+  * Instead of Workspaces, EC2
 
 **Jetbrains development suite:** [https://www.jetbrains.com/](https://www.jetbrains.com/) (OSX)
 
@@ -71,5 +71,3 @@ What I see: front end-
 (Example: my AWS bill for only October was $262)
 
 -Jess
-
-### _Related_

@@ -17,5 +17,3 @@ GitHub Link: https://github.com/Jesssullivan/EBPP
 🙂
 
 -Jess
-
-### _Related_

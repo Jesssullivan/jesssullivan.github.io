@@ -29,5 +29,3 @@ For example- I do not have access to all the tools I need to complete my project
 ...Is your back hurting from your posture or your chair? If so, you should learn better posture and/or build a perfect chair (and learn fine wood luthiery to make a snazzy inlay of your name, Blender and CAM to mill unique chair legs, etc, etc....)
 
 **🙂**
-
-### _Related_

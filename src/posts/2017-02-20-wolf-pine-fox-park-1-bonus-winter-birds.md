@@ -43,5 +43,3 @@ A loud house finch and a lovely Bohemian waxwing.
 *An image was here before the migration. It didn't make the journey.* *Lost to the void between WordPress and here.*
 
 *The original image has not survived the passage of time online.*
-
-### _Related_

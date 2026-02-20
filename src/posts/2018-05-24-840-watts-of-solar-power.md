@@ -20,21 +20,21 @@ We need power! While doing bird research in the wilds of northern NH, it became 
 
 Below is a table of the system and our expected electricity needs:
 
-System | Solar 100w | 35ah universal (x2) |  |   
----|---|---|---|---  
-Ah per day: | 33.33333333 | 35 | TOTAL Ah Reserve: | 70  
-V | 12 | 12 | Parallel wiring: | 12v  
-Wh in: | 400 | 420 | TOTAL Wh Reserve: | 840  
-W | 100 |  |  |   
-Cost | $105.00 | $64.00 |  |   
-ah/$ |  | 2 |  |   
-Sun Hour / Multiplier | 4 | 2 |  |   
-Need/Day | Wh | multiplier | consump. in Wh = | 259.36  
-Computer | 100 | 2.5 | 250 |   
-iPhone | 1.7 | 2 | 3.4 |   
-AAs | 11.2 | 0.3 | 3.36 |   
-Camera | 2.6 | 1 | 2.6 |   
-  
+System | Solar 100w | 35ah universal (x2) |  |
+---|---|---|---|---
+Ah per day: | 33.33333333 | 35 | TOTAL Ah Reserve: | 70
+V | 12 | 12 | Parallel wiring: | 12v
+Wh in: | 400 | 420 | TOTAL Wh Reserve: | 840
+W | 100 |  |  |
+Cost | $105.00 | $64.00 |  |
+ah/$ |  | 2 |  |
+Sun Hour / Multiplier | 4 | 2 |  |
+Need/Day | Wh | multiplier | consump. in Wh = | 259.36
+Computer | 100 | 2.5 | 250 |
+iPhone | 1.7 | 2 | 3.4 |
+AAs | 11.2 | 0.3 | 3.36 |
+Camera | 2.6 | 1 | 2.6 |
+
 **The milk crate system below can charge a 100 watt MacBook Pro around 8-9 times from being completely empty.**
 
 **Remember: V\*A=W, W/V=A, and Watts over time is Wh.**
@@ -50,5 +50,3 @@ Camera | 2.6 | 1 | 2.6 |
 [![](/images/posts/IMG_3313-1.jpg)](/images/posts/IMG_3313-1.jpg)
 
 Parallel maintains 12v but doubles Ah. (Series would go to 24v at 35ah)
-
-### _Related_

@@ -21,5 +21,3 @@ So, I know this pattern is very likely a GHO after two pairs of ears have heard 
 As usual, after the second "whoo" and maybe 10 minutes of standing in the parking lot a sole cardinal started singing. Then, one by one, the local crows woke up and decided the calling owl was a significant problem (they decide this every day) and started up with the tomfoolery we can expect from them. On that laural, I was sure the owl would be silent to give the crows a sporting chance at hide and seek, so I left, after a bit more than 30 minutes in the parking lot.
 
 -Jess
-
-### _Related_

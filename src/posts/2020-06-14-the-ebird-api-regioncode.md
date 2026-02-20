@@ -82,5 +82,3 @@ def get_regioncode(lat, lon):
     print('formed region code: ' + regioncode)
     return regioncode
 ```
-
-### _Related_

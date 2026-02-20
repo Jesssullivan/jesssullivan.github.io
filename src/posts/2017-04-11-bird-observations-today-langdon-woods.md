@@ -25,5 +25,3 @@ I want to also point out how spectacular and special the 3+ courting yellow bell
 ...So those who saw the sapsuckers today, consider yourself lucky; that was spectacular!
 
 -Jess
-
-### _Related_

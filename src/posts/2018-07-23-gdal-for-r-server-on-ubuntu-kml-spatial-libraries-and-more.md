@@ -104,9 +104,9 @@ cd # Try entering R now and check the version!
 
 apt-get update
 
-apt-get upgrade  
-sudo apt-get install gdebi-core  
-wget https://download2.rstudio.org/rstudio-server-1.1.456-amd64.deb  
+apt-get upgrade
+sudo apt-get install gdebi-core
+wget https://download2.rstudio.org/rstudio-server-1.1.456-amd64.deb
 sudo gdebi rstudio-server-1.1.456-amd64.deb
 
 # Enter R or go to the graphical R Studio installation in your browser
@@ -145,9 +145,9 @@ mkdir binconda
 
 # *making a weak attempt at sandboxing the massive new package manager installation*
 
-cd binconda  
-wget [http](https://repo.continuum.io/archive/Anaconda2-5.2.0-Linux-x86_64.sh)[://repo.continuum.io/archive/Anaconda2-4.3.0-Linux-x86_64.sh](https://repo.continuum.io/archive/Anaconda2-5.2.0-Linux-x86_64.sh)  
-# install and follow the prompts  
+cd binconda
+wget [http](https://repo.continuum.io/archive/Anaconda2-5.2.0-Linux-x86_64.sh)[://repo.continuum.io/archive/Anaconda2-4.3.0-Linux-x86_64.sh](https://repo.continuum.io/archive/Anaconda2-5.2.0-Linux-x86_64.sh)
+# install and follow the prompts
 bash Anaconda2-5.2.0-Linux-x86_64.sh
 
 # Close the terminal window completely and start a new one, and ssh back to where you left
@@ -193,5 +193,3 @@ http://www.gdal.org/drv_libkml.html
 I hope this is useful- GDAL is important and best to set it up early. It will be a pain, but so is losing work while trying to patch it in later. xD
 
 -Jess
-
-### _Related_

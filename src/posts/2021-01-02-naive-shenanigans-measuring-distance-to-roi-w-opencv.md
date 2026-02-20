@@ -30,7 +30,7 @@ So, thinking along the lines of similar triangles:
   * Camera angle `FoV / 2` forms the angle between the _hypotenuse_ side (one edge of the FoV angle) and the _adjacent_ side
   * Dimension `ImageDimension / 2` is the _opposite_ side of the triangle we are using to measure with.
   * ^ This makes up the first of two ["similar triangles"](https://byjus.com/maths/similar-triangle-construct/)
-  * Then, we start measuring: First, calculate the opposite ROI Dimension using the arbitrary Focal Length value we calculated from the first triangle- then, plug in the Actual ROI Dimensions. 
+  * Then, we start measuring: First, calculate the opposite ROI Dimension using the arbitrary Focal Length value we calculated from the first triangle- then, plug in the Actual ROI Dimensions.
   * Now the adjacent side of this ROI triangle should hopefully be length, in the the units of ROI's Actual Dimension.
 
 source a fresh venv to fiddle from:
@@ -106,7 +106,6 @@ while True:
         if cv2.waitKey(1) == ord('q'):
             break
 ```
-    
 
 _run demo with:_
 
@@ -116,7 +115,7 @@ python3 measure.py
 
 #### Results:
 
-...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool! |  *This image has been lost to time. The original was hosted on WordPress.*  
----|---  
-  
+...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool! |  *This image has been lost to time. The original was hosted on WordPress.*
+---|---
+
 -Jess

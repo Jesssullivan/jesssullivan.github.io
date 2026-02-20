@@ -10,14 +10,12 @@ original_url: "https://transscendsurvival.org/2020/05/18/while-at-a-safe-distanc
 
 ...Playing with [Bandlab's Sonar reboot](https://www.bandlab.com/products/cakewalk) \--> [morning metal](https://soundcloud.com/jesssullivan/tracks) ....Frankly the whole suite (yes, Melodyne, the whole nine yards) is way better than when it was with the late Cakewalk, and its all free now. PSA!
 
-...Unexpected success with  
+...Unexpected success with
 [Nylon 680 FDA](https://taulman3d.com/680-features.html) &#123;3mm @ .8&#125; for some rather delicate parts:
 
-*The server that hosted this image has long since gone dark.*  
+*The server that hosted this image has long since gone dark.*
 *Digital entropy claimed this image when the WordPress site was retired.*
 
 ..._Yet_ another improved pi monitoring sketch, currently in production w/ polycarbonate & 1/4"... ...or to quote Mad-eye Moody, "CONSTANT VIGILANCE!" 🙂
 
 xD
-
-### _Related_
