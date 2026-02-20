@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import sharp from 'sharp';
-import { readdir, writeFile, rename, unlink } from 'node:fs/promises';
+import { readdir, writeFile, rename, unlink, stat } from 'node:fs/promises';
 import { join, extname, basename } from 'node:path';
 import { existsSync } from 'node:fs';
 
@@ -46,8 +46,17 @@ async function main() {
 					let pipeline = sharp(filepath);
 					if (width > MAX_WIDTH) pipeline = pipeline.resize(MAX_WIDTH);
 					await pipeline.webp({ quality: WEBP_QUALITY }).toFile(webpPath);
+					// Delete if Sharp produced a 0-byte file (truncated source)
+					const webpStat = await stat(webpPath);
+					if (webpStat.size === 0) {
+						await unlink(webpPath);
+						console.warn(`  skip WebP (0-byte output): ${file}`);
+						skipCount++;
+						continue;
+					}
 				} catch (err) {
 					console.warn(`  skip WebP (error): ${file} — ${err.message}`);
+					try { await unlink(webpPath); } catch { /* ok */ }
 					skipCount++;
 					continue;
 				}
