@@ -40,3 +40,5 @@ static/images/posts/*.tmp
 test-results/
 playwright-report/
 coverage/
+.lighthouseci/
+bundle-report.json

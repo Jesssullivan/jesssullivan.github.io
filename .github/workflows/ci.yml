@@ -56,11 +56,78 @@ jobs:
         run: npx playwright test
         continue-on-error: false
 
+      - name: Bundle size report
+        run: node scripts/report-bundle-size.mjs
+
       - name: Lighthouse CI
+        id: lhci
         run: |
           npm install -g @lhci/cli
           lhci autorun
         continue-on-error: true
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 14
+
+      - name: CI Summary
+        if: always()
+        run: |
+          echo "## CI Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const lines = [];
+
+            // Bundle sizes
+            const buildDir = path.join('build', '_app', 'immutable');
+            let totalJS = 0, totalCSS = 0, jsCount = 0, cssCount = 0;
+            function walk(dir) {
+              try {
+                for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+                  const full = path.join(dir, e.name);
+                  if (e.isDirectory()) { walk(full); continue; }
+                  const size = fs.statSync(full).size;
+                  if (e.name.endsWith('.js') || e.name.endsWith('.mjs')) { totalJS += size; jsCount++; }
+                  else if (e.name.endsWith('.css')) { totalCSS += size; cssCount++; }
+                }
+              } catch {}
+            }
+            walk(buildDir);
+            const fmt = (b) => b < 1024 ? b + ' B' : (b/1024).toFixed(1) + ' KB';
+            lines.push('### Bundle Size');
+            lines.push('| Type | Size | Files |');
+            lines.push('|------|------|-------|');
+            lines.push('| JS | ' + fmt(totalJS) + ' | ' + jsCount + ' |');
+            lines.push('| CSS | ' + fmt(totalCSS) + ' | ' + cssCount + ' |');
+            lines.push('| **Total** | **' + fmt(totalJS + totalCSS) + '** | ' + (jsCount + cssCount) + ' |');
+            lines.push('');
+
+            // Lighthouse scores
+            try {
+              const lhDir = '.lighthouseci';
+              const jsonFiles = fs.readdirSync(lhDir).filter(f => f.endsWith('.json') && f.startsWith('lhr-'));
+              if (jsonFiles.length > 0) {
+                lines.push('### Lighthouse Scores');
+                lines.push('| Page | Perf | A11y | Best Practices | SEO |');
+                lines.push('|------|------|------|----------------|-----|');
+                for (const f of jsonFiles) {
+                  const lhr = JSON.parse(fs.readFileSync(path.join(lhDir, f), 'utf-8'));
+                  const url = new URL(lhr.requestedUrl || lhr.finalUrl).pathname;
+                  const s = (cat) => Math.round((lhr.categories[cat]?.score || 0) * 100);
+                  lines.push('| ' + url + ' | ' + s('performance') + ' | ' + s('accessibility') + ' | ' + s('best-practices') + ' | ' + s('seo') + ' |');
+                }
+                lines.push('');
+              }
+            } catch {}
+
+            console.log(lines.join('\n'));
+          " >> $GITHUB_STEP_SUMMARY
 
       - name: Upload vitest results
         if: failure()
