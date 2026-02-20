@@ -121,6 +121,50 @@ sync:
 analyze:
     BUILD_ANALYZE=true npm run build && open build/stats.html || open .svelte-kit/output/client/stats.html
 
+# =============================================================================
+# Media Recovery (Wayback Machine)
+# =============================================================================
+
+# Audit posts for missing/external media
+audit-media:
+    node scripts/audit-media.mjs
+
+# Audit media and output JSON report
+audit-media-json:
+    node scripts/audit-media.mjs --json
+
+# Query Wayback CDX API (dry run)
+wayback-query-dry:
+    node scripts/wayback-cdx-query.mjs --dry-run
+
+# Query Wayback CDX API and save results
+wayback-query:
+    node scripts/wayback-cdx-query.mjs --output wayback-cdx-results.json
+
+# Download archived media (dry run)
+wayback-download-dry:
+    node scripts/wayback-download.mjs wayback-cdx-results.json --dry-run
+
+# Download archived media
+wayback-download:
+    node scripts/wayback-download.mjs wayback-cdx-results.json
+
+# Preview post image URL updates (dry run)
+wayback-update-dry:
+    node scripts/update-post-images.mjs
+
+# Apply post image URL updates
+wayback-update:
+    node scripts/update-post-images.mjs --apply
+
+# Full recovery pipeline (dry run)
+wayback-recover-dry:
+    node scripts/wayback-recover.mjs --dry-run
+
+# Full recovery pipeline
+wayback-recover:
+    node scripts/wayback-recover.mjs
+
 # Show environment info
 info:
     @echo "Node:  $$(node --version)"

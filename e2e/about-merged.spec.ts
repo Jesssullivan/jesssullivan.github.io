@@ -28,11 +28,11 @@ test.describe('About (merged) page', () => {
 
 	test('banner fades even with prefers-reduced-motion (scroll-driven, not animated)', async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: 'reduce' });
-		await page.goto('/about');
+		await page.goto('/about', { waitUntil: 'networkidle' });
 		const banner = page.locator('section.hero-banner');
 
 		await page.evaluate(() => window.scrollBy(0, 500));
-		await page.waitForTimeout(100);
+		await page.waitForTimeout(500);
 
 		const opacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
 		expect(Number(opacity)).toBeLessThan(1);

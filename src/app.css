@@ -35,6 +35,12 @@ code, pre, .font-mono {
 	font-feature-settings: "liga" 1, "calt" 1;
 }
 
+/* Ensure Shiki-rendered code blocks inherit ligature settings */
+pre.shiki, pre.shiki code, pre.shiki span {
+	font-family: 'Fira Code', monospace !important;
+	font-feature-settings: "liga" 1, "calt" 1 !important;
+}
+
 /* Hero banner — Hemingway WP faithful, text overlaid on image */
 .hero-banner {
 	position: relative;
@@ -255,5 +261,89 @@ a[href="#main-content"]:focus {
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
+	}
+}
+
+/* Sidebar scroll styling */
+.sidebar-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-surface-400) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+	width: 4px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+	background: var(--color-surface-400);
+	border-radius: 2px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+	background: var(--color-surface-500);
+}
+
+/* Glass / Frosted-glass effects */
+.glass {
+	background: rgba(255, 255, 255, 0.65);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	.glass {
+		background: rgba(255, 255, 255, 0.15);
+		backdrop-filter: blur(12px) saturate(150%);
+		-webkit-backdrop-filter: blur(12px) saturate(150%);
+	}
+}
+
+[data-mode="dark"] .glass {
+	background: rgba(0, 0, 0, 0.55);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	[data-mode="dark"] .glass {
+		background: rgba(0, 0, 0, 0.25);
+		backdrop-filter: blur(12px) saturate(120%);
+		-webkit-backdrop-filter: blur(12px) saturate(120%);
+	}
+}
+
+.glass-nav {
+	background: rgba(255, 255, 255, 0.7);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	.glass-nav {
+		background: rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(16px) saturate(150%);
+		-webkit-backdrop-filter: blur(16px) saturate(150%);
+	}
+}
+
+[data-mode="dark"] .glass-nav {
+	background: rgba(0, 0, 0, 0.6);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	[data-mode="dark"] .glass-nav {
+		background: rgba(0, 0, 0, 0.35);
+		backdrop-filter: blur(16px) saturate(120%);
+		-webkit-backdrop-filter: blur(16px) saturate(120%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.glass,
+	.glass-nav {
+		backdrop-filter: none !important;
+		-webkit-backdrop-filter: none !important;
 	}
 }

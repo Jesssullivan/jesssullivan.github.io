@@ -1,9 +1,7 @@
 <script lang="ts">
 	import type { Post } from '$lib/types';
 	import { onMount } from 'svelte';
-
-	interface PagefindResult { data: () => Promise<{ url: string; excerpt: string; meta: Record<string, string> }> }
-	interface Pagefind { init: () => Promise<void>; search: (q: string) => Promise<{ results: PagefindResult[] }> }
+	import { loadPagefind, executeSearch, type Pagefind, type SearchItem } from '$lib/pagefind';
 
 	let {
 		recentPosts = [],
@@ -13,24 +11,18 @@
 		allTags: string[];
 	} = $props();
 
-	// Pagefind search state
 	let searchQuery = $state('');
-	let searchResults = $state.raw<Array<{ url: string; title: string; excerpt: string }>>([]);
+	let searchResults = $state.raw<SearchItem[]>([]);
 	let pagefind: Pagefind | null = $state(null);
 	let searchAvailable = $state(false);
 	let searchUnavailableMsg = $state('');
 	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
 	onMount(async () => {
-		try {
-			const pagefindPath = `${window.location.origin}/pagefind/pagefind.js`;
-			const pf: Pagefind = await import(/* @vite-ignore */ pagefindPath);
-			await pf.init();
-			pagefind = pf;
-			searchAvailable = true;
-		} catch {
-			searchUnavailableMsg = 'Search unavailable in dev mode';
-		}
+		const state = await loadPagefind();
+		pagefind = state.instance;
+		searchAvailable = state.available;
+		searchUnavailableMsg = state.error;
 	});
 
 	$effect(() => {
@@ -44,15 +36,7 @@
 
 		debounceTimer = setTimeout(async () => {
 			if (!pagefind) return;
-			const res = await pagefind.search(query);
-			const items = await Promise.all(
-				res.results.slice(0, 5).map((r) => r.data())
-			);
-			searchResults = items.map((item) => ({
-				url: item.url,
-				title: item.meta?.title || 'Untitled',
-				excerpt: item.excerpt
-			}));
+			searchResults = await executeSearch(pagefind, query, 5);
 		}, 300);
 
 		return () => clearTimeout(debounceTimer);
@@ -80,8 +64,13 @@
 								href={result.url}
 								class="block hover:text-primary-500 transition-colors"
 							>
-								<span class="text-sm font-medium leading-tight line-clamp-2">{result.title}</span>
-								<span class="text-xs text-surface-500 mt-0.5 block line-clamp-2">{@html result.excerpt}</span>
+								<span class="text-sm font-medium leading-tight line-clamp-2"
+									>{result.title}</span
+								>
+								<!-- pagefind excerpts contain only <mark> tags for highlighting -->
+								<span class="text-xs text-surface-500 mt-0.5 block line-clamp-2"
+									>{@html result.excerpt}</span
+								>
 							</a>
 						</li>
 					{/each}
@@ -97,7 +86,9 @@
 	<!-- Recent Posts -->
 	{#if recentPosts.length > 0}
 		<div>
-			<h3 class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3">
+			<h3
+				class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3"
+			>
 				Recent Posts
 			</h3>
 			<ul class="space-y-3">
@@ -107,9 +98,15 @@
 							href="/blog/{post.slug}"
 							class="block hover:text-primary-500 transition-colors"
 						>
-							<span class="text-sm font-medium leading-tight line-clamp-2">{post.title}</span>
+							<span class="text-sm font-medium leading-tight line-clamp-2"
+								>{post.title}</span
+							>
 							<time class="text-xs text-surface-500 mt-0.5 block">
-								{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+								{new Date(post.date).toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric'
+								})}
 							</time>
 						</a>
 					</li>
@@ -121,7 +118,9 @@
 	<!-- Tags Cloud -->
 	{#if allTags.length > 0}
 		<div>
-			<h3 class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3">
+			<h3
+				class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3"
+			>
 				Tags
 			</h3>
 			<div class="flex flex-wrap gap-1.5">
@@ -129,7 +128,8 @@
 					<a
 						href="/blog/tag/{encodeURIComponent(tag)}"
 						class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-					>{tag}</a>
+						>{tag}</a
+					>
 				{/each}
 			</div>
 		</div>

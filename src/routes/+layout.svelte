@@ -13,6 +13,7 @@
 	let bannerRef: HTMLElement | undefined = $state();
 	let bannerOpacity = $state(1);
 	let bannerNaturalHeight = 0;
+	let scrolledPastBanner = $state(false);
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
@@ -43,6 +44,7 @@
 		const onScroll = () => {
 			if (!bannerRef || !bannerNaturalHeight) return;
 			bannerOpacity = Math.max(0, 1 - window.scrollY / bannerNaturalHeight);
+			scrolledPastBanner = window.scrollY > 50;
 		};
 		window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -100,7 +102,8 @@
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
 	<AppBar
-		border="border-b border-surface-300-700"
+		base="{scrolledPastBanner ? 'glass-nav' : ''}"
+		border="{scrolledPastBanner ? '' : 'border-b border-surface-300-700'}"
 		padding="px-4 py-2"
 		shadow="shadow-sm"
 	>
@@ -140,7 +143,7 @@
 						{/if}
 					</button>
 					{#if themeMenuOpen}
-						<div class="absolute right-0 top-full mt-1 bg-surface-100-900 border border-surface-300-700 rounded-lg shadow-lg py-1 min-w-[120px] z-50" role="menu" aria-label="Theme options">
+						<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[120px] z-50" role="menu" aria-label="Theme options">
 							<button
 								onclick={() => setTheme('light')}
 								class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"

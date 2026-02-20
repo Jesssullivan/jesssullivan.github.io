@@ -168,6 +168,10 @@
 						<span>&middot;</span>
 						<span>{data.reading_time} min read</span>
 					{/if}
+					{#if data.metadata.category}
+						<span>&middot;</span>
+						<span class="badge preset-outlined-surface-500 text-xs capitalize">{data.metadata.category}</span>
+					{/if}
 				</div>
 				{#if data.metadata.tags?.length}
 					<div class="flex gap-2 mt-3">
@@ -178,7 +182,7 @@
 				{/if}
 			</header>
 
-			<div class="prose prose-lg max-w-none">
+			<div class="prose prose-lg max-w-none" data-pagefind-body>
 				{@render data.content()}
 			</div>
 
@@ -225,7 +229,7 @@
 		</div>
 
 		<div class="hidden lg:block">
-			<div class="sticky top-4 space-y-6">
+			<div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-6 sidebar-scroll glass rounded-xl p-4">
 				{#if browser && readingProgress > 0}
 					<div class="flex flex-col items-center">
 						<ReadingProgressRing progress={readingProgress} />

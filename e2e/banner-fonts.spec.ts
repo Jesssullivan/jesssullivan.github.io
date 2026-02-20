@@ -49,21 +49,15 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 	});
 
 	test('code blocks use Fira Code with ligature settings', async ({ page }) => {
-		// Navigate to a blog post with code blocks
-		await page.goto('/blog');
-		const firstPostLink = page.locator('a[href^="/blog/"]').first();
-		if (await firstPostLink.isVisible()) {
-			await firstPostLink.click();
-			await page.waitForLoadState('networkidle');
+		await page.goto('/blog/ligature-test-fixture');
+		await page.waitForLoadState('networkidle');
 
-			const codeBlock = page.locator('pre code').first();
-			if (await codeBlock.isVisible()) {
-				const fontFamily = await codeBlock.evaluate((el) => getComputedStyle(el).fontFamily);
-				expect(fontFamily.toLowerCase()).toContain('fira code');
-				const fontFeatures = await codeBlock.evaluate((el) => getComputedStyle(el).fontFeatureSettings);
-				expect(fontFeatures).toContain('liga');
-			}
-		}
+		const codeBlock = page.locator('pre code').first();
+		await expect(codeBlock).toBeVisible();
+		const fontFamily = await codeBlock.evaluate((el) => getComputedStyle(el).fontFamily);
+		expect(fontFamily.toLowerCase()).toContain('fira code');
+		const fontFeatures = await codeBlock.evaluate((el) => getComputedStyle(el).fontFeatureSettings);
+		expect(fontFeatures).toContain('liga');
 	});
 
 	test('no Google Fonts external requests', async ({ page }) => {
