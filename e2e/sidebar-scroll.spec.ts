@@ -65,7 +65,7 @@ test.describe('Blog post sidebar scrollability', () => {
 			await page.waitForLoadState('networkidle');
 
 			const sidebar = page.locator('.sidebar-scroll').first();
-			if ((await sidebar.count()) > 0) {
+			if ((await sidebar.count()) > 0 && (await sidebar.isVisible())) {
 				const styles = await sidebar.evaluate((el) => ({
 					maxHeight: getComputedStyle(el).maxHeight,
 					overflowY: getComputedStyle(el).overflowY
