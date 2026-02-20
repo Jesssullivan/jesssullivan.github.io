@@ -32,19 +32,15 @@ Server: recycled, remote, works-under-enterprise-NAT:
 
 **Recycled Dell 3010 with i5:**[ https://www.plymouth.edu/webapp/itsurplus/](https://www.plymouth.edu/webapp/itsurplus/)
 
-\- Cost: $75 (+ ~$200 in windows 10 pro, inevitable license expense) 
-
-\+ free spare 16gb ram laying around, local SSD and 2TB HDD upgrades
-
-\- Does Microsoft-specific GIS bidding, can leave running without hampering productivity
+- Cost: $75 (+ ~$200 in windows 10 pro, inevitable license expense)
+- free spare 16gb ram laying around, local SSD and 2TB HDD upgrades
+- Does Microsoft-specific GIS bidding, can leave running without hampering productivity
 
 **Resilio (bittorrent) Selective sync:** [https://www.resilio.com/individuals/](https://www.resilio.com/individuals/)
 
-\- Cost: $60
-
-\- p2p Data management for remote storage + desktop
-
-\- Manages school NAT and port restrictions well (remote access via relay server)
+- Cost: $60
+- p2p Data management for remote storage + desktop
+- Manages school NAT and port restrictions well (remote access via relay server)
 
 **Drobo 5c:**
 
@@ -56,21 +52,17 @@ What I see: front end-
 
 **Jump VNC Fluid service:** [https://jumpdesktop.com/](https://jumpdesktop.com/)
 
-\- Cost: ~$30
-
-\- Super efficient Fluid protocol, clients include chrome OS and IOS, (with mouse support!)
-
-\- Manages heavy NAT and port restrictions well
-
-\- GUI for everything, no tunneling around a CLI 
+- Cost: ~$30
+- Super efficient Fluid protocol, clients include chrome OS and IOS, (with mouse support!)
+- Manages heavy NAT and port restrictions well
+- GUI for everything, no tunneling around a CLI
 
   * Instead of Workspaces, EC2 
 
 **Jetbrains development suite:** [https://www.jetbrains.com/](https://www.jetbrains.com/) (OSX)
 
-\- Cost: FREE as a verified GitHub student user.
-
-\- PyCharm IDE, Webstorm IDE
+- Cost: FREE as a verified GitHub student user.
+- PyCharm IDE, Webstorm IDE
 
   * Instead of Cloud 9
 

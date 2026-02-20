@@ -46,6 +46,6 @@ Adult males look like a late 50’s hot-rodded American muscle car: long, low, t
 
 Cheers,
 
-\- Jess
+-- Jess
 
 ### _Related_

@@ -14,15 +14,6 @@
 
 	const categories: TagCategory[] = [
 		{
-			label: 'Identity',
-			badges: [
-				{ label: 'Trans Pride', color: 'preset-filled-primary-500' },
-				{ label: 'bitbanger', color: 'preset-outlined-surface-500' },
-				{ label: 'NAT wanderer', color: 'preset-outlined-surface-500' },
-				{ label: 'sillygoose', color: 'preset-outlined-surface-500' },
-			]
-		},
-		{
 			label: 'Tech / FOSS',
 			badges: [
 				{ label: 'Chapel', color: 'preset-outlined-surface-500', url: 'https://chapel-lang.org/' },
@@ -36,6 +27,8 @@
 				{ label: 'qutebrowser', color: 'preset-outlined-surface-500', url: 'https://github.com/qutebrowser/qutebrowser' },
 				{ label: 'pytest', color: 'preset-outlined-surface-500', url: 'https://github.com/pytest-dev/pytest' },
 				{ label: 'Klipper', color: 'preset-outlined-surface-500', url: 'https://github.com/Klipper3d/klipper' },
+				{ label: 'Budgie Desktop', color: 'preset-outlined-surface-500', url: 'https://buddiesofbudgie.org/' },
+				{ label: 'Tails', color: 'preset-outlined-surface-500', url: 'https://tails.net/' },
 			]
 		},
 		{

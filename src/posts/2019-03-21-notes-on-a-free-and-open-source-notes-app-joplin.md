@@ -37,6 +37,6 @@ Hopefully this will be helpful.
 
 Cheers,
 
-\- Jess
+-- Jess
 
 ### _Related_

@@ -18,12 +18,12 @@ test.describe('Profile Sidebar', () => {
 		expect(src).toContain('github.com/Jesssullivan.png');
 	});
 
-	test('shows name and title on desktop', async ({ page }) => {
+	test('shows name and codecogs formula on desktop', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const sidebar = page.locator('.sticky .profile-sidebar');
 		await expect(sidebar.getByText('Jess Sullivan')).toBeVisible();
-		await expect(sidebar.getByText('Systems Analyst')).toBeVisible();
+		await expect(sidebar.locator('img[alt*="Learning"]')).toBeVisible();
 	});
 
 	test('shows social links', async ({ page }) => {
@@ -72,11 +72,12 @@ test.describe('Tag Cloud', () => {
 		await expect(tagCloud).toBeVisible();
 	});
 
-	test('has identity badges', async ({ page }) => {
+	test('has tech/FOSS badges including Budgie and Tails', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
-		await expect(tagCloud.getByText('Trans Pride')).toBeVisible();
+		await expect(tagCloud.getByRole('link', { name: 'Budgie Desktop' })).toBeVisible();
+		await expect(tagCloud.getByRole('link', { name: 'Tails' })).toBeVisible();
 	});
 
 	test('has tech/FOSS badges with links', async ({ page }) => {
@@ -103,11 +104,10 @@ test.describe('Tag Cloud', () => {
 		await expect(tagCloud.getByRole('link', { name: 'tinyland.dev' })).toBeVisible();
 	});
 
-	test('renders all 4 category sections', async ({ page }) => {
+	test('renders all 3 category sections', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
-		await expect(tagCloud.getByText('Identity')).toBeVisible();
 		await expect(tagCloud.getByText('Tech / FOSS')).toBeVisible();
 		await expect(tagCloud.getByText('Sponsoring')).toBeVisible();
 		await expect(tagCloud.getByText('Ventures')).toBeVisible();

@@ -50,13 +50,8 @@ export const CTA_BADGES = [
 ];
 
 export const IDENTITY_BADGES: Badge[] = [
-	{ text: 'Trans Pride', emoji: '\u{1F3F3}\u{FE0F}\u{200D}\u{26A7}\u{FE0F}', color: '5BCEFA' },
-	{ text: 'bitbanger', color: '333333' },
-	{ text: 'NAT wanderer', color: '006D77' },
-	{ text: 'sillygoose', color: 'FF69B4' },
 	{ text: 'xoxd.ai', color: '8B5CF6' },
 	{ text: 'Coming Soon: tinyland.dev', color: '36BCF7' },
-	{ text: 'hehe gh chips are fun', color: 'FF69B4' },
 ];
 
 export const TECH_FOSS_BADGES: Badge[] = [

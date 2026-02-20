@@ -35,14 +35,19 @@
 				loading="lazy"
 			/>
 			<h2 class="font-semibold text-lg">Jess Sullivan</h2>
-			<p class="text-sm text-surface-500 mt-1">Systems Analyst (DevSecOps)</p>
-			<p class="text-sm text-surface-500">Lewiston, ME</p>
+			<img
+				src="/images/CodeCogsEqn-1.png"
+				alt="Learning = internet * (time + standards * Ambition) / Difficulty"
+				class="w-full mt-2"
+				loading="lazy"
+			/>
 		</div>
 
 		<p class="text-sm text-surface-600-400 mb-4">
-			Full stack engineer, musician, and birdwatcher.
-			I build infrastructure tooling, contribute to compilers and languages,
-			hack on hardware, and maintain a lot of FOSS.
+			Full stack engineer, musician, and birdwatcher based in Lewiston, ME.
+			I build infrastructure tooling, digital automata, hack upon compilers,
+			love learning new languages, futz with hardware, and maintain a lot of
+			fun projects here and elsewhere.
 		</p>
 
 		<!-- Social links -->
@@ -73,6 +78,14 @@
 				href="/about"
 				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
 			>About</a>
+			<a
+				href="https://www.fightforthefuture.org/"
+				target="_blank"
+				rel="noopener"
+				class="inline-flex items-center"
+			>
+				<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="h-5" />
+			</a>
 		</div>
 
 		<!-- Tag Cloud -->
@@ -107,14 +120,5 @@
 			/>
 		</div>
 
-		<!-- Learning formula -->
-		<div class="mt-4">
-			<img
-				src="/images/CodeCogsEqn-1.png"
-				alt="Learning = internet * (time + standards * Ambition) / Difficulty"
-				class="w-full"
-				loading="lazy"
-			/>
-		</div>
 	{/if}
 </div>
