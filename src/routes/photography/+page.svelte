@@ -39,7 +39,6 @@
 	<h1 class="text-3xl font-bold mb-2">Photography</h1>
 	<p class="text-surface-500 mb-8">
 		Bird and nature photography from field research, birding expeditions, and the backyard.
-		Mostly shot in New Hampshire with a Canon 7D Mark II.
 	</p>
 
 	<!-- Photo Gallery -->
