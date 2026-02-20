@@ -42,9 +42,18 @@ jobs:
 
   refresh-profile:
     needs: deploy
-    if: ${{ secrets.PROFILE_DISPATCH_TOKEN != '' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        if: vars.DISPATCH_APP_ID != ''
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.DISPATCH_APP_ID }}
+          private-key: ${{ secrets.DISPATCH_APP_KEY }}
+          owner: Jesssullivan
+          repositories: Jesssullivan
+
       - name: Trigger profile repo README refresh
         continue-on-error: true
         run: |
@@ -52,4 +61,4 @@ jobs:
             -f event_type=blog-deployed \
             -f 'client_payload[source]=jesssullivan.github.io'
         env:
-          GH_TOKEN: ${{ secrets.PROFILE_DISPATCH_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.PROFILE_DISPATCH_TOKEN }}

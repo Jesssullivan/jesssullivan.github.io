@@ -91,6 +91,17 @@
 		<!-- Tag Cloud -->
 		<TagCloud />
 
+		<!-- Tag co-occurrence graph -->
+		<div class="mt-6">
+			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-1.5">Topic Network</h4>
+			<ThemedImage
+				lightSrc="/images/tag-graph.svg"
+				darkSrc="/images/tag-graph-dark.svg"
+				alt="Tag Co-occurrence Network"
+				class="w-full rounded"
+			/>
+		</div>
+
 		<!-- GitHub Activity widgets -->
 		<div class="mt-6 space-y-3">
 			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400">GitHub Activity</h4>

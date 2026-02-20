@@ -21,29 +21,68 @@ jobs:
       - name: Generate blog stats
         run: node scripts/generate-blog-stats.mjs
 
+      - name: Generate tag graph
+        run: node scripts/generate-tag-graph.mjs
+
       - name: Summary
         run: |
-          echo "## Blog Stats" >> $GITHUB_STEP_SUMMARY
           node -e "
             const s = require('./static/blog-stats.json');
-            console.log('| Metric | Value |');
-            console.log('|--------|-------|');
-            console.log('| Posts | ' + s.totals.posts + ' |');
-            console.log('| Total Words | ' + s.totals.words.toLocaleString() + ' |');
-            console.log('| Unique Tags | ' + s.totals.tags + ' |');
-            console.log('| Code Languages | ' + Object.keys(s.codeLanguages).length + ' |');
-            console.log('');
-            console.log('### Posts per Year');
-            console.log('| Year | Posts |');
-            console.log('|------|-------|');
+            const lines = [];
+            lines.push('## Blog Analytics');
+            lines.push('');
+            lines.push('| Metric | Value |');
+            lines.push('|--------|-------|');
+            lines.push('| Posts | ' + s.totals.posts + ' |');
+            lines.push('| Total Words | ' + s.totals.words.toLocaleString() + ' |');
+            lines.push('| Avg Words/Post | ' + s.totals.avgWordsPerPost + ' |');
+            lines.push('| Unique Tags | ' + s.totals.tags + ' |');
+            lines.push('| Code Languages | ' + Object.keys(s.codeLanguages).length + ' |');
+            lines.push('| Tag Co-occurrence Edges | ' + s.tagCooccurrence.length + ' |');
+            lines.push('');
+            lines.push('### Posts per Year');
+            lines.push('| Year | Posts |');
+            lines.push('|------|-------|');
             for (const [y, c] of Object.entries(s.postsPerYear)) {
-              console.log('| ' + y + ' | ' + c + ' |');
+              lines.push('| ' + y + ' | ' + c + ' |');
             }
-            console.log('');
-            console.log('### Top Tags');
-            console.log('| Tag | Count |');
-            console.log('|-----|-------|');
+            lines.push('');
+            lines.push('### Reading Time Distribution');
+            lines.push('| Bucket | Posts |');
+            lines.push('|--------|-------|');
+            for (const [b, c] of Object.entries(s.readingTimeDistribution)) {
+              lines.push('| ' + b + ' | ' + c + ' |');
+            }
+            lines.push('');
+            lines.push('### Top 10 Tags');
+            lines.push('| Tag | Count |');
+            lines.push('|-----|-------|');
             for (const [t, c] of Object.entries(s.topTags).slice(0, 10)) {
-              console.log('| ' + t + ' | ' + c + ' |');
+              lines.push('| ' + t + ' | ' + c + ' |');
             }
+            lines.push('');
+            lines.push('### Top Tag Pairs');
+            lines.push('| Pair | Shared Posts |');
+            lines.push('|------|-------------|');
+            for (const e of s.tagCooccurrence.slice(0, 10)) {
+              lines.push('| ' + e.source + ' + ' + e.target + ' | ' + e.weight + ' |');
+            }
+            lines.push('');
+            lines.push('### Word Count Trends');
+            lines.push('| Year | Avg Words | Posts |');
+            lines.push('|------|-----------|-------|');
+            for (const [y, d] of Object.entries(s.wordCountTrends)) {
+              lines.push('| ' + y + ' | ' + d.avgWords + ' | ' + d.posts + ' |');
+            }
+            console.log(lines.join('\n'));
           " >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload tag graph artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tag-graphs
+          path: |
+            static/images/tag-graph.svg
+            static/images/tag-graph-dark.svg
+            static/blog-stats.json
+          retention-days: 30

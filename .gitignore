@@ -31,6 +31,8 @@ CLAUDE.md
 # Build artifacts
 static/search-index.json
 static/blog-stats.json
+static/images/tag-graph.svg
+static/images/tag-graph-dark.svg
 static/images/posts/dimensions.json
 static/images/posts/*.tmp
 

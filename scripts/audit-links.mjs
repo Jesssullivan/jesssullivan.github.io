@@ -118,8 +118,12 @@ function parseFrontmatter(content) {
 	if (slugMatch) result.slug = slugMatch[1];
 	const urlMatch = fm.match(/^original_url:\s*["']?(.+?)["']?\s*$/m);
 	if (urlMatch) result.original_url = urlMatch[1];
+	const dateMatch = fm.match(/^date:\s*["']?(\d{4}-\d{2}-\d{2})["']?\s*$/m);
+	if (dateMatch) result.date = dateMatch[1];
 	return result;
 }
+
+const STALE_YEARS = 3;
 
 function getBodyWordCount(content) {
 	const body = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
@@ -151,6 +155,7 @@ const issues = {
 	shortPosts: [],
 	emptyPosts: [],
 	postsWithoutOriginalUrl: [],
+	stalePosts: [],
 };
 
 let totalLinks = 0;
@@ -169,6 +174,21 @@ for (const file of files) {
 		issues.emptyPosts.push({ file, title: fm.title || '(no title)' });
 	} else if (wordCount < 50 && fm.published) {
 		issues.shortPosts.push({ file, title: fm.title || '(no title)', wordCount });
+	}
+
+	// Check for stale posts (>STALE_YEARS old)
+	if (fm.date && fm.published) {
+		const postDate = new Date(fm.date);
+		const now = new Date();
+		const ageYears = (now - postDate) / (365.25 * 24 * 60 * 60 * 1000);
+		if (ageYears > STALE_YEARS) {
+			issues.stalePosts.push({
+				file,
+				title: fm.title || '(no title)',
+				date: fm.date,
+				ageYears: Math.floor(ageYears),
+			});
+		}
 	}
 
 	for (const link of links) {
@@ -300,6 +320,18 @@ section('Relative Links (likely broken, not starting with /)', issues.relativeLi
 section('WordPress URLs Still in Post Content (transscendsurvival.org)', issues.wpLinksInContent);
 section('Empty Posts (0 words in body)', issues.emptyPosts);
 section('Short Posts (< 50 words, published only)', issues.shortPosts);
+
+// Stale posts are informational, not counted as issues
+console.log(`INFO: Stale Posts (> ${STALE_YEARS} years old, published only) (${issues.stalePosts.length})`);
+console.log('-'.repeat(72));
+if (issues.stalePosts.length === 0) {
+	console.log('  (none)');
+} else {
+	for (const item of issues.stalePosts) {
+		console.log(`  ${item.file} - "${item.title}" (${item.date}, ${item.ageYears}y old)`);
+	}
+}
+console.log();
 
 // Summary
 const totalIssues =
