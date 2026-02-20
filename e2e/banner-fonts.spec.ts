@@ -42,10 +42,10 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 		expect(fontFamily.toLowerCase()).toContain('raleway');
 	});
 
-	test('body uses Fira Sans font', async ({ page }) => {
+	test('body uses Crimson Pro font', async ({ page }) => {
 		const body = page.locator('body');
 		const fontFamily = await body.evaluate((el) => getComputedStyle(el).fontFamily);
-		expect(fontFamily.toLowerCase()).toContain('fira sans');
+		expect(fontFamily.toLowerCase()).toContain('crimson pro');
 	});
 
 	test('code blocks use Fira Code with ligature settings', async ({ page }) => {
