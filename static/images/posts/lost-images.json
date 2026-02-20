@@ -1,5 +1,5 @@
 {
-  "_description": "Images lost during WordPress migration. The WordPress server truncated all downloads at 1,048,576 bytes (1 MiB). The Wayback Machine only received truncated copies. The wp.com CDN (Jetpack/Photon) versions were never archived. These images were never on api.birdphoto.website.",
+  "_description": "WordPress migration image recovery manifest. Truncated JPEG recovery via Sharp failOn:none + auto-crop. Docker container recovery for birdphoto API images.",
   "_generated": "2026-02-20",
   "images": [
     {
@@ -9,7 +9,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203053",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (14MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc03930.jpg",
@@ -18,7 +19,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203058",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (13MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc04096.jpg",
@@ -27,7 +29,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203042",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (11MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc04370.jpg",
@@ -36,7 +39,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203109",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (10MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc04700.jpg",
@@ -45,7 +49,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203125",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (16MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc07334.jpg",
@@ -54,7 +59,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203100",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (15MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc07424.jpg",
@@ -63,7 +69,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203046",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (14MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc07549.jpg",
@@ -72,7 +79,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203114",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (16MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc08157.jpg",
@@ -81,7 +89,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203119",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (20MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc09144_1.jpg",
@@ -90,7 +99,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203049",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (25MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "dsc09398_1.jpg",
@@ -99,7 +109,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203047",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "unrecoverable",
+      "recovery_note": "Original too large (14MB); 1MB capture yields <10% of image rows"
     },
     {
       "filename": "img_2209.jpg",
@@ -108,7 +119,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203120",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 23% of data)"
     },
     {
       "filename": "img_8419.jpg",
@@ -117,7 +129,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203122",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 16% of data)"
     },
     {
       "filename": "img_8723.jpg",
@@ -126,7 +139,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203123",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 12% of data)"
     },
     {
       "filename": "kq8q8111.jpg",
@@ -135,7 +149,8 @@
       "wayback_size_bytes": 1048576,
       "wayback_timestamp": "20190824203315",
       "post_slug": "example-photo-work",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 42% of data)"
     },
     {
       "filename": "IMG_9614.jpg",
@@ -145,7 +160,8 @@
       "wayback_timestamp": "20190822090554",
       "post_slug": "rugby-morning-2",
       "caption": "Chestnut-Sided Warbler",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 88% of data)"
     },
     {
       "filename": "IMG_9631.jpg",
@@ -155,7 +171,8 @@
       "wayback_timestamp": "20190822094831",
       "post_slug": "rugby-morning-2",
       "caption": "Unknown species",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 67% of data)"
     },
     {
       "filename": "IMG_9651.jpg",
@@ -165,7 +182,8 @@
       "wayback_timestamp": "20190822101341",
       "post_slug": "rugby-morning-2",
       "caption": "Scarlet Tanager",
-      "status": "unrecoverable"
+      "status": "recovered-partial",
+      "recovery_method": "truncated JPEG crop (top 80% of data)"
     }
   ]
 }
