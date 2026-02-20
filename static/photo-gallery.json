@@ -1,0 +1,666 @@
+[
+  {
+    "src": "/images/posts/dsc03925.jpg",
+    "webp": "/images/posts/dsc03925.webp",
+    "width": 5964,
+    "height": 3439,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc03930.jpg",
+    "webp": "/images/posts/dsc03930.webp",
+    "width": 6000,
+    "height": 4000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc04096.jpg",
+    "webp": "/images/posts/dsc04096.webp",
+    "width": 5698,
+    "height": 3799,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc04370.jpg",
+    "webp": "/images/posts/dsc04370.webp",
+    "width": 5835,
+    "height": 3890,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc04700.jpg",
+    "webp": "/images/posts/dsc04700.webp",
+    "width": 6000,
+    "height": 4000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc07334.jpg",
+    "webp": "/images/posts/dsc07334.webp",
+    "width": 3305,
+    "height": 4957,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc07424.jpg",
+    "webp": "/images/posts/dsc07424.webp",
+    "width": 5050,
+    "height": 3367,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc07549.jpg",
+    "webp": "/images/posts/dsc07549.webp",
+    "width": 6000,
+    "height": 4000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc08157.jpg",
+    "webp": "/images/posts/dsc08157.webp",
+    "width": 6000,
+    "height": 4000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc09144_1.jpg",
+    "webp": "/images/posts/dsc09144_1.webp",
+    "width": 4000,
+    "height": 6000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc09398_1.jpg",
+    "webp": "/images/posts/dsc09398_1.webp",
+    "width": 6000,
+    "height": 4000,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/dsc09997.jpg",
+    "webp": "/images/posts/dsc09997.webp",
+    "width": 3194,
+    "height": 2555,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_0536-Edit.jpg",
+    "webp": "/images/posts/IMG_0536-Edit.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0848.jpg",
+    "webp": "/images/posts/IMG_0848.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0895-Edit.jpg",
+    "webp": "/images/posts/IMG_0895-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0944-Edit.jpg",
+    "webp": "/images/posts/IMG_0944-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0962.jpg",
+    "webp": "/images/posts/IMG_0962.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0967-Edit.jpg",
+    "webp": "/images/posts/IMG_0967-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_0995.jpg",
+    "webp": "/images/posts/IMG_0995.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_1025.jpg",
+    "webp": "/images/posts/IMG_1025.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_1207-Edit.jpg",
+    "webp": "/images/posts/IMG_1207-Edit.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_1244-Edit.jpg",
+    "webp": "/images/posts/IMG_1244-Edit.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_1350-Edit.jpg",
+    "webp": "/images/posts/IMG_1350-Edit.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_2075-Edit-Edit.jpg",
+    "webp": "/images/posts/IMG_2075-Edit-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/img_2209.jpg",
+    "webp": "/images/posts/img_2209.webp",
+    "width": 2974,
+    "height": 1983,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_2227-Edit.jpg",
+    "webp": "/images/posts/IMG_2227-Edit.webp",
+    "width": 920,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_2366.jpg",
+    "webp": "/images/posts/IMG_2366.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/img_2827.jpg",
+    "webp": "/images/posts/img_2827.webp",
+    "width": 3053,
+    "height": 2035,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_3163-Edit.jpg",
+    "webp": "/images/posts/IMG_3163-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_3299-Edit.jpg",
+    "webp": "/images/posts/IMG_3299-Edit.webp",
+    "width": 612,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_3311-1.jpg",
+    "webp": "/images/posts/IMG_3311-1.webp",
+    "width": 1200,
+    "height": 900,
+    "post_slug": "840-watts-of-solar-power",
+    "post_title": "840 Watts of Solar Power!"
+  },
+  {
+    "src": "/images/posts/IMG_3312-1.jpg",
+    "webp": "/images/posts/IMG_3312-1.webp",
+    "width": 1200,
+    "height": 1600,
+    "post_slug": "840-watts-of-solar-power",
+    "post_title": "840 Watts of Solar Power!"
+  },
+  {
+    "src": "/images/posts/IMG_3313-1.jpg",
+    "webp": "/images/posts/IMG_3313-1.webp",
+    "width": 1200,
+    "height": 900,
+    "post_slug": "840-watts-of-solar-power",
+    "post_title": "840 Watts of Solar Power!"
+  },
+  {
+    "src": "/images/posts/IMG_3355-1.jpg",
+    "webp": "/images/posts/IMG_3355-1.webp",
+    "width": 300,
+    "height": 225,
+    "post_slug": "solar-upgrades",
+    "post_title": "Solar upgrades!"
+  },
+  {
+    "src": "/images/posts/IMG_3356.jpg",
+    "webp": "/images/posts/IMG_3356.webp",
+    "width": 1200,
+    "height": 900,
+    "post_slug": "solar-upgrades",
+    "post_title": "Solar upgrades!"
+  },
+  {
+    "src": "/images/posts/IMG_3357.jpg",
+    "webp": "/images/posts/IMG_3357.webp",
+    "width": 300,
+    "height": 150,
+    "post_slug": "solar-upgrades",
+    "post_title": "Solar upgrades!"
+  },
+  {
+    "src": "/images/posts/IMG_3553-Edit-Edit2.jpg",
+    "webp": "/images/posts/IMG_3553-Edit-Edit2.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_5324.jpg",
+    "webp": "/images/posts/IMG_5324.webp",
+    "width": 690,
+    "height": 920,
+    "post_slug": "gallery-of-warblers-in-the-hand",
+    "post_title": "Gallery of \\"
+  },
+  {
+    "src": "/images/posts/IMG_5358.jpg",
+    "webp": "/images/posts/IMG_5358.webp",
+    "width": 690,
+    "height": 920,
+    "post_slug": "gallery-of-warblers-in-the-hand",
+    "post_title": "Gallery of \\"
+  },
+  {
+    "src": "/images/posts/IMG_5376.jpg",
+    "webp": "/images/posts/IMG_5376.webp",
+    "width": 690,
+    "height": 920,
+    "post_slug": "gallery-of-warblers-in-the-hand",
+    "post_title": "Gallery of \\"
+  },
+  {
+    "src": "/images/posts/img_5674.jpg",
+    "webp": "/images/posts/img_5674.webp",
+    "width": 2278,
+    "height": 1519,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_6256-Edit.jpg",
+    "webp": "/images/posts/IMG_6256-Edit.webp",
+    "width": 1080,
+    "height": 720,
+    "post_slug": "signs-of-thoughts-of-possible-spring",
+    "post_title": "Signs of Thoughts of Possible Spring?"
+  },
+  {
+    "src": "/images/posts/img_6354.jpg",
+    "webp": "/images/posts/img_6354.webp",
+    "width": 2887,
+    "height": 1925,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_7092-Edit.jpg",
+    "webp": "/images/posts/IMG_7092-Edit.webp",
+    "width": 300,
+    "height": 200,
+    "post_slug": "birding-at-plumb-island",
+    "post_title": "Birding at Plumb Island!"
+  },
+  {
+    "src": "/images/posts/IMG_7227-Edit.jpg",
+    "webp": "/images/posts/IMG_7227-Edit.webp",
+    "width": 300,
+    "height": 200,
+    "post_slug": "birding-at-plumb-island",
+    "post_title": "Birding at Plumb Island!"
+  },
+  {
+    "src": "/images/posts/IMG_7265-Edit.jpg",
+    "webp": "/images/posts/IMG_7265-Edit.webp",
+    "width": 300,
+    "height": 200,
+    "post_slug": "birding-at-plumb-island",
+    "post_title": "Birding at Plumb Island!"
+  },
+  {
+    "src": "/images/posts/IMG_7320-Edit.jpg",
+    "webp": "/images/posts/IMG_7320-Edit.webp",
+    "width": 300,
+    "height": 300,
+    "post_slug": "birding-at-plumb-island",
+    "post_title": "Birding at Plumb Island!"
+  },
+  {
+    "src": "/images/posts/IMG_8381-Edit.jpg",
+    "webp": "/images/posts/IMG_8381-Edit.webp",
+    "width": 200,
+    "height": 300,
+    "post_slug": "research-year-two-three-photos",
+    "post_title": "Research Year Two: Three Photos"
+  },
+  {
+    "src": "/images/posts/img_8419.jpg",
+    "webp": "/images/posts/img_8419.webp",
+    "width": 3485,
+    "height": 2323,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/img_8723.jpg",
+    "webp": "/images/posts/img_8723.webp",
+    "width": 4299,
+    "height": 2866,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_8895-Edit-2.jpg",
+    "webp": "/images/posts/IMG_8895-Edit-2.webp",
+    "width": 1100,
+    "height": 733,
+    "post_slug": "research-year-two-three-photos",
+    "post_title": "Research Year Two: Three Photos"
+  },
+  {
+    "src": "/images/posts/IMG_9176-Edit-2.jpg",
+    "webp": "/images/posts/IMG_9176-Edit-2.webp",
+    "width": 1100,
+    "height": 733,
+    "post_slug": "research-year-two-three-photos",
+    "post_title": "Research Year Two: Three Photos"
+  },
+  {
+    "src": "/images/posts/IMG_9220-1.jpg",
+    "webp": "/images/posts/IMG_9220-1.webp",
+    "width": 1080,
+    "height": 720,
+    "post_slug": "mega-langdon",
+    "post_title": "MEGA LANGDON"
+  },
+  {
+    "src": "/images/posts/IMG_9272-1.jpg",
+    "webp": "/images/posts/IMG_9272-1.webp",
+    "width": 1080,
+    "height": 720,
+    "post_slug": "mega-langdon",
+    "post_title": "MEGA LANGDON"
+  },
+  {
+    "src": "/images/posts/IMG_9435-Edit-Edit.jpg",
+    "webp": "/images/posts/IMG_9435-Edit-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_9468.jpg",
+    "webp": "/images/posts/IMG_9468.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_9544.jpg",
+    "webp": "/images/posts/IMG_9544.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9589.jpg",
+    "webp": "/images/posts/IMG_9589.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9609.jpg",
+    "webp": "/images/posts/IMG_9609.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9614.jpg",
+    "webp": "/images/posts/IMG_9614.webp",
+    "width": 1440,
+    "height": 960,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9631.jpg",
+    "webp": "/images/posts/IMG_9631.webp",
+    "width": 1440,
+    "height": 960,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9638.jpg",
+    "webp": "/images/posts/IMG_9638.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9651.jpg",
+    "webp": "/images/posts/IMG_9651.webp",
+    "width": 1440,
+    "height": 960,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9660.jpg",
+    "webp": "/images/posts/IMG_9660.webp",
+    "width": 1200,
+    "height": 800,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9693.jpg",
+    "webp": "/images/posts/IMG_9693.webp",
+    "width": 960,
+    "height": 1440,
+    "post_slug": "rugby-morning-2",
+    "post_title": "Rugby Morning #2"
+  },
+  {
+    "src": "/images/posts/IMG_9757.jpg",
+    "webp": "/images/posts/IMG_9757.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_9788.jpg",
+    "webp": "/images/posts/IMG_9788.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/IMG_9803.jpg",
+    "webp": "/images/posts/IMG_9803.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": "gallery-of-my-proper-photos-nh-warbler-research",
+    "post_title": "Gallery of my \\"
+  },
+  {
+    "src": "/images/posts/kq8q8111.jpg",
+    "webp": "/images/posts/kq8q8111.webp",
+    "width": 2180,
+    "height": 1453,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/mg_9479.jpg",
+    "webp": "/images/posts/mg_9479.webp",
+    "width": 2076,
+    "height": 1384,
+    "post_slug": "example-photo-work",
+    "post_title": "Example Photo Work"
+  },
+  {
+    "src": "/images/posts/IMG_0145-Edit.jpg",
+    "webp": "/images/posts/IMG_0145-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_0431.webp",
+    "webp": "/images/posts/IMG_0431.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_0797-Edit.jpg",
+    "webp": "/images/posts/IMG_0797-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_0815-Edit.jpg",
+    "webp": "/images/posts/IMG_0815-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_0871.webp",
+    "webp": "/images/posts/IMG_0871.webp",
+    "width": 613,
+    "height": 920,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_0872.jpg",
+    "webp": "/images/posts/IMG_0872.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_1221-Edit.jpg",
+    "webp": "/images/posts/IMG_1221-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_2363-Edit.jpg",
+    "webp": "/images/posts/IMG_2363-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_2967-Edit.jpg",
+    "webp": "/images/posts/IMG_2967-Edit.webp",
+    "width": 920,
+    "height": 613,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_5415-2.jpg",
+    "webp": "/images/posts/IMG_5415-2.webp",
+    "width": 690,
+    "height": 920,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/IMG_6649-Edit.webp",
+    "webp": "/images/posts/IMG_6649-Edit.webp",
+    "width": 960,
+    "height": 1440,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/img_8694.jpg",
+    "webp": "/images/posts/img_8694.webp",
+    "width": 1080,
+    "height": 900,
+    "post_slug": null,
+    "post_title": null
+  },
+  {
+    "src": "/images/posts/orange-wood-ducks.webp",
+    "webp": "/images/posts/orange-wood-ducks.webp",
+    "width": 1080,
+    "height": 864,
+    "post_slug": null,
+    "post_title": null
+  }
+]

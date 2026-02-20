@@ -78,7 +78,7 @@
 				<ul
 					id="search-results"
 					role="listbox"
-					class="absolute z-10 top-full left-0 right-0 mt-1 glass rounded-lg shadow-lg max-h-80 overflow-y-auto"
+					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid rounded-lg max-h-80 overflow-y-auto"
 				>
 					{#each results as result, i}
 						<li role="option" aria-selected={i === activeIndex}>
@@ -101,7 +101,7 @@
 				</ul>
 			{:else if showDropdown && query && results.length === 0}
 				<div
-					class="absolute z-10 top-full left-0 right-0 mt-1 glass rounded-lg shadow-lg px-4 py-3 text-sm text-surface-500"
+					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid rounded-lg px-4 py-3 text-sm text-surface-500"
 				>
 					No results found.
 				</div>

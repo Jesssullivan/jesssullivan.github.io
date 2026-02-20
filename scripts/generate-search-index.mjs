@@ -49,6 +49,23 @@ async function main() {
 		const slug =
 			meta.slug ?? file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
+		// Extract body excerpt (~150 chars of plain text)
+		const body = content.replace(/^---[\s\S]*?---/, '');
+		const plain = body
+			.replace(/```[\s\S]*?```/g, '')
+			.replace(/`[^`]*`/g, '')
+			.replace(/<[^>]+>/g, '')
+			.replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+			.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+			.replace(/[#*_~>|\\-]/g, '')
+			.replace(/\s+/g, ' ')
+			.trim();
+		let body_excerpt = plain.slice(0, 150);
+		if (plain.length > 150) {
+			const lastSpace = body_excerpt.lastIndexOf(' ');
+			body_excerpt = (lastSpace > 0 ? body_excerpt.slice(0, lastSpace) : body_excerpt) + '...';
+		}
+
 		index.push({
 			id: slug,
 			title: String(meta.title ?? slug),
@@ -56,7 +73,8 @@ async function main() {
 			tags: Array.isArray(meta.tags) ? meta.tags.join(' ') : '',
 			category: String(meta.category ?? ''),
 			slug,
-			date: String(meta.date ?? '')
+			date: String(meta.date ?? ''),
+			body_excerpt
 		});
 	}
 

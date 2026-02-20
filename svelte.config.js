@@ -157,7 +157,10 @@ const mdsvexOptions = {
 					node.value = escBraces(node.value);
 				}
 				if (node.type === 'raw' && node.value) {
-					node.value = escBraces(node.value);
+					// Skip Svelte {@html} directives (e.g. from Shiki highlighter)
+					if (!/^\s*\{@html\s/.test(node.value)) {
+						node.value = escBraces(node.value);
+					}
 				}
 				// Escape curly braces inside element attributes (e.g. href, src)
 				if (node.type === 'element' && node.properties) {

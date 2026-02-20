@@ -23,4 +23,4 @@ _Pinned from November 11, 2021_
 
 ##### **...Boxes, Boxes, Boxes!**
 
-*This space once held an image. The WordPress CDN has since gone quiet.*
+*Some images from the original WordPress post are no longer available.*

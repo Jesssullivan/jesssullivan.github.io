@@ -18,11 +18,11 @@ And: A peregrine falcon...
 
 There have been between three and five short eared owls in the main portion of [New hampshire in the last decade](http://ebird.org/ebird/map/sheowl?neg=true&env.minX=&env.minY=&env.maxX=&env.maxY=&zh=false&gp=false&ev=Z&mr=1-12&bmo=1&emo=12&yr=last10) (besides at the seashore near the northeast tip of Massachusetts). According to the eBird, we can see in 2013 and 2014 there were around two or three short eared owls migrating up to their summer home in far north Canada. After reviewing a few migration routes from around the web, I can say there is a good chance a few short eared owls will be coming from the "middle of the east half of the west"- likely farms and fields emanating from Tennessee- at this time of year. Obviously, this owl is vastly more important than anything else I could have done today, so it will occupy the remainder of this spot review.
 
-*Image unavailable -- it lived on a WordPress server that no longer exists.*
+*Some images from the original WordPress post are no longer available.*
 
 Taken from: https://www.allaboutbirds.org/guide/Short-eared_Owl/id
 
-*What was once an image here is now just a memory of a URL.*
+*Some images from the original WordPress post are no longer available.*
 
 Screenshot from a google image search. Not my image. Note the black slashes parallel to the body on the median and greater coverts, and a dark head.
 
@@ -33,11 +33,11 @@ Reasons this is a short eared owl:
   * We were standing in a prime hunting spot for a migrating short eared owl-an iced over bog should be riddled with yummy critters. A group of 20 people milling about the middle of this bog could be a good reason to do some gliding at some distance, waiting for the people to leave and the mammals to emerge again.
   * The bird was a light grey color, with distinct black wing tips. That is the first mark we saw. A fat "buteo"-like (think a soaring red-tailed hawk) tail, creating almost a complete semicircle, was really built into the bird's body. This is totally different than a flared harrier tail, which is long.
 
-*The bits that made up this image have scattered to the wind.*
+*Some images from the original WordPress post are no longer available.*
 
 REALLY LONG TAIL- Harrier. https://www.allaboutbirds.org/guide/Northern_Harrier/id
 
-*Gone with the WordPress -- this image no longer exists online.*
+*Some images from the original WordPress post are no longer available.*
 
 Look at the fat but short tail. https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&ved=0ahUKEwjPtb-Qn__SAhWB7YMKHa00AnMQjhwIBQ&url=http%3A%2F%2Fthrumyeye.deviantart.com%2Fart%2FShort-Eared-Owl-in-Flight-317860358&bvm=bv.151325232,d.amc&psig=AFQjCNEO_XfgvoVIrwFXZPwIcwVJCdFp_A&ust=1490998137246086
 

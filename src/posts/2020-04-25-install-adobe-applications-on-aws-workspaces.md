@@ -18,4 +18,4 @@ Open Server Manager. Under “Local Server”, open the “Internet Explorer Enh
 
 ##### Tada! The sign on handoff from the installer→Browser→ back to installer will now work fine. xD
 
-*Gone with the WordPress -- this image no longer exists online.*
+*Some images from the original WordPress post are no longer available.*

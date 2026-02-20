@@ -13,8 +13,7 @@ original_url: "https://transscendsurvival.org/2020/05/18/while-at-a-safe-distanc
 ...Unexpected success with
 [Nylon 680 FDA](https://taulman3d.com/680-features.html) &#123;3mm @ .8&#125; for some rather delicate parts:
 
-*The server that hosted this image has long since gone dark.*
-*Digital entropy claimed this image when the WordPress site was retired.*
+*Some images from the original WordPress post are no longer available.*
 
 ..._Yet_ another improved pi monitoring sketch, currently in production w/ polycarbonate & 1/4"... ...or to quote Mad-eye Moody, "CONSTANT VIGILANCE!" 🙂
 

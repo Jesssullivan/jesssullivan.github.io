@@ -20,7 +20,7 @@ _Some call it yak shearing._
 
 Occasionally, I find myself looking into space and feeling like whatever the next steps may be in my various hobbies are remain unreachable, need to wait, cost more than I have, or is in someway not the right time to continue. While some of these may be true, it does not mean all that remains is slow, unyielding time. More often than not in these situations, I really am looking at a step that is unreachable or untimely, but is actually not the end-all and last step. There is usually more than meets the eye; there are tasks to be done, as small as they might be, that will help a process along. I think of this mathematician:
 
-*What was once an image here is now just a memory of a URL.*
+*Some images from the original WordPress post are no longer available.*
 
 For example- I do not have access to all the tools I need to complete my projects; it is inherently exciting to think about the actual fabrication of evolving ideas. That does not mean the tools needed to complete the projects are needed to do the peripheral learning and knowledge-gaining and scheming and planning. We can easily see in writing, the cutting and buffing and bolting of things is just a tiny part of a huge commitment in time, learning, and design. Have I exhausted all learning and designing time? No! I can always add an extra step between me and a goal, no matter how small. Learn Autodesk Fusion 360? add that to the list. Complete a few of their 10 hour instructional webinars? That sounds important. Learn to roughly mill and glue wood into end-grain orientations for future CNC-ing for the future headphone cup-rings? I should do that too.
 

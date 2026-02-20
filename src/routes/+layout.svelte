@@ -17,6 +17,7 @@
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
+		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
 		{ href: '/cv', label: 'CV' },
 		{ href: '/about', label: 'About' },
@@ -79,6 +80,7 @@
 	function isActive(href: string): boolean {
 		const path = $page.url.pathname;
 		if (href === '/blog') return path.startsWith('/blog');
+		if (href === '/photography') return path.startsWith('/photography');
 		return path === href;
 	}
 </script>

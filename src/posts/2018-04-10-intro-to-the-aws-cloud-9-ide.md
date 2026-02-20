@@ -22,19 +22,19 @@ Open the cloud 9 tab under services.
 
 Setup is very fast- just know if others are going to be editing to, understand the [IAM policies](https://aws.amazon.com/iam/) and what [VPC settings](https://aws.amazon.com/vpc/) you actually want.
 
-*Gone with the WordPress -- this image no longer exists online.*Know this ideally a browser-based service; I have tried to come up with a reason a SSH connection would be better and didn't get any where.
+Know this ideally a browser-based service; I have tried to come up with a reason a SSH connection would be better and didn't get any where.
 
 For one person, micro is fine. Know these virtual "RAMs" and "CPUs" are generous....
 
-*This image was a casualty of the WordPress migration.*The default network settings are set up for you. This follows good practice for one person; more than that (or if you are perhaps a far-travelling person) note these settings. They are always editable under the VPC and EC2 instance tabs.
+The default network settings are set up for you. This follows good practice for one person; more than that (or if you are perhaps a far-travelling person) note these settings. They are always editable under the VPC and EC2 instance tabs.
 
-*Another image lost in the great WordPress decommission.*
+*Some images from the original WordPress post are no longer available.*
 
 That's it! Other use things to know:
 
 This is a linux machine maintained by Amazon. Packages you think should work and be up to date (arguably like any other linux machine I guess...) may not be. Check your basics like the NPM installer and versions of what your going to be working on, it very well may be different than what you are used to.
 
-*The server that hosted this image has long since gone dark.*
+*Some images from the original WordPress post are no longer available.*
 
 **In the editor:**
 

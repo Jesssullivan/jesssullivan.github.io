@@ -10,22 +10,22 @@ original_url: "https://transscendsurvival.org/2018/04/18/signs-of-thoughts-of-po
 
 Spring is (possibly) coming people! 🙂
 
-*Digital entropy claimed this image when the WordPress site was retired.*
+![img_6256-edit](/images/posts/IMG_6256-Edit.jpg)
 
 Scituate, MA - Osprey
 
-*This image existed once on WordPress, but the web moves on.*
+![img_6256-edit](/images/posts/IMG_6256-Edit.jpg)
 
 Scituate, MA - Killdeer
 
-*An image was here before the migration. It didn't make the journey.*
+*Some images from the original WordPress post are no longer available.*
 
 Plymouth, NH - (FOY photo for me) Hermit Thrush
 
-*Lost to the void between WordPress and here.*
+*Some images from the original WordPress post are no longer available.*
 
 Scituate, MA - Brant
 
-*The original image has not survived the passage of time online.*
+*Some images from the original WordPress post are no longer available.*
 
 Plymouth, NH - Savannah Sparrow

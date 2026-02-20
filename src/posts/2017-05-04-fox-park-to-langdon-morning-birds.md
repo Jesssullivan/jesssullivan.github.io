@@ -43,11 +43,11 @@ This morning, I went birding across the campus starting at sunrise. Below is the
 
 Number of Taxa: 26 + 2
 
-*The original image has not survived the passage of time online.*
+*Some images from the original WordPress post are no longer available.*
 
 Above is a Ruby-crowned Kinglet. Note the crown is not ruby colored.
 
-*This space once held an image. The WordPress CDN has since gone quiet.*
+*Some images from the original WordPress post are no longer available.*
 
 Above is a deeply-hued Yellow Warbler. A pure sounding, "Sweet-sweet-sweet, so-so Sweet!"- heard all over the forest an parking lots alike.
 

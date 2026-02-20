@@ -14,6 +14,6 @@ Piano and straight up 4/4 drums:
 
 Here we have an interesting chord progression idea. In the 4/4 groove, the piano plays the second chord on the "and" of 2... Very cool. The pickup for the second chord starts on two, as I visualized in the midi roll diagram.
 
-*This visual has drifted away with the old WordPress site.*
+*Some images from the original WordPress post are no longer available.*
 
 With a root of C (what I played it in), this could be called C minor to D flat, major 7, while at the end of the fourth bar the progression finishes on G7.

@@ -14,7 +14,8 @@ Pinouts and wiring reference here:
 http://www.calcars.org/prius-evbutton-install.pdf
 
 Big shiny EV mode button in the Prius!
-*This image existed once on WordPress, but the web moves on.*
+
+*Some images from the original WordPress post are no longer available.*
 
 Fusion 360 files here: https://a360.co/2zOACJJ
 
@@ -24,7 +25,8 @@ xposted to prius chat too:
 https://priuschat.com/threads/3d-printed-ev-mode-button-xd.216774/
 
 PLA & Carbon Polycarbonate button housings:
-*An image was here before the migration. It didn't make the journey.*
+
+*Some images from the original WordPress post are no longer available.*
 
 * * *
 

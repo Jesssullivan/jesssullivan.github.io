@@ -18,10 +18,8 @@ _updated on 5/23/22_
 
   * I have been busy at the [Ithaca Generator](https://ithacagenerator.org/)\- building up our new website and writing new member mangegment & accounting software. I've taken over as IG's 3D Printer Area Captain too! 😸
 
-*This visual has drifted away with the old WordPress site.* | *Image unavailable -- it lived on a WordPress server that no longer exists.* | *What was once an image here is now just a memory of a URL.*
----|---|---
-[_Teaching a new class!_](https://ithacagenerator.org/home/fusion-360-class) | [_Weekly Printer Party!_](https://ithacagenerator.org/home/weekly-3d-printer-party-w-jess) | [_Noise Night!_](https://ithacagenerator.org/home/noise-night)
-*The bits that made up this image have scattered to the wind.* | *Gone with the WordPress -- this image no longer exists online.* | *This image was a casualty of the WordPress migration.*
+*Some images from the original WordPress post are no longer available.*
+
 _See a need, fill a need!_ | _An exciting new venture!_ | _Chemicals and experiments oh my!_
 
 ##### [Magic Fusion 360 for 3D Printing Class](https://ithacagenerator.org/home/fusion-360-class)

@@ -14,7 +14,7 @@ The following photos are the result of chance and some enthusiastic "pishing" I 
 
   1. Redstart Warbler. This is almost certainly a breeding male in full attire. The Redstart song is often heard through these New Hampshire forests these days. This fellow responded very well to "pish" sounds, and danced over to me to see what the fuss was about.
 
-*Image from the original post is no longer available -- nothing on the internet is forever.*
+*Some images from the original WordPress post are no longer available.*
 
 2\. Black-and-White Warbler. These Warblers have a weezy, squeaky sound almost identical to a rusty wheel. They act like Nuthatches but "dance" up and down the tree more enthusiastically, which is often a good way to tell which is which.
 
@@ -22,6 +22,6 @@ The following photos are the result of chance and some enthusiastic "pishing" I 
 
 3\. Hermit Thrush. These amber-toned thrushes have a beautiful song, but the only thrush singing today was the large Ovenbird population. More characteristic to the forests on the sides of white mountains, they will all sing together about an half an hour before sunrise. The proper thrushes (not including robin) of NH seem to follow an altitude metric: Ovenbird lives at the bottom, Hermit lives in the low hills, Swainson's sings in the mossy forest below the krumholz, and Bicknell's rules them all, only breeding above four thousand feet. !!!
 
-*The photograph that was here has since disappeared from the web.*
+*Some images from the original WordPress post are no longer available.*
 
 -Jess

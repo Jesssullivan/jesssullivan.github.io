@@ -5,8 +5,13 @@
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 /* Self-hosted fonts via @fontsource */
-@import '@fontsource/fira-sans/400.css';
-@import '@fontsource/fira-sans/700.css';
+@import '@fontsource/crimson-pro/400.css';
+@import '@fontsource/crimson-pro/400-italic.css';
+@import '@fontsource/crimson-pro/600.css';
+@import '@fontsource/crimson-pro/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
 @import '@fontsource/fira-code/400.css';
 @import '@fontsource/fira-code/700.css';
 @import '@fontsource/raleway/400.css';
@@ -15,15 +20,15 @@
 [data-mode="light"] { color-scheme: light; }
 [data-mode="dark"] { color-scheme: dark; }
 
-/* Typography: Fira Sans body, Fira Code code, Raleway hero only */
+/* Typography: Crimson Pro body, Inter headings, Fira Code code, Raleway hero */
 body {
-	font-family: 'Fira Sans', sans-serif;
+	font-family: 'Crimson Pro', serif;
 	font-size: 18px;
 }
 
 h1, h2, h3, h4, h5, h6,
 .font-heading {
-	font-family: 'Fira Sans', sans-serif;
+	font-family: 'Inter', sans-serif;
 }
 
 .font-heading-hero {
@@ -259,6 +264,13 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	text-align: left;
 }
 
+/* Giscus comments — full-width iframe */
+.giscus,
+.giscus-frame {
+	width: 100% !important;
+	min-width: 100%;
+}
+
 /* Accessibility: Focus indicators */
 :focus-visible {
 	outline: 2px solid var(--color-primary-500);
@@ -307,6 +319,27 @@ a[href="#main-content"]:focus {
 
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
 	background: var(--color-surface-500);
+}
+
+/* Opaque glass variant — legible search dropdowns */
+.glass-solid {
+	background: #fff;
+	color: var(--color-surface-900);
+	border: 1px solid var(--color-surface-300);
+	box-shadow:
+		0 10px 25px -5px rgb(0 0 0 / 0.2),
+		0 8px 10px -6px rgb(0 0 0 / 0.15),
+		0 0 0 1px rgb(0 0 0 / 0.08);
+}
+
+[data-mode="dark"] .glass-solid {
+	background: var(--color-surface-800);
+	color: var(--color-surface-100);
+	border-color: var(--color-surface-600);
+	box-shadow:
+		0 10px 25px -5px rgb(0 0 0 / 0.5),
+		0 8px 10px -6px rgb(0 0 0 / 0.4),
+		0 0 0 1px rgb(0 0 0 / 0.3);
 }
 
 /* Glass / Frosted-glass effects */
