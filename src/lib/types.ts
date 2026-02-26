@@ -29,6 +29,9 @@ export interface PostFrontmatter {
 	thumbnail_image?: string;
 	featured?: boolean; // Pinned/featured post
 	author_slug?: string; // Default: 'jesssullivan'
+	source_repo?: string; // Provenance: e.g. "Jesssullivan/aperture-bootstrap"
+	source_path?: string; // Provenance: e.g. "blog/part-1-identity.md"
+	publish_to?: string; // Discovery marker: "blog"
 }
 
 /** A resolved post with guaranteed slug and optional rendered content */

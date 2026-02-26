@@ -6,11 +6,11 @@ tags: ["DIY"]
 published: true
 slug: "turkey-probe"
 original_url: "https://www.transscendsurvival.org/2023/11/27/turkey-probe/"
-feature_image: "/images/posts/Version0_Animated.gif"
+feature_image: "/images/posts/esp_Turkey.jpeg"
 category: "hardware"
 ---
 
-![Turkey Probe](/images/posts/Version0_Animated.gif)
+![Turkey Probe](/images/posts/esp_Turkey.jpeg)
 
 _A spur-of-the moment turkey thermometer with dubious accuracy, questionable code and unhelpful complexity made of random gahbage._
 

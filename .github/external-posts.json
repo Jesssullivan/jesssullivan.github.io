@@ -1,0 +1,14 @@
+{
+  "posts": {
+    "aperture-tagged-device-identity-gap": {
+      "source_repo": "Jesssullivan/aperture-bootstrap",
+      "source_path": "blog/part-1-identity.md",
+      "collected_at": "2026-02-26T00:00:00Z"
+    },
+    "bootstrapping-aperture-config-with-tsnet": {
+      "source_repo": "Jesssullivan/aperture-bootstrap",
+      "source_path": "blog/part-2-bootstrap.md",
+      "collected_at": "2026-02-26T00:00:00Z"
+    }
+  }
+}

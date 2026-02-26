@@ -1,0 +1,68 @@
+name: Auto-Merge Scheduled Posts
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Daily 05:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+
+            // Find open PRs with "DO NOT MERGE until" in the body
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              base: 'main',
+              per_page: 50
+            });
+
+            for (const pr of prs) {
+              if (!pr.body) continue;
+              const match = pr.body.match(/DO NOT MERGE until (\d{4}-\d{2}-\d{2})\s*UTC/i);
+              if (!match) continue;
+
+              const mergeDate = new Date(match[1] + 'T00:00:00Z');
+              if (isNaN(mergeDate.getTime()) || mergeDate > today) {
+                core.info(`PR #${pr.number}: scheduled for ${match[1]}, not yet ready`);
+                continue;
+              }
+
+              // Verify all checks have passed
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha
+              });
+
+              const allPassed = checks.check_runs.every(
+                (c) => c.conclusion === 'success' || c.conclusion === 'skipped'
+              );
+
+              if (!allPassed) {
+                core.warning(`PR #${pr.number}: scheduled date reached but CI checks not all passing`);
+                continue;
+              }
+
+              // Merge with squash
+              core.info(`PR #${pr.number}: merging (scheduled for ${match[1]})`);
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'squash'
+              });
+
+              core.info(`PR #${pr.number}: merged successfully`);
+            }
