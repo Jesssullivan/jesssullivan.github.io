@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "fox-park-16-and-17-41617big-toad-small-vireo-yay"
 original_url: "https://transscendsurvival.org/2017/04/17/fox-park-16-and-17-41617big-toad-small-vireo-yay/"
+feature_image: "/images/posts/orange-wood-ducks.jpg"
 ---
 
 I was in and out of Fox park today as well as yesterday, so I will not put a time. The sun was hot (77F), the skies were clear, and the birds were singing. Loudly. I did a sit spot yesterday, which kind of rolled into today- there was not a peep yesterday. I do not have the foggiest idea why; regardless, it was soggy and drizzly, and I did not make any great achievements worth writing home about. *This image existed once on WordPress, but the web moves on.*I did, however, find this extremely large and incredibly dead American Toad. Observe it in all its massiveness. This fellow was around 6 (6!) inches long. Key things to note about a toad:

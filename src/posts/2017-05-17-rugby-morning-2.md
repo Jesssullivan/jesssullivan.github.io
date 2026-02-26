@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "rugby-morning-2"
 original_url: "https://transscendsurvival.org/2017/05/17/rugby-morning-2/"
+feature_image: "/images/posts/IMG_9544.jpg"
 ---
 
 Guess where I went this morning?

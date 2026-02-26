@@ -6,6 +6,7 @@ tags: ["Ideas", "How-To"]
 published: true
 slug: "when-it-must-be-windows"
 original_url: "https://transscendsurvival.org/2020/03/17/when-it-must-be-windows/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 _Edit 07/26/2020:_

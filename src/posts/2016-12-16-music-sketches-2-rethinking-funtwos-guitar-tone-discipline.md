@@ -6,6 +6,7 @@ tags: ["Music"]
 published: true
 slug: "music-sketches-2-rethinking-funtwos-guitar-tone-discipline"
 original_url: "https://transscendsurvival.org/2016/12/16/music-sketches-2-rethinking-funtwos-guitar-tone-discipline/"
+feature_image: "/images/posts/IMG_1221-Edit.jpg"
 ---
 
 *Some images from the original WordPress post are no longer available.*

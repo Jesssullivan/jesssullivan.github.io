@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas", "How-To"]
 published: true
 slug: "boutique-everything-when-the-hobby-grows-up"
 original_url: "https://transscendsurvival.org/2017/03/20/boutique-everything-when-the-hobby-grows-up/"
+feature_image: "/images/posts/IMG_0431.jpg"
 ---
 
 Food. Clothes. Art. Musical Equipment. Consumer Design and Products. Can a mere citizen enter the fray of cutting edge design and production?

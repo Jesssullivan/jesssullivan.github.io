@@ -6,6 +6,7 @@ tags: ["Birding", "Featured"]
 published: true
 slug: "ebpp-my-epic-birding-prediction-project-in-r"
 original_url: "https://transscendsurvival.org/2018/03/19/ebpp-my-epic-birding-prediction-project-in-r/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 GitHub Link: https://github.com/Jesssullivan/EBPP

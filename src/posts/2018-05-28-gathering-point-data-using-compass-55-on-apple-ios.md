@@ -6,6 +6,7 @@ tags: ["Birding", "Featured", "Ideas"]
 published: true
 slug: "gathering-point-data-using-compass-55-on-apple-ios"
 original_url: "https://transscendsurvival.org/2018/05/28/gathering-point-data-using-compass-55-on-apple-ios/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 Keeping track of birds is tricky!

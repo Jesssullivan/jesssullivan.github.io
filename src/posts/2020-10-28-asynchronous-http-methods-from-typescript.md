@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas"]
 published: true
 slug: "asynchronous-http-methods-from-typescript"
 original_url: "https://transscendsurvival.org/2020/10/28/asynchronous-http-methods-from-typescript/"
+feature_image: "/images/posts/IMG_2967-Edit.jpg"
 ---
 
 * [**_Example in action!_**](https://tmpui.herokuapp.com/crop_post)
@@ -19,7 +20,7 @@ Despite the ubiquitousness of needing to make a POST request from a browser (or,
     you need to complete a portion of this processing elsewhere on some server...:
     */
 
-    const handleBlobPOST = (blob: Blob, destination: string) => &#123;
+    const handleBlobPOST = (blob: Blob, destination: string) => {
         /*
 
        `blob` is some data you've been processing available in the DOM
@@ -39,15 +40,15 @@ Despite the ubiquitousness of needing to make a POST request from a browser (or,
         formData.append('file', file, 'fluffy.chonk');
 
         // make the POST w/ fetch, no one should be using IE anyway xD:
-        fetch(destination, &#123;
+        fetch(destination, {
         method: 'POST',
         body: formData
-      &#125;) // make, then handle the Promise:
-        .then(response => &#123;
+      }) // make, then handle the Promise:
+        .then(response => {
           /*
           we can .then wait for the Promise Object `response`...
           */
-            response.json().then(data => &#123;
+            response.json().then(data => {
                  /*
                  ...and .then once we have the the `response` Object,
                   take only the  important json part:
@@ -62,9 +63,9 @@ Despite the ubiquitousness of needing to make a POST request from a browser (or,
                 */
                 let ix;
                 let results = [];
-                for (ix in data) &#123;
+                for (ix in data) {
                     results.push([ix, data[ix]]);
-                &#125;
+                }
 
                 /*
                 sort the Array by descending value:
@@ -78,24 +79,24 @@ Despite the ubiquitousness of needing to make a POST request from a browser (or,
 
                 // print the sorted scores:
                 let i;
-                for (i in results) &#123;
+                for (i in results) {
                     console.log(i + ' ' + results[i]);
-                &#125;
-            &#125;);
-        &#125;)
-        .catch(error => &#123;
+                }
+            });
+        })
+        .catch(error => {
             console.error(error);
-        &#125;);
-    &#125;;
+        });
+    };
 
     /*
     Now that we've got everything sorted by Promise,
     we can use this as an async function:
     */
-    async function postClassifyWaveform() &#123;
+    async function postClassifyWaveform() {
         // posts blob directly:
         return handleBlobPOST(someBlobs, '/cool_endpoint');
-    &#125;
+    }
 
 _Some extra notes spawned from web demos with Merlin AI:_
 

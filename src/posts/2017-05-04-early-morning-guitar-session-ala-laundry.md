@@ -6,6 +6,7 @@ tags: ["Featured", "Music"]
 published: true
 slug: "early-morning-guitar-session-ala-laundry"
 original_url: "https://transscendsurvival.org/2017/05/04/early-morning-guitar-session-ala-laundry/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 **Guitar Practice:**

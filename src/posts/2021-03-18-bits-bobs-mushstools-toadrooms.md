@@ -6,6 +6,7 @@ tags: []
 published: true
 slug: "bits-bobs-mushstools-toadrooms"
 original_url: "https://www.transscendsurvival.org/2021/03/18/bits-bobs-mushstools-toadrooms/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 ...Despite being a chilly & wintery March up here in the White Mountains, there is no shortage of fun birds and exciting projects!
@@ -105,12 +106,12 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
     * **url** : Temporary elastic ip address this asset will be available from, just to reduce any excessive / redundant traffic to _images.mushroomobserver.org_
     * **src** : _imageURL_ The asset's source URL form Mushroom Observer
 
-          [&#123;
+          [{
           "id": "12326",
           "category_id": "Peltula euploca",
           "url": "https://mo.columbari.us/static/images/peltula_euploca/290214.jpg"
           "src": "https://images.mushroomobserver.org/640/290214.jpg"
-          &#125;]
+          }]
 
   * _Selected asset directory structure:_
 

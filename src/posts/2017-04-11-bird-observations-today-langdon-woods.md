@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "bird-observations-today-langdon-woods"
 original_url: "https://transscendsurvival.org/2017/04/11/bird-observations-today-langdon-woods/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 This is in lieu of a wonderful 2 hour walk around PSU property during my natural history class.

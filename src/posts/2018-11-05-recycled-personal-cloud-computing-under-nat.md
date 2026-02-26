@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Reviews"]
 published: true
 slug: "recycled-personal-cloud-computing-under-nat"
 original_url: "https://transscendsurvival.org/2018/11/05/recycled-personal-cloud-computing-under-nat/"
+feature_image: "/images/posts/IMG_0145-Edit.jpg"
 ---
 
 As many may intuit, I like the AWS ecosystem; it is easy to navigate and usually just works.

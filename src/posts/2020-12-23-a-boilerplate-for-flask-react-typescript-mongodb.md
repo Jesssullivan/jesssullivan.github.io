@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "a-boilerplate-for-flask-react-typescript-mongodb"
 original_url: "https://www.transscendsurvival.org/2020/12/23/a-boilerplate-for-flask-react-typescript-mongodb/"
+feature_image: "/images/posts/IMG_0797-Edit.jpg"
 ---
 
 ## ?:

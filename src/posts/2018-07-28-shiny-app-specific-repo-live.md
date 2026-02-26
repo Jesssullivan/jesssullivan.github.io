@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas", "How-To"]
 published: true
 slug: "shiny-app-specific-repo-live"
 original_url: "https://transscendsurvival.org/2018/07/28/shiny-app-specific-repo-live/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 **New Shiny App specific Repo now live...**

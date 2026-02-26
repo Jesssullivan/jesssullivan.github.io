@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-4-3517-noon-ish-time"
 original_url: "https://transscendsurvival.org/2017/03/05/wolf-pine-fox-park-4-3517-noon-ish-time/"
+feature_image: "/images/posts/orange-wood-ducks.jpg"
 ---
 
 This is the kind of day it is today. Not a cloud in the light blue sky, the sun casting sharp shadows from the bare branches. A bit blustery, and cold- I'd guess 25 degrees, not including wind chill. The snow is very hard, and has a icy surface. I wandered into Fox park at around noon- all I could hear was a few high peeps from chickadees and the occasional crow yelling at something. Notably, the woodpeckers seemed absent on my way into the woods toward my pine tree- could the extra-frozen trees deter all but the most robust woodpeckers? Usually at least a downy will be somewhere, tapping away.

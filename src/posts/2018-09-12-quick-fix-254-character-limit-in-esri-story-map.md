@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "quick-fix-254-character-limit-in-esri-story-map"
 original_url: "https://transscendsurvival.org/2018/09/12/quick-fix-254-character-limit-in-esri-story-map/"
+feature_image: "/images/posts/IMG_1221-Edit.jpg"
 ---
 
 https://gis.stackexchange.com/questions/75092/maximum-length-of-text-fields-in-shapefile-and-geodatabase-formats

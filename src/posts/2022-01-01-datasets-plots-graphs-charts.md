@@ -6,6 +6,7 @@ tags: ["Ideas", "How-To"]
 published: true
 slug: "datasets-plots-graphs-charts"
 original_url: "https://www.transscendsurvival.org/2022/01/01/datasets-plots-graphs-charts/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 _Pinned from November 11, 2021_

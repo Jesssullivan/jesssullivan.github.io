@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas", "How-To"]
 published: true
 slug: "using-esri-arcgis-arcmap-in-the-aws-cloud"
 original_url: "https://transscendsurvival.org/2018/04/05/using-esri-arcgis-arcmap-in-the-aws-cloud/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 Selling AWS to... myself 🙂

@@ -6,6 +6,7 @@ tags: ["Photography"]
 published: true
 slug: "new-photopromotional-media-business-pages-in-the-works"
 original_url: "https://transscendsurvival.org/2017/05/05/new-photopromotional-media-business-pages-in-the-works/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 **I am working on bringing new and exciting services to my website(s). Stay tuned for exciting services, prices, and (of course) galleries!**

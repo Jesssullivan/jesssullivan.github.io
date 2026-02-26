@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Search from '$lib/components/Search.svelte';
-	import { Tooltip } from '@skeletonlabs/skeleton-svelte';
+	import BlogCard from '$lib/components/BlogCard.svelte';
 	import BlogSidebar from '$lib/components/BlogSidebar.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { page } from '$app/stores';
@@ -71,58 +71,9 @@
 			{#if paginatedPosts.length === 0}
 				<p class="text-surface-500">No posts yet.</p>
 			{:else}
-				<div class="space-y-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 					{#each paginatedPosts as post}
-						<article class="card glass p-8 hover:ring-2 ring-primary-500 transition-all {post.featured ? 'ring-1 ring-primary-300' : ''}">
-							<a href="/blog/{post.slug}" class="block">
-								{#if post.featured}
-									<div class="flex items-center gap-1 text-xs text-primary-500 font-semibold mb-1">
-										<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-										Featured
-									</div>
-								{/if}
-								<div class="{post.feature_image ? 'sm:flex sm:gap-4' : ''}">
-									{#if post.feature_image}
-										<div class="sm:w-32 sm:h-24 sm:flex-shrink-0 mb-3 sm:mb-0">
-											<img src={post.feature_image} alt="" class="w-full h-32 sm:h-24 object-cover rounded-lg" loading="lazy" />
-										</div>
-									{/if}
-									<div class="flex-1 min-w-0">
-										<div class="flex items-center gap-3 text-sm text-surface-500">
-											<time>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-											{#if post.reading_time}
-												<span>&middot;</span>
-												<Tooltip positioning={{ placement: 'top' }}>
-													{#snippet trigger()}<span>{post.reading_time} min read</span>{/snippet}
-													{#snippet content()}<span class="text-xs">~{(post.reading_time ?? 1) * 230} words</span>{/snippet}
-												</Tooltip>
-											{/if}
-											{#if post.category}
-												<span>&middot;</span>
-												<Tooltip positioning={{ placement: 'top' }}>
-													{#snippet trigger()}<span class="badge preset-outlined-surface-500 text-xs capitalize">{post.category}</span>{/snippet}
-													{#snippet content()}<span class="text-xs capitalize">{post.category}</span>{/snippet}
-												</Tooltip>
-											{/if}
-										</div>
-										<h2 class="text-2xl font-semibold mt-2">{post.title}</h2>
-										{#if post.description}
-											<p class="text-surface-600-400 mt-2 line-clamp-3">{post.description}</p>
-										{/if}
-										{#if post.body_excerpt}
-											<p class="text-sm text-surface-500 mt-2 line-clamp-3">{post.body_excerpt}</p>
-										{/if}
-									</div>
-								</div>
-							</a>
-							{#if post.tags.length > 0}
-								<div class="flex flex-wrap gap-2 mt-3">
-									{#each post.tags as tag}
-										<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
-									{/each}
-								</div>
-							{/if}
-						</article>
+						<BlogCard {post} />
 					{/each}
 				</div>
 

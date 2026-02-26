@@ -6,6 +6,7 @@ tags: []
 published: true
 slug: "purple-prius-parts"
 original_url: "https://transscendsurvival.org/2020/08/23/purple-prius-parts/"
+feature_image: "/images/posts/IMG_0797-Edit.jpg"
 ---
 
 # _In other news..._

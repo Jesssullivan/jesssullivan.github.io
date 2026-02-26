@@ -6,6 +6,7 @@ tags: ["Featured"]
 published: true
 slug: "naive-shenanigans-measuring-distance-to-roi-w-opencv"
 original_url: "https://www.transscendsurvival.org/2021/01/02/naive-shenanigans-measuring-distance-to-roi-w-opencv/"
+feature_image: "/images/posts/IMG_1221-Edit.jpg"
 ---
 
 * _visit these notes_ [_over here on github!_](https://github.com/Jesssullivan/misc-roi-distance-notes/)
@@ -115,7 +116,8 @@ python3 measure.py
 
 #### Results:
 
-...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool! |  *This image has been lost to time. The original was hosted on WordPress.*
----|---
+...With only Field of View and a ROI of known dimensions, the accuracy of this "similar triangles" solution thus far has only been limited by image resolution and the quality of the detector- pretty cool!
+
+*This image has been lost to time. The original was hosted on WordPress.*
 
 -Jess

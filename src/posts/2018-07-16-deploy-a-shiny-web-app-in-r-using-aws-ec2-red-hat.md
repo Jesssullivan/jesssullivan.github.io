@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas"]
 published: true
 slug: "deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat"
 original_url: "https://transscendsurvival.org/2018/07/16/deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat/"
+feature_image: "/images/posts/IMG_0815-Edit.jpg"
 ---
 
 **Info on deploying a Shiny web app in R using AWS (EC2 Redhat)**
@@ -38,14 +39,14 @@ run_as jess;
 # Define port and where the home (/) directory is
 # Define site_dir/log_dir - these are the defaults
 #
-server&#123;
+server{
 listen 3838;
-location / &#123;
+location / {
 site_dir /srv/shiny-server;
 log_dir /var/log/shiny-server;
 directory_index on;
-&#125;
-&#125;
+}
+}
 `
 
 END CONFIG FILE

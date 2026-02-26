@@ -6,6 +6,7 @@ tags: ["Featured", "Photography"]
 published: true
 slug: "example-photo-work"
 original_url: "https://transscendsurvival.org/2016/12/13/example-photo-work/"
+feature_image: "/images/posts/dsc09997.jpg"
 ---
 
 ## Here are some examples of my work:

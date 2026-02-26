@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-3-3317-noon-ish-time"
 original_url: "https://transscendsurvival.org/2017/03/04/wolf-pine-fox-park-3-3317-noon-ish-time/"
+feature_image: "/images/posts/IMG_2967-Edit.jpg"
 ---
 
 I walked into Fox Park on 3/3/17. Note how I could walk right in; the snow has settled and melted into a single layer that had been frozen the night before. The sun was shining, but an impressively chilled wind was blustering around. That morning at 6am, the temperature hit somewhere around 40 degrees, which was followed by a hour-and-a-half blizzard starting at around 9am, followed by blue skies similar to what I experienced at 6am but about 15 degrees colder. ???

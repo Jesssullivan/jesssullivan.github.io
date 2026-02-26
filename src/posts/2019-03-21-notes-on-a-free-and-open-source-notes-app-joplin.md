@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "Reviews"]
 published: true
 slug: "notes-on-a-free-and-open-source-notes-app-joplin"
 original_url: "https://transscendsurvival.org/2019/03/21/notes-on-a-free-and-open-source-notes-app-joplin/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 Joplin for all your Operating Systems and devices

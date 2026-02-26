@@ -6,6 +6,7 @@ tags: ["Nature Observations"]
 published: true
 slug: "pre-dawn-fox-park-lot-walk-birding-by-ear"
 original_url: "https://transscendsurvival.org/2017/05/08/pre-dawn-fox-park-lot-walk-birding-by-ear/"
+feature_image: "/images/posts/IMG_0815-Edit.jpg"
 ---
 
 Walking through the 'burbs in the dark can be exciting. About an 45 minutes before sunrise, I walked to the base area of Fox park and found these 15 birds. While I didn't see them, I could certainly hear them!

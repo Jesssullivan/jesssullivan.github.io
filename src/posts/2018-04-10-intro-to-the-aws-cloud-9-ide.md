@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas", "How-To", "Reviews"]
 published: true
 slug: "intro-to-the-aws-cloud-9-ide"
 original_url: "https://transscendsurvival.org/2018/04/10/intro-to-the-aws-cloud-9-ide/"
+feature_image: "/images/posts/IMG_0872.jpg"
 ---
 
 The Cloud 9 IDE is the fastest way I have come up with to develop web-based or otherwise "connected" programs. Because it lives on a Linux-based EC2 server on AWS, running different node, html, etc programs that rely on a network system just work- it is all already on a network anyway. 🙂 There is no downtime trying to figure out your WAMP, MAMP, Apache, or localhost situation.

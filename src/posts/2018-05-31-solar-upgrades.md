@@ -6,6 +6,7 @@ tags: ["Birding", "DIY", "Featured", "Ideas", "How-To"]
 published: true
 slug: "solar-upgrades"
 original_url: "https://transscendsurvival.org/2018/05/31/solar-upgrades/"
+feature_image: "/images/posts/IMG_3355-1.jpg"
 ---
 
 Solar upgrades!

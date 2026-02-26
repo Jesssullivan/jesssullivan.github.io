@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas"]
 published: true
 slug: "install-adobe-applications-on-aws-workspaces"
 original_url: "https://transscendsurvival.org/2020/04/25/install-adobe-applications-on-aws-workspaces/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 By default, the browser based authentication used by Adobe’s Creative Cloud installers will fail on AWS WorkSpace instances. Neither the installer nor Windows provide much in the way of useful error messages- here is how to do it!

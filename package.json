@@ -33,7 +33,7 @@
     "prettier-plugin-svelte": "^3.4.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "serve": "^14.2.5",
-    "sharp": "0.33.5",
+    "sharp": "^0.33.5",
     "svelte": "^5.19.0",
     "svelte-check": "^4.1.4",
     "typescript": "^5.7.0",

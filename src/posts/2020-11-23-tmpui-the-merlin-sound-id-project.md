@@ -3,7 +3,7 @@ title: "Merlin AI Demos!"
 date: "2020-11-23"
 description: "post updated 11/23/20 Demos, interpreter implementations & data ingress tools for annotating, interpreting, and deploying trained models. Visit the web demos..."
 tags: ["Birding", "Featured", "Ideas"]
-published: true
+published: false
 slug: "tmpui-the-merlin-sound-id-project-november-2020"
 original_url: "https://transscendsurvival.org/2020/11/23/tmpui-the-merlin-sound-id-project/"
 ---
@@ -18,11 +18,13 @@ _post updated 11/23/20_
 ## Web:
 
 *The image "demos" didn't survive the WordPress migration.*
-_Visit audio demos on Heroku_ |  *"demos" -- the original image is no longer hosted anywhere we can find.*
-_Visit Leaflet.annotation demos on Heroku_
----|---
+_Visit audio demos on Heroku_
 
-_Watch environment setup here_ |
+*"demos" -- the original image is no longer hosted anywhere we can find.*
+
+_Visit Leaflet.annotation demos on Heroku_
+
+_Watch environment setup here_
 
 _Watch Leaflet.annotation demo here_
 
@@ -68,10 +70,11 @@ _Configure Flask in`config.py`:_
 
 *Where "demos" once appeared, only this note remains.*
 
-_Visit Leaflet.annotation Audio demo_ |  *The image of "demos" is no longer available.*
+_Visit Leaflet.annotation Audio demo_
+
+*The image of "demos" is no longer available.*
 
 _Visit Leaflet.annotation Photo demo_
----|---
 
   * _(Jess is still typifying Annotator source, hang tight)_
 

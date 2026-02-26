@@ -6,6 +6,7 @@ tags: ["Headphones", "Waxwing Audio"]
 published: true
 slug: "required-custom-tools"
 original_url: "https://transscendsurvival.org/2016/12/13/required-custom-tools/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 "First, we build the fusion reactor. then, upon creating the mini sun, we shine the light onto the prehistoric spores. We now evolve the subsequent grass to be healthy for the custom-wound sheep animal we designed. Soon we will harvest the sheep to make the leather, which will of course be used for making the most comfortable ear pads in the... ...WHAT??!! You wanted them in black velor and suede?!?!!"

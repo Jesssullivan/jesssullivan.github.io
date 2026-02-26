@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas"]
 published: true
 slug: "qemu-for-raspian-arm"
 original_url: "https://transscendsurvival.org/2019/10/30/qemu-for-raspian-arm/"
+feature_image: "/images/posts/IMG_0431.jpg"
 ---
 
 _Updated 11/6/19_

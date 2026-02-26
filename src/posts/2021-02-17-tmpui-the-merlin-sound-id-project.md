@@ -6,6 +6,7 @@ tags: ["Birding", "Featured", "Ideas"]
 published: true
 slug: "tmpui-the-merlin-sound-id-project"
 original_url: "https://www.transscendsurvival.org/2021/02/17/tmpui-the-merlin-sound-id-project/"
+feature_image: "/images/posts/IMG_0145-Edit.jpg"
 ---
 
 #### [_...Notes_](https://github.com/Jesssullivan/tmpUI#readme)

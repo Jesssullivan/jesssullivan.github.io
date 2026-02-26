@@ -6,6 +6,7 @@ tags: ["DIY", "Featured"]
 published: true
 slug: "how-to-make-a-aws-r-server"
 original_url: "https://transscendsurvival.org/2018/03/08/how-to-make-a-aws-r-server/"
+feature_image: "/images/posts/IMG_0431.jpg"
 ---
 
 When you need an R server and have lots of data to process, AWS is a great way to go. Sign up of the free tier and poke around!

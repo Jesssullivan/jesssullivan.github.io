@@ -6,6 +6,7 @@ tags: ["DIY", "How-To"]
 published: true
 slug: "beta-how-to-build-the-phone-charger"
 original_url: "https://transscendsurvival.org/2016/12/15/beta-how-to-build-the-phone-charger/"
+feature_image: "/images/posts/orange-wood-ducks.jpg"
 ---
 
 Imagine, any AA or 9v battery could charge your phone and other USB gadgets. Behold, the LM780!

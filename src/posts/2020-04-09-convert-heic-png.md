@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "convert-heic-png"
 original_url: "https://transscendsurvival.org/2020/04/09/convert-heic-png/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 [_on github here_](https://github.com/Jesssullivan/misc/blob/master/etc/heic_png.sh), _or just get this script:_
@@ -33,7 +34,7 @@ Without further delay, let's convert these to png, here from the sanctuary of Ba
     # run as $USER:
     # ./heic_png.sh
 
-    command -v heif-convert >/dev/null || &#123;
+    command -v heif-convert >/dev/null || {
 
       echo >&2 -e "heif-convert not intalled! \nattempting to add ppa....";
 
@@ -48,7 +49,7 @@ Without further delay, let's convert these to png, here from the sanctuary of Ba
 
       exit 0
 
-      &#125;
+      }
 
     # default behavior:
 

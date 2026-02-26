@@ -6,6 +6,7 @@ tags: ["Featured"]
 published: true
 slug: "ever-tried-to-chrome-remote-ubuntu-xd"
 original_url: "https://transscendsurvival.org/2020/07/23/ever-tried-to-chrome-remote-ubuntu-xd/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 [_Check out this project on my Github over here 🙂_](https://github.com/Jesssullivan/chrome-remote-desktop-budgie)

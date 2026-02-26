@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-1-bonus-winter-birds"
 original_url: "https://transscendsurvival.org/2017/02/20/wolf-pine-fox-park-1-bonus-winter-birds/"
+feature_image: "/images/posts/img_8694.jpg"
 ---
 
 Today and yesterday, 2.19.17 - 2.20.17, have officially kicked off my first real visits to my "sit spot" (required for all adventure ed students at PSU) and commutes around campus armed with my bird rig, ready for the warmer-weather inclined birds.

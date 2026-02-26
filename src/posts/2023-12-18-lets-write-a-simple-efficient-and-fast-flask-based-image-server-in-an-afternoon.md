@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas"]
 published: true
 slug: "lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon"
 original_url: "https://www.transscendsurvival.org/2023/12/18/lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon/"
+feature_image: "/images/posts/IMG_0872.jpg"
 ---
 
 ….that uses lanczos resampling to serve optimized cached photos.

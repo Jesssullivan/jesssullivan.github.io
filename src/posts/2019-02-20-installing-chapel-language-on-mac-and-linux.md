@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "installing-chapel-language-on-mac-and-linux"
 original_url: "https://transscendsurvival.org/2019/02/20/installing-chapel-language-on-mac-and-linux/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 View below the readme mirror from my Github repo. Scroll down for my Python3 evaluation script.
@@ -36,36 +37,36 @@ The test uses $D for date: `$D 09/14/19`
 
     config const V : bool=true;  // verbose logging, currently default!
 
-    module charMatches &#123;
-      var dates = &#123;("")&#125;;
-    &#125;
+    module charMatches {
+      var dates = {("")};
+    }
 
     // var sync1$ : sync bool=true;  not used in example- TODO: add sync$ var back in!!
 
-    proc charCheck(aFile, ref choice, sep, sepRange) &#123;
+    proc charCheck(aFile, ref choice, sep, sepRange) {
 
         // note, reference argument (ref choice) is needed if using Chapel structure "module.domain"
 
-        try &#123;
+        try {
             var line : string;
             var tmp = openreader(aFile);
-            while(tmp.readline(line)) &#123;
-                if line.find(sep) > 0 &#123;
+            while(tmp.readline(line)) {
+                if line.find(sep) > 0 {
                     choice += line.split(sep)[sepRange];
                     if V then writeln('adding '+ sep + ' ' + line.split(sep)[sepRange]);
-                &#125;
-            &#125;
+                }
+            }
         tmp.close();
-        &#125; catch &#123;
+        } catch {
           if V then writeln("caught err");
-        &#125;
-    &#125;
+        }
+    }
 
-    coforall folder in walkdirs('check/') &#123;
-        for file in findfiles(folder) &#123;
+    coforall folder in walkdirs('check/') {
+        for file in findfiles(folder) {
             charCheck(file, charMatches.dates, '$D ', 1..8);
-        &#125;
-    &#125;
+        }
+    }
 
 # Get some Chapel:
 

@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad"
 original_url: "https://transscendsurvival.org/2017/03/30/beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad/"
+feature_image: "/images/posts/IMG_0872.jpg"
 ---
 
 The first year PSU natural history class wandered into the middle of Quincy Bog onto the local beaver lodge at about 10am today, 3/30/17.

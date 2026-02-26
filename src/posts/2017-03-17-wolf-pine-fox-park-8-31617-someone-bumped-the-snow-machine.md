@@ -6,6 +6,7 @@ tags: ["Birding", "Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine"
 original_url: "https://transscendsurvival.org/2017/03/17/wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine/"
+feature_image: "/images/posts/IMG_0145-Edit.jpg"
 ---
 
 I decided to snowshoe into Fox Park at about 6:30am Thursday, 3/16/17.

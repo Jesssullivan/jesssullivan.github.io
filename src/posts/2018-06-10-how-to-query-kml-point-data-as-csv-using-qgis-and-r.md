@@ -6,6 +6,7 @@ tags: ["Birding", "DIY", "Featured", "Ideas", "How-To"]
 published: true
 slug: "how-to-query-kml-point-data-as-csv-using-qgis-and-r"
 original_url: "https://transscendsurvival.org/2018/06/10/how-to-query-kml-point-data-as-csv-using-qgis-and-r/"
+feature_image: "/images/posts/Screen-Shot-2018-06-10-at-8.28.16-AM.png"
 ---
 
 How to Query KML point data as CSV using QGIS and R

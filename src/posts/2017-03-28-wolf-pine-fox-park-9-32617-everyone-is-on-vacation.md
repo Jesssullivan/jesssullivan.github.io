@@ -6,6 +6,7 @@ tags: ["Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-9-32617-everyone-is-on-vacation"
 original_url: "https://transscendsurvival.org/2017/03/28/wolf-pine-fox-park-9-32617-everyone-is-on-vacation/"
+feature_image: "/images/posts/img_8694.jpg"
 ---
 
 I walked into Fox park Sunday afternoon, 3/26/17, after "spring" break. Please note, however, neither the suburbs of Boston or Fox Park have turned the ignition on the spring thing. So, I will not provide pictures today because the view is, for both flora and fauna alike, the same as the last time I took pictures.

@@ -6,6 +6,7 @@ tags: ["Featured"]
 published: true
 slug: "chindogu-ascii-art-i-suppose"
 original_url: "https://www.transscendsurvival.org/2021/01/23/chindogu-ascii-art-i-suppose/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 _A ridiculous_ [_Chindōgu_](https://en.wikipedia.org/wiki/Chind%C5%8Dgu) _utility prompt & CLI for_ [_fetching private releases & files from GitHub & BitBucket_](https://github.com/Jesssullivan/LeafletSync)
@@ -32,33 +33,33 @@ _A ridiculous_ [_Chindōgu_](https://en.wikipedia.org/wiki/Chind%C5%8Dgu) _utili
      \                      _____________________/ |
       \ Fetch from Github: /        α wιρ Σ ♥ |_@__Jess
       /───────────────────/
-      \ Your API Token    | -t |  --token | Required | = &lt;personal-api-token>
-       | Your Handle      | -u |  --user  | Required | = &lt;You>
-       | Source Repo      | -r |  --repo  \ Required  \ = &lt;RepoName>
-       | Repository Owner | -a |  --author \ Required  \ = &lt;TheOwner>
+      \ Your API Token    | -t |  --token | Required | = &lt;personal-api-token&gt;
+       | Your Handle      | -u |  --user  | Required | = &lt;You&gt;
+       | Source Repo      | -r |  --repo  \ Required  \ = &lt;RepoName&gt;
+       | Repository Owner | -a |  --author \ Required  \ = &lt;TheOwner&gt;
        | Release Version  | -v |  --version | Optional | = Fetch Everything
       / Output Directory  | -o |  --out    / Optional  / = ./dist/
      /─────────────────────────/
      \ Fetch from BitBucket:  /
       \──────────────────────/
-       \  Your Handle       / -bu  /  --b-user  / ~Required | = &lt;You>
-        \ Your Passhrase   / -bp  / --b-pass   / ~Required / = &lt;token>
+       \  Your Handle       / -bu  /  --b-user  / ~Required | = &lt;You&gt;
+        \ Your Passhrase   / -bp  / --b-pass   / ~Required / = &lt;token&gt;
          \ Source Branch  / -bb  / --b-branch / ~Optional / = master
-          \ Source File  / -bf  / --b-file   / ~Optional / = &lt;Fetch Everything>
+          \ Source File  / -bf  / --b-file   / ~Optional / = &lt;Fetch Everything&gt;
            \────────────/
 
-    Your Handle [&lt;You>]:
+    Your Handle [&lt;You&gt;]:
 
-    Source Repo [&lt;RepoName>]:
+    Source Repo [&lt;RepoName&gt;]:
 
-    Repo Owner [&lt;TheOwner>]:
+    Repo Owner [&lt;TheOwner&gt;]:
 
     Host: GitHub | BitBucket [GitHub]:
 
-    Your Token [&lt;personal-api-token>]:
+    Your Token [&lt;personal-api-token&gt;]:
 
-    Release to fetch: [&lt;v0.0.1>]:
+    Release to fetch: [&lt;v0.0.1&gt;]:
 
-    Output to fetch (e.g. /dist/*): [&lt;dist/>]:
+    Output to fetch (e.g. /dist/*): [&lt;dist/&gt;]:
 
     ...

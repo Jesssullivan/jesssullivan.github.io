@@ -6,6 +6,7 @@ tags: ["Nature Observations"]
 published: true
 slug: "fox-park-15-41217-1-if-by-land-17-if-by-ear"
 original_url: "https://transscendsurvival.org/2017/04/12/fox-park-15-41217-1-if-by-land-17-if-by-ear/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 Again, Just getting through the small backlog of sit spots. All by ear, many with a visual confirmation at some point.

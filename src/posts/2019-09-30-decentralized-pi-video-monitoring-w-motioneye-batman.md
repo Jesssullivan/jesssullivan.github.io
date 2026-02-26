@@ -6,6 +6,7 @@ tags: ["DIY", "Featured", "Ideas"]
 published: true
 slug: "decentralized-pi-video-monitoring-w-motioneye-batman"
 original_url: "https://transscendsurvival.org/2019/09/30/decentralized-pi-video-monitoring-w-motioneye-batman/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 [Visit the me here on Github](https://github.com/Jesssullivan/motioneye-mesh)
@@ -29,7 +30,7 @@ Please take a look at dBmLoss.py- the idea here is one should be able to estimat
 
     you can add (default) Rx Tx arguments using the following syntax:
                      python3 dBmLoss.py 20 40
-                     python3 dBmLoss.py &lt;Rx> &lt;Tx>
+                     python3 dBmLoss.py &lt;Rx&gt; &lt;Tx&gt;
 
      57.74559999999994 ft = max. mesh node spacing, @
      Rx = 40
@@ -53,7 +54,7 @@ If you are not familiar with FreeCAD, the general approach- geometry is formed t
     tu = FreeCAD.Units.parseQuantity
 
     def mm(value):
-        return tu('&#123;&#125; mm'.format(value))
+        return tu('{} mm'.format(value))
 
     rs = mm(1.9)
     thicken = -(rs / mm(15))
@@ -132,7 +133,7 @@ _dBmLoss.py:_
             elif len(argv) == 1:
                 print('\n\nyou can add (default) Rx Tx arguments using the following syntax: \n \
                     python3 dBmLoss.py 20 40 \n \
-                    python3 dBmLoss.py &lt;Rx> &lt;Tx> \
+                    python3 dBmLoss.py &lt;Rx&gt; &lt;Tx&gt; \
                     \n')
                 use = False
             else:

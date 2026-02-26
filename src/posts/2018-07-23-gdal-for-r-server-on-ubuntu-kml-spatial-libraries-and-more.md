@@ -6,6 +6,7 @@ tags: ["DIY", "Ideas"]
 published: true
 slug: "gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more"
 original_url: "https://transscendsurvival.org/2018/07/23/gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more/"
+feature_image: "/images/posts/img_8694.jpg"
 ---
 
 **GDAL for R Server on Red Hat Xenial Ubuntu - KML Spatial Libraries and More**

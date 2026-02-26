@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "github-update-9-12-18-shiny-apps"
 original_url: "https://transscendsurvival.org/2018/09/12/github-update-9-12-18-shiny-apps/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 **View the tools here:** http://kml.jessdev.org

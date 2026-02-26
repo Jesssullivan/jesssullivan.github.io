@@ -6,6 +6,7 @@ tags: ["DIY", "Featured"]
 published: true
 slug: "makerspace-financial-reporting-w-ipython"
 original_url: "https://www.transscendsurvival.org/2022/02/06/makerspace-financial-reporting-w-ipython/"
+feature_image: "/images/posts/orange-wood-ducks.jpg"
 ---
 
 [_Visit this project on github here_](https://github.com/ithacagenerator/MembershipWorks-Migration)

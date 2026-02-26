@@ -6,6 +6,7 @@ tags: ["DIY"]
 published: true
 slug: "persistent-live-ubuntu-for-college"
 original_url: "https://transscendsurvival.org/2019/08/04/persistent-live-ubuntu-for-college/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 **Below is are live mirrors of my "PSU Hacking Club" Ubuntu repos.**

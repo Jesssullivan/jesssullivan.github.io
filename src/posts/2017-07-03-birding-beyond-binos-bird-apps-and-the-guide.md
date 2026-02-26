@@ -6,6 +6,7 @@ tags: ["Birding", "Featured", "Ideas", "Reviews"]
 published: true
 slug: "birding-beyond-binos-bird-apps-and-the-guide"
 original_url: "https://transscendsurvival.org/2017/07/03/birding-beyond-binos-bird-apps-and-the-guide/"
+feature_image: "/images/posts/IMG_0797-Edit.jpg"
 ---
 
 We all have a favorite bird, animal or plant guide. Peterson is the best at drawing; Sibley takes the best pictures. Kauffman ties it all together; National Geographic makes a solid reference and Audubon is great for fast looks.

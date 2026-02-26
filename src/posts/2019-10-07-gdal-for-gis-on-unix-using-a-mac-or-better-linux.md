@@ -6,6 +6,7 @@ tags: ["Featured", "Ideas", "How-To"]
 published: true
 slug: "gdal-for-gis-on-unix-using-a-mac-or-better-linux"
 original_url: "https://transscendsurvival.org/2019/10/07/gdal-for-gis-on-unix-using-a-mac-or-better-linux/"
+feature_image: "/images/posts/CodeCogsEqn-1.png"
 ---
 
 # GIS Shortcuts

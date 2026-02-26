@@ -5,6 +5,7 @@ description: "Test fixture post for verifying Fira Code ligatures render correct
 tags: ["test"]
 published: true
 slug: "ligature-test-fixture"
+feature_image: "/images/posts/orange-wood-ducks.jpg"
 ---
 
 This post exists to verify that Fira Code ligatures render in code blocks.

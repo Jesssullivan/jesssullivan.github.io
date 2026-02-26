@@ -6,6 +6,7 @@ tags: ["Birding", "Featured", "Ideas"]
 published: true
 slug: "the-ebird-api-regioncode"
 original_url: "https://transscendsurvival.org/2020/06/14/the-ebird-api-regioncode/"
+feature_image: "/images/posts/IMG_5415-2.jpg"
 ---
 
 [_get this script and other GIS bits here on github_](https://github.com/Jesssullivan/GIS_Shortcuts)

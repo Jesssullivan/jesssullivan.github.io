@@ -6,6 +6,7 @@ tags: ["Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-2-22717"
 original_url: "https://transscendsurvival.org/2017/03/02/wolf-pine-fox-park-2-22717/"
+feature_image: "/images/posts/IMG_2363-Edit.jpg"
 ---
 
 I wandered into my sit spot last Monday evening, before sun down- slightly overcast, well above freezing. Upon entering the park, significantly warmer air pockets dotted the trail- why, I don't have the foggiest idea. This seems important, but I will leave the cause of such intense heat-bubbles of what a question to gnaw away at later.

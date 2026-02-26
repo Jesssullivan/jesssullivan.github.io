@@ -6,6 +6,7 @@ tags: ["Featured"]
 published: true
 slug: "kvm-does-fruit-xcode-from-qemu"
 original_url: "https://transscendsurvival.org/2020/09/05/kvm-does-fruit-xcode-from-qemu/"
+feature_image: "/images/posts/IMG_0871.jpg"
 ---
 
 ### The digression starts over here:
@@ -55,4 +56,4 @@ _Hmmmm....._
       -vga vmware
     )
 
-    qemu-system-x86_64 "$&#123;args[@]&#125;"
+    qemu-system-x86_64 "${args[@]}"

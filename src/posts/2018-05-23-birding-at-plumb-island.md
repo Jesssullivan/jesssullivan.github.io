@@ -6,6 +6,7 @@ tags: ["Birding", "Featured"]
 published: true
 slug: "birding-at-plumb-island"
 original_url: "https://transscendsurvival.org/2018/05/23/birding-at-plumb-island/"
+feature_image: "/images/posts/IMG_7092-Edit.jpg"
 ---
 
 While somewhat of a historical entry:

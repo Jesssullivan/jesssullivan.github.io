@@ -6,6 +6,7 @@ tags: ["Nature Observations"]
 published: true
 slug: "mega-langdon"
 original_url: "https://transscendsurvival.org/2017/05/07/mega-langdon/"
+feature_image: "/images/posts/IMG_9220-1.jpg"
 ---
 
 Well. There comes a time when one remembering [the right things at the right time equates to a high-stakes venture in academia](https://en.wikipedia.org/wiki/Final_examination).
