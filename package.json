@@ -55,8 +55,5 @@
     "shiki": "^3.22.0",
     "tailwindcss": "^4.0.0"
   },
-  "type": "module",
-  "overrides": {
-    "sharp": "0.33.5"
-  }
+  "type": "module"
 }
