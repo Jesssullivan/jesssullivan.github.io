@@ -7,8 +7,13 @@ test.describe('Media Recovery & Image Integrity', () => {
 		const count = await images.count();
 		for (let i = 0; i < count; i++) {
 			const img = images.nth(i);
-			const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
+			// Scroll lazy-loaded images into view and wait for them to load
+			await img.scrollIntoViewIfNeeded();
 			const src = await img.getAttribute('src');
+			await img.evaluate((el: HTMLImageElement) =>
+				el.complete ? undefined : new Promise((r) => { el.onload = r; el.onerror = r; })
+			);
+			const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
 			// naturalWidth of 0 means image failed to load
 			expect(naturalWidth, `Image failed to load: ${src}`).toBeGreaterThan(0);
 		}
