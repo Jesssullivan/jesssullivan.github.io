@@ -6,9 +6,12 @@ tags: ["Tailscale", "DevOps"]
 published: false
 slug: "bootstrapping-aperture-config-with-tsnet"
 category: "devops"
+feature_image: "/images/posts/aperture-security-model.png"
 source_repo: "Jesssullivan/aperture-bootstrap"
 source_path: "blog/part-2-bootstrap.md"
 ---
+
+# Part 2: Bootstrapping Aperture Config with tsnet
 
 *A throwaway Go program, an ephemeral node, and a five-minute escape hatch.*
 
@@ -16,7 +19,7 @@ source_path: "blog/part-2-bootstrap.md"
 
 ## Where we left off
 
-[Part 1](/blog/aperture-tagged-device-identity-gap) ended with us locked out of Aperture.  Every device on our tailnet was tagged, Aperture's role system doesn't recognize tagged identities, and we couldn't access the config API to fix it.
+[Part 1](/blog/aperture-and-the-tagged-device-identity-gap) ended with us locked out of Aperture.  Every device on our tailnet was tagged, Aperture's role system doesn't recognize tagged identities, and we couldn't access the config API to fix it.
 
 We needed a way to talk to Aperture as a **user-owned** device — one that presents a real email address in WhoIs.
 
@@ -246,4 +249,4 @@ just bootstrap
 
 ---
 
-*This is Part 2 of a two-part series.  [Part 1](/blog/aperture-tagged-device-identity-gap) covers the identity gap problem.  This post covers the tsnet solution.*
+*This is Part 2 of a two-part series.  [Part 1](/blog/aperture-and-the-tagged-device-identity-gap) covers the identity gap problem.  This post covers the tsnet solution.*

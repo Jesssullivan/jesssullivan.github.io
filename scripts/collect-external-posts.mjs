@@ -15,14 +15,15 @@
  * Usage: node scripts/collect-external-posts.mjs [--repos owner/name,...]
  */
 
-import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
-import { join, dirname, basename } from 'path';
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const POSTS_DIR = join(ROOT, 'src', 'posts');
+const IMAGES_DIR = join(ROOT, 'static', 'images', 'posts');
 const SOURCES_PATH = join(ROOT, '.github', 'blog-sources.json');
 const MANIFEST_PATH = join(ROOT, '.github', 'external-posts.json');
 
@@ -79,6 +80,51 @@ function fetchRepoFiles(repo, paths) {
 		}
 	}
 	return files;
+}
+
+// ---------------------------------------------------------------------------
+// Fetch images from a repo's blog/images/ directory
+// ---------------------------------------------------------------------------
+
+const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']);
+
+function fetchRepoImages(repo, scanPaths) {
+	const images = []; // { remotePath, name, data (Buffer) }
+	const imageDirs = scanPaths.map((p) => p.replace(/\/$/, '') + '/images/');
+	// Also check top-level blog/images/ explicitly
+	imageDirs.push('blog/images/');
+
+	const seen = new Set();
+	for (const dir of imageDirs) {
+		if (seen.has(dir)) continue;
+		seen.add(dir);
+		try {
+			const listing = execSync(
+				`gh api repos/${repo}/contents/${dir} --jq '.[].name'`,
+				{ encoding: 'utf-8' }
+			).trim();
+			for (const name of listing.split('\n').filter(Boolean)) {
+				if (!IMAGE_EXTS.has(extname(name).toLowerCase())) continue;
+				try {
+					// Download binary via gh api (base64 encoded)
+					const b64 = execSync(
+						`gh api repos/${repo}/contents/${dir}${name} --jq '.content'`,
+						{ encoding: 'utf-8' }
+					).trim();
+					images.push({
+						remotePath: `${dir}${name}`,
+						name,
+						data: Buffer.from(b64, 'base64')
+					});
+				} catch {
+					console.log(`  warn: failed to download ${dir}${name}`);
+				}
+			}
+		} catch {
+			// No images directory — skip
+		}
+	}
+	return images;
 }
 
 // ---------------------------------------------------------------------------
@@ -156,6 +202,18 @@ for (const repo of repos) {
 	console.log(`Scanning ${repo}...`);
 	const files = fetchRepoFiles(repo, sources.scan_paths);
 
+	// Fetch images from the source repo's blog/images/ directories
+	const repoImages = fetchRepoImages(repo, sources.scan_paths);
+	const copiedImages = new Map(); // remoteName -> local path
+	for (const img of repoImages) {
+		const localPath = join(IMAGES_DIR, img.name);
+		if (!existsSync(localPath)) {
+			writeFileSync(localPath, img.data);
+			console.log(`  image ${img.remotePath} → static/images/posts/${img.name}`);
+		}
+		copiedImages.set(img.name, `/images/posts/${img.name}`);
+	}
+
 	for (const file of files) {
 		const fm = parseFrontmatter(file.content);
 		if (!fm) {
@@ -194,6 +252,49 @@ for (const repo of repos) {
 			body = body.replace(/^#\s+.+\n*/, '');
 		}
 
+		// Rewrite relative image references to /images/posts/ paths
+		for (const [name, localPath] of copiedImages) {
+			// Match markdown images: ![alt](images/name) or ![alt](./images/name)
+			const patterns = [
+				new RegExp(`\\(!?\\.?/?images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g'),
+				new RegExp(`\\(!?\\.?/?blog/images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g')
+			];
+			for (const pat of patterns) {
+				body = body.replace(pat, `(${localPath})`);
+			}
+		}
+
+		// Substitute unsupported code block languages
+		body = body.replace(/```dhall/g, '```haskell');
+
+		// Rewrite inter-post links: (part-1-identity.md) → (/blog/slug)
+		// Collect all post filenames and their slugs for cross-referencing
+		body = body.replace(/\(([^)]*\.md)\)/g, (match, mdRef) => {
+			// Find matching file in this collection batch
+			const refFile = files.find((f) => f.path.endsWith(mdRef) || basename(f.path) === mdRef);
+			if (refFile) {
+				const refFm = parseFrontmatter(refFile.content);
+				if (refFm?.title) {
+					const refSlug = refFm.slug || slugify(refFm.title);
+					return `(/blog/${refSlug})`;
+				}
+			}
+			return match;
+		});
+
+		// Resolve feature_image: use frontmatter value, or first copied image
+		let featureImage = fm.feature_image || '';
+		if (featureImage) {
+			// Rewrite relative feature_image paths
+			const imgName = basename(featureImage);
+			if (copiedImages.has(imgName)) {
+				featureImage = copiedImages.get(imgName);
+			}
+		} else if (copiedImages.size > 0) {
+			// Auto-assign first available image as feature image
+			featureImage = copiedImages.values().next().value;
+		}
+
 		// Build frontmatter block
 		const newFm = [
 			'---',
@@ -204,6 +305,7 @@ for (const repo of repos) {
 			`published: false`,
 			`slug: "${slug}"`,
 			category ? `category: "${category}"` : null,
+			featureImage ? `feature_image: "${featureImage}"` : null,
 			`source_repo: "${repo}"`,
 			`source_path: "${file.path}"`,
 			'---'
