@@ -9,6 +9,9 @@ test.describe('Media Recovery & Image Integrity', () => {
 			const imgs = Array.from(document.querySelectorAll('img'));
 			const broken: string[] = [];
 			for (const img of imgs) {
+				const src = img.getAttribute('src') || '';
+				// Skip external images (can't load from local preview server)
+				if (src.startsWith('http://') || src.startsWith('https://')) continue;
 				// Skip hidden images (display:none, zero-size containers)
 				if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') continue;
 				// Force load by scrolling into view
@@ -17,7 +20,7 @@ test.describe('Media Recovery & Image Integrity', () => {
 					await new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r(); });
 				}
 				if (img.naturalWidth === 0) {
-					broken.push(img.getAttribute('src') || '(no src)');
+					broken.push(src || '(no src)');
 				}
 			}
 			return broken;
