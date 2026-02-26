@@ -1,10 +1,9 @@
 # Template: Add this workflow to source repos that contain blog posts.
 # It notifies jesssullivan.github.io to collect new content via repository_dispatch.
 #
-# Prerequisites:
-#   - GitHub App with DISPATCH_APP_ID set as a repository variable
-#   - DISPATCH_APP_KEY set as a repository secret
-#   - The App must have permissions on jesssullivan.github.io
+# Prerequisite:
+#   BLOG_DISPATCH_TOKEN secret — a PAT with contents:write on jesssullivan.github.io
+#   Run: ./scripts/propagate-dispatch-secret.sh to set it on all repos
 #
 # Copy this file to: .github/workflows/notify-blog.yml
 
@@ -18,20 +17,12 @@ on:
 jobs:
   notify:
     runs-on: ubuntu-latest
+    if: vars.BLOG_DISPATCH_ENABLED != 'false'
     steps:
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.DISPATCH_APP_ID }}
-          private-key: ${{ secrets.DISPATCH_APP_KEY }}
-          owner: Jesssullivan
-          repositories: jesssullivan.github.io
-
       - name: Trigger blog post collection
         run: |
           gh api repos/Jesssullivan/jesssullivan.github.io/dispatches \
             -f event_type=blog-content-changed \
             -f 'client_payload[source_repo]=${{ github.repository }}'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ secrets.BLOG_DISPATCH_TOKEN }}
