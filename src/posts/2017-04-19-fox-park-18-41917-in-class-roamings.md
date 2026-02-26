@@ -7,6 +7,7 @@ published: true
 slug: "fox-park-18-41917-in-class-roamings"
 original_url: "https://transscendsurvival.org/2017/04/19/fox-park-18-41917-in-class-roamings/"
 feature_image: "/images/posts/IMG_1221-Edit.jpg"
+category: "ecology"
 ---
 
 At around 9:35 yesterday morning, the natural history class gathered in Fox Park under an amazing clear sky and a light wind. Instead of going into the level of detail as I did over the winter (there were quite frankly less details to be had over the winter) I will try to summarize the two most significant findings .

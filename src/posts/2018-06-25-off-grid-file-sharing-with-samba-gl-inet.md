@@ -7,6 +7,7 @@ published: true
 slug: "off-grid-file-sharing-with-samba-gl-inet"
 original_url: "https://transscendsurvival.org/2018/06/25/off-grid-file-sharing-with-samba-gl-inet/"
 feature_image: "/images/posts/IMG_2967-Edit.jpg"
+category: "devops"
 ---
 
 _Note: SMB / SharePoint is surely better with a proper server/computer. A Raspberry Pi running OpenMediaVault (Debian) is a more common and robust option (still 5v low power)._

@@ -7,6 +7,7 @@ published: true
 slug: "ever-tried-to-chrome-remote-ubuntu-xd"
 original_url: "https://transscendsurvival.org/2020/07/23/ever-tried-to-chrome-remote-ubuntu-xd/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "devops"
 ---
 
 [_Check out this project on my Github over here 🙂_](https://github.com/Jesssullivan/chrome-remote-desktop-budgie)
@@ -26,19 +27,21 @@ The trouble comes when you are trying to remote in- some problems you may encoun
 
 **_Patch it up:_**
 
-    # get this script:
-    wget https://raw.githubusercontent.com/Jesssullivan/chrome-remote-desktop-budgie/master/chrome-remote-desktop
+```bash
+# get this script:
+wget https://raw.githubusercontent.com/Jesssullivan/chrome-remote-desktop-budgie/master/chrome-remote-desktop
 
-    # or:
-    git clone https://github.com/Jesssullivan/chrome-remote-desktop-budgie/
-    cd chrome-remote-desktop-budgie
+# or:
+git clone https://github.com/Jesssullivan/chrome-remote-desktop-budgie/
+cd chrome-remote-desktop-budgie
 
-    # behold:
-    python3 chrome-remote-desktop
+# behold:
+python3 chrome-remote-desktop
 
-    # ...perhaps, if you are keen (optional):
-    # sudo chmod u+x addsystemd.sh
-    # sudo ./addsystemd.sh
+# ...perhaps, if you are keen (optional):
+# sudo chmod u+x addsystemd.sh
+# sudo ./addsystemd.sh
+```
 
 **_What does this do?_**
 

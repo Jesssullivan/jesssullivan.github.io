@@ -7,6 +7,7 @@ published: true
 slug: "the-big-len-list"
 original_url: "https://transscendsurvival.org/2017/05/03/the-big-len-list/"
 feature_image: "/images/posts/IMG_5415-2.jpg"
+category: "ecology"
 ---
 
 This morning at 7am, very few birds were singing. Behind the Rugby field in a solid rain, a small group of people stood with their noses to the sky. This is PSU's very own Len R. -led class on vertebrate zoology. Now, please note I do not take this class, but I know a thing or two about Len. Len is a bird master; this means vertebrate zoology in the springtime may just equate to an excellent excuse to find and learn about birds and warblers on the premise of a college class. Thank goodness warblers have backbones.

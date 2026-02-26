@@ -7,6 +7,7 @@ published: true
 slug: "fusion-360-for-3d-printing-w-jess"
 original_url: "https://www.transscendsurvival.org/2023/03/01/fusion-360-for-3d-printing-w-jess/"
 feature_image: "/images/posts/IMG_0815-Edit.jpg"
+category: "hardware"
 ---
 
 _Next class: April 3rd, 6pm - 8pm_

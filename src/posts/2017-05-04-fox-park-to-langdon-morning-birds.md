@@ -7,6 +7,7 @@ published: true
 slug: "fox-park-to-langdon-morning-birds"
 original_url: "https://transscendsurvival.org/2017/05/04/fox-park-to-langdon-morning-birds/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "ecology"
 ---
 
 Without further ado:

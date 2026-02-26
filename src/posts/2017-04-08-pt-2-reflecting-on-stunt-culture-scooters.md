@@ -7,6 +7,7 @@ published: true
 slug: "pt-2-reflecting-on-stunt-culture-scooters"
 original_url: "https://transscendsurvival.org/2017/04/08/pt-2-reflecting-on-stunt-culture-scooters/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "personal"
 ---
 
 Gone are the days of hoodies and hooligans (or rather, that crowd seems to be moving somewhere else) at the skate park. In their place is the new generation: 12 year olds tearing about on scooters. These kids are tuned into the vast, global network of scooter riders who wear their helmets, knee pads, and elbow pads and give strangers high-fives for doing a good job.

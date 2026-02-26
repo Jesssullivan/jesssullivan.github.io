@@ -7,6 +7,7 @@ published: true
 slug: "mpcnc-it-moves"
 original_url: "https://transscendsurvival.org/2017/07/25/mpcnc-it-moves/"
 feature_image: "/images/posts/IMG_2363-Edit.jpg"
+category: "hardware"
 ---
 
 These are some photos of the current [MPCNC](https://www.vicious1.com/information/) project coming alive in the Sulliwood basement. The MPCNC is a (relatively) low cost, 3d printed CNC (computer numerical control=does stuff by itself)- featured here is the spindle (actually a drywall cutter) and a mashup mk8-style extruder. Below, you can see what I see before it is cutting time in the CAM module of Fusion 360. That object is half of a "trial run" pottery stand for someone's art show....

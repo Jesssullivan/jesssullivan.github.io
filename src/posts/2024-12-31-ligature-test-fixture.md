@@ -6,6 +6,7 @@ tags: ["test"]
 published: true
 slug: "ligature-test-fixture"
 feature_image: "/images/posts/orange-wood-ducks.jpg"
+category: "hardware"
 ---
 
 This post exists to verify that Fira Code ligatures render in code blocks.

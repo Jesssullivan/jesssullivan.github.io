@@ -7,6 +7,7 @@ published: true
 slug: "addendum-to-secret-beach-area-natural-history-class-walk"
 original_url: "https://transscendsurvival.org/2017/04/20/addendum-to-secret-beach-area-natural-history-class-walk/"
 feature_image: "/images/posts/IMG_0797-Edit.jpg"
+category: "ecology"
 ---
 
 _"by[Christopher Myrick](http://www.plymouth.edu/courses/user/view.php?id=30487&course=36400) \- Thursday, April 20, 2017, 5:38 PM_

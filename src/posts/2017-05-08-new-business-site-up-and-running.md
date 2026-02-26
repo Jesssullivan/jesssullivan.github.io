@@ -7,6 +7,7 @@ published: true
 slug: "new-business-site-up-and-running"
 original_url: "https://transscendsurvival.org/2017/05/08/new-business-site-up-and-running/"
 feature_image: "/images/posts/IMG_2363-Edit.jpg"
+category: "personal"
 ---
 
 http://jessphoto.transscendsurvival.plymouthcreate.net/

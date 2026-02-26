@@ -7,6 +7,7 @@ published: true
 slug: "wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark"
 original_url: "https://transscendsurvival.org/2017/03/11/wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark/"
 feature_image: "/images/posts/IMG_0815-Edit.jpg"
+category: "ecology"
 ---
 
 I hit the trails at 5 am sharp Friday 3/10/17. Nice morning, some cloud cover but a reasonable temperature for prospective chipmunks for jaunt out of the subnivean environment.

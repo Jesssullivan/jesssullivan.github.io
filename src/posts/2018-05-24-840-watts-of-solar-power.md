@@ -7,6 +7,7 @@ published: true
 slug: "840-watts-of-solar-power"
 original_url: "https://transscendsurvival.org/2018/05/24/840-watts-of-solar-power/"
 feature_image: "/images/posts/IMG_3311-1.jpg"
+category: "hardware"
 ---
 
 Equipment used:

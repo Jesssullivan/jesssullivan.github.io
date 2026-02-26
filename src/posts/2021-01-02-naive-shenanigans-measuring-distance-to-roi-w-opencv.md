@@ -7,6 +7,7 @@ published: true
 slug: "naive-shenanigans-measuring-distance-to-roi-w-opencv"
 original_url: "https://www.transscendsurvival.org/2021/01/02/naive-shenanigans-measuring-distance-to-roi-w-opencv/"
 feature_image: "/images/posts/IMG_1221-Edit.jpg"
+category: "software"
 ---
 
 * _visit these notes_ [_over here on github!_](https://github.com/Jesssullivan/misc-roi-distance-notes/)
@@ -76,36 +77,38 @@ cascade = cv2.CascadeClassifier('./haar/haarcascade_frontalface_alt2.xml')
 
 while True:
 
-    # Capture & resize a single image:
-    _, image = cap.read()
-    image = cv2.resize(image, (0, 0), fx=.7, fy=0.7, interpolation=cv2.INTER_NEAREST)
+```
+# Capture & resize a single image:
+_, image = cap.read()
+image = cv2.resize(image, (0, 0), fx=.7, fy=0.7, interpolation=cv2.INTER_NEAREST)
 
-    # Convert to greyscale while processing:
-    gray_conv = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray_conv, (7, 7), 0)
+# Convert to greyscale while processing:
+gray_conv = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = cv2.GaussianBlur(gray_conv, (7, 7), 0)
 
-    # get image dimensions:
-    gray_width = gray.shape[1]
-    gray_height = gray.shape[0]
+# get image dimensions:
+gray_width = gray.shape[1]
+gray_height = gray.shape[0]
 
-    focal_value = (gray_height / 2) / math.tan(math.radians(DFOV_DEGREES / 2))
+focal_value = (gray_height / 2) / math.tan(math.radians(DFOV_DEGREES / 2))
 
-    # run detector:
-    result = cascade.detectMultiScale(gray)
+# run detector:
+result = cascade.detectMultiScale(gray)
 
-    for x, y, h, w in result:
+for x, y, h, w in result:
 
-        dist = KNOWN_ROI_MM * focal_value / h
-        dist_in = dist / 25.4
+    dist = KNOWN_ROI_MM * focal_value / h
+    dist_in = dist / 25.4
 
-        # update display:
-        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        cv2.putText(image, 'Distance:' + str(round(dist_in)) + ' Inches',
-                    (5, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv2.imshow('face detection', image)
+    # update display:
+    cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    cv2.putText(image, 'Distance:' + str(round(dist_in)) + ' Inches',
+                (5, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    cv2.imshow('face detection', image)
 
-        if cv2.waitKey(1) == ord('q'):
-            break
+    if cv2.waitKey(1) == ord('q'):
+        break
+```
 ```
 
 _run demo with:_

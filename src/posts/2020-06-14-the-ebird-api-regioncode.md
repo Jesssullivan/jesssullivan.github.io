@@ -7,6 +7,7 @@ published: true
 slug: "the-ebird-api-regioncode"
 original_url: "https://transscendsurvival.org/2020/06/14/the-ebird-api-regioncode/"
 feature_image: "/images/posts/IMG_5415-2.jpg"
+category: "tutorial"
 ---
 
 [_get this script and other GIS bits here on github_](https://github.com/Jesssullivan/GIS_Shortcuts)
@@ -61,25 +62,27 @@ import json
 
 def get_regioncode(lat, lon):
 
-    # this municipal api is a publicly available, no keys needed afaict
-    census_url = str('https://geo.fcc.gov/api/census/area?lat=' +
-                     str(lat) +
-                     '&lon=' +
-                     str(lon) +
-                     '&format=json')
+```
+# this municipal api is a publicly available, no keys needed afaict
+census_url = str('https://geo.fcc.gov/api/census/area?lat=' +
+                 str(lat) +
+                 '&lon=' +
+                 str(lon) +
+                 '&format=json')
 
-    # send out a GET request:
-    payload = {}
-    get = requests.request("GET", census_url, data=payload)
+# send out a GET request:
+payload = {}
+get = requests.request("GET", census_url, data=payload)
 
-    # parse the response, all api values are contained in list 'results':
-    response = json.loads(get.content)['results'][0]
+# parse the response, all api values are contained in list 'results':
+response = json.loads(get.content)['results'][0]
 
-    # use the last three digits from the in-state fips code as the "subnational 2" identifier:
-    fips = response['county_fips']
+# use the last three digits from the in-state fips code as the "subnational 2" identifier:
+fips = response['county_fips']
 
-    # assemble and return the "subnational type 2" code:
-    regioncode = 'US-' + response['state_code'] + '-' + fips[2] + fips[3] + fips[4]
-    print('formed region code: ' + regioncode)
-    return regioncode
+# assemble and return the "subnational type 2" code:
+regioncode = 'US-' + response['state_code'] + '-' + fips[2] + fips[3] + fips[4]
+print('formed region code: ' + regioncode)
+return regioncode
+```
 ```

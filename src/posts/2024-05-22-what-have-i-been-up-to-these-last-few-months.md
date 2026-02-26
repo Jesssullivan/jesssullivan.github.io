@@ -7,6 +7,7 @@ published: true
 slug: "what-have-i-been-up-to-these-last-few-months"
 original_url: "https://www.transscendsurvival.org/2024/05/22/what-have-i-been-up-to-these-last-few-months/"
 feature_image: "/images/posts/IMG_6649-Edit.jpg"
+category: "personal"
 ---
 
 ![Bates Sports - YouTube](https://yt3.googleusercontent.com/2pPw4acB2M-On6TW6Bjse6W0XXMJC_GsbJ-mEAzC22pMPVX26R_4pPp5j-j0Y7iaqzCJrjVvzg=s900-c-k-c0x00ffffff-no-rj)**I am off to do cool stuff at Bates College! 🚀** I am pleased to shared I have accepted position as a Systems Analyst at Bates. That’s right- I’ve moved from Ithaca to the middle of Maine, by way of Northampton, MA!

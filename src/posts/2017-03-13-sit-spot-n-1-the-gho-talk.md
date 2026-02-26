@@ -7,6 +7,7 @@ published: true
 slug: "sit-spot-n-1-the-gho-talk"
 original_url: "https://transscendsurvival.org/2017/03/13/sit-spot-n-1-the-gho-talk/"
 feature_image: "/images/posts/IMG_5415-2.jpg"
+category: "ecology"
 ---
 
 Great horned owls. Except for the only exception feasible- [Which is of course the Great Grey Owl who has decided to move to southern NH from its previous home in frigid Canada](http://www.wmur.com/article/rare-great-gray-owl-spotted-several-times-in-newport/9104108)\- the GHO is the ultimate, TOTL, high-ender of the hunters in New England at the very least. There is a reason all the other members of the animal kingdom hate these "_Bubo_ " eagle-owls as much as they do. GHO's have every trick in the book, every bell, whistle, and gadget, making the whole evolution game seem wholly unfair to, say, an unassuming chipmunk. I wanted to give a quick rundown of the key toys and tools the GHO has at its immediate disposal, why I care, and why everyone else should care.

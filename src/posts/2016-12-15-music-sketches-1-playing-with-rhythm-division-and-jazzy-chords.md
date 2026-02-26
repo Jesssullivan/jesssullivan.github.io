@@ -7,6 +7,7 @@ published: true
 slug: "music-sketches-1-playing-with-rhythm-division-and-jazzy-chords"
 original_url: "https://transscendsurvival.org/2016/12/15/music-sketches-1-playing-with-rhythm-division-and-jazzy-chords/"
 feature_image: "/images/posts/IMG_2967-Edit.jpg"
+category: "music"
 ---
 
 *The audio file that lived here didn't survive the migration from WordPress.*

@@ -7,6 +7,7 @@ published: true
 slug: "deploy-shiny-r-apps-along-node-js"
 original_url: "https://transscendsurvival.org/2018/11/25/deploy-shiny-r-apps-along-node-js/"
 feature_image: "/images/posts/img_8694.jpg"
+category: "tutorial"
 ---
 
 **Find the tools in action on Heroku as a node.js app!**

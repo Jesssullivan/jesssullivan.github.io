@@ -7,6 +7,7 @@ published: true
 slug: "how-to-query-kml-point-data-as-csv-using-qgis-and-r"
 original_url: "https://transscendsurvival.org/2018/06/10/how-to-query-kml-point-data-as-csv-using-qgis-and-r/"
 feature_image: "/images/posts/Screen-Shot-2018-06-10-at-8.28.16-AM.png"
+category: "tutorial"
 ---
 
 How to Query KML point data as CSV using QGIS and R
@@ -39,23 +40,25 @@ Select CSV and elect to save the file instead of use a temporary/scratch file (t
 
 **The R bit:**
 
-    _# query for paired birds
+```r
+_# query for paired birds
 
-    #EDIT:  Libraries
-    library(data.table)
-    library(tidyverse)_
+#EDIT:  Libraries
+library(data.table)
+library(tidyverse)_
 
-    data &lt;- data.frame(fread("Bird_CSV.csv"))
+data <- data.frame(fread("Bird_CSV.csv"))
 
-    pair_rows &lt;- contains("pair", vars = data$description)
+pair_rows <- contains("pair", vars = data$description)
 
-    fem_rows &lt;- contains("fem", vars = data$description)
+fem_rows <- contains("fem", vars = data$description)
 
-    result &lt;- combine(pair_rows, fem_rows)
+result <- combine(pair_rows, fem_rows)
 
-    result &lt;- data[result,]
+result <- data[result,]
 
-    write_csv(result, "Paired_Birds.csv")
+write_csv(result, "Paired_Birds.csv")
+```
 
 **Tada!**
 

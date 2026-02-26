@@ -7,6 +7,7 @@ published: true
 slug: "parking-lotsit-spot-fox-park-10-33117-whoos-clues"
 original_url: "https://transscendsurvival.org/2017/03/31/parking-lotsit-spot-fox-park-10-33117-whoos-clues/"
 feature_image: "/images/posts/IMG_0431.jpg"
+category: "ecology"
 ---
 
 I entered the Fox Park parking lot at approximately 5:30, about an hour before sunrise. 32 degrees, partly cloudy, and very dark and supremely quiet.

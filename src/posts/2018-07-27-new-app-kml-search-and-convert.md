@@ -7,6 +7,7 @@ published: true
 slug: "new-app-kml-search-and-convert"
 original_url: "https://transscendsurvival.org/2018/07/27/new-app-kml-search-and-convert/"
 feature_image: "/images/posts/orange-wood-ducks.jpg"
+category: "software"
 ---
 
 Written in R; using GDAL/EXPAT libraries on Ubuntu and hosted with AWS EC2.

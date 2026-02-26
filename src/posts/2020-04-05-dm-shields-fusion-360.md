@@ -7,6 +7,7 @@ published: true
 slug: "dm-shields-fusion-360"
 original_url: "https://transscendsurvival.org/2020/04/05/dm-shields-fusion-360/"
 feature_image: "/images/posts/IMG_0815-Edit.jpg"
+category: "hardware"
 ---
 
 As of 4/4/20, we are busy 3d printing our rigid shield design, efficiently hacked into its current form by Bret here at D&M. [click here to visit or download the Fusion files!](https://a360.co/39I4iE0)

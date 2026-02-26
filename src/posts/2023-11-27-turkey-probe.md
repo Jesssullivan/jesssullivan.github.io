@@ -7,6 +7,7 @@ published: true
 slug: "turkey-probe"
 original_url: "https://www.transscendsurvival.org/2023/11/27/turkey-probe/"
 feature_image: "/images/posts/Version0_Animated.gif"
+category: "hardware"
 ---
 
 ![Turkey Probe](/images/posts/Version0_Animated.gif)

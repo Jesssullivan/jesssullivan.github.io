@@ -7,6 +7,7 @@ published: true
 slug: "develop-limitless-habitual-soithen_soicould_-ethos"
 original_url: "https://transscendsurvival.org/2016/12/21/develop-limitless-habitual-soithen_soicould_-ethos/"
 feature_image: "/images/posts/IMG_0145-Edit.jpg"
+category: "personal"
 ---
 
 _Some call it yak shearing._

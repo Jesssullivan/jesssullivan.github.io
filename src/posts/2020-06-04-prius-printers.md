@@ -7,6 +7,7 @@ published: true
 slug: "prius-printers"
 original_url: "https://transscendsurvival.org/2020/06/04/prius-printers/"
 feature_image: "/images/posts/IMG_1221-Edit.jpg"
+category: "hardware"
 ---
 
 **_Add EV only mode button for 2009 Prius-_**

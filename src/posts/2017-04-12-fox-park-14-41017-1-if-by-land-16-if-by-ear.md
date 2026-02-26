@@ -7,6 +7,7 @@ published: true
 slug: "fox-park-14-41017-1-if-by-land-16-if-by-ear"
 original_url: "https://transscendsurvival.org/2017/04/12/fox-park-14-41017-1-if-by-land-16-if-by-ear/"
 feature_image: "/images/posts/IMG_0145-Edit.jpg"
+category: "ecology"
 ---
 
 Just a quick sit spot walk through. Every bird was found be ear first, or only by ear. They are singing! Wah hoo!

@@ -7,6 +7,7 @@ published: true
 slug: "while-at-a-safe-distance"
 original_url: "https://transscendsurvival.org/2020/05/18/while-at-a-safe-distance/"
 feature_image: "/images/posts/IMG_0872.jpg"
+category: "music"
 ---
 
 ...Playing with [Bandlab's Sonar reboot](https://www.bandlab.com/products/cakewalk) \--> [morning metal](https://soundcloud.com/jesssullivan/tracks) ....Frankly the whole suite (yes, Melodyne, the whole nine yards) is way better than when it was with the late Cakewalk, and its all free now. PSA!

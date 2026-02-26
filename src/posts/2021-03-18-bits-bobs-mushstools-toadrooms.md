@@ -7,6 +7,7 @@ published: true
 slug: "bits-bobs-mushstools-toadrooms"
 original_url: "https://www.transscendsurvival.org/2021/03/18/bits-bobs-mushstools-toadrooms/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "ecology"
 ---
 
 ...Despite being a chilly & wintery March up here in the White Mountains, there is no shortage of fun birds and exciting projects!
@@ -21,7 +22,9 @@ feature_image: "/images/posts/IMG_0871.jpg"
 
 _It's happening, and its going to be awesome_ [**_visit this project over here on GitHub_**](https://github.com/Jesssullivan/image-identifer)
 
-    git clone https://github.com/Jesssullivan/image-identifer/ && cd image-identifer
+```bash
+git clone https://github.com/Jesssullivan/image-identifer/ && cd image-identifer
+```
 
 **_Overview:_**
 
@@ -37,10 +40,12 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
 
 ### _Setup:_
 
-    # venv:
-    python3 -m venv mushroomobserver_venv
-    source mushroomobserver_venv/bin/activate
-    pip3 install -r requirements.txt
+```
+# venv:
+python3 -m venv mushroomobserver_venv
+source mushroomobserver_venv/bin/activate
+pip3 install -r requirements.txt
+```
 
 ####
 
@@ -54,7 +59,9 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
 
 ### _Preprocess:_
 
-    python3 preprocess
+```bash
+python3 preprocess
+```
 
   * Fetches & saves off gbif archive to `./static/`
     * Checks the archive, tries loading it into memory etc
@@ -67,7 +74,9 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
 
 ### _Train:_
 
-    python3 train
+```bash
+python3 train
+```
 
   * Fetches, divvies & shuffles train / validation sets from within Keras using archive available at [_mo.columbari.us/static/images.tgz_](https://mo.columbari.us/static/images.tgz)
   * More or less running Google's demo transfer learning training script in `train/training_v1.py` as of _03/17/21_ , still need to bring in training operations and whatnot from merlin_ai/ repo --> experiment with Danish Mycology Society's ImageNet v4 notes
@@ -85,13 +94,15 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
 
           cp train/notebook/training_v1.ipynb.bak train/notebook/training_v1.ipynb
 
-    * launch jupyter:
+```
+* launch jupyter:
 
-          jupyter notebook
+      jupyter notebook
 
-    * or without authentication:
+* or without authentication:
 
-          jupyter notebook --ip='*' --NotebookApp.token='' --NotebookApp.password ''
+      jupyter notebook --ip='*' --NotebookApp.token='' --NotebookApp.password ''
+```
 
   *     * -
 
@@ -107,30 +118,34 @@ _It's happening, and its going to be awesome_ [**_visit this project over here o
     * **src** : _imageURL_ The asset's source URL form Mushroom Observer
 
           [{
-          "id": "12326",
-          "category_id": "Peltula euploca",
-          "url": "https://mo.columbari.us/static/images/peltula_euploca/290214.jpg"
-          "src": "https://images.mushroomobserver.org/640/290214.jpg"
-          }]
+```
+      "id": "12326",
+      "category_id": "Peltula euploca",
+      "url": "https://mo.columbari.us/static/images/peltula_euploca/290214.jpg"
+      "src": "https://images.mushroomobserver.org/640/290214.jpg"
+      }]
+```
 
   * _Selected asset directory structure:_
 
         ├── static
-        ├── gbif.zip
-        ├── images
-        |   ...
-        │   └── peltula_euploca
-        │       ├── 290214.jpg
-        │       ...
-        │       └── 522128.jpg
-        │   ...
-        ├── images.json
-        ├── images.tgz
-        ├── js
-        │   ├── leaflet.annotation.js
-        │   └── leaflet.annotation.js.LICENSE.txt
-        └── sample_select_assets.csv
-        ...
+```
+    ├── gbif.zip
+    ├── images
+    |   ...
+    │   └── peltula_euploca
+    │       ├── 290214.jpg
+    │       ...
+    │       └── 522128.jpg
+    │   ...
+    ├── images.json
+    ├── images.tgz
+    ├── js
+    │   ├── leaflet.annotation.js
+    │   └── leaflet.annotation.js.LICENSE.txt
+    └── sample_select_assets.csv
+    ...
+```
 
   *     * -
 

@@ -7,11 +7,14 @@ published: true
 slug: "convert-heic-png"
 original_url: "https://transscendsurvival.org/2020/04/09/convert-heic-png/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "tutorial"
 ---
 
 [_on github here_](https://github.com/Jesssullivan/misc/blob/master/etc/heic_png.sh), _or just get this script:_
 
-    wget https://raw.githubusercontent.com/Jesssullivan/misc/master/etc/heic_png.sh
+```bash
+wget https://raw.githubusercontent.com/Jesssullivan/misc/master/etc/heic_png.sh
+```
 
 Well, following the current course of Apple’s corporate brilliance, iOS now defaults to .heic compression for photos.
 
@@ -21,45 +24,47 @@ Without further delay, let's convert these to png, here from the sanctuary of Ba
 
 [_Libheif is well documented here on Github BTW_](https://github.com/strukturag/libheif)
 
-    #!/bin/bash
-    # recursively convert .heic to png
-    # by Jess Sullivan
-    #
-    # permiss:
-    # sudo chmod u+x heic_png.sh
-    #
-    # installs heif-convert via ppa:
-    # sudo ./heic_png.sh
-    #
-    # run as $USER:
-    # ./heic_png.sh
+```bash
+#!/bin/bash
+# recursively convert .heic to png
+# by Jess Sullivan
+#
+# permiss:
+# sudo chmod u+x heic_png.sh
+#
+# installs heif-convert via ppa:
+# sudo ./heic_png.sh
+#
+# run as $USER:
+# ./heic_png.sh
 
-    command -v heif-convert >/dev/null || {
+command -v heif-convert >/dev/null || {
 
-      echo >&2 -e "heif-convert not intalled! \nattempting to add ppa....";
+  echo >&2 -e "heif-convert not intalled! \nattempting to add ppa....";
 
-      if [[ $EUID -ne 0 ]]; then
-         echo "sudo is required to install, aborting."
-         exit 1
-      fi
+  if [[ $EUID -ne 0 ]]; then
+     echo "sudo is required to install, aborting."
+     exit 1
+  fi
 
-      add-apt-repository ppa:strukturag/libheif
-      apt-get install libheif-examples -y
-      apt-get update -y
+  add-apt-repository ppa:strukturag/libheif
+  apt-get install libheif-examples -y
+  apt-get update -y
 
-      exit 0
+  exit 0
 
-      }
+  }
 
-    # default behavior:
+# default behavior:
 
-    for fi in *.heic; do
+for fi in *.heic; do
 
-      echo "converting file: $fi"
+  echo "converting file: $fi"
 
-      heif-convert $fi $fi.png
+  heif-convert $fi $fi.png
 
-     # FWIW, convert to .jpg is faster if png is not required
-     # heif-convert $fi $fi.jpg
+ # FWIW, convert to .jpg is faster if png is not required
+ # heif-convert $fi $fi.jpg
 
-      done
+  done
+```

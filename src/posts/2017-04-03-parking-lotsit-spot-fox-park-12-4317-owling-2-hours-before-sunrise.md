@@ -7,6 +7,7 @@ published: true
 slug: "parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise"
 original_url: "https://transscendsurvival.org/2017/04/03/parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise/"
 feature_image: "/images/posts/IMG_1221-Edit.jpg"
+category: "ecology"
 ---
 
 It was very dark when I left the parking lot variant of my sit spot, and still it still is. Was it worth it? Maybe.

@@ -7,6 +7,7 @@ published: true
 slug: "research-year-two-three-photos"
 original_url: "https://transscendsurvival.org/2018/05/31/research-year-two-three-photos/"
 feature_image: "/images/posts/IMG_8381-Edit.jpg"
+category: "photography"
 ---
 
 [![](/images/posts/IMG_8381-Edit.jpg)](/images/posts/IMG_8381-Edit.jpg)

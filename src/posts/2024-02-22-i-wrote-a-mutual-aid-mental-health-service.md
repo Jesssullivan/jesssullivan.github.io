@@ -7,6 +7,7 @@ published: true
 slug: "i-wrote-a-mutual-aid-mental-health-service"
 original_url: "https://www.transscendsurvival.org/2024/02/22/i-wrote-a-mutual-aid-mental-health-service/"
 feature_image: "/images/posts/IMG_0872.jpg"
+category: "software"
 ---
 
 Check out this project here: https://tetrahedron.gay/

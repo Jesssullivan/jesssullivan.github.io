@@ -7,6 +7,7 @@ published: true
 slug: "osselc-monday"
 original_url: "https://transscendsurvival.org/2020/06/29/osselc-monday/"
 feature_image: "/images/posts/IMG_6649-Edit.jpg"
+category: "personal"
 ---
 
 [Open Source Summit + Embedded Linux Conference!](https://events.linuxfoundation.org/open-source-summit-north-america/)

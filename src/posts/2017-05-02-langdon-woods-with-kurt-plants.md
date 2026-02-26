@@ -7,6 +7,7 @@ published: true
 slug: "langdon-woods-with-kurt-plants"
 original_url: "https://transscendsurvival.org/2017/05/02/langdon-woods-with-kurt-plants/"
 feature_image: "/images/posts/IMG_0431.jpg"
+category: "ecology"
 ---
 
 Today- after an extremely productive 7am trip with the vertebrate zoology class mind you- I nipped over to Langdon Woods in the rain to learn about the the little plants growing around the forest floor at a rapid, hydrated rate. The ones I can remember off the top of my head include:

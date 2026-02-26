@@ -7,6 +7,7 @@ published: true
 slug: "deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat"
 original_url: "https://transscendsurvival.org/2018/07/16/deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat/"
 feature_image: "/images/posts/IMG_0815-Edit.jpg"
+category: "tutorial"
 ---
 
 **Info on deploying a Shiny web app in R using AWS (EC2 Redhat)**

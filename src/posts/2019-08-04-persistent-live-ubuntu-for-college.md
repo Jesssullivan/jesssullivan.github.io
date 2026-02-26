@@ -7,6 +7,7 @@ published: true
 slug: "persistent-live-ubuntu-for-college"
 original_url: "https://transscendsurvival.org/2019/08/04/persistent-live-ubuntu-for-college/"
 feature_image: "/images/posts/IMG_5415-2.jpg"
+category: "devops"
 ---
 
 **Below is are live mirrors of my "PSU Hacking Club" Ubuntu repos.**
@@ -31,33 +32,35 @@ feature_image: "/images/posts/IMG_5415-2.jpg"
 
 Static site built quickly with [Hugo CLI](https://gohugo.io/getting-started/quick-start/)
 
-    # on OSX
-    # get hugo
+```bash
+# on OSX
+# get hugo
 
-    brew install hugo
+brew install hugo
 
-    # clone site
+# clone site
 
-    git clone https://github.com/psu-hacking/static-site
-    cd static-site
+git clone https://github.com/psu-hacking/static-site
+cd static-site
 
-    # Compile and compress public directory
+# Compile and compress public directory
 
-    hugo
-    zip -r site-archive.zip public
+hugo
+zip -r site-archive.zip public
 
-    # upload and host with sftp & ssh
+# upload and host with sftp & ssh
 
-    sftp user@yoursite.net
-    > cd yoursite.net
-    > put site-archive.zip
+sftp user@yoursite.net
+> cd yoursite.net
+> put site-archive.zip
 
-    # new terminal window
+# new terminal window
 
-    ssh user@yoursite.net
-    # check your remote filesystem- the idea is:
-    > unzip site-archive.zip
-    > rm -rf yoursite.net/site-archive.zip
+ssh user@yoursite.net
+# check your remote filesystem- the idea is:
+> unzip site-archive.zip
+> rm -rf yoursite.net/site-archive.zip
+```
 
 [visit us](https://psuhacking.club)
 

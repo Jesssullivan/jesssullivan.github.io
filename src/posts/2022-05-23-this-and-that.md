@@ -7,6 +7,7 @@ published: true
 slug: "this-and-that"
 original_url: "https://www.transscendsurvival.org/2022/05/23/this-and-that/"
 feature_image: "/images/posts/IMG_0145-Edit.jpg"
+category: "personal"
 ---
 
 _updated on 5/23/22_

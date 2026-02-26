@@ -109,7 +109,8 @@
 		</div>
 	</div>
 {:else}
-	<div class="mb-8">
-		<p class="text-xs text-surface-500 italic" data-testid="search-unavailable">Search loading...</p>
+	<!-- Skeleton loading state -->
+	<div class="mb-8 animate-pulse">
+		<div class="w-full h-10 rounded-lg bg-surface-300/30"></div>
 	</div>
 {/if}

@@ -7,6 +7,7 @@ published: true
 slug: "hunting-for-trees-birds"
 original_url: "https://transscendsurvival.org/2017/05/07/hunting-for-trees-birds/"
 feature_image: "/images/posts/IMG_0797-Edit.jpg"
+category: "ecology"
 ---
 
 Today, I went lurking about Langdon Woods in search of as many trees as possible. I took over 300 photos of bark, leaves, and twigs, aiming to highlight the growth patterns and key ID features of the trees on the PSU natural history final exam. This went well, and I will be posting these Tree-I-Dee's as soon as I get through the pictures.

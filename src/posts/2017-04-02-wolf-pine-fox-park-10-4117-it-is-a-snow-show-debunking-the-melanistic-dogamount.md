@@ -7,6 +7,7 @@ published: true
 slug: "wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount"
 original_url: "https://transscendsurvival.org/2017/04/02/wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount/"
 feature_image: "/images/posts/unnamed.jpg"
+category: "ecology"
 ---
 
 I slipped and slid my way into Fox park Saturday, 4/1/17 at about 4pm. About 7 inches of snow had appeared on the ground over the last 24 hours, which (for the second time) definitely stifled and spring-like activities for the critters and what not. Yet, the still powder-like snow was melting already. This stuff hadn't really had time to settle and compact, it just came down from the sky _just_ below freezing, then bobbed above freezing at about noon and rained. This made for perfect postholing snow. Indeed, I saw some dogs who took it hard- leaving postholes almost 3 feet deep.

@@ -7,6 +7,7 @@ published: true
 slug: "warbler-trillers-of-the-charles"
 original_url: "https://transscendsurvival.org/2019/04/18/warbler-trillers-of-the-charles/"
 feature_image: "/images/posts/IMG_0145-Edit.jpg"
+category: "ecology"
 ---
 
 The first ones to arrive in MA, brush up!

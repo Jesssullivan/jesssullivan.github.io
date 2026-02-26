@@ -7,6 +7,7 @@ published: true
 slug: "opportunistic-birding-14122016"
 original_url: "https://transscendsurvival.org/2016/12/14/opportunistic-birding-14122016/"
 feature_image: "/images/posts/IMG_2363-Edit.jpg"
+category: "ecology"
 ---
 
 **Today, I am in a good mood and feel happy because:**

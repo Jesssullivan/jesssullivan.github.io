@@ -7,6 +7,7 @@ published: true
 slug: "gallery-of-warblers-in-the-hand"
 original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-warblers-in-the-hand/"
 feature_image: "/images/posts/IMG_5324.jpg"
+category: "photography"
 ---
 
 *Some images from the original WordPress post are no longer available.*

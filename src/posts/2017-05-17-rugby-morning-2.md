@@ -7,6 +7,7 @@ published: true
 slug: "rugby-morning-2"
 original_url: "https://transscendsurvival.org/2017/05/17/rugby-morning-2/"
 feature_image: "/images/posts/IMG_9544.jpg"
+category: "ecology"
 ---
 
 Guess where I went this morning?
@@ -16,28 +17,46 @@ Breaking in the new spot. Additionally, I saw Magnolia, Yellow, and Common Yello
 -Jess
 
 [![](/images/posts/IMG_9544.jpg)](/images/posts/IMG_9544.jpg)
-     Killdeer in pouring rain (Scope out mission = a wash)
+```
+ Killdeer in pouring rain (Scope out mission = a wash)
+```
 
 [![](/images/posts/IMG_9589.jpg)](/images/posts/IMG_9589.jpg)
-     Redstart singing
+```
+ Redstart singing
+```
 
 [![](/images/posts/IMG_9609.jpg)](/images/posts/IMG_9609.jpg)
-     redstart chilling
+```
+ redstart chilling
+```
 
 [![](/images/posts/IMG_9614.jpg)](/images/posts/IMG_9614.jpg)
-     Chestnut-Sided Warbler
+```
+ Chestnut-Sided Warbler
+```
 
 [![](/images/posts/IMG_9631.jpg)](/images/posts/IMG_9631.jpg)
-     ?????
+```
+ ?????
+```
 
 [![](/images/posts/IMG_9638.jpg)](/images/posts/IMG_9638.jpg)
-     Scarlet Tanager "Tree pose"
+```
+ Scarlet Tanager "Tree pose"
+```
 
 [![](/images/posts/IMG_9651.jpg)](/images/posts/IMG_9651.jpg)
-     Scarlet Tanager
+```
+ Scarlet Tanager
+```
 
 [![](/images/posts/IMG_9660.jpg)](/images/posts/IMG_9660.jpg)
-     Baltimore Oriole (quick grab)
+```
+ Baltimore Oriole (quick grab)
+```
 
 [![](/images/posts/IMG_9693.jpg)](/images/posts/IMG_9693.jpg)
-     Song sparrow
+```
+ Song sparrow
+```

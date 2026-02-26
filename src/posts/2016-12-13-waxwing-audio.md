@@ -7,6 +7,7 @@ published: true
 slug: "waxwing-audio"
 original_url: "https://transscendsurvival.org/2016/12/13/waxwing-audio/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "hardware"
 ---
 
 High-Brow Foreword:

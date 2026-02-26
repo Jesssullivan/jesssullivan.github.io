@@ -66,7 +66,9 @@
 				<p class="text-xs text-surface-500 mt-2">No results found.</p>
 			{/if}
 		{:else}
-			<p class="text-xs text-surface-500 italic">Search loading...</p>
+			<div class="animate-pulse">
+				<div class="w-full h-8 rounded-lg bg-surface-300/30"></div>
+			</div>
 		{/if}
 	</div>
 

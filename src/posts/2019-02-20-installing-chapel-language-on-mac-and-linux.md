@@ -7,6 +7,7 @@ published: true
 slug: "installing-chapel-language-on-mac-and-linux"
 original_url: "https://transscendsurvival.org/2019/02/20/installing-chapel-language-on-mac-and-linux/"
 feature_image: "/images/posts/IMG_2363-Edit.jpg"
+category: "software"
 ---
 
 View below the readme mirror from my Github repo. Scroll down for my Python3 evaluation script.
@@ -27,46 +28,48 @@ The thinking here is one could write a global, shorthand / tag-based note manage
 
 The test uses $D for date: `$D 09/14/19`
 
-    //  Chapel-Language  //
+```
+//  Chapel-Language  //
 
-    // non-annotated file @ /GenericTagIterator/nScan.chpl //
+// non-annotated file @ /GenericTagIterator/nScan.chpl //
 
-    use FileSystem;
-    use IO;
-    use Time;
+use FileSystem;
+use IO;
+use Time;
 
-    config const V : bool=true;  // verbose logging, currently default!
+config const V : bool=true;  // verbose logging, currently default!
 
-    module charMatches {
-      var dates = {("")};
-    }
+module charMatches {
+  var dates = {("")};
+}
 
-    // var sync1$ : sync bool=true;  not used in example- TODO: add sync$ var back in!!
+// var sync1$ : sync bool=true;  not used in example- TODO: add sync$ var back in!!
 
-    proc charCheck(aFile, ref choice, sep, sepRange) {
+proc charCheck(aFile, ref choice, sep, sepRange) {
 
-        // note, reference argument (ref choice) is needed if using Chapel structure "module.domain"
+    // note, reference argument (ref choice) is needed if using Chapel structure "module.domain"
 
-        try {
-            var line : string;
-            var tmp = openreader(aFile);
-            while(tmp.readline(line)) {
-                if line.find(sep) > 0 {
-                    choice += line.split(sep)[sepRange];
-                    if V then writeln('adding '+ sep + ' ' + line.split(sep)[sepRange]);
-                }
+    try {
+        var line : string;
+        var tmp = openreader(aFile);
+        while(tmp.readline(line)) {
+            if line.find(sep) > 0 {
+                choice += line.split(sep)[sepRange];
+                if V then writeln('adding '+ sep + ' ' + line.split(sep)[sepRange]);
             }
-        tmp.close();
-        } catch {
-          if V then writeln("caught err");
         }
+    tmp.close();
+    } catch {
+      if V then writeln("caught err");
     }
+}
 
-    coforall folder in walkdirs('check/') {
-        for file in findfiles(folder) {
-            charCheck(file, charMatches.dates, '$D ', 1..8);
-        }
+coforall folder in walkdirs('check/') {
+    for file in findfiles(folder) {
+        charCheck(file, charMatches.dates, '$D ', 1..8);
     }
+}
+```
 
 # Get some Chapel:
 
@@ -75,54 +78,64 @@ Mac or Linux here, others refer to:
 
 https://chapel-lang.org/docs/usingchapel/QUICKSTART.html
 
-    # For Linux bash:
-    git clone https://github.com/chapel-lang/chapel
-    tar xzf chapel-1.18.0.tar.gz
-    cd chapel-1.18.0
-    source util/setchplenv.bash
-    make
-    make check
+```bash
+# For Linux bash:
+git clone https://github.com/chapel-lang/chapel
+tar xzf chapel-1.18.0.tar.gz
+cd chapel-1.18.0
+source util/setchplenv.bash
+make
+make check
 
-    #For Mac OSX bash:
-    # Just use homebrew
-    brew install chapel # :)
+#For Mac OSX bash:
+# Just use homebrew
+brew install chapel # :)
+```
 
 # Get atom editor for Chapel Language support:
 
-    #Linux bash:
-    cd
-    sudo apt-get install atom
-    apm install language-chapel
-    # atom [yourfile.chpl]  # open/make a file with atom
+```bash
+#Linux bash:
+cd
+sudo apt-get install atom
+apm install language-chapel
+# atom [yourfile.chpl]  # open/make a file with atom
 
-    # Mac OSX (download):
-    # https://github.com/atom/atom
-    # bash for Chapel language support
-    apm install language-chapel
-    # atom [yourfile.chpl]  # open/make a file with atom
+# Mac OSX (download):
+# https://github.com/atom/atom
+# bash for Chapel language support
+apm install language-chapel
+# atom [yourfile.chpl]  # open/make a file with atom
+```
 
 # Using the Chapel compiler
 
 To compile with Chapel:
 
-    chpl MyFile.chpl # chpl command is self sufficient
+```
+chpl MyFile.chpl # chpl command is self sufficient
 
-    # chpl one file class into another:
+# chpl one file class into another:
 
-    chpl -M classFile runFile.chpl
+chpl -M classFile runFile.chpl
 
-    # to run a Chapel file:
-    ./runFile
+# to run a Chapel file:
+./runFile
+```
 
 # Now Some Python3 Evaluation:
 
-    # Ajacent to compiled FileCheck.chpl binary:
+```
+# Ajacent to compiled FileCheck.chpl binary:
 
-    python3 Timer_FileCheck.py
+python3 Timer_FileCheck.py
+```
 
 Timer_FileCheck.py will loop FileCheck and find the average times it takes to complete, with a variety of additional arguments to toggle parallel and serial operation. The iterations are:
 
-    ListOptions = [Default, Serial_SE, Serial_SP, Serial_SE_SP]
+```
+ListOptions = [Default, Serial_SE, Serial_SP, Serial_SE_SP]
+```
 
   * Default - full parallel
 
@@ -140,65 +153,67 @@ The idea is to evaluate a "--flag" -in this case, Serial or Parallel in FileChec
 
 ## Evaluation Test:
 
-    # Time_FileCheck.py
-    #
-    # A WIP by Jess Sullivan
-    #
-    # evaluate average run speed of both serial and parallel versions
-    # of FileCheck.chpl  --  NOTE: coforall is used in both BY DEFAULT.
-    # This is to bypass the slow findfiles() method by dividing file searches
-    # by number of directories.
+```python
+# Time_FileCheck.py
+#
+# A WIP by Jess Sullivan
+#
+# evaluate average run speed of both serial and parallel versions
+# of FileCheck.chpl  --  NOTE: coforall is used in both BY DEFAULT.
+# This is to bypass the slow findfiles() method by dividing file searches
+# by number of directories.
 
-    import subprocess
-    import time
+import subprocess
+import time
 
-    File = "./FileCheck" # chapel to run
+File = "./FileCheck" # chapel to run
 
-    # default false, use for evaluation
-    SE = "--SE=true"
+# default false, use for evaluation
+SE = "--SE=true"
 
-    # default false, use for evaluation
-    SP = "--SP=true" # no coforall looping anywhere
+# default false, use for evaluation
+SP = "--SP=true" # no coforall looping anywhere
 
-    # default true, make it false:
-    R = "--R=false"  #  do not let chapel compile a report per run
+# default true, make it false:
+R = "--R=false"  #  do not let chapel compile a report per run
 
-    # default true, make it false:
-    T = "--T=false" # no internal chapel timers
+# default true, make it false:
+T = "--T=false" # no internal chapel timers
 
-    # default true, make it false:
-    V = "--V=false"  #  use verbose logging?
+# default true, make it false:
+V = "--V=false"  #  use verbose logging?
 
-    # default is false
-    bug = "--debug=false"
+# default is false
+bug = "--debug=false"
 
-    Default = (File, R, T, V, bug) # default parallel operation
-    Serial_SE = (File, R, T, V, bug, SE)
-    Serial_SP = (File, R, T, V, bug, SP)
-    Serial_SE_SP = (File, R, T, V, bug, SP, SE)
+Default = (File, R, T, V, bug) # default parallel operation
+Serial_SE = (File, R, T, V, bug, SE)
+Serial_SP = (File, R, T, V, bug, SP)
+Serial_SE_SP = (File, R, T, V, bug, SP, SE)
 
-    ListOptions = [Default, Serial_SE, Serial_SP, Serial_SE_SP]
+ListOptions = [Default, Serial_SE, Serial_SP, Serial_SE_SP]
 
-    loopNum = 10 # iterations of each runTime for an average speed.
+loopNum = 10 # iterations of each runTime for an average speed.
 
-    # setup output file
-    file = open("Time_FileCheck_Results.txt", "w")
+# setup output file
+file = open("Time_FileCheck_Results.txt", "w")
 
-    file.write(str('eval ' + str(loopNum) + ' loops for ' + str(len(ListOptions)) + ' FileCheck Options' + "\n\\"))
+file.write(str('eval ' + str(loopNum) + ' loops for ' + str(len(ListOptions)) + ' FileCheck Options' + "\n\\"))
 
-    def iterateWithArgs(loops, args, runTime):
-        for l in range(loops):
-            start = time.time()
-            subprocess.run(args)
-            end = time.time()
-            runTime.append(end-start)
+def iterateWithArgs(loops, args, runTime):
+    for l in range(loops):
+        start = time.time()
+        subprocess.run(args)
+        end = time.time()
+        runTime.append(end-start)
 
-    for option in ListOptions:
-        runTime = []
-        iterateWithArgs(loopNum, option, runTime)
-        file.write("average runTime for FileCheck with "+ str(option) + "options is " + "\n\\")
-        file.write(str(sum(runTime) / loopNum) +"\n\\")
-        print("average runTime for FileCheck with " + str(option) + " options is " + "\n\\")
-        print(str(sum(runTime) / loopNum) +"\n\\")
+for option in ListOptions:
+    runTime = []
+    iterateWithArgs(loopNum, option, runTime)
+    file.write("average runTime for FileCheck with "+ str(option) + "options is " + "\n\\")
+    file.write(str(sum(runTime) / loopNum) +"\n\\")
+    print("average runTime for FileCheck with " + str(option) + " options is " + "\n\\")
+    print(str(sum(runTime) / loopNum) +"\n\\")
 
-    file.close()
+file.close()
+```

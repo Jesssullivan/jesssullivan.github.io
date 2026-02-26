@@ -7,6 +7,7 @@ published: true
 slug: "pt-1-reflecting-on-stunt-culture-theories-and-frisbee"
 original_url: "https://transscendsurvival.org/2017/04/08/pt-1-reflecting-on-stunt-culture-theories-and-frisbee/"
 feature_image: "/images/posts/IMG_0871.jpg"
+category: "personal"
 ---
 
 There are only tough times finding academic craziness to get involved with during spring break, so I decided I should break out the unicycle and do a trick. It was a 180 unispin.... But that is unimportant.

@@ -7,6 +7,7 @@ published: true
 slug: "using-esri-arcgis-arcmap-on-mac-osx-2-methods"
 original_url: "https://transscendsurvival.org/2018/04/03/using-esri-arcgis-arcmap-on-mac-osx-2-methods/"
 feature_image: "/images/posts/Screen-Shot-2018-04-03-at-9.36.59-AM.png"
+category: "software"
 ---
 
 _Edit 07/26/2020:_

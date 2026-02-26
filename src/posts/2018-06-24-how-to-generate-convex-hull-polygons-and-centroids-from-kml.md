@@ -7,6 +7,7 @@ published: true
 slug: "how-to-generate-convex-hull-polygons-and-centroids-from-kml"
 original_url: "https://transscendsurvival.org/2018/06/24/how-to-generate-convex-hull-polygons-and-centroids-from-kml/"
 feature_image: "/images/posts/img_8694.jpg"
+category: "tutorial"
 ---
 
 Click here for the PDF:

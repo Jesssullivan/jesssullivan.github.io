@@ -7,6 +7,7 @@ published: true
 slug: "gallery-of-my-proper-photos-nh-warbler-research"
 original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/"
 feature_image: "/images/posts/IMG_9803.jpg"
+category: "photography"
 ---
 
 [![](/images/posts/IMG_9803.jpg)](/images/posts/IMG_9803.jpg)

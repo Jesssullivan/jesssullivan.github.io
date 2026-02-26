@@ -7,6 +7,7 @@ published: true
 slug: "qemu-for-raspian-arm"
 original_url: "https://transscendsurvival.org/2019/10/30/qemu-for-raspian-arm/"
 feature_image: "/images/posts/IMG_0431.jpg"
+category: "devops"
 ---
 
 _Updated 11/6/19_
@@ -22,11 +23,15 @@ Emulates a variety of Raspian releases on proper ARM hardware with QEMU.
 
 QEMU and wget (OSX homebrew)
 
-    brew install qemu wget
+```bash
+brew install qemu wget
+```
 
 Get the Python3 CLI in this repo:
 
-    wget https://raw.githubusercontent.com/Jesssullivan/USBoN/master/QEMU_Raspian.py
+```bash
+wget https://raw.githubusercontent.com/Jesssullivan/USBoN/master/QEMU_Raspian.py
+```
 
 * * *
 
@@ -53,13 +58,17 @@ With no arguments & in a new folder, Raspian "stretch-lite" (no desktop environm
   * ``busterlite`` for busterlite release [YMMV]
 
     # examples:
-    sudo python3 QEMU_Raspian.py busterlite
-    python3 QEMU_Raspian -h  # print help
+```bash
+sudo python3 QEMU_Raspian.py busterlite
+python3 QEMU_Raspian -h  # print help
+```
 
 * * *
 
 **_Burn as .img:_**
 
-    qemu-img convert -f qcow2 -O raw file.qcow2 file.img
+```bash
+qemu-img convert -f qcow2 -O raw file.qcow2 file.img
+```
 
 *The image of "Four Pi Emulations ala QEMU" is no longer available.*
