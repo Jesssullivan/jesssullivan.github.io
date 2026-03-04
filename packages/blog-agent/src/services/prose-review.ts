@@ -124,6 +124,9 @@ Review this blog post against the style guide. Return JSON only.`
 
 function makeClient(): Anthropic {
 	const apiKey = process.env.ANTHROPIC_API_KEY
-	if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set")
+	// When deployed to Agentuity Cloud, the AI Gateway patches ANTHROPIC_API_KEY
+	// and ANTHROPIC_BASE_URL automatically via AGENTUITY_SDK_KEY.
+	// In CI, ANTHROPIC_API_KEY must be set explicitly.
+	if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set (set it directly or deploy to Agentuity Cloud)")
 	return new Anthropic({ apiKey })
 }
