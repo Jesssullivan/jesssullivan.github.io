@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import { readdir, writeFile, rename, unlink, stat } from 'node:fs/promises';
 import { join, extname, basename } from 'node:path';
 import { existsSync } from 'node:fs';
+import type { ImageDimensions } from './lib/types.mts';
 
 const IMAGES_DIR = 'static/images/posts';
 const DIMENSIONS_OUTPUT = 'static/images/posts/dimensions.json';
@@ -11,10 +12,10 @@ const WEBP_QUALITY = 80;
 const AVIF_QUALITY = 60;
 const dryRun = process.argv.includes('--dry-run');
 
-async function main() {
+async function main(): Promise<void> {
 	const files = await readdir(IMAGES_DIR);
 	const imageFiles = files.filter((f) => /\.(jpe?g|png)$/i.test(f));
-	const dimensions = {};
+	const dimensions: Record<string, ImageDimensions> = {};
 	let webpCount = 0;
 	let avifCount = 0;
 	let resizeCount = 0;
@@ -28,11 +29,11 @@ async function main() {
 		const webpPath = join(IMAGES_DIR, `${base}.webp`);
 		const avifPath = join(IMAGES_DIR, `${base}.avif`);
 
-		let metadata;
+		let metadata: sharp.Metadata;
 		try {
 			metadata = await sharp(filepath).metadata();
 		} catch (err) {
-			console.warn(`  skip (unreadable): ${file} — ${err.message}`);
+			console.warn(`  skip (unreadable): ${file} — ${(err as Error).message}`);
 			skipCount++;
 			continue;
 		}
@@ -102,7 +103,7 @@ async function main() {
 						continue;
 					}
 				} catch (err) {
-					console.warn(`  skip WebP (error): ${file} — ${err.message}`);
+					console.warn(`  skip WebP (error): ${file} — ${(err as Error).message}`);
 					try { await unlink(webpPath); } catch { /* ok */ }
 					skipCount++;
 					continue;
@@ -128,7 +129,7 @@ async function main() {
 						continue;
 					}
 				} catch (err) {
-					console.warn(`  skip AVIF (error): ${file} — ${err.message}`);
+					console.warn(`  skip AVIF (error): ${file} — ${(err as Error).message}`);
 					try { await unlink(avifPath); } catch { /* ok */ }
 					skipCount++;
 					continue;
@@ -180,7 +181,7 @@ async function main() {
 					};
 					resizeCount++;
 				} catch (err) {
-					console.warn(`  skip resize (error): ${file} — ${err.message}`);
+					console.warn(`  skip resize (error): ${file} — ${(err as Error).message}`);
 					// Clean up partial .tmp file
 					try { await unlink(filepath + '.tmp'); } catch { /* ok */ }
 					skipCount++;

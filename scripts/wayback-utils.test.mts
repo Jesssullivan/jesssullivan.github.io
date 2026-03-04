@@ -7,7 +7,7 @@ import {
 	extractImageUrls,
 	isExternalWpUrl,
 	parseCdxResponse,
-} from './wayback-utils.mjs';
+} from './wayback-utils.mts';
 
 describe('extractFilename', () => {
 	it('extracts filename from WordPress CDN URL', () => {

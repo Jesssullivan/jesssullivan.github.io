@@ -5,13 +5,9 @@
  * WordPress media URLs for Wayback Machine recovery.
  */
 
-/**
- * Extract filename from a WordPress CDN URL.
- * Strips dimension suffixes like -300x200, -150x150, etc.
- * @param {string} wpUrl - WordPress CDN URL
- * @returns {string} Clean filename
- */
-export function extractFilename(wpUrl) {
+import type { ImageRef, CdxRecord } from './lib/types.mts';
+
+export function extractFilename(wpUrl: string): string {
 	try {
 		const url = new URL(wpUrl);
 		const pathname = url.pathname;
@@ -31,24 +27,11 @@ export function extractFilename(wpUrl) {
 	}
 }
 
-/**
- * Build a Wayback Machine URL for raw media retrieval.
- * Uses the `im_` flag to get the original image without Wayback toolbar.
- * @param {string} timestamp - Wayback timestamp (e.g., "20180101120000")
- * @param {string} originalUrl - The original URL to retrieve
- * @returns {string} Full Wayback Machine URL
- */
-export function buildWaybackUrl(timestamp, originalUrl) {
+export function buildWaybackUrl(timestamp: string, originalUrl: string): string {
 	return `https://web.archive.org/web/${timestamp}im_/${originalUrl}`;
 }
 
-/**
- * Normalize a WordPress image URL by stripping i0-i2.wp.com wrappers
- * and query parameters.
- * @param {string} url - WordPress CDN URL
- * @returns {string} Clean original URL
- */
-export function normalizeWpImageUrl(url) {
+export function normalizeWpImageUrl(url: string): string {
 	try {
 		const parsed = new URL(url);
 
@@ -66,13 +49,7 @@ export function normalizeWpImageUrl(url) {
 	}
 }
 
-/**
- * Generate a deduplicated local image path.
- * @param {string} filename - Image filename
- * @param {Set<string>} existingFiles - Set of existing local filenames
- * @returns {string} Local path under /images/posts/
- */
-export function localImagePath(filename, existingFiles = new Set()) {
+export function localImagePath(filename: string, existingFiles: Set<string> = new Set()): string {
 	let candidate = filename;
 	if (existingFiles.has(candidate)) {
 		const ext = candidate.match(/(\.\w+)$/)?.[1] || '';
@@ -84,13 +61,8 @@ export function localImagePath(filename, existingFiles = new Set()) {
 	return `/images/posts/${candidate}`;
 }
 
-/**
- * Extract image URLs from markdown and HTML content.
- * @param {string} content - Markdown/HTML content string
- * @returns {Array<{url: string, type: 'markdown'|'html', alt: string}>}
- */
-export function extractImageUrls(content) {
-	const images = [];
+export function extractImageUrls(content: string): ImageRef[] {
+	const images: ImageRef[] = [];
 
 	// Strip frontmatter
 	const body = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
@@ -111,12 +83,7 @@ export function extractImageUrls(content) {
 	return images;
 }
 
-/**
- * Check if a URL is an external WordPress/CDN URL that should be localized.
- * @param {string} url - URL to check
- * @returns {boolean}
- */
-export function isExternalWpUrl(url) {
+export function isExternalWpUrl(url: string): boolean {
 	if (!url.startsWith('http')) return false;
 	return (
 		url.includes('wp-content/uploads') ||
@@ -125,13 +92,7 @@ export function isExternalWpUrl(url) {
 	);
 }
 
-/**
- * Parse the CDX API response (JSON array format).
- * CDX returns: [urlkey, timestamp, original, mimetype, statuscode, digest, length]
- * @param {Array<Array<string>>} rows - CDX response rows (first row is headers)
- * @returns {Array<{timestamp: string, original: string, mimetype: string, statuscode: string, digest: string, length: string}>}
- */
-export function parseCdxResponse(rows) {
+export function parseCdxResponse(rows: string[][] | null): CdxRecord[] {
 	if (!rows || rows.length < 2) return [];
 	// First row is headers
 	return rows.slice(1).map(([, timestamp, original, mimetype, statuscode, digest, length]) => ({

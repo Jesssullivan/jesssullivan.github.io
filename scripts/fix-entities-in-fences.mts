@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * fix-entities-in-fences.mjs
+ * fix-entities-in-fences.mts
  *
  * Converts HTML entities back to bare characters inside fenced code blocks.
  * Now that code is in fenced blocks (```), mdsvex won't parse < > { } as HTML/Svelte.
@@ -10,7 +10,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-const POSTS_DIR = join(import.meta.dirname, '..', 'src', 'posts');
+const POSTS_DIR = join(import.meta.dirname!, '..', 'src', 'posts');
 const files = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md')).sort();
 
 let totalFixed = 0;

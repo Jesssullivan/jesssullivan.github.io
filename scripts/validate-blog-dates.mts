@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * validate-blog-dates.mjs
+ * validate-blog-dates.mts
  *
  * CI check for future-dated blog posts. Implements the "DO NOT MERGE" pattern
  * inspired by Xe Iaso's site.
@@ -18,25 +18,29 @@
  *   BASE_BRANCH       — base branch for diff (default: origin/main)
  *
  * Usage:
- *   node scripts/validate-blog-dates.mjs
- *   node scripts/validate-blog-dates.mjs --pr-body /path/to/body.txt
+ *   tsx scripts/validate-blog-dates.mts
+ *   tsx scripts/validate-blog-dates.mts --pr-body /path/to/body.txt
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { parseFrontmatter } from './lib/frontmatter.mjs';
+import { parseFrontmatter } from './lib/frontmatter.mts';
+import type { PostFrontmatter } from './lib/types.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const POSTS_DIR = join(ROOT, 'src', 'posts');
 
-// ---------------------------------------------------------------------------
-// Parse PR body for DO NOT MERGE directive
-// ---------------------------------------------------------------------------
+interface FuturePost {
+	file: string;
+	title: string;
+	date: string;
+	published: boolean | undefined;
+}
 
-function getDoNotMergeDate(prBody) {
+function getDoNotMergeDate(prBody: string | null): Date | null {
 	if (!prBody) return null;
 	const match = prBody.match(/DO NOT MERGE until (\d{4}-\d{2}-\d{2})\s*UTC/i);
 	if (!match) return null;
@@ -44,11 +48,7 @@ function getDoNotMergeDate(prBody) {
 	return isNaN(d.getTime()) ? null : d;
 }
 
-// ---------------------------------------------------------------------------
-// Get PR body from various sources
-// ---------------------------------------------------------------------------
-
-function getPRBody() {
+function getPRBody(): string {
 	// CLI flag: --pr-body /path/to/file
 	const cliIdx = process.argv.indexOf('--pr-body');
 	if (cliIdx !== -1 && process.argv[cliIdx + 1]) {
@@ -68,11 +68,7 @@ function getPRBody() {
 	return '';
 }
 
-// ---------------------------------------------------------------------------
-// Get changed post files
-// ---------------------------------------------------------------------------
-
-function getChangedPosts() {
+function getChangedPosts(): string[] {
 	const base = process.env.BASE_BRANCH || 'origin/main';
 	try {
 		const diff = execSync(`git diff --name-only ${base}...HEAD -- src/posts/`, {
@@ -89,10 +85,6 @@ function getChangedPosts() {
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
 const today = new Date();
 today.setUTCHours(0, 0, 0, 0);
 
@@ -100,8 +92,8 @@ const prBody = getPRBody();
 const doNotMergeDate = getDoNotMergeDate(prBody);
 const changedPosts = getChangedPosts();
 
-const futurePosts = [];
-const errors = [];
+const futurePosts: FuturePost[] = [];
+const errors: string[] = [];
 
 for (const relPath of changedPosts) {
 	const absPath = join(ROOT, relPath);

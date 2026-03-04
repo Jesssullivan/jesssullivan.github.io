@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * add-feature-images.mjs
+ * add-feature-images.mts
  *
  * Scans all blog posts and adds feature_image frontmatter:
  * - If the post already has feature_image, skip it
@@ -12,8 +12,10 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { createHash } from 'crypto';
+import type { ParsedFrontmatter } from './lib/types.mts';
+import { parseFrontmatterRaw } from './lib/frontmatter.mts';
 
-const POSTS_DIR = join(import.meta.dirname, '..', 'src', 'posts');
+const POSTS_DIR = join(import.meta.dirname!, '..', 'src', 'posts');
 
 // Orphaned bird photos available for backfill (landscape-oriented, good for cards)
 const BACKFILL_PHOTOS = [
@@ -32,15 +34,13 @@ const BACKFILL_PHOTOS = [
 	'/images/posts/IMG_0871.jpg',
 ];
 
-// Deterministic hash-based photo assignment
-function pickBackfillPhoto(slug) {
+function pickBackfillPhoto(slug: string): string {
 	const hash = createHash('md5').update(slug).digest();
 	const idx = hash.readUInt32BE(0) % BACKFILL_PHOTOS.length;
 	return BACKFILL_PHOTOS[idx];
 }
 
-// Extract first image path from markdown body (after frontmatter)
-function extractFirstImage(body) {
+function extractFirstImage(body: string): string | null {
 	// Match markdown images: ![...](path)
 	const mdImg = body.match(/!\[[^\]]*\]\(([^)]+)\)/);
 	if (mdImg) return mdImg[1];
@@ -52,15 +52,8 @@ function extractFirstImage(body) {
 	return null;
 }
 
-// Parse frontmatter boundaries
-function parseFrontmatter(content) {
-	const match = content.match(/^---\n([\s\S]*?)\n---\n/);
-	if (!match) return null;
-	return {
-		raw: match[1],
-		endIndex: match[0].length,
-		body: content.slice(match[0].length),
-	};
+function parseFrontmatter(content: string): ParsedFrontmatter | null {
+	return parseFrontmatterRaw(content);
 }
 
 const dryRun = process.argv.includes('--dry-run');
@@ -97,7 +90,7 @@ for (const file of files) {
 
 	// Try to extract first LOCAL image from body
 	let featureImage = extractFirstImage(parsed.body);
-	let source = 'content';
+	let source: 'content' | 'backfill' = 'content';
 
 	// Only use local images for feature_image (skip external URLs)
 	if (featureImage && featureImage.startsWith('http')) {

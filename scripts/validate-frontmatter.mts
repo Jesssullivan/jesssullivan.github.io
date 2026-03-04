@@ -1,103 +1,31 @@
 /**
- * validate-frontmatter.mjs — CI-ready frontmatter validation for blog posts.
- * Parses YAML frontmatter with regex (no external deps), validates required
- * fields, checks types, and reports duplicate slugs.
+ * validate-frontmatter.mts — CI-ready frontmatter validation for blog posts.
+ * Uses the Effect Schema from @blog/agent as the single source of truth.
  *
- * Usage: node scripts/validate-frontmatter.mjs
+ * Usage: tsx scripts/validate-frontmatter.mts
  * Exit 0 = all pass, Exit 1 = errors found
  */
 
 import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { parseFrontmatter, POST_CATEGORIES } from './lib/frontmatter.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const postsDir = join(__dirname, '..', 'src', 'posts');
 
-// ---------------------------------------------------------------------------
-// Minimal YAML-ish parser (handles the subset used in frontmatter)
-// ---------------------------------------------------------------------------
-
-function parseFrontmatter(raw) {
-	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	if (!match) return null;
-	const yaml = match[1];
-	const result = {};
-
-	for (const line of yaml.split('\n')) {
-		const trimmed = line.trim();
-		if (!trimmed || trimmed.startsWith('#')) continue;
-
-		const kvMatch = trimmed.match(/^(\w[\w_]*):\s*(.*)/);
-		if (!kvMatch) continue;
-
-		const [, key, rawVal] = kvMatch;
-		result[key] = parseValue(rawVal.trim());
-	}
-
-	return result;
-}
-
-function parseValue(val) {
-	// Boolean
-	if (val === 'true') return true;
-	if (val === 'false') return false;
-
-	// Null / empty
-	if (val === '' || val === 'null' || val === '~') return null;
-
-	// Numeric
-	if (/^-?\d+(\.\d+)?$/.test(val)) return Number(val);
-
-	// Inline array: ["a", "b"]
-	if (val.startsWith('[') && val.endsWith(']')) {
-		const inner = val.slice(1, -1);
-		if (inner.trim() === '') return [];
-		return inner.split(',').map((s) => stripQuotes(s.trim()));
-	}
-
-	// Quoted string
-	return stripQuotes(val);
-}
-
-function stripQuotes(s) {
-	if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-		return s.slice(1, -1);
-	}
-	return s;
-}
-
-// ---------------------------------------------------------------------------
-// Validation helpers
-// ---------------------------------------------------------------------------
-
-const VALID_CATEGORIES = [
-	'hardware',
-	'software',
-	'ecology',
-	'music',
-	'photography',
-	'personal',
-	'tutorial',
-	'devops'
-];
-
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-function isValidISODate(s) {
+function isValidISODate(s: string): boolean {
 	if (!ISO_DATE_RE.test(s)) return false;
 	const d = new Date(s + 'T00:00:00Z');
 	return !isNaN(d.getTime());
 }
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
 const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
-const errors = [];
-const warnings = [];
-const slugs = new Map(); // slug -> filename
+const errors: string[] = [];
+const warnings: string[] = [];
+const slugs = new Map<string, string>(); // slug -> filename
 let passCount = 0;
 
 for (const file of files) {
@@ -110,13 +38,13 @@ for (const file of files) {
 		continue;
 	}
 
-	const fileErrors = [];
-	const fileWarns = [];
+	const fileErrors: string[] = [];
+	const fileWarns: string[] = [];
 
 	// --- Required fields ---
 
 	// title
-	if (fm.title == null || typeof fm.title !== 'string' || fm.title.length === 0) {
+	if (fm.title == null || typeof fm.title !== 'string' || (fm.title as string).length === 0) {
 		fileErrors.push('missing or invalid "title" (must be non-empty string)');
 	}
 
@@ -125,12 +53,12 @@ for (const file of files) {
 		fileErrors.push('missing "date"');
 	} else if (typeof fm.date !== 'string') {
 		fileErrors.push(`"date" must be a string, got ${typeof fm.date}`);
-	} else if (!isValidISODate(fm.date)) {
+	} else if (!isValidISODate(fm.date as string)) {
 		fileErrors.push(`"date" is not a valid ISO date: "${fm.date}"`);
 	}
 
 	// description
-	if (fm.description == null || typeof fm.description !== 'string' || fm.description.length === 0) {
+	if (fm.description == null || typeof fm.description !== 'string' || (fm.description as string).length === 0) {
 		fileErrors.push('missing or invalid "description" (must be non-empty string)');
 	}
 
@@ -162,9 +90,9 @@ for (const file of files) {
 	if (fm.category != null) {
 		if (typeof fm.category !== 'string') {
 			fileWarns.push(`"category" should be a string, got ${typeof fm.category}`);
-		} else if (!VALID_CATEGORIES.includes(fm.category)) {
+		} else if (!POST_CATEGORIES.includes(fm.category as typeof POST_CATEGORIES[number])) {
 			fileWarns.push(
-				`"category" must be one of [${VALID_CATEGORIES.join(', ')}], got "${fm.category}"`
+				`"category" must be one of [${POST_CATEGORIES.join(', ')}], got "${fm.category}"`
 			);
 		}
 	}
@@ -190,8 +118,8 @@ for (const file of files) {
 	// --- Slug uniqueness ---
 
 	const slug =
-		typeof fm.slug === 'string' && fm.slug.length > 0
-			? fm.slug
+		typeof fm.slug === 'string' && (fm.slug as string).length > 0
+			? (fm.slug as string)
 			: file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
 	if (slugs.has(slug)) {
@@ -212,10 +140,6 @@ for (const file of files) {
 		passCount++;
 	}
 }
-
-// ---------------------------------------------------------------------------
-// Report
-// ---------------------------------------------------------------------------
 
 console.log(`\nFrontmatter validation: ${files.length} posts scanned\n`);
 

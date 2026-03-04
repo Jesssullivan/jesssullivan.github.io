@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * convert-code-blocks.mjs
+ * convert-code-blocks.mts
  *
  * Converts 4-space indented code blocks to fenced (```) code blocks
  * with language hints. This fixes mdsvex rendering issues where <, >, {, }
@@ -11,9 +11,9 @@
 import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-const POSTS_DIR = join(import.meta.dirname, '..', 'src', 'posts');
+const POSTS_DIR = join(import.meta.dirname!, '..', 'src', 'posts');
 
-function detectLanguage(lines) {
+function detectLanguage(lines: string[]): string {
 	const text = lines.join('\n');
 
 	// Chapel — Shiki doesn't support it, use plain text
@@ -41,22 +41,28 @@ function detectLanguage(lines) {
 	return '';
 }
 
-function isListContinuation(prevNonBlankLine) {
+function isListContinuation(prevNonBlankLine: string): boolean {
 	if (!prevNonBlankLine) return false;
 	return /^(\s*[-*+]\s|\s*\d+\.\s)/.test(prevNonBlankLine);
 }
 
-function isIndented(line) {
+function isIndented(line: string): boolean {
 	return /^( {4}|\t)/.test(line);
 }
 
-function dedent(line) {
+function dedent(line: string): string {
 	if (line.startsWith('\t')) return line.slice(1);
 	if (line.startsWith('    ')) return line.slice(4);
 	return line;
 }
 
-function convertPost(content) {
+interface ConvertResult {
+	content: string;
+	changed: boolean;
+	blocks: number;
+}
+
+function convertPost(content: string): ConvertResult {
 	const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
 	if (!frontmatterMatch) return { content, changed: false, blocks: 0 };
 
@@ -64,7 +70,7 @@ function convertPost(content) {
 	const body = content.slice(frontmatter.length);
 	const lines = body.split('\n');
 
-	const output = [];
+	const output: string[] = [];
 	let i = 0;
 	let prevNonBlankLine = '';
 	let blockCount = 0;
@@ -75,7 +81,7 @@ function convertPost(content) {
 		// Check if this starts an indented code block
 		if (isIndented(line) && !isListContinuation(prevNonBlankLine)) {
 			// Collect all lines in this indented block
-			const blockLines = [];
+			const blockLines: string[] = [];
 			let j = i;
 
 			while (j < lines.length) {

@@ -8,6 +8,8 @@
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import type { LinkInfo, AuditIssue } from './lib/types.mts';
+import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -15,45 +17,36 @@ const postsDir = join(root, 'src', 'posts');
 const staticDir = join(root, 'static');
 const routesDir = join(root, 'src', 'routes');
 
-// ── Gather known slugs from posts ────────────────────────────────────
-function getPostSlugs() {
-	const slugs = new Set();
+function getPostSlugs(): Set<string> {
+	const slugs = new Set<string>();
 	const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
 	for (const file of files) {
 		const content = readFileSync(join(postsDir, file), 'utf-8');
-		const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-		if (!fmMatch) continue;
-		const fm = fmMatch[1];
-		const published = /^published:\s*true$/m.test(fm);
-		if (!published) continue;
+		const fm = parseFrontmatter(content);
+		if (!fm || fm.published !== true) continue;
 
-		const slugMatch = fm.match(/^slug:\s*["']?(.+?)["']?\s*$/m);
-		if (slugMatch) {
-			slugs.add(slugMatch[1]);
+		if (typeof fm.slug === 'string' && fm.slug.length > 0) {
+			slugs.add(fm.slug);
 		} else {
-			const basename = file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
-			slugs.add(basename);
+			const baseName = file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+			slugs.add(baseName);
 		}
 	}
 	return slugs;
 }
 
-// ── Gather known routes ──────────────────────────────────────────────
-function getKnownRoutes() {
+function getKnownRoutes(): Set<string> {
 	const routes = new Set(['/', '/blog', '/about', '/cv', '/feed.json', '/feed.xml', '/sitemap.xml']);
-	// Add all blog post slugs
 	const slugs = getPostSlugs();
 	for (const slug of slugs) {
 		routes.add(`/blog/${slug}`);
 	}
-	// Tag routes are dynamic, accept any /blog/tag/*
 	return routes;
 }
 
-// ── Gather static files (for image checks) ──────────────────────────
-function getStaticFiles() {
-	const files = new Set();
-	function walk(dir, prefix) {
+function getStaticFiles(): Set<string> {
+	const files = new Set<string>();
+	function walk(dir: string, prefix: string): void {
 		if (!existsSync(dir)) return;
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const fullPath = join(dir, entry.name);
@@ -69,9 +62,8 @@ function getStaticFiles() {
 	return files;
 }
 
-// ── Extract links from markdown ──────────────────────────────────────
-function extractLinks(content, filename) {
-	const links = [];
+function extractLinks(content: string, filename: string): LinkInfo[] {
+	const links: LinkInfo[] = [];
 
 	// Strip frontmatter
 	const body = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
@@ -92,12 +84,11 @@ function extractLinks(content, filename) {
 	return links;
 }
 
-function getLineNumber(text, index) {
+function getLineNumber(text: string, index: number): number {
 	return text.substring(0, index).split('\n').length;
 }
 
-// ── Categorize links ─────────────────────────────────────────────────
-function categorize(url) {
+function categorize(url: string): 'anchor' | 'external' | 'mailto' | 'internal' | 'other' {
 	if (url.startsWith('#')) return 'anchor';
 	if (url.startsWith('http://') || url.startsWith('https://')) return 'external';
 	if (url.startsWith('mailto:')) return 'mailto';
@@ -105,12 +96,19 @@ function categorize(url) {
 	return 'other';
 }
 
-// ── Parse frontmatter ────────────────────────────────────────────────
-function parseFrontmatter(content) {
+interface SimpleFrontmatter {
+	published: boolean;
+	title?: string;
+	slug?: string;
+	original_url?: string;
+	date?: string;
+}
+
+function parseFrontmatter(content: string): SimpleFrontmatter {
 	const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-	if (!fmMatch) return {};
+	if (!fmMatch) return { published: false };
 	const fm = fmMatch[1];
-	const result = {};
+	const result: SimpleFrontmatter = { published: false };
 	result.published = /^published:\s*true$/m.test(fm);
 	const titleMatch = fm.match(/^title:\s*["']?(.+?)["']?\s*$/m);
 	if (titleMatch) result.title = titleMatch[1];
@@ -125,29 +123,36 @@ function parseFrontmatter(content) {
 
 const STALE_YEARS = 3;
 
-function getBodyWordCount(content) {
+function getBodyWordCount(content: string): number {
 	const body = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
-	// Strip markdown formatting roughly
 	const plain = body
-		.replace(/```[\s\S]*?```/g, '') // code blocks
-		.replace(/`[^`]+`/g, '') // inline code
-		.replace(/!\[[^\]]*\]\([^)]+\)/g, '') // images
-		.replace(/\[[^\]]*\]\([^)]+\)/g, '') // links
-		.replace(/[#*_~>|`\-]/g, '') // md chars
-		.replace(/<[^>]+>/g, '') // html tags
+		.replace(/```[\s\S]*?```/g, '')
+		.replace(/`[^`]+`/g, '')
+		.replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+		.replace(/\[[^\]]*\]\([^)]+\)/g, '')
+		.replace(/[#*_~>|`\-]/g, '')
+		.replace(/<[^>]+>/g, '')
 		.trim();
 	return plain.split(/\s+/).filter((w) => w.length > 0).length;
 }
 
-// ── Main audit ───────────────────────────────────────────────────────
 const knownRoutes = getKnownRoutes();
 const staticFiles = getStaticFiles();
 const postSlugs = getPostSlugs();
-const redirectMap = JSON.parse(readFileSync(join(staticDir, 'redirect-map.json'), 'utf-8'));
+const redirectMap: Record<string, string> = JSON.parse(readFileSync(join(staticDir, 'redirect-map.json'), 'utf-8'));
 const redirectTargets = new Set(Object.values(redirectMap));
 
 const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
-const issues = {
+const issues: {
+	brokenInternalLinks: AuditIssue[];
+	brokenImages: AuditIssue[];
+	relativeLinks: AuditIssue[];
+	wpLinksInContent: AuditIssue[];
+	shortPosts: AuditIssue[];
+	emptyPosts: AuditIssue[];
+	postsWithoutOriginalUrl: AuditIssue[];
+	stalePosts: AuditIssue[];
+} = {
 	brokenInternalLinks: [],
 	brokenImages: [],
 	relativeLinks: [],
@@ -180,7 +185,7 @@ for (const file of files) {
 	if (fm.date && fm.published) {
 		const postDate = new Date(fm.date);
 		const now = new Date();
-		const ageYears = (now - postDate) / (365.25 * 24 * 60 * 60 * 1000);
+		const ageYears = (now.getTime() - postDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
 		if (ageYears > STALE_YEARS) {
 			issues.stalePosts.push({
 				file,
@@ -245,23 +250,15 @@ for (const file of files) {
 		}
 
 		// Check if internal link resolves
-		const urlPath = link.url.split('#')[0].split('?')[0]; // strip anchor/query
+		const urlPath = link.url.split('#')[0].split('?')[0];
 
-		// Check as static file
 		if (staticFiles.has(urlPath)) continue;
-
-		// Check as route
 		if (knownRoutes.has(urlPath)) continue;
-
-		// Check tag routes
 		if (urlPath.startsWith('/blog/tag/')) continue;
 
-		// Check if it's a known redirect
 		const normalized = urlPath.endsWith('/') ? urlPath : urlPath + '/';
 		if (Object.keys(redirectMap).includes(normalized)) continue;
 
-		// It's a broken internal link
-		// Distinguish images vs page links
 		if (urlPath.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i)) {
 			issues.brokenImages.push({
 				file,
@@ -280,8 +277,6 @@ for (const file of files) {
 	}
 }
 
-// ── Report ───────────────────────────────────────────────────────────
-
 console.log('='.repeat(72));
 console.log('  BLOG LINK & CONTENT AUDIT');
 console.log('='.repeat(72));
@@ -294,7 +289,7 @@ console.log(`  Anchor: ${anchorCount}`);
 console.log(`  Published post slugs: ${postSlugs.size}`);
 console.log();
 
-function section(title, items) {
+function section(title: string, items: AuditIssue[]): void {
 	const mark = items.length > 0 ? 'FAIL' : 'PASS';
 	console.log(`${mark}: ${title} (${items.length})`);
 	console.log('-'.repeat(72));
@@ -333,7 +328,6 @@ if (issues.stalePosts.length === 0) {
 }
 console.log();
 
-// Summary
 const totalIssues =
 	issues.brokenInternalLinks.length +
 	issues.brokenImages.length +

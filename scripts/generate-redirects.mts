@@ -7,7 +7,7 @@ const root = join(__dirname, '..');
 const buildDir = join(root, 'build');
 const mapPath = join(root, 'static', 'redirect-map.json');
 
-const redirectMap = JSON.parse(readFileSync(mapPath, 'utf-8'));
+const redirectMap: Record<string, string> = JSON.parse(readFileSync(mapPath, 'utf-8'));
 let count = 0;
 
 for (const [oldPath, newPath] of Object.entries(redirectMap)) {

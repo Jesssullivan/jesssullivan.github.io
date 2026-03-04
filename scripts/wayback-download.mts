@@ -7,7 +7,7 @@
  * don't already exist locally.
  *
  * Usage:
- *   node scripts/wayback-download.mjs <cdx-results.json> [options]
+ *   tsx scripts/wayback-download.mts <cdx-results.json> [options]
  *
  * Options:
  *   --dry-run         Show what would be downloaded without downloading
@@ -19,7 +19,8 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { buildWaybackUrl, extractFilename, normalizeWpImageUrl } from './wayback-utils.mjs';
+import { buildWaybackUrl, extractFilename, normalizeWpImageUrl } from './wayback-utils.mts';
+import type { CdxRecord } from './lib/types.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -33,11 +34,11 @@ const rateLimitIdx = args.indexOf('--rate-limit');
 const rateLimit = rateLimitIdx >= 0 ? parseInt(args[rateLimitIdx + 1]) : 3000;
 
 if (!inputFile) {
-	console.error('Usage: node scripts/wayback-download.mjs <cdx-results.json> [--dry-run] [--output-dir <dir>]');
+	console.error('Usage: tsx scripts/wayback-download.mts <cdx-results.json> [--dry-run] [--output-dir <dir>]');
 	process.exit(1);
 }
 
-const records = JSON.parse(readFileSync(inputFile, 'utf-8'));
+const records: CdxRecord[] = JSON.parse(readFileSync(inputFile, 'utf-8'));
 console.error(`Loaded ${records.length} CDX records from ${inputFile}`);
 
 if (!existsSync(outputDir)) {
@@ -45,7 +46,7 @@ if (!existsSync(outputDir)) {
 }
 
 // Deduplicate by normalized URL (keep latest timestamp)
-const byUrl = new Map();
+const byUrl = new Map<string, CdxRecord>();
 for (const r of records) {
 	const normalized = normalizeWpImageUrl(r.original);
 	const existing = byUrl.get(normalized);
@@ -60,7 +61,7 @@ let downloaded = 0;
 let skipped = 0;
 let failed = 0;
 
-async function downloadWithRetry(url, retries = 3) {
+async function downloadWithRetry(url: string, retries = 3): Promise<Buffer> {
 	for (let attempt = 1; attempt <= retries; attempt++) {
 		try {
 			const res = await fetch(url);
@@ -75,10 +76,11 @@ async function downloadWithRetry(url, retries = 3) {
 		} catch (err) {
 			if (attempt === retries) throw err;
 			const wait = Math.pow(2, attempt) * 1000;
-			console.error(`  Retry ${attempt}/${retries}: ${err.message}`);
+			console.error(`  Retry ${attempt}/${retries}: ${(err as Error).message}`);
 			await new Promise((r) => setTimeout(r, wait));
 		}
 	}
+	throw new Error('All retries exhausted');
 }
 
 for (const [normalized, record] of byUrl) {
@@ -108,7 +110,7 @@ for (const [normalized, record] of byUrl) {
 		downloaded++;
 		console.error(`  Saved: ${outputPath} (${data.length} bytes)`);
 	} catch (err) {
-		console.error(`  FAILED: ${err.message}`);
+		console.error(`  FAILED: ${(err as Error).message}`);
 		failed++;
 	}
 

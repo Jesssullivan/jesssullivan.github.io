@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * render-mermaid.mjs
+ * render-mermaid.mts
  *
  * Pre-renders mermaid code blocks from blog posts into SVG files.
  * The mdsvex highlighter in svelte.config.js reads these cached SVGs
@@ -24,9 +24,18 @@ const CACHE_DIR = resolve(ROOT, '.mermaid-cache');
 
 mkdirSync(CACHE_DIR, { recursive: true });
 
-// Extract all mermaid code blocks from all posts
-function extractMermaidBlocks(postsDir) {
-	const blocks = [];
+interface MermaidBlock {
+	code: string;
+	file: string;
+	offset: number;
+}
+
+interface MermaidManifest {
+	[hash: string]: { file: string; hash: string };
+}
+
+function extractMermaidBlocks(postsDir: string): MermaidBlock[] {
+	const blocks: MermaidBlock[] = [];
 	const files = readdirSync(postsDir).filter(f => f.endsWith('.md'));
 
 	for (const file of files) {
@@ -44,12 +53,11 @@ function extractMermaidBlocks(postsDir) {
 	return blocks;
 }
 
-function hashCode(code) {
+function hashCode(code: string): string {
 	return createHash('sha256').update(code).digest('hex').slice(0, 16);
 }
 
-// Load existing manifest
-function loadManifest() {
+function loadManifest(): MermaidManifest {
 	const manifestPath = resolve(CACHE_DIR, 'manifest.json');
 	if (existsSync(manifestPath)) {
 		try {
@@ -59,15 +67,14 @@ function loadManifest() {
 	return {};
 }
 
-function saveManifest(manifest) {
+function saveManifest(manifest: MermaidManifest): void {
 	writeFileSync(
 		resolve(CACHE_DIR, 'manifest.json'),
 		JSON.stringify(manifest, null, 2)
 	);
 }
 
-// Render a single mermaid block to SVG using mmdc
-function renderToSvg(code, hash) {
+function renderToSvg(code: string, hash: string): boolean {
 	const inputFile = resolve(tmpdir(), `mermaid-${hash}.mmd`);
 	const outputFile = resolve(CACHE_DIR, `${hash}.svg`);
 
@@ -87,10 +94,6 @@ function renderToSvg(code, hash) {
 			if (svgMatch) {
 				svg = svgMatch[0];
 			}
-			// Clean up SVG for inline embedding:
-			// - Replace hardcoded id="my-svg" with unique hash-based id (prevents conflicts)
-			// - Remove existing role/aria attrs that conflict with wrapper
-			// - Set responsive sizing
 			const uniqueId = `mermaid-${hash}`;
 			svg = svg
 				.replace(/id="my-svg"/g, `id="${uniqueId}"`)
@@ -102,7 +105,7 @@ function renderToSvg(code, hash) {
 			return true;
 		}
 	} catch (err) {
-		console.error(`  Failed to render ${hash}: ${err.message}`);
+		console.error(`  Failed to render ${hash}: ${(err as Error).message}`);
 	}
 	return false;
 }

@@ -6,7 +6,7 @@
  * local /images/posts/ paths. Updates wp-url-map.json.
  *
  * Usage:
- *   node scripts/update-post-images.mjs [options]
+ *   tsx scripts/update-post-images.mts [options]
  *
  * Options:
  *   --dry-run   Show changes without writing (default)
@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { extractImageUrls, isExternalWpUrl, normalizeWpImageUrl, extractFilename } from './wayback-utils.mjs';
+import { extractImageUrls, isExternalWpUrl, normalizeWpImageUrl, extractFilename } from './wayback-utils.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -34,10 +34,10 @@ if (dryRun) {
 
 // Load existing URL map
 const urlMapPath = join(staticDir, 'images', 'wp-url-map.json');
-const urlMap = existsSync(urlMapPath) ? JSON.parse(readFileSync(urlMapPath, 'utf-8')) : {};
+const urlMap: Record<string, string> = existsSync(urlMapPath) ? JSON.parse(readFileSync(urlMapPath, 'utf-8')) : {};
 
 // Get existing local images
-const localImages = existsSync(imagesDir) ? new Set(readdirSync(imagesDir)) : new Set();
+const localImages = existsSync(imagesDir) ? new Set(readdirSync(imagesDir)) : new Set<string>();
 
 const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
 let totalReplacements = 0;

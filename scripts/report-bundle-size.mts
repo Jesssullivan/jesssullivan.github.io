@@ -8,13 +8,14 @@
 import { readdirSync, statSync, writeFileSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
+import type { BundleChunk, BundleReport } from './lib/types.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildDir = join(__dirname, '..', 'build');
 const immutableDir = join(buildDir, '_app', 'immutable');
 
-function walkFiles(dir) {
-	const results = [];
+function walkFiles(dir: string): string[] {
+	const results: string[] = [];
 	try {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const full = join(dir, entry.name);
@@ -30,7 +31,7 @@ function walkFiles(dir) {
 	return results;
 }
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number): string {
 	if (bytes < 1024) return `${bytes} B`;
 	const kb = bytes / 1024;
 	if (kb < 1024) return `${kb.toFixed(1)} KB`;
@@ -38,13 +39,13 @@ function formatBytes(bytes) {
 }
 
 const files = walkFiles(immutableDir);
-const chunks = { js: [], css: [], other: [] };
+const chunks: { js: BundleChunk[]; css: BundleChunk[]; other: BundleChunk[] } = { js: [], css: [], other: [] };
 
 for (const file of files) {
 	const ext = extname(file).toLowerCase();
 	const size = statSync(file).size;
 	const rel = file.replace(immutableDir + '/', '');
-	const entry = { file: rel, size };
+	const entry: BundleChunk = { file: rel, size };
 
 	if (ext === '.js' || ext === '.mjs') chunks.js.push(entry);
 	else if (ext === '.css') chunks.css.push(entry);
@@ -90,7 +91,7 @@ if (chunks.js.length > 0) {
 }
 
 // Write JSON report
-const report = {
+const report: BundleReport = {
 	timestamp: new Date().toISOString(),
 	totals: { js: totalJS, css: totalCSS, other: totalOther, total },
 	counts: { js: chunks.js.length, css: chunks.css.length, other: chunks.other.length },
