@@ -12,12 +12,12 @@
     },
     "from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life": {
       "source_repo": "Jesssullivan/hiberpower-ntfs",
-      "source_path": "docs/blog/recovery-journey.mdx",
+      "source_path": "docs/blog/recovery-journey.md",
       "collected_at": "2026-03-04T06:13:42.580Z"
     },
     "xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives": {
       "source_repo": "Jesssullivan/hiberpower-ntfs",
-      "source_path": "docs/blog/xram-injection-guide.mdx",
+      "source_path": "docs/blog/xram-injection-guide.md",
       "collected_at": "2026-03-04T06:13:42.581Z"
     }
   }
