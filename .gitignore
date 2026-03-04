@@ -29,6 +29,7 @@ CLAUDE.md
 .direnv/
 
 # Build artifacts
+.mermaid-cache/
 static/search-index.json
 static/blog-stats.json
 static/images/tag-graph.svg

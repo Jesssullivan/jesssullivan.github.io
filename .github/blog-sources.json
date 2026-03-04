@@ -1,5 +1,5 @@
 {
-  "repos": ["Jesssullivan/aperture-bootstrap"],
+  "repos": ["Jesssullivan/aperture-bootstrap", "Jesssullivan/hiberpower-ntfs"],
   "scan_paths": ["blog/", "posts/", "docs/blog/"],
   "frontmatter_marker": "publish_to",
   "frontmatter_value": "blog"

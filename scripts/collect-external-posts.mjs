@@ -19,6 +19,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 
 import { join, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import { parseFrontmatter } from './lib/frontmatter.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -65,7 +66,7 @@ function fetchRepoFiles(repo, paths) {
 				`gh api repos/${repo}/contents/${scanPath} --jq '.[].name'`,
 				{ encoding: 'utf-8', env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN } }
 			).trim();
-			for (const name of listing.split('\n').filter((n) => n.endsWith('.md'))) {
+			for (const name of listing.split('\n').filter((n) => n.endsWith('.md') || n.endsWith('.mdx'))) {
 				const content = execSync(
 					`gh api repos/${repo}/contents/${scanPath}${name} --jq '.content'`,
 					{ encoding: 'utf-8', env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN } }
@@ -125,46 +126,6 @@ function fetchRepoImages(repo, scanPaths) {
 		}
 	}
 	return images;
-}
-
-// ---------------------------------------------------------------------------
-// Frontmatter parsing (same minimal parser as validate-frontmatter.mjs)
-// ---------------------------------------------------------------------------
-
-function parseFrontmatter(raw) {
-	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	if (!match) return null;
-	const yaml = match[1];
-	const result = {};
-	for (const line of yaml.split('\n')) {
-		const trimmed = line.trim();
-		if (!trimmed || trimmed.startsWith('#')) continue;
-		const kvMatch = trimmed.match(/^(\w[\w_]*):\s*(.*)/);
-		if (!kvMatch) continue;
-		const [, key, rawVal] = kvMatch;
-		result[key] = parseValue(rawVal.trim());
-	}
-	return result;
-}
-
-function parseValue(val) {
-	if (val === 'true') return true;
-	if (val === 'false') return false;
-	if (val === '' || val === 'null' || val === '~') return null;
-	if (/^-?\d+(\.\d+)?$/.test(val)) return Number(val);
-	if (val.startsWith('[') && val.endsWith(']')) {
-		const inner = val.slice(1, -1);
-		if (inner.trim() === '') return [];
-		return inner.split(',').map((s) => stripQuotes(s.trim()));
-	}
-	return stripQuotes(val);
-}
-
-function stripQuotes(s) {
-	if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-		return s.slice(1, -1);
-	}
-	return s;
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +230,7 @@ for (const repo of repos) {
 
 		// Rewrite inter-post links: (part-1-identity.md) → (/blog/slug)
 		// Collect all post filenames and their slugs for cross-referencing
-		body = body.replace(/\(([^)]*\.md)\)/g, (match, mdRef) => {
+		body = body.replace(/\(([^)]*\.mdx?)\)/g, (match, mdRef) => {
 			// Find matching file in this collection batch
 			const refFile = files.find((f) => f.path.endsWith(mdRef) || basename(f.path) === mdRef);
 			if (refFile) {

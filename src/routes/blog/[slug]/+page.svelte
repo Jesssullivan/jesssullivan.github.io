@@ -35,13 +35,13 @@
 	});
 
 	onMount(async () => {
-		// Mermaid diagrams
-		const diagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-code]');
-		if (diagrams.length > 0) {
+		// Mermaid diagrams — only needed as fallback when pre-rendered SVGs are missing
+		const fallbackDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-code]');
+		if (fallbackDiagrams.length > 0) {
 			const mermaid = (await import('mermaid')).default;
 			const mode = document.documentElement.getAttribute('data-mode') || 'dark';
 			mermaid.initialize({ startOnLoad: false, theme: mode === 'dark' ? 'dark' : 'default' });
-			for (const el of diagrams) {
+			for (const el of fallbackDiagrams) {
 				const code = atob(el.getAttribute('data-mermaid-code') || '');
 				const id = el.getAttribute('data-mermaid-id') || 'mermaid';
 				try {

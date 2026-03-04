@@ -5,6 +5,7 @@ import { createHighlighter } from 'shiki';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticDir = resolve(__dirname, 'static');
@@ -21,7 +22,7 @@ try {
 const theme = 'github-dark';
 const highlighter = await createHighlighter({
 	themes: [theme],
-	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp']
+	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig']
 });
 
 /** @type {import('mdsvex').MdsvexOptions} */
@@ -29,9 +30,18 @@ const mdsvexOptions = {
 	extensions: ['.md', '.svx'],
 	highlight: {
 		highlighter: async (code, lang) => {
-			// Intercept mermaid code blocks — Base64 encode for client-side rendering
+			// Intercept mermaid code blocks — inline pre-rendered SVG from .mermaid-cache/
 			if (lang === 'mermaid') {
-				const encoded = Buffer.from(code.trim()).toString('base64');
+				const trimmed = code.trim();
+				const hash = createHash('sha256').update(trimmed).digest('hex').slice(0, 16);
+				const svgPath = resolve(__dirname, '.mermaid-cache', `${hash}.svg`);
+				if (existsSync(svgPath)) {
+					const svg = readFileSync(svgPath, 'utf-8')
+						.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
+					return `<div class="mermaid-diagram my-6 not-prose" role="figure" aria-label="Mermaid diagram">${svg}</div>`;
+				}
+				// Fallback: base64 encode for client-side rendering if cache miss
+				const encoded = Buffer.from(trimmed).toString('base64');
 				const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
 				return `<div class="mermaid-diagram my-6 not-prose" data-mermaid-code="${encoded}" data-mermaid-id="${id}"></div>`;
 			}

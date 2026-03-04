@@ -5,17 +5,17 @@
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 /* Self-hosted fonts via @fontsource */
-@import '@fontsource/crimson-pro/400.css';
-@import '@fontsource/crimson-pro/400-italic.css';
-@import '@fontsource/crimson-pro/600.css';
-@import '@fontsource/crimson-pro/700.css';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/inter/700.css';
-@import '@fontsource/fira-code/400.css';
-@import '@fontsource/fira-code/700.css';
-@import '@fontsource/raleway/400.css';
-@import '@fontsource/raleway/700.css';
+@import '@fontsource/crimson-pro/latin-400.css';
+@import '@fontsource/crimson-pro/latin-400-italic.css';
+@import '@fontsource/crimson-pro/latin-600.css';
+@import '@fontsource/crimson-pro/latin-700.css';
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+@import '@fontsource/fira-code/latin-400.css';
+@import '@fontsource/fira-code/latin-700.css';
+@import '@fontsource/raleway/latin-400.css';
+@import '@fontsource/raleway/latin-700.css';
 
 [data-mode="light"] { color-scheme: light; }
 [data-mode="dark"] { color-scheme: dark; }
@@ -414,4 +414,13 @@ a[href="#main-content"]:focus {
 		backdrop-filter: none !important;
 		-webkit-backdrop-filter: none !important;
 	}
+}
+
+/* Pre-rendered mermaid diagrams: dark mode inversion */
+.mermaid-diagram svg {
+	max-width: 100%;
+	height: auto;
+}
+[data-mode="dark"] .mermaid-diagram svg {
+	filter: invert(0.88) hue-rotate(180deg);
 }

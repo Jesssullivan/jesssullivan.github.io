@@ -26,6 +26,7 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
+import { parseFrontmatter } from './lib/frontmatter.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -65,27 +66,6 @@ function getPRBody() {
 	}
 
 	return '';
-}
-
-// ---------------------------------------------------------------------------
-// Minimal frontmatter parser
-// ---------------------------------------------------------------------------
-
-function parseFrontmatter(raw) {
-	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-	if (!match) return null;
-	const result = {};
-	for (const line of match[1].split('\n')) {
-		const kv = line.trim().match(/^(\w[\w_]*):\s*(.*)/);
-		if (!kv) continue;
-		let val = kv[2].trim();
-		if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'")))
-			val = val.slice(1, -1);
-		if (val === 'true') val = true;
-		else if (val === 'false') val = false;
-		result[kv[1]] = val;
-	}
-	return result;
 }
 
 // ---------------------------------------------------------------------------

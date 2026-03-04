@@ -1,12 +1,22 @@
 <script lang="ts">
 	import '../app.css';
+	import 'virtual:skeleton-colors';
 	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import BlobBackground from '$lib/components/vectors/BlobBackground.svelte';
+	import { TinyVectors } from '@tummycrypt/tinyvectors';
 
 	let { children } = $props();
+
+	// Pine theme colors — subtle, earthy tones matching the original blob background
+	const pineColors = [
+		'rgba(26, 188, 156, 0.35)',   // pineGreen
+		'rgba(22, 160, 133, 0.3)',    // forestTeal
+		'rgba(39, 174, 96, 0.25)',    // mossGreen
+		'rgba(52, 152, 219, 0.2)',    // mistBlue
+		'rgba(236, 240, 241, 0.25)', // cloudWhite
+	];
 	let mobileOpen = $state(false);
 	let themeMode = $state<'light' | 'dark' | 'system'>('system');
 	let themeMenuOpen = $state(false);
@@ -96,7 +106,18 @@
 	})}</script>`}
 </svelte:head>
 
-<BlobBackground />
+{#if browser}
+<div class="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true" data-testid="blob-background">
+	<TinyVectors
+		theme="custom"
+		colors={pineColors}
+		opacity={0.4}
+		blobCount={5}
+		enableScrollPhysics={true}
+		enableDeviceMotion={false}
+	/>
+</div>
+{/if}
 
 <div class="min-h-screen flex flex-col relative">
 	<a

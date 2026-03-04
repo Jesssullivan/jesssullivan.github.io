@@ -1,6 +1,9 @@
 <script lang="ts">
 	import type { Post } from '$lib/types';
 	import { Tooltip } from '@skeletonlabs/skeleton-svelte';
+	import dimensionsJson from '../../../static/images/posts/dimensions.json';
+
+	const imageDimensions: Record<string, { width: number; height: number }> = dimensionsJson;
 
 	let { post, loading = false }: { post?: Post; loading?: boolean } = $props();
 
@@ -16,6 +19,17 @@
 		if (!src) return null;
 		const webp = src.replace(/\.(jpe?g|png|gif)$/i, '.webp');
 		return webp !== src ? webp : null;
+	}
+
+	function avifSrc(src: string): string | null {
+		if (!src) return null;
+		const avif = src.replace(/\.(jpe?g|png|gif)$/i, '.avif');
+		return avif !== src ? avif : null;
+	}
+
+	function getDimensions(src: string): { width: number; height: number } | null {
+		if (!src) return null;
+		return imageDimensions[src] ?? null;
 	}
 
 	const CATEGORY_COLORS: Record<string, string> = {
@@ -55,6 +69,7 @@
 		<a href="/blog/{post.slug}" class="block">
 			<!-- Feature image banner -->
 			{#if post.feature_image}
+				{@const dims = getDimensions(post.feature_image)}
 				<div class="relative w-full h-48 overflow-hidden bg-surface-200-800">
 					{#if post.featured}
 						<div class="absolute top-3 left-3 z-10 flex items-center gap-1 text-xs font-semibold bg-primary-500 text-white px-2 py-1 rounded-full shadow-sm">
@@ -63,6 +78,9 @@
 						</div>
 					{/if}
 					<picture>
+						{#if avifSrc(post.feature_image)}
+							<source srcset={avifSrc(post.feature_image)} type="image/avif" />
+						{/if}
 						{#if webpSrc(post.feature_image)}
 							<source srcset={webpSrc(post.feature_image)} type="image/webp" />
 						{/if}
@@ -72,6 +90,8 @@
 							class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
 							loading="lazy"
 							decoding="async"
+							width={dims?.width}
+							height={dims?.height}
 						/>
 					</picture>
 				</div>
