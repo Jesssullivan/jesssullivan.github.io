@@ -12,6 +12,7 @@ import { Effect, Layer, Exit } from "effect"
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { reviewPR } from "./agents/review.js"
+import { handleCommand } from "./agents/commands.js"
 import { GitHubServiceLive } from "./services/github.js"
 import { SchemaServiceLive, SchemaService } from "./services/schema.js"
 import { ProseReviewServiceLive } from "./services/prose-review.js"
@@ -33,6 +34,9 @@ const allServices = Layer.mergeAll(
 )
 
 async function main() {
+	const owner = getArg("--owner") ?? "Jesssullivan"
+	const repo = getArg("--repo") ?? "jesssullivan.github.io"
+
 	switch (command) {
 		case "review": {
 			const prNumber = getArg("--pr")
@@ -40,8 +44,6 @@ async function main() {
 				console.error("Usage: cli.ts review --pr <number>")
 				process.exit(1)
 			}
-			const owner = getArg("--owner") ?? "Jesssullivan"
-			const repo = getArg("--repo") ?? "jesssullivan.github.io"
 
 			console.log(`Reviewing PR #${prNumber} on ${owner}/${repo}...`)
 
@@ -54,6 +56,37 @@ async function main() {
 				process.exit(1)
 			}
 			console.log("Review complete.")
+			break
+		}
+
+		case "command": {
+			const prNumber = getArg("--pr")
+			const commentBody = getArg("--body")
+			const commenter = getArg("--commenter") ?? "github-actions[bot]"
+			const commentId = parseInt(getArg("--comment-id") ?? "0", 10)
+
+			if (!prNumber || !commentBody) {
+				console.error("Usage: cli.ts command --pr <number> --body '/slash args' [--commenter user] [--comment-id id]")
+				process.exit(1)
+			}
+
+			console.log(`Handling command on PR #${prNumber}: ${commentBody}`)
+
+			const program = handleCommand({
+				owner,
+				repo,
+				prNumber: parseInt(prNumber, 10),
+				commentId,
+				commentBody,
+				commenter,
+			}).pipe(Effect.provide(allServices))
+
+			const exit = await Effect.runPromiseExit(program)
+			if (Exit.isFailure(exit)) {
+				console.error("Command failed:", exit.cause)
+				process.exit(1)
+			}
+			console.log("Command complete.")
 			break
 		}
 
@@ -141,6 +174,7 @@ async function main() {
 
 Commands:
   review          Review a PR (--pr <number>)
+  command         Run a slash command (--pr <number> --body '/cmd args')
   validate        Validate a post's frontmatter (--file <path>)
   suggest-links   Find unlinked keywords in a post (--file <path>)`)
 			break
