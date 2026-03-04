@@ -9,13 +9,14 @@
  * When images aren't found locally, --download fetches them from the archive.
  *
  * Usage:
- *   node scripts/relace-wp-images.mjs --dry-run              # Preview matches
- *   node scripts/relace-wp-images.mjs --dry-run --download    # Preview + show downloads
- *   node scripts/relace-wp-images.mjs --download              # Download missing + replace
- *   node scripts/relace-wp-images.mjs                         # Local-only matching
+ *   tsx scripts/relace-wp-images.mts --dry-run              # Preview matches
+ *   tsx scripts/relace-wp-images.mts --dry-run --download    # Preview + show downloads
+ *   tsx scripts/relace-wp-images.mts --download              # Download missing + replace
+ *   tsx scripts/relace-wp-images.mts                         # Local-only matching
  */
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, basename, extname } from 'node:path';
+import type { WpImage, PlaceholderInfo, PostWithPlaceholders, WaybackSnapshot } from './lib/types.mts';
 
 const POSTS_DIR = 'src/posts';
 const IMAGES_DIR = 'static/images/posts';
@@ -35,16 +36,13 @@ const THEME_IMAGE_PATTERNS = [
 	'gravatar',
 ];
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
 	return new Promise((r) => setTimeout(r, ms));
 }
 
-/**
- * Load local images into a Map: lowercase basename (no ext) -> filename
- */
-async function loadLocalImages() {
+async function loadLocalImages(): Promise<Map<string, string>> {
 	const files = await readdir(IMAGES_DIR);
-	const map = new Map();
+	const map = new Map<string, string>();
 	for (const f of files) {
 		if (f === 'dimensions.json') continue;
 		const ext = extname(f).toLowerCase();
@@ -56,15 +54,12 @@ async function loadLocalImages() {
 	return map;
 }
 
-/**
- * Query Wayback Machine CDX API for snapshots of a URL.
- */
-async function getWaybackSnapshot(originalUrl) {
+async function getWaybackSnapshot(originalUrl: string): Promise<WaybackSnapshot | null> {
 	const cdxUrl = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(originalUrl)}&output=json&limit=1&fl=timestamp,original&filter=statuscode:200&sort=reverse`;
 	try {
 		const resp = await fetch(cdxUrl);
 		if (!resp.ok) return null;
-		const rows = await resp.json();
+		const rows: string[][] = await resp.json();
 		if (rows.length < 2) return null;
 		const [timestamp] = rows[1];
 		return { timestamp, url: `https://web.archive.org/web/${timestamp}id_/${originalUrl}` };
@@ -73,20 +68,12 @@ async function getWaybackSnapshot(originalUrl) {
 	}
 }
 
-/**
- * Check if an image filename looks like a WP theme/sidebar image.
- */
-function isThemeImage(filename) {
+function isThemeImage(filename: string): boolean {
 	const lower = filename.toLowerCase();
 	return THEME_IMAGE_PATTERNS.some((p) => lower.includes(p));
 }
 
-/**
- * Fetch archived HTML and extract content images from the post body.
- * Filters out theme images, thumbnails, and sidebar images.
- * Returns content images in page order with their full WP upload paths.
- */
-async function extractWpImages(archiveUrl, timestamp) {
+async function extractWpImages(archiveUrl: string, timestamp: string): Promise<WpImage[]> {
 	try {
 		const resp = await fetch(archiveUrl);
 		if (!resp.ok) return [];
@@ -104,11 +91,11 @@ async function extractWpImages(archiveUrl, timestamp) {
 		const imgRe = /wp-content\/uploads\/(\d{4}\/\d{2}\/[^\s"'<>]*?\.(jpe?g|png|gif))/gi;
 		const matches = [...contentHtml.matchAll(imgRe)];
 
-		const seen = new Set();
-		const images = [];
+		const seen = new Set<string>();
+		const images: WpImage[] = [];
 		for (const m of matches) {
-			const uploadPath = m[1]; // e.g., "2017/03/DSC07854.jpg"
-			const fname = uploadPath.split('/').pop();
+			const uploadPath = m[1];
+			const fname = uploadPath.split('/').pop()!;
 			const key = basename(fname, extname(fname)).toLowerCase();
 
 			// Skip theme images and already-seen
@@ -134,26 +121,18 @@ async function extractWpImages(archiveUrl, timestamp) {
 	}
 }
 
-/**
- * Fuzzy match a WP image key against local images.
- */
-function fuzzyMatch(key, localImages) {
-	if (localImages.has(key)) return localImages.get(key);
+function fuzzyMatch(key: string, localImages: Map<string, string>): string | null {
+	if (localImages.has(key)) return localImages.get(key)!;
 	const stripped = key.replace(/-\d+x\d+$/, '');
-	if (stripped !== key && localImages.has(stripped)) return localImages.get(stripped);
+	if (stripped !== key && localImages.has(stripped)) return localImages.get(stripped)!;
 	// Also try without trailing -N suffix (e.g., IMG_9079-1 -> IMG_9079)
 	const noSuffix = stripped.replace(/-\d+$/, '');
-	if (noSuffix !== stripped && localImages.has(noSuffix)) return localImages.get(noSuffix);
+	if (noSuffix !== stripped && localImages.has(noSuffix)) return localImages.get(noSuffix)!;
 	return null;
 }
 
-/**
- * Download an image from the Wayback Machine archive.
- * Returns the local filename, or null on failure.
- */
-async function downloadImage(uploadPath, timestamp) {
-	const fname = uploadPath.split('/').pop();
-	// Normalize filename: strip WP size suffixes for cleaner local names
+async function downloadImage(uploadPath: string, timestamp: string): Promise<string | null> {
+	const fname = uploadPath.split('/').pop()!;
 	const ext = extname(fname);
 	const base = basename(fname, ext).replace(/-\d+x\d+$/, '');
 	const localName = base + ext;
@@ -180,17 +159,14 @@ async function downloadImage(uploadPath, timestamp) {
 	}
 }
 
-/**
- * Find posts that contain placeholder lines.
- */
-async function findPostsWithPlaceholders() {
+async function findPostsWithPlaceholders(): Promise<PostWithPlaceholders[]> {
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
-	const results = [];
+	const results: PostWithPlaceholders[] = [];
 
 	for (const file of files) {
 		const content = await readFile(join(POSTS_DIR, file), 'utf-8');
 		const lines = content.split('\n');
-		const placeholders = [];
+		const placeholders: PlaceholderInfo[] = [];
 		for (let i = 0; i < lines.length; i++) {
 			if (PLACEHOLDER_RE.test(lines[i].trim())) {
 				placeholders.push({ lineIndex: i, text: lines[i] });
@@ -206,7 +182,7 @@ async function findPostsWithPlaceholders() {
 	return results;
 }
 
-async function main() {
+async function main(): Promise<void> {
 	console.log(DRY_RUN ? '=== DRY RUN ===' : '=== REPLACING PLACEHOLDERS ===');
 	if (DOWNLOAD) console.log('Download mode: will fetch missing images from Wayback Machine');
 
@@ -253,7 +229,7 @@ async function main() {
 		}
 
 		// Match WP images to local files, optionally downloading missing ones
-		const matches = [];
+		const matches: WpImage[] = [];
 		for (const img of wpImages) {
 			let localFile = fuzzyMatch(img.key, localImages);
 
@@ -263,14 +239,12 @@ async function main() {
 					localFile = await downloadImage(img.uploadPath, img.timestamp);
 					await sleep(500);
 					if (localFile) {
-						// Add to local index for future lookups
 						const key = basename(localFile, extname(localFile)).toLowerCase();
 						localImages.set(key, localFile);
 						totalDownloaded++;
 					}
 				} else {
 					console.log(`  Would download: ${img.original}`);
-					// In dry-run, pretend the download succeeded
 					const ext = extname(img.original);
 					const base = basename(img.original, ext).replace(/-\d+x\d+$/, '');
 					localFile = base + ext;

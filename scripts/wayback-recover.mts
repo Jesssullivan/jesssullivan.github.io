@@ -6,7 +6,7 @@
  * Can run individual steps or the full pipeline.
  *
  * Usage:
- *   node scripts/wayback-recover.mjs [options]
+ *   tsx scripts/wayback-recover.mts [options]
  *
  * Options:
  *   --step <name>   Run a single step: audit, query, download, update
@@ -35,41 +35,41 @@ const apply = args.includes('--apply');
 
 const CDX_OUTPUT = join(scriptsDir, '..', 'wayback-cdx-results.json');
 
-function run(cmd) {
+function run(cmd: string): void {
 	console.log(`\n${'='.repeat(72)}`);
 	console.log(`> ${cmd}`);
 	console.log('='.repeat(72));
 	try {
 		execSync(cmd, { stdio: 'inherit', cwd: join(scriptsDir, '..') });
 	} catch (err) {
-		console.error(`Step failed with exit code ${err.status}`);
-		if (!dryRun) process.exit(err.status || 1);
+		console.error(`Step failed with exit code ${(err as { status?: number }).status}`);
+		if (!dryRun) process.exit((err as { status?: number }).status || 1);
 	}
 }
 
-const steps = {
+const steps: Record<string, () => void> = {
 	audit() {
-		run(`node scripts/audit-media.mjs`);
+		run(`tsx scripts/audit-media.mts`);
 	},
 	query() {
 		if (dryRun) {
-			run(`node scripts/wayback-cdx-query.mjs --dry-run`);
+			run(`tsx scripts/wayback-cdx-query.mts --dry-run`);
 		} else {
-			run(`node scripts/wayback-cdx-query.mjs --output ${CDX_OUTPUT}`);
+			run(`tsx scripts/wayback-cdx-query.mts --output ${CDX_OUTPUT}`);
 		}
 	},
 	download() {
 		if (dryRun) {
-			run(`node scripts/wayback-download.mjs ${CDX_OUTPUT} --dry-run`);
+			run(`tsx scripts/wayback-download.mts ${CDX_OUTPUT} --dry-run`);
 		} else {
-			run(`node scripts/wayback-download.mjs ${CDX_OUTPUT}`);
+			run(`tsx scripts/wayback-download.mts ${CDX_OUTPUT}`);
 		}
 	},
 	update() {
 		if (apply) {
-			run(`node scripts/update-post-images.mjs --apply`);
+			run(`tsx scripts/update-post-images.mts --apply`);
 		} else {
-			run(`node scripts/update-post-images.mjs`);
+			run(`tsx scripts/update-post-images.mts`);
 		}
 	},
 };

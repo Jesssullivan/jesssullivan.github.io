@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * assign-categories.mjs
+ * assign-categories.mts
  *
  * Assigns categories to published posts that lack one, based on
  * title, tags, and content analysis.
@@ -11,11 +11,18 @@
 
 import { readFileSync, writeFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+import type { ParsedFrontmatter } from './lib/types.mts';
+import { parseFrontmatterRaw } from './lib/frontmatter.mts';
 
-const POSTS_DIR = join(import.meta.dirname, '..', 'src', 'posts');
+const POSTS_DIR = join(import.meta.dirname!, '..', 'src', 'posts');
+
+interface CategoryRule {
+	pattern: RegExp;
+	category: string;
+}
 
 // Title-based rules (HIGHEST priority — title is the strongest signal)
-const TITLE_RULES = [
+const TITLE_RULES: CategoryRule[] = [
 	{ pattern: /\b(how to|install|setup|deploy|intro(?:duction)? to|getting started|quick fix)\b/i, category: 'tutorial' },
 	{ pattern: /\b(morning metal|evening metal|music sketch|guitar session)\b/i, category: 'music' },
 	{ pattern: /\b(gallery of|photo work)\b/i, category: 'photography' },
@@ -23,14 +30,13 @@ const TITLE_RULES = [
 ];
 
 // Specific tag mapping (high priority, but only for unambiguous tags)
-const SPECIFIC_TAG_MAP = {
+const SPECIFIC_TAG_MAP: Record<string, string> = {
 	Photography: 'photography',
 	Music: 'music',
 };
 
 // Broad tag mapping (lower priority — applied after keyword analysis)
-// These tags are too broad to be definitive on their own
-const BROAD_TAG_MAP = {
+const BROAD_TAG_MAP: Record<string, string> = {
 	Birding: 'ecology',
 	'Nature Observations': 'ecology',
 	DIY: 'hardware',
@@ -38,7 +44,7 @@ const BROAD_TAG_MAP = {
 };
 
 // Keyword patterns for title+body matching
-const KEYWORD_RULES = [
+const KEYWORD_RULES: CategoryRule[] = [
 	// tutorial — how-to content (before devops since many tutorials deploy things)
 	{ pattern: /\b(step.by.step|tutorial|query kml|generate convex hull|gathering point data|gdal for|convert heic)\b/i, category: 'tutorial' },
 	// software — programming projects (before devops to catch Flask/TypeScript/Python)
@@ -61,28 +67,22 @@ const KEYWORD_RULES = [
 	{ pattern: /\b(makerspace|bits and bobs|datasets|plots|graphs)\b/i, category: 'personal' },
 ];
 
-function parseFrontmatter(content) {
-	const match = content.match(/^---\n([\s\S]*?)\n---\n/);
-	if (!match) return null;
-	return {
-		raw: match[1],
-		endIndex: match[0].length,
-		body: content.slice(match[0].length),
-	};
+function parseFrontmatter(content: string): ParsedFrontmatter | null {
+	return parseFrontmatterRaw(content);
 }
 
-function extractTags(frontmatter) {
+function extractTags(frontmatter: string): string[] {
 	const match = frontmatter.match(/tags:\s*\[(.*?)\]/);
 	if (!match) return [];
 	return match[1].split(',').map((t) => t.trim().replace(/^["']|["']$/g, ''));
 }
 
-function guessCategory(title, tags, body) {
+function guessCategory(title: string, tags: string[], body: string): { category: string; reason: string } {
 	// Priority 1: Title-based rules (strongest signal)
 	for (const rule of TITLE_RULES) {
 		if (rule.pattern.test(title)) {
 			const match = title.match(rule.pattern);
-			return { category: rule.category, reason: `title "${match[0]}"` };
+			return { category: rule.category, reason: `title "${match![0]}"` };
 		}
 	}
 
@@ -96,7 +96,7 @@ function guessCategory(title, tags, body) {
 	for (const rule of KEYWORD_RULES) {
 		if (rule.pattern.test(titleAndBody)) {
 			const match = titleAndBody.match(rule.pattern);
-			return { category: rule.category, reason: `keyword "${match[0]}"` };
+			return { category: rule.category, reason: `keyword "${match![0]}"` };
 		}
 	}
 

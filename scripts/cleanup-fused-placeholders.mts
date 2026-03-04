@@ -15,7 +15,7 @@ const DRY_RUN = process.argv.includes('--dry-run');
 // Match placeholder text at the start of a line, followed by actual content
 const FUSED_RE = /^\*(?:The bits that made up|Gone with the WordPress|This image was a casualty|Another image lost|An image was here|Lost to the void|Digital entropy claimed|The server that hosted|The original image|This image existed once|What was once an image|The original image, once hosted|This visual has drifted|This space once held|Image from the original|The photograph that was|Image no longer available|This image didn't survive|Image unavailable)[^*]*\*(.+)$/;
 
-async function main() {
+async function main(): Promise<void> {
 	console.log(DRY_RUN ? '=== DRY RUN ===' : '=== CLEANING FUSED PLACEHOLDERS ===');
 
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));

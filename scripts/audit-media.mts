@@ -9,13 +9,14 @@
  * - External non-WP URLs (informational)
  * - Images in wp-url-map.json that aren't referenced by any post
  *
- * Usage: node scripts/audit-media.mjs [--json]
+ * Usage: tsx scripts/audit-media.mts [--json]
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { extractImageUrls, isExternalWpUrl, normalizeWpImageUrl, extractFilename } from './wayback-utils.mjs';
+import { extractImageUrls, isExternalWpUrl, normalizeWpImageUrl, extractFilename } from './wayback-utils.mts';
+import type { MediaAuditReport } from './lib/types.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -25,10 +26,9 @@ const jsonOutput = process.argv.includes('--json');
 
 // Load existing URL map
 const urlMapPath = join(staticDir, 'images', 'wp-url-map.json');
-const urlMap = existsSync(urlMapPath) ? JSON.parse(readFileSync(urlMapPath, 'utf-8')) : {};
+const urlMap: Record<string, string> = existsSync(urlMapPath) ? JSON.parse(readFileSync(urlMapPath, 'utf-8')) : {};
 
-// Gather local image files
-function getLocalImages() {
+function getLocalImages(): Set<string> {
 	const imagesDir = join(staticDir, 'images', 'posts');
 	if (!existsSync(imagesDir)) return new Set();
 	return new Set(readdirSync(imagesDir));
@@ -37,7 +37,7 @@ function getLocalImages() {
 const localImages = getLocalImages();
 const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
 
-const report = {
+const report: MediaAuditReport = {
 	totalPosts: files.length,
 	totalImageRefs: 0,
 	localExisting: [],
@@ -48,7 +48,7 @@ const report = {
 };
 
 // Track which wp-url-map entries are referenced
-const referencedMapEntries = new Set();
+const referencedMapEntries = new Set<string>();
 
 for (const file of files) {
 	const content = readFileSync(join(postsDir, file), 'utf-8');
@@ -59,8 +59,7 @@ for (const file of files) {
 		const { url } = img;
 
 		if (url.startsWith('/images/') || url.startsWith('./images/')) {
-			// Local image reference
-			const filename = url.split('/').pop();
+			const filename = url.split('/').pop()!;
 			const staticPath = join(staticDir, url.startsWith('/') ? url.slice(1) : url);
 			if (existsSync(staticPath)) {
 				report.localExisting.push({ file, url });
@@ -68,13 +67,11 @@ for (const file of files) {
 				report.localMissing.push({ file, url, filename });
 			}
 		} else if (isExternalWpUrl(url)) {
-			// External WordPress URL
 			const normalized = normalizeWpImageUrl(url);
 			const mapped = urlMap[url] || null;
 			if (mapped) referencedMapEntries.add(url);
 			report.externalWp.push({ file, url, normalized, mapped });
 		} else if (url.startsWith('http')) {
-			// Other external URL
 			report.externalOther.push({ file, url });
 		}
 	}
@@ -100,7 +97,7 @@ if (jsonOutput) {
 	console.log(`URL map entries: ${Object.keys(urlMap).length}`);
 	console.log();
 
-	function section(title, items, showUrl = true) {
+	function section(title: string, items: Array<Record<string, unknown>>, showUrl = true): void {
 		const mark = items.length > 0 ? (title.includes('Missing') || title.includes('WordPress') ? 'WARN' : 'INFO') : 'PASS';
 		console.log(`${mark}: ${title} (${items.length})`);
 		console.log('-'.repeat(72));
@@ -127,10 +124,10 @@ if (jsonOutput) {
 	section('External Other URLs', report.externalOther);
 	section('Unmapped wp-url-map.json Entries', report.unmappedUrlMapEntries, false);
 
-	const issues = report.localMissing.length + report.externalWp.length;
+	const issueCount = report.localMissing.length + report.externalWp.length;
 	console.log('='.repeat(72));
-	if (issues > 0) {
-		console.log(`ACTION NEEDED: ${issues} items require attention`);
+	if (issueCount > 0) {
+		console.log(`ACTION NEEDED: ${issueCount} items require attention`);
 		console.log(`  ${report.localMissing.length} missing local images`);
 		console.log(`  ${report.externalWp.length} external WordPress URLs still in posts`);
 	} else {

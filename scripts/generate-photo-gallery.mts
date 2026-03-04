@@ -11,6 +11,8 @@
 
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'fs';
 import { join, basename, extname } from 'path';
+import type { GalleryEntry, ImageDimensions } from './lib/types.mts';
+import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const IMAGES_DIR = 'static/images/posts';
 const POSTS_DIR = 'src/posts';
@@ -38,7 +40,7 @@ const EXCLUDE_PATTERNS = [
 	'v5_a', 'v6_b',
 ];
 
-function isPhotographyImage(filename) {
+function isPhotographyImage(filename: string): boolean {
 	const lower = filename.toLowerCase();
 	const ext = extname(lower);
 	if (!['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) return false;
@@ -46,27 +48,19 @@ function isPhotographyImage(filename) {
 	return PHOTO_PREFIXES.some((p) => lower.startsWith(p));
 }
 
-function buildImageToPostMap() {
-	const map = new Map(); // lowercase image filename -> { slug, title }
+function buildImageToPostMap(): Map<string, { slug: string; title: string }> {
+	const map = new Map<string, { slug: string; title: string }>();
 
 	const files = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md'));
 	for (const file of files) {
 		const content = readFileSync(join(POSTS_DIR, file), 'utf-8');
 
-		// Extract frontmatter
-		const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-		if (!fmMatch) continue;
-		const fm = fmMatch[1];
+		const fm = parseFrontmatter(content);
+		if (!fm || fm.published !== true) continue;
 
-		const titleMatch = fm.match(/title:\s*"([^"]+)"/);
-		const slugMatch = fm.match(/slug:\s*"([^"]+)"/);
-		const publishedMatch = fm.match(/published:\s*true/);
-		if (!publishedMatch) continue;
-
-		const title = titleMatch ? titleMatch[1] : '';
-		const slug = slugMatch
-			? slugMatch[1]
-			: file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+		const title = (fm.title as string) || '';
+		const slug = (fm.slug as string)
+			|| file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
 		// Find image references
 		const imgRefs = content.matchAll(/!\[[^\]]*\]\(\/images\/posts\/([^)]+)\)/g);
@@ -78,9 +72,9 @@ function buildImageToPostMap() {
 	return map;
 }
 
-function main() {
+function main(): void {
 	// Load dimensions
-	let dimensions = {};
+	let dimensions: Record<string, ImageDimensions> = {};
 	if (existsSync(DIMENSIONS_FILE)) {
 		dimensions = JSON.parse(readFileSync(DIMENSIONS_FILE, 'utf-8'));
 	}
@@ -107,7 +101,7 @@ function main() {
 		return PHOTO_PREFIXES.some((p) => lower.startsWith(p));
 	});
 
-	const gallery = [];
+	const gallery: GalleryEntry[] = [];
 
 	for (const file of [...photoFiles, ...webpOnly]) {
 		const src = `/images/posts/${file}`;

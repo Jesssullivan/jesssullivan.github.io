@@ -6,7 +6,7 @@
  * from transscendsurvival.org/wp-content/uploads/.
  *
  * Usage:
- *   node scripts/wayback-cdx-query.mjs [options]
+ *   tsx scripts/wayback-cdx-query.mts [options]
  *
  * Options:
  *   --output <path>   Write results to JSON file (default: stdout)
@@ -16,7 +16,8 @@
  */
 
 import { writeFileSync } from 'fs';
-import { parseCdxResponse } from './wayback-utils.mjs';
+import { parseCdxResponse } from './wayback-utils.mts';
+import type { CdxRecord } from './lib/types.mts';
 
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
@@ -43,7 +44,7 @@ if (dryRun) {
 	process.exit(0);
 }
 
-async function queryWithRetry(url, retries = 3) {
+async function queryWithRetry(url: URL, retries = 3): Promise<string[][]> {
 	for (let attempt = 1; attempt <= retries; attempt++) {
 		try {
 			console.error(`Attempt ${attempt}/${retries}...`);
@@ -61,10 +62,11 @@ async function queryWithRetry(url, retries = 3) {
 		} catch (err) {
 			if (attempt === retries) throw err;
 			const wait = Math.pow(2, attempt) * 1000;
-			console.error(`Error: ${err.message}. Retrying in ${wait / 1000}s...`);
+			console.error(`Error: ${(err as Error).message}. Retrying in ${wait / 1000}s...`);
 			await new Promise((r) => setTimeout(r, wait));
 		}
 	}
+	return [];
 }
 
 try {
@@ -81,7 +83,7 @@ try {
 	}
 
 	// Summary by year
-	const byYear = {};
+	const byYear: Record<string, number> = {};
 	for (const r of records) {
 		const year = r.timestamp.substring(0, 4);
 		byYear[year] = (byYear[year] || 0) + 1;
@@ -91,6 +93,6 @@ try {
 		console.error(`  ${year}: ${count}`);
 	}
 } catch (err) {
-	console.error(`Failed: ${err.message}`);
+	console.error(`Failed: ${(err as Error).message}`);
 	process.exit(1);
 }

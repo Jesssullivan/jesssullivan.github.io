@@ -4,11 +4,11 @@
  * Clean up unrecoverable image placeholders in blog posts.
  *
  * Replaces multiple poetic placeholder lines with a single notice.
- * Run AFTER relace-wp-images.mjs has matched all recoverable images.
+ * Run AFTER relace-wp-images.mts has matched all recoverable images.
  *
  * Usage:
- *   node scripts/cleanup-placeholders.mjs --dry-run   # Preview changes
- *   node scripts/cleanup-placeholders.mjs              # Apply changes
+ *   tsx scripts/cleanup-placeholders.mts --dry-run   # Preview changes
+ *   tsx scripts/cleanup-placeholders.mts              # Apply changes
  */
 
 import { readdir, readFile, writeFile } from 'node:fs/promises';
@@ -17,7 +17,7 @@ import { join } from 'node:path';
 const POSTS_DIR = 'src/posts';
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// Same regex as relace-wp-images.mjs
+// Same regex as relace-wp-images.mts
 const PLACEHOLDER_RE = /^\*(?:The bits that made up|Gone with the WordPress|This image was a casualty|Another image lost|An image was here|Lost to the void|Digital entropy claimed|The server that hosted|The original image|This image existed once|What was once an image|The original image, once hosted|This visual has drifted|This space once held|Image from the original|The photograph that was|Image no longer available|This image didn't survive|Image unavailable).+\*$/;
 
 const NOTICE = '*Some images from the original WordPress post are no longer available.*';
@@ -25,7 +25,7 @@ const NOTICE = '*Some images from the original WordPress post are no longer avai
 // Also match table-row placeholders like "*placeholder* | *placeholder*"
 const TABLE_PLACEHOLDER_RE = /^\*(?:The bits|Gone with|This image|Another image|An image|Lost to|Digital entropy|The server|The original|This image existed|What was once|This visual|This space|Image from|The photograph|Image no longer|This image didn't|Image unavailable).+\*\s*\|\s*\*.+\*$/;
 
-async function main() {
+async function main(): Promise<void> {
 	console.log(DRY_RUN ? '=== DRY RUN ===' : '=== CLEANING UP PLACEHOLDERS ===');
 
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
@@ -37,7 +37,7 @@ async function main() {
 		const lines = content.split('\n');
 
 		// Find all placeholder lines and table-row placeholders
-		const placeholderIndices = [];
+		const placeholderIndices: number[] = [];
 		for (let i = 0; i < lines.length; i++) {
 			const trimmed = lines[i].trim();
 			if (PLACEHOLDER_RE.test(trimmed) || TABLE_PLACEHOLDER_RE.test(trimmed)) {
@@ -48,7 +48,7 @@ async function main() {
 		if (placeholderIndices.length === 0) continue;
 
 		// Group consecutive placeholder lines (including blank lines between them and table separators)
-		const groups = [];
+		const groups: number[][] = [];
 		let currentGroup = [placeholderIndices[0]];
 
 		for (let i = 1; i < placeholderIndices.length; i++) {

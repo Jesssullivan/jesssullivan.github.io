@@ -4,8 +4,8 @@
  * Download archived bird photography images from birdphoto.website via Wayback Machine.
  *
  * Usage:
- *   node scripts/download-birdphoto-images.mjs           # download missing images
- *   node scripts/download-birdphoto-images.mjs --dry-run  # preview what would be downloaded
+ *   tsx scripts/download-birdphoto-images.mts           # download missing images
+ *   tsx scripts/download-birdphoto-images.mts --dry-run  # preview what would be downloaded
  */
 
 import { readdirSync, writeFileSync } from 'fs';
@@ -15,29 +15,35 @@ const IMAGES_DIR = 'static/images/posts';
 const CDX_API = 'https://web.archive.org/cdx/search/cdx';
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
-/** Query Wayback CDX API for archived birdphoto images */
-async function fetchCdxRecords(mimetype) {
+interface CdxRow {
+	timestamp: string;
+	original: string;
+	statuscode: string;
+	mimetype: string;
+	filename?: string;
+}
+
+async function fetchCdxRecords(mimetype: string): Promise<CdxRow[]> {
 	const url = `${CDX_API}?url=api.birdphoto.website/image/*&output=json&fl=timestamp,original,statuscode,mimetype&filter=statuscode:200&filter=mimetype:${mimetype}&collapse=urlkey`;
 	console.log(`Querying CDX API (${mimetype})...`);
 
 	const resp = await fetch(url);
 	if (!resp.ok) throw new Error(`CDX API error: ${resp.status}`);
 
-	const rows = await resp.json();
+	const rows: string[][] = await resp.json();
 	if (rows.length < 2) return [];
 
 	const [header, ...data] = rows;
 	return data.map((row) => {
-		const obj = {};
+		const obj: Record<string, string> = {};
 		header.forEach((key, i) => (obj[key] = row[i]));
-		return obj;
+		return obj as unknown as CdxRow;
 	});
 }
 
-/** Extract filename from a URL, stripping query params */
-function extractFilename(originalUrl) {
+function extractFilename(originalUrl: string): string {
 	try {
 		const url = new URL(originalUrl.startsWith('http') ? originalUrl : `https://${originalUrl}`);
 		return basename(url.pathname);
@@ -46,9 +52,8 @@ function extractFilename(originalUrl) {
 	}
 }
 
-/** Deduplicate records by filename (lowercase), keeping the latest timestamp */
-function deduplicateByFilename(records) {
-	const byName = new Map();
+function deduplicateByFilename(records: CdxRow[]): (CdxRow & { filename: string })[] {
+	const byName = new Map<string, CdxRow & { filename: string }>();
 	for (const rec of records) {
 		const filename = extractFilename(rec.original);
 		if (!filename || filename === 'image') continue;
@@ -62,13 +67,12 @@ function deduplicateByFilename(records) {
 	return [...byName.values()];
 }
 
-/** Get set of existing image filenames (lowercase) */
-function getExistingImages() {
+function getExistingImages(): Set<string> {
 	const files = readdirSync(IMAGES_DIR);
 	return new Set(files.map((f) => f.toLowerCase()));
 }
 
-async function main() {
+async function main(): Promise<void> {
 	console.log(DRY_RUN ? '=== DRY RUN ===' : '=== Downloading birdphoto.website images ===');
 
 	// Fetch both JPEG (full-res) and WebP (thumbnail) records
@@ -149,7 +153,7 @@ async function main() {
 			console.log(`OK (${(buffer.length / 1024).toFixed(0)} KB)`);
 			downloaded++;
 		} catch (err) {
-			console.log(`ERROR: ${err.message}`);
+			console.log(`ERROR: ${(err as Error).message}`);
 			failed++;
 		}
 

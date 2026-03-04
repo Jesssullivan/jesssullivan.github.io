@@ -1,45 +1,15 @@
 #!/usr/bin/env node
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { SearchIndexEntry } from './lib/types.mts';
+import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const POSTS_DIR = 'src/posts';
 const OUTPUT = 'static/search-index.json';
 
-/**
- * Minimal frontmatter parser — extracts YAML between --- fences.
- */
-function parseFrontmatter(content) {
-	const match = content.match(/^---\n([\s\S]*?)\n---/);
-	if (!match) return null;
-	const lines = match[1].split('\n');
-	const meta = {};
-	for (const line of lines) {
-		const m = line.match(/^(\w[\w_]*):\s*(.+)/);
-		if (!m) continue;
-		let val = m[2].trim();
-		if (
-			(val.startsWith('"') && val.endsWith('"')) ||
-			(val.startsWith("'") && val.endsWith("'"))
-		) {
-			val = val.slice(1, -1);
-		}
-		if (val.startsWith('[')) {
-			try {
-				val = JSON.parse(val);
-			} catch {
-				val = [];
-			}
-		}
-		if (val === 'true') val = true;
-		if (val === 'false') val = false;
-		meta[m[1]] = val;
-	}
-	return meta;
-}
-
-async function main() {
+async function main(): Promise<void> {
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
-	const index = [];
+	const index: SearchIndexEntry[] = [];
 
 	for (const file of files) {
 		const content = await readFile(join(POSTS_DIR, file), 'utf-8');
@@ -47,7 +17,7 @@ async function main() {
 		if (!meta || !meta.published) continue;
 
 		const slug =
-			meta.slug ?? file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+			(meta.slug as string) ?? file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
 		// Extract body excerpt (~150 chars of plain text)
 		const body = content.replace(/^---[\s\S]*?---/, '');
@@ -70,7 +40,7 @@ async function main() {
 			id: slug,
 			title: String(meta.title ?? slug),
 			description: String(meta.description ?? meta.excerpt ?? ''),
-			tags: Array.isArray(meta.tags) ? meta.tags.join(' ') : '',
+			tags: Array.isArray(meta.tags) ? (meta.tags as string[]).join(' ') : '',
 			category: String(meta.category ?? ''),
 			slug,
 			date: String(meta.date ?? ''),

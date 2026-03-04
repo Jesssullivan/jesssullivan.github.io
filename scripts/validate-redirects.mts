@@ -7,8 +7,8 @@ const root = join(__dirname, '..');
 const buildDir = join(root, 'build');
 const mapPath = join(root, 'static', 'redirect-map.json');
 
-const redirectMap = JSON.parse(readFileSync(mapPath, 'utf-8'));
-const errors = [];
+const redirectMap: Record<string, string> = JSON.parse(readFileSync(mapPath, 'utf-8'));
+const errors: string[] = [];
 
 // 1. Every redirect-map entry has a generated HTML file
 for (const [oldPath] of Object.entries(redirectMap)) {
@@ -20,7 +20,7 @@ for (const [oldPath] of Object.entries(redirectMap)) {
 
 // 2. Every redirect target resolves to an actual build output
 // SvelteKit adapter-static outputs: /blog -> build/blog.html, /blog/slug -> build/blog/slug.html
-const checkedTargets = new Set();
+const checkedTargets = new Set<string>();
 for (const [oldPath, newPath] of Object.entries(redirectMap)) {
 	if (checkedTargets.has(newPath)) continue;
 	checkedTargets.add(newPath);

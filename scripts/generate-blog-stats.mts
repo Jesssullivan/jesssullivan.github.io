@@ -14,40 +14,16 @@
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { TagEdge } from './lib/types.mts';
+import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const POSTS_DIR = 'src/posts';
 const OUTPUT = 'static/blog-stats.json';
 const WORDS_PER_MINUTE = 200;
 
-function parseFrontmatter(content) {
-	const match = content.match(/^---\n([\s\S]*?)\n---/);
-	if (!match) return null;
-	const fm = {};
-	for (const line of match[1].split('\n')) {
-		const idx = line.indexOf(':');
-		if (idx === -1) continue;
-		const key = line.slice(0, idx).trim();
-		let val = line.slice(idx + 1).trim();
-		if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-			val = val.slice(1, -1);
-		}
-		if (val.startsWith('[')) {
-			try {
-				val = JSON.parse(val);
-			} catch {
-				val = val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
-			}
-		}
-		if (val === 'true') val = true;
-		if (val === 'false') val = false;
-		fm[key] = val;
-	}
-	return fm;
-}
-
-function extractCodeLanguages(content) {
+function extractCodeLanguages(content: string): Record<string, number> {
 	const body = content.replace(/^---\n[\s\S]*?\n---/, '');
-	const langs = {};
+	const langs: Record<string, number> = {};
 	const regex = /```(\w+)/g;
 	let match;
 	while ((match = regex.exec(body)) !== null) {
@@ -57,31 +33,41 @@ function extractCodeLanguages(content) {
 	return langs;
 }
 
-function wordCount(content) {
+function wordCount(content: string): number {
 	const body = content.replace(/^---\n[\s\S]*?\n---/, '').trim();
 	return body.split(/\s+/).filter(w => w.length > 0).length;
 }
 
-function getQuarter(dateStr) {
+function getQuarter(dateStr: string): string {
 	const m = parseInt(dateStr.slice(5, 7), 10);
 	const q = Math.ceil(m / 3);
 	return `${dateStr.slice(0, 4)}-Q${q}`;
 }
 
-async function main() {
+interface PostEntry {
+	slug: string;
+	title: string;
+	date: string;
+	words: number;
+	readingTime: number;
+	tags: string[];
+	category: string;
+}
+
+async function main(): Promise<void> {
 	const files = await readdir(POSTS_DIR);
 	const mdFiles = files.filter(f => f.endsWith('.md'));
 
-	const posts = [];
-	const tagCounts = {};
-	const categoryCounts = {};
-	const yearCounts = {};
-	const monthCounts = {};
-	const quarterCounts = {};
-	const codeLangCounts = {};
-	const codeLangByYear = {};
-	const wordsByYear = {};
-	const tagCooccurrence = {};
+	const posts: PostEntry[] = [];
+	const tagCounts: Record<string, number> = {};
+	const categoryCounts: Record<string, number> = {};
+	const yearCounts: Record<string, number> = {};
+	const monthCounts: Record<string, number> = {};
+	const quarterCounts: Record<string, number> = {};
+	const codeLangCounts: Record<string, number> = {};
+	const codeLangByYear: Record<string, Record<string, number>> = {};
+	const wordsByYear: Record<string, { total: number; count: number }> = {};
+	const tagCooccurrence: Record<string, number> = {};
 	let totalWords = 0;
 
 	for (const file of mdFiles) {
@@ -93,7 +79,7 @@ async function main() {
 		totalWords += words;
 		const readingTime = Math.ceil(words / WORDS_PER_MINUTE);
 
-		const date = fm.date || '';
+		const date = (fm.date as string) || '';
 		const year = date.slice(0, 4);
 		const month = date.slice(0, 7);
 		const quarter = getQuarter(date);
@@ -107,7 +93,7 @@ async function main() {
 		wordsByYear[year].total += words;
 		wordsByYear[year].count += 1;
 
-		const tags = Array.isArray(fm.tags) ? fm.tags : [];
+		const tags = Array.isArray(fm.tags) ? fm.tags as string[] : [];
 		for (const tag of tags) {
 			tagCounts[tag] = (tagCounts[tag] || 0) + 1;
 		}
@@ -120,7 +106,7 @@ async function main() {
 			}
 		}
 
-		const category = fm.category || 'uncategorized';
+		const category = (fm.category as string) || 'uncategorized';
 		categoryCounts[category] = (categoryCounts[category] || 0) + 1;
 
 		const codeLangs = extractCodeLanguages(content);
@@ -131,8 +117,8 @@ async function main() {
 		}
 
 		posts.push({
-			slug: fm.slug || file.replace(/\.md$/, ''),
-			title: fm.title || '',
+			slug: (fm.slug as string) || file.replace(/\.md$/, ''),
+			title: (fm.title as string) || '',
 			date,
 			words,
 			readingTime,
@@ -144,7 +130,7 @@ async function main() {
 	posts.sort((a, b) => b.date.localeCompare(a.date));
 
 	// Reading time distribution buckets
-	const readingTimeBuckets = { '< 2 min': 0, '2-5 min': 0, '5-10 min': 0, '10-20 min': 0, '20+ min': 0 };
+	const readingTimeBuckets: Record<string, number> = { '< 2 min': 0, '2-5 min': 0, '5-10 min': 0, '10-20 min': 0, '20+ min': 0 };
 	for (const p of posts) {
 		if (p.readingTime < 2) readingTimeBuckets['< 2 min']++;
 		else if (p.readingTime < 5) readingTimeBuckets['2-5 min']++;
@@ -154,7 +140,7 @@ async function main() {
 	}
 
 	// Word count trends per year
-	const wordCountTrends = {};
+	const wordCountTrends: Record<string, { avgWords: number; totalWords: number; posts: number }> = {};
 	for (const [year, data] of Object.entries(wordsByYear)) {
 		wordCountTrends[year] = {
 			avgWords: Math.round(data.total / data.count),
@@ -166,7 +152,7 @@ async function main() {
 	// Rolling 12-month post frequency (for trend direction)
 	const sortedMonthEntries = Object.entries(monthCounts).sort((a, b) => a[0].localeCompare(b[0]));
 	const monthKeys = sortedMonthEntries.map(e => e[0]);
-	const rolling12 = {};
+	const rolling12: Record<string, number> = {};
 	for (let i = 0; i < monthKeys.length; i++) {
 		const windowStart = Math.max(0, i - 11);
 		let sum = 0;
@@ -182,7 +168,7 @@ async function main() {
 		.slice(0, 30);
 
 	// Tag co-occurrence edges for graph generation
-	const tagEdges = sortedCooccurrence.map(([pair, weight]) => {
+	const tagEdges: TagEdge[] = sortedCooccurrence.map(([pair, weight]) => {
 		const [a, b] = pair.split(' <> ');
 		return { source: a, target: b, weight };
 	});

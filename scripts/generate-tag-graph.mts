@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * Generate a tag co-occurrence network graph as SVG (light + dark).
- * Reads tag data from static/blog-stats.json (must run generate-blog-stats.mjs first).
+ * Reads tag data from static/blog-stats.json (must run generate-blog-stats.mts first).
  * Outputs: static/images/tag-graph.svg, static/images/tag-graph-dark.svg
  *
  * Uses a simple force-directed layout (Fruchterman-Reingold style).
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import type { BlogStats, GraphNode, TagEdge } from './lib/types.mts';
 
 const STATS_PATH = 'static/blog-stats.json';
 const OUTPUT_LIGHT = 'static/images/tag-graph.svg';
@@ -19,7 +20,7 @@ const ITERATIONS = 200;
 const MIN_EDGE_WEIGHT = 2;
 
 // Tag color palette
-const TAG_COLORS = {
+const TAG_COLORS: Record<string, string> = {
 	Featured: '#e74c3c',
 	Ideas: '#3498db',
 	Birding: '#2ecc71',
@@ -38,7 +39,7 @@ const TAG_COLORS = {
 	test: '#95a5a6',
 };
 
-function forceDirectedLayout(nodes, edges) {
+function forceDirectedLayout(nodes: GraphNode[], edges: TagEdge[]): void {
 	const area = (WIDTH - 2 * PADDING) * (HEIGHT - 2 * PADDING);
 	const k = Math.sqrt(area / nodes.length) * 0.8;
 
@@ -104,10 +105,9 @@ function forceDirectedLayout(nodes, edges) {
 	}
 }
 
-function renderSVG(nodes, edges, dark = false) {
+function renderSVG(nodes: GraphNode[], edges: TagEdge[], dark = false): string {
 	const bg = dark ? '#0d1117' : '#ffffff';
 	const textColor = dark ? '#c9d1d9' : '#24292f';
-	const edgeColor = dark ? 'rgba(139,148,158,0.3)' : 'rgba(100,100,100,0.2)';
 	const titleColor = dark ? '#58a6ff' : '#0969da';
 
 	let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${WIDTH} ${HEIGHT}" width="${WIDTH}" height="${HEIGHT}">
@@ -144,17 +144,17 @@ function renderSVG(nodes, edges, dark = false) {
 	return svg;
 }
 
-function escapeXml(s) {
+function escapeXml(s: string): string {
 	return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function main() {
+async function main(): Promise<void> {
 	const statsRaw = await readFile(STATS_PATH, 'utf-8');
-	const stats = JSON.parse(statsRaw);
+	const stats: BlogStats = JSON.parse(statsRaw);
 
 	// Build nodes from top tags
 	const tagEntries = Object.entries(stats.topTags);
-	const nodes = tagEntries.map(([tag, count]) => ({
+	const nodes: GraphNode[] = tagEntries.map(([tag, count]) => ({
 		id: tag,
 		count,
 		x: 0,

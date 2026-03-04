@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * collect-external-posts.mjs
+ * collect-external-posts.mts
  *
  * Scans configured source repos for blog post candidates, normalizes
  * frontmatter to the PostFrontmatter schema, and copies them into
@@ -12,14 +12,15 @@
  *   DISPATCH_REPO   — single repo from repository_dispatch (optional)
  *   MANUAL_REPOS    — comma-separated repos from workflow_dispatch (optional)
  *
- * Usage: node scripts/collect-external-posts.mjs [--repos owner/name,...]
+ * Usage: tsx scripts/collect-external-posts.mts [--repos owner/name,...]
  */
 
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { parseFrontmatter } from './lib/frontmatter.mjs';
+import { parseFrontmatter } from './lib/frontmatter.mts';
+import type { PostFrontmatter } from './lib/types.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -28,11 +29,28 @@ const IMAGES_DIR = join(ROOT, 'static', 'images', 'posts');
 const SOURCES_PATH = join(ROOT, '.github', 'blog-sources.json');
 const MANIFEST_PATH = join(ROOT, '.github', 'external-posts.json');
 
-// ---------------------------------------------------------------------------
-// Determine which repos to scan
-// ---------------------------------------------------------------------------
+interface BlogSources {
+	repos: string[];
+	scan_paths: string[];
+	frontmatter_value: string;
+}
 
-function getTargetRepos() {
+interface RepoFile {
+	path: string;
+	content: string;
+}
+
+interface RepoImage {
+	remotePath: string;
+	name: string;
+	data: Buffer;
+}
+
+interface Manifest {
+	posts: Record<string, { source_repo: string; source_path: string; collected_at: string }>;
+}
+
+function getTargetRepos(): string[] {
 	// CLI arg: --repos owner/name,owner/name2
 	const cliIdx = process.argv.indexOf('--repos');
 	if (cliIdx !== -1 && process.argv[cliIdx + 1]) {
@@ -50,16 +68,12 @@ function getTargetRepos() {
 	}
 
 	// Default: all repos from blog-sources.json
-	const sources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
+	const sources: BlogSources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
 	return sources.repos;
 }
 
-// ---------------------------------------------------------------------------
-// Fetch files from a repo via gh CLI
-// ---------------------------------------------------------------------------
-
-function fetchRepoFiles(repo, paths) {
-	const files = [];
+function fetchRepoFiles(repo: string, paths: string[]): RepoFile[] {
+	const files: RepoFile[] = [];
 	for (const scanPath of paths) {
 		try {
 			const listing = execSync(
@@ -83,19 +97,15 @@ function fetchRepoFiles(repo, paths) {
 	return files;
 }
 
-// ---------------------------------------------------------------------------
-// Fetch images from a repo's blog/images/ directory
-// ---------------------------------------------------------------------------
-
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']);
 
-function fetchRepoImages(repo, scanPaths) {
-	const images = []; // { remotePath, name, data (Buffer) }
+function fetchRepoImages(repo: string, scanPaths: string[]): RepoImage[] {
+	const images: RepoImage[] = [];
 	const imageDirs = scanPaths.map((p) => p.replace(/\/$/, '') + '/images/');
 	// Also check top-level blog/images/ explicitly
 	imageDirs.push('blog/images/');
 
-	const seen = new Set();
+	const seen = new Set<string>();
 	for (const dir of imageDirs) {
 		if (seen.has(dir)) continue;
 		seen.add(dir);
@@ -128,11 +138,7 @@ function fetchRepoImages(repo, scanPaths) {
 	return images;
 }
 
-// ---------------------------------------------------------------------------
-// Slug generation
-// ---------------------------------------------------------------------------
-
-function slugify(title) {
+function slugify(title: string): string {
 	return title
 		.toLowerCase()
 		.replace(/[^\w\s-]/g, '')
@@ -141,12 +147,8 @@ function slugify(title) {
 		.trim();
 }
 
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
-const sources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
-const manifest = existsSync(MANIFEST_PATH)
+const sources: BlogSources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
+const manifest: Manifest = existsSync(MANIFEST_PATH)
 	? JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8'))
 	: { posts: {} };
 
@@ -165,7 +167,7 @@ for (const repo of repos) {
 
 	// Fetch images from the source repo's blog/images/ directories
 	const repoImages = fetchRepoImages(repo, sources.scan_paths);
-	const copiedImages = new Map(); // remoteName -> local path
+	const copiedImages = new Map<string, string>(); // remoteName -> local path
 	for (const img of repoImages) {
 		const localPath = join(IMAGES_DIR, img.name);
 		if (!existsSync(localPath)) {
@@ -214,14 +216,14 @@ for (const repo of repos) {
 		}
 
 		// Rewrite relative image references to /images/posts/ paths
-		for (const [name, localPath] of copiedImages) {
+		for (const [name, localImgPath] of copiedImages) {
 			// Match markdown images: ![alt](images/name) or ![alt](./images/name)
 			const patterns = [
 				new RegExp(`\\(!?\\.?/?images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g'),
 				new RegExp(`\\(!?\\.?/?blog/images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g')
 			];
 			for (const pat of patterns) {
-				body = body.replace(pat, `(${localPath})`);
+				body = body.replace(pat, `(${localImgPath})`);
 			}
 		}
 
@@ -229,7 +231,6 @@ for (const repo of repos) {
 		body = body.replace(/```dhall/g, '```haskell');
 
 		// Rewrite inter-post links: (part-1-identity.md) → (/blog/slug)
-		// Collect all post filenames and their slugs for cross-referencing
 		body = body.replace(/\(([^)]*\.mdx?)\)/g, (match, mdRef) => {
 			// Find matching file in this collection batch
 			const refFile = files.find((f) => f.path.endsWith(mdRef) || basename(f.path) === mdRef);
@@ -249,11 +250,11 @@ for (const repo of repos) {
 			// Rewrite relative feature_image paths
 			const imgName = basename(featureImage);
 			if (copiedImages.has(imgName)) {
-				featureImage = copiedImages.get(imgName);
+				featureImage = copiedImages.get(imgName)!;
 			}
 		} else if (copiedImages.size > 0) {
 			// Auto-assign first available image as feature image
-			featureImage = copiedImages.values().next().value;
+			featureImage = copiedImages.values().next().value!;
 		}
 
 		// Build frontmatter block
