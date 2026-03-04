@@ -35,6 +35,31 @@ jobs:
           MANUAL_REPOS: ${{ github.event.inputs.repos || '' }}
         run: node scripts/collect-external-posts.mjs
 
+      - name: Summarize collected posts
+        id: summary
+        run: |
+          # List new/changed post files vs the base branch
+          posts=$(git diff --name-only HEAD -- src/posts/ | grep '\.md$' || true)
+          if [ -z "$posts" ]; then
+            echo "post_list=_No new posts collected in this run._" >> "$GITHUB_OUTPUT"
+            echo "count=0" >> "$GITHUB_OUTPUT"
+          else
+            count=$(echo "$posts" | wc -l | tr -d ' ')
+            echo "count=$count" >> "$GITHUB_OUTPUT"
+            # Build a markdown list
+            list=""
+            for f in $posts; do
+              name=$(basename "$f" .md)
+              list="${list}- \`${name}\`\n"
+            done
+            # Use a delimiter for multiline output
+            {
+              echo "post_list<<ENDOFLIST"
+              echo -e "$list"
+              echo "ENDOFLIST"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create Draft PR with collected posts
         uses: peter-evans/create-pull-request@v7
         with:
@@ -43,10 +68,32 @@ jobs:
           delete-branch: true
           title: 'Content: new blog posts from external repos'
           draft: true
-          labels: content,auto-collected
+          labels: content,auto-collected,blog-content,draft-post
           body: |
+            ## Collected Blog Posts
+
             Automated collection of blog posts from configured source repos.
 
-            Posts are imported with `published: false` — review, edit, then set `published: true` and merge.
+            **${{ steps.summary.outputs.count }}** post(s) collected:
 
+            ${{ steps.summary.outputs.post_list }}
+
+            ---
+
+            ### Review workflow
+
+            Posts are imported with `published: false`. To publish:
+            1. Review and edit each post
+            2. Set `published: true` in the frontmatter
+            3. Merge this PR
+
+            ### Scheduling
+
+            To schedule this PR for future publication, add the following to this PR description:
+            ```
+            DO NOT MERGE until YYYY-MM-DD UTC
+            ```
+            The [auto-merge workflow](.github/workflows/auto-merge-scheduled.yml) runs daily at 05:00 UTC and will merge this PR once the date has passed and all CI checks are green.
+
+            ---
             Source: `scripts/collect-external-posts.mjs`

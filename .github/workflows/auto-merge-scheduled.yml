@@ -33,6 +33,18 @@ jobs:
               const match = pr.body.match(/DO NOT MERGE until (\d{4}-\d{2}-\d{2})\s*UTC/i);
               if (!match) continue;
 
+              // Require the "scheduled" label
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number
+              });
+              const hasScheduledLabel = labels.some(l => l.name === 'scheduled');
+              if (!hasScheduledLabel) {
+                core.info(`PR #${pr.number}: has DO NOT MERGE date but missing "scheduled" label — skipping`);
+                continue;
+              }
+
               const mergeDate = new Date(match[1] + 'T00:00:00Z');
               if (isNaN(mergeDate.getTime()) || mergeDate > today) {
                 core.info(`PR #${pr.number}: scheduled for ${match[1]}, not yet ready`);
@@ -54,6 +66,14 @@ jobs:
                 core.warning(`PR #${pr.number}: scheduled date reached but CI checks not all passing`);
                 continue;
               }
+
+              // Post a comment before merging
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '⏰ Scheduled date reached — auto-merging!'
+              });
 
               // Merge with squash
               core.info(`PR #${pr.number}: merging (scheduled for ${match[1]})`);
