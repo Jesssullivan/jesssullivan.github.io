@@ -5,19 +5,19 @@ This directory contains compiled and bundled source code from an Agentuity appli
 ## Source Repository
 
 **Repository:** https://github.com/Jesssullivan/jesssullivan.github.io
-**Branch:** main
-**Commit:** [`bd773d7`](https://github.com/Jesssullivan/jesssullivan.github.io/commit/bd773d71b2191605bbf58fb42a56e1d32b246750)
-**Message:** feat: add AGENTS.md writing style guide (#45)
+**Branch:** dev
+**Commit:** [`c938d4f`](https://github.com/Jesssullivan/jesssullivan.github.io/commit/c938d4fdcb493fbd09c02e6d42a183b63635735e)
+**Message:** refactor(blog-agent): slim workflow to CLI, add command subcommand
 
 ## Build Information
 
 **Project:** @blog/agent v0.1.0
 **Project ID:** proj_9b63628b4676a17e667cb92a64e50a05
 **Org ID:** org_3AUDrKcuzD7NPC8NQat3Is3PaKF
-**Deployment ID:** deploy_a00c09d3cc515784e169e3056097da32
+**Deployment ID:** deploy_c7768c265841ae238e6eacd83c0d9284
 **Built with:** Agentuity CLI v1.0.33, Bun v1.3.10
 **Platform:** darwin-arm64
-**Build date:** 2026-03-04T20:59:06.088Z
+**Build date:** 2026-03-04T21:23:52.462Z
 
 ## Structure
 
@@ -32,7 +32,7 @@ This directory contains compiled and bundled source code from an Agentuity appli
 
 This application defines 1 agent(s):
 
-- **webhook** (ID: `agentid_4b9e7a2954070c6989df45ee2a1e4f7963f21b5d`)
+- **webhook** (ID: `agentid_b11503b10ca9c1021e6eb9aecee690eb9fe51c1e`)
 
 ## Runtime Environment
 
