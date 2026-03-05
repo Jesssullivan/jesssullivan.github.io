@@ -3,9 +3,11 @@ title: "Week Notes: Cyborgs, Servers, and Sending"
 date: "2026-03-04"
 description: "Bifurcation woes on a jumped-up Dell 7810, BCI goggles on my face, tcfs gets native macOS FileProvider support, Dhall eats Ansible for breakfast, and Tuesday sends."
 tags: ["weeknotes", "homelab", "bci", "xoxdwm", "tcfs", "dhall", "climbing", "metal", "reverse-engineering"]
+category: "personal"
 published: true
 feature_image: "/images/posts/IMG_2125.jpg"
 slug: "week-notes-cyborgs-servers-and-sending"
+excerpt: "Dell 7810 bifurcation woes, BCI goggles laced up, tcfs gets macOS FileProvider, 4k lines of Ansible replaced with Dhall, 5.13 top rope project, and Norwegian metal in the office."
 ---
 
 ## Trash Computing: Dell 7810 Bifurcation Saga
