@@ -53,7 +53,7 @@ preview-only:
 
 # Validate post frontmatter
 validate-frontmatter:
-    node scripts/validate-frontmatter.mjs
+    npx tsx scripts/validate-frontmatter.mts
 
 # Type check with svelte-check
 check:
@@ -127,43 +127,48 @@ analyze:
 
 # Audit posts for missing/external media
 audit-media:
-    node scripts/audit-media.mjs
+    npx tsx scripts/audit-media.mts
 
 # Audit media and output JSON report
 audit-media-json:
-    node scripts/audit-media.mjs --json
+    npx tsx scripts/audit-media.mts --json
 
 # Query Wayback CDX API (dry run)
 wayback-query-dry:
-    node scripts/wayback-cdx-query.mjs --dry-run
+    npx tsx scripts/wayback-cdx-query.mts --dry-run
 
 # Query Wayback CDX API and save results
 wayback-query:
-    node scripts/wayback-cdx-query.mjs --output wayback-cdx-results.json
+    npx tsx scripts/wayback-cdx-query.mts --output wayback-cdx-results.json
 
 # Download archived media (dry run)
 wayback-download-dry:
-    node scripts/wayback-download.mjs wayback-cdx-results.json --dry-run
+    npx tsx scripts/wayback-download.mts wayback-cdx-results.json --dry-run
 
 # Download archived media
 wayback-download:
-    node scripts/wayback-download.mjs wayback-cdx-results.json
+    npx tsx scripts/wayback-download.mts wayback-cdx-results.json
 
 # Preview post image URL updates (dry run)
 wayback-update-dry:
-    node scripts/update-post-images.mjs
+    npx tsx scripts/update-post-images.mts
 
 # Apply post image URL updates
 wayback-update:
-    node scripts/update-post-images.mjs --apply
+    npx tsx scripts/update-post-images.mts --apply
 
 # Full recovery pipeline (dry run)
 wayback-recover-dry:
-    node scripts/wayback-recover.mjs --dry-run
+    npx tsx scripts/wayback-recover.mts --dry-run
 
 # Full recovery pipeline
 wayback-recover:
-    node scripts/wayback-recover.mjs
+    npx tsx scripts/wayback-recover.mts
+
+# Install git hooks (frontmatter validation on commit)
+install-hooks:
+    ln -sf ../../scripts/hooks/pre-commit .git/hooks/pre-commit
+    @echo "Git hooks installed."
 
 # Show environment info
 info:

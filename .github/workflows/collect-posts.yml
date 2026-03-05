@@ -33,7 +33,7 @@ jobs:
           GH_TOKEN: ${{ secrets.BLOG_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
           DISPATCH_REPO: ${{ github.event.client_payload.source_repo || '' }}
           MANUAL_REPOS: ${{ github.event.inputs.repos || '' }}
-        run: node scripts/collect-external-posts.mjs
+        run: npx tsx scripts/collect-external-posts.mts
 
       - name: Summarize collected posts
         id: summary
@@ -96,4 +96,4 @@ jobs:
             The [auto-merge workflow](.github/workflows/auto-merge-scheduled.yml) runs daily at 05:00 UTC and will merge this PR once the date has passed and all CI checks are green.
 
             ---
-            Source: `scripts/collect-external-posts.mjs`
+            Source: `scripts/collect-external-posts.mts`
