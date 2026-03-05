@@ -126,6 +126,7 @@
 	>Skip to content</a>
 	<AppBar
 		base="{scrolledPastBanner ? 'glass-nav' : ''}"
+		background="{scrolledPastBanner ? '' : 'bg-surface-100 dark:bg-surface-900'}"
 		border="{scrolledPastBanner ? '' : 'border-b border-surface-300-700'}"
 		padding="px-4 py-2"
 		shadow="shadow-sm"
