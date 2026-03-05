@@ -5,9 +5,21 @@ description: "How I recovered a write-protected NVMe SSD by reverse engineering 
 tags: ["nvme", "ssd-recovery", "reverse-engineering", "usb-bridge", "zig"]
 published: false
 slug: "from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life"
+feature_image: "/images/posts/xram-injection-flow.png"
 source_repo: "Jesssullivan/hiberpower-ntfs"
 source_path: "docs/blog/recovery-journey.mdx"
 ---
+
+```mermaid
+graph LR
+    A["Host (Zig)"] -->|"0xE5 XDATA Write"| B["ASM2362 XRAM<br/>0xB000-0xB1FF"]
+    B -->|"Admin SQ Entry"| C["NVMe Controller"]
+    C -->|"Format NVM"| D["SSD Recovered"]
+    style A fill:#2d3748,color:#fff
+    style B fill:#c53030,color:#fff
+    style C fill:#2b6cb0,color:#fff
+    style D fill:#276749,color:#fff
+```
 
 It started with the most insidious kind of bug: a disk that lies to you.
 

@@ -5,9 +5,12 @@ description: "A complete technical guide to the XRAM injection technique for sen
 tags: ["nvme", "asm2362", "xram", "scsi", "usb-bridge", "reverse-engineering", "zig", "low-level"]
 published: false
 slug: "xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives"
+feature_image: "/images/posts/IMG_2127.jpg"
 source_repo: "Jesssullivan/hiberpower-ntfs"
 source_path: "docs/blog/xram-injection-guide.mdx"
 ---
+
+![The ASM2362 USB-NVMe bridge enclosure under investigation](/images/posts/IMG_2127.jpg)
 
 ## Introduction
 
