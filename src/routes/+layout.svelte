@@ -113,7 +113,7 @@
 		colors={pineColors}
 		opacity={0.4}
 		blobCount={5}
-		enableScrollPhysics={true}
+		enableScrollPhysics={false}
 		enableDeviceMotion={false}
 	/>
 </div>
