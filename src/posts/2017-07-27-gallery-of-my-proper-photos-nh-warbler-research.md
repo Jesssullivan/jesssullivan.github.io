@@ -2,7 +2,7 @@
 title: "Gallery of my \"proper photos\"- NH warbler research"
 date: "2017-07-27"
 description: "Photo gallery from warbler field research in New Hampshire."
-tags: []
+tags: ["birding", "photography", "fieldwork", "new-hampshire"]
 published: true
 slug: "gallery-of-my-proper-photos-nh-warbler-research"
 original_url: "https://transscendsurvival.org/2017/07/27/gallery-of-my-proper-photos-nh-warbler-research/"

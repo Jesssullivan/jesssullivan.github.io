@@ -2,7 +2,7 @@
 title: "Bits & Bobs, Mushstools & Toadrooms"
 date: "2021-03-18"
 description: "…Despite being a chilly & wintery March up here in the White Mountains, there is no shortage of fun birds and exciting projects! So many Redpolls are keeping..."
-tags: []
+tags: ["nature", "mushrooms", "observations"]
 published: true
 slug: "bits-bobs-mushstools-toadrooms"
 original_url: "https://www.transscendsurvival.org/2021/03/18/bits-bobs-mushstools-toadrooms/"

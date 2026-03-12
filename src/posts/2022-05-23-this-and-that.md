@@ -2,7 +2,7 @@
 title: "This and That!"
 date: "2022-05-23"
 description: "updated on 5/23/22 Letsee…. Built out a lil web dashboard for DLA Makerspace- find the space’s calendar, general information, technical documentation, printer..."
-tags: []
+tags: ["maker", "3d-printing", "community", "personal"]
 published: true
 slug: "this-and-that"
 original_url: "https://www.transscendsurvival.org/2022/05/23/this-and-that/"

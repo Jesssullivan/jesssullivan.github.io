@@ -2,7 +2,7 @@
 title: "Purple Prius Parts"
 date: "2020-08-23"
 description: "In other news... The prius parts are purple A Pi manages car audio & PID interface ...Cleese will sum up the rest of this project:"
-tags: []
+tags: ["hardware", "diy", "automotive"]
 published: true
 slug: "purple-prius-parts"
 original_url: "https://transscendsurvival.org/2020/08/23/purple-prius-parts/"

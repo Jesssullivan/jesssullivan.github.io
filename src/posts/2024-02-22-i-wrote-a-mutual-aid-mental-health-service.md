@@ -2,7 +2,7 @@
 title: "I wrote a mutual aid mental health service"
 date: "2024-02-22"
 description: "Check out this project here: Tetrahedron.gay is a mutual aid mental health group informally continuing the structured partial hospitalization Triangle Program."
-tags: []
+tags: ["software", "mental-health", "social-good"]
 published: true
 slug: "i-wrote-a-mutual-aid-mental-health-service"
 original_url: "https://www.transscendsurvival.org/2024/02/22/i-wrote-a-mutual-aid-mental-health-service/"

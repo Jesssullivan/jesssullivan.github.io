@@ -14,10 +14,10 @@
 	let { data }: { data: PageData } = $props();
 
 	const ventures = [
-		{ name: 'Tinyland.dev, Inc', url: 'https://tinyland.dev', period: '2024\u2013Present', desc: 'Funded, stealthmode. Tinyland is big, more to come very soon.' },
-		{ name: 'xoxd.ai', url: 'https://xoxd.ai', period: '2024\u2013Present', desc: 'Massively parallel, provable, ownable agent infrastructure. 130+ agents, 5 custom models, Chapel + Go + K8s.' },
+		{ name: 'Tinyland.dev, Inc', url: 'https://github.com/tinyland-inc', period: '2024\u2013Present', desc: 'Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped, source-available.' },
+		{ name: 'xoxd.ai', url: 'https://xoxd.ai', period: '2024\u2013Present', desc: 'ML/AI research arm of Tinyland. Bespoke SLM development, property-based testing of agent systems, multi-cloud federation research.' },
 		{ name: 'Columbari.us LLC', url: 'https://columbari.us', period: '2017\u20132021', desc: 'Independent Gov. contractor in GIS & ML.' },
-		{ name: 'Moonlight Coworking LLC', url: null, period: '2024', desc: 'Shelved rapidfab / HPC hackerspace initiative in NY.' },
+		{ name: 'Moonlight Coworking LLC', url: null, period: '2021\u20132024', desc: 'HPC hackerspace initiative in NY; shelved due to move to Maine.' },
 		{ name: 'Kitten Spit Labs', url: null, period: '2022\u2013Present', desc: 'Ultrasonic phantom network gel synthesis. Currently on mfg. pause.' },
 	];
 
@@ -98,7 +98,9 @@
 
 	const fossContributions = [
 		{ name: 'Chapel', url: 'https://chapel-lang.org/' },
-		{ name: 'Futhark', url: 'https://futhark-lang.org/' },
+		{ name: 'rspamd', url: 'https://rspamd.com/' },
+		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
+		{ name: 'Mason', url: 'https://github.com/chapel-lang/mason' },
 		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
 		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
 		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
@@ -110,6 +112,8 @@
 		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
 		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms' },
 		{ name: 'Klipper', url: 'https://github.com/Klipper3d/klipper' },
+		{ name: 'Liqo', url: 'https://liqo.io/' },
+		{ name: 'Joplin', url: 'https://joplinapp.org/' },
 	];
 
 	function badgeUrl(text: string, color: string, opts?: { logo?: string; style?: string; emoji?: string }): string {
@@ -148,6 +152,7 @@
 		"sameAs": [
 			"https://github.com/Jesssullivan",
 			"https://gitlab.com/jesssullivan",
+			"https://www.linkedin.com/in/jess-sullivan-11032a367/",
 			"https://soundcloud.com/jesssullivan"
 		],
 		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME."
@@ -489,7 +494,15 @@
 			<li><a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a></li>
 			<li><a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a></li>
 			<li><a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland.dev</a></li>
+			<li><a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a></li>
 			<li><a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a></li>
+			<li><a href="/aag" class="text-primary-500 hover:underline">AAG 2019 Poster</a></li>
+			<li><a href="/signal-boosts" class="text-primary-500 hover:underline">Signal Boosts</a></li>
+			<li><a href="/making" class="text-primary-500 hover:underline">Making</a></li>
+			<li><a href="https://www.thingiverse.com/Jesssullivan/designs" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Thingiverse</a></li>
+			<li><a href="https://3dwarehouse.sketchup.com/by/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SketchUp 3D Warehouse</a></li>
+			<li><a href="https://www.youtube.com/@jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">YouTube</a></li>
+			<li><a href="https://soundcloud.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SoundCloud</a></li>
 			<li><a href="/blog" class="text-primary-500 hover:underline">Blog</a></li>
 			<li><a href="https://github.com/sponsors/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Sponsor</a></li>
 			<li><a href="https://www.eff.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">EFF Member</a></li>

@@ -146,6 +146,10 @@
     
     {\small\color{secondary} Lewiston, ME \quad$\cdot$\quad 617-795-6912 \quad$\cdot$\quad \href{mailto:jess@sulliwood.org}{jess@sulliwood.org} \quad$\cdot$\quad \href{https://github.com/jesssullivan}{github.com/jesssullivan}}
     
+    \vspace{0.2em}
+    
+    {\small\color{secondary} \href{https://transscendsurvival.org}{transscendsurvival.org} \quad$\cdot$\quad \href{https://www.linkedin.com/in/jess-sullivan-11032a367/}{LinkedIn}}
+    
     \vspace{0.4em}
     \begin{tikzpicture}
         \fill[accent] (0,0) rectangle (\textwidth, 0.06);
@@ -163,10 +167,9 @@
 \begin{tabular}{@{}l@{\hspace{1.2em}}l@{\hspace{1.2em}}l@{}}
 \textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
 Python (10+ yrs, enterprise) & Fine-grained classification & CI/CD pipelines (expert) \\
-TypeScript (fluent) & Horizontal parallelism in ML/AI & Global-scale deployments \\
-Chapel (expert) & WASM-native inference & Realtime \& time-series pipelines \\
-Futhark, Haskell & Compiler backends (WebGPU/WGSL) & Kubernetes orchestration \\
-SvelteKit (SOTA) & MLOps \& model evaluation & Agent federation \\
+TypeScript / SvelteKit (SOTA) & Horizontal parallelism in ML/AI & Kubernetes orchestration \\
+Chapel (expert), Haskell & WASM-native inference & Binary analysis (Ghidra, Frida) \\
+Zig, Go, C\# & MLOps \& model evaluation & Realtime \& time-series pipelines \\
 \end{tabular}
 \end{center}
 
@@ -181,11 +184,11 @@ SvelteKit (SOTA) & MLOps \& model evaluation & Agent federation \\
 %--- Full Stack Contracting & FOSS ---
 \role{Full Stack Contracting and FOSS}{Ongoing}
 
-Ongoing contributor and community member of numerous open source projects including---and not limited to---\textbf{Futhark} (WebGPU/WGSL compiler backend), the \textbf{Apache Foundation} (Solr web security), \textbf{Caddy}/xcaddy, \textbf{libdns}, \textbf{SearXNG}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), \textbf{Liqo} (K8s topology fabric, used by CERN), along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
+Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation} (Solr web security), \textbf{rspamd} (core contributor, milter), \textbf{Chapel-lang}, \textbf{Caddy}/xcaddy, \textbf{libdns}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), \textbf{Liqo} (K8s topology fabric, used by CERN), \textbf{Budgie DE}, \textbf{Mason}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
 
 \begin{itemize}
     \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
-    \item Web GIS tools for \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, \textbf{Northern Border Regional Commission}. Presented at 2019 \textbf{AAG conference}.
+    \item Web GIS tools for \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, \textbf{Northern Border Regional Commission}. Presented at 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications}).
     \item Fine-grained image classification with \textbf{MushroomObserver.org} and \textbf{Visipedia}; early adopter of CNN-based species ID at scale.
 \end{itemize}
 
@@ -193,11 +196,16 @@ Ongoing contributor and community member of numerous open source projects includ
 \noindent\textit{\color{muted}Current stack:}
 \begin{itemize}
     \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Proprietary SvelteKit libraries for fingerprinting, auth, mapping, telemetry.
-    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}, \tech{Futhark} (WGSL/WebGPU). Performance-oriented systems and property-based testing.
+    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}. Performance-oriented systems and property-based testing.
 \end{itemize}
 
 \vspace{0.3em}
-\noindent\textit{\color{muted}Learning:} \tech{Nix}, \tech{Rust} (SIMD), \tech{WGSL} compiler internals, deeper WASM integration.
+\noindent\textit{\color{muted}Research:}
+\begin{itemize}
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{Zig} --- firmware RE and NVMe controller recovery via USB bridge XRAM injection (\S\ref{sec:publications}). 5,400 LOC Zig tool for bypassing ASMedia ASM2362 opcode whitelists.
+    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
+    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
+\end{itemize}
 
 \vspace{0.4em}
 
@@ -259,31 +267,37 @@ Led 501(c)(3) makerspace through rapid growth; coached hundreds via ``Fusion 360
 \section{Business Ventures}
 \label{sec:ventures}
 
-\role{xoxd.ai}{2024--present}
+\role{Tinyland.dev, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
 
-Massively parallel, provable, \textbf{ownable} agent infrastructure. Currently seeking funding and in stealth.
-
-\vspace{0.2em}
-\noindent\textit{\color{muted}Architecture:} 5 bespoke SLMs, 130+ callable tools, full IaC lifecycle coverage via multicloud harness. Horizontal scaling with Chapel-based parallelism.
+Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; targeting source-available / zlib dual licensing.
 
 \vspace{0.2em}
-\noindent\textit{\color{muted}Components:}
-\begin{itemize}
-    \item \textbf{Huskycat} --- Multithreaded githook SLM for PBT, linting, formatting, verification. Builds for Apple Silicon and Rocky.
-    \item \textbf{Outbot} --- Repo management SLM. Zoned summaries, conflict resolution, upstream PR analysis. Python with composable factory architecture.
-    \item \textbf{FuzzyBot} --- Chat TUI (Chapel + Go) with IntelliJ/Emacs integration, git-aware identity, Solr-backed memory and SAE offloading.
-    \item \textbf{Mariolex} --- K8s-native harness for model hosting, tool dispatch, fuzzing, indexing, PBT, and agent federation. Chapel + Go. Liqo-based multicloud topology.
-\end{itemize}
+\noindent\textit{\color{muted}Scope:} 5 bespoke SLMs, 100+ autonomously callable tools, full IaC lifecycle coverage via a multicloud harness. Horizontal scaling with Chapel-based parallelism. Kubernetes-native architecture with Liqo-based multicloud topology.
+
+\vspace{0.2em}
+\noindent\textit{\color{muted}xoxd.ai} --- ML/AI research arm. Bespoke SLM development, property-based testing of agent systems, and multi-cloud federation research. Chapel, Python, Go.
 
 \vspace{0.3em}
 
-\role{Tinyland.dev, Inc}{2024--present}
+\noindent\textit{\color{muted}Previous:} \textbf{Columbari.us LLC} (2017--2021) --- GIS \& ML contracting for UNH, NH municipal, Cornell. HPC hackerspace venture (2021--2024).
 
-Tinyland is big, more to come very soon. Funded hackerspace initiative. Currently in stealth mode.
+%==============================================================================
+% PUBLICATIONS
+%==============================================================================
+\section{Publications}
+\label{sec:publications}
+
+Reitsma, L.R., Burns, C., \& \textbf{Sullivan, J.} (2019). \textit{Poecile atricapillus} (Black-capped Chickadee) Feeding \textit{Catharus guttatus} (Hermit Thrush) Nestlings. \textit{Northeastern Naturalist}, 26(2). \cvlink{https://doi.org/10.1656/045.026.0213}{doi:10.1656/045.026.0213}
 
 \vspace{0.3em}
 
-\noindent\textit{\color{muted}Previous:} \textbf{Columbari.us LLC} (2017--2021) --- GIS \& ML contracting for UNH, NH municipal, Cornell.
+\textbf{Sullivan, J.} (2026). Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist. \cvlink{https://transscendsurvival.org/papers/recovery-paper.pdf}{transscendsurvival.org/papers/recovery-paper.pdf}
+
+\vspace{0.4em}
+\noindent\textit{\color{muted}Presentations:}
+
+\vspace{0.2em}
+\textbf{Sullivan, J.} (2019). Web GIS: Telling Stories \& Solving Problems. \textit{Association of American Geographers Annual Meeting}, Washington, DC.
 
 %==============================================================================
 % END

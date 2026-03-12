@@ -59,8 +59,8 @@
     bookmarksopen=true,
     bookmarksopenlevel=1,
     pdfauthor={Jess Sullivan},
-    pdftitle={Jess Sullivan — CV},
-    pdfsubject={Full Stack Engineer, DevSecOps, ML/HPC},
+    pdftitle={Jess Sullivan — Cover Letter, Resume, Fun Facts, Projects},
+    pdfsubject={Full Stack Engineer, Musician, Birdwatcher},
     pdfkeywords={DevSecOps, Machine Learning, Full Stack, HPC, Chapel, Haskell, SvelteKit},
     pdfstartview={FitH},
     pdfpagemode={UseOutlines}
@@ -142,14 +142,19 @@
     \vspace{0.8em}
     
     {\Huge\bfseries\sffamily\color{primary} Jess Sullivan}
-
+    
     \vspace{0.6em}
-
-    {\color{muted} Agent Orchestration \quad$\cdot$\quad Computer Vision \quad$\cdot$\quad Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad ML/HPC}
-
-    \vspace{0.4em}
-
-    {\small\color{secondary} Lewiston, ME \quad$\cdot$\quad 617-795-6912 \quad$\cdot$\quad \href{mailto:jess@sulliwood.org}{jess@sulliwood.org} \quad$\cdot$\quad \href{https://github.com/jesssullivan}{github.com/jesssullivan}}
+    
+    {\large\itshape\color{muted} Cover Letter, Resume, Fun Facts, Projects}
+    
+    \vspace{1em}
+    
+    {\color{secondary}
+    Lewiston, ME \quad$\cdot$\quad 617-795-6912 \quad$\cdot$\quad \href{mailto:jess@sulliwood.org}{jess@sulliwood.org}}
+    
+    \vspace{0.3em}
+    
+    {\small\color{secondary} \href{https://github.com/jesssullivan}{github.com/jesssullivan} \quad$\cdot$\quad \href{https://transscendsurvival.org}{transscendsurvival.org} \quad$\cdot$\quad \href{https://www.linkedin.com/in/jess-sullivan-11032a367/}{LinkedIn}}
     
     \vspace{0.5em}
     \begin{tikzpicture}
@@ -175,6 +180,7 @@ My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher
 \hyperref[sec:foss]{\textsc{Full Stack \& FOSS}} $\cdot$ 
 \hyperref[sec:volunteer]{\textsc{Volunteer \& Community}} $\cdot$
 \hyperref[sec:ventures]{\textsc{Ventures}} $\cdot$ 
+\hyperref[sec:publications]{\textsc{Publications}} $\cdot$
 \hyperref[sec:funfacts]{\textsc{Fun Facts}}
 \end{center}
 
@@ -185,6 +191,35 @@ My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher
 %==============================================================================
 \section{Technical Resume}
 \label{sec:resume}
+
+%--- Computer Vision ---
+\role{Computer Vision Software Engineer @ Macaulay Library}{2018--2022}
+
+Developed \& launched \textbf{Merlin Sound ID} \& The Machine Learning Blog @ Macaulay Library. Worked on the R\&D and implementation of internal fine-grained machine learning annotation tools for audio classification. Built internal classification and model evaluation web APIs. Streamlined Macaulay Library MLOps and asset ingestion pipeline.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}My stack:}
+\begin{itemize}
+    \item \textbf{Model Training:} Python (\tech{tensorflow}, \tech{numpy}, \tech{pandas}, \tech{matplotlib}, \tech{JUPYTER})
+    \item \textbf{Web \& training annotation stack:} \tech{Flask} \& \tech{TypeScript} (\cvlink{http://fft.js}{fft.js}, \tech{Leaflet}, \tech{React}, \tech{Vue}, \tech{Node}, \tech{Docker}, \tech{WebAssembly}, \tech{Purrr}), live demos written in \tech{React Native} and \tech{Swift}
+    \item \textbf{Training and development Infra:} Project managed in Confluence + BitBucket, hosting on EC2 \& Heroku
+\end{itemize}
+
+\vspace{0.8em}
+
+%--- Fab Lab ---
+\role{Fabrication Laboratory Manager for the Landscape Architecture Makerspace @ Cornell CALS}{2021--2022}
+
+Developed and taught rapid fabrication curricula for DLA students and faculty.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}My stack:}
+\begin{itemize}
+    \item \tech{OpenSCAD} \& \tech{Fusion 360}; \tech{Inkscape} for vector work. Some tiler development with TAs in \tech{C++}.
+    \item Project management in GitHub \& Linear. Built a small Discord ticketing system and OBS printer monitoring system.
+\end{itemize}
+
+\vspace{0.8em}
 
 %--- Systems Analyst ---
 \role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
@@ -200,28 +235,6 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
     \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
 \end{itemize}
 
-\vspace{0.8em}
-
-%--- Computer Vision ---
-\role{Computer Vision Software Engineer @ Macaulay Library, Cornell Lab of Ornithology}{2018--2022}
-
-Developed \& launched \textbf{Merlin Sound ID} \& The Machine Learning Blog @ Macaulay Library. Worked on the R\&D and implementation of internal fine-grained machine learning annotation tools for audio classification. Built internal classification and model evaluation web APIs. Streamlined Macaulay Library MLOps and asset ingestion pipeline.
-
-\vspace{0.5em}
-\noindent\textit{\color{muted}Stack:}
-\begin{itemize}
-    \item \textbf{Model Training:} Python (\tech{TensorFlow}, \tech{NumPy}, \tech{Pandas}, \tech{Matplotlib}, \tech{Jupyter})
-    \item \textbf{Web \& Inference:} \tech{Flask}, \tech{TypeScript} (\cvlink{http://fft.js}{fft.js}, \tech{Leaflet}, \tech{React}, \tech{Vue}, \tech{Docker}, \tech{WebAssembly}), live demos in \tech{React Native} and \tech{Swift}
-    \item \textbf{Infrastructure:} Confluence + BitBucket, EC2 \& Heroku, production model deployment at scale
-\end{itemize}
-
-\vspace{0.8em}
-
-%--- Fab Lab ---
-\role{Fabrication Laboratory Manager @ Cornell CALS}{2021--2022}
-
-Developed and taught rapid fabrication curricula for DLA students and faculty. \tech{OpenSCAD}, \tech{Fusion 360}, \tech{Inkscape}, \tech{C++}. GitHub/Linear project management.
-
 %==============================================================================
 \newpage
 %==============================================================================
@@ -232,11 +245,11 @@ Developed and taught rapid fabrication curricula for DLA students and faculty. \
 \section{Full Stack Contracting and FOSS}
 \label{sec:foss}
 
-Long term committer, member and supporter of numerous organizations including \textbf{Futhark} (WebGPU/WGSL compiler backend---modernized C runtime for Emscripten 4.x/Dawn, authored WebGPU test suite), \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \textbf{SearXNG}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
+Long term committer, member and supporter of numerous organizations including \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{rspamd} (core contributor, milter), \textbf{Chapel-lang}, \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{keepassxc}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
 
 \begin{itemize}
     \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
-    \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG conference}
+    \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications})
     \item \textbf{Machine Learning} with \textbf{MushroomObserver.org} and \textbf{Visipedia:} Collaborated on the development and adoption of fine-grained image classification models among crowd-sourced community science niches
     \item \textbf{Expanded client list} on request. Current clients include the entire business stack for \cvlink{https://MassageIthaca.com}{\textbf{MassageIthaca.com}} (grown through four business expansions over 3 years!), \textbf{Rossel \& Co}, Tetrahedron Services, R\&D for TimberBuddy hydraulic sawmill systems, many more.
 \end{itemize}
@@ -246,14 +259,18 @@ Long term committer, member and supporter of numerous organizations including \t
 \noindent\textit{\color{muted}My current stack:}
 \begin{itemize}
     \item \textbf{Web:} \tech{SvelteKit}, Runes, TS7, Vite 8 (Rolldown). I am deeply embedded in SvelteKit and have developed a (largely proprietary, alas) fairly large library of novel SvelteKit packages and expertise ranging from fingerprinting, mapping, authentication to horizontal data scalability and telemetry.
-    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}, \tech{Futhark} (WGSL/WebGPU compiler backend). Performance-oriented systems and property-based testing.
+    \item \textbf{HPC} and performance oriented code written in \textbf{Chapel} and increasingly \textbf{Haskell}.
 \end{itemize}
 
 \vspace{0.5em}
 
-\noindent\textit{\color{muted}Goals:}
+\noindent\textit{\color{muted}Research:}
 
-I have begun learning the \tech{Nix} build system and have started to dip my toes in \tech{Rust} SIMD development. Active contributor to \textbf{Futhark}'s WebGPU compiler backend---modernizing the WGSL code generation pipeline, writing the WebGPU test suite, and working toward mainlining the backend. Deeper WASM integration across the stack.
+\begin{itemize}
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{Zig} --- firmware RE and NVMe controller recovery via USB bridge XRAM injection (see \S\ref{sec:publications}). Developed a 5,400 LOC open-source Zig tool for bypassing ASMedia ASM2362 opcode whitelists to recover write-protected NVMe SSDs over USB.
+    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language) --- exploring GPU-accelerated workloads and deeper WASM integration for inference pipelines.
+    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems). With years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox), 2026 may be my first year of learning Rust in earnest.
+\end{itemize}
 
 %==============================================================================
 % VOLUNTEER & COMMUNITY
@@ -299,27 +316,52 @@ Formed in NY to raise capital and interest in a for-profit hackerspace with a fo
 
 \vspace{0.8em}
 
-\role{xoxd.ai}{2024--present}
+\role{Tinyland.dev, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
 
-Massively parallel, provable, \textbf{ownable} agent infrastructure. Currently seeking funding and in stealth.
+Agent orchestration platform for semiautonomous infrastructure lifecycle management and resource convergence in higher education / academic enterprise. Intended to become entirely zlib / dual license / source available eventually, when it is appropriate to do so.
 
-\vspace{0.2em}
-\noindent\textit{\color{muted}Architecture:} 5 bespoke SLMs, 130+ callable tools, full IaC lifecycle coverage via multicloud harness. Horizontal scaling with Chapel-based parallelism.
+Currently in stealth mode, funded by me.
 
-\vspace{0.2em}
-\noindent\textit{\color{muted}Components:}
-\begin{itemize}
-    \item \textbf{Huskycat} --- Multithreaded githook SLM for PBT, linting, formatting, verification. Builds for Apple Silicon and Rocky.
-    \item \textbf{Outbot} --- Repo management SLM. Zoned summaries, conflict resolution, upstream PR analysis. Python with composable factory architecture. Slated for debut on GitLab Duo Agent Platform.
-    \item \textbf{FuzzyBot} --- Chat TUI (Chapel + Go) with IntelliJ/Emacs integration, git-aware identity, Solr-backed memory and SAE offloading.
-    \item \textbf{Mariolex} --- K8s-native harness for model hosting, tool dispatch, fuzzing, indexing, PBT, and agent federation. Chapel + Go. Liqo-based multicloud topology.
-\end{itemize}
+\vspace{0.5em}
+\noindent\textit{\color{muted}Scope:} Spans 5 bespoke SLMs, a bespoke chat interpreter and over a hundred tools autonomously callable by the system. Sits at every part of the IaC lifecycle, connected through a multicloud harness. Horizontal scaling with Chapel-based parallelism. Kubernetes-native architecture with Liqo-based multicloud topology. Chapel, Python, Go.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}xoxd.ai} --- ML/AI research arm of Tinyland, focusing on bespoke SLM development, property-based testing of agent systems, and multi-cloud federation research.
+
+%==============================================================================
+\newpage
+%==============================================================================
+
+%==============================================================================
+% PUBLICATIONS
+%==============================================================================
+\section{Publications}
+\label{sec:publications}
+
+Reitsma, L.R., Burns, C., \& \textbf{Sullivan, J.} (2019). \textit{Poecile atricapillus} (Black-capped Chickadee) Feeding \textit{Catharus guttatus} (Hermit Thrush) Nestlings. \textit{Northeastern Naturalist}, 26(2). \cvlink{https://doi.org/10.1656/045.026.0213}{doi:10.1656/045.026.0213}
+
+\vspace{0.3em}
+\noindent First recorded instance of interspecific parental feeding between these two species, documented at Plymouth State University. Field observation and video documentation of a Black-capped Chickadee provisioning Hermit Thrush nestlings over sustained periods, resulting in successful fledging.
 
 \vspace{0.8em}
 
-\role{Tinyland.dev, Inc}{2024--present}
+\textbf{Sullivan, J.} (2026). Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist. \cvlink{https://transscendsurvival.org/papers/recovery-paper.pdf}{transscendsurvival.org/papers/recovery-paper.pdf}
 
-Tinyland is big, more to come very soon. Funded hackerspace initiative. Currently in stealth mode.
+\vspace{0.3em}
+\noindent Novel technique for recovering firmware write-protected NVMe SSDs over USB by injecting NVMe Submission Queue entries directly into the ASMedia ASM2362 bridge controller's internal XRAM via vendor SCSI commands, bypassing the bridge's opcode whitelist. Open-source tool implemented in approximately 5,400 lines of Zig with 26 unit tests. Demonstrated successful recovery of a Phison PS5012-E12 based SSD from permanent silent-write-failure mode using Sanitize Block Erase via XRAM injection and PCIe TLP doorbell signaling.
+
+\vspace{1em}
+\subsection{Presentations}
+
+\textbf{Sullivan, J.} (2019). Web GIS: Telling Stories \& Solving Problems. \textit{Association of American Geographers (AAG) Annual Meeting}, Washington, DC.
+
+\vspace{0.3em}
+\noindent Presented community-driven GIS mapping and Photovoice methods for youth recreation access in New Hampshire, alongside avian field research tools built with R, Shiny, and GDAL for KML/CSV/SHP data conversion and centroid analysis of banded bird territories. Work conducted in collaboration with the National Park Service, Foundation for Healthy Communities, GPRED, and Northern Border Regional Commission.
+
+\vspace{0.8em}
+\subsection{Research Repositories}
+
+\cvlink{https://github.com/Jesssullivan/pixelwise-research}{github.com/Jesssullivan/pixelwise-research} --- ESDT Monads and pixelwise classification research.
 
 %==============================================================================
 \newpage
