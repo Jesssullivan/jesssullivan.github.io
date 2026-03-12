@@ -4,6 +4,11 @@
  * Self-contained implementation — no external dependencies.
  */
 
+export const POST_CATEGORIES = [
+	"hardware", "software", "ecology", "music",
+	"photography", "personal", "tutorial", "devops",
+] as const;
+
 export function stripQuotes(s: string): string {
 	if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
 		return s.slice(1, -1);
