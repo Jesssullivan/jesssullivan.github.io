@@ -6,17 +6,6 @@
  * CI check for future-dated blog posts. Implements the "DO NOT MERGE" pattern
  * inspired by Xe Iaso's site.
  *
- * Behavior:
- *  - Scans changed .md files in src/posts/ (via git diff against base branch)
- *  - For each post with a future date:
- *    - If PR body contains "DO NOT MERGE until YYYY-MM-DD UTC" → pass with warning
- *    - Otherwise → fail
- *
- * Environment:
- *   GITHUB_EVENT_PATH — path to GitHub event JSON (set by Actions)
- *   GITHUB_TOKEN      — for posting PR comments (optional)
- *   BASE_BRANCH       — base branch for diff (default: origin/main)
- *
  * Usage:
  *   tsx scripts/validate-blog-dates.mts
  *   tsx scripts/validate-blog-dates.mts --pr-body /path/to/body.txt
@@ -49,13 +38,11 @@ function getDoNotMergeDate(prBody: string | null): Date | null {
 }
 
 function getPRBody(): string {
-	// CLI flag: --pr-body /path/to/file
 	const cliIdx = process.argv.indexOf('--pr-body');
 	if (cliIdx !== -1 && process.argv[cliIdx + 1]) {
 		return readFileSync(process.argv[cliIdx + 1], 'utf-8');
 	}
 
-	// GitHub Actions event
 	if (process.env.GITHUB_EVENT_PATH && existsSync(process.env.GITHUB_EVENT_PATH)) {
 		try {
 			const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf-8'));
@@ -77,7 +64,6 @@ function getChangedPosts(): string[] {
 		}).trim();
 		return diff ? diff.split('\n').filter((f) => f.endsWith('.md')) : [];
 	} catch {
-		// Fallback: check all posts (git diff may fail outside CI)
 		console.log('Warning: git diff failed, checking all posts');
 		return readdirSync(POSTS_DIR)
 			.filter((f) => f.endsWith('.md'))
@@ -93,14 +79,13 @@ const doNotMergeDate = getDoNotMergeDate(prBody);
 const changedPosts = getChangedPosts();
 
 const futurePosts: FuturePost[] = [];
-const errors: string[] = [];
 
 for (const relPath of changedPosts) {
 	const absPath = join(ROOT, relPath);
 	if (!existsSync(absPath)) continue;
 
 	const content = readFileSync(absPath, 'utf-8');
-	const fm = parseFrontmatter(content);
+	const fm = parseFrontmatter(content) as PostFrontmatter | null;
 	if (!fm || !fm.date) continue;
 
 	const postDate = new Date(fm.date + 'T00:00:00Z');

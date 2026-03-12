@@ -71,22 +71,64 @@
 		{/each}
 	</section>
 
-	<!-- YouTube playlist -->
+	<!-- YouTube Videos -->
 	<section class="mb-12">
-		<h2 class="text-xl font-semibold mb-4">Videos</h2>
-		<p class="text-sm text-surface-500 mb-4">
-			A couple of morning metal videos and misc recordings.
-		</p>
-		<div class="relative w-full" style="padding-bottom: 56.25%;">
-			<iframe
-				src="https://www.youtube-nocookie.com/embed/videoseries?list=PL6y8N_vP4OooPyza8EOIrz2XC0cck9Fae"
-				title="Morning Metal playlist"
-				class="absolute inset-0 w-full h-full rounded-lg"
-				frameborder="0"
-				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-				allowfullscreen
-				loading="lazy"
-			></iframe>
+		<div class="flex items-baseline justify-between mb-4">
+			<h2 class="text-xl font-semibold">Videos</h2>
+			<a
+				href="https://www.youtube.com/@jesssullivan4983"
+				target="_blank"
+				rel="noopener"
+				class="text-sm text-primary-500 hover:underline"
+			>YouTube channel &rarr;</a>
+		</div>
+
+		<!-- Playlist embed -->
+		<div class="mb-8">
+			<h3 class="font-semibold mb-2">Morning Metal Playlist</h3>
+			<div class="relative w-full" style="padding-bottom: 56.25%;">
+				<iframe
+					src="https://www.youtube-nocookie.com/embed/videoseries?list=PL6y8N_vP4OooPyza8EOIrz2XC0cck9Fae"
+					title="Morning Metal playlist"
+					class="absolute inset-0 w-full h-full rounded-lg"
+					frameborder="0"
+					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen
+					loading="lazy"
+				></iframe>
+			</div>
+		</div>
+
+		<!-- Individual videos -->
+		<h3 class="font-semibold mb-4">More Videos</h3>
+		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+			{#each [
+				{ id: 'jcdIMftYGGQ', title: 'Silly Goose Stuff', short: true },
+				{ id: 'CcF96vq2dcY', title: 'Sleepy Saturday', short: true },
+				{ id: 'HWfSMihJgJw', title: '9 String Amphibiansce', short: false },
+				{ id: 'xGdNk7CTTTg', title: 'Drop A for Activities', short: false },
+				{ id: 'N2haib_Ttrw', title: 'Twelve a Biggah Numbah Den Nine', short: false },
+				{ id: 'JVusudpKTF8', title: 'Morning Metal 04.23.21', short: false },
+				{ id: 'zCrrzdaBCsw', title: 'Morning Metal 10/28/20', short: false },
+				{ id: 'nVkjCMmpUII', title: 'Shortest Morning Metal 7 8 20', short: false },
+				{ id: 's_6pwdzT9ZQ', title: 'Note Feel Good Metal', short: false },
+				{ id: 'jrxJHwmtwak', title: 'Shortest Morning Metal 7 8 20', short: false },
+			] as video}
+				<div class="card overflow-hidden">
+					<div class="relative w-full" style="padding-bottom: {video.short ? '177%' : '56.25%'};">
+						<iframe
+							src="https://www.youtube-nocookie.com/embed/{video.id}"
+							title={video.title}
+							class="absolute inset-0 w-full h-full"
+							frameborder="0"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+							allowfullscreen
+							loading="lazy"
+						></iframe>
+					</div>
+					<p class="text-sm font-medium p-3">{video.title}</p>
+				</div>
+			{/each}
 		</div>
 	</section>
 

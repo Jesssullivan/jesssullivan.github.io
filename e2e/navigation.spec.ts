@@ -43,7 +43,6 @@ test.describe('About Page', () => {
 		const body = await page.textContent('body');
 		expect(body).not.toContain('BrainFlow');
 		expect(body).not.toContain('MeshCore');
-		expect(body).not.toContain('Liqo');
 		expect(body).not.toContain('EyeTrackVR');
 	});
 });

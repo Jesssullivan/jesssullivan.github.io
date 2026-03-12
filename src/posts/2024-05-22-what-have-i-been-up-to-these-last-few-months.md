@@ -2,7 +2,7 @@
 title: "What have I been up to these last few months?"
 date: "2024-05-22"
 description: "I am off to do cool stuff at Bates College! 🚀 I am pleased to shared I have accepted position as a Systems Analyst at Bates. That’s right- I’ve moved from..."
-tags: []
+tags: ["personal", "update"]
 published: true
 slug: "what-have-i-been-up-to-these-last-few-months"
 original_url: "https://www.transscendsurvival.org/2024/05/22/what-have-i-been-up-to-these-last-few-months/"

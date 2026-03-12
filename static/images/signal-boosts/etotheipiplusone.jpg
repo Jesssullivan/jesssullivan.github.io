@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="https://www.etotheipiplusone.net/xmlrpc.php">
+
+
+<title>Equals Zero &#8211; robots are dumb</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel="alternate" type="application/rss+xml" title="Equals Zero &raquo; Feed" href="https://www.etotheipiplusone.net/?feed=rss2" />
+<link rel="alternate" type="application/rss+xml" title="Equals Zero &raquo; Comments Feed" href="https://www.etotheipiplusone.net/?feed=comments-rss2" />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id='wp-emoji-styles-inline-css' type='text/css'>
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id='wp-block-library-inline-css' type='text/css'>
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}.has-text-align-center{text-align:center}.has-text-align-left{text-align:left}.has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-wrap:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=wp-block-library-inline-css */
+</style>
+<style id='wp-block-image-inline-css' type='text/css'>
+.wp-block-image>a,.wp-block-image>figure>a{display:inline-block}.wp-block-image img{box-sizing:border-box;height:auto;max-width:100%;vertical-align:bottom}@media not (prefers-reduced-motion){.wp-block-image img.hide{visibility:hidden}.wp-block-image img.show{animation:show-content-image .4s}}.wp-block-image[style*=border-radius] img,.wp-block-image[style*=border-radius]>a{border-radius:inherit}.wp-block-image.has-custom-border img{box-sizing:border-box}.wp-block-image.aligncenter{text-align:center}.wp-block-image.alignfull>a,.wp-block-image.alignwide>a{width:100%}.wp-block-image.alignfull img,.wp-block-image.alignwide img{height:auto;width:100%}.wp-block-image .aligncenter,.wp-block-image .alignleft,.wp-block-image .alignright,.wp-block-image.aligncenter,.wp-block-image.alignleft,.wp-block-image.alignright{display:table}.wp-block-image .aligncenter>figcaption,.wp-block-image .alignleft>figcaption,.wp-block-image .alignright>figcaption,.wp-block-image.aligncenter>figcaption,.wp-block-image.alignleft>figcaption,.wp-block-image.alignright>figcaption{caption-side:bottom;display:table-caption}.wp-block-image .alignleft{float:left;margin:.5em 1em .5em 0}.wp-block-image .alignright{float:right;margin:.5em 0 .5em 1em}.wp-block-image .aligncenter{margin-left:auto;margin-right:auto}.wp-block-image :where(figcaption){margin-bottom:1em;margin-top:.5em}.wp-block-image.is-style-circle-mask img{border-radius:9999px}@supports ((-webkit-mask-image:none) or (mask-image:none)) or (-webkit-mask-image:none){.wp-block-image.is-style-circle-mask img{border-radius:0;-webkit-mask-image:url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50"/></svg>');mask-image:url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50"/></svg>');mask-mode:alpha;-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain}}:root :where(.wp-block-image.is-style-rounded img,.wp-block-image .is-style-rounded img){border-radius:9999px}.wp-block-image figure{margin:0}.wp-lightbox-container{display:flex;flex-direction:column;position:relative}.wp-lightbox-container img{cursor:zoom-in}.wp-lightbox-container img:hover+button{opacity:1}.wp-lightbox-container button{align-items:center;backdrop-filter:blur(16px) saturate(180%);background-color:#5a5a5a40;border:none;border-radius:4px;cursor:zoom-in;display:flex;height:20px;justify-content:center;opacity:0;padding:0;position:absolute;right:16px;text-align:center;top:16px;width:20px;z-index:100}@media not (prefers-reduced-motion){.wp-lightbox-container button{transition:opacity .2s ease}}.wp-lightbox-container button:focus-visible{outline:3px auto #5a5a5a40;outline:3px auto -webkit-focus-ring-color;outline-offset:3px}.wp-lightbox-container button:hover{cursor:pointer;opacity:1}.wp-lightbox-container button:focus{opacity:1}.wp-lightbox-container button:focus,.wp-lightbox-container button:hover,.wp-lightbox-container button:not(:hover):not(:active):not(.has-background){background-color:#5a5a5a40;border:none}.wp-lightbox-overlay{box-sizing:border-box;cursor:zoom-out;height:100vh;left:0;overflow:hidden;position:fixed;top:0;visibility:hidden;width:100%;z-index:100000}.wp-lightbox-overlay .close-button{align-items:center;cursor:pointer;display:flex;justify-content:center;min-height:40px;min-width:40px;padding:0;position:absolute;right:calc(env(safe-area-inset-right) + 16px);top:calc(env(safe-area-inset-top) + 16px);z-index:5000000}.wp-lightbox-overlay .close-button:focus,.wp-lightbox-overlay .close-button:hover,.wp-lightbox-overlay .close-button:not(:hover):not(:active):not(.has-background){background:none;border:none}.wp-lightbox-overlay .lightbox-image-container{height:var(--wp--lightbox-container-height);left:50%;overflow:hidden;position:absolute;top:50%;transform:translate(-50%,-50%);transform-origin:top left;width:var(--wp--lightbox-container-width);z-index:9999999999}.wp-lightbox-overlay .wp-block-image{align-items:center;box-sizing:border-box;display:flex;height:100%;justify-content:center;margin:0;position:relative;transform-origin:0 0;width:100%;z-index:3000000}.wp-lightbox-overlay .wp-block-image img{height:var(--wp--lightbox-image-height);min-height:var(--wp--lightbox-image-height);min-width:var(--wp--lightbox-image-width);width:var(--wp--lightbox-image-width)}.wp-lightbox-overlay .wp-block-image figcaption{display:none}.wp-lightbox-overlay button{background:none;border:none}.wp-lightbox-overlay .scrim{background-color:#fff;height:100%;opacity:.9;position:absolute;width:100%;z-index:2000000}.wp-lightbox-overlay.active{visibility:visible}@media not (prefers-reduced-motion){.wp-lightbox-overlay.active{animation:turn-on-visibility .25s both}.wp-lightbox-overlay.active img{animation:turn-on-visibility .35s both}.wp-lightbox-overlay.show-closing-animation:not(.active){animation:turn-off-visibility .35s both}.wp-lightbox-overlay.show-closing-animation:not(.active) img{animation:turn-off-visibility .25s both}.wp-lightbox-overlay.zoom.active{animation:none;opacity:1;visibility:visible}.wp-lightbox-overlay.zoom.active .lightbox-image-container{animation:lightbox-zoom-in .4s}.wp-lightbox-overlay.zoom.active .lightbox-image-container img{animation:none}.wp-lightbox-overlay.zoom.active .scrim{animation:turn-on-visibility .4s forwards}.wp-lightbox-overlay.zoom.show-closing-animation:not(.active){animation:none}.wp-lightbox-overlay.zoom.show-closing-animation:not(.active) .lightbox-image-container{animation:lightbox-zoom-out .4s}.wp-lightbox-overlay.zoom.show-closing-animation:not(.active) .lightbox-image-container img{animation:none}.wp-lightbox-overlay.zoom.show-closing-animation:not(.active) .scrim{animation:turn-off-visibility .4s forwards}}@keyframes show-content-image{0%{visibility:hidden}99%{visibility:hidden}to{visibility:visible}}@keyframes turn-on-visibility{0%{opacity:0}to{opacity:1}}@keyframes turn-off-visibility{0%{opacity:1;visibility:visible}99%{opacity:0;visibility:visible}to{opacity:0;visibility:hidden}}@keyframes lightbox-zoom-in{0%{transform:translate(calc((-100vw + var(--wp--lightbox-scrollbar-width))/2 + var(--wp--lightbox-initial-left-position)),calc(-50vh + var(--wp--lightbox-initial-top-position))) scale(var(--wp--lightbox-scale))}to{transform:translate(-50%,-50%) scale(1)}}@keyframes lightbox-zoom-out{0%{transform:translate(-50%,-50%) scale(1);visibility:visible}99%{visibility:visible}to{transform:translate(calc((-100vw + var(--wp--lightbox-scrollbar-width))/2 + var(--wp--lightbox-initial-left-position)),calc(-50vh + var(--wp--lightbox-initial-top-position))) scale(var(--wp--lightbox-scale));visibility:hidden}}
+/*# sourceURL=https://www.etotheipiplusone.net/wp-includes/blocks/image/style.min.css */
+</style>
+<style id='wp-block-embed-inline-css' type='text/css'>
+.wp-block-embed.alignleft,.wp-block-embed.alignright,.wp-block[data-align=left]>[data-type="core/embed"],.wp-block[data-align=right]>[data-type="core/embed"]{max-width:360px;width:100%}.wp-block-embed.alignleft .wp-block-embed__wrapper,.wp-block-embed.alignright .wp-block-embed__wrapper,.wp-block[data-align=left]>[data-type="core/embed"] .wp-block-embed__wrapper,.wp-block[data-align=right]>[data-type="core/embed"] .wp-block-embed__wrapper{min-width:280px}.wp-block-cover .wp-block-embed{min-height:240px;min-width:320px}.wp-block-embed{overflow-wrap:break-word}.wp-block-embed :where(figcaption){margin-bottom:1em;margin-top:.5em}.wp-block-embed iframe{max-width:100%}.wp-block-embed__wrapper{position:relative}.wp-embed-responsive .wp-has-aspect-ratio .wp-block-embed__wrapper:before{content:"";display:block;padding-top:50%}.wp-embed-responsive .wp-has-aspect-ratio iframe{bottom:0;height:100%;left:0;position:absolute;right:0;top:0;width:100%}.wp-embed-responsive .wp-embed-aspect-21-9 .wp-block-embed__wrapper:before{padding-top:42.85%}.wp-embed-responsive .wp-embed-aspect-18-9 .wp-block-embed__wrapper:before{padding-top:50%}.wp-embed-responsive .wp-embed-aspect-16-9 .wp-block-embed__wrapper:before{padding-top:56.25%}.wp-embed-responsive .wp-embed-aspect-4-3 .wp-block-embed__wrapper:before{padding-top:75%}.wp-embed-responsive .wp-embed-aspect-1-1 .wp-block-embed__wrapper:before{padding-top:100%}.wp-embed-responsive .wp-embed-aspect-9-16 .wp-block-embed__wrapper:before{padding-top:177.77%}.wp-embed-responsive .wp-embed-aspect-1-2 .wp-block-embed__wrapper:before{padding-top:200%}
+/*# sourceURL=https://www.etotheipiplusone.net/wp-includes/blocks/embed/style.min.css */
+</style>
+<style id='wp-block-paragraph-inline-css' type='text/css'>
+.is-small-text{font-size:.875em}.is-regular-text{font-size:1em}.is-large-text{font-size:2.25em}.is-larger-text{font-size:3em}.has-drop-cap:not(:focus):first-letter{float:left;font-size:8.4em;font-style:normal;font-weight:100;line-height:.68;margin:.05em .1em 0 0;text-transform:uppercase}body.rtl .has-drop-cap:not(:focus):first-letter{float:none;margin-left:.1em}p.has-drop-cap.has-background{overflow:hidden}:root :where(p.has-background){padding:1.25em 2.375em}:where(p.has-text-color:not(.has-link-color)) a{color:inherit}p.has-text-align-left[style*="writing-mode:vertical-lr"],p.has-text-align-right[style*="writing-mode:vertical-rl"]{rotate:180deg}
+/*# sourceURL=https://www.etotheipiplusone.net/wp-includes/blocks/paragraph/style.min.css */
+</style>
+
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='coral-dark-style-css' href='https://www.etotheipiplusone.net/wp-content/themes/coral-dark/style.css?ver=6.9.4' type='text/css' media='all' />
+<style id='coral-dark-style-inline-css' type='text/css'>
+
+		body, button, input, select, textarea {	font-size: 14px;}
+		h1.site-title, h3.site-title {
+			margin-top: 25px; 
+			font-size: 36px; 
+		}
+		h1.site-title a,
+		h1.site-title a:visited,
+		h1.site-title a:hover,
+		h1.site-title a:active,
+		h1.site-title a:focus,
+		h3.site-title a,
+		h3.site-title a:visited,
+		h3.site-title a:hover,
+		h3.site-title a:active,
+		h3.site-title a:focus {
+			color: #00d3b0 !important;
+		}
+		
+		h2.site-description, h4.site-description {
+			margin-top: -5px;
+			font-size: 14px;
+			color: #f356ff;
+		}
+		.custom-logo {max-height: 100px;}
+		@media screen and (min-width: 768px) {
+			.main-navigation {margin-top: 15px;}
+			#search1 {margin-top: 42px;}
+			#social1 {margin-top: 47px;}
+		}
+	
+/*# sourceURL=coral-dark-style-inline-css */
+</style>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" id="jquery-migrate-js"></script>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-content/themes/coral-dark/js/jquery.nivo.slider.pack.js?ver=3.2" id="nivo-slider-js"></script>
+<link rel="https://api.w.org/" href="https://www.etotheipiplusone.net/index.php?rest_route=/" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.etotheipiplusone.net/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 6.9.4" />
+<!-- Analytics by WP Statistics - https://wp-statistics.com -->
+<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style></head>
+
+<body class="home blog wp-embed-responsive wp-theme-coral-dark">
+<div id="page" class="hfeed site">
+	<a class="skip-link screen-reader-text" href="#content">Skip to content</a>
+
+	<header id="masthead" class="site-header grid-container" role="banner">
+		<div class="site-branding egrid  grid-35 tablet-grid-35 mobile-grid-100">
+												<h1 class="site-title"><a href="https://www.etotheipiplusone.net/" rel="home">Equals Zero</a></h1>
+					<h2 class="site-description">robots are dumb</h2> 			
+					
+							
+		</div><!-- .site-branding -->
+		<div id="headerright" class="grid-parent egrid  grid-65 tablet-grid-65 mobile-grid-100">
+			
+			<div id="social1" class="egrid  grid-60 tablet-grid-60 mobile-grid-100">
+							</div>
+			
+			<div id="search1" class="search  grid-40 tablet-grid-40 mobile-grid-100">
+				<div class="search-container">
+<form role="search" method="get" class="search-form" action="https://www.etotheipiplusone.net/">
+	<fieldset>
+		<input type="search" class="search-field" placeholder="Search..." value="" name="s" title="Search for:" />
+		<input type="submit" class="search-submit" value="" />
+	</fieldset>
+</form>
+</div>			</div>
+		</div>
+
+		<nav id="site-navigation" class="main-navigation egrid grid-100 tablet-grid-100 mobile-grid-100" role="navigation">
+			<i id="menu-button" class="fa fa-bars collapsed"><span>  Menu</span></i>
+			<div class="menu"><ul id="main-menu" class="sm sm-clean collapsed"><li class="page_item page-item-2"><a href="https://www.etotheipiplusone.net/?page_id=2">About Me</a></li><li class="page_item page-item-5 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=5">Project Pages</a><ul class='children'><li class="page_item page-item-308 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=308">Academic and Research</a><ul class='children'><li class="page_item page-item-566"><a href="https://www.etotheipiplusone.net/?page_id=566">Project: SEGFAULT</a></li></ul></li><li class="page_item page-item-6 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=6">Combat Robots</a><ul class='children'><li class="page_item page-item-2970"><a href="https://www.etotheipiplusone.net/?page_id=2970">12 O&#8217;Clocker</a></li><li class="page_item page-item-576"><a href="https://www.etotheipiplusone.net/?page_id=576">Cold Arbor</a></li><li class="page_item page-item-3831"><a href="https://www.etotheipiplusone.net/?page_id=3831">Colsonbot</a></li><li class="page_item page-item-13"><a href="https://www.etotheipiplusone.net/?page_id=13">Historical Artifacts</a></li><li class="page_item page-item-8"><a href="https://www.etotheipiplusone.net/?page_id=8">Nuclear Kitten 5.0</a></li><li class="page_item page-item-2244"><a href="https://www.etotheipiplusone.net/?page_id=2244">Null Hypothesis</a></li><li class="page_item page-item-10"><a href="https://www.etotheipiplusone.net/?page_id=10">Pop Quiz 2</a></li><li class="page_item page-item-3834"><a href="https://www.etotheipiplusone.net/?page_id=3834">Stance Stance Revolution</a></li><li class="page_item page-item-7"><a href="https://www.etotheipiplusone.net/?page_id=7">Test Bot 4.5 Media Center Edition Service Pack 1</a></li><li class="page_item page-item-2844"><a href="https://www.etotheipiplusone.net/?page_id=2844">Überclocker ADVANCE</a></li><li class="page_item page-item-196"><a href="https://www.etotheipiplusone.net/?page_id=196">Überclocker Remix</a></li></ul></li><li class="page_item page-item-943 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=943">Electric Vehicles</a><ul class='children'><li class="page_item page-item-2972"><a href="https://www.etotheipiplusone.net/?page_id=2972">BurnoutChibi</a></li><li class="page_item page-item-3434"><a href="https://www.etotheipiplusone.net/?page_id=3434">Chibi-Mikuvan</a></li><li class="page_item page-item-1987"><a href="https://www.etotheipiplusone.net/?page_id=1987">ChibiKart</a></li><li class="page_item page-item-2036"><a href="https://www.etotheipiplusone.net/?page_id=2036">Democratic People&#8217;s Republic of Chibikart</a></li><li class="page_item page-item-2117"><a href="https://www.etotheipiplusone.net/?page_id=2117">Johnscooter</a></li><li class="page_item page-item-1216"><a href="https://www.etotheipiplusone.net/?page_id=1216">LandBearShark</a></li><li class="page_item page-item-197"><a href="https://www.etotheipiplusone.net/?page_id=197">LOLrioKart</a></li><li class="page_item page-item-1655"><a href="https://www.etotheipiplusone.net/?page_id=1655">Melon Scooter</a></li><li class="page_item page-item-1663"><a href="https://www.etotheipiplusone.net/?page_id=1663">Miniature Electric Hub Motors</a></li><li class="page_item page-item-1122"><a href="https://www.etotheipiplusone.net/?page_id=1122">Motor controllers</a></li><li class="page_item page-item-133"><a href="https://www.etotheipiplusone.net/?page_id=133">Project RazEr</a></li><li class="page_item page-item-2128"><a href="https://www.etotheipiplusone.net/?page_id=2128">RazEr REV2</a></li><li class="page_item page-item-978"><a href="https://www.etotheipiplusone.net/?page_id=978">RazEr rEVolution</a></li><li class="page_item page-item-700"><a href="https://www.etotheipiplusone.net/?page_id=700">RazErblades</a></li><li class="page_item page-item-18"><a href="https://www.etotheipiplusone.net/?page_id=18">Sharper Image Electric X²/2 A.K.A ‘Snuffles’</a></li><li class="page_item page-item-1674"><a href="https://www.etotheipiplusone.net/?page_id=1674">Straight RazEr</a></li></ul></li><li class="page_item page-item-14 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=14">Other Projects</a><ul class='children'><li class="page_item page-item-1114"><a href="https://www.etotheipiplusone.net/?page_id=1114">3D Printing</a></li><li class="page_item page-item-1966"><a href="https://www.etotheipiplusone.net/?page_id=1966">Copters</a></li><li class="page_item page-item-1220"><a href="https://www.etotheipiplusone.net/?page_id=1220">Failboats</a></li><li class="page_item page-item-15"><a href="https://www.etotheipiplusone.net/?page_id=15">Glowy-glasses</a></li></ul></li><li class="page_item page-item-2823"><a href="https://www.etotheipiplusone.net/?page_id=2823">Vans And Whatnot</a></li></ul></li><li class="page_item page-item-660"><a href="https://www.etotheipiplusone.net/?page_id=660">References</a></li><li class="page_item page-item-664"><a href="https://www.etotheipiplusone.net/?page_id=664">Tips Jar</a></li><li class="page_item page-item-5229"><a href="https://www.etotheipiplusone.net/?page_id=5229">Equals Zero Designs Store</a></li></ul></div>
+		</nav><!-- #site-navigation -->
+	</header><!-- #masthead -->
+
+	<div id="myslideshow" class="myslideshow grid-container">
+			<div class="slider-wrapper theme-default grid-100 tablet-grid-100 mobile-grid-100">
+			<div id="slider" class="nivoSlider"><img src="http://www.etotheipiplusone.net/wp-content/uploads/potatoes2.jpg" alt=""><img src="http://www.etotheipiplusone.net/wp-content/uploads/potatoes1.jpg" alt=""><img src="http://www.etotheipiplusone.net/wp-content/uploads/potatoes3.jpg" alt=""></div></div>
+		</div>	
+<!-- breadcrumbs from Yoast or NavXT plugins -->
+		
+	<div id="content" class="site-content grid-container">
+
+	<div id="primary" class="content-area egrid  grid-75 tablet-grid-75 mobile-grid-100 push-25 tablet-push-25">
+		<main id="main" class="site-main" role="main">
+
+		
+						
+				
+<article id="post-5940" class="post-5940 post type-post status-publish format-standard hentry category-spoolbus">
+	<header class="entry-header">
+		<h1 class="entry-title"><a href="https://www.etotheipiplusone.net/?p=5940" rel="bookmark">The Long Hot Summer of Spool Bus: Re-Accessorizing My Most Neglected Problem Child</a></h1>
+				<div class="entry-meta">
+			<span class="posted-on"><a href="https://www.etotheipiplusone.net/?p=5940" rel="bookmark"><time class="entry-date published" datetime="2025-09-09T00:26:55-04:00">2025-09-09</time><time class="updated" datetime="2025-09-09T00:45:24-04:00">2025-09-09</time></a></span><span class="byline"> <span class="author vcard"><a class="url fn n" href="https://www.etotheipiplusone.net/?author=1">chorl</a></span></span>		</div><!-- .entry-meta -->
+			</header><!-- .entry-header -->
+
+	<div class="entry-content">
+		
+<p>Haven&#8217;t heard that name in a while, right? It seems like after <a href="https://www.etotheipiplusone.net/?p=5224">renovating the fuel system</a> way back in 2021, Spool Bus just kind of vanished off this website, except for appearing as background set in photos occasionally.  That is because Spool Bus became sort of an unsung hero of the Old and New Robot Trap House: it was principally in charge of all the 𝕿𝖗𝖚𝖈𝕶 𝕾𝖙𝖚𝖋𝖋:</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb139.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb139-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>After all, can&#8217;t have my <a href="https://www.etotheipiplusone.net/?p=5799">white elephant</a> doing any <em>work</em> or something. Once the summer&#8217;s worth of mechanical work was completed, Spool Bus was simply a well-running and driving truck, albeit one with many peripheral functions missing or worn out. But that means I didn&#8217;t feel bad chucking scrap metal (above) or rocks and concrete waste (below) into it. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb140.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb140-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>It <em>is kinda nice </em>to have something you don&#8217;t really feel bad subjecting to this kind of &#8220;throw it in and send it&#8221; treatment. Like, there wasn&#8217;t really anything I could do to Spool Bus to make it consummately worse than it already was, with gaping floor rust holes, almost every dashboard instrument dead, and a bed made of 3/16&#8243; thick plate steel. And with that mechanical service front-loaded in 2020 and 2021, my usage cases were really so light-duty for the platform that I barely even touched it for all sorts of maintenance since. </p>
+
+
+
+<p>This isn&#8217;t to say Spool Bus was only pulled out once in a prime number collision for some menial task. It not only <a href="https://etotheipiplusone.net/pics/idi/idi2.jpg">participated in meme recoveries</a> including, in this very year, the most arduous van recovery mission I&#8217;ve ever taken on (More on <em>that</em> story later), but I also regularly brought it around to local car shows&#8230; or just took it to the Tail of the Dragon for fun while chasing the <a href="https://24hoursoflemons.com/lemons-rally/">Lemons Rally</a>.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb189.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb189-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>But gradually, the grievances did pile up. When I said &#8220;nothing in the dashboard worked&#8221;, I meant it.  It had no turn signal pilot lights (though the blinkers and lights themselves worked), and the oil pressure and thermostat gauges were inoperable. </p>
+
+
+
+<p>The wipers only ran very slowly if I hit a pothole in the correct way, a sign of the motor being just totally <strong>spent</strong>.</p>
+
+
+
+<p>The HVAC blend selector was stuck on heat with the lever broken, so I had the choice (when the blower motor was actually working, needing a different pothole impact angle to work) of Hot or Even Hotter. </p>
+
+
+
+<p>The vacuum system was so weak that said HVAC system could rarely get out of defrost mode, and I only had one pump of power brake assist available. This probably meant the brake booster canister was bad as well. </p>
+
+
+
+<p>The front fuel tank&#8217;s feed line probably had a crack in the hose, because it pulled air instead of fuel and would aerate the fuel system nearly instantly if I switched to the front tank. So I really only had the rear tank available (whose gauge only reads below 1/4th, else it reads zero). </p>
+
+
+
+<p>Let&#8217;s just say it was just getting <em>really bad and uncomfortable</em> to operate on the regular. So, in May, before the weather started entering truly hot and steamy territory, I decided to embark on the <strong>LONG HOT SUMMER OF SPOOL BUS</strong>, a quest to eradicate as many of these problems as possible. </p>
+
+
+
+<p>At minimum, I needed a working HVAC system and wipers. Even if the air conditioning is toast, the Econoline&#8217;s front vents are not wimpy and at least lets things be <em>survivable</em> (Mikuvan&#8217;s front blower motor is very weak with wear/age, making it pretty deathy to drive in summer besides being deathy to drive in general).</p>
+
+
+
+<p>So, I focused on those problems first. I pulled a wiper motor from a junkyard van many moons ago because <em>it was right in front of me</em>, and the intent is to just change it out while keeping the old motor for a future rebuild, as chances are high it simply ran out of brushes.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb141.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb141-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>To do the HVAC selector/blend door system, I had to do a deep dive and take apart the entire thing from both ends, in order to reach and inspect the broken Bowden cable that connected them. So back to the scene I&#8217;ve been presented with many times&#8230;</p>
+
+
+
+<p>Like I said before, I had no beef at all with how Spool Bus drove. Arguably it starts and runs better than Vantruck does (I have long suspected that this is not its original engine, and it had a proper rebuild or reman engine dropped not too long before it went in-op), and the <a href="https://www.nickpisca.com/diesel/turbo/differences-between-idi-van-turbo-kits/">little Banks turbo</a> adds like 7 butt-horsepower and convincing sound effects. But this is <em>definitely</em> the layout that made me try out the low-mounted twins of Snekvan, then Vantruck, through Operation IDIocracy. </p>
+
+
+
+<p>Knocking the dashboard down was easy enough, although the (sporadically working) radio is annoying because all the knobs have to be removed first to unscrew its faceplate. The HVAC selector pod is below the radio, so removing it is required. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb142.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb142-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>On the passenger side, removing the blower motor and its cover is just a few screws. This allowed me to peek into the absolutely <em>filthy</em> poop-encrusted blower box and heater core housing. </p>
+
+
+
+<p>That foam covered door is what moves when the temperature lever is pulled, and I think at some point it might have become stuck and then the cable broke internally. That, or the mounts cracked off. Either way, it was free to move at this point already. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb143.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb143-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The blower motor and fan wheel dismantled well for being rusty and 40+ years old. As I suspected, the motor simply became brushless over time. I had a replacement I bought a while ago, so this pile of motor got put in a Giant McMaster-Carr Bag for future rework.</p>
+
+
+
+<p>I mean, all it really needs is brushes and maybe some oiling of the bearings. They&#8217;re just too simple to truly die. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb144.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb144-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>To get to the Bowden cable that moved the flap, I had to remove the blower housing, which fortunately was just a couple more screws but required very close-quaters van combat above where the dashboard pad covers everything. Nothing but a few plastic-threading screws here though.  The Dremel was needed to cut new drive slots into several internal panel screws which were thoroughly rusted.  </p>
+
+
+
+<p>(This was also a great chance to vacuum, air blast, and somewhat pressure-wash this whole box out because who knows how many animals have pooped in it over the years)</p>
+
+
+
+<p></p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb145.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb145-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Interestingly enough, the Bowden cable was still fixed and working on the blower box end&#8230; but on the selector side, the Z-bend that used to connect it to the lever was snapped off. So, it might just have been fatigue over time. </p>
+
+
+
+<p>The problem was that the small plastic snap that anchored the cable housing (so it could do the Bowden push-pull thingie) was also cracked apart. This meant the cable housing couldn&#8217;t stay in place any more. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb146.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb146-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Nothing a large, healthy blob of Sugru couldn&#8217;t remedy. At the same time, I noticed that the selector valve itself was slowly cracking open at the seam between the black and pink housings. </p>
+
+
+
+<p>This probably helped explain why it would barely switch over, as it would just be a massive vacuum leak. I solved this by cracking it open the rest of the way, then putting a big ring of CA glue around the former factory joint and clamping it together.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb147.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb147-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>My solution to the broken Z-bend problem required a big of digging into some very old parts bins&#8230; </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb148.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb148-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>I was just going to use a model airplane pushrod connector. In doing this, I sacrifice about 3/8&#8243; of travel off the lever, so &#8220;Mostly Hot&#8221; is fully hot, but this worked perfectly on the cold (a.k.a Still Mostly Hot) side. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb149.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb149-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Getting the Bowden cable housing screwed in again on the other side, though, was one of those &#8220;double blind&#8221; van wrenching operations.</p>
+
+
+
+<p>The first blind is visual because you can&#8217;t actually see what you&#8217;re doing because you have to face the other direction for your arms to bend the correct way. The second blind is tactile because you have to feel for where the screw hole is while simultaneously making sure the little plastic tabs line up, and all of this operation is occurring near where your fingers&#8217; Jacobian matrix is as singular as you are. </p>
+
+
+
+<p>But luckily, after enough wiggling, the Bowden cable was anchored on both sides again, and I regained control as to whether Spool Bus blew Warm or Warmer air into my face. As I said, the lever stops about 3/4 of the  way up the Hot mark, but that is nothing a strip of black Gorilla tape can&#8217;t fix by visually blocking the rest of the way!</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb150.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb150-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Alrighty, next task. It&#8217;s windshield wiper time!  To remove the motor, I had to dismantle the windshield cowling which necessitated some Advanced Fastener Extraction techniques in some areas because the 40 year old Phillips head self-tapping metal screws had basically become smooth-head rivets from corrosion. </p>
+
+
+
+<p>After the cowling comes off, most of the wiper mechanism is immediately accessible from the top.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb151.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb151-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The linkages and bushings were in surprisingly good shape without much slop. They&#8217;re held together by these funny little clip-on retaining rings, which were all on the borderline of disintegrating &#8211; if they do vanish, I&#8217;d just replace them with regular snap rings or E-clips. I took both of the linkages apart and cleaned and regreased them anyway. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb152.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb152-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The motor itself is removed from the inside underneath the dashboard. As you can see, there&#8217;s a pretty clear (for a van) path to getting its mounting scr&#8230;.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb153.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb153-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>No, just kidding. This is what the view ACTUALLY looks like when you start.</p>
+
+
+
+<p>The shop books <em>suspiciously skip over</em> the fact that you have to dismantle out the fuse block, its little mounting bracket, the ground fanout bracket (on the upper right), and disconnect the brake light switch and cruise control vacuum switch. And, on top, the left side dashboard panel has to be removed and the ventilation duct  behind it as well, which means you&#8217;re disconnecting the headlight combo switch and wiper switch too. All it says is &#8220;Remove Motor&#8221;. </p>
+
+
+
+<p>Y&#8217;know, I&#8217;m starting to think I thought this was an easy job because the junkyard van already had all of those things stripped out by someone&#8230; so I was just looking at the wiper motor, going &#8220;Ah, yes, there&#8217;s nothing in the way!&#8221;</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb154.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb154-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>I took apart the junkyard motor for a quick visual once-over and to clean up and re-lubricate all of the gears and bushings (compare it at the top with Spool Bus&#8217;s motor with its totally dried out and crusty gearbox). </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb155.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb155-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The parking switches on these things are just embedded variants of a self-stopping limit switch circuit, something I would do with a discrete snap-action or button switch or something.</p>
+
+
+
+<p>The motor is able to receive 12V power through the normally-closed contact (shown in this position) via the springy copper strip until the little plastic finger pushing on it falls into a specifically placed divot on the drive gear. Once it&#8217;s in the divot, the strip gets pushed onto the normally-open contact (below the finger, with two little rivets). </p>
+
+
+
+<p>At this point, the motor stops moving until the intermittent wiper controller clicks its relay, and that supplies a momentary pulse of power through this N/O contact, just long enough to get the motor moving and getting the finger out of the divot &#8211; at which point the motor runs as normal until it comes back around. </p>
+
+
+
+<p>It&#8217;s definitely a very analog and old school way of doing limited-range motion without a modern encoder-equipped motor and its control module. Stuff like this still has a lot of appeal to me, because while it&#8217;s not very in-field configurable and changeable, it&#8230;. just works. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb156.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb156-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>As with the blower, this motor has totally exhausted its brushes and only works if I smack it a few times, enough for the remaining stump to make contact (which is why I had to selectively hit potholes and curbs to get the wipers to cycle). So some time later I&#8217;ll pop it open and do that service and rebuild, <a href="https://www.etotheipiplusone.net/pics/vt/vt183.jpg">including perhaps machining the commutator</a>. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb157.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb157-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>After <strong>SIGNIFICANT WIGGLING</strong>, I got the mounting screws lined up and piloted. These old rubber bushings are not very friendly when it comes to lining things up, and to make it worse, they&#8217;re in incomplete sockets (C shape, not a fully surrounding hole) so they like to fall out as I am trying to hold the motor with one pinky finger. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/sb/sb158.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/sb/sb158-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>And the rest was simple. Now, when I said this self-parking motor circuit was &#8220;simple and just works&#8221;, I meant &#8220;Wow this motor just is doing whatever the hell it wants&#8221;. Some times, it takes 2 or 3 tries by the intermittent wiper controller for it to finally start doing the go-around thing. Other times, it parks and stops at this awkwardly high position.  But after who knows how long, I could actually see in the rain again!</p>
+
+
+
+<p>(As of September, this issue has largely resolved, and I think it was because the wiper motor contacts were probably old and not making good connections)</p>
+
+
+
+<p>We&#8217;re not done yet, though. Not long after this round of work, one of the funniest van failure modes I&#8217;d ever experienced ended up requiring some Operation IDIocracy inspired shenanigans to recover from&#8230; </p>
+
+			</div><!-- .entry-content -->
+
+	<footer class="entry-footer">
+		<span class="update">Updated: <a href="https://www.etotheipiplusone.net/?p=5940" rel="bookmark"><time class="published updated" datetime="2025-09-09T00:45:24-04:00">2025-09-09</time></a></span><br><span class="cat-links">Categories: <a href="https://www.etotheipiplusone.net/?cat=132" rel="category">spoolbus</a></span>	</footer><!-- .entry-footer -->
+</article><!-- #post-## -->
+			
+				
+<article id="post-5921" class="post-5921 post type-post status-publish format-standard hentry category-corin-wickes category-cosplayables">
+	<header class="entry-header">
+		<h1 class="entry-title"><a href="https://www.etotheipiplusone.net/?p=5921" rel="bookmark">Corin&#8217;s Saw from Zenless Zone Zero: The Makening</a></h1>
+				<div class="entry-meta">
+			<span class="posted-on"><a href="https://www.etotheipiplusone.net/?p=5921" rel="bookmark"><time class="entry-date published" datetime="2025-08-04T00:00:00-04:00">2025-08-04</time><time class="updated" datetime="2025-07-29T22:27:09-04:00">2025-07-29</time></a></span><span class="byline"> <span class="author vcard"><a class="url fn n" href="https://www.etotheipiplusone.net/?author=1">chorl</a></span></span>		</div><!-- .entry-meta -->
+			</header><!-- .entry-header -->
+
+	<div class="entry-content">
+		
+<p>If you don&#8217;t check out the <a href="https://www.etotheipiplusone.net/?p=5899">prelude to this post with all of the design work</a>, a lot of really fancy looking things are about to spawn out of midair! All told, this project wasn&#8217;t difficult on the making end. It&#8217;s a fairly basic assembly that is just physically large, and I barely had to &#8220;make&#8221; anything in the usual sense for me (involving lots of turning larger metal chunks into smaller metal chunks). </p>
+
+
+
+<p>As I alluded to last post, I actually began running parts on the Ender flock before the design was even done:</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw33.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw33-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>This was the first big print job I&#8217;d done in a rather long time, and it kind of showed: Having not taken good care of the filament, some of the spools were rather moisture-laden (see the stringing between the parts). The machine was also just off kilter significantly, which was fine when I made some small robot kibbles here and there. These parts, though; especially the 16&#8243; long forks required a dead flat bed.</p>
+
+
+
+<p>In fact, running these parts is what prompted me to re-activate the mesh style leveling that all printers worth buying these days have. I turned it off to save time, since these take their <em>sweet</em> <em>leisurely </em>time grabbing 25 points, but on large machines it&#8217;s really essential. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw35.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw35-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The outside visual pieces are all very hollow to minimize weight. They&#8217;re really just ~1.5mm thick outer shells supported by gibberish inside. I tend to prefer Gyroid style filing for these tasks, as it does well at very low fill percentages.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw34.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw34-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The Amazon Return Ender 3v2 has been outfitted with a 0.2mm fine nozzle since a while ago when I was making <a href="https://www.etotheipiplusone.net/?p=5783">Stance Stance Revolution</a> parts. Nothing here needed that level of fine detail, but it was more overflow capacity, so I threw some of the smaller parts at it. </p>
+
+
+
+<p>I&#8217;m making most of the parts in &#8220;native color&#8221;, so to speak, instead of a generic single color and painting them afterwards. Most of Corin&#8217;s saw is solid patches of color divided by part, and not even weird colors at that, so this was easy. Hey, no need to worry about paint scrapes if everything is the same color underneath!</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw36.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw36-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Some of the internal parts that nobody will see, of course, get made in whatever leftover spools I had. This big center piece will be hidden on the faces anyway, and painted around the perimeter. </p>
+
+
+
+<p>This piece in particular (I called it &#8220;Neck Core&#8221;) was so large and central to the forces the finished assembly wiill be seeing that I actually designed ribs and trusses into it, instead of leaving it a large hollow blob. It is still printed very hollow for the most part at 7 percent fill. But the ribs and ridges force the slicing software to route loops and perimeters there, making it very selectively dense. The ribs run between mounting holes and between the inside circle cutout (Where I was originally planning on putting a battery) and the outside edges. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw37.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw37-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>After a whole lot of filament and several days of &#8220;scifi noises&#8221; coming from the basement, here&#8217;s all of the ingredients. I was going five-wide, all hands on deck at one point: Three Enders and two Markforged Mark Twos (those were making the carbon-filled nylon structural parts, like the motor mounts). I ended up remaking only one part, the green P shaped piece, since I previously threw it in with the silver filament.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw38.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw38-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>All of this effort lined up well with the external suppliers: <a href="https://sendcutsend.com/">SendCutSend</a> for the laser-cut ABS saw ring and attachment pieces, and <a href="https://cncmadness.com/services/cnc-router/">CNC Madness</a> for the custom cut carbon fiber skeleton plates. CNCM specialized in routed composites and is patronized by a lot of UAV builders and robot builders alike. They saw action for Stance Stance Revolution as well! </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw39.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw39-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>So&#8230; I&#8217;m not sure how big I was expecting this thing to be, but it was very surprising when I first put the ring pieces together. This happens often; the scale of the predicament I put myself in only becomes obvious once parts begin arriving.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw40.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw40-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The saw rim pieces get painted a silver metallic shade. All of this action was happening in my Bathroom-turned-welding-room-turned-paint-booth:</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw43.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw43-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Yes, I am a white-collar bachelor living independently, why do you ask?</p>
+
+
+
+<p>This downstairs master bathroom in the very back corner of the house is a total disaster. Not only are the toilet and shower swapped, the flooring is held in by Elmer&#8217;s glue or something and just pasted directly on top of the concrete, and the drywall isn&#8217;t remotely square. </p>
+
+
+
+<p>Best of all, under certain very torrential rainfall conditions, it leaks from the bottom corner of the block wall. This whole basement was shittily put back together (presumably, based on some research, after a major flooding event in this area in 2009) and is falling apart. That&#8217;s why I have absolutely no qualms about ripping this bathroom apart and destroying it, because I will do so in the future anyway to address the foundation leak and possibly have it renovated into something less stupid. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw44.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw44-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Pieces being glued together with contact cement. My preference is for contact cement whenever possible, instead of something like CA glue, since it&#8217;s flexible.</p>
+
+
+
+<p>The big pile of alligator clips and test leads here later got a Hanging Gardens of Tektronix treatment with probe hangers zipped into a column. The rule of the New Robot Trap House is that I only organize that which I either step on, or which falls on me. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw45.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw45-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The final step before I could assemble the &#8220;UFO assembly&#8221; was drilling out some holes in the ring bearing. It&#8217;s designed to be used as a turntable, so it came with little rubber feet pushed into the holes. I needed the holes to be threaded a different size, so they were drilled out and tapped or countersunk to taste.</p>
+
+
+
+<p>The masking tape cover prevented drilling shavings from falling into the bearing track, which would have caused it to seize up or be crunchy. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw41.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw41-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The UFO assembly is coming together here with the saw ring fully assembled and other parts fresh out of the Painting Bathroom.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw42.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw42-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Attaching the motor and its spring-loaded mount was quick. This assembly spins very freely, but it&#8217;s obvious the ring bearing wasn&#8217;t ever supposed to be loaded like this (one point on one side), so it actually behaves differently when vertical vs. horizontal.</p>
+
+
+
+<p>I tested a few different voltages to drive the motor with and settled on 3.7v (1 lithium cell). 2S (7.4 volts) was getting a little too quick to pass the sniff test at a convention, and the motor tended to rip a burnout on the ring bearing which isn&#8217;t good for the rubber roller&#8217;s existence. At 3.7V, it spun rather slowly but the numerous and odd-numbered teeth made it appear terrifyingly fast through a camera, which is what I wanted.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw46.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw46-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>I prototyped making the conical lids by laser cutting some used Stratasys printer build sheets from the lab. I figured one sheet of ABS was as good as any other, right? This was a chance to practice making the seam, which I planned to use ABS cement and a bridging strip on, and also practice how to fixture it.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw47.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw47-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>It&#8217;s actually not scientific at all. I cut a strap of 1/2&#8243; wide ABS plastic out of the same sheet, paint everything in terrifying chemicals that soften the plastic, and then buckle the thing into a cone and clamp the outer edge. Steel blocks hold down the rest of the strap, and the ABS cement works its magic over a few hours, fusing the plastics together. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw48.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw48-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>The finished UFO assembly looks suspiciously good from here. The only thing coming out of it is one pair of wires to the drive motor.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw49.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw49-mid.jpg" alt=""/></a></figure>
+</div>
+
+
+<p>Now to take up the entirety of both of my 8 foot wide benches for the integration! The battery holders are for single 18650 cells, wired in parallel for more run time and capacity. They just mount to the inside of the two neck plates. Out of view for most angles you&#8217;d take pictures from. And besides, what&#8217;s wrong with a bunch fo random wires sticking out of something that already looks like a gore film villain&#8217;s murdering appliance?</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large is-resized"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw57.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw57-mid.jpg" alt="" style="width:640px"/></a></figure>
+</div>
+
+
+<p>The on/off switch is a simple momentary pushbutton, embedded in the handle tube near where you&#8217;d normally grab it. Push it, motor go. Don&#8217;t push it, motor ideally doesn&#8217;t go. </p>
+
+
+
+<p>Also visible behind that is one of the hub pieces that bridge the UFO assembly to the forks. It&#8217;s just a very large hollow spacer with three through-bolt holes and six holes on the edge for the conical covers. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large is-resized"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw58.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw58-mid.jpg" alt="" style="width:640px"/></a></figure>
+</div>
+
+
+<p>This whole thing comes together very &#8220;All At Once&#8221; which isn&#8217;t my preference, but I also don&#8217;t care enough to drill that deep in this design. Mostly this is caused by the wires snaking through all of the parts! The wires will sit in the hollow channels in the outer pieces. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large is-resized"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw51.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw51-mid.jpg" alt="" style="width:640px"/></a></figure>
+</div>
+
+
+<p>Smaller external details, such as the many cartoony screw heads and buttons, now get glued in. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large is-resized"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw52.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw52-mid.jpg" alt="" style="width:640px"/></a></figure>
+</div>
+
+
+<p>Here is the business end assembled! I decided, in the end, to leave the lid off one side because it was easy to show the mechanism this way. This ended up being a great decision, because every convention it&#8217;s been to has been filled with people asking how it worked! </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw53.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw53-mid.jpg" alt="" style="object-fit:cover"/></a></figure>
+</div>
+
+
+<p>And here&#8217;s the whole finished assembly. The total build time from hitting go on most of the prints to here was about two weeks. All things considered, it was a fun speed-build of a prop that was pretty well scoped. It&#8217;s definitely one of MY products: Fine from 5-10 feet away, doesn&#8217;t have every detail and many things are mushed around to fit, and contains a secret robot.</p>
+
+
+
+<p>Here&#8217;s a testing video, taken while some other con crunching was happening:</p>
+
+
+
+<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+<iframe title="corin&#039;s pizza cutter from zenless zone zero but it actually works" width="980" height="551" src="https://www.youtube.com/embed/TJEOuTsQB74?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div></figure>
+
+
+
+<p>This thing is VERY top heavy &#8211; so much so that I have to warn people before handing it off. I&#8217;ve pretty much destined myself to be the pit crew that wrestles it around and keeps it in working order&#8230;. which is totally fine since that&#8217;s the role I occupied previously many times. </p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw54.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw54-mid.jpg" alt="" style="object-fit:cover"/></a></figure>
+</div>
+
+
+<p>And a final weight on it! 11 pounds doesn&#8217;t sound like much, but having the center of gravity on the end of a stick makes it quite unwieldy. I guess this is another upside to having it made with real structure and materials: As of this writing, I&#8217;ve personally dropped it twice and have had quite a few near misses with people misjudging how thick their wrists are. It&#8217;s also compliant with at least my local conventions&#8217; rules on prop weight and size limits.</p>
+
+
+<div class="wp-block-image">
+<figure class="aligncenter size-large is-resized"><a href="https://www.etotheipiplusone.net/pics/cs/corin_saw55.jpg"><img decoding="async" src="https://www.etotheipiplusone.net/pics/cs/corin_saw55-mid.jpg" alt="" style="width:640px"/></a></figure>
+</div>
+
+
+<p>Right now, it spends most of it time adorning my fireplace, like those old-timey shotgun or musket racks. Because Zenless is still taking off and growing its fanbase, I actually haven&#8217;t found a dedicated Corin cosplayer at the two conventions this thing has been to yet. But that will surely change soon!</p>
+
+
+
+<p>&#8230;right?! </p>
+
+			</div><!-- .entry-content -->
+
+	<footer class="entry-footer">
+		<span class="update">Updated: <a href="https://www.etotheipiplusone.net/?p=5921" rel="bookmark"><time class="published updated" datetime="2025-07-29T22:27:09-04:00">2025-07-29</time></a></span><br><span class="cat-links">Categories: <a href="https://www.etotheipiplusone.net/?cat=154" rel="category">Corin Wickes</a>, <a href="https://www.etotheipiplusone.net/?cat=153" rel="category">cosplayables</a></span>	</footer><!-- .entry-footer -->
+</article><!-- #post-## -->
+			
+			
+	<nav class="navigation posts-navigation" aria-label="Posts">
+		<h2 class="screen-reader-text">Posts navigation</h2>
+		<div class="nav-links"><div class="nav-previous"><a href="https://www.etotheipiplusone.net/potatoes1.jpg/?paged=2" >Older posts</a></div></div>
+	</nav>
+		
+		</main><!-- #main -->
+	</div><!-- #primary -->
+
+
+<div id="secondary" class="widget-area egrid  grid-25 tablet-grid-25 mobile-grid-100 pull-75 tablet-pull-75" role="complementary">
+<aside id="search-2" class="widget widget_search"><div class="search-container">
+<form role="search" method="get" class="search-form" action="https://www.etotheipiplusone.net/">
+	<fieldset>
+		<input type="search" class="search-field" placeholder="Search..." value="" name="s" title="Search for:" />
+		<input type="submit" class="search-submit" value="" />
+	</fieldset>
+</form>
+</div></aside><aside id="pages-2" class="widget widget_pages"><h4 class="widget-title">Pages</h4>
+			<ul>
+				<li class="page_item page-item-2"><a href="https://www.etotheipiplusone.net/?page_id=2">About Me</a></li>
+<li class="page_item page-item-5 page_item_has_children"><a href="https://www.etotheipiplusone.net/?page_id=5">Project Pages</a>
+<ul class='children'>
+	<li class="page_item page-item-6"><a href="https://www.etotheipiplusone.net/?page_id=6">Combat Robots</a></li>
+	<li class="page_item page-item-14"><a href="https://www.etotheipiplusone.net/?page_id=14">Other Projects</a></li>
+	<li class="page_item page-item-308"><a href="https://www.etotheipiplusone.net/?page_id=308">Academic and Research</a></li>
+	<li class="page_item page-item-943"><a href="https://www.etotheipiplusone.net/?page_id=943">Electric Vehicles</a></li>
+	<li class="page_item page-item-2823"><a href="https://www.etotheipiplusone.net/?page_id=2823">Vans And Whatnot</a></li>
+</ul>
+</li>
+<li class="page_item page-item-660"><a href="https://www.etotheipiplusone.net/?page_id=660">References</a></li>
+			</ul>
+
+			</aside><aside id="categories-1" class="widget widget_categories"><h4 class="widget-title">Posts</h4>
+			<ul>
+					<li class="cat-item cat-item-4"><a href="https://www.etotheipiplusone.net/?cat=4">Bots</a>
+</li>
+	<li class="cat-item cat-item-99"><a href="https://www.etotheipiplusone.net/?cat=99">Events</a>
+<ul class='children'>
+	<li class="cat-item cat-item-119"><a href="https://www.etotheipiplusone.net/?cat=119">BattleBots 2016</a>
+</li>
+	<li class="cat-item cat-item-123"><a href="https://www.etotheipiplusone.net/?cat=123">BattleBots 2018</a>
+</li>
+	<li class="cat-item cat-item-129"><a href="https://www.etotheipiplusone.net/?cat=129">BattleBots 2020-21</a>
+</li>
+	<li class="cat-item cat-item-124"><a href="https://www.etotheipiplusone.net/?cat=124">Dragon Con</a>
+</li>
+	<li class="cat-item cat-item-114"><a href="https://www.etotheipiplusone.net/?cat=114">East Asia 2014</a>
+</li>
+	<li class="cat-item cat-item-148"><a href="https://www.etotheipiplusone.net/?cat=148">Motorama</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-8"><a href="https://www.etotheipiplusone.net/?cat=8">MIT &amp; Boston</a>
+<ul class='children'>
+	<li class="cat-item cat-item-103"><a href="https://www.etotheipiplusone.net/?cat=103">Electric Vehicle Design</a>
+</li>
+	<li class="cat-item cat-item-115"><a href="https://www.etotheipiplusone.net/?cat=115">Postmodern Robotics</a>
+</li>
+	<li class="cat-item cat-item-104"><a href="https://www.etotheipiplusone.net/?cat=104">Shop Ninja</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-5"><a href="https://www.etotheipiplusone.net/?cat=5">Project Build Reports</a>
+<ul class='children'>
+	<li class="cat-item cat-item-153"><a href="https://www.etotheipiplusone.net/?cat=153">cosplayables</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-154"><a href="https://www.etotheipiplusone.net/?cat=154">Corin Wickes</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-149"><a href="https://www.etotheipiplusone.net/?cat=149">derpy vehicles</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-113"><a href="https://www.etotheipiplusone.net/?cat=113">caddiebike</a>
+</li>
+	<li class="cat-item cat-item-112"><a href="https://www.etotheipiplusone.net/?cat=112">Chibi-mikuvan</a>
+</li>
+	<li class="cat-item cat-item-90"><a href="https://www.etotheipiplusone.net/?cat=90">Chibikart</a>
+</li>
+	<li class="cat-item cat-item-92"><a href="https://www.etotheipiplusone.net/?cat=92">D.P.R. Chibikart</a>
+</li>
+	<li class="cat-item cat-item-110"><a href="https://www.etotheipiplusone.net/?cat=110">eNanoHerpyBike</a>
+</li>
+	<li class="cat-item cat-item-70"><a href="https://www.etotheipiplusone.net/?cat=70">Land-Bear-Shark</a>
+</li>
+	<li class="cat-item cat-item-56"><a href="https://www.etotheipiplusone.net/?cat=56">LOLrio Kart</a>
+</li>
+	<li class="cat-item cat-item-68"><a href="https://www.etotheipiplusone.net/?cat=68">Melon-scooter</a>
+</li>
+	<li class="cat-item cat-item-106"><a href="https://www.etotheipiplusone.net/?cat=106">Melon-scooter 2</a>
+</li>
+	<li class="cat-item cat-item-143"><a href="https://www.etotheipiplusone.net/?cat=143">Melonbike</a>
+</li>
+	<li class="cat-item cat-item-28"><a href="https://www.etotheipiplusone.net/?cat=28">Project RazEr</a>
+</li>
+	<li class="cat-item cat-item-94"><a href="https://www.etotheipiplusone.net/?cat=94">RazEr REV2</a>
+</li>
+	<li class="cat-item cat-item-66"><a href="https://www.etotheipiplusone.net/?cat=66">RazEr rEVolution</a>
+</li>
+	<li class="cat-item cat-item-63"><a href="https://www.etotheipiplusone.net/?cat=63">RazErBlades</a>
+</li>
+	<li class="cat-item cat-item-60"><a href="https://www.etotheipiplusone.net/?cat=60">SEGFAULT</a>
+</li>
+	<li class="cat-item cat-item-7"><a href="https://www.etotheipiplusone.net/?cat=7">Snuffles</a>
+</li>
+	<li class="cat-item cat-item-83"><a href="https://www.etotheipiplusone.net/?cat=83">Straight RazEr</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-147"><a href="https://www.etotheipiplusone.net/?cat=147">dumb robots</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-111"><a href="https://www.etotheipiplusone.net/?cat=111">Candy Paint &amp; Gold Teeth</a>
+</li>
+	<li class="cat-item cat-item-61"><a href="https://www.etotheipiplusone.net/?cat=61">Cold Arbor</a>
+</li>
+	<li class="cat-item cat-item-107"><a href="https://www.etotheipiplusone.net/?cat=107">colsonbot</a>
+</li>
+	<li class="cat-item cat-item-98"><a href="https://www.etotheipiplusone.net/?cat=98">CRJ Wallbanger</a>
+</li>
+	<li class="cat-item cat-item-57"><a href="https://www.etotheipiplusone.net/?cat=57">Nuclear Kitten 5</a>
+</li>
+	<li class="cat-item cat-item-96"><a href="https://www.etotheipiplusone.net/?cat=96">Null Hypothesis</a>
+</li>
+	<li class="cat-item cat-item-139"><a href="https://www.etotheipiplusone.net/?cat=139">Overhaul 1</a>
+</li>
+	<li class="cat-item cat-item-118"><a href="https://www.etotheipiplusone.net/?cat=118">Overhaul 2</a>
+</li>
+	<li class="cat-item cat-item-128"><a href="https://www.etotheipiplusone.net/?cat=128">Overhaul 3</a>
+</li>
+	<li class="cat-item cat-item-109"><a href="https://www.etotheipiplusone.net/?cat=109">Pad Thai Doodle Ninja</a>
+</li>
+	<li class="cat-item cat-item-51"><a href="https://www.etotheipiplusone.net/?cat=51">Pop Quiz 2</a>
+</li>
+	<li class="cat-item cat-item-120"><a href="https://www.etotheipiplusone.net/?cat=120">Roll Cake</a>
+</li>
+	<li class="cat-item cat-item-117"><a href="https://www.etotheipiplusone.net/?cat=117">sadbot2016</a>
+</li>
+	<li class="cat-item cat-item-116"><a href="https://www.etotheipiplusone.net/?cat=116">Stance Stance Revolution</a>
+</li>
+	<li class="cat-item cat-item-146"><a href="https://www.etotheipiplusone.net/?cat=146">Stance Stance Revolution 2</a>
+</li>
+	<li class="cat-item cat-item-142"><a href="https://www.etotheipiplusone.net/?cat=142">Susquehanna Boxcar</a>
+</li>
+	<li class="cat-item cat-item-30"><a href="https://www.etotheipiplusone.net/?cat=30">Test Bot 4.5 SP1</a>
+</li>
+	<li class="cat-item cat-item-135"><a href="https://www.etotheipiplusone.net/?cat=135">Tomy Omnibot</a>
+</li>
+	<li class="cat-item cat-item-108"><a href="https://www.etotheipiplusone.net/?cat=108">Twelve O&#039;Clocker</a>
+</li>
+	<li class="cat-item cat-item-55"><a href="https://www.etotheipiplusone.net/?cat=55">Überclocker</a>
+</li>
+	<li class="cat-item cat-item-121"><a href="https://www.etotheipiplusone.net/?cat=121">Überclocker 4</a>
+</li>
+	<li class="cat-item cat-item-127"><a href="https://www.etotheipiplusone.net/?cat=127">Überclocker 5.0 &#8211; 30Haul</a>
+</li>
+	<li class="cat-item cat-item-101"><a href="https://www.etotheipiplusone.net/?cat=101">Überclocker ADVANCE</a>
+</li>
+	<li class="cat-item cat-item-59"><a href="https://www.etotheipiplusone.net/?cat=59">Überclocker Remix</a>
+</li>
+	<li class="cat-item cat-item-126"><a href="https://www.etotheipiplusone.net/?cat=126">Your Waifu is Trash</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-152"><a href="https://www.etotheipiplusone.net/?cat=152">flying doobobs</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-82"><a href="https://www.etotheipiplusone.net/?cat=82">Ballcopter</a>
+</li>
+	<li class="cat-item cat-item-87"><a href="https://www.etotheipiplusone.net/?cat=87">Tinycopter</a>
+</li>
+	<li class="cat-item cat-item-93"><a href="https://www.etotheipiplusone.net/?cat=93">TinyStar</a>
+</li>
+	<li class="cat-item cat-item-137"><a href="https://www.etotheipiplusone.net/?cat=137">trashcopter</a>
+</li>
+	<li class="cat-item cat-item-136"><a href="https://www.etotheipiplusone.net/?cat=136">Wigglecopter</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-151"><a href="https://www.etotheipiplusone.net/?cat=151">interesting objects</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-100"><a href="https://www.etotheipiplusone.net/?cat=100">dewut?</a>
+</li>
+	<li class="cat-item cat-item-73"><a href="https://www.etotheipiplusone.net/?cat=73">Kitmotter!</a>
+</li>
+	<li class="cat-item cat-item-69"><a href="https://www.etotheipiplusone.net/?cat=69">Make-a-Bot</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-85"><a href="https://www.etotheipiplusone.net/?cat=85">Motor Controllers</a>
+</li>
+	<li class="cat-item cat-item-150"><a href="https://www.etotheipiplusone.net/?cat=150">sad project pile</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-89"><a href="https://www.etotheipiplusone.net/?cat=89">Chibicopter</a>
+</li>
+	<li class="cat-item cat-item-74"><a href="https://www.etotheipiplusone.net/?cat=74">Chuckranoplan</a>
+</li>
+	<li class="cat-item cat-item-105"><a href="https://www.etotheipiplusone.net/?cat=105">derpdrive</a>
+</li>
+	<li class="cat-item cat-item-81"><a href="https://www.etotheipiplusone.net/?cat=81">edf quadrotor</a>
+</li>
+	<li class="cat-item cat-item-67"><a href="https://www.etotheipiplusone.net/?cat=67">Fankart!</a>
+</li>
+	<li class="cat-item cat-item-80"><a href="https://www.etotheipiplusone.net/?cat=80">ME2!!!X</a>
+</li>
+	<li class="cat-item cat-item-86"><a href="https://www.etotheipiplusone.net/?cat=86">The Next 3D Printer</a>
+</li>
+	</ul>
+</li>
+	<li class="cat-item cat-item-125"><a href="https://www.etotheipiplusone.net/?cat=125">van</a>
+	<ul class='children'>
+	<li class="cat-item cat-item-130"><a href="https://www.etotheipiplusone.net/?cat=130">crabmower</a>
+</li>
+	<li class="cat-item cat-item-144"><a href="https://www.etotheipiplusone.net/?cat=144">Econocrane</a>
+</li>
+	<li class="cat-item cat-item-102"><a href="https://www.etotheipiplusone.net/?cat=102">mikuvan</a>
+</li>
+	<li class="cat-item cat-item-131"><a href="https://www.etotheipiplusone.net/?cat=131">murdervan</a>
+</li>
+	<li class="cat-item cat-item-140"><a href="https://www.etotheipiplusone.net/?cat=140">Operation IDIocracy</a>
+</li>
+	<li class="cat-item cat-item-132"><a href="https://www.etotheipiplusone.net/?cat=132">spoolbus</a>
+</li>
+	<li class="cat-item cat-item-122"><a href="https://www.etotheipiplusone.net/?cat=122">vantruck</a>
+</li>
+	</ul>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-62"><a href="https://www.etotheipiplusone.net/?cat=62">Reference Posts</a>
+<ul class='children'>
+	<li class="cat-item cat-item-84"><a href="https://www.etotheipiplusone.net/?cat=84">Beyond Unboxing</a>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-145"><a href="https://www.etotheipiplusone.net/?cat=145">Robot Trap House</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="https://www.etotheipiplusone.net/?cat=1">Stuff</a>
+</li>
+			</ul>
+
+			</aside><aside id="linkcat-2" class="widget widget_links"><h4 class="widget-title">general links</h4>
+	<ul class='xoxo blogroll'>
+<li><a href="http://www.botlanta.org/" title="Still true to my roots">Atlanta Hobby Robot Club</a></li>
+<li><a href="http://endless-sphere.com/forums/" title="EV technology and discussion, because electric &gt; *" target="_blank">endless fullerene</a></li>
+<li><a href="http://www.hackaday.com" title="Makeable things!!">Hackaday</a></li>
+<li><a href="http://www.youtube.com/playlist?list=PLC995852A575D525B&#038;feature=viewall" title="lol miku ">My Vocaloid Playlist</a></li>
+<li><a href="http://www.youtube.com/user/teamtestbot" title="all sorts of kinky engineering pr0n">My YouTube Channel</a></li>
+<li><a href="http://www.robotbattles.com" title="An event as old as me; if it were a woman, I&#8217;d totally tap that.">Robot Battles</a></li>
+
+	</ul>
+</aside>
+<aside id="linkcat-88" class="widget widget_links"><h4 class="widget-title">MIT Links</h4>
+	<ul class='xoxo blogroll'>
+<li><a href="http://web.mit.edu" title="Massachvsetts Bay Colony Institvte for the Technologickal Arts">MIT</a></li>
+<li><a href="http://miters.mit.edu" title="MIT Electronics Research Society &amp; Evil Robot Society" target="_blank">MITERS</a></li>
+
+	</ul>
+</aside>
+<aside id="linkcat-75" class="widget widget_links"><h4 class="widget-title">neat stuff</h4>
+	<ul class='xoxo blogroll'>
+<li><a href="https://www.alex-hattori.com/" title="yo!">Alex Hattori</a></li>
+<li><a href="http://build-its.blogspot.com/">Build-its</a></li>
+<li><a href="http://www.wa4dsy.net/robot" title="The ph33red one.">Dale&#039;s Homemade Robots</a></li>
+<li><a href="http://rebecca.li" title="rmli">Elucidate</a></li>
+<li><a href="http://engineerwithoutfear.com" title="seeblack">Engineer Without Fear</a></li>
+<li><a href="https://farnsworth.engineering/" title="Farnsworth Engineering" target="_blank">Farnsworth Engineering</a></li>
+<li><a href="http://isopack.blogspot.com/">isopack</a></li>
+<li><a href="https://jamisongo.com/" title="sawblrrrt">Jamison Go</a></li>
+<li><a href="http://thevariableconstant.blogspot.com/">Jamison&#039;s Old Blogspot</a></li>
+<li><a href="http://www.loneoceans.com/labs/">Loneoceans Labs</a></li>
+<li><a href="https://lushanarts.wordpress.com/">Lushan Arts</a></li>
+<li><a href="http://nearchaos.net/" title="Michael Jeffries">Near Chaos Robotics</a></li>
+<li><a href="https://paperclipautomatoa.wordpress.com/" title="roybrox">Paperclip Automatoa</a></li>
+<li><a href="http://mitrocketscience.blogspot.com/" title="Jed&#8217;s blorg" target="_blank">Rocket Science</a></li>
+<li><a href="http://scolton.blogspot.com" title="when in doubt add fpga" target="_blank">Shane&#039;s Interblag</a></li>
+<li><a href="http://tcengineering.wordpress.com/">Tesla Coil Engineering</a></li>
+<li><a href="http://transistor-man.com/Index.html">Transistor Man</a></li>
+<li><a href="http://www.trevorshp.com/">Trevor</a></li>
+
+	</ul>
+</aside>
+<aside id="linkcat-77" class="widget widget_links"><h4 class="widget-title">parts and stuff</h4>
+	<ul class='xoxo blogroll'>
+<li><a href="http://adafruit.com/">Adafruit</a></li>
+<li><a href="http://andymark.com/" title="FIRST robot kibbles">AndyMark</a></li>
+<li><a href="http://www.digikey.com" title="Your dealer.">Digi-squee</a></li>
+<li><a href="http://www.harborfreight.com" title="Tools or parts? We&#8217;ll never know.">Harbor Fright</a></li>
+<li><a href="http://www.hobbyking.com" title="Source of ICBMs (no, not that kind of ICBM)">Hobbykong</a></li>
+<li><a href="http://www.mcmaster.com" title="You MUST know who these people are.">McFaster-Carr</a></li>
+<li><a href="http://www.monsterscooterparts.com/trsc.html" title="for your small vehicle">MonsterSqueeterParts</a></li>
+<li><a href="http://www.robotmarketplace.com" title="I hear they have robot parts.">Robot Marketspace</a></li>
+<li><a href="http://www.sparkfun.com" title="Open-spork Electronics and parts">Sporkfun Electronics</a></li>
+<li><a href="http://www.supermagnetman.net">SuperDuperMagnetMan</a></li>
+<li><a href="http://www.surpluscenter.com" title="Do you need farm equipment? Yes, you do.">Surplus Centroid</a></li>
+
+	</ul>
+</aside>
+<aside id="linkcat-76" class="widget widget_links"><h4 class="widget-title">read this</h4>
+	<ul class='xoxo blogroll'>
+<li><a href="http://learn.adafruit.com/">Adafruit Learning System</a></li>
+<li><a href="http://web.mit.edu/2.75/resources/FUNdaMENTALS.html" title="Useful basic engineering principles intro">FUNdaMENTALS of Design</a></li>
+<li><a href="http://visforvoltage.org/" title="Another great EV forum with a good &#8220;Handbook&#8221; collection">I is for Current</a></li>
+<li><a href="http://lathes.co.uk/" title="Every machine EVER!!!">Machine Tool Archive</a></li>
+<li><a href="http://www.mini-lathe.com/Default.htm" title="Great machining tips">Mini-Lathe</a></li>
+<li><a href="http://www.instructables.com/member/teamtestbot/" title="How to make a gas spectrometer with rhubarbs" target="_blank">My Instructables</a></li>
+<li><a href="http://www.practicalmachinist.com">Practical Machinist</a></li>
+<li><a href="http://www.roymech.co.uk/index3.htm" title="Everything you ever want to know about every mechanism ever." target="_blank">RoyMech</a></li>
+<li><a href="http://www.tatjavanvark.nl/projects.html" title="Mechanical Exquisiterium ">Tatjana van Vark</a></li>
+<li><a href="http://theoreticalmachinist.com/" target="_blank">Theoretical Machinist</a></li>
+
+	</ul>
+</aside>
+<aside id="recent-comments-4" class="widget widget_recent_comments"><h4 class="widget-title">Recent Comments</h4><ul id="recentcomments"><li class="recentcomments"><span class="comment-author-link"><a href="https://tangopardo.com.ar" class="url" rel="ugc external nofollow">Adrián Pardini</a></span> on <a href="https://www.etotheipiplusone.net/?p=5866&#038;cpage=1#comment-257816">i bought a mill</a></li><li class="recentcomments"><span class="comment-author-link">Lee</span> on <a href="https://www.etotheipiplusone.net/?p=5799&#038;cpage=1#comment-257429">Operation IDIocracy: Vantruck&#8217;s Patch 1.1 Release Notes and the Doing of the Thing</a></li><li class="recentcomments"><span class="comment-author-link">meerkatmcr</span> on <a href="https://www.etotheipiplusone.net/?p=5799&#038;cpage=1#comment-257397">Operation IDIocracy: Vantruck&#8217;s Patch 1.1 Release Notes and the Doing of the Thing</a></li><li class="recentcomments"><span class="comment-author-link">Lee</span> on <a href="https://www.etotheipiplusone.net/?p=5752&#038;cpage=1#comment-256349">That&#8217;s It, We&#8217;re Bringing The Stance Back! Introducing Stance Stance Revolution 2</a></li><li class="recentcomments"><span class="comment-author-link">Omnoms</span> on <a href="https://www.etotheipiplusone.net/?p=5752&#038;cpage=1#comment-256346">That&#8217;s It, We&#8217;re Bringing The Stance Back! Introducing Stance Stance Revolution 2</a></li></ul></aside></div><!-- #secondary -->
+
+	</div><!-- #content -->
+
+	<footer id="colophon" class="site-footer grid-container" role="contentinfo">
+		<div class="grid-100 tablet-grid-100 mobile-grid-100"><div class="sepline2"></div></div>
+		<div class="egrid  grid-70 tablet-grid-70 mobile-grid-100" id="footer-widget-copyright">
+			
+		<aside id="recent-posts-2" class="widget widget_recent_entries">
+		<h4 class="widget-title">Recent Posts</h4>
+		<ul>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5940">The Long Hot Summer of Spool Bus: Re-Accessorizing My Most Neglected Problem Child</a>
+											<span class="post-date">2025-09-09</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5921">Corin&#8217;s Saw from Zenless Zone Zero: The Makening</a>
+											<span class="post-date">2025-08-04</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5899">I miss making giant anime weapons! Making Corin&#8217;s saw from Zenless Zone Zero actually work!</a>
+											<span class="post-date">2025-07-28</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5873">Stance Stance Revolution 2 at Motorama 2024: Yes, It Did Happen!</a>
+											<span class="post-date">2025-02-15</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5866">i bought a mill</a>
+											<span class="post-date">2025-02-09</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5799">Operation IDIocracy: Vantruck&#8217;s Patch 1.1 Release Notes and the Doing of the Thing</a>
+											<span class="post-date">2024-09-28</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5807">Your Waifu is Still Trash: Design and Build of the Double-Barreled Vape Cannon</a>
+											<span class="post-date">2024-09-20</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5805">Your Waifu is Still Trash: The Buildening</a>
+											<span class="post-date">2024-09-08</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5802">Your Waifu is Back&#8230;. and Still Trash! Rebooting the Dumpster Miku: The Designing</a>
+											<span class="post-date">2024-08-27</span>
+									</li>
+											<li>
+					<a href="https://www.etotheipiplusone.net/?p=5783">Building the Stance Stance Revolution 2</a>
+											<span class="post-date">2024-08-20</span>
+									</li>
+					</ul>
+
+		</aside>		</div>
+		<div class=" grid-30 tablet-grid-30 mobile-grid-100">
+			<a id="designer" class="alignright" href="https://www.coralthemes.com/product/coral-dark-wordpress-theme/">Free dark wordpress theme</a>
+		</div>
+		
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-content/themes/coral-dark/js/jquery.smartmenus.min.js?ver=0.9.7" id="smartmenus-js"></script>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-content/themes/coral-dark/js/skip-link-focus-fix.js?ver=20130115" id="coral-dark-skip-link-focus-fix-js"></script>
+<script type="text/javascript" id="coral-dark-script-js-extra">
+/* <![CDATA[ */
+var nivoSliderParams = {"effect":"random","animspeed":"500","pausetime":"10000"};
+//# sourceURL=coral-dark-script-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-content/themes/coral-dark/js/functions.js?ver=20160427" id="coral-dark-script-js"></script>
+<script type="text/javascript" id="wp-statistics-tracker-js-extra">
+/* <![CDATA[ */
+var WP_Statistics_Tracker_Object = {"requestUrl":"https://www.etotheipiplusone.net/index.php?rest_route=/wp-statistics/v2","ajaxUrl":"https://www.etotheipiplusone.net/wp-admin/admin-ajax.php","hitParams":{"wp_statistics_hit":1,"source_type":"home","source_id":0,"search_query":"","signature":"efd93bf3d17acdfda016ceeb24a198bc","endpoint":"hit"},"option":{"dntEnabled":"","bypassAdBlockers":"","consentIntegration":{"name":null,"status":[]},"isPreview":false,"userOnline":false,"trackAnonymously":false,"isWpConsentApiActive":false,"consentLevel":"disabled"},"isLegacyEventLoaded":"","customEventAjaxUrl":"https://www.etotheipiplusone.net/wp-admin/admin-ajax.php?action=wp_statistics_custom_event&nonce=a847bcea03","onlineParams":{"wp_statistics_hit":1,"source_type":"home","source_id":0,"search_query":"","signature":"efd93bf3d17acdfda016ceeb24a198bc","action":"wp_statistics_online_check"},"jsCheckTime":"60000"};
+//# sourceURL=wp-statistics-tracker-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.etotheipiplusone.net/wp-content/plugins/wp-statistics/assets/js/tracker.js?ver=14.16" id="wp-statistics-tracker-js"></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://www.etotheipiplusone.net/wp-includes/js/wp-emoji-release.min.js?ver=6.9.4"}}
+</script>
+<script type="module">
+/* <![CDATA[ */
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://www.etotheipiplusone.net/wp-includes/js/wp-emoji-loader.min.js
+/* ]]> */
+</script>
+
+</body>
+</html>
