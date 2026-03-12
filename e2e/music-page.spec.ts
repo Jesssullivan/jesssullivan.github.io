@@ -34,8 +34,8 @@ test.describe('Music Page', () => {
 	});
 
 	test('shows YouTube video section', async ({ page }) => {
-		await expect(page.getByRole('heading', { name: 'Videos' })).toBeVisible();
-		const ytIframe = page.locator('iframe[src*="youtube-nocookie.com"]');
+		await expect(page.getByRole('heading', { name: 'Videos', exact: true })).toBeVisible();
+		const ytIframe = page.locator('iframe[src*="youtube-nocookie.com"]').first();
 		await expect(ytIframe).toBeVisible();
 	});
 
