@@ -8,7 +8,7 @@
 			url: 'https://www.thingiverse.com/Jesssullivan/designs',
 			image: null,
 			logo: 'thingiverse',
-			description: 'Functional prints and practical designs. Huion pen nibs, laser-cut server racks, candle pitchers, Prius EV mode buttons, and assorted household fixes.',
+			description: 'Functional prints -- pen nibs, server racks, EV mode buttons, household fixes.',
 			highlights: [
 				{ name: 'Printable Huion Pen Nib Replacement', note: '14 likes' },
 				{ name: 'Prius EV Mode Button Insert', note: '11 likes' },
@@ -17,25 +17,12 @@
 			],
 		},
 		{
-			name: 'SketchUp 3D Warehouse',
-			handle: 'Jesssullivan',
-			url: 'https://3dwarehouse.sketchup.com/by/Jesssullivan',
-			image: null,
-			logo: 'sketchup',
-			description: 'Skatepark ramp plans, recording studios, CNC assemblies, headphone drivers, and more. See stats above.',
-			highlights: [
-				{ name: 'Tiny Recording Studio', note: '1.3K downloads' },
-				{ name: 'Small Recording Studio, SUPERTINY', note: '838 downloads' },
-				{ name: 'Electrostatic Headphone Driver', note: 'DIY audio' },
-			],
-		},
-		{
 			name: 'YouTube',
 			handle: '@jesssullivan',
 			url: 'https://www.youtube.com/@jesssullivan4983',
 			image: null,
 			logo: 'youtube',
-			description: 'Morning Metal guitar sessions, project demos, and the occasional cartography screencast. Currently updating the channel with more content.',
+			description: 'Guitar sessions and project demos.',
 			highlights: [
 				{ name: 'Morning Metal playlist', note: 'Ongoing guitar series' },
 			],
@@ -46,7 +33,7 @@
 			url: 'https://soundcloud.com/jesssullivan',
 			image: null,
 			logo: 'soundcloud',
-			description: 'Guitar and organ recordings. Mostly morning metal sessions -- 9-string electric through a variety of amps and pedals.',
+			description: '9-string electric and organ recordings.',
 			highlights: [
 				{ name: 'Morning Metal 4.22.21 "Sleepish"', note: 'Apr 2021' },
 				{ name: 'Evening Metal 9.14.20', note: 'Sep 2020' },
@@ -71,11 +58,8 @@
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">
 	<h1 class="text-3xl font-bold mb-2">Making</h1>
-	<p class="text-surface-500 mb-2">
-		3D models, music, project demos, and assorted creative output scattered across the internet.
-	</p>
-	<p class="text-xs text-surface-400 mb-8">
-		Eventually migrating to self-hosted and fediverse alternatives. These will do for now.
+	<p class="text-surface-500 mb-8">
+		3D models, music, and project demos.
 	</p>
 
 	<!-- SketchUp 3D Warehouse Stats -->
@@ -106,17 +90,24 @@
 				<p class="text-xs text-surface-400">Likes</p>
 			</div>
 		</div>
-		<p class="text-surface-600-400 leading-relaxed mb-4">Mostly skatepark ramp plans, recording studio layouts, CNC machine assemblies, and headphone driver designs. The mini ramp plans alone have 9,300+ downloads.</p>
-		<p class="text-xs font-semibold text-surface-400 uppercase tracking-wide mb-2">Top Models</p>
+		<p class="text-sm text-surface-600-400 leading-relaxed mb-4">Skatepark ramp plans, recording studios, CNC assemblies, headphone drivers, and a hammock tent.</p>
 		<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
 			{#each [
 				{ name: '4ft Mini Ramp Plans', note: '9.3K dl / 30K views', img: '/images/sketchup/mini-ramp-4ft.jpg', url: 'https://3dwarehouse.sketchup.com/model/ueeab6ec3-57aa-4faf-912e-0ea7d9c16792' },
+				{ name: '3ft Mini Ramp Plans', note: '2.5K dl / 13K views', img: '/images/sketchup/mini-ramp-3ft.jpg', url: 'https://3dwarehouse.sketchup.com/model/uaf19d4cd-572d-4650-aa0a-efc996241c75' },
 				{ name: 'Speed Hub w/ Rollin', note: '6.9K downloads', img: '/images/sketchup/speed-hub.jpg', url: 'https://3dwarehouse.sketchup.com/model/u76f28f89-a32e-446a-8aab-c8a26d56bcc2' },
 				{ name: 'Large Launch Box', note: '5.9K downloads', img: '/images/sketchup/large-launch-box.jpg', url: 'https://3dwarehouse.sketchup.com/model/u31d6b970-c5bf-4b67-bad5-86eea08c9093' },
 				{ name: 'Long Low Grind Rail', note: '5.4K downloads', img: '/images/sketchup/grind-rail.jpg', url: 'https://3dwarehouse.sketchup.com/model/uef39f392-6ed8-4ad8-88bc-c2c979a49d0f' },
 				{ name: 'Funbox w/ Rail', note: '5.3K downloads', img: '/images/sketchup/funbox.jpg', url: 'https://3dwarehouse.sketchup.com/model/u1899ec96-410e-437d-a176-c1355874addf' },
+				{ name: 'Medium Launch Ramp', note: '4.7K downloads', img: '/images/sketchup/medium-launch.jpg', url: 'https://3dwarehouse.sketchup.com/model/u5e70c402-87d6-4fc0-98b3-88733356964e' },
+				{ name: 'Euro Gap Flybox', note: '4.6K downloads', img: '/images/sketchup/euro-gap-flybox.jpg', url: 'https://3dwarehouse.sketchup.com/model/u85ccd005-1d96-4988-a94d-ff6ac353aa99' },
+				{ name: 'Skatepark Bowl + Street', note: '4K dl / 5K views', img: '/images/sketchup/skatepark-bowl.jpg', url: 'https://3dwarehouse.sketchup.com/model/ueb5d831d-c3c6-45eb-8542-c49255e99924' },
+				{ name: 'Far Side Skate Hub', note: '3.8K downloads', img: '/images/sketchup/far-side-hub.jpg', url: 'https://3dwarehouse.sketchup.com/model/u269e2877-5224-4cb4-9fd2-461f4b839a51' },
+				{ name: 'Tiny Recording Studio', note: '1.3K dl / 5.5K views', img: '/images/sketchup/tiny-studio.jpg', url: 'https://3dwarehouse.sketchup.com/model/u2b306710-a22e-420e-8a3f-a18a092acdf2' },
 				{ name: 'MPCNC CNC Machine', note: '7.3K views', img: '/images/sketchup/mpcnc.jpg', url: 'https://3dwarehouse.sketchup.com/model/72bbe55e-8df7-42a2-9a57-c355debf1447' },
 				{ name: 'CoilBot v2', note: '4.7K views', img: '/images/sketchup/coilbot.jpg', url: 'https://3dwarehouse.sketchup.com/model/97730817-843c-4e13-89ae-7c22d8d18eaf' },
+				{ name: 'Electrostatic Headphone', note: 'DIY audio', img: '/images/sketchup/electrostatic-hp.jpg', url: 'https://3dwarehouse.sketchup.com/model/0f47a4a7-7546-4237-95bb-e01ce5822069' },
+				{ name: 'Hammock Tent', note: '829 downloads', img: '/images/sketchup/hammock-tent.jpg', url: 'https://3dwarehouse.sketchup.com/model/u801d1e9f-13c5-47c5-98f2-194043bf97ff' },
 			] as model}
 				<a href={model.url} target="_blank" rel="noopener" class="card overflow-hidden hover:ring-2 ring-primary-500 transition-all">
 					<img src={model.img} alt={model.name} class="w-full aspect-square object-cover" loading="lazy" />
