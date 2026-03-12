@@ -19,19 +19,16 @@
 	</p>
 
 	<div class="flex flex-wrap items-center gap-3 mb-6">
-		<a href="/images/aag/AAG_1.png" download class="btn preset-filled-primary-500 text-sm">Download Full Resolution PNG (33 MB)</a>
+		<a href="/images/aag/AAG_1.webp" download class="btn preset-filled-primary-500 text-sm">Download Poster (WebP)</a>
 	</div>
 
 	<div class="card p-2 mb-8">
-		<picture>
-			<source srcset="/images/aag/AAG_1.webp" type="image/webp" />
-			<img
-				src="/images/aag/AAG_1.png"
-				alt="AAG 2019 poster — Web GIS: Telling Stories & Solving Problems. Community-driven GIS mapping and Photovoice methods for youth recreation access in New Hampshire."
-				class="w-full h-auto rounded-lg"
-				loading="eager"
-			/>
-		</picture>
+		<img
+			src="/images/aag/AAG_1.webp"
+			alt="AAG 2019 poster — Web GIS: Telling Stories & Solving Problems. Community-driven GIS mapping and Photovoice methods for youth recreation access in New Hampshire."
+			class="w-full h-auto rounded-lg"
+			loading="eager"
+		/>
 	</div>
 
 	<div class="prose max-w-none text-surface-600-400">
