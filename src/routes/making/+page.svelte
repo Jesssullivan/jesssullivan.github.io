@@ -22,10 +22,11 @@
 			url: 'https://3dwarehouse.sketchup.com/by/Jesssullivan',
 			image: null,
 			logo: 'sketchup',
-			description: 'Spent way too many hours in SketchUp between 2014 and 2019. Architectural models, recording studio layouts, CNC machine assemblies, and various things that probably should have been done in Fusion 360.',
+			description: 'Skatepark ramp plans, recording studios, CNC assemblies, headphone drivers, and more. See stats above.',
 			highlights: [
-				{ name: 'Small Recording Studio, SUPERTINY', note: '431 downloads' },
-				{ name: 'MPCNC CNC Machine 3/4 EMT', note: 'Assembly reference' },
+				{ name: 'Tiny Recording Studio', note: '1.3K downloads' },
+				{ name: 'Small Recording Studio, SUPERTINY', note: '838 downloads' },
+				{ name: 'Electrostatic Headphone Driver', note: 'DIY audio' },
 			],
 		},
 		{
@@ -76,6 +77,54 @@
 	<p class="text-xs text-surface-400 mb-8">
 		Eventually migrating to self-hosted and fediverse alternatives. These will do for now.
 	</p>
+
+	<!-- SketchUp 3D Warehouse Stats -->
+	<div class="card p-6 mb-8">
+		<div class="flex items-center gap-4 mb-4">
+			<Avatar name="SketchUp 3D Warehouse" size="lg" />
+			<div>
+				<a
+					href="https://3dwarehouse.sketchup.com/by/Jesssullivan"
+					target="_blank"
+					rel="noopener"
+					class="text-lg font-semibold text-primary-500 hover:underline"
+				>SketchUp 3D Warehouse</a>
+				<p class="text-sm text-surface-400">50 public models, 2014-2019</p>
+			</div>
+		</div>
+		<div class="grid grid-cols-3 gap-4 text-center mb-4">
+			<div class="card preset-outlined-surface-200-800 p-4">
+				<p class="text-2xl font-bold">86.5K+</p>
+				<p class="text-xs text-surface-400">Downloads</p>
+			</div>
+			<div class="card preset-outlined-surface-200-800 p-4">
+				<p class="text-2xl font-bold">172K+</p>
+				<p class="text-xs text-surface-400">Views</p>
+			</div>
+			<div class="card preset-outlined-surface-200-800 p-4">
+				<p class="text-2xl font-bold">135</p>
+				<p class="text-xs text-surface-400">Likes</p>
+			</div>
+		</div>
+		<p class="text-surface-600-400 leading-relaxed mb-4">Mostly skatepark ramp plans, recording studio layouts, CNC machine assemblies, and headphone driver designs. The mini ramp plans alone have 9,300+ downloads.</p>
+		<div class="space-y-1">
+			<p class="text-xs font-semibold text-surface-400 uppercase tracking-wide mb-2">Top Models</p>
+			{#each [
+				{ name: '4 Foot Mini Ramp Plans', note: '9.3K downloads, 30K views' },
+				{ name: 'Speed Hub w/ Rollin', note: '6.9K downloads' },
+				{ name: 'Large Launch Box', note: '5.9K downloads' },
+				{ name: 'Long Low Grind Rail', note: '5.4K downloads' },
+				{ name: 'Progression Funbox w/ Rail', note: '5.3K downloads' },
+				{ name: 'MPCNC CNC Machine', note: '7.3K views' },
+				{ name: 'CoilBot v2 Lasercut Coil Winder', note: '4.7K views' },
+			] as item}
+				<div class="flex items-baseline justify-between gap-4 text-sm">
+					<span class="font-medium truncate">{item.name}</span>
+					<span class="text-xs text-surface-400 whitespace-nowrap">{item.note}</span>
+				</div>
+			{/each}
+		</div>
+	</div>
 
 	<div class="space-y-6">
 		{#each profiles as profile}
