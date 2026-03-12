@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# pre-commit hook: validate frontmatter on staged blog posts
+# Install: just install-hooks
+
+set -euo pipefail
+
+# Check if any staged files are blog posts
+staged_posts=$(git diff --cached --name-only --diff-filter=ACM -- 'src/posts/*.md' || true)
+
+if [ -z "$staged_posts" ]; then
+  exit 0
+fi
+
+echo "Validating frontmatter for staged posts..."
+npx tsx scripts/validate-frontmatter.mts

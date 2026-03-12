@@ -21,4 +21,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BASE_BRANCH: origin/${{ github.base_ref }}
-        run: node scripts/validate-blog-dates.mjs
+        run: npx tsx scripts/validate-blog-dates.mts

@@ -6,7 +6,7 @@ and stages them as draft PRs for review before publication.
 
 ```
 Source repo push        repository_dispatch        Collector script
-  (blog/**)       --->  collect-posts.yml    --->  collect-external-posts.mjs
+  (blog/**)       --->  collect-posts.yml    --->  collect-external-posts.mts
                                                          |
                                                     Draft PR (published: false)
                                                          |
@@ -18,9 +18,9 @@ Source repo push        repository_dispatch        Collector script
 **Five stages:**
 
 1. **Notify** -- Source repo pushes to `main`, triggers `repository_dispatch` on the blog repo.
-2. **Collect** -- `collect-external-posts.mjs` fetches posts and images, normalizes frontmatter, writes files.
+2. **Collect** -- `collect-external-posts.mts` fetches posts and images, normalizes frontmatter, writes files.
 3. **Stage** -- A draft PR is opened on `auto/collect-posts` with `published: false`.
-4. **Validate** -- `validate-blog-dates.mjs` checks future-dated posts on every PR to `main`.
+4. **Validate** -- `validate-blog-dates.mts` checks future-dated posts on every PR to `main`.
 5. **Auto-merge** -- `auto-merge-scheduled.yml` merges PRs whose `DO NOT MERGE until` date has passed.
 
 
@@ -115,7 +115,7 @@ disable notifications without removing the workflow.
 
 ## How Collection Works
 
-`scripts/collect-external-posts.mjs` runs inside the `collect-posts.yml`
+`scripts/collect-external-posts.mts` runs inside the `collect-posts.yml`
 workflow. It can be triggered three ways:
 
 - **repository_dispatch** -- a source repo pushed new content (collects only that repo).
@@ -155,7 +155,7 @@ To publish a post on a future date:
 
 **How it works:**
 
-- `validate-blog-dates.mjs` runs on every PR to `main` that touches
+- `validate-blog-dates.mts` runs on every PR to `main` that touches
   `src/posts/`. It passes future-dated posts only if the PR body contains a
   matching `DO NOT MERGE until` directive (or if `published: false`).
 - `auto-merge-scheduled.yml` runs daily at 05:00 UTC. It scans open PRs for

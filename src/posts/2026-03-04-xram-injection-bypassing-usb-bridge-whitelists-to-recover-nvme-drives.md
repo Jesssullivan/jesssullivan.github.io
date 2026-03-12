@@ -6,12 +6,13 @@ tags: ["nvme", "asm2362", "xram", "scsi", "usb-bridge", "reverse-engineering", "
 published: true
 slug: "xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives"
 category: "hardware"
+feature_image: "/images/posts/IMG_2127.jpg"
 source_repo: "Jesssullivan/hiberpower-ntfs"
 source_path: "docs/blog/xram-injection-guide.md"
 publish_to: "blog"
 ---
 
-# XRAM Injection: Bypassing USB Bridge Whitelists to Recover NVMe Drives
+![The ASM2362 USB-NVMe bridge enclosure under investigation](/images/posts/IMG_2127.jpg)
 
 ## Introduction
 
