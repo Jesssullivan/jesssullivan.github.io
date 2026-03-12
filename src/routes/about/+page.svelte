@@ -489,29 +489,27 @@
 	<!-- 16. Links -->
 	<section class="mb-12">
 		<h2 class="text-xl font-semibold mb-3">Links</h2>
-		<ul class="space-y-2">
-			<li><a href="https://github.com/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitHub</a></li>
-			<li><a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a></li>
-			<li><a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a></li>
-			<li><a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland.dev</a></li>
-			<li><a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a></li>
-			<li><a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a></li>
-			<li><a href="/aag" class="text-primary-500 hover:underline">AAG 2019 Poster</a></li>
-			<li><a href="/signal-boosts" class="text-primary-500 hover:underline">Signal Boosts</a></li>
-			<li><a href="/making" class="text-primary-500 hover:underline">Making</a></li>
-			<li><a href="https://www.thingiverse.com/Jesssullivan/designs" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Thingiverse</a></li>
-			<li><a href="https://3dwarehouse.sketchup.com/by/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SketchUp 3D Warehouse</a></li>
-			<li><a href="https://www.youtube.com/@jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">YouTube</a></li>
-			<li><a href="https://soundcloud.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SoundCloud</a></li>
-			<li><a href="/blog" class="text-primary-500 hover:underline">Blog</a></li>
-			<li><a href="https://github.com/sponsors/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Sponsor</a></li>
-			<li><a href="https://www.eff.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">EFF Member</a></li>
-			<li>
-				<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener">
-					<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="inline" />
-				</a>
-			</li>
-		</ul>
+		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center">
+			<a href="https://github.com/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitHub</a>
+			<a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a>
+			<a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a>
+			<a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland.dev</a>
+			<a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a>
+			<a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a>
+			<a href="/aag" class="text-primary-500 hover:underline">AAG 2019 Poster</a>
+			<a href="/signal-boosts" class="text-primary-500 hover:underline">Signal Boosts</a>
+			<a href="/making" class="text-primary-500 hover:underline">Making</a>
+			<a href="https://www.thingiverse.com/Jesssullivan/designs" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Thingiverse</a>
+			<a href="https://3dwarehouse.sketchup.com/by/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SketchUp 3D Warehouse</a>
+			<a href="https://www.youtube.com/@jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">YouTube</a>
+			<a href="https://soundcloud.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SoundCloud</a>
+			<a href="/blog" class="text-primary-500 hover:underline">Blog</a>
+			<a href="https://github.com/sponsors/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Sponsor</a>
+			<a href="https://www.eff.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">EFF Member</a>
+			<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener">
+				<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="inline" />
+			</a>
+		</div>
 	</section>
 
 </div>

@@ -17,13 +17,13 @@ I finally got around to a proper update of both my resume and full CV. It's been
 
 The big additions:
 
-- **Publications section** — I now have two publications to my name. The [Northeastern Naturalist paper](https://doi.org/10.1656/045.026.0213) documenting interspecific parental feeding between Black-capped Chickadees and Hermit Thrush nestlings (still one of my favorite field experiences), and my recent [NVMe SSD recovery paper](/papers/recovery-paper.pdf) on bypassing USB bridge firmware opcode whitelists with XRAM injection.
+- **Publications section** — The [Northeastern Naturalist paper](https://doi.org/10.1656/045.026.0213) documenting interspecific parental feeding between Black-capped Chickadees and Hermit Thrush nestlings, and my recent [NVMe SSD recovery paper](/papers/recovery-paper.pdf) on bypassing USB bridge firmware opcode whitelists with XRAM injection.
 
 - **Research section** — Binary analysis and reverse engineering work (Ghidra, Frida, Zig), heterogeneous compute research with WebGPU and Futhark, and ongoing functional programming explorations with ESDT monads.
 
 - **Restructured ventures** — [Tinyland.dev](https://github.com/tinyland-inc) now leads as the primary venture, with xoxd.ai positioned as its ML/AI research arm. Cleaner framing of what we're actually building.
 
-- **New FOSS contributions** — Added rspamd (core contributor, milter), Budgie DE, Mason, and Chapel-lang to the list alongside the usual suspects.
+- **New FOSS contributions** — Added rspamd, Budgie DE, Mason, and Chapel-lang to the list alongside the usual suspects.
 
 - **AAG presentation** — Finally gave the [2019 AAG poster](/aag) its own permalink. Web GIS work presented at the Annual Meeting in Washington, DC.
 
