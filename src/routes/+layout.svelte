@@ -29,6 +29,8 @@
 		{ href: '/blog', label: 'Blog' },
 		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
+		{ href: '/making', label: 'Making' },
+		{ href: '/signal-boosts', label: 'Signal Boosts' },
 		{ href: '/cv', label: 'CV' },
 		{ href: '/about', label: 'About' },
 	];
