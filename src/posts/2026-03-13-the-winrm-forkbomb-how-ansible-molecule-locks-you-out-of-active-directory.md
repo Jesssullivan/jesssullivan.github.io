@@ -1,7 +1,7 @@
 ---
-title: "WinRM Quotas, Hidden Plugin Layers, and Why PSRP Has Been the Answer Since 2018"
+title: "WinRM Quotas, Plugin Confusion, and Why PSRP Has Been the Answer Since 2018"
 date: "2026-03-13"
-description: "I accidentally locked myself out of every Windows server on campus by parallelizing molecule tests. Turns out WinRM has a hidden quota layer, the error messages lie to you, and the fix has been sitting in ansible-core since 2018."
+description: "Bah!  WinRM has a hidden quota layer, some error messages lie, and the fix has been sitting in ansible-core since 2018."
 tags: ["ansible", "winrm", "molecule", "windows", "devops", "psrp", "active-directory"]
 published: false
 category: "devops"
@@ -11,17 +11,11 @@ source_repo: "Jesssullivan/winrm-molecule-forkbomb-demo"
 source_path: "docs/forkbomb-mechanism.md"
 ---
 
-*I accidentally locked myself out of every Windows server on campus by parallelizing molecule tests.*
-
 ---
 
 ## How it started
 
-I'd been running molecule tests against Windows targets for months at this point- serial execution, one role at a time, `forks=5` (the Ansible default). Everything worked. Boring, even.
-
-Then I started parallelizing. Four molecule processes hitting the same dev box, standard NTLM auth over WinRM HTTPS. The kind of thing you'd expect to just work. The first parallel run locked me out of every Windows server on campus.
-
-...And the error message told me my password was wrong.
+Well, my first error was agreeing to touch windows VMs, but anyway- as part of the grind toto move the Sun and Moon around a bit and automate EMS upgrade and deployment on campus (and the pleathora of integrations that integrate with this this crazy thing) I've been running batches of pytests, molecule tests etc as part of the slog og ansible fact gathering --> do a bunch of stuff --> evaulate what went wrong arc.  Regardless,  I have been trying to find ways to parallelize, starting soft with a handful of molecule processes hitting the same dev box, standard NTLM auth over WinRM HTTPS as pre and post part of fact-gathering and state evaluation, which molecule and ansible supports and is standard fare in enterprise ansible land.   This lark started getting me locked out, here, there everywhere on campus :eyes:  
 
 ## The error that lies to you
 
@@ -33,13 +27,7 @@ fatal: [win-target]: UNREACHABLE! => {
 }
 ```
 
-"Credentials rejected." My password was fine. My account wasn't disabled. I hadn't fat-fingered anything. What's actually happening is that the Windows Remote Management service ran out of room- but the error it sends back through the NTLM handshake looks identical to a real auth failure.
-
-This matters enormously because Active Directory counts each of these as a failed login attempt. The typical lockout threshold is 5 failures in 15 minutes. I sent 41 in a single burst.
-
-## Three quota layers
-
-It took me a while to piece together what was going on. Most people know WinRM has a quota system. What I didn't know- and I suspect most Ansible-on-Windows shops don't know either- is that there are actually three quota layers stacked on top of each other. The effective limit for any connection is the minimum across all of them.
+"Credentials rejected." My keys are fine damnit!  What's actually happening is that the Windows Remote Management service ran out of room- but the error it sends back through the NTLM handshake looks identical to a real auth failure.  This matters enormously because Active Directory counts each of these as a failed login attempt. The typical lockout threshold is 5 failures in 15 minutes. I sent 41 in a single burst.   It took me a while to piece together what was going on. Most people know WinRM has a quota system. What I didn't know- and I suspect most Ansible-on-Windows shops don't know either- is that there are actually three quota layers stacked on top of each other. The effective limit for any connection is the minimum across all of them.
 
 ```mermaid
 flowchart TD
@@ -72,7 +60,7 @@ I put together a fairly thorough [quota behavior writeup](https://transscendsurv
 
 Ok so this is the big one.
 
-The default `ansible.builtin.winrm` connection plugin uses [pywinrm](https://github.com/diyan/pywinrm), and pywinrm creates a **new WinRM shell with a fresh NTLM authentication** for every single Ansible task. No connection pooling. No session reuse. No buffering or piping.
+The default `ansible.builtin.winrm` connection plugin uses [pywinrm and pywinrm creates a **new WinRM shell with a fresh NTLM authentication** for every single Ansible task. No connection pooling. No session reuse. No buffering or piping.
 
 ```mermaid
 flowchart LR
@@ -186,7 +174,7 @@ This is, in retrospect, obviously a bad idea. The service stops (killing the con
 
 The good news is that WSMan quota changes [take effect immediately](https://transscendsurvival.org/winrm-molecule-forkbomb-demo/winrm-quota-research/#2-quota-behavior) on new connections without a restart. I didn't need the handler at all. Removed it, documented the finding, moved on.
 
-## The repo
+## yo check it out 
 
 Everything I found during this investigation- the quota research, the benchmark data, the Ansible roles for managing all of this- is in a [demo repo](https://github.com/Jesssullivan/winrm-molecule-forkbomb-demo) with a [companion docs site](https://transscendsurvival.org/winrm-molecule-forkbomb-demo/). A few things in there that might be useful if you're running into similar problems:
 
