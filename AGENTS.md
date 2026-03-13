@@ -94,12 +94,38 @@ Create intimacy -- the author whispering to the reader:
 
 Pick one of these patterns:
 
-1. **Fragment splash:** "NVMe drives. USB bridges. Silent failures."
+1. **Scene-with-surprise:** Start with what you were doing, pivot to the unexpected. This is the strongest pattern: "I was doing routine cleanup on a Lenovo Yoga laptop..." or "I'd been running molecule tests against Windows targets for months at this point-"
 2. **Casual entrance:** "Letsee...." or "So here's the thing-"
-3. **Scene-with-surprise:** Start with what you were doing, pivot to the unexpected
-4. **Self-deprecating pitch:** "A questionable experiment in firmware hacking that somehow worked."
+3. **Self-deprecating pitch:** "A questionable experiment in firmware hacking that somehow worked."
+4. **Fragment splash (use sparingly):** "NVMe drives. USB bridges. Silent failures." — these work when they're organic and few (2-3 words each). They do NOT work when they feel like a headline pitch: "Ansible. Windows Server 2022. Molecule." is too blunt and forced. The fragments should feel like the author settling into a topic, not presenting bullet points.
 
 Never open with formal thesis statements, definitions, or "In this post, we will..."
+
+---
+
+## Titles
+
+Titles should feel like discoveries, not headlines. They should intrigue rather than announce.
+
+### DO
+
+- Technical and specific but with a narrative hook: "WinRM Quotas, Hidden Plugin Layers, and Why PSRP Has Been the Answer Since 2018"
+- Discovery framing: "From Bricked to Recovered: The Story of Hacking an NVMe SSD Back to Life"
+- Question or observation: "Aperture and the Tagged-Device Identity Gap"
+
+### DON'T
+
+- Blunt imperative headlines: "How Ansible Molecule Locks You Out of Active Directory"
+- Clickbait patterns: "You Won't Believe What WinRM Does to Your AD Account"
+- Colon-heavy report titles: "WinRM Forkbomb: A Comprehensive Analysis of Connection Exhaustion"
+
+---
+
+## Person and Narration
+
+**Always first person singular.** Even collaborative work is narrated as "I"- "I was running tests," "I found this," "I stumbled onto." The author is always the narrator, always present in the story.
+
+Never "we" unless referring to a named team or organization in a specific context. The default is always "I."
 
 ---
 
