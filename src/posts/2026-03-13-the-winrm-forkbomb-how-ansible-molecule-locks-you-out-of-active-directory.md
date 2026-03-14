@@ -13,7 +13,10 @@ source_path: "docs/forkbomb-mechanism.md"
 
 ---
 
-## How it started
+
+## [Find the full demo repo here - link](https://github.com/Jesssullivan/winrm-molecule-forkbomb-demo)
+
+### How this started
 
 *(Well, my first error was agreeing to touch Windows VMs, but anyway)*
 
