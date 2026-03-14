@@ -15,11 +15,11 @@ source_path: "docs/forkbomb-mechanism.md"
 
 ## How it started
 
-Well, my first error was agreeing to touch windows VMs, but anyway- as part of the grind toto move the Sun and Moon around a bit and automate EMS upgrade and deployment on campus (and the pleathora of integrations that integrate with this this crazy thing) I've been running batches of pytests, molecule tests etc as part of the slog og ansible fact gathering --> do a bunch of stuff --> evaulate what went wrong arc.  Regardless,  I have been trying to find ways to parallelize, starting soft with a handful of molecule processes hitting the same dev box, standard NTLM auth over WinRM HTTPS as pre and post part of fact-gathering and state evaluation, which molecule and ansible supports and is standard fare in enterprise ansible land.   This lark started getting me locked out, here, there everywhere on campus :eyes:  
+*(Well, my first error was agreeing to touch Windows VMs, but anyway)*
 
-## The error that lies to you
+As part of the grind to move the Sun and Moon around a bit and automate an EMS upgrade + deployment on campus (and the pleathora of integrations that integrate with this this crazy thing) I've been running batches of pytests, molecule tests etc as part of the slog of ansible fact gathering --> do a bunch of stuff --> evaulate what went wrong arc.  Unfortunately, my quest for more ways to parallelize led me to getting me locked out, here, there everywhere on campus.  :eyes:  
 
-This is what Ansible gives you when WinRM runs out of capacity:
+This is what Ansible gives you when *WinRM* runs out of capacity:
 
 ```
 fatal: [win-target]: UNREACHABLE! => {
