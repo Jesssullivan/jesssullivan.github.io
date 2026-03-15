@@ -25,7 +25,7 @@ test.describe('Navigation', () => {
 
 	test('footer has public domain dedication', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.locator('footer')).toContainText('public domain');
+		await expect(page.locator('footer').last()).toContainText('public domain');
 	});
 
 	test('footer has feed links', async ({ page }) => {

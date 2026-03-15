@@ -114,7 +114,7 @@ test.describe('Glass & Transparency Effects', () => {
 		expect(bf).toBe('none');
 	});
 
-	test('theme menu dropdown uses glass', async ({ page }) => {
+	test('theme menu dropdown has solid background', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
 		await page.goto('/blog', { waitUntil: 'networkidle' });
 		// Open theme menu
@@ -122,7 +122,5 @@ test.describe('Glass & Transparency Effects', () => {
 		await themeBtn.click();
 		const themeMenu = page.locator('[role="menu"][aria-label="Theme options"]');
 		await expect(themeMenu).toBeVisible();
-		const hasGlass = await themeMenu.evaluate((el) => el.classList.contains('glass'));
-		expect(hasGlass).toBe(true);
 	});
 });

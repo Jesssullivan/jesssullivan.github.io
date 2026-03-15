@@ -51,7 +51,7 @@ test.describe('Homepage — visual QA across viewports', () => {
 					await expect(desktopNav.getByRole('link', { name: 'Blog' })).toBeVisible();
 				} else {
 					// Mobile: hamburger button present
-					const hamburger = page.getByRole('button', { name: 'Toggle navigation' });
+					const hamburger = page.getByRole('button', { name: 'Open navigation' });
 					await expect(hamburger).toBeVisible();
 				}
 			});

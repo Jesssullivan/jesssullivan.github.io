@@ -188,13 +188,13 @@ test.describe('Mobile Viewport', () => {
 
 	test('mobile nav hamburger is visible', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByLabel('Toggle navigation')).toBeVisible();
+		await expect(page.getByLabel('Open navigation')).toBeVisible();
 	});
 
 	test('mobile nav opens on hamburger click', async ({ page }) => {
 		await page.goto('/');
-		await page.getByLabel('Toggle navigation').click();
-		await expect(page.locator('nav.md\\:hidden a[href="/blog"]')).toBeVisible();
+		await page.getByLabel('Open navigation').click();
+		await expect(page.locator('[data-scope="navigation"] a[href="/blog"]')).toBeVisible();
 	});
 
 	test('blog post is readable on mobile', async ({ page }) => {
