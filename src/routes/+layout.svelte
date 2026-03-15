@@ -99,12 +99,13 @@
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
 	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} shadow-sm">
-		<AppBar.Toolbar class="px-4 py-2">
+		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
 			<AppBar.Lead>
 				<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
 					transscendsurvival.org
 				</a>
 			</AppBar.Lead>
+			<AppBar.Headline></AppBar.Headline>
 			<AppBar.Trail>
 				<nav class="hidden md:flex items-center gap-3 text-sm">
 					{#each navLinks as { href, label }}
