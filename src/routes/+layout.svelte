@@ -126,93 +126,89 @@
 		href="#main-content"
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
-	<AppBar
-		base="{scrolledPastBanner ? 'glass-nav' : ''}"
-		background="{scrolledPastBanner ? '' : 'bg-surface-100 dark:bg-surface-900'}"
-		border="{scrolledPastBanner ? '' : 'border-b border-surface-300-700'}"
-		padding="px-4 py-2"
-		shadow="shadow-sm"
-	>
-		{#snippet lead()}
-			<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
-				transscendsurvival.org
-			</a>
-		{/snippet}
-
-		{#snippet trail()}
-			<nav class="hidden md:flex items-center gap-3 text-sm">
-				{#each navLinks as { href, label }}
+	<AppBar class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
+		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
+			<AppBar.Lead class="flex items-center">
+				<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
+					transscendsurvival.org
+				</a>
+			</AppBar.Lead>
+			<AppBar.Headline class="flex-1"></AppBar.Headline>
+			<AppBar.Trail class="flex items-center gap-1">
+				<nav class="hidden md:flex items-center gap-3 text-sm">
+					{#each navLinks as { href, label }}
+						<a
+							{href}
+							class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
+						>{label}</a>
+					{/each}
 					<a
-						{href}
-						class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
-					>{label}</a>
-				{/each}
-				<a
-					href="https://github.com/Jesssullivan"
-					class="hover:text-primary-500 transition-colors"
-					target="_blank"
-					rel="noopener"
-				>GitHub</a>
-				<!-- 3-way theme switcher -->
-				<div class="theme-switcher relative">
-					<button
-						onclick={() => themeMenuOpen = !themeMenuOpen}
-						class="p-1.5 hover:bg-surface-200-800 rounded transition-colors"
-						aria-label="Theme settings"
-						aria-expanded={themeMenuOpen}
-						aria-haspopup="true"
-					>
-						{#if themeMode === 'dark' || (themeMode === 'system' && resolvedDark())}
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-						{:else}
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+						href="https://github.com/Jesssullivan"
+						class="hover:text-primary-500 transition-colors"
+						target="_blank"
+						rel="noopener"
+					>GitHub</a>
+					<!-- 3-way theme switcher -->
+					<div class="theme-switcher relative">
+						<button
+							onclick={() => themeMenuOpen = !themeMenuOpen}
+							class="p-1.5 hover:bg-surface-200-800 rounded transition-colors"
+							aria-label="Theme settings"
+							aria-expanded={themeMenuOpen}
+							aria-haspopup="true"
+						>
+							{#if themeMode === 'dark' || (themeMode === 'system' && resolvedDark())}
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+							{:else}
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+							{/if}
+						</button>
+						{#if themeMenuOpen}
+							<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[120px] z-50" role="menu" aria-label="Theme options">
+								<button
+									onclick={() => setTheme('light')}
+									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"
+									role="menuitem"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+									Light
+								</button>
+								<button
+									onclick={() => setTheme('dark')}
+									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'dark' ? 'text-primary-500 font-semibold' : ''}"
+									role="menuitem"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+									Dark
+								</button>
+								<button
+									onclick={() => setTheme('system')}
+									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'system' ? 'text-primary-500 font-semibold' : ''}"
+									role="menuitem"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+									System
+								</button>
+							</div>
 						{/if}
-					</button>
-					{#if themeMenuOpen}
-						<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[120px] z-50" role="menu" aria-label="Theme options">
-							<button
-								onclick={() => setTheme('light')}
-								class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"
-								role="menuitem"
-							>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-								Light
-							</button>
-							<button
-								onclick={() => setTheme('dark')}
-								class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'dark' ? 'text-primary-500 font-semibold' : ''}"
-								role="menuitem"
-							>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-								Dark
-							</button>
-							<button
-								onclick={() => setTheme('system')}
-								class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'system' ? 'text-primary-500 font-semibold' : ''}"
-								role="menuitem"
-							>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-								System
-							</button>
-						</div>
-					{/if}
-				</div>
-			</nav>
-			<!-- Mobile hamburger -->
-			<button
-				class="md:hidden p-2 hover:bg-surface-200-800 rounded"
-				onclick={() => mobileOpen = !mobileOpen}
-				aria-label="Toggle navigation"
-			>
-				<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					{#if mobileOpen}
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-					{:else}
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-					{/if}
-				</svg>
-			</button>
-		{/snippet}
+					</div>
+				</nav>
+				<!-- Mobile hamburger -->
+				<button
+					class="md:hidden p-2 hover:bg-surface-200-800 rounded"
+					onclick={() => mobileOpen = !mobileOpen}
+					aria-label="Toggle navigation"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						{#if mobileOpen}
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+						{:else}
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+						{/if}
+					</svg>
+				</button>
+			</AppBar.Trail>
+		</AppBar.Toolbar>
 	</AppBar>
 
 	<!-- Mobile nav dropdown -->

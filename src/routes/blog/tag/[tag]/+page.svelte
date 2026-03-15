@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { Tooltip } from '@skeletonlabs/skeleton-svelte';
 	let { data }: { data: PageData } = $props();
 </script>
 
@@ -23,10 +22,7 @@
 							<time>{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
 							{#if post.reading_time}
 								<span>&middot;</span>
-								<Tooltip positioning={{ placement: 'top' }}>
-									{#snippet trigger()}<span>{post.reading_time} min read</span>{/snippet}
-									{#snippet content()}<span class="text-xs">~{(post.reading_time ?? 1) * 230} words</span>{/snippet}
-								</Tooltip>
+								<span title="~{(post.reading_time ?? 1) * 230} words">{post.reading_time} min read</span>
 							{/if}
 						</div>
 						<h2 class="text-2xl font-semibold mt-2">{post.title}</h2>

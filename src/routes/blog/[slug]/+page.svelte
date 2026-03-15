@@ -174,7 +174,7 @@
 					{/if}
 				</div>
 				{#if data.metadata.tags?.length}
-					<div class="flex gap-2 mt-3">
+					<div class="flex flex-wrap gap-2 mt-3">
 						{#each data.metadata.tags as tag}
 							<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
 						{/each}
