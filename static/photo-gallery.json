@@ -104,6 +104,22 @@
     "post_title": "Gallery of my \\\"proper photos\\\"- NH warbler research"
   },
   {
+    "src": "/images/posts/IMG_2125.jpg",
+    "webp": "/images/posts/IMG_2125.webp",
+    "width": 1054,
+    "height": 1510,
+    "post_slug": "week-notes-cyborgs-servers-and-sending",
+    "post_title": "Week Notes: Cyborgs, Servers, and Sending"
+  },
+  {
+    "src": "/images/posts/IMG_2127.jpg",
+    "webp": "/images/posts/IMG_2127.webp",
+    "width": 1200,
+    "height": 874,
+    "post_slug": "xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives",
+    "post_title": "XRAM Injection: Bypassing USB Bridge Whitelists to Recover NVMe Drives"
+  },
+  {
     "src": "/images/posts/img_2209.jpg",
     "webp": "/images/posts/img_2209.webp",
     "width": 1200,
