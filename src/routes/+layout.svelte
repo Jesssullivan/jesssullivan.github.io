@@ -1,23 +1,23 @@
 <script lang="ts">
 	import '../app.css';
 	import 'virtual:skeleton-colors';
+	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { TinyVectors } from '@tummycrypt/tinyvectors';
+	import { theme, THEMES, type ColorMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
 
-	// Pine theme colors — subtle, earthy tones matching the original blob background
 	const pineColors = [
-		'rgba(26, 188, 156, 0.35)',   // pineGreen
-		'rgba(22, 160, 133, 0.3)',    // forestTeal
-		'rgba(39, 174, 96, 0.25)',    // mossGreen
-		'rgba(52, 152, 219, 0.2)',    // mistBlue
-		'rgba(236, 240, 241, 0.25)', // cloudWhite
+		'rgba(26, 188, 156, 0.35)',
+		'rgba(22, 160, 133, 0.3)',
+		'rgba(39, 174, 96, 0.25)',
+		'rgba(52, 152, 219, 0.2)',
+		'rgba(236, 240, 241, 0.25)',
 	];
 	let mobileOpen = $state(false);
-	let themeMode = $state<'light' | 'dark' | 'system'>('system');
 	let themeMenuOpen = $state(false);
 	let bannerRef: HTMLElement | undefined = $state();
 	let bannerOpacity = $state(1);
@@ -35,12 +35,7 @@
 	];
 
 	onMount(() => {
-		const stored = localStorage.getItem('color-mode');
-		if (stored === 'dark' || stored === 'light') {
-			themeMode = stored;
-		} else {
-			themeMode = 'system';
-		}
+		theme.init();
 
 		// Close theme menu on click outside
 		const handleClickOutside = (e: MouseEvent) => {
@@ -51,7 +46,7 @@
 		};
 		document.addEventListener('click', handleClickOutside);
 
-		// Scroll-fade for hero banner (always enabled — scroll-driven, not time-driven)
+		// Scroll-fade for hero banner
 		if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
 		const onScroll = () => {
 			if (!bannerRef || !bannerNaturalHeight) return;
@@ -65,28 +60,6 @@
 			window.removeEventListener('scroll', onScroll);
 		};
 	});
-
-	function setTheme(mode: 'light' | 'dark' | 'system') {
-		themeMode = mode;
-		themeMenuOpen = false;
-
-		if (mode === 'system') {
-			localStorage.removeItem('color-mode');
-			const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-			const resolved = systemDark ? 'dark' : 'light';
-			document.documentElement.setAttribute('data-mode', resolved);
-			document.documentElement.style.colorScheme = resolved;
-		} else {
-			localStorage.setItem('color-mode', mode);
-			document.documentElement.setAttribute('data-mode', mode);
-			document.documentElement.style.colorScheme = mode;
-		}
-	}
-
-	function resolvedDark(): boolean {
-		if (!browser) return false;
-		return document.documentElement.getAttribute('data-mode') === 'dark';
-	}
 
 	function isActive(href: string): boolean {
 		const path = $page.url.pathname;
@@ -125,12 +98,14 @@
 		href="#main-content"
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
-	<header class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
-		<div class="flex items-center justify-between px-4 py-2">
-			<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
-				transscendsurvival.org
-			</a>
-			<div class="flex items-center gap-1">
+	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} shadow-sm">
+		<AppBar.Toolbar class="px-4 py-2">
+			<AppBar.Lead>
+				<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
+					transscendsurvival.org
+				</a>
+			</AppBar.Lead>
+			<AppBar.Trail>
 				<nav class="hidden md:flex items-center gap-3 text-sm">
 					{#each navLinks as { href, label }}
 						<a
@@ -144,7 +119,7 @@
 						target="_blank"
 						rel="noopener"
 					>GitHub</a>
-					<!-- 3-way theme switcher -->
+					<!-- Theme switcher dropdown -->
 					<div class="theme-switcher relative">
 						<button
 							onclick={() => themeMenuOpen = !themeMenuOpen}
@@ -153,38 +128,38 @@
 							aria-expanded={themeMenuOpen}
 							aria-haspopup="true"
 						>
-							{#if themeMode === 'dark' || (themeMode === 'system' && resolvedDark())}
+							{#if theme.isDark}
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
 							{:else}
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
 							{/if}
 						</button>
 						{#if themeMenuOpen}
-							<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[120px] z-50" role="menu" aria-label="Theme options">
-								<button
-									onclick={() => setTheme('light')}
-									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"
-									role="menuitem"
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-									Light
-								</button>
-								<button
-									onclick={() => setTheme('dark')}
-									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'dark' ? 'text-primary-500 font-semibold' : ''}"
-									role="menuitem"
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-									Dark
-								</button>
-								<button
-									onclick={() => setTheme('system')}
-									class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {themeMode === 'system' ? 'text-primary-500 font-semibold' : ''}"
-									role="menuitem"
-								>
-									<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-									System
-								</button>
+							<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[180px] z-50" role="menu" aria-label="Theme options">
+								<p class="px-3 py-1 text-xs text-surface-400 uppercase tracking-wide">Mode</p>
+								{#each (['light', 'dark', 'system'] as const) as mode}
+									<button
+										onclick={() => { theme.setMode(mode); themeMenuOpen = false; }}
+										class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors capitalize {theme.mode === mode ? 'text-primary-500 font-semibold' : ''}"
+										role="menuitem"
+									>{mode}</button>
+								{/each}
+								<div class="border-t border-surface-300-700 my-1"></div>
+								<p class="px-3 py-1 text-xs text-surface-400 uppercase tracking-wide">Theme</p>
+								{#each THEMES as t}
+									<button
+										onclick={() => { theme.setTheme(t.id); themeMenuOpen = false; }}
+										class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {theme.currentTheme === t.id ? 'text-primary-500 font-semibold' : ''}"
+										role="menuitem"
+									>
+										<span class="flex gap-0.5">
+											{#each t.colors as color}
+												<span class="w-2.5 h-2.5 rounded-full" style="background: {color}"></span>
+											{/each}
+										</span>
+										{t.label}
+									</button>
+								{/each}
 							</div>
 						{/if}
 					</div>
@@ -203,9 +178,9 @@
 						{/if}
 					</svg>
 				</button>
-			</div>
-		</div>
-	</header>
+			</AppBar.Trail>
+		</AppBar.Toolbar>
+	</AppBar>
 
 	<!-- Mobile nav dropdown -->
 	{#if mobileOpen}
@@ -224,18 +199,27 @@
 				rel="noopener"
 			>GitHub</a>
 			<div class="flex gap-2 pt-2 border-t border-surface-300-700 mt-2">
-				<button
-					onclick={() => { setTheme('light'); mobileOpen = false; }}
-					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"
-				>Light</button>
-				<button
-					onclick={() => { setTheme('dark'); mobileOpen = false; }}
-					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'dark' ? 'text-primary-500 font-semibold' : ''}"
-				>Dark</button>
-				<button
-					onclick={() => { setTheme('system'); mobileOpen = false; }}
-					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'system' ? 'text-primary-500 font-semibold' : ''}"
-				>System</button>
+				{#each (['light', 'dark', 'system'] as const) as mode}
+					<button
+						onclick={() => { theme.setMode(mode); mobileOpen = false; }}
+						class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors capitalize {theme.mode === mode ? 'text-primary-500 font-semibold' : ''}"
+					>{mode}</button>
+				{/each}
+			</div>
+			<div class="flex flex-wrap gap-2 pt-2 border-t border-surface-300-700 mt-1">
+				{#each THEMES as t}
+					<button
+						onclick={() => { theme.setTheme(t.id); mobileOpen = false; }}
+						class="px-2 py-1 rounded text-xs hover:bg-surface-200-800 transition-colors flex items-center gap-1 {theme.currentTheme === t.id ? 'text-primary-500 font-semibold ring-1 ring-primary-500' : ''}"
+					>
+						<span class="flex gap-0.5">
+							{#each t.colors as color}
+								<span class="w-2 h-2 rounded-full" style="background: {color}"></span>
+							{/each}
+						</span>
+						{t.label}
+					</button>
+				{/each}
 			</div>
 		</nav>
 	{/if}
