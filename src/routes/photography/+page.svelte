@@ -100,7 +100,7 @@
 					<img
 						src={selectedPhoto.src}
 						alt={selectedPhoto.post_title || 'Photo'}
-						class="max-w-full max-h-[85vh] object-contain rounded-lg"
+						class="max-w-full max-h-[85dvh] object-contain rounded-lg"
 						onclick={(e) => e.stopPropagation()}
 						onkeydown={() => {}}
 					/>

@@ -57,13 +57,13 @@
 		{#if activeTab === 'cv'}
 			<iframe
 				src="/cv/jess_sullivan_cv.pdf"
-				class="w-full h-[85vh] rounded-lg"
+				class="w-full h-[85dvh] rounded-lg"
 				title="Jess Sullivan CV"
 			></iframe>
 		{:else}
 			<iframe
 				src="/cv/jess_sullivan_resume.pdf"
-				class="w-full h-[85vh] rounded-lg"
+				class="w-full h-[85dvh] rounded-lg"
 				title="Jess Sullivan Resume"
 			></iframe>
 		{/if}

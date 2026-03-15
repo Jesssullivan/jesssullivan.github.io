@@ -140,7 +140,7 @@
 		{/snippet}
 
 		{#snippet trail()}
-			<nav class="hidden sm:flex items-center gap-4 text-sm">
+			<nav class="hidden md:flex items-center gap-3 text-sm">
 				{#each navLinks as { href, label }}
 					<a
 						{href}
@@ -200,7 +200,7 @@
 			</nav>
 			<!-- Mobile hamburger -->
 			<button
-				class="sm:hidden p-2 hover:bg-surface-200-800 rounded"
+				class="md:hidden p-2 hover:bg-surface-200-800 rounded"
 				onclick={() => mobileOpen = !mobileOpen}
 				aria-label="Toggle navigation"
 			>
@@ -217,7 +217,7 @@
 
 	<!-- Mobile nav dropdown -->
 	{#if mobileOpen}
-		<nav class="sm:hidden bg-surface-100-900 border-b border-surface-300-700 px-4 py-3 flex flex-col gap-2 text-sm">
+		<nav class="md:hidden bg-surface-100-900 border-b border-surface-300-700 px-4 py-3 flex flex-col gap-2 text-sm">
 			{#each navLinks as { href, label }}
 				<a
 					{href}
@@ -275,7 +275,7 @@
 	</main>
 
 	<footer class="bg-surface-100-900 border-t border-surface-300-700 py-6 text-center text-sm text-surface-500">
-		<div class="container mx-auto px-4 flex items-center justify-center gap-4">
+		<div class="container mx-auto px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
 			<p>Dedicated to the <a href="https://creativecommons.org/publicdomain/zero/1.0/" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">public domain</a></p>
 			<span class="text-surface-400">|</span>
 			<a href="/feed.xml" class="hover:text-primary-500 transition-colors">RSS</a>

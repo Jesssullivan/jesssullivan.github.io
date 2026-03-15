@@ -48,7 +48,7 @@
 </script>
 
 {#if items.length >= 3}
-	<nav class="hidden lg:block max-h-[60vh] overflow-y-auto text-sm">
+	<nav class="hidden lg:block max-h-[60dvh] overflow-y-auto text-sm">
 		<p class="font-semibold text-surface-400 uppercase text-xs mb-3 tracking-wide">On this page</p>
 		<ul class="space-y-1 border-l border-surface-300-700">
 			{#each items as item}
