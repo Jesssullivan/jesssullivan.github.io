@@ -114,13 +114,11 @@ test.describe('Glass & Transparency Effects', () => {
 		expect(bf).toBe('none');
 	});
 
-	test('theme menu dropdown has solid background', async ({ page }) => {
+	test('theme menu dropdown opens', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
 		await page.goto('/blog', { waitUntil: 'networkidle' });
-		// Open theme menu
 		const themeBtn = page.locator('button[aria-label="Theme settings"]');
 		await themeBtn.click();
-		const themeMenu = page.locator('[role="menu"][aria-label="Theme options"]');
-		await expect(themeMenu).toBeVisible();
+		await expect(page.getByRole('button', { name: 'light' })).toBeVisible();
 	});
 });

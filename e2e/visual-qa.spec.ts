@@ -179,7 +179,7 @@ test.describe('Dark mode consistency', () => {
 		await expect(themeButton).toBeVisible();
 		await themeButton.click();
 
-		const darkOption = page.getByRole('menuitem', { name: 'Dark' });
+		const darkOption = page.getByRole('button', { name: 'Dark' });
 		await expect(darkOption).toBeVisible();
 		await darkOption.click();
 
@@ -199,7 +199,7 @@ test.describe('Dark mode consistency', () => {
 
 		// Switch to dark
 		await page.getByRole('button', { name: 'Theme settings' }).click();
-		await page.getByRole('menuitem', { name: 'Dark' }).click();
+		await page.getByRole('button', { name: 'Dark' }).click();
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 
 		// Navigate to blog
