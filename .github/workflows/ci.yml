@@ -34,7 +34,7 @@ jobs:
         run: npm run check
 
       - name: Unit tests
-        run: npm run test:unit
+        run: npx vitest run --coverage
         continue-on-error: false
 
       - name: Build
@@ -50,7 +50,7 @@ jobs:
         run: npx tsx scripts/audit-links.mts
 
       - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: E2E tests
         run: npx playwright test
