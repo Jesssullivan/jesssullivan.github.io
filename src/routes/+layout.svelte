@@ -11,13 +11,24 @@
 
 	let { children } = $props();
 
-	const pineColors = [
-		'rgba(26, 188, 156, 0.35)',
-		'rgba(22, 160, 133, 0.3)',
-		'rgba(39, 174, 96, 0.25)',
-		'rgba(52, 152, 219, 0.2)',
-		'rgba(236, 240, 241, 0.25)',
-	];
+	function hexToRgba(hex: string, alpha: number): string {
+		const r = parseInt(hex.slice(1, 3), 16);
+		const g = parseInt(hex.slice(3, 5), 16);
+		const b = parseInt(hex.slice(5, 7), 16);
+		return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+	}
+
+	const blobColors = $derived.by(() => {
+		const t = THEMES.find(t => t.id === theme.currentTheme);
+		if (!t) return ['rgba(26,188,156,0.35)', 'rgba(22,160,133,0.3)', 'rgba(39,174,96,0.25)', 'rgba(52,152,219,0.2)', 'rgba(236,240,241,0.25)'];
+		return [
+			hexToRgba(t.colors[0], 0.35),
+			hexToRgba(t.colors[1], 0.30),
+			hexToRgba(t.colors[2], 0.25),
+			hexToRgba(t.colors[0], 0.20),
+			hexToRgba(t.colors[1], 0.25),
+		];
+	});
 	let mobileOpen = $state(false);
 	let bannerRef: HTMLElement | undefined = $state();
 	let bannerOpacity = $state(1);
@@ -74,7 +85,7 @@
 <div class="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true" data-testid="blob-background">
 	<TinyVectors
 		theme="custom"
-		colors={pineColors}
+		colors={blobColors}
 		opacity={0.4}
 		blobCount={5}
 		enableScrollPhysics={true}
@@ -237,5 +248,9 @@
 			<span class="text-surface-400">|</span>
 			<a href="/THIRD-PARTY-LICENSES" class="hover:text-primary-500 transition-colors">Licenses</a>
 		</div>
+		<p class="mt-2 text-xs text-surface-400">
+			Static site built with <a href="https://svelte.dev/docs/kit" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">SvelteKit</a> &amp; <a href="https://www.skeleton.dev" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">Skeleton</a>, hosted for free on <a href="https://pages.github.com" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">GitHub Pages</a>
+			&mdash; <a href="https://github.com/Jesssullivan/jesssullivan.github.io" class="hover:text-primary-500 transition-colors underline" target="_blank" rel="noopener">source</a>
+		</p>
 	</footer>
 </div>
