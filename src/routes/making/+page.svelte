@@ -65,7 +65,7 @@
 	<!-- SketchUp 3D Warehouse Stats -->
 	<div class="card p-6 mb-8">
 		<div class="flex items-center gap-4 mb-4">
-			<Avatar name="SketchUp 3D Warehouse" size="lg" />
+			<Avatar class="size-12"><Avatar.Fallback>SW</Avatar.Fallback></Avatar>
 			<div>
 				<a
 					href="https://3dwarehouse.sketchup.com/by/Jesssullivan"
@@ -124,7 +124,7 @@
 		{#each profiles as profile}
 			<div class="card p-6">
 				<div class="flex items-start gap-4 mb-4">
-					<Avatar name={profile.name} size="lg" />
+					<Avatar class="size-12"><Avatar.Fallback>{profile.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}</Avatar.Fallback></Avatar>
 					<div class="min-w-0">
 						<a
 							href={profile.url}

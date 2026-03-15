@@ -76,11 +76,12 @@
 				rel="noopener"
 				class="card p-5 flex items-center gap-5 hover:ring-2 ring-primary-500 transition-all"
 			>
-				<Avatar
-					src={person.image ?? undefined}
-					name={person.name}
-					size="lg"
-				/>
+				<Avatar class="size-12">
+					{#if person.image}
+						<Avatar.Image src={person.image} alt={person.name} />
+					{/if}
+					<Avatar.Fallback>{person.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}</Avatar.Fallback>
+				</Avatar>
 				<div class="min-w-0">
 					<h2 class="font-semibold text-lg">{person.name}</h2>
 					<p class="text-sm text-surface-500 mt-1">{person.description}</p>
