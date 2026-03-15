@@ -69,7 +69,8 @@ test.describe('Fira Code Ligature Verification', () => {
 		expect(fontRequests).toHaveLength(0);
 	});
 
-	test('Fira Code woff2 font file is loaded', async ({ page }) => {
+	test('Fira Code woff2 font file is loaded', async ({ page, browserName }) => {
+		test.skip(browserName !== 'chromium', 'Font request interception varies across browsers');
 		const fontRequests: string[] = [];
 		page.on('response', (res) => {
 			if (res.url().includes('fira-code') && res.url().endsWith('.woff2')) {
