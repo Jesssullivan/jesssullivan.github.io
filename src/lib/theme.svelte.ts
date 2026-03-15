@@ -7,17 +7,11 @@ export interface ThemeOption {
 }
 
 export const THEMES: ThemeOption[] = [
-	{ id: 'pine', label: 'Pine', colors: ['#8a9a5b', '#9b4dca', '#e2e8f0'] },
-	{ id: 'cerberus', label: 'Cerberus', colors: ['#d4163c', '#f48c06', '#4361ee'] },
-	{ id: 'catppuccin', label: 'Catppuccin', colors: ['#8839ef', '#fe640b', '#40a02b'] },
+	{ id: 'pine', label: 'TSS', colors: ['#8a9a5b', '#9b4dca', '#e2e8f0'] },
 	{ id: 'rose', label: 'Rose', colors: ['#fb7185', '#fdba74', '#a78bfa'] },
-	{ id: 'modern', label: 'Modern', colors: ['#0ea5e9', '#6366f1', '#f97316'] },
-	{ id: 'mint', label: 'Mint', colors: ['#34d399', '#60a5fa', '#f472b6'] },
-	{ id: 'vintage', label: 'Vintage', colors: ['#d97706', '#92400e', '#78716c'] },
-	{ id: 'wintry', label: 'Wintry', colors: ['#3b82f6', '#60a5fa', '#0ea5e9'] },
-	{ id: 'crimson', label: 'Crimson', colors: ['#dc2626', '#f59e0b', '#059669'] },
-	{ id: 'pride', label: 'Pride', colors: ['#E40303', '#FF8C00', '#732982'] },
-	{ id: 'trans', label: 'Trans', colors: ['#5bcefa', '#f5a9b8', '#ffffff'] },
+	{ id: 'catppuccin', label: 'Catppuccin', colors: ['#8839ef', '#fe640b', '#40a02b'] },
+	{ id: 'pride', label: 'Goth', colors: ['#E40303', '#FF8C00', '#732982'] },
+	{ id: 'trans', label: 'xoxd', colors: ['#5bcefa', '#f5a9b8', '#ffffff'] },
 ];
 
 export type ColorMode = 'light' | 'dark' | 'system';

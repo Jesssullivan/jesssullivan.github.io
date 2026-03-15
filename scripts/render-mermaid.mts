@@ -81,7 +81,7 @@ function renderToSvg(code: string, hash: string): boolean {
 	writeFileSync(inputFile, code);
 
 	try {
-		execFileSync('npx', ['mmdc', '-i', inputFile, '-o', outputFile, '-b', 'transparent', '--outputFormat', 'svg'], {
+		execFileSync('npx', ['mmdc', '-i', inputFile, '-o', outputFile, '-b', 'transparent', '--outputFormat', 'svg', '--width', '1200'], {
 			cwd: ROOT,
 			timeout: 30000,
 			stdio: 'pipe'
