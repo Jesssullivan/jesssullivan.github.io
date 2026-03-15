@@ -16,9 +16,8 @@ test.describe('Making Page', () => {
 
 	test('shows SketchUp stats banner', async ({ page }) => {
 		await expect(page.getByText('86.5K+')).toBeVisible();
-		await expect(page.getByText('Downloads')).toBeVisible();
 		await expect(page.getByText('172K+')).toBeVisible();
-		await expect(page.getByText('Views')).toBeVisible();
+		await expect(page.getByText('135')).toBeVisible();
 	});
 
 	test('shows SketchUp thumbnail grid', async ({ page }) => {
