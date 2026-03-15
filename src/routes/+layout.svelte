@@ -6,7 +6,8 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { TinyVectors } from '@tummycrypt/tinyvectors';
-	import { theme, THEMES, type ColorMode } from '$lib/theme.svelte';
+	import { theme, THEMES } from '$lib/theme.svelte';
+	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 
 	let { children } = $props();
 
@@ -18,7 +19,6 @@
 		'rgba(236, 240, 241, 0.25)',
 	];
 	let mobileOpen = $state(false);
-	let themeMenuOpen = $state(false);
 	let bannerRef: HTMLElement | undefined = $state();
 	let bannerOpacity = $state(1);
 	let bannerNaturalHeight = 0;
@@ -37,15 +37,6 @@
 	onMount(() => {
 		theme.init();
 
-		// Close theme menu on click outside
-		const handleClickOutside = (e: MouseEvent) => {
-			const target = e.target as HTMLElement;
-			if (!target.closest('.theme-switcher')) {
-				themeMenuOpen = false;
-			}
-		};
-		document.addEventListener('click', handleClickOutside);
-
 		// Scroll-fade for hero banner
 		if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
 		const onScroll = () => {
@@ -56,7 +47,6 @@
 		window.addEventListener('scroll', onScroll, { passive: true });
 
 		return () => {
-			document.removeEventListener('click', handleClickOutside);
 			window.removeEventListener('scroll', onScroll);
 		};
 	});
@@ -120,50 +110,7 @@
 						target="_blank"
 						rel="noopener"
 					>GitHub</a>
-					<!-- Theme switcher dropdown -->
-					<div class="theme-switcher relative">
-						<button
-							onclick={() => themeMenuOpen = !themeMenuOpen}
-							class="p-1.5 hover:bg-surface-200-800 rounded transition-colors"
-							aria-label="Theme settings"
-							aria-expanded={themeMenuOpen}
-							aria-haspopup="true"
-						>
-							{#if theme.isDark}
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-							{:else}
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-							{/if}
-						</button>
-						{#if themeMenuOpen}
-							<div class="absolute right-0 top-full mt-1 bg-surface-100-900 border border-surface-300-700 rounded-lg shadow-lg py-1 min-w-[180px] z-50" role="menu" aria-label="Theme options">
-								<p class="px-3 py-1 text-xs text-surface-400 uppercase tracking-wide">Mode</p>
-								{#each (['light', 'dark', 'system'] as const) as mode}
-									<button
-										onclick={() => { theme.setMode(mode); themeMenuOpen = false; }}
-										class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors capitalize {theme.mode === mode ? 'text-primary-500 font-semibold' : ''}"
-										role="menuitem"
-									>{mode}</button>
-								{/each}
-								<div class="border-t border-surface-300-700 my-1"></div>
-								<p class="px-3 py-1 text-xs text-surface-400 uppercase tracking-wide">Theme</p>
-								{#each THEMES as t}
-									<button
-										onclick={() => { theme.setTheme(t.id); themeMenuOpen = false; }}
-										class="w-full px-3 py-1.5 text-left text-sm hover:bg-surface-200-800 transition-colors flex items-center gap-2 {theme.currentTheme === t.id ? 'text-primary-500 font-semibold' : ''}"
-										role="menuitem"
-									>
-										<span class="flex gap-0.5">
-											{#each t.colors as color}
-												<span class="w-2.5 h-2.5 rounded-full" style="background: {color}"></span>
-											{/each}
-										</span>
-										{t.label}
-									</button>
-								{/each}
-							</div>
-						{/if}
-					</div>
+					<ThemeSwitcher />
 				</nav>
 				<!-- Mobile drawer trigger -->
 				<Dialog open={mobileOpen} onOpenChange={(d) => { mobileOpen = d.open }} closeOnInteractOutside closeOnEscape preventScroll>
