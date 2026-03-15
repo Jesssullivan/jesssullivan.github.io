@@ -105,7 +105,7 @@
 
 		<!-- Sidebar column (hidden on mobile) -->
 		<div class="hidden lg:block">
-			<div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-8 sidebar-scroll glass rounded-xl p-4">
+			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto space-y-8 sidebar-scroll glass rounded-xl p-4">
 				<ProfileSidebar />
 				<hr class="border-surface-300-700" />
 				<BlogSidebar {recentPosts} {allTags} />

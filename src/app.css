@@ -21,9 +21,14 @@
 [data-mode="dark"] { color-scheme: dark; }
 
 /* Typography: Crimson Pro body, Inter headings, Fira Code code, Raleway hero */
+html {
+	overflow-x: hidden;
+}
+
 body {
 	font-family: 'Crimson Pro', serif;
 	font-size: 18px;
+	overscroll-behavior-y: none;
 }
 
 h1, h2, h3, h4, h5, h6,

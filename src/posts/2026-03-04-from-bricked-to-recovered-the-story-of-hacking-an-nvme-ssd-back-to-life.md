@@ -772,7 +772,7 @@ The full technical paper covers the NVMe specification details, XRAM memory layo
 <iframe
   src="/papers/recovery-paper.pdf"
   class="w-full rounded-lg"
-  style="height: 85vh; min-height: 600px; border: 1px solid #e5e7eb;"
+  style="height: 85dvh; min-height: 600px; border: 1px solid #e5e7eb;"
   title="XRAM Injection: Recovering Write-Protected NVMe SSDs Through USB Bridge Memory Manipulation"
 ></iframe>
 

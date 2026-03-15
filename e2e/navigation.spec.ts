@@ -4,7 +4,7 @@ test.describe('Navigation', () => {
 	test('navbar has all expected links', async ({ page }) => {
 		await page.goto('/');
 		// Desktop nav links (visible at default 1280px viewport)
-		const nav = page.locator('nav.hidden.sm\\:flex, nav:not(.sm\\:hidden)').first();
+		const nav = page.locator('nav.hidden.md\\:flex, nav:not(.md\\:hidden)').first();
 		await expect(page.locator('a[href="/blog"]').first()).toBeVisible();
 		await expect(page.locator('a[href="/music"]').first()).toBeVisible();
 		await expect(page.locator('a[href="/cv"]').first()).toBeVisible();
