@@ -75,7 +75,7 @@ test.describe('Dark Mode', () => {
 	test('theme can be changed', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Theme settings').click();
-		await page.getByRole('button', { name: 'Cerberus' }).click();
-		expect(await page.locator('html').getAttribute('data-theme')).toBe('cerberus');
+		await page.getByRole('button', { name: 'Rose' }).click();
+		expect(await page.locator('html').getAttribute('data-theme')).toBe('rose');
 	});
 });
