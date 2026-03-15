@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import 'virtual:skeleton-colors';
-	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
@@ -126,15 +125,12 @@
 		href="#main-content"
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
-	<AppBar class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
-		<AppBar.Toolbar class="flex items-center justify-between px-4 py-2">
-			<AppBar.Lead>
-				<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
-					transscendsurvival.org
-				</a>
-			</AppBar.Lead>
-			<div class="flex-1"></div>
-			<AppBar.Trail class="flex items-center gap-1">
+	<header class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
+		<div class="flex items-center justify-between px-4 py-2">
+			<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
+				transscendsurvival.org
+			</a>
+			<div class="flex items-center gap-1">
 				<nav class="hidden md:flex items-center gap-3 text-sm">
 					{#each navLinks as { href, label }}
 						<a
@@ -207,9 +203,9 @@
 						{/if}
 					</svg>
 				</button>
-			</AppBar.Trail>
-		</AppBar.Toolbar>
-	</AppBar>
+			</div>
+		</div>
+	</header>
 
 	<!-- Mobile nav dropdown -->
 	{#if mobileOpen}
