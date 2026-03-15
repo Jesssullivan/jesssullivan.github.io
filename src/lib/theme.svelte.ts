@@ -16,6 +16,8 @@ export const THEMES: ThemeOption[] = [
 	{ id: 'vintage', label: 'Vintage', colors: ['#d97706', '#92400e', '#78716c'] },
 	{ id: 'wintry', label: 'Wintry', colors: ['#3b82f6', '#60a5fa', '#0ea5e9'] },
 	{ id: 'crimson', label: 'Crimson', colors: ['#dc2626', '#f59e0b', '#059669'] },
+	{ id: 'pride', label: 'Pride', colors: ['#E40303', '#FF8C00', '#732982'] },
+	{ id: 'trans', label: 'Trans', colors: ['#5bcefa', '#f5a9b8', '#ffffff'] },
 ];
 
 export type ColorMode = 'light' | 'dark' | 'system';

@@ -10,6 +10,8 @@
 @import '@skeletonlabs/skeleton/themes/vintage';
 @import '@skeletonlabs/skeleton/themes/wintry';
 @import '@skeletonlabs/skeleton/themes/crimson';
+@import '$lib/styles/themes/pride.css';
+@import '$lib/styles/themes/trans.css';
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
