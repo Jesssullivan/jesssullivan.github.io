@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import 'virtual:skeleton-colors';
-	import { AppBar } from '@skeletonlabs/skeleton-svelte';
+	import { AppBar, Dialog, Navigation } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
@@ -136,7 +136,7 @@
 							{/if}
 						</button>
 						{#if themeMenuOpen}
-							<div class="absolute right-0 top-full mt-1 glass rounded-lg shadow-lg py-1 min-w-[180px] z-50" role="menu" aria-label="Theme options">
+							<div class="absolute right-0 top-full mt-1 bg-surface-100-900 border border-surface-300-700 rounded-lg shadow-lg py-1 min-w-[180px] z-50" role="menu" aria-label="Theme options">
 								<p class="px-3 py-1 text-xs text-surface-400 uppercase tracking-wide">Mode</p>
 								{#each (['light', 'dark', 'system'] as const) as mode}
 									<button
@@ -165,65 +165,80 @@
 						{/if}
 					</div>
 				</nav>
-				<!-- Mobile hamburger -->
-				<button
-					class="md:hidden p-2 hover:bg-surface-200-800 rounded"
-					onclick={() => mobileOpen = !mobileOpen}
-					aria-label="Toggle navigation"
-				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						{#if mobileOpen}
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-						{:else}
+				<!-- Mobile drawer trigger -->
+				<Dialog open={mobileOpen} onOpenChange={(d) => { mobileOpen = d.open }} closeOnInteractOutside closeOnEscape preventScroll>
+					<Dialog.Trigger class="md:hidden p-2 hover:bg-surface-200-800 rounded" aria-label="Open navigation">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-						{/if}
-					</svg>
-				</button>
+						</svg>
+					</Dialog.Trigger>
+					<Dialog.Backdrop class="drawer-backdrop" />
+					<Dialog.Positioner class="drawer-positioner">
+						<Dialog.Content class="drawer-content">
+							<div class="flex items-center justify-between px-4 py-3 border-b border-surface-300-700">
+								<span class="font-bold font-heading-hero text-sm">transscendsurvival.org</span>
+								<Dialog.CloseTrigger class="p-2 hover:bg-surface-200-800 rounded" aria-label="Close navigation">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+									</svg>
+								</Dialog.CloseTrigger>
+							</div>
+							<Navigation layout="sidebar">
+								<Navigation.Content>
+									<Navigation.Menu>
+										{#each navLinks as { href, label }}
+											<Navigation.TriggerAnchor
+												{href}
+												onclick={() => { mobileOpen = false }}
+												class={isActive(href) ? 'preset-tonal-primary' : ''}
+											>
+												<Navigation.TriggerText>{label}</Navigation.TriggerText>
+											</Navigation.TriggerAnchor>
+										{/each}
+										<Navigation.TriggerAnchor
+											href="https://github.com/Jesssullivan"
+											target="_blank"
+											rel="noopener"
+											onclick={() => { mobileOpen = false }}
+										>
+											<Navigation.TriggerText>GitHub</Navigation.TriggerText>
+										</Navigation.TriggerAnchor>
+									</Navigation.Menu>
+								</Navigation.Content>
+								<Navigation.Footer>
+									<div class="w-full space-y-3">
+										<div class="flex gap-2">
+											{#each (['light', 'dark', 'system'] as const) as mode}
+												<button
+													onclick={() => { theme.setMode(mode); }}
+													class="flex-1 py-1.5 text-center rounded text-sm hover:bg-surface-200-800 transition-colors capitalize {theme.mode === mode ? 'text-primary-500 font-semibold' : ''}"
+												>{mode}</button>
+											{/each}
+										</div>
+										<div class="flex flex-wrap gap-1.5">
+											{#each THEMES as t}
+												<button
+													onclick={() => { theme.setTheme(t.id); }}
+													class="px-2 py-1 rounded text-xs hover:bg-surface-200-800 transition-colors flex items-center gap-1 {theme.currentTheme === t.id ? 'text-primary-500 font-semibold ring-1 ring-primary-500' : ''}"
+												>
+													<span class="flex gap-0.5">
+														{#each t.colors as color}
+															<span class="w-2 h-2 rounded-full" style="background: {color}"></span>
+														{/each}
+													</span>
+													{t.label}
+												</button>
+											{/each}
+										</div>
+									</div>
+								</Navigation.Footer>
+							</Navigation>
+						</Dialog.Content>
+					</Dialog.Positioner>
+				</Dialog>
 			</AppBar.Trail>
 		</AppBar.Toolbar>
 	</AppBar>
-
-	<!-- Mobile nav dropdown -->
-	{#if mobileOpen}
-		<nav class="md:hidden bg-surface-100-900 border-b border-surface-300-700 px-4 py-3 flex flex-col gap-2 text-sm">
-			{#each navLinks as { href, label }}
-				<a
-					{href}
-					class="py-2 hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
-					onclick={() => mobileOpen = false}
-				>{label}</a>
-			{/each}
-			<a
-				href="https://github.com/Jesssullivan"
-				class="py-2 hover:text-primary-500 transition-colors"
-				target="_blank"
-				rel="noopener"
-			>GitHub</a>
-			<div class="flex gap-2 pt-2 border-t border-surface-300-700 mt-2">
-				{#each (['light', 'dark', 'system'] as const) as mode}
-					<button
-						onclick={() => { theme.setMode(mode); mobileOpen = false; }}
-						class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors capitalize {theme.mode === mode ? 'text-primary-500 font-semibold' : ''}"
-					>{mode}</button>
-				{/each}
-			</div>
-			<div class="flex flex-wrap gap-2 pt-2 border-t border-surface-300-700 mt-1">
-				{#each THEMES as t}
-					<button
-						onclick={() => { theme.setTheme(t.id); mobileOpen = false; }}
-						class="px-2 py-1 rounded text-xs hover:bg-surface-200-800 transition-colors flex items-center gap-1 {theme.currentTheme === t.id ? 'text-primary-500 font-semibold ring-1 ring-primary-500' : ''}"
-					>
-						<span class="flex gap-0.5">
-							{#each t.colors as color}
-								<span class="w-2 h-2 rounded-full" style="background: {color}"></span>
-							{/each}
-						</span>
-						{t.label}
-					</button>
-				{/each}
-			</div>
-		</nav>
-	{/if}
 
 	<!-- Hero banner — visible on all pages, scroll-fades -->
 	<section
