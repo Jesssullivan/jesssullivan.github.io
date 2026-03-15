@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import 'virtual:skeleton-colors';
-	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
@@ -126,15 +125,12 @@
 		href="#main-content"
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
 	>Skip to content</a>
-	<AppBar class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
-		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
-			<AppBar.Lead class="flex items-center">
-				<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
-					transscendsurvival.org
-				</a>
-			</AppBar.Lead>
-			<AppBar.Headline class="flex-1"></AppBar.Headline>
-			<AppBar.Trail class="flex items-center gap-1">
+	<header class="{scrolledPastBanner ? 'glass-nav' : 'bg-surface-100 dark:bg-surface-900 border-b border-surface-300-700'} shadow-sm">
+		<div class="flex items-center justify-between px-4 py-2">
+			<a href="/blog" class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide">
+				transscendsurvival.org
+			</a>
+			<div class="flex items-center gap-1">
 				<nav class="hidden md:flex items-center gap-3 text-sm">
 					{#each navLinks as { href, label }}
 						<a
@@ -207,9 +203,9 @@
 						{/if}
 					</svg>
 				</button>
-			</AppBar.Trail>
-		</AppBar.Toolbar>
-	</AppBar>
+			</div>
+		</div>
+	</header>
 
 	<!-- Mobile nav dropdown -->
 	{#if mobileOpen}
@@ -227,6 +223,20 @@
 				target="_blank"
 				rel="noopener"
 			>GitHub</a>
+			<div class="flex gap-2 pt-2 border-t border-surface-300-700 mt-2">
+				<button
+					onclick={() => { setTheme('light'); mobileOpen = false; }}
+					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'light' ? 'text-primary-500 font-semibold' : ''}"
+				>Light</button>
+				<button
+					onclick={() => { setTheme('dark'); mobileOpen = false; }}
+					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'dark' ? 'text-primary-500 font-semibold' : ''}"
+				>Dark</button>
+				<button
+					onclick={() => { setTheme('system'); mobileOpen = false; }}
+					class="flex-1 py-2 text-center rounded hover:bg-surface-200-800 transition-colors {themeMode === 'system' ? 'text-primary-500 font-semibold' : ''}"
+				>System</button>
+			</div>
 		</nav>
 	{/if}
 
