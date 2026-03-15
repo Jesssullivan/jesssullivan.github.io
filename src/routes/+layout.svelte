@@ -133,8 +133,7 @@
 					<Dialog.Backdrop class="drawer-backdrop" />
 					<Dialog.Positioner class="drawer-positioner">
 						<Dialog.Content class="drawer-content">
-							<div class="flex items-center justify-between px-4 py-3 border-b border-surface-300-700">
-								<span class="font-bold font-heading-hero text-sm">transscendsurvival.org</span>
+							<div class="flex items-center justify-end px-4 py-3 border-b border-surface-300-700">
 								<Dialog.CloseTrigger class="p-2 hover:bg-surface-200-800 rounded" aria-label="Close navigation">
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

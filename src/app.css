@@ -272,7 +272,7 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	word-break: break-word;
 }
 
-.prose code {
+.prose code:not(pre code) {
 	font-size: 0.875em;
 	padding: 0.15em 0.3em;
 	border-radius: 0.25rem;
@@ -282,16 +282,18 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	word-break: break-word;
 }
 
+[data-mode="dark"] .prose code:not(pre code) {
+	background: var(--color-surface-800);
+	color: var(--color-surface-100);
+}
+
 .prose pre {
 	border-radius: 0.5rem;
 	padding: 1em;
 	overflow-x: auto;
 	margin: 1.5em 0;
-}
-
-[data-mode="dark"] .prose code {
-	background: var(--color-surface-800);
-	color: var(--color-surface-100);
+	white-space: pre-wrap;
+	word-break: break-word;
 }
 
 .prose pre code {
