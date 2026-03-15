@@ -44,9 +44,9 @@ test.describe('Homepage — visual QA across viewports', () => {
 			});
 
 			test('navigation is accessible', async ({ page }) => {
-				if (vp.width >= 640) {
-					// Desktop nav: visible inline links (sm: breakpoint = 640px)
-					const desktopNav = page.locator('nav.hidden.sm\\:flex');
+				if (vp.width >= 768) {
+					// Desktop nav: visible inline links (md: breakpoint = 768px)
+					const desktopNav = page.locator('nav.hidden.md\\:flex');
 					await expect(desktopNav).toBeVisible();
 					await expect(desktopNav.getByRole('link', { name: 'Blog' })).toBeVisible();
 				} else {

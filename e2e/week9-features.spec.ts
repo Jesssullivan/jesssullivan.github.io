@@ -194,7 +194,7 @@ test.describe('Mobile Viewport', () => {
 	test('mobile nav opens on hamburger click', async ({ page }) => {
 		await page.goto('/');
 		await page.getByLabel('Toggle navigation').click();
-		await expect(page.locator('nav.sm\\:hidden a[href="/blog"]')).toBeVisible();
+		await expect(page.locator('nav.md\\:hidden a[href="/blog"]')).toBeVisible();
 	});
 
 	test('blog post is readable on mobile', async ({ page }) => {
