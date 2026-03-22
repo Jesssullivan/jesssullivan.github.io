@@ -6,7 +6,7 @@ tags: ["weeknotes", "foss", "indeterminism", "nix", "cmux", "qutebrowser", "fido
 category: "personal"
 published: true
 slug: "week-notes-indeterminism-passkeys-and-spring"
-excerpt: "Determinism begets fascination with indeterminism. cmux FIDO2 patches, qutebrowser passkey work, a MacBook Neo as a teletype, 20km spring run, lead climbing, and the BCI server rack draws a concerning 4kWh at idle."
+excerpt: "Determinism begets fascination with indeterminism. FIDO2 work for cmux, qutebrowser & keepassxc, a 2026 teletype, 20km spring run, lead climbing, and the BCI server rack draws a concerning 4kWh at idle."
 feature_image: "/images/posts/IMG_2147.jpg"
 ---
 
@@ -18,7 +18,7 @@ The grill is out for first-of-the-spring burgers and I spotted my first groundho
 
 Now that much of my personal computing life is largely governed by determinism -- Nix, Haskell, Dhall, starting most sentences refering to f-coalgebra concepts, hermetic builds everywhere -- I've gotten genuinely excited about ***indeterminism*** in large legacy systems, as this > giving up and crying.
 
-Mark Burgess's convergence vs. congruence distinction from [Promise Theory (2004)](https://dl.acm.org/doi/fullHtml/10.5555/2666018.2666021) describes this tension I've been acutely aware of this winter in automation: congruent systems repeat an ordered recipe of steps (Ansible, shell scripts, most deployment pipelines), while convergent systems declare a desired state and let the system figure out how to get there (Nix, NixOS, the platonic ideal of what RHEL originally sorta marketed itself as). Most tools claim to be convergent while actually being congruent. The distinction matters enormously when you're trying to automate something that fights back, or a large army of things that fight back AND light your mony on fire.
+Mark Burgess's convergence vs. congruence distinction from [Promise Theory (2004)](https://dl.acm.org/doi/fullHtml/10.5555/2666018.2666021) describes this tension I've been acutely aware of this winter in automation: congruent systems repeat an ordered recipe of steps (Ansible, shell scripts, most deployment pipelines), while convergent systems declare a desired state and let the system figure out how to get there (Nix, NixOS, the platonic ideal of what Ansible originally marketed itself as, unfortunately). Most tools claim to be convergent while actually being congruent. The distinction matters enormously when you're trying to automate something that fights back, or a large army of things that fight back AND light your mony on fire.
 
 - [AmbientTalk paper](https://drops.dagstuhl.de/storage/00lipics/lipics-vol134-ecoop2019/LIPIcs.ECOOP.2019.27/LIPIcs.ECOOP.2019.27.pdf) 
 - [OOPSLA 2016 Distinguished Paper](https://dl.acm.org/doi/10.1145/2983990.2984000)
