@@ -4,7 +4,7 @@ date: "2026-03-21"
 description: "Now that determinism governs my personal computing life, I've gotten fascinated by *indeterminism*, lol. Also: cmux FIDO2 patches, qutebrowser lab builds, Neo teletype, 20km on legs, and doh!  The BCI rack idles at 4kWh, probably should do somthing about that"
 tags: ["weeknotes", "foss", "indeterminism", "nix", "cmux", "qutebrowser", "fido2", "ambienttalk", "climbing", "bci", "promise-theory", "music", "jazz", "metal"]
 category: "personal"
-published: false
+published: true
 slug: "week-notes-indeterminism-passkeys-and-spring"
 excerpt: "Determinism begets fascination with indeterminism. cmux FIDO2 patches, qutebrowser passkey work, a MacBook Neo as a teletype, 20km spring run, lead climbing, and the BCI server rack draws a concerning 4kWh at idle."
 feature_image: "/images/posts/IMG_2147.jpg"
