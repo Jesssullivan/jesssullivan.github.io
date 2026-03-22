@@ -43,9 +43,12 @@ Ran 20km this week and did some lead climbing. It's spring and I'm itching to ge
 #### Random FIDO2 stuff from this week feat. teletype 2026 edition
 
 
-**[cmux](https://cmux.com/)** -- I quite like this shell multiplexer and contributed a [captcha handling fix](https://github.com/manaflow-ai/cmux/pull/1877) that merged, and I've been building out better FIDO2 supportability in current and future cmux iterations. [The current FIDO2 development path has some limitations around attestation flows that musing about](https://github.com/manaflow-ai/cmux/pull/1876#issuecomment-4104749274).  I've also started investigating direct [CTAP2](https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html) integration as an alternative to expanding the application's required entitlements from Apple -- fewer entitlements, more portable, less platform coupling -- on my [fork](https://github.com/Jesssullivan/cmux).  
+- I've also started investigating direct [CTAP2](https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html) integration as an alternative to expanding the application's required entitlements from Apple -- fewer entitlements, more portable, less platform coupling -- on my [fork](https://github.com/Jesssullivan/cmux).  
+- Here is my MVP [CTAP2 FFI lib in Zig here - link](https://github.com/Jesssullivan/zig-ctap2) gotta go fast!
 
-**qutebrowser** -- Improved FIDO2 supportability on my glab tinyland qutebrowser flake (which is tightly coupled with my local solr and searxng instances) which are fairly deviated from upstream at this point.  [Here is the FIDO2 PR and discussion upstream from coderkun](https://github.com/qutebrowser/qutebrowser/pull/8642)  
+- **[cmux](https://cmux.com/)** -- I quite like this shell multiplexer and contributed a [captcha handling fix](https://github.com/manaflow-ai/cmux/pull/1877) that merged, and I've been experimenting with better FIDO2 supportability options for current and future cmux iterations / discussion. [The current FIDO2 development path has some limitations around attestation flows I am musing about](https://github.com/manaflow-ai/cmux/pull/1876#issuecomment-4104749274) given I think there are some important issues here around how a foundational tool such as a terminal multiplexer considers fork culture in the long run.  
+
+- **qutebrowser** -- Improved FIDO2 supportability on my glab tinyland qutebrowser flake (which is tightly coupled with my local solr and searxng instances) which are fairly deviated from upstream at this point.  [Here is the FIDO2 PR and discussion upstream from coderkun](https://github.com/qutebrowser/qutebrowser/pull/8642)  
 
 Iterating on some similar work in the keepassxc codebase as well. 
 
