@@ -23,7 +23,7 @@ The convergence vs. congruence distinction from [Promise Theory (2004)](https://
 - [AmbientTalk paper](https://drops.dagstuhl.de/storage/00lipics/lipics-vol134-ecoop2019/LIPIcs.ECOOP.2019.27/LIPIcs.ECOOP.2019.27.pdf) 
 - [OOPSLA 2016 Distinguished Paper](https://dl.acm.org/doi/10.1145/2983990.2984000)
 - [IEEE SANER 2019 survey](https://ieeexplore.ieee.org/document/8919181/)
-- I've been dredging up public remnants of [AmbientTalk](https://soft.vub.ac.be/amop/) and have had a fun time swimming around the work of [Coen De Roover](https://soft.vub.ac.be/~cderoove/), his students and the [AMOP research group](https://soft.vub.ac.be/amop/) at VUB. 
+- I've been dredging up public remnants of [AmbientTalk - Google Code Archive]([https://soft.vub.ac.be/amop/](https://code.google.com/archive/p/ambienttalk/)) and have had a fun time swimming around the work of [Coen De Roover](https://soft.vub.ac.be/~cderoove/), his students and the [AMOP research group](https://soft.vub.ac.be/amop/) at VUB. 
 
 - - - 
 
@@ -43,7 +43,7 @@ Ran 20km this week and did some lead climbing. It's spring and I'm itching to ge
 #### Random FIDO2 stuff from this week feat. teletype 2026 edition
 
 
-**[cmux](https://cmux.com/)** -- I quite like this shell multiplexer and contributed a [captcha handling fix](https://github.com/manaflow-ai/cmux/pull/1877) that merged, and I've been building out better FIDO2 supportability in current and future cmux iterations. [The current FIDO2 development path has some limitations around attestation flows that musing about](https://github.com/manaflow-ai/cmux/pull/1877).  I've also started investigating direct [CTAP2](https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html) integration as an alternative to expanding the application's required entitlements from Apple -- fewer entitlements, more portable, less platform coupling -- on my [fork](https://github.com/Jesssullivan/cmux).  
+**[cmux](https://cmux.com/)** -- I quite like this shell multiplexer and contributed a [captcha handling fix](https://github.com/manaflow-ai/cmux/pull/1877) that merged, and I've been building out better FIDO2 supportability in current and future cmux iterations. [The current FIDO2 development path has some limitations around attestation flows that musing about](https://github.com/manaflow-ai/cmux/pull/1876#issuecomment-4104749274).  I've also started investigating direct [CTAP2](https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html) integration as an alternative to expanding the application's required entitlements from Apple -- fewer entitlements, more portable, less platform coupling -- on my [fork](https://github.com/Jesssullivan/cmux).  
 
 **qutebrowser** -- Improved FIDO2 supportability on my glab tinyland qutebrowser flake (which is tightly coupled with my local solr and searxng instances) which are fairly deviated from upstream at this point.  [Here is the FIDO2 PR and discussion upstream from coderkun](https://github.com/qutebrowser/qutebrowser/pull/8642)  
 
