@@ -35,24 +35,6 @@
 	});
 
 	onMount(async () => {
-		// Mermaid diagrams — only needed as fallback when pre-rendered SVGs are missing
-		const fallbackDiagrams = document.querySelectorAll('.mermaid-diagram[data-mermaid-code]');
-		if (fallbackDiagrams.length > 0) {
-			const mermaid = (await import('mermaid')).default;
-			const mode = document.documentElement.getAttribute('data-mode') || 'dark';
-			mermaid.initialize({ startOnLoad: false, theme: mode === 'dark' ? 'dark' : 'default' });
-			for (const el of fallbackDiagrams) {
-				const code = atob(el.getAttribute('data-mermaid-code') || '');
-				const id = el.getAttribute('data-mermaid-id') || 'mermaid';
-				try {
-					const { svg } = await mermaid.render(id, code);
-					el.innerHTML = svg;
-				} catch {
-					el.innerHTML = `<pre class="text-red-500">${code}</pre>`;
-				}
-			}
-		}
-
 		// Code copy buttons
 		document.querySelectorAll('.prose pre').forEach((pre) => {
 			const wrapper = document.createElement('div');

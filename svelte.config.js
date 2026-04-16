@@ -25,6 +25,13 @@ const highlighter = await createHighlighter({
 	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig']
 });
 
+function escapeHtml(value) {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
 	extensions: ['.md', '.svx'],
@@ -40,10 +47,12 @@ const mdsvexOptions = {
 						.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
 					return `<div class="mermaid-diagram my-6 not-prose" role="figure" aria-label="Mermaid diagram">${svg}</div>`;
 				}
-				// Fallback: base64 encode for client-side rendering if cache miss
-				const encoded = Buffer.from(trimmed).toString('base64');
-				const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-				return `<div class="mermaid-diagram my-6 not-prose" data-mermaid-code="${encoded}" data-mermaid-id="${id}"></div>`;
+				if (process.env.NODE_ENV !== 'production') {
+					return `<pre class="mermaid-diagram my-6 not-prose overflow-x-auto rounded-xl p-4"><code>${escapeHtml(trimmed)}</code></pre>`;
+				}
+				throw new Error(
+					`Missing Mermaid prerender cache for ${hash}. Run the prebuild pipeline before shipping blog content with Mermaid diagrams.`
+				);
 			}
 			const html = escapeSvelte(
 				highlighter.codeToHtml(code, { lang: lang || 'text', theme })

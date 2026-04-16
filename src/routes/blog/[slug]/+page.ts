@@ -1,10 +1,9 @@
 import type { PageLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
-import { computeReadingTime } from '$lib/posts';
+import searchIndexData from '../../../../static/search-index.json';
 
 interface PostMeta {
 	title: string;
-	slug: string;
 	date: string;
 	published?: boolean;
 	description?: string;
@@ -14,44 +13,27 @@ interface PostMeta {
 	[key: string]: unknown;
 }
 
-function getSlug(path: string, metadata: PostMeta): string {
-	const filename = path.split('/').pop()?.replace('.md', '') ?? '';
-	return metadata.slug ?? filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+interface SearchIndexEntry {
+	title: string;
+	slug: string;
+	date: string;
+	source_file?: string;
+	tag_list?: string[];
+	reading_time?: number;
+	published?: boolean;
 }
 
-function getEagerModules() {
-	return import.meta.glob('/src/posts/*.md', { eager: true }) as Record<
-		string,
-		{ metadata: PostMeta }
-	>;
-}
-
-function getRawModules() {
-	return import.meta.glob('/src/posts/*.md', {
-		eager: true,
-		query: '?raw',
-		import: 'default'
-	}) as Record<string, string>;
-}
+const searchIndex = (searchIndexData as SearchIndexEntry[]).filter((entry) => entry.published !== false);
 
 function getSortedPosts(): { slug: string; title: string; date: string; tags: string[] }[] {
-	const modules = getEagerModules();
-	const posts: { slug: string; title: string; date: string; tags: string[] }[] = [];
-
-	for (const [path, module] of Object.entries(modules)) {
-		const metadata = module.metadata;
-		if (!metadata?.published) continue;
-
-		const slug = getSlug(path, metadata);
-		posts.push({
-			slug,
-			title: metadata.title ?? slug,
-			date: metadata.date ?? '',
-			tags: metadata.tags ?? []
-		});
-	}
-
-	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+	return [...searchIndex]
+		.map((entry) => ({
+			slug: entry.slug,
+			title: entry.title ?? entry.slug,
+			date: entry.date ?? '',
+			tags: entry.tag_list ?? []
+		}))
+		.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 function computeRelatedPosts(
@@ -80,26 +62,14 @@ function computeRelatedPosts(
 	return scored.slice(0, 3);
 }
 
-function slugToPath(): Map<string, string> {
-	const modules = getEagerModules();
-	const map = new Map<string, string>();
-	for (const [path, module] of Object.entries(modules)) {
-		const metadata = module.metadata;
-		if (!metadata?.published) continue;
-		map.set(getSlug(path, metadata), path);
-	}
-	return map;
-}
-
 export const entries: EntryGenerator = async () => {
-	return getSortedPosts().map(({ slug }) => ({ slug }));
+	return searchIndex.map(({ slug }) => ({ slug }));
 };
 
 export const load: PageLoad = async ({ params }) => {
 	const lazyModules = import.meta.glob('/src/posts/*.md');
-	const rawModules = getRawModules();
-	const pathMap = slugToPath();
-	const matchedPath = pathMap.get(params.slug);
+	const searchEntry = searchIndex.find((entry) => entry.slug === params.slug);
+	const matchedPath = searchEntry?.source_file;
 
 	if (matchedPath && lazyModules[matchedPath]) {
 		const post = (await lazyModules[matchedPath]()) as {
@@ -107,10 +77,7 @@ export const load: PageLoad = async ({ params }) => {
 			metadata: PostMeta;
 		};
 
-		// Compute reading time from raw markdown at build time
-		const rawContent = rawModules[matchedPath] ?? '';
-		const reading_time =
-			post.metadata.reading_time ?? computeReadingTime(rawContent);
+		const reading_time = searchEntry?.reading_time ?? post.metadata.reading_time ?? 1;
 
 		const sorted = getSortedPosts();
 		const idx = sorted.findIndex((p) => p.slug === params.slug);
@@ -118,7 +85,7 @@ export const load: PageLoad = async ({ params }) => {
 		const next = idx > 0 ? sorted[idx - 1] : null;
 
 		// Compute related posts by tag overlap + recency
-		const currentTags = new Set(post.metadata.tags ?? []);
+		const currentTags = new Set(searchEntry?.tag_list ?? post.metadata.tags ?? []);
 		const relatedPosts = computeRelatedPosts(params.slug, currentTags, sorted);
 
 		return {

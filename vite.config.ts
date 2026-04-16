@@ -59,7 +59,7 @@ export default defineConfig({
 						{ name: 'css-vendor', test: /node_modules.*(@skeletonlabs|tailwind).*\.css/ },
 						{ name: 'vendor-ui', test: /@skeletonlabs(?!.*\.css)/ },
 						{ name: 'vendor-svelte', test: /@sveltejs\/kit|svelte/ },
-						{ name: 'vendor-syntax', test: /shiki|mermaid/ },
+						{ name: 'vendor-syntax', test: /shiki/ },
 						{ name: 'vendor', test: /node_modules/ },
 					],
 				},
