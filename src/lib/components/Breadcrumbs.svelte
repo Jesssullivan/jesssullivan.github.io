@@ -9,20 +9,20 @@
 
 <svelte:head>
 	{@html `<script type="application/ld+json">${JSON.stringify({
-		"@context": "https://schema.org",
-		"@type": "BreadcrumbList",
-		"itemListElement": crumbs.map((c, i) => ({
-			"@type": "ListItem",
-			"position": i + 1,
-			"name": c.label,
-			"item": c.href.startsWith('/') ? `https://transscendsurvival.org${c.href}` : c.href
-		}))
+		'@context': 'https://schema.org',
+		'@type': 'BreadcrumbList',
+		itemListElement: crumbs.map((c, i) => ({
+			'@type': 'ListItem',
+			position: i + 1,
+			name: c.label,
+			item: c.href.startsWith('/') ? `https://transscendsurvival.org${c.href}` : c.href,
+		})),
 	})}</script>`}
 </svelte:head>
 
 <nav aria-label="Breadcrumb" class="text-sm text-surface-500 mb-4">
 	<ol class="flex items-center gap-1 flex-wrap">
-		{#each crumbs as crumb, i}
+		{#each crumbs as crumb, i (`${crumb.href}-${i}`)}
 			{#if i > 0}
 				<li aria-hidden="true" class="text-surface-400">/</li>
 			{/if}

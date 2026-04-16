@@ -19,7 +19,7 @@
 				collected.push({
 					id: el.id,
 					text: el.textContent?.replace(/^#\s*/, '') || '',
-					level: parseInt(el.tagName[1])
+					level: parseInt(el.tagName[1]),
 				});
 			}
 		});
@@ -36,7 +36,7 @@
 					}
 				}
 			},
-			{ rootMargin: '-80px 0px -70% 0px' }
+			{ rootMargin: '-80px 0px -70% 0px' },
 		);
 
 		headings.forEach((el) => {
@@ -48,10 +48,10 @@
 </script>
 
 {#if items.length >= 3}
-	<nav class="hidden lg:block max-h-[60dvh] overflow-y-auto text-sm">
+	<nav class="hidden lg:block max-h-[60dvh] overflow-y-auto text-sm" aria-label="Table of contents">
 		<p class="font-semibold text-surface-400 uppercase text-xs mb-3 tracking-wide">On this page</p>
 		<ul class="space-y-1 border-l border-surface-300-700">
-			{#each items as item}
+			{#each items as item (item.id)}
 				<li style="padding-left: {(item.level - 2) * 0.75}rem">
 					<a
 						href="#{item.id}"

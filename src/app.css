@@ -6,7 +6,6 @@
 @import '@skeletonlabs/skeleton/themes/rose';
 @import '$lib/styles/themes/pride.css';
 @import '$lib/styles/themes/trans.css';
-@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 /* Self-hosted fonts via @fontsource */
@@ -22,8 +21,12 @@
 @import '@fontsource/raleway/latin-400.css';
 @import '@fontsource/raleway/latin-700.css';
 
-[data-mode="light"] { color-scheme: light; }
-[data-mode="dark"] { color-scheme: dark; }
+[data-mode='light'] {
+	color-scheme: light;
+}
+[data-mode='dark'] {
+	color-scheme: dark;
+}
 
 /* ===== Drawer (Dialog-as-Drawer) ===== */
 .drawer-backdrop {
@@ -77,7 +80,8 @@
 
 /* Hide drawer on desktop */
 @media (min-width: 768px) {
-	.drawer-backdrop, .drawer-positioner {
+	.drawer-backdrop,
+	.drawer-positioner {
 		display: none !important;
 	}
 }
@@ -93,7 +97,12 @@ body {
 	overscroll-behavior-y: none;
 }
 
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 .font-heading {
 	font-family: 'Inter', sans-serif;
 }
@@ -102,15 +111,23 @@ h1, h2, h3, h4, h5, h6,
 	font-family: 'Raleway', sans-serif;
 }
 
-code, pre, .font-mono {
+code,
+pre,
+.font-mono {
 	font-family: 'Fira Code', monospace;
-	font-feature-settings: "liga" 1, "calt" 1;
+	font-feature-settings:
+		'liga' 1,
+		'calt' 1;
 }
 
 /* Ensure Shiki-rendered code blocks inherit ligature settings */
-pre.shiki, pre.shiki code, pre.shiki span {
+pre.shiki,
+pre.shiki code,
+pre.shiki span {
 	font-family: 'Fira Code', monospace !important;
-	font-feature-settings: "liga" 1, "calt" 1 !important;
+	font-feature-settings:
+		'liga' 1,
+		'calt' 1 !important;
 }
 
 /* Hero banner — Hemingway WP faithful, text overlaid on image */
@@ -166,17 +183,7 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	text-align: center;
 	max-width: 700px;
 	margin: 0 auto 1rem;
-	background: linear-gradient(
-		90deg,
-		#ff6b6b,
-		#ffa500,
-		#ffd700,
-		#4ecdc4,
-		#45b7d1,
-		#96c,
-		#ff6b9d,
-		#ff6b6b
-	);
+	background: linear-gradient(90deg, #ff6b6b, #ffa500, #ffd700, #4ecdc4, #45b7d1, #96c, #ff6b9d, #ff6b6b);
 	background-size: 200% auto;
 	-webkit-background-clip: text;
 	background-clip: text;
@@ -195,17 +202,29 @@ pre.shiki, pre.shiki code, pre.shiki span {
 }
 
 @keyframes rainbow-shift {
-	to { background-position: 200% center; }
+	to {
+		background-position: 200% center;
+	}
 }
 
 @media (max-width: 700px) {
-	.hero-banner-overlay { padding: 20px; }
-	.hero-banner-separator { margin: 15px auto; }
-	.hero-banner-description { font-size: 0.875rem; max-width: 90%; }
+	.hero-banner-overlay {
+		padding: 20px;
+	}
+	.hero-banner-separator {
+		margin: 15px auto;
+	}
+	.hero-banner-description {
+		font-size: 0.875rem;
+		max-width: 90%;
+	}
 }
 
 @media (min-width: 1024px) {
-	.hero-banner-description { font-size: 1.125rem; max-width: 800px; }
+	.hero-banner-description {
+		font-size: 1.125rem;
+		max-width: 800px;
+	}
 }
 
 .hero-banner-subtitle {
@@ -221,16 +240,25 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	line-height: 1.75;
 }
 
-.prose h1, .prose h2, .prose h3, .prose h4 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
 	margin-top: 2em;
 	margin-bottom: 0.75em;
 	font-weight: 700;
 	overflow-wrap: break-word;
 }
 
-.prose h1 { font-size: 1.375em; }
-.prose h2 { font-size: 1.25em; }
-.prose h3 { font-size: 1.125em; }
+.prose h1 {
+	font-size: 1.375em;
+}
+.prose h2 {
+	font-size: 1.25em;
+}
+.prose h3 {
+	font-size: 1.125em;
+}
 
 .prose p {
 	margin-bottom: 1.25em;
@@ -248,13 +276,18 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	color: var(--color-primary-400);
 }
 
-.prose ul, .prose ol {
+.prose ul,
+.prose ol {
 	margin-bottom: 1.25em;
 	padding-left: 1.5em;
 }
 
-.prose ul { list-style-type: disc; }
-.prose ol { list-style-type: decimal; }
+.prose ul {
+	list-style-type: disc;
+}
+.prose ol {
+	list-style-type: decimal;
+}
 
 .prose li {
 	margin-bottom: 0.5em;
@@ -282,7 +315,7 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	word-break: break-word;
 }
 
-[data-mode="dark"] .prose code:not(pre code) {
+[data-mode='dark'] .prose code:not(pre code) {
 	background: var(--color-surface-800);
 	color: var(--color-surface-100);
 }
@@ -332,7 +365,7 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	color: var(--color-surface-500);
 }
 
-[data-mode="dark"] .missing-image-notice {
+[data-mode='dark'] .missing-image-notice {
 	background: color-mix(in srgb, var(--color-surface-800) 50%, transparent);
 	border-left-color: var(--color-surface-600);
 }
@@ -345,7 +378,8 @@ pre.shiki, pre.shiki code, pre.shiki span {
 	overflow-x: auto;
 }
 
-.prose th, .prose td {
+.prose th,
+.prose td {
 	padding: 0.5em 0.75em;
 	border: 1px solid var(--color-surface-300);
 	text-align: left;
@@ -368,7 +402,7 @@ pre.shiki, pre.shiki code, pre.shiki span {
 }
 
 /* Skip link already in layout — ensure visible on focus */
-a[href="#main-content"]:focus {
+a[href='#main-content']:focus {
 	clip: auto;
 	clip-path: none;
 	height: auto;
@@ -379,7 +413,9 @@ a[href="#main-content"]:focus {
 
 /* Reduced motion: disable all animations and transitions */
 @media (prefers-reduced-motion: reduce) {
-	*, *::before, *::after {
+	*,
+	*::before,
+	*::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
@@ -421,7 +457,7 @@ a[href="#main-content"]:focus {
 		0 0 0 1px rgb(0 0 0 / 0.08);
 }
 
-[data-mode="dark"] .glass-solid {
+[data-mode='dark'] .glass-solid {
 	background: var(--color-surface-800);
 	color: var(--color-surface-100);
 	border-color: var(--color-surface-600);
@@ -436,7 +472,7 @@ a[href="#main-content"]:focus {
 	background: color-mix(in srgb, var(--color-surface-50) 65%, transparent);
 	border: 1px solid color-mix(in srgb, var(--color-surface-50) 20%, transparent);
 }
-[data-mode="dark"] .glass {
+[data-mode='dark'] .glass {
 	background: color-mix(in srgb, var(--color-surface-900) 65%, transparent);
 	border: 1px solid color-mix(in srgb, var(--color-surface-700) 20%, transparent);
 }
@@ -450,7 +486,7 @@ a[href="#main-content"]:focus {
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-	[data-mode="dark"] .glass {
+	[data-mode='dark'] .glass {
 		background: color-mix(in srgb, var(--color-surface-900) 25%, transparent);
 		backdrop-filter: blur(12px) saturate(120%);
 		-webkit-backdrop-filter: blur(12px) saturate(120%);
@@ -461,7 +497,7 @@ a[href="#main-content"]:focus {
 	background: color-mix(in srgb, var(--color-surface-50) 70%, transparent);
 	border-bottom: 1px solid color-mix(in srgb, var(--color-surface-50) 20%, transparent);
 }
-[data-mode="dark"] .glass-nav {
+[data-mode='dark'] .glass-nav {
 	background: color-mix(in srgb, var(--color-surface-900) 70%, transparent);
 	border-bottom: 1px solid color-mix(in srgb, var(--color-surface-700) 20%, transparent);
 }
@@ -475,7 +511,7 @@ a[href="#main-content"]:focus {
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-	[data-mode="dark"] .glass-nav {
+	[data-mode='dark'] .glass-nav {
 		background: color-mix(in srgb, var(--color-surface-900) 35%, transparent);
 		backdrop-filter: blur(16px) saturate(120%);
 		-webkit-backdrop-filter: blur(16px) saturate(120%);
@@ -501,6 +537,6 @@ a[href="#main-content"]:focus {
 	height: auto;
 	min-width: 500px;
 }
-[data-mode="dark"] .mermaid-diagram svg {
+[data-mode='dark'] .mermaid-diagram svg {
 	filter: invert(0.88) hue-rotate(180deg);
 }

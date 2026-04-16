@@ -34,9 +34,7 @@ function isPublished(metadata: Record<string, unknown>): boolean {
 
 describe('deriveSlug', () => {
 	it('uses metadata.slug when provided', () => {
-		expect(deriveSlug('/src/posts/2024-01-01-foo.md', { slug: 'custom-slug' })).toBe(
-			'custom-slug'
-		);
+		expect(deriveSlug('/src/posts/2024-01-01-foo.md', { slug: 'custom-slug' })).toBe('custom-slug');
 	});
 
 	it('strips date prefix from filename when no slug in metadata', () => {
@@ -61,7 +59,7 @@ describe('sortByDateDesc', () => {
 		const posts = [
 			{ date: '2023-01-01', title: 'old' },
 			{ date: '2024-06-15', title: 'newest' },
-			{ date: '2023-07-20', title: 'middle' }
+			{ date: '2023-07-20', title: 'middle' },
 		];
 		const sorted = sortByDateDesc(posts);
 		expect(sorted.map((p) => p.title)).toEqual(['newest', 'middle', 'old']);
@@ -70,7 +68,7 @@ describe('sortByDateDesc', () => {
 	it('does not mutate original array', () => {
 		const posts = [
 			{ date: '2023-01-01', title: 'a' },
-			{ date: '2024-01-01', title: 'b' }
+			{ date: '2024-01-01', title: 'b' },
 		];
 		const original = [...posts];
 		sortByDateDesc(posts);
@@ -89,7 +87,7 @@ describe('sortByDateDesc', () => {
 	it('handles posts with the same date', () => {
 		const posts = [
 			{ date: '2024-01-01', title: 'a' },
-			{ date: '2024-01-01', title: 'b' }
+			{ date: '2024-01-01', title: 'b' },
 		];
 		const sorted = sortByDateDesc(posts);
 		expect(sorted).toHaveLength(2);
@@ -122,17 +120,8 @@ describe('getPosts (mocked glob)', () => {
 		vi.resetModules();
 	});
 
-	function mockGlob(modules: Record<string, { metadata: Record<string, unknown> }>) {
-		// import.meta.glob with { eager: true } returns the modules synchronously
-		vi.stubGlobal('__vite_glob_0_0', modules);
-		// We need to mock at the Vite level. Instead, we'll re-implement the
-		// getPosts logic inline with our mock data to verify the full pipeline.
-	}
-
 	/** Reimplements getPosts pipeline with injected modules for testing */
-	function getPostsFromModules(
-		modules: Record<string, { metadata: Record<string, unknown> }>
-	) {
+	function getPostsFromModules(modules: Record<string, { metadata: Record<string, unknown> }>) {
 		const posts: Array<{
 			title: string;
 			slug: string;
@@ -160,8 +149,7 @@ describe('getPosts (mocked glob)', () => {
 			// Validate category against allowed values (mirrors posts.ts)
 			const rawCategory = metadata.category as string | undefined;
 			const category: PostCategory | undefined =
-				rawCategory &&
-				(POST_CATEGORIES as readonly string[]).includes(rawCategory)
+				rawCategory && (POST_CATEGORIES as readonly string[]).includes(rawCategory)
 					? (rawCategory as PostCategory)
 					: undefined;
 
@@ -169,8 +157,7 @@ describe('getPosts (mocked glob)', () => {
 				title: (metadata.title as string) ?? slug,
 				slug,
 				date: (metadata.date as string) ?? '',
-				description:
-					(metadata.excerpt as string) ?? (metadata.description as string) ?? '',
+				description: (metadata.excerpt as string) ?? (metadata.description as string) ?? '',
 				tags: (metadata.tags as string[]) ?? [],
 				published: true,
 				original_url: (metadata.original_url as string) ?? undefined,
@@ -181,13 +168,11 @@ describe('getPosts (mocked glob)', () => {
 				feature_image: (metadata.feature_image as string) ?? undefined,
 				thumbnail_image: (metadata.thumbnail_image as string) ?? undefined,
 				featured: (metadata.featured as boolean) ?? undefined,
-				author_slug: (metadata.author_slug as string) ?? 'jesssullivan'
+				author_slug: (metadata.author_slug as string) ?? 'jesssullivan',
 			});
 		}
 
-		return posts.sort(
-			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-		);
+		return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 	}
 
 	const sampleModules = {
@@ -198,8 +183,8 @@ describe('getPosts (mocked glob)', () => {
 				description: 'A published post',
 				tags: ['test', 'blog'],
 				published: true,
-				slug: 'published-post'
-			}
+				slug: 'published-post',
+			},
 		},
 		'/src/posts/2024-07-15-another-post.md': {
 			metadata: {
@@ -207,8 +192,8 @@ describe('getPosts (mocked glob)', () => {
 				date: '2024-07-15',
 				description: 'Another published post',
 				tags: ['code'],
-				published: true
-			}
+				published: true,
+			},
 		},
 		'/src/posts/2024-08-01-draft-post.md': {
 			metadata: {
@@ -216,8 +201,8 @@ describe('getPosts (mocked glob)', () => {
 				date: '2024-08-01',
 				description: 'A draft',
 				tags: [],
-				published: false
-			}
+				published: false,
+			},
 		},
 		'/src/posts/2023-01-01-old-post.md': {
 			metadata: {
@@ -228,9 +213,9 @@ describe('getPosts (mocked glob)', () => {
 				published: true,
 				excerpt: 'Old excerpt',
 				categories: ['history'],
-				featured: true
-			}
-		}
+				featured: true,
+			},
+		},
 	};
 
 	it('filters out unpublished posts', () => {
@@ -295,9 +280,9 @@ describe('getPosts (mocked glob)', () => {
 					date: '2024-01-01',
 					tags: [],
 					published: true,
-					excerpt: 'Fallback excerpt'
-				}
-			}
+					excerpt: 'Fallback excerpt',
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].description).toBe('Fallback excerpt');
@@ -310,9 +295,9 @@ describe('getPosts (mocked glob)', () => {
 					title: 'No Description',
 					date: '2024-01-01',
 					tags: [],
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].description).toBe('');
@@ -324,9 +309,9 @@ describe('getPosts (mocked glob)', () => {
 				metadata: {
 					date: '2024-01-01',
 					tags: [],
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].title).toBe('no-title');
@@ -339,9 +324,9 @@ describe('getPosts (mocked glob)', () => {
 				metadata: {
 					title: 'No Tags',
 					date: '2024-01-01',
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].tags).toEqual([]);
@@ -355,11 +340,11 @@ describe('getPosts (mocked glob)', () => {
 	it('handles all drafts (nothing published)', () => {
 		const modules = {
 			'/src/posts/2024-01-01-draft1.md': {
-				metadata: { title: 'Draft 1', published: false }
+				metadata: { title: 'Draft 1', published: false },
 			},
 			'/src/posts/2024-01-01-draft2.md': {
-				metadata: { title: 'Draft 2' }
-			}
+				metadata: { title: 'Draft 2' },
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts).toEqual([]);
@@ -376,9 +361,9 @@ describe('getPosts (mocked glob)', () => {
 					description: 'Has category',
 					tags: [],
 					published: true,
-					category: 'software'
-				}
-			}
+					category: 'software',
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].category).toBe('software');
@@ -393,9 +378,9 @@ describe('getPosts (mocked glob)', () => {
 					description: 'Invalid category',
 					tags: [],
 					published: true,
-					category: 'not-a-real-category'
-				}
-			}
+					category: 'not-a-real-category',
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].category).toBeUndefined();
@@ -409,9 +394,9 @@ describe('getPosts (mocked glob)', () => {
 					date: '2024-01-01',
 					description: 'No category',
 					tags: [],
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].category).toBeUndefined();
@@ -427,9 +412,9 @@ describe('getPosts (mocked glob)', () => {
 						description: 'test',
 						tags: [],
 						published: true,
-						category: cat
-					}
-				}
+						category: cat,
+					},
+				},
 			};
 			const posts = getPostsFromModules(modules);
 			expect(posts[0].category).toBe(cat);
@@ -447,9 +432,9 @@ describe('getPosts (mocked glob)', () => {
 					description: 'The description',
 					tags: [],
 					published: true,
-					excerpt: 'The excerpt'
-				}
-			}
+					excerpt: 'The excerpt',
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].description).toBe('The excerpt');
@@ -464,9 +449,9 @@ describe('getPosts (mocked glob)', () => {
 					date: '2024-01-01',
 					description: 'Just description',
 					tags: [],
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].description).toBe('Just description');
@@ -483,9 +468,9 @@ describe('getPosts (mocked glob)', () => {
 					date: '2024-01-01',
 					description: 'test',
 					tags: [],
-					published: true
-				}
-			}
+					published: true,
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].author_slug).toBe('jesssullivan');
@@ -500,9 +485,9 @@ describe('getPosts (mocked glob)', () => {
 					description: 'test',
 					tags: [],
 					published: true,
-					author_slug: 'guest-author'
-				}
-			}
+					author_slug: 'guest-author',
+				},
+			},
 		};
 		const posts = getPostsFromModules(modules);
 		expect(posts[0].author_slug).toBe('guest-author');
@@ -512,10 +497,7 @@ describe('getPosts (mocked glob)', () => {
 // ---- tag filtering logic (mirrors blog/tag/[tag]/+page.ts) ----
 
 describe('tag filtering', () => {
-	function filterByTag(
-		posts: Array<{ tags: string[]; title: string }>,
-		tag: string
-	) {
+	function filterByTag(posts: Array<{ tags: string[]; title: string }>, tag: string) {
 		return posts.filter((p) => p.tags.some((t) => t.toLowerCase() === tag.toLowerCase()));
 	}
 
@@ -523,7 +505,7 @@ describe('tag filtering', () => {
 		{ title: 'Post A', tags: ['JavaScript', 'Web'] },
 		{ title: 'Post B', tags: ['Python', 'Data'] },
 		{ title: 'Post C', tags: ['javascript', 'Node'] },
-		{ title: 'Post D', tags: [] }
+		{ title: 'Post D', tags: [] },
 	];
 
 	it('filters posts by tag (case-insensitive)', () => {
