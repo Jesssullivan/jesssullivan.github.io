@@ -71,12 +71,13 @@
 		<div class="flex flex-wrap gap-1.5 {compact ? 'mb-2' : 'mb-1'}">
 			{#each cat.badges as badge (badge.label)}
 				{#if badge.url}
-					<a
-						href={badge.url}
-						target="_blank"
-						rel="noopener"
-						class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors">{badge.label}</a
-					>
+						<a
+							href={badge.url}
+							target="_blank"
+							rel="noopener"
+							aria-label={`Visit ${badge.label}`}
+							class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors">{badge.label}</a
+						>
 				{:else}
 					<span class="badge {badge.color} text-xs">{badge.label}</span>
 				{/if}

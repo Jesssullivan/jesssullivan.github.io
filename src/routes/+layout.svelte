@@ -120,19 +120,21 @@
 			<AppBar.Headline></AppBar.Headline>
 			<AppBar.Trail>
 				<nav class="hidden md:flex items-center gap-3 text-sm">
-					{#each navLinks as { href, label } (href)}
+						{#each navLinks as { href, label } (href)}
+							<a
+								{href}
+								class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
+								aria-label={label}
+								>{label}</a
+							>
+						{/each}
 						<a
-							{href}
-							class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
-							>{label}</a
+							href="https://github.com/Jesssullivan"
+							class="hover:text-primary-500 transition-colors"
+							target="_blank"
+							rel="noopener"
+							aria-label="GitHub profile">GitHub</a
 						>
-					{/each}
-					<a
-						href="https://github.com/Jesssullivan"
-						class="hover:text-primary-500 transition-colors"
-						target="_blank"
-						rel="noopener">GitHub</a
-					>
 					<ThemeSwitcher />
 				</nav>
 				<!-- Mobile drawer trigger -->

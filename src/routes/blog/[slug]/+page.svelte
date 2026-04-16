@@ -156,12 +156,16 @@
 					{/if}
 				</div>
 				{#if data.metadata.tags?.length}
-					<div class="flex flex-wrap gap-2 mt-3">
-						{#each data.metadata.tags as tag}
-							<a href="/blog/tag/{encodeURIComponent(tag)}" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors">{tag}</a>
-						{/each}
-					</div>
-				{/if}
+						<div class="flex flex-wrap gap-2 mt-3">
+							{#each data.metadata.tags as tag}
+								<a
+									href="/blog/tag/{encodeURIComponent(tag)}"
+									class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors"
+									aria-label={`View posts tagged ${tag}`}
+								>{tag}</a>
+							{/each}
+						</div>
+					{/if}
 			</header>
 
 			<div class="prose prose-lg max-w-none overflow-x-hidden" data-pagefind-body>
@@ -170,7 +174,7 @@
 
 			{#if data.metadata.original_url}
 				<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
-					Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline">{new URL(data.metadata.original_url).hostname}</a>
+					Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline" aria-label={`Visit original post on ${new URL(data.metadata.original_url).hostname}`}>{new URL(data.metadata.original_url).hostname}</a>
 				</p>
 			{/if}
 
@@ -198,7 +202,11 @@
 					<h2 class="text-lg font-semibold mb-4">Related Posts</h2>
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 						{#each data.relatedPosts as related}
-							<a href="/blog/{related.slug}" class="block p-4 rounded-lg border border-surface-300-700 hover:border-primary-500 transition-colors">
+							<a
+								href="/blog/{related.slug}"
+								class="block p-4 rounded-lg border border-surface-300-700 hover:border-primary-500 transition-colors"
+								aria-label={`Read related post: ${related.title}`}
+							>
 								<h3 class="text-sm font-semibold line-clamp-2">{related.title}</h3>
 								<time class="text-xs text-surface-500 mt-1 block">{new Date(related.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
 							</a>

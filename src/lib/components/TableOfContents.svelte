@@ -53,12 +53,13 @@
 		<ul class="space-y-1 border-l border-surface-300-700">
 			{#each items as item (item.id)}
 				<li style="padding-left: {(item.level - 2) * 0.75}rem">
-					<a
-						href="#{item.id}"
-						class="block py-0.5 pl-3 -ml-px border-l-2 transition-colors {activeId === item.id
-							? 'border-primary-500 text-primary-500'
-							: 'border-transparent text-surface-500 hover:text-surface-300'}"
-					>
+						<a
+							href="#{item.id}"
+							class="block py-0.5 pl-3 -ml-px border-l-2 transition-colors {activeId === item.id
+								? 'border-primary-500 text-primary-500'
+								: 'border-transparent text-surface-500 hover:text-surface-300'}"
+							aria-label={`Jump to section ${item.text}`}
+						>
 						{item.text}
 					</a>
 				</li>
