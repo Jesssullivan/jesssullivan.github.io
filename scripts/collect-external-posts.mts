@@ -272,8 +272,8 @@ for (const repo of repos) {
 			featureImage ? `feature_image: "${featureImage}"` : null,
 			`source_repo: "${repo}"`,
 			`source_path: "${file.path}"`,
-			linearIssue ? `linear_issue: "${linearIssue}"` : null,
-			linearProject ? `linear_project: "${linearProject}"` : null,
+			linearIssue ? `linear_issue: "${linearIssue.replace(/"/g, '\\"')}"` : null,
+			linearProject ? `linear_project: "${linearProject.replace(/"/g, '\\"')}"` : null,
 			'---'
 		]
 			.filter(Boolean)

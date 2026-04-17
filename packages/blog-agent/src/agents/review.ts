@@ -105,7 +105,7 @@ export const reviewPR = (owner: string, repo: string, prNumber: number) =>
 				? (p.frontmatter.tags as string[]).join(", ")
 				: "_none_"
 			const linearIssue = typeof p.frontmatter.linear_issue === "string" && p.frontmatter.linear_issue.length > 0
-				? p.frontmatter.linear_issue
+				? p.frontmatter.linear_issue.replace(/[|\n\r]/g, " ").trim() || "_none_"
 				: "_none_"
 			return `| ${title} | ${statusIcon} | ${date} | ${published} | ${tags} | ${linearIssue} |`
 		}).join("\n")
