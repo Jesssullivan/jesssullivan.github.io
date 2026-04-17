@@ -96,9 +96,11 @@
 										: ''}"
 									aria-label={`Read search result: ${result.title}`}
 								>
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class="font-medium text-sm">{@html highlightMatch(result.title, query)}</div>
 								{#if result.description}
 									<div class="text-xs text-surface-500 mt-1 line-clamp-2">
+										<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 										{@html highlightMatch(result.description, query)}
 									</div>
 								{/if}

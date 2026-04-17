@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { POST_CATEGORIES } from './types';
-import type { PostCategory } from './types';
+import { searchIndexEntriesToPosts, type SearchIndexEntry } from './posts';
 
 // ---- helpers extracted from the module under test ----
 // Since getPosts() uses import.meta.glob (Vite API), we re-implement the
@@ -112,144 +112,78 @@ describe('isPublished', () => {
 	});
 });
 
-// ---- integration test: getPosts with mocked import.meta.glob ----
+// ---- direct tests for the real search-index mapping path ----
 
-describe('getPosts (mocked glob)', () => {
-	// We dynamically import to let vi.stubGlobal work before the module loads
-	beforeEach(() => {
-		vi.resetModules();
-	});
-
-	/** Reimplements getPosts pipeline with injected modules for testing */
-	function getPostsFromModules(modules: Record<string, { metadata: Record<string, unknown> }>) {
-		const posts: Array<{
-			title: string;
-			slug: string;
-			date: string;
-			description: string;
-			tags: string[];
-			published: boolean;
-			original_url?: string;
-			excerpt?: string;
-			category?: PostCategory;
-			categories?: string[];
-			reading_time?: number;
-			feature_image?: string;
-			thumbnail_image?: string;
-			featured?: boolean;
-			author_slug?: string;
-		}> = [];
-
-		for (const [path, module] of Object.entries(modules)) {
-			const metadata = module.metadata;
-			if (!metadata?.published) continue;
-
-			const slug = deriveSlug(path, metadata);
-
-			// Validate category against allowed values (mirrors posts.ts)
-			const rawCategory = metadata.category as string | undefined;
-			const category: PostCategory | undefined =
-				rawCategory && (POST_CATEGORIES as readonly string[]).includes(rawCategory)
-					? (rawCategory as PostCategory)
-					: undefined;
-
-			posts.push({
-				title: (metadata.title as string) ?? slug,
-				slug,
-				date: (metadata.date as string) ?? '',
-				description: (metadata.excerpt as string) ?? (metadata.description as string) ?? '',
-				tags: (metadata.tags as string[]) ?? [],
-				published: true,
-				original_url: (metadata.original_url as string) ?? undefined,
-				excerpt: (metadata.excerpt as string) ?? undefined,
-				category,
-				categories: (metadata.categories as string[]) ?? undefined,
-				reading_time: (metadata.reading_time as number) ?? undefined,
-				feature_image: (metadata.feature_image as string) ?? undefined,
-				thumbnail_image: (metadata.thumbnail_image as string) ?? undefined,
-				featured: (metadata.featured as boolean) ?? undefined,
-				author_slug: (metadata.author_slug as string) ?? 'jesssullivan',
-			});
-		}
-
-		return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-	}
-
-	const sampleModules = {
-		'/src/posts/2024-06-01-published-post.md': {
-			metadata: {
-				title: 'Published Post',
-				date: '2024-06-01',
-				description: 'A published post',
-				tags: ['test', 'blog'],
-				published: true,
-				slug: 'published-post',
-			},
+describe('searchIndexEntriesToPosts', () => {
+	const sampleEntries: SearchIndexEntry[] = [
+		{
+			title: 'Published Post',
+			slug: 'published-post',
+			date: '2024-06-01',
+			description: 'A published post',
+			tag_list: ['test', 'blog'],
+			published: true,
 		},
-		'/src/posts/2024-07-15-another-post.md': {
-			metadata: {
-				title: 'Another Post',
-				date: '2024-07-15',
-				description: 'Another published post',
-				tags: ['code'],
-				published: true,
-			},
+		{
+			title: 'Another Post',
+			slug: 'another-post',
+			date: '2024-07-15',
+			description: 'Another published post',
+			tags: 'code performance',
+			published: true,
 		},
-		'/src/posts/2024-08-01-draft-post.md': {
-			metadata: {
-				title: 'Draft Post',
-				date: '2024-08-01',
-				description: 'A draft',
-				tags: [],
-				published: false,
-			},
+		{
+			title: 'Draft Post',
+			slug: 'draft-post',
+			date: '2024-08-01',
+			description: 'A draft',
+			tag_list: ['draft'],
+			published: false,
 		},
-		'/src/posts/2023-01-01-old-post.md': {
-			metadata: {
-				title: 'Old Post',
-				date: '2023-01-01',
-				description: 'An old post',
-				tags: ['archive'],
-				published: true,
-				excerpt: 'Old excerpt',
-				categories: ['history'],
-				featured: true,
-			},
+		{
+			title: 'Old Post',
+			slug: 'old-post',
+			date: '2023-01-01',
+			description: 'An old post',
+			tag_list: ['archive'],
+			published: true,
+			excerpt: 'Old excerpt',
+			featured: true,
 		},
-	};
+	];
 
 	it('filters out unpublished posts', () => {
-		const posts = getPostsFromModules(sampleModules);
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		expect(posts.every((p) => p.published)).toBe(true);
 		expect(posts.find((p) => p.title === 'Draft Post')).toBeUndefined();
 	});
 
 	it('returns only published posts', () => {
-		const posts = getPostsFromModules(sampleModules);
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		expect(posts).toHaveLength(3);
 	});
 
 	it('sorts by date descending (newest first)', () => {
-		const posts = getPostsFromModules(sampleModules);
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		expect(posts[0].title).toBe('Another Post'); // 2024-07-15
 		expect(posts[1].title).toBe('Published Post'); // 2024-06-01
 		expect(posts[2].title).toBe('Old Post'); // 2023-01-01
 	});
 
-	it('uses metadata.slug when available', () => {
-		const posts = getPostsFromModules(sampleModules);
+	it('preserves the explicit search-index slug', () => {
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		const published = posts.find((p) => p.title === 'Published Post');
 		expect(published?.slug).toBe('published-post');
 	});
 
-	it('derives slug from filename when metadata.slug is absent', () => {
-		const posts = getPostsFromModules(sampleModules);
+	it('falls back to splitting string tags when tag_list is absent', () => {
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		const another = posts.find((p) => p.title === 'Another Post');
-		expect(another?.slug).toBe('another-post');
+		expect(another?.tags).toEqual(['code', 'performance']);
 	});
 
 	it('includes all required Post fields', () => {
-		const posts = getPostsFromModules(sampleModules);
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		for (const post of posts) {
 			expect(post).toHaveProperty('title');
 			expect(post).toHaveProperty('slug');
@@ -265,158 +199,133 @@ describe('getPosts (mocked glob)', () => {
 	});
 
 	it('preserves optional fields from metadata', () => {
-		const posts = getPostsFromModules(sampleModules);
+		const posts = searchIndexEntriesToPosts(sampleEntries);
 		const old = posts.find((p) => p.title === 'Old Post');
 		expect(old?.excerpt).toBe('Old excerpt');
-		expect(old?.categories).toEqual(['history']);
 		expect(old?.featured).toBe(true);
 	});
 
 	it('falls back description to excerpt when description is missing', () => {
-		const modules = {
-			'/src/posts/2024-01-01-excerpt-only.md': {
-				metadata: {
-					title: 'Excerpt Only',
-					date: '2024-01-01',
-					tags: [],
-					published: true,
-					excerpt: 'Fallback excerpt',
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Excerpt Only',
+				slug: 'excerpt-only',
+				date: '2024-01-01',
+				published: true,
+				excerpt: 'Fallback excerpt',
+				description: '',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].description).toBe('Fallback excerpt');
 	});
 
 	it('defaults to empty string for missing description and excerpt', () => {
-		const modules = {
-			'/src/posts/2024-01-01-no-desc.md': {
-				metadata: {
-					title: 'No Description',
-					date: '2024-01-01',
-					tags: [],
-					published: true,
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'No Description',
+				slug: 'no-description',
+				date: '2024-01-01',
+				published: true,
+				description: '',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].description).toBe('');
 	});
 
 	it('defaults title to slug when title is missing', () => {
-		const modules = {
-			'/src/posts/2024-01-01-no-title.md': {
-				metadata: {
-					date: '2024-01-01',
-					tags: [],
-					published: true,
-				},
-			},
-		};
-		const posts = getPostsFromModules(modules);
+		const posts = searchIndexEntriesToPosts([
+			{
+				slug: 'no-title',
+				date: '2024-01-01',
+				published: true,
+				description: '',
+			} as SearchIndexEntry,
+		]);
 		expect(posts[0].title).toBe('no-title');
 		expect(posts[0].slug).toBe('no-title');
 	});
 
 	it('defaults tags to empty array when missing', () => {
-		const modules = {
-			'/src/posts/2024-01-01-no-tags.md': {
-				metadata: {
-					title: 'No Tags',
-					date: '2024-01-01',
-					published: true,
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'No Tags',
+				slug: 'no-tags',
+				date: '2024-01-01',
+				published: true,
+				description: '',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].tags).toEqual([]);
 	});
 
 	it('handles empty modules (no posts)', () => {
-		const posts = getPostsFromModules({});
+		const posts = searchIndexEntriesToPosts([]);
 		expect(posts).toEqual([]);
 	});
 
 	it('handles all drafts (nothing published)', () => {
-		const modules = {
-			'/src/posts/2024-01-01-draft1.md': {
-				metadata: { title: 'Draft 1', published: false },
-			},
-			'/src/posts/2024-01-01-draft2.md': {
-				metadata: { title: 'Draft 2' },
-			},
-		};
-		const posts = getPostsFromModules(modules);
+		const posts = searchIndexEntriesToPosts([
+			{ title: 'Draft 1', slug: 'draft-1', date: '2024-01-01', description: '', published: false },
+			{ title: 'Draft 2', slug: 'draft-2', date: '2024-01-02', description: '', published: false },
+		]);
 		expect(posts).toEqual([]);
 	});
 
 	// ---- category field tests ----
 
 	it('preserves a valid category value', () => {
-		const modules = {
-			'/src/posts/2024-01-01-cat-post.md': {
-				metadata: {
-					title: 'Category Post',
-					date: '2024-01-01',
-					description: 'Has category',
-					tags: [],
-					published: true,
-					category: 'software',
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Category Post',
+				slug: 'category-post',
+				date: '2024-01-01',
+				description: 'Has category',
+				published: true,
+				category: 'software',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].category).toBe('software');
 	});
 
 	it('rejects invalid category values (sets to undefined)', () => {
-		const modules = {
-			'/src/posts/2024-01-01-bad-cat.md': {
-				metadata: {
-					title: 'Bad Category',
-					date: '2024-01-01',
-					description: 'Invalid category',
-					tags: [],
-					published: true,
-					category: 'not-a-real-category',
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Bad Category',
+				slug: 'bad-category',
+				date: '2024-01-01',
+				description: 'Invalid category',
+				published: true,
+				category: 'not-a-real-category',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].category).toBeUndefined();
 	});
 
 	it('leaves category undefined when not specified', () => {
-		const modules = {
-			'/src/posts/2024-01-01-no-cat.md': {
-				metadata: {
-					title: 'No Category',
-					date: '2024-01-01',
-					description: 'No category',
-					tags: [],
-					published: true,
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'No Category',
+				slug: 'no-category',
+				date: '2024-01-01',
+				description: 'No category',
+				published: true,
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].category).toBeUndefined();
 	});
 
 	it('accepts all valid category values', () => {
 		for (const cat of POST_CATEGORIES) {
-			const modules = {
-				'/src/posts/2024-01-01-test.md': {
-					metadata: {
-						title: `Cat: ${cat}`,
-						date: '2024-01-01',
-						description: 'test',
-						tags: [],
-						published: true,
-						category: cat,
-					},
+			const posts = searchIndexEntriesToPosts([
+				{
+					title: `Cat: ${cat}`,
+					slug: `cat-${cat}`,
+					date: '2024-01-01',
+					description: 'test',
+					published: true,
+					category: cat,
 				},
-			};
-			const posts = getPostsFromModules(modules);
+			]);
 			expect(posts[0].category).toBe(cat);
 		}
 	});
@@ -424,36 +333,30 @@ describe('getPosts (mocked glob)', () => {
 	// ---- excerpt / description priority tests ----
 
 	it('uses excerpt over description when both are present', () => {
-		const modules = {
-			'/src/posts/2024-01-01-both.md': {
-				metadata: {
-					title: 'Both Fields',
-					date: '2024-01-01',
-					description: 'The description',
-					tags: [],
-					published: true,
-					excerpt: 'The excerpt',
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Both Fields',
+				slug: 'both-fields',
+				date: '2024-01-01',
+				description: 'The description',
+				published: true,
+				excerpt: 'The excerpt',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].description).toBe('The excerpt');
 		expect(posts[0].excerpt).toBe('The excerpt');
 	});
 
 	it('uses description when excerpt is absent', () => {
-		const modules = {
-			'/src/posts/2024-01-01-desc-only.md': {
-				metadata: {
-					title: 'Desc Only',
-					date: '2024-01-01',
-					description: 'Just description',
-					tags: [],
-					published: true,
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Desc Only',
+				slug: 'desc-only',
+				date: '2024-01-01',
+				description: 'Just description',
+				published: true,
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].description).toBe('Just description');
 		expect(posts[0].excerpt).toBeUndefined();
 	});
@@ -461,35 +364,29 @@ describe('getPosts (mocked glob)', () => {
 	// ---- author_slug defaulting tests ----
 
 	it('defaults author_slug to jesssullivan when not specified', () => {
-		const modules = {
-			'/src/posts/2024-01-01-no-author.md': {
-				metadata: {
-					title: 'No Author',
-					date: '2024-01-01',
-					description: 'test',
-					tags: [],
-					published: true,
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'No Author',
+				slug: 'no-author',
+				date: '2024-01-01',
+				description: 'test',
+				published: true,
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].author_slug).toBe('jesssullivan');
 	});
 
 	it('uses explicit author_slug when specified', () => {
-		const modules = {
-			'/src/posts/2024-01-01-guest.md': {
-				metadata: {
-					title: 'Guest Post',
-					date: '2024-01-01',
-					description: 'test',
-					tags: [],
-					published: true,
-					author_slug: 'guest-author',
-				},
+		const posts = searchIndexEntriesToPosts([
+			{
+				title: 'Guest Post',
+				slug: 'guest-post',
+				date: '2024-01-01',
+				description: 'test',
+				published: true,
+				author_slug: 'guest-author',
 			},
-		};
-		const posts = getPostsFromModules(modules);
+		]);
 		expect(posts[0].author_slug).toBe('guest-author');
 	});
 });

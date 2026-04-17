@@ -5,7 +5,7 @@ import searchIndexData from '../../static/search-index.json';
 export type { Post, PostFrontmatter, PostCategory } from './types';
 export { POST_CATEGORIES } from './types';
 
-interface SearchIndexEntry {
+export interface SearchIndexEntry {
 	title: string;
 	description: string;
 	tags?: string;
@@ -52,8 +52,8 @@ export function computeReadingTime(raw: string): number {
 	return Math.max(1, Math.round(words / 230));
 }
 
-export async function getPosts(): Promise<Post[]> {
-	const posts: Post[] = searchIndex
+export function searchIndexEntriesToPosts(entries: SearchIndexEntry[]): Post[] {
+	const posts: Post[] = entries
 		.filter((entry) => entry.published !== false)
 		.map((entry) => {
 			const rawCategory = entry.category;
@@ -88,4 +88,8 @@ export async function getPosts(): Promise<Post[]> {
 		});
 
 	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export async function getPosts(): Promise<Post[]> {
+	return searchIndexEntriesToPosts(searchIndex);
 }

@@ -34,7 +34,7 @@ export default ts.config(
 			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 			'@typescript-eslint/no-explicit-any': 'error',
 			// Svelte-specific adjustments
-			'svelte/no-at-html-tags': 'off',
+			'svelte/no-at-html-tags': 'warn',
 			'svelte/no-dom-manipulating': 'off',
 			'svelte/require-each-key': 'error',
 			'svelte/no-navigation-without-resolve': 'off',
