@@ -35,8 +35,9 @@ test.describe('Blob Background', () => {
 		await page.goto('/');
 		const svg = page.locator('[data-testid="blob-background"] svg');
 		if ((await svg.count()) > 0) {
-			const filters = await svg.locator('defs filter').count();
-			expect(filters).toBeGreaterThanOrEqual(1);
+			await expect
+				.poll(async () => await svg.locator('defs filter').count())
+				.toBeGreaterThanOrEqual(1);
 		}
 	});
 });

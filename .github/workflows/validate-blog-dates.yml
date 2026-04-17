@@ -5,9 +5,14 @@ on:
     branches: [main]
     paths: ['src/posts/**']
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   check-dates:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:

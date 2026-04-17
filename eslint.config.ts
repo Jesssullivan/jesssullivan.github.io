@@ -31,12 +31,12 @@ export default ts.config(
 	},
 	{
 		rules: {
-			'@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 			'@typescript-eslint/no-explicit-any': 'error',
 			// Svelte-specific adjustments
 			'svelte/no-at-html-tags': 'warn',
 			'svelte/no-dom-manipulating': 'off',
-			'svelte/require-each-key': 'warn',
+			'svelte/require-each-key': 'error',
 			'svelte/no-navigation-without-resolve': 'off',
 		},
 	},
@@ -46,6 +46,7 @@ export default ts.config(
 			'.svelte-kit/',
 			'dist/',
 			'node_modules/',
+			'packages/blog-agent/src/generated/**',
 			'scripts/',
 			'src/posts/',
 			'static/',
@@ -54,7 +55,6 @@ export default ts.config(
 			'src/lib/components/Breadcrumbs.svelte',
 			'src/routes/blog/\\[slug\\]/+page.svelte',
 			'src/routes/+error.svelte',
-			'src/routes/+layout.svelte',
 			'src/routes/about/+page.svelte',
 		],
 	},

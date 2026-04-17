@@ -6,6 +6,12 @@ import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const POSTS_DIR = 'src/posts';
 const OUTPUT = 'static/search-index.json';
+const WORDS_PER_MINUTE = 230;
+
+function computeReadingTime(text: string): number {
+	const words = text.split(/\s+/).filter((w) => w.length > 0).length;
+	return Math.max(1, Math.round(words / WORDS_PER_MINUTE));
+}
 
 async function main(): Promise<void> {
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
@@ -36,15 +42,35 @@ async function main(): Promise<void> {
 			body_excerpt = (lastSpace > 0 ? body_excerpt.slice(0, lastSpace) : body_excerpt) + '...';
 		}
 
+		const tagList = Array.isArray(meta.tags) ? (meta.tags as string[]) : [];
+
 		index.push({
 			id: slug,
 			title: String(meta.title ?? slug),
 			description: String(meta.description ?? meta.excerpt ?? ''),
-			tags: Array.isArray(meta.tags) ? (meta.tags as string[]).join(' ') : '',
+			tags: tagList.join(' '),
+			tag_list: tagList,
 			category: String(meta.category ?? ''),
 			slug,
 			date: String(meta.date ?? ''),
-			body_excerpt
+			source_file: `/src/posts/${file}`,
+			body_excerpt,
+			published: Boolean(meta.published),
+			reading_time:
+				typeof meta.reading_time === 'number'
+					? meta.reading_time
+					: computeReadingTime(plain),
+			feature_image:
+				typeof meta.feature_image === 'string' ? meta.feature_image : undefined,
+			thumbnail_image:
+				typeof meta.thumbnail_image === 'string' ? meta.thumbnail_image : undefined,
+			featured:
+				typeof meta.featured === 'boolean' ? meta.featured : undefined,
+			author_slug:
+				typeof meta.author_slug === 'string' ? meta.author_slug : undefined,
+			original_url:
+				typeof meta.original_url === 'string' ? meta.original_url : undefined,
+			excerpt: typeof meta.excerpt === 'string' ? meta.excerpt : undefined
 		});
 	}
 

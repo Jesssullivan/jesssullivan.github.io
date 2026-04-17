@@ -109,7 +109,13 @@
 				{ name: 'Electrostatic Headphone', note: 'DIY audio', img: '/images/sketchup/electrostatic-hp.jpg', url: 'https://3dwarehouse.sketchup.com/model/0f47a4a7-7546-4237-95bb-e01ce5822069' },
 				{ name: 'Hammock Tent', note: '829 downloads', img: '/images/sketchup/hammock-tent.jpg', url: 'https://3dwarehouse.sketchup.com/model/u801d1e9f-13c5-47c5-98f2-194043bf97ff' },
 			] as model}
-				<a href={model.url} target="_blank" rel="noopener" class="card overflow-hidden hover:ring-2 ring-primary-500 transition-all">
+				<a
+					href={model.url}
+					target="_blank"
+					rel="noopener"
+					class="card overflow-hidden hover:ring-2 ring-primary-500 transition-all"
+					aria-label={`Open SketchUp model: ${model.name}`}
+				>
 					<img src={model.img} alt={model.name} class="w-full aspect-square object-cover" loading="lazy" />
 					<div class="p-2">
 						<p class="text-xs font-medium truncate">{model.name}</p>
@@ -131,6 +137,7 @@
 							target="_blank"
 							rel="noopener"
 							class="text-lg font-semibold text-primary-500 hover:underline"
+							aria-label={`Open profile for ${profile.name}`}
 						>{profile.name}</a>
 						<p class="text-sm text-surface-400">@{profile.handle}</p>
 					</div>

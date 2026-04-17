@@ -20,6 +20,27 @@ export interface PostFrontmatter {
 	author_slug?: string;
 }
 
+export interface SearchIndexEntry {
+	id: string;
+	title: string;
+	description: string;
+	tags: string;
+	tag_list: string[];
+	category: string;
+	slug: string;
+	date: string;
+	source_file: string;
+	body_excerpt: string;
+	published: boolean;
+	reading_time: number;
+	feature_image?: string;
+	thumbnail_image?: string;
+	featured?: boolean;
+	author_slug?: string;
+	original_url?: string;
+	excerpt?: string;
+}
+
 export interface LinkInfo {
 	text: string;
 	url: string;

@@ -170,7 +170,7 @@
 	<!-- 3. CTA badges -->
 	<section class="mb-8 flex flex-wrap justify-center gap-3">
 		{#each CTA_BADGES as badge}
-			<a href={badge.url} target="_blank" rel="noopener">
+			<a href={badge.url} target="_blank" rel="noopener" aria-label={`${badge.label}: ${badge.text}`}>
 				<img
 					src={badgeUrl(`${badge.label}-${badge.text}`, badge.color, { style: 'for-the-badge' })}
 					alt={badge.label}
@@ -233,7 +233,7 @@
 		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">Sponsoring</h3>
 		<div class="flex flex-wrap gap-1.5 justify-center">
 			{#each SPONSORING_BADGES as badge}
-				<a href={badge.url} target="_blank" rel="noopener">
+				<a href={badge.url} target="_blank" rel="noopener" aria-label={`Visit ${badge.text}`}>
 					<img
 						src={badgeUrl(badge.text, badge.color, { logo: badge.logo })}
 						alt={badge.text}
@@ -251,7 +251,11 @@
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{#each data.featured as post, i}
 					{@const variants = ['preset-filled-primary-500', 'preset-filled-secondary-500', 'preset-filled-tertiary-500', 'preset-filled-success-500', 'preset-filled-warning-500', 'preset-filled-error-500']}
-					<a href="/blog/{post.slug}" class="block card p-5 hover:ring-2 ring-primary-500 transition-all {data.featured.length === 1 ? 'sm:col-span-2' : ''}">
+					<a
+						href="/blog/{post.slug}"
+						class="block card p-5 hover:ring-2 ring-primary-500 transition-all {data.featured.length === 1 ? 'sm:col-span-2' : ''}"
+						aria-label={`Read featured post: ${post.title}`}
+					>
 						<div class="flex items-start justify-between gap-3">
 							<div>
 								<h3 class="text-lg font-bold">{post.title}</h3>
@@ -281,7 +285,11 @@
 			<div class="space-y-4">
 				{#each data.posts as post, i}
 					{@const variants = ['preset-outlined-primary-500', 'preset-outlined-secondary-500', 'preset-outlined-tertiary-500', 'preset-outlined-success-500', 'preset-outlined-warning-500', 'preset-outlined-error-500']}
-					<a href="/blog/{post.slug}" class="block card p-4 hover:ring-2 ring-primary-500 transition-all">
+					<a
+						href="/blog/{post.slug}"
+						class="block card p-4 hover:ring-2 ring-primary-500 transition-all"
+						aria-label={`Read recent post: ${post.title}`}
+					>
 						<div class="flex items-baseline justify-between gap-4">
 							<h3 class="font-semibold">{post.title}</h3>
 							<div class="flex items-center gap-2">
@@ -382,7 +390,7 @@
 				<div>
 					<h3 class="font-semibold">
 						{#if v.url}
-							<a href={v.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{v.name}</a>
+							<a href={v.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener" aria-label={`Visit ${v.name}`}>{v.name}</a>
 						{:else}
 							{v.name}
 						{/if}
@@ -415,7 +423,7 @@
 			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-4 mb-2">{cat.label}</h4>
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
 				{#each cat.projects as proj}
-					<a href={proj.url} class="card p-4 hover:ring-2 ring-primary-500 transition-all" target="_blank" rel="noopener">
+					<a href={proj.url} class="card p-4 hover:ring-2 ring-primary-500 transition-all" target="_blank" rel="noopener" aria-label={`Open project: ${proj.name}`}>
 						<h5 class="font-semibold">{proj.name}</h5>
 						<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
 					</a>
@@ -425,7 +433,7 @@
 		<h3 class="text-sm font-semibold uppercase text-surface-500 mt-6 mb-3">Contributor & Maintainer</h3>
 		<div class="flex flex-wrap gap-2">
 			{#each fossContributions as c}
-				<a href={c.url} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all">{c.name}</a>
+				<a href={c.url} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label={`Visit ${c.name}`}>{c.name}</a>
 			{/each}
 		</div>
 	</section>
@@ -506,7 +514,7 @@
 			<a href="/blog" class="text-primary-500 hover:underline">Blog</a>
 			<a href="https://github.com/sponsors/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Sponsor</a>
 			<a href="https://www.eff.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">EFF Member</a>
-			<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener">
+			<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener" aria-label="Visit Fight for the Future">
 				<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="inline" />
 			</a>
 		</div>

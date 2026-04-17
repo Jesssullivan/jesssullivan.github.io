@@ -55,7 +55,7 @@ export const reviewPR = (owner: string, repo: string, prNumber: number) =>
 		// 3. Analyze each post
 		const posts: PostAnalysis[] = []
 		for (const file of postFiles) {
-			const content = yield* github.getFileContent(owner, repo, file.filename, pr.headSha)
+			const { content } = yield* github.getFileContent(owner, repo, file.filename, pr.headSha)
 			const fm = schema.parseFrontmatter(content)
 			if (!fm) continue
 			const bodyStart = content.indexOf("---", 3)

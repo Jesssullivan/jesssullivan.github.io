@@ -65,13 +65,19 @@
 				placeholder="Search posts..."
 				bind:value={query}
 				oninput={handleInput}
-				onfocus={() => { if (results.length) showDropdown = true; }}
-				onblur={() => setTimeout(() => { showDropdown = false; }, 200)}
+				onfocus={() => {
+					if (results.length) showDropdown = true;
+				}}
+				onblur={() =>
+					setTimeout(() => {
+						showDropdown = false;
+					}, 200)}
 				onkeydown={handleKeydown}
 				role="combobox"
 				aria-expanded={showDropdown}
 				aria-autocomplete="list"
 				aria-controls="search-results"
+				aria-label="Search blog posts"
 				class="w-full px-4 py-2 rounded-lg border border-surface-300-700 bg-surface-50-950 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
 			/>
 			{#if showDropdown && query && results.length > 0}
@@ -80,15 +86,21 @@
 					role="listbox"
 					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid rounded-lg max-h-80 overflow-y-auto"
 				>
-					{#each results as result, i}
-						<li role="option" aria-selected={i === activeIndex}>
-							<a
-								href="/blog/{result.slug}"
-								class="block px-4 py-3 hover:bg-surface-200-800 transition-colors border-b border-surface-200-800 last:border-0 {i === activeIndex ? 'bg-surface-200-800' : ''}"
-							>
+					{#each results as result, i (result.slug)}
+							<li role="option" aria-selected={i === activeIndex}>
+								<a
+									href="/blog/{result.slug}"
+									class="block px-4 py-3 hover:bg-surface-200-800 transition-colors border-b border-surface-200-800 last:border-0 {i ===
+									activeIndex
+										? 'bg-surface-200-800'
+										: ''}"
+									aria-label={`Read search result: ${result.title}`}
+								>
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								<div class="font-medium text-sm">{@html highlightMatch(result.title, query)}</div>
 								{#if result.description}
 									<div class="text-xs text-surface-500 mt-1 line-clamp-2">
+										<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 										{@html highlightMatch(result.description, query)}
 									</div>
 								{/if}

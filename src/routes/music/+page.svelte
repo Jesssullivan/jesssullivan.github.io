@@ -143,9 +143,13 @@
 	{#if data.musicPosts.length > 0}
 		<section class="mb-12">
 			<h2 class="text-xl font-semibold mb-4">Music Posts</h2>
-			<div class="space-y-4">
-				{#each data.musicPosts as post}
-					<a href="/blog/{post.slug}" class="block card p-4 hover:ring-2 ring-primary-500 transition-all">
+				<div class="space-y-4">
+					{#each data.musicPosts as post}
+						<a
+							href="/blog/{post.slug}"
+							class="block card p-4 hover:ring-2 ring-primary-500 transition-all"
+							aria-label={`Read music post: ${post.title}`}
+						>
 						<div class="flex items-baseline justify-between gap-4">
 							<h3 class="font-semibold">{post.title}</h3>
 							<time class="text-xs text-surface-500 whitespace-nowrap">

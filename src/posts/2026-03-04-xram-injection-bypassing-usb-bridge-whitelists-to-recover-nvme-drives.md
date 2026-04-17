@@ -60,30 +60,19 @@ The 8051 has access to a 64KB external RAM (XRAM) address space, mapped from 0x0
 Here is the XRAM memory map as determined through firmware reverse engineering (cyrozap/usb-to-pcie-re) and our own empirical probing:
 
 ```mermaid
-block-beta
-    columns 1
-    block:cpu["0x0000 – 0x07FF: CPU Registers & Firmware Variables (2 KB)"]
-        columns 1
-        fw["0x07F0: Firmware Version (6 bytes)"]
-    end
-    space
-    block:usb["0x9000 – 0x9FFF: USB/SCSI Control Registers (~4 KB)"]
-    end
-    space
-    block:iosq["0xA000 – 0xAFFF: NVMe I/O Submission Queue (4 KB)"]
-    end
-    space
-    block:adminsq["0xB000 – 0xB1FF: Admin Submission Queue (512 B) — READ/WRITE ★"]
-    end
-    block:pcie["0xB200 – 0xB7FF: PCIe MMIO / TLP Engine (1.5 KB)"]
-    end
-    block:iocq["0xB800 – 0xBBFF: I/O Completion Queue (1 KB)"]
-    end
-    block:admincq["0xBC00 – 0xBFFF: Admin Completion Queue (1 KB)"]
-    end
-    space
-    block:data["0xF000 – 0xFFFF: NVMe Data Buffer (4 KB)"]
-    end
+graph TD
+    cpu["0x0000 - 0x07FF<br/>CPU Registers & Firmware Variables (2 KB)"]
+    fw["0x07F0<br/>Firmware Version (6 bytes)"]
+    usb["0x9000 - 0x9FFF<br/>USB/SCSI Control Registers (~4 KB)"]
+    iosq["0xA000 - 0xAFFF<br/>NVMe I/O Submission Queue (4 KB)"]
+    adminsq["0xB000 - 0xB1FF<br/>Admin Submission Queue (512 B)<br/>READ/WRITE"]
+    pcie["0xB200 - 0xB7FF<br/>PCIe MMIO / TLP Engine (1.5 KB)"]
+    iocq["0xB800 - 0xBBFF<br/>I/O Completion Queue (1 KB)"]
+    admincq["0xBC00 - 0xBFFF<br/>Admin Completion Queue (1 KB)"]
+    data["0xF000 - 0xFFFF<br/>NVMe Data Buffer (4 KB)"]
+
+    cpu --> usb --> iosq --> adminsq --> pcie --> iocq --> admincq --> data
+    cpu --> fw
 
     style adminsq fill:#51cf6622,stroke:#51cf66
     style pcie fill:#4ecdc422,stroke:#4ecdc4

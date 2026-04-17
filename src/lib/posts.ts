@@ -1,8 +1,31 @@
 import type { Post, PostCategory } from './types';
 import { POST_CATEGORIES } from './types';
+import searchIndexData from '../../static/search-index.json';
 
 export type { Post, PostFrontmatter, PostCategory } from './types';
 export { POST_CATEGORIES } from './types';
+
+export interface SearchIndexEntry {
+	title: string;
+	description: string;
+	tags?: string;
+	tag_list?: string[];
+	category?: string;
+	slug: string;
+	date: string;
+	source_file?: string;
+	body_excerpt?: string;
+	published?: boolean;
+	reading_time?: number;
+	feature_image?: string;
+	thumbnail_image?: string;
+	featured?: boolean;
+	author_slug?: string;
+	original_url?: string;
+	excerpt?: string;
+}
+
+const searchIndex = searchIndexData as SearchIndexEntry[];
 
 /**
  * Strip markdown/HTML to approximate plain text.
@@ -29,74 +52,44 @@ export function computeReadingTime(raw: string): number {
 	return Math.max(1, Math.round(words / 230));
 }
 
-/**
- * Extract the first ~150 characters of body text for card previews.
- */
-function extractBodyExcerpt(raw: string, maxLen = 150): string {
-	const text = stripMarkdown(raw);
-	if (!text || text.length <= maxLen) return text;
-	const truncated = text.slice(0, maxLen);
-	const lastSpace = truncated.lastIndexOf(' ');
-	return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '...';
+export function searchIndexEntriesToPosts(entries: SearchIndexEntry[]): Post[] {
+	const posts: Post[] = entries
+		.filter((entry) => entry.published !== false)
+		.map((entry) => {
+			const rawCategory = entry.category;
+			const tags = Array.isArray(entry.tag_list)
+				? entry.tag_list
+				: (entry.tags?.split(/\s+/).filter(Boolean) ?? []);
+
+			// Validate category against allowed values if present
+			const category: PostCategory | undefined =
+				rawCategory && POST_CATEGORIES.includes(rawCategory as PostCategory)
+					? (rawCategory as PostCategory)
+					: undefined;
+
+			return {
+				title: entry.title ?? entry.slug,
+				slug: entry.slug,
+				date: entry.date ?? '',
+				description: entry.excerpt ?? entry.description ?? '',
+				tags,
+				published: true,
+				original_url: entry.original_url ?? undefined,
+				excerpt: entry.excerpt ?? undefined,
+				category,
+				categories: undefined,
+				reading_time: entry.reading_time ?? undefined,
+				feature_image: entry.feature_image ?? undefined,
+				thumbnail_image: entry.thumbnail_image ?? undefined,
+				featured: entry.featured ?? undefined,
+				author_slug: entry.author_slug ?? 'jesssullivan',
+				body_excerpt: entry.body_excerpt ?? undefined
+			};
+		});
+
+	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getPosts(): Promise<Post[]> {
-	const modules = import.meta.glob('/src/posts/*.md', { eager: true });
-	const rawModules = import.meta.glob('/src/posts/*.md', {
-		eager: true,
-		query: '?raw',
-		import: 'default'
-	}) as Record<string, string>;
-
-	const posts: Post[] = [];
-
-	for (const [path, module] of Object.entries(modules)) {
-		const mod = module as { metadata: Record<string, unknown> };
-		const metadata = mod.metadata;
-
-		if (!metadata?.published) continue;
-
-		const slug =
-			(metadata.slug as string) ??
-			path
-				.split('/')
-				.pop()
-				?.replace('.md', '')
-				.replace(/^\d{4}-\d{2}-\d{2}-/, '') ??
-			'';
-
-		// Validate category against allowed values if present
-		const rawCategory = metadata.category as string | undefined;
-		const category: PostCategory | undefined =
-			rawCategory && POST_CATEGORIES.includes(rawCategory as PostCategory)
-				? (rawCategory as PostCategory)
-				: undefined;
-
-		// Use frontmatter reading_time if provided, otherwise compute from raw markdown
-		const rawContent = rawModules[path] ?? '';
-		const reading_time =
-			(metadata.reading_time as number) ?? computeReadingTime(rawContent);
-		const body_excerpt = extractBodyExcerpt(rawContent);
-
-		posts.push({
-			title: (metadata.title as string) ?? slug,
-			slug,
-			date: (metadata.date as string) ?? '',
-			description: (metadata.excerpt as string) ?? (metadata.description as string) ?? '',
-			tags: (metadata.tags as string[]) ?? [],
-			published: true,
-			original_url: (metadata.original_url as string) ?? undefined,
-			excerpt: (metadata.excerpt as string) ?? undefined,
-			category,
-			categories: (metadata.categories as string[]) ?? undefined,
-			reading_time,
-			feature_image: (metadata.feature_image as string) ?? undefined,
-			thumbnail_image: (metadata.thumbnail_image as string) ?? undefined,
-			featured: (metadata.featured as boolean) ?? undefined,
-			author_slug: (metadata.author_slug as string) ?? 'jesssullivan',
-			body_excerpt
-		});
-	}
-
-	return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+	return searchIndexEntriesToPosts(searchIndex);
 }

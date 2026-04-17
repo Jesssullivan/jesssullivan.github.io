@@ -47,7 +47,9 @@
 		<div class="columns-2 md:columns-3 lg:columns-4 gap-3">
 			{#each data.gallery as photo}
 				<button
+					type="button"
 					class="mb-3 break-inside-avoid block w-full text-left cursor-pointer group"
+					aria-label={`Open photo${photo.post_title ? ` from ${photo.post_title}` : ''}`}
 					onclick={() => selectedPhoto = photo}
 				>
 					<picture>
@@ -76,10 +78,8 @@
 
 	<!-- Lightbox -->
 	{#if selectedPhoto}
-		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<div
 			class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-			onclick={closeLightbox}
 			onkeydown={(e) => e.key === 'Escape' && closeLightbox()}
 			role="dialog"
 			aria-modal="true"
@@ -87,29 +87,33 @@
 			tabindex="-1"
 		>
 			<button
+				type="button"
+				class="absolute inset-0"
+				aria-label="Close photo viewer"
+				onclick={closeLightbox}
+			></button>
+			<button
+				type="button"
 				class="absolute top-4 right-4 text-white/70 hover:text-white text-3xl z-10"
 				onclick={closeLightbox}
 				aria-label="Close"
 			>&times;</button>
-			<div class="max-w-[90vw] max-h-[90vh] flex flex-col items-center">
+			<div class="relative z-10 max-w-[90vw] max-h-[90vh] flex flex-col items-center">
 				<picture>
 					{#if selectedPhoto.webp}
 						<source srcset={selectedPhoto.webp} type="image/webp" />
 					{/if}
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<img
 						src={selectedPhoto.src}
 						alt={selectedPhoto.post_title || 'Photo'}
 						class="max-w-full max-h-[85dvh] object-contain rounded-lg"
-						onclick={(e) => e.stopPropagation()}
-						onkeydown={() => {}}
 					/>
 				</picture>
 				{#if selectedPhoto.post_slug}
 					<a
 						href="/blog/{selectedPhoto.post_slug}"
 						class="mt-3 text-sm text-primary-400 hover:text-primary-300 hover:underline"
-						onclick={(e) => e.stopPropagation()}
+						aria-label={`Read blog post: ${selectedPhoto.post_title || selectedPhoto.post_slug}`}
 					>
 						{selectedPhoto.post_title} &rarr;
 					</a>
@@ -122,9 +126,13 @@
 	{#if data.photographyPosts.length > 0}
 		<section class="mb-12">
 			<h2 class="text-xl font-semibold mb-4">Related Posts</h2>
-			<div class="space-y-4">
-				{#each data.photographyPosts as post}
-					<a href="/blog/{post.slug}" class="block card p-4 hover:ring-2 ring-primary-500 transition-all">
+				<div class="space-y-4">
+					{#each data.photographyPosts as post}
+						<a
+							href="/blog/{post.slug}"
+							class="block card p-4 hover:ring-2 ring-primary-500 transition-all"
+							aria-label={`Read photography post: ${post.title}`}
+						>
 						<div class="flex items-baseline justify-between gap-4">
 							<h3 class="font-semibold">{post.title}</h3>
 							<time class="text-xs text-surface-500 whitespace-nowrap">

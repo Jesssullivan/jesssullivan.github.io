@@ -16,13 +16,27 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
+import { platform } from 'node:process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const POSTS_DIR = resolve(ROOT, 'src/posts');
 const CACHE_DIR = resolve(ROOT, '.mermaid-cache');
+const PUPPETEER_CONFIG = resolve(CACHE_DIR, 'puppeteer-config.json');
+const MMDC_BIN = resolve(
+	ROOT,
+	'node_modules',
+	'.bin',
+	platform === 'win32' ? 'mmdc.cmd' : 'mmdc'
+);
 
 mkdirSync(CACHE_DIR, { recursive: true });
+writeFileSync(
+	PUPPETEER_CONFIG,
+	JSON.stringify({
+		args: process.env.CI || process.env.GITHUB_ACTIONS ? ['--no-sandbox'] : []
+	})
+);
 
 interface MermaidBlock {
 	code: string;
@@ -81,11 +95,32 @@ function renderToSvg(code: string, hash: string): boolean {
 	writeFileSync(inputFile, code);
 
 	try {
-		execFileSync('npx', ['mmdc', '-i', inputFile, '-o', outputFile, '-b', 'transparent', '--outputFormat', 'svg', '--width', '1200'], {
-			cwd: ROOT,
-			timeout: 30000,
-			stdio: 'pipe'
-		});
+		if (!existsSync(MMDC_BIN)) {
+			throw new Error(`Missing Mermaid CLI binary at ${MMDC_BIN}`);
+		}
+
+		execFileSync(
+			MMDC_BIN,
+			[
+				'-i',
+				inputFile,
+				'-o',
+				outputFile,
+				'-b',
+				'transparent',
+				'--outputFormat',
+				'svg',
+				'--width',
+				'1200',
+				'-p',
+				PUPPETEER_CONFIG
+			],
+			{
+				cwd: ROOT,
+				timeout: 30000,
+				stdio: 'pipe'
+			}
+		);
 
 		if (existsSync(outputFile)) {
 			let svg = readFileSync(outputFile, 'utf-8');
@@ -105,7 +140,14 @@ function renderToSvg(code: string, hash: string): boolean {
 			return true;
 		}
 	} catch (err) {
-		console.error(`  Failed to render ${hash}: ${(err as Error).message}`);
+		const message = (err as Error).message;
+		if (message.includes("Cannot find package 'puppeteer'")) {
+			console.error(
+				`  Failed to render ${hash}: ${message}. Install dev dependencies so Mermaid diagrams can be prerendered.`
+			);
+		} else {
+			console.error(`  Failed to render ${hash}: ${message}`);
+		}
 	}
 	return false;
 }
@@ -123,6 +165,7 @@ if (blocks.length === 0) {
 const manifest = loadManifest();
 let rendered = 0;
 let cached = 0;
+let failed = 0;
 
 for (const block of blocks) {
 	const hash = hashCode(block.code);
@@ -139,9 +182,17 @@ for (const block of blocks) {
 		rendered++;
 		console.log('ok');
 	} else {
+		failed++;
 		console.log('FAILED');
 	}
 }
 
 saveManifest(manifest);
 console.log(`Done: ${rendered} rendered, ${cached} cached, ${blocks.length} total`);
+
+if (failed > 0) {
+	console.error(
+		`Mermaid prerender failed for ${failed} block(s). Refusing to continue with missing or stale diagram output.`
+	);
+	process.exit(1);
+}

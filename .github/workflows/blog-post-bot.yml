@@ -16,6 +16,7 @@ jobs:
   # ── Review: run the Effect-based blog-agent ────────────────
   review-posts:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +39,7 @@ jobs:
   # ── Slash commands: /schedule, /publish, /draft, /retitle ──
   slash-commands:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     if: >-
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
@@ -58,7 +60,6 @@ jobs:
         run: |
           npx tsx packages/blog-agent/src/cli.ts command \
             --pr "$PR_NUMBER" \
-            --body "$COMMENT_BODY" \
             --commenter "$COMMENTER" \
             --comment-id "$COMMENT_ID"
         env:

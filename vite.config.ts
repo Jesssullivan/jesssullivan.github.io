@@ -51,19 +51,5 @@ export default defineConfig({
 		reportCompressedSize: true,
 		chunkSizeWarningLimit: 250,
 		cssCodeSplit: true,
-		rollupOptions: {
-			output: {
-				// Rolldown advancedChunks for optimal code splitting
-				advancedChunks: {
-					groups: [
-						{ name: 'css-vendor', test: /node_modules.*(@skeletonlabs|tailwind).*\.css/ },
-						{ name: 'vendor-ui', test: /@skeletonlabs(?!.*\.css)/ },
-						{ name: 'vendor-svelte', test: /@sveltejs\/kit|svelte/ },
-						{ name: 'vendor-syntax', test: /shiki|mermaid/ },
-						{ name: 'vendor', test: /node_modules/ },
-					],
-				},
-			},
-		},
 	},
 });
