@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install tectonic
-        uses: wtfjoke/setup-tectonic@v3
+        uses: WtfJoke/setup-tectonic@8a63d072f8390efdff59da7fa08aa49e3c1f5e1b # v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -35,7 +35,7 @@ jobs:
           cp cv/*.pdf static/cv/ 2>/dev/null || true
 
       - name: Commit updated PDFs
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
         with:
           commit_message: 'chore: rebuild CV PDFs'
           file_pattern: 'static/cv/*.pdf'
