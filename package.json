@@ -12,7 +12,7 @@
 		"test:unit": "vitest run",
 		"test:e2e": "playwright test",
 		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "tsx scripts/generate-search-index.mts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"lint": "eslint src/lib packages/blog-agent/src packages/blog-agent/test --max-warnings 0",
 		"format": "prettier --write src/",
 		"format:check": "prettier --check src/"
