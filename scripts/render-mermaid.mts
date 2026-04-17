@@ -22,6 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const POSTS_DIR = resolve(ROOT, 'src/posts');
 const CACHE_DIR = resolve(ROOT, '.mermaid-cache');
+const PUPPETEER_CONFIG = resolve(CACHE_DIR, 'puppeteer-config.json');
 const MMDC_BIN = resolve(
 	ROOT,
 	'node_modules',
@@ -30,6 +31,12 @@ const MMDC_BIN = resolve(
 );
 
 mkdirSync(CACHE_DIR, { recursive: true });
+writeFileSync(
+	PUPPETEER_CONFIG,
+	JSON.stringify({
+		args: process.env.CI || process.env.GITHUB_ACTIONS ? ['--no-sandbox'] : []
+	})
+);
 
 interface MermaidBlock {
 	code: string;
@@ -104,7 +111,9 @@ function renderToSvg(code: string, hash: string): boolean {
 				'--outputFormat',
 				'svg',
 				'--width',
-				'1200'
+				'1200',
+				'-p',
+				PUPPETEER_CONFIG
 			],
 			{
 				cwd: ROOT,
