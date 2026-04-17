@@ -104,7 +104,10 @@ export const reviewPR = (owner: string, repo: string, prNumber: number) =>
 			const tags = Array.isArray(p.frontmatter.tags) && p.frontmatter.tags.length > 0
 				? (p.frontmatter.tags as string[]).join(", ")
 				: "_none_"
-			return `| ${title} | ${statusIcon} | ${date} | ${published} | ${tags} |`
+			const linearIssue = typeof p.frontmatter.linear_issue === "string" && p.frontmatter.linear_issue.length > 0
+				? p.frontmatter.linear_issue
+				: "_none_"
+			return `| ${title} | ${statusIcon} | ${date} | ${published} | ${tags} | ${linearIssue} |`
 		}).join("\n")
 
 		// Schema error summary
@@ -129,8 +132,8 @@ export const reviewPR = (owner: string, repo: string, prNumber: number) =>
 
 Found **${posts.length}** blog post(s) in this PR:
 
-| Post | Status | Date | Published | Tags |
-|------|--------|------|-----------|------|
+| Post | Status | Date | Published | Tags | Linear |
+|------|--------|------|-----------|------|--------|
 ${tableRows}
 
 ### Schema Validation

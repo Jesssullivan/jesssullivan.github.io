@@ -207,6 +207,8 @@ for (const repo of repos) {
 		const description = fm.description || '';
 		const tags = fm.tags || [];
 		const category = fm.category || '';
+		const linearIssue = typeof fm.linear_issue === 'string' ? fm.linear_issue : '';
+		const linearProject = typeof fm.linear_project === 'string' ? fm.linear_project : '';
 
 		// Build post content: strip H1 if title matches frontmatter
 		let body = file.content.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/, '');
@@ -270,6 +272,8 @@ for (const repo of repos) {
 			featureImage ? `feature_image: "${featureImage}"` : null,
 			`source_repo: "${repo}"`,
 			`source_path: "${file.path}"`,
+			linearIssue ? `linear_issue: "${linearIssue}"` : null,
+			linearProject ? `linear_project: "${linearProject}"` : null,
 			'---'
 		]
 			.filter(Boolean)
