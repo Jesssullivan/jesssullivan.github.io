@@ -32,6 +32,8 @@ export interface PostFrontmatter {
 	source_repo?: string; // Provenance: e.g. "Jesssullivan/aperture-bootstrap"
 	source_path?: string; // Provenance: e.g. "blog/part-1-identity.md"
 	publish_to?: string; // Discovery marker: "blog"
+	linear_issue?: string; // Optional control-plane link: e.g. "TIN-171"
+	linear_project?: string; // Optional management surface: e.g. "Blog + Profile Integration"
 }
 
 /** A resolved post with guaranteed slug and optional rendered content */

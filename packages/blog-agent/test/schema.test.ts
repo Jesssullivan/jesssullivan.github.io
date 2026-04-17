@@ -26,6 +26,8 @@ describe('PostFrontmatter schema', () => {
 			slug: 'full-post',
 			source_repo: 'Jesssullivan/some-repo',
 			source_path: 'blog/post.md',
+			linear_issue: 'TIN-171',
+			linear_project: 'Blog + Profile Integration',
 		});
 		assert.equal(Exit.isSuccess(result), true);
 	});

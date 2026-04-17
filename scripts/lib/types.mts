@@ -12,6 +12,8 @@ export interface PostFrontmatter {
 	source_repo?: string;
 	source_path?: string;
 	publish_to?: string;
+	linear_issue?: string;
+	linear_project?: string;
 	body_excerpt?: string;
 	original_url?: string;
 	excerpt?: string;
