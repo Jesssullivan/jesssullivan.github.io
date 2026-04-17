@@ -146,7 +146,7 @@ const handlePublish = (ctx: CommandContext, fileArg: string, publish: boolean) =
 		const updated: string[] = [];
 
 		for (const file of targets) {
-			const content = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headRef);
+			const { content, sha } = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headRef);
 			const fm = schema.parseFrontmatter(content);
 			if (!fm) continue;
 
@@ -159,7 +159,7 @@ const handlePublish = (ctx: CommandContext, fileArg: string, publish: boolean) =
 					ctx.repo,
 					file.filename,
 					newContent,
-					'',
+					sha,
 					pr.headRef,
 					`chore: set ${file.filename.split('/').pop()} to ${verb}`,
 				);
@@ -216,7 +216,7 @@ const handleRetitle = (ctx: CommandContext, args: string) =>
 		}
 
 		const file = targets[0]!;
-		const content = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headRef);
+		const { content, sha } = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headRef);
 		const newContent = content.replace(/^(title:\s*).+$/m, `$1"${newTitle}"`);
 
 		if (newContent !== content) {
@@ -225,7 +225,7 @@ const handleRetitle = (ctx: CommandContext, args: string) =>
 				ctx.repo,
 				file.filename,
 				newContent,
-				'',
+				sha,
 				pr.headRef,
 				`chore: retitle ${file.filename.split('/').pop()} to "${newTitle}"`,
 			);
@@ -269,7 +269,7 @@ const handleSuggestLinks = (ctx: CommandContext) =>
 		const allSuggestions: Array<{ file: string; keyword: string; url: string; line: number }> = [];
 
 		for (const file of postFiles) {
-			const content = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headSha);
+			const { content } = yield* github.getFileContent(ctx.owner, ctx.repo, file.filename, pr.headSha);
 			const bodyStart = content.indexOf('---', 3);
 			const body = bodyStart >= 0 ? content.slice(content.indexOf('\n', bodyStart) + 1) : content;
 

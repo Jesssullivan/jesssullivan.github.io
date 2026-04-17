@@ -60,7 +60,6 @@ jobs:
         run: |
           npx tsx packages/blog-agent/src/cli.ts command \
             --pr "$PR_NUMBER" \
-            --body "$COMMENT_BODY" \
             --commenter "$COMMENTER" \
             --comment-id "$COMMENT_ID"
         env:

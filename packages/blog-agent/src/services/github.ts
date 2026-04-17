@@ -26,6 +26,11 @@ export interface ReviewComment {
 	body: string;
 }
 
+export interface FileContent {
+	content: string;
+	sha: string;
+}
+
 // ── Service definition ─────────────────────────────────────
 
 export class GitHubService extends ServiceMap.Service<
@@ -34,7 +39,7 @@ export class GitHubService extends ServiceMap.Service<
 		readonly getPR: (owner: string, repo: string, number: number) => Effect.Effect<PullRequestData, Error>;
 		readonly updatePRBody: (owner: string, repo: string, prNumber: number, body: string) => Effect.Effect<void, Error>;
 		readonly listChangedFiles: (owner: string, repo: string, prNumber: number) => Effect.Effect<ChangedFile[], Error>;
-		readonly getFileContent: (owner: string, repo: string, path: string, ref: string) => Effect.Effect<string, Error>;
+		readonly getFileContent: (owner: string, repo: string, path: string, ref: string) => Effect.Effect<FileContent, Error>;
 		readonly postReview: (
 			owner: string,
 			repo: string,
@@ -153,7 +158,10 @@ export const GitHubServiceLive = Layer.succeed(GitHubService)({
 				const octokit = makeOctokit();
 				const { data } = await octokit.repos.getContent({ owner, repo, path, ref });
 				if ('content' in data && typeof data.content === 'string') {
-					return Buffer.from(data.content, 'base64').toString('utf-8');
+					return {
+						content: Buffer.from(data.content, 'base64').toString('utf-8'),
+						sha: data.sha,
+					};
 				}
 				throw new Error(`${path} is not a file`);
 			},
