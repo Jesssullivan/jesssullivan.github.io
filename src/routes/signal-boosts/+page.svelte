@@ -75,6 +75,7 @@
 				target="_blank"
 				rel="noopener"
 				class="card p-5 flex items-center gap-5 hover:ring-2 ring-primary-500 transition-all"
+				aria-label={`Visit ${person.name}`}
 			>
 				<Avatar class="size-12">
 					{#if person.image}

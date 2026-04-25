@@ -41,12 +41,20 @@ published: true
 category: "software"
 feature_image: "images/diagram.png"
 publish_to: "blog"
+linear_issue: "TIN-171"
+linear_project: "Blog + Profile Integration"
 ---
 ```
 
 `publish_to: "blog"` is the marker that tells the collector this file is
 intended for the blog. If a file is already inside a scanned directory, the
 marker is optional.
+
+If you are running the post through Tinyland's Linear surface, add
+`linear_issue` and optionally `linear_project`. Keep the actual post body in
+git-backed markdown, not in a Linear document. Linear is the control plane
+for idea state, review state, and scheduling context — not the canonical
+longform content store.
 
 ### Image conventions
 
@@ -176,6 +184,8 @@ To publish a post on a future date:
 | `category`        | no       | string     | `"software"`                     |
 | `feature_image`   | no       | string     | `"images/hero.png"`              |
 | `publish_to`      | no       | string     | `"blog"`                         |
+| `linear_issue`    | no       | string     | `"TIN-171"`                      |
+| `linear_project`  | no       | string     | `"Blog + Profile Integration"`   |
 | `excerpt`         | no       | string     | Alias for `description`          |
 | `categories`      | no       | string[]   | Legacy free-form categories      |
 | `reading_time`    | no       | number     | Computed at build time           |
@@ -188,7 +198,8 @@ To publish a post on a future date:
 
 `slug` defaults to a slugified version of the title if omitted. `source_repo`
 and `source_path` are set automatically by the collector -- do not set these
-manually.
+manually. `linear_issue` and `linear_project` are optional control-plane links
+for authoring and publication tracking.
 
 
 ## Valid Categories

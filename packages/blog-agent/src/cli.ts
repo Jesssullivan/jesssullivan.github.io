@@ -61,12 +61,14 @@ async function main() {
 
 		case "command": {
 			const prNumber = getArg("--pr")
-			const commentBody = getArg("--body")
+			const commentBody = getArg("--body") ?? process.env.COMMENT_BODY
 			const commenter = getArg("--commenter") ?? "github-actions[bot]"
 			const commentId = parseInt(getArg("--comment-id") ?? "0", 10)
 
 			if (!prNumber || !commentBody) {
-				console.error("Usage: cli.ts command --pr <number> --body '/slash args' [--commenter user] [--comment-id id]")
+				console.error(
+					"Usage: cli.ts command --pr <number> [--body '/slash args'] [--commenter user] [--comment-id id] (or set COMMENT_BODY)",
+				)
 				process.exit(1)
 			}
 
@@ -174,7 +176,7 @@ async function main() {
 
 Commands:
   review          Review a PR (--pr <number>)
-  command         Run a slash command (--pr <number> --body '/cmd args')
+  command         Run a slash command (--pr <number> [--body '/cmd args'] or COMMENT_BODY=...)
   validate        Validate a post's frontmatter (--file <path>)
   suggest-links   Find unlinked keywords in a post (--file <path>)`)
 			break

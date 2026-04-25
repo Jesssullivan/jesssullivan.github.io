@@ -53,23 +53,23 @@ test.describe('Dark Mode', () => {
 	});
 
 	test('persists dark mode across navigation', async ({ page }) => {
-		await page.goto('/');
-		await page.evaluate(() => {
+		await page.addInitScript(() => {
 			localStorage.setItem('color-mode', 'dark');
 		});
+		await page.goto('/');
+		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 		await page.goto('/blog');
-		const mode = await page.locator('html').getAttribute('data-mode');
-		expect(mode).toBe('dark');
+		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 	});
 
 	test('persists light mode preference', async ({ page }) => {
-		await page.goto('/');
-		await page.evaluate(() => {
+		await page.addInitScript(() => {
 			localStorage.setItem('color-mode', 'light');
 		});
+		await page.goto('/');
+		await expect(page.locator('html')).toHaveAttribute('data-mode', 'light');
 		await page.goto('/about');
-		const mode = await page.locator('html').getAttribute('data-mode');
-		expect(mode).toBe('light');
+		await expect(page.locator('html')).toHaveAttribute('data-mode', 'light');
 	});
 
 	test('theme can be changed', async ({ page }) => {

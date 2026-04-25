@@ -1,0 +1,36 @@
+{
+	"strictness": 2,
+	"commentTypes": ["logic", "syntax", "style"],
+	"triggerOnUpdates": true,
+	"triggerOnDrafts": false,
+	"ignorePatterns": "src/posts/**,static/images/posts/**,.github/dependabot.yml",
+	"statusCheck": true,
+	"fixWithAI": true,
+	"shouldUpdateDescription": true,
+	"summarySection": { "included": true, "collapsible": false, "defaultOpen": true },
+	"issuesTableSection": { "included": true, "collapsible": true, "defaultOpen": true },
+	"sequenceDiagramSection": { "included": false, "collapsible": true, "defaultOpen": false },
+	"instructions": "This repo contains a public SvelteKit blog, content collection workflows, and an Effect-based blog-agent. Review for scheduling correctness, dependency drift, build-truth regressions, least-privilege workflow permissions, and accessible shared UI shell changes. Treat PR-body scheduling directives, generated surfaces, and public-facing content workflows as correctness-sensitive.",
+	"patternRepositories": [],
+	"customContext": {
+		"rules": [
+			"Scheduled publication must use one authoritative source of truth between the PR body, labels, and automation.",
+			"Third-party GitHub Actions should move toward full SHA pinning and least-privilege permissions.",
+			"Generated dependency, license, and performance surfaces must be derived from real repo state or clearly described as snapshots.",
+			"Content collection and image-processing changes must preserve provenance and fail loudly on silent data loss risk.",
+			"Shared shell components should avoid accessibility regressions even when the site build itself still passes."
+		],
+		"files": [
+			{
+				"path": "AGENTS.md",
+				"description": "Repository voice, style, and authoring context.",
+				"scope": ["**"]
+			},
+			{
+				"path": "docs/blog-staging.md",
+				"description": "Cross-repo blog collection, staging, and scheduling workflow reference.",
+				"scope": [".github/workflows/**", "packages/blog-agent/**", "scripts/**"]
+			}
+		]
+	}
+}

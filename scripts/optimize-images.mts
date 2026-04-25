@@ -12,6 +12,27 @@ const WEBP_QUALITY = 80;
 const AVIF_QUALITY = 60;
 const dryRun = process.argv.includes('--dry-run');
 
+function createResizedOriginal(filepath: string, ext: string): sharp.Sharp {
+	const pipeline = sharp(filepath).resize(MAX_WIDTH);
+
+	if (ext === '.png') {
+		return pipeline.png({
+			compressionLevel: 9,
+			adaptiveFiltering: true,
+			effort: 10,
+		});
+	}
+
+	if (ext === '.jpg' || ext === '.jpeg') {
+		return pipeline.jpeg({
+			quality: 82,
+			mozjpeg: true,
+		});
+	}
+
+	return pipeline;
+}
+
 async function main(): Promise<void> {
 	const files = await readdir(IMAGES_DIR);
 	const imageFiles = files.filter((f) => /\.(jpe?g|png)$/i.test(f));
@@ -165,17 +186,17 @@ async function main(): Promise<void> {
 		}
 
 		// Resize originals wider than MAX_WIDTH
-		if (width > MAX_WIDTH) {
-			if (dryRun) {
-				console.log(`  would resize: ${file} (${width}px -> ${MAX_WIDTH}px)`);
-				resizeCount++;
-			} else {
-				try {
-					const tmpPath = filepath + '.tmp';
-					await sharp(filepath).resize(MAX_WIDTH).toFile(tmpPath);
-					await rename(tmpPath, filepath);
-					const newMeta = await sharp(filepath).metadata();
-					dimensions[`/images/posts/${file}`] = {
+			if (width > MAX_WIDTH) {
+				if (dryRun) {
+					console.log(`  would resize: ${file} (${width}px -> ${MAX_WIDTH}px)`);
+					resizeCount++;
+				} else {
+					try {
+						const tmpPath = filepath + '.tmp';
+						await createResizedOriginal(filepath, ext).toFile(tmpPath);
+						await rename(tmpPath, filepath);
+						const newMeta = await sharp(filepath).metadata();
+						dimensions[`/images/posts/${file}`] = {
 						width: newMeta.width ?? MAX_WIDTH,
 						height: newMeta.height ?? height
 					};

@@ -25,6 +25,59 @@ const highlighter = await createHighlighter({
 	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'toml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig']
 });
 
+function escapeHtml(value) {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
+function extractNodeText(node) {
+	if (!node) return '';
+	if (node.type === 'text') return node.value || '';
+	if (!node.children) return '';
+	return node.children.map(extractNodeText).join('');
+}
+
+function findFirstImage(node) {
+	if (!node) return null;
+	if (node.type === 'element' && node.tagName === 'img') return node;
+	if (!node.children) return null;
+
+	for (const child of node.children) {
+		const image = findFirstImage(child);
+		if (image) return image;
+	}
+
+	return null;
+}
+
+function normalizeImageLabel(imageNode) {
+	const alt = typeof imageNode?.properties?.alt === 'string' ? imageNode.properties.alt.trim() : '';
+	if (alt) return alt;
+
+	const src = typeof imageNode?.properties?.src === 'string' ? imageNode.properties.src : '';
+	if (!src) return 'image';
+
+	const filename = src.split('/').pop() || 'image';
+	const stem = filename.replace(/\.[^.]+$/, '');
+	if (!stem) return 'image';
+
+	return stem
+		.replace(/[_-]+/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function visitNodes(node, parent, visitor) {
+	visitor(node, parent);
+	if (node.children) {
+		for (const child of [...node.children]) {
+			visitNodes(child, node, visitor);
+		}
+	}
+}
+
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
 	extensions: ['.md', '.svx'],
@@ -40,10 +93,12 @@ const mdsvexOptions = {
 						.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
 					return `<div class="mermaid-diagram my-6 not-prose" role="figure" aria-label="Mermaid diagram">${svg}</div>`;
 				}
-				// Fallback: base64 encode for client-side rendering if cache miss
-				const encoded = Buffer.from(trimmed).toString('base64');
-				const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-				return `<div class="mermaid-diagram my-6 not-prose" data-mermaid-code="${encoded}" data-mermaid-id="${id}"></div>`;
+				if (process.env.NODE_ENV !== 'production') {
+					return `<pre class="mermaid-diagram my-6 not-prose overflow-x-auto rounded-xl p-4"><code>${escapeHtml(trimmed)}</code></pre>`;
+				}
+				throw new Error(
+					`Missing Mermaid prerender cache for ${hash}. Run the prebuild pipeline before shipping blog content with Mermaid diagrams.`
+				);
 			}
 			const html = escapeSvelte(
 				highlighter.codeToHtml(code, { lang: lang || 'text', theme })
@@ -111,6 +166,52 @@ const mdsvexOptions = {
 				}
 			};
 			visitImg(tree, null);
+		},
+		// Normalize legacy migrated content so old image galleries and stray headings
+		// do not flood the build with low-signal accessibility warnings.
+		() => (tree) => {
+			const isEmptyHeading = (node) => {
+				if (node.type !== 'element') return false;
+				if (!/^h[1-6]$/.test(node.tagName)) return false;
+				return extractNodeText(node).trim().length === 0;
+			};
+
+			visitNodes(tree, null, (node, parent) => {
+				if (node.type !== 'element') return;
+
+				if (node.tagName === 'img') {
+					node.properties = node.properties || {};
+					if (typeof node.properties.alt !== 'string') {
+						node.properties.alt = '';
+					}
+				}
+
+				if (node.tagName === 'a') {
+					node.properties = node.properties || {};
+					const hasAccessibleName =
+						typeof node.properties['aria-label'] === 'string' ||
+						typeof node.properties['aria-labelledby'] === 'string' ||
+						typeof node.properties.title === 'string' ||
+						extractNodeText(node).trim().length > 0;
+
+					if (!hasAccessibleName) {
+						const imageNode = findFirstImage(node);
+						if (imageNode) {
+							const label = normalizeImageLabel(imageNode);
+							node.properties['aria-label'] = `Open full-size ${label}`;
+						} else {
+							const parentText = extractNodeText(parent).trim();
+							const href = typeof node.properties.href === 'string' ? node.properties.href : '';
+							const fallbackLabel = parentText || href || 'Open link';
+							node.properties['aria-label'] = fallbackLabel;
+						}
+					}
+				}
+
+				if (parent?.children && isEmptyHeading(node)) {
+					parent.children = parent.children.filter((child) => child !== node);
+				}
+			});
 		},
 		// Style missing-image placeholder text as graceful notices
 		() => (tree) => {

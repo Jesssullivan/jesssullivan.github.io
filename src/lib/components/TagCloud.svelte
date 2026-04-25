@@ -24,12 +24,16 @@
 				{ label: 'KeePassXC', color: 'preset-outlined-surface-500', url: 'https://keepassxc.org/' },
 				{ label: 'Futhark', color: 'preset-outlined-surface-500', url: 'https://futhark-lang.org/' },
 				{ label: 'xCaddy', color: 'preset-outlined-surface-500', url: 'https://github.com/caddyserver/xcaddy' },
-				{ label: 'qutebrowser', color: 'preset-outlined-surface-500', url: 'https://github.com/qutebrowser/qutebrowser' },
+				{
+					label: 'qutebrowser',
+					color: 'preset-outlined-surface-500',
+					url: 'https://github.com/qutebrowser/qutebrowser',
+				},
 				{ label: 'pytest', color: 'preset-outlined-surface-500', url: 'https://github.com/pytest-dev/pytest' },
 				{ label: 'Klipper', color: 'preset-outlined-surface-500', url: 'https://github.com/Klipper3d/klipper' },
 				{ label: 'Budgie Desktop', color: 'preset-outlined-surface-500', url: 'https://buddiesofbudgie.org/' },
 				{ label: 'Tails', color: 'preset-outlined-surface-500', url: 'https://tails.net/' },
-			]
+			],
 		},
 		{
 			label: 'Sponsoring',
@@ -39,36 +43,41 @@
 				{ label: 'Skeleton Labs', color: 'preset-outlined-primary-500', url: 'https://github.com/skeletonlabs' },
 				{ label: 'purpl3F0x', color: 'preset-outlined-primary-500', url: 'https://github.com/purpl3F0x' },
 				{ label: 'EFF', color: 'preset-outlined-primary-500', url: 'https://www.eff.org/' },
-				{ label: 'Erin in the Morning', color: 'preset-outlined-primary-500', url: 'https://www.erininthemorning.com/' },
+				{
+					label: 'Erin in the Morning',
+					color: 'preset-outlined-primary-500',
+					url: 'https://www.erininthemorning.com/',
+				},
 				{ label: 'The Onion', color: 'preset-outlined-primary-500', url: 'https://theonion.com/' },
-			]
+			],
 		},
 		{
 			label: 'Ventures',
 			badges: [
 				{ label: 'xoxd.ai', color: 'preset-outlined-primary-500', url: 'https://xoxd.ai' },
 				{ label: 'tinyland.dev', color: 'preset-outlined-primary-500', url: 'https://tinyland.dev' },
-			]
+			],
 		},
 	];
 </script>
 
 <div class="tag-cloud">
-	{#each categories as cat}
+	{#each categories as cat (cat.label)}
 		{#if !compact}
 			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-3 mb-1.5 first:mt-0">
 				{cat.label}
 			</h4>
 		{/if}
 		<div class="flex flex-wrap gap-1.5 {compact ? 'mb-2' : 'mb-1'}">
-			{#each cat.badges as badge}
+			{#each cat.badges as badge (badge.label)}
 				{#if badge.url}
-					<a
-						href={badge.url}
-						target="_blank"
-						rel="noopener"
-						class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors"
-					>{badge.label}</a>
+						<a
+							href={badge.url}
+							target="_blank"
+							rel="noopener"
+							aria-label={`Visit ${badge.label}`}
+							class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors">{badge.label}</a
+						>
 				{:else}
 					<span class="badge {badge.color} text-xs">{badge.label}</span>
 				{/if}

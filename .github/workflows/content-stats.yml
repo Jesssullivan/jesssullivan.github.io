@@ -5,9 +5,13 @@ on:
     - cron: '30 6 * * 1'  # Weekly Monday 6:30 AM UTC
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   stats:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

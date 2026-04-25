@@ -59,12 +59,13 @@
 
 			{#if allTags.length > 0}
 				<div class="flex flex-wrap gap-2 mb-8 lg:hidden">
-					{#each allTags as tag}
-						<a
-							href="/blog/tag/{encodeURIComponent(tag)}"
-							class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-						>{tag}</a>
-					{/each}
+						{#each allTags as tag}
+							<a
+								href="/blog/tag/{encodeURIComponent(tag)}"
+								class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
+								aria-label={`View posts tagged ${tag}`}
+							>{tag}</a>
+						{/each}
 				</div>
 			{/if}
 
