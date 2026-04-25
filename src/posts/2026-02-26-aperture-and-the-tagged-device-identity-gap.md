@@ -3,7 +3,7 @@ title: "Aperture and the Tagged-Device Identity Gap"
 date: "2026-02-26"
 description: "Figuring out why half our tailnet couldn't talk to our AI gateway. Aperture has two separate auth layers, and tagged devices are invisible to one of them."
 tags: ["Tailscale", "DevOps"]
-published: true
+published: false
 slug: "aperture-and-the-tagged-device-identity-gap"
 category: "devops"
 feature_image: "/images/posts/aperture-architecture.png"
