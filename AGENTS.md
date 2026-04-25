@@ -193,16 +193,46 @@ This arc repeats at both the paragraph level and the post level. Each section ha
 
 ---
 
-## Reference: The Aperture Posts (Current Mature Voice)
+## Reference Posts (Voice Calibration)
 
-The two Aperture posts (2026-02-26) represent the author's current mature voice and are the closest stylistic target for new technical posts. They use proper markdown headings and structure, but retain:
+### Gold standard: The NVMe Recovery Post (2026-03-04)
 
-- Narrative discovery framing: "It took us a while to realize"
+`src/posts/2026-03-04-from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life.md` is the author's mature voice at its peak. 784 lines that never feel rambly because every section earns its place in the narrative arc. Key patterns to replicate:
+
+- **Long investigative arc**: six weeks of dead ends, eureka moments, and hard-won understanding -- told chronologically with genuine uncertainty preserved
+- **Discovery as structure**: "I blinked, ran it again." → "Unless the disk itself is the liar." → "I sat there for a long moment." The reader discovers alongside the author.
+- **Hardware affection and anthropomorphism**: the drive "lies," the bridge has "opinions," commands are "swallowed"
+- **Time investment honesty**: "This part cost me half a day." "Each dead end cost a day or more."
+- **Mixed register in the same sentence**: formal NVMe spec language next to "like a cat pushing a glass off a table"
+- **Technical appendix pattern**: the narrative tells the story, then a clean appendix provides the recipe for practitioners
+- **Philosophical cappers**: "Sometimes the obstacle is the path." -- earned by the narrative, not dropped in as decoration
+
+### Good reference: The Aperture Post (2026-02-26)
+
+`src/posts/2026-02-26-aperture-tagged-devices-and-the-tsnet-escape-hatch.md` is a shorter (200-line) problem-discovery-solution arc. Good structural model for medium-length technical posts. Key patterns:
+
 - Light humor for frustration: "This created a fun bootstrapping problem"
-- Absurdity played for laughs: "We couldn't even fix the config because the broken config prevented us from accessing the API."
+- Absurdity played for laughs: "I couldn't even fix the config because the broken config prevented me from accessing the API."
 - Numbered takeaway sections
 - Mermaid diagrams
 - Dashes as thought-interrupts
-- Warmth and conversational register throughout
 
-New technical posts should aim for the Aperture posts' balance of structure and personality.
+### Weak reference: The 2019 Chapel Post
+
+`src/posts/2019-02-20-installing-chapel-language-on-mac-and-linux.md` is the old voice -- flat, tutorial-style, README-mirror. Too procedural, no narrative, no personality. Do NOT write like this.
+
+## Anti-Slop Checklist
+
+AI-assisted drafts tend toward specific failure modes. Catch and fix these:
+
+- **"We" when it should be "I"** -- the author is always the narrator, always present. "We" only for named teams in specific contexts.
+- **Artificial cliffhangers** -- "But that's for Part 2" or "The solution turned out to be surprisingly elegant." If you have the resolution, deliver it. Withholding is not the same as building tension.
+- **Template transitions** -- "Here's what we missed." "Let's dive in." "Setting the scene." These are generic AI connective tissue. Replace with specific, surprising, or punchy alternatives -- or cut them entirely.
+- **Uniform sentence length** -- the single fastest tell. If every sentence is 15-25 words, it's wrong. Alternate between 3-word punches and 40-word parenthetical sprawls.
+- **Hedging without personality** -- "It's worth noting that" or "It should be mentioned that." Either say it directly or cut it.
+- **Overly clean structure** -- real Jess posts have sections that accumulate energy and surprise. If the outline looks like a five-paragraph essay, rethink it.
+- **Missing sign-off** -- posts end with `-Jess`. Not optional.
+
+## Voice Evolution
+
+The voice has matured significantly from 2017-2019 (nature observations, tutorial dumps, README mirrors) through 2020-2021 (emerging personality, mixed register) to 2026 (full narrative voice with technical depth). New posts should target the 2026 register -- the NVMe and Aperture posts, the week notes -- not the earlier flat style. The 2026 voice retains the enthusiasm and curiosity of the early posts but wraps it in structure, humor, and genuine investigative narrative.
