@@ -1,13 +1,13 @@
 ---
 title: "Characterizing a Dual-Socket BCI Server Before Claiming RT Wins"
 date: "2026-04-25"
-description: "A draft result note for a Dell T7810 BCI server: first generic/RT packet captured, two generic repeat packets captured, no RT improvement claim yet."
+description: "A draft result note for a Dell T7810 BCI server: generic repeats captured, RT SMI/hwlat matched, RT Chapel repeat captured, no RT improvement claim."
 tags: ["Chapel", "Nix", "Dhall", "NUMA", "hardware", "reproducibility", "RT"]
 published: false
 slug: "reproducible-host-probes-nix-chapel-dhall"
 category: "hardware"
 source_repo: "Jesssullivan/Dell-7810"
-source_path: "docs/platform/honey-generic-host-characterization-window-2026-04-26.md"
+source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
 ---
 
 I've been tuning a Dell Precision T7810 as a BCI server for real-time XR work-- two Xeon E5-2630 v3 processors, 32 threads, two NUMA nodes, the kind of dual-socket Haswell-era machine that rewards you for thinking about memory topology and punishes you for ignoring it.
@@ -87,6 +87,56 @@ The second repeat packet adds longer SMI/hwlat context-- three 120-second SMI wi
 
 That same packet had SMI counts of 280, 279, and 279 events per 120 seconds, while tracefs `hwlat` stayed at 0 us max in all three windows. The captures also record load average, which matters. This is host characterization under lab conditions, not an idle benchmark distribution.
 
+## Matching RT window (captured)
+
+The matching RT-side long-window packet exists for SMI and `hwlat`, and the follow-up Chapel-only RT repeat now exists too. It is still not an improvement story.
+
+| Metric | Generic 120s window | RT 120s window |
+| --- | ---: | ---: |
+| SMI sample 1 | 280 / 120s | 279 / 120s |
+| SMI sample 2 | 279 / 120s | 279 / 120s |
+| SMI sample 3 | 279 / 120s | 278 / 120s |
+| tracefs `hwlat` max 1 | 0 us | 2 us |
+| tracefs `hwlat` max 2 | 0 us | 2 us |
+| tracefs `hwlat` max 3 | 0 us | 14 us |
+
+That is the opposite of an RT victory lap. RT did not reduce the SMI rate in this packet, and one RT `hwlat` window crossed the 10 us checklist threshold.
+
+The hardened RT Chapel repeat completed five conforming samples:
+
+![Generic versus RT repeat packet](/images/posts/honey-generic-rt-repeat-packet.svg)
+
+| Metric | RT repeat |
+| --- | ---: |
+| Serial seconds | 0.022144-0.023715 |
+| Parallel seconds | 0.001726-0.016977 |
+| Characterization ratio | 1.3617x-12.8297x |
+| Ratio mean | 9.3204x |
+| Ratio sample stdev | 4.6220x |
+| Conforms | 5 / 5 |
+
+The generic repeat it should be compared against had a ratio mean of 12.2760x and sample stdev of 1.8093x. The RT repeat had one severe parallel outlier: sample 2 took 16.977 ms on the parallel path and collapsed to 1.3617x. That outlier is the result, not noise to hand-wave away.
+
+The host returned to the saved generic kernel afterward, the generic validator passed, and `rke2-server` came back active after boot settle.
+
+## What would make RT worth it?
+
+This started as "do we need an RT kernel for the BCI/XR box?" The measured answer is narrower: the current host-characterization packet does not justify making RT the default. It does not prove RT is useless. It says the next claim has to come from a downstream deadline, not from kernel flavor.
+
+The Chapel result is a caution flag, not a universal law. PREEMPT_RT changes Linux by making more kernel work preemptible and by moving many interrupt handlers into scheduler-controlled threads. That can help a high-priority deadline thread. It can also perturb a mixed workload. My local packet only proves that this NUMA-aware Chapel probe got slower and more variable under this RT boot.
+
+So the next tests have to be specific:
+
+**GPU and VR frame timing**: OpenXR exposes predicted display time and display period; Monado documents frame pacing as application wake, render, compositor submit, present, and display. A useful RT claim needs missed-frame or frame-timing histograms from that pipeline. RT does not by itself fix display bandwidth, DSC, GPU throughput, or headset optics.
+
+**BCI and audio I/O**: This is the most plausible RT surface, but it needs period, buffer, quantum, xrun, round-trip latency, and missed-deadline evidence. If a low-buffer audio or sensor-ingest packet misses deadlines on generic and improves under RT, that is a real result. Without that packet, "RT is needed for BCI" is just a preference.
+
+**Buffering and application design**: Queues, backpressure, batching, timestamps, and clock-domain conversion can dominate latency even on a good kernel. If the application buffers badly, RT will not rescue the design.
+
+**The alternative that already exists**: `honey` already has `isolcpus`, `nohz_full`, `irqaffinity`, and `tsc=nowatchdog` applied through the `linux-xr` posture. The lower-risk next hypothesis is targeted isolation plus real-time scheduling policy for the specific audio/BCI thread, then measure whether deadlines are missed.
+
+The RT characterization campaign produced a defensible cautionary result: the host was tested, the result was captured, and the conclusion is bounded. The decision framework and source-grounded analysis live in the [Dell-7810 repo](https://github.com/Jesssullivan/Dell-7810/blob/main/docs/publication/rt-benefit-decision-framework-2026-04-26.md).
+
 ## The reproducibility pipeline
 
 The probe is Chapel. The reproducibility is [Nix](https://nixos.org/) (hermetic compiler sourcing) and [Dhall](https://dhall-lang.org/) (typed evidence records). One command:
@@ -101,11 +151,16 @@ Every artifact-- compiler path, host context, probe output, Dhall record-- stays
 
 ## What's next
 
-- Matching RT repeat series using the same store-prebuilt Chapel path
-- Longer RT SMI/`hwlat` windows to match the generic 120-second packet
-- Notes on lab load, reboot/recovery cost, and any BIOS or C-state changes
-- Fresh `quickchpl` PBT run for the paper-bound timing invariant claims
+The RT host-probe question is answered for now. The next work starts on the generic lane:
 
-The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo has everything: Chapel probes, Dhall records, raw captures, publication roadmap, and the claim ladder that keeps me honest.
+- **Targeted core isolation**: test `SCHED_FIFO` on isolated cores for audio/BCI threads and measure the actual deadline behavior
+- **Audio/BCI IO packet**: period, buffer, quantum, xrun, and deadline evidence under the generic kernel with isolation tuning
+- **XR frame timing**: `xrWaitFrame` / compositor timing histogram via Monado, missed-frame counts, and GPU/display mode evidence (XoxDWM-owned)
+- **Fresh `quickchpl` PBT run** for the paper-bound timing invariant claims
+- **Fan and enclosure work**: the T7810 thermal path and the Session 01 bench measurements are independent of RT
+
+The RT lane stays available if a downstream packet ever demonstrates a concrete deadline failure on the generic kernel. The burden of proof has shifted: RT needs to earn its way back in, not be assumed.
+
+The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo has everything: Chapel probes, Dhall records, raw captures, publication roadmap, RT analysis, and the claim ladder that keeps me honest.
 
 -Jess
