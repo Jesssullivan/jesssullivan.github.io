@@ -5,7 +5,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"prebuild": "tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts",
+		"prebuild": "tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/generate-activity-stream.mts",
 		"build": "vite build",
 		"postbuild": "tsx scripts/generate-redirects.mts && pagefind --site build",
 		"test:redirects": "npm run build && tsx scripts/validate-redirects.mts",

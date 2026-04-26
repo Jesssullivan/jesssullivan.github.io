@@ -1,0 +1,2382 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "id": "https://tinyland.dev/@jesssullivan/outbox",
+  "type": "OrderedCollection",
+  "totalItems": 75,
+  "orderedItems": [
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/4211517840947f71079d2ce769508b60",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-26T06:38:25.923Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/4211517840947f71079d2ce769508b60",
+        "published": "2026-04-26T06:38:25.923Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/171c83ff7da77e555ba84723b44f6e4d",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-24T18:54:45.491Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/171c83ff7da77e555ba84723b44f6e4d",
+        "published": "2026-04-24T18:54:45.491Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+38/-18 lines across 4 commits in jesssullivan.github.io.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 38,
+          "linesRemoved": 18,
+          "commits": 4,
+          "repository": "jesssullivan.github.io",
+          "languages": [
+            "Rust",
+            "Nix"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/844b19e6c404a031e441d959af729444",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-23T20:27:07.482Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/844b19e6c404a031e441d959af729444",
+        "published": "2026-04-23T20:27:07.482Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 White-breasted Nuthatch at Range Pond State Park.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "White-breasted Nuthatch",
+          "scientificName": "Sitta carolinensis",
+          "location": {
+            "type": "Place",
+            "name": "Range Pond State Park",
+            "latitude": 44.0667,
+            "longitude": -70.35
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/5fc07342785656832462196def454c95",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-22T11:47:22.024Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/5fc07342785656832462196def454c95",
+        "published": "2026-04-22T11:47:22.024Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Office: 20.2C, 39% humidity, CO2 473ppm.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#sensors"
+          }
+        ],
+        "tl:sensorReading": {
+          "sensorId": "office-env-01",
+          "sensorType": "environmental",
+          "measurements": [
+            {
+              "name": "Temperature",
+              "value": 20.2,
+              "unit": "C"
+            },
+            {
+              "name": "Humidity",
+              "value": 39,
+              "unit": "%"
+            },
+            {
+              "name": "CO2",
+              "value": 473,
+              "unit": "ppm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/8baad0ce2f103e6155cfe753f1e713b2",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-21T10:58:38.890Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/8baad0ce2f103e6155cfe753f1e713b2",
+        "published": "2026-04-21T10:58:38.890Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Tried $state.eager() for the theme switcher. Instant visual feedback even during page transitions. Svelte 5 keeps delivering.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/76663f8cd2b0c17410f6f7a488411ab9",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-20T05:15:14.737Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/76663f8cd2b0c17410f6f7a488411ab9",
+        "published": "2026-04-20T05:15:14.737Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The blog prebuild pipeline is getting comically long but every step earns its keep. 6 scripts chained before vite even starts.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/a3aa502a82274eff9a9f2b778c5d89f5",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-18T19:33:51.722Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/a3aa502a82274eff9a9f2b778c5d89f5",
+        "published": "2026-04-18T19:33:51.722Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+249/-116 lines across 6 commits in XoxdWM.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 249,
+          "linesRemoved": 116,
+          "commits": 6,
+          "repository": "XoxdWM",
+          "languages": [
+            "Rust",
+            "Python"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/f168aced1900ff654ffbb047b0216012",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-17T17:15:09.917Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/f168aced1900ff654ffbb047b0216012",
+        "published": "2026-04-17T17:15:09.917Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>7.6 mi ride along the Nezinscot River road. 29 minutes, 192 ft elevation.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#cycling"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:bikeRide": {
+          "distanceMiles": 7.6,
+          "durationMinutes": 29,
+          "route": "Nezinscot River road",
+          "elevationGainFeet": 192
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/6349659ddbd5aa54f291c2bd477102df",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-16T12:19:14.524Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/6349659ddbd5aa54f291c2bd477102df",
+        "published": "2026-04-16T12:19:14.524Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+240/-69 lines across 7 commits in scheduling-kit.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 240,
+          "linesRemoved": 69,
+          "commits": 7,
+          "repository": "scheduling-kit",
+          "languages": [
+            "Nix",
+            "Zig"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/70dcf1eea677ecef7446ad7758a6f687",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-15T06:59:04.235Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/70dcf1eea677ecef7446ad7758a6f687",
+        "published": "2026-04-15T06:59:04.235Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/4bf8deda84a2d446645bec1aef7cb37f",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-13T23:23:09.634Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/4bf8deda84a2d446645bec1aef7cb37f",
+        "published": "2026-04-13T23:23:09.634Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Office: 25.3C, 51% humidity, CO2 849ppm.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#sensors"
+          }
+        ],
+        "tl:sensorReading": {
+          "sensorId": "office-env-01",
+          "sensorType": "environmental",
+          "measurements": [
+            {
+              "name": "Temperature",
+              "value": 25.3,
+              "unit": "C"
+            },
+            {
+              "name": "Humidity",
+              "value": 51,
+              "unit": "%"
+            },
+            {
+              "name": "CO2",
+              "value": 849,
+              "unit": "ppm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/28c58570712d7439caebd0ab1020c539",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-13T00:13:40.251Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/28c58570712d7439caebd0ab1020c539",
+        "published": "2026-04-13T00:13:40.251Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 Barred Owl at Bradbury Mountain.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Barred Owl",
+          "scientificName": "Strix varia",
+          "location": {
+            "type": "Place",
+            "name": "Bradbury Mountain",
+            "latitude": 43.9017,
+            "longitude": -70.1678
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/528e338a58de1cbfe63dd1cf736be68b",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-11T13:48:53.741Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/528e338a58de1cbfe63dd1cf736be68b",
+        "published": "2026-04-11T13:48:53.741Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The blog prebuild pipeline is getting comically long but every step earns its keep. 6 scripts chained before vite even starts.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/85fb67b23709f2fe936d527762070e81",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-10T09:14:22.538Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/85fb67b23709f2fe936d527762070e81",
+        "published": "2026-04-10T09:14:22.538Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Three hours deep in EDID parsing. The Bigscreen Beyond reports a non-desktop display type but the kernel ignores it. Fun.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/415fc624e8866df8c963d644e1f1be54",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-09T09:59:25.056Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/415fc624e8866df8c963d644e1f1be54",
+        "published": "2026-04-09T09:59:25.056Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The blog prebuild pipeline is getting comically long but every step earns its keep. 6 scripts chained before vite even starts.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/7231a8ae524df3aad3a3f827f45aa5a4",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-08T01:27:47.581Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/7231a8ae524df3aad3a3f827f45aa5a4",
+        "published": "2026-04-08T01:27:47.581Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 2 Black-capped Chickadees at Lost Valley trails- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Black-capped Chickadee",
+          "scientificName": "Poecile atricapillus",
+          "location": {
+            "type": "Place",
+            "name": "Lost Valley trails",
+            "latitude": 44.0889,
+            "longitude": -70.2456
+          },
+          "count": 2
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/c5de567b7e605d368fd754a4e3236a47",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-07T01:29:19.980Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/c5de567b7e605d368fd754a4e3236a47",
+        "published": "2026-04-07T01:29:19.980Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+3/-2 lines across 2 commits in cmux.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 3,
+          "linesRemoved": 2,
+          "commits": 2,
+          "repository": "cmux",
+          "languages": [
+            "Svelte",
+            "TypeScript"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/82a4da6c231d89280eb76e9c2ea5f7d9",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-05T13:22:07.137Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/82a4da6c231d89280eb76e9c2ea5f7d9",
+        "published": "2026-04-05T13:22:07.137Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 White-breasted Nuthatch at Androscoggin Riverlands.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "White-breasted Nuthatch",
+          "scientificName": "Sitta carolinensis",
+          "location": {
+            "type": "Place",
+            "name": "Androscoggin Riverlands",
+            "latitude": 44.0412,
+            "longitude": -70.1823
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/09bcca81620daea6b6a7cde10721062d",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-04T08:58:28.128Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/09bcca81620daea6b6a7cde10721062d",
+        "published": "2026-04-04T08:58:28.128Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Three hours deep in EDID parsing. The Bigscreen Beyond reports a non-desktop display type but the kernel ignores it. Fun.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/7f9faaf116d3cb8ae69958428614b493",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-03T06:10:48.133Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/7f9faaf116d3cb8ae69958428614b493",
+        "published": "2026-04-03T06:10:48.133Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/9321d2a2df8137b7659ef519f2d14a64",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-04-02T03:28:04.004Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/9321d2a2df8137b7659ef519f2d14a64",
+        "published": "2026-04-02T03:28:04.004Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 2 Black-capped Chickadees at Thorncrag Bird Sanctuary- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Black-capped Chickadee",
+          "scientificName": "Poecile atricapillus",
+          "location": {
+            "type": "Place",
+            "name": "Thorncrag Bird Sanctuary",
+            "latitude": 44.1003,
+            "longitude": -70.2148
+          },
+          "count": 2
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/57d86b32385872e9ad6e19ac6e1deece",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-31T22:19:07.620Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/57d86b32385872e9ad6e19ac6e1deece",
+        "published": "2026-03-31T22:19:07.620Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Nix flake for the Chapel toolchain is reproducible on both darwin and rocky. One derivation, two platforms. Feels good.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/a98ec2de40dacf6a0d0ef5b0f3ab5020",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-30T14:40:03.052Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/a98ec2de40dacf6a0d0ef5b0f3ab5020",
+        "published": "2026-03-30T14:40:03.052Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>14.8 mi ride along the Nezinscot River road. 70 minutes, 670 ft elevation.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#cycling"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:bikeRide": {
+          "distanceMiles": 14.8,
+          "durationMinutes": 70,
+          "route": "Nezinscot River road",
+          "elevationGainFeet": 670
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/3a2bb2869191c279c66d67cc50dfe03e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-29T08:51:48.169Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/3a2bb2869191c279c66d67cc50dfe03e",
+        "published": "2026-03-29T08:51:48.169Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The tinyvectors extraction is cleaner than I expected. Bazel builds the package, npm publishes it, CI validates the round trip.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/2f9c17657955b38230c84c38e78dd1ab",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-28T09:18:13.089Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/2f9c17657955b38230c84c38e78dd1ab",
+        "published": "2026-03-28T09:18:13.089Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/460c61259cf70605658e51f7c48ae64e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-27T01:24:29.334Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/460c61259cf70605658e51f7c48ae64e",
+        "published": "2026-03-27T01:24:29.334Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+154/-5 lines across 8 commits in acuity-middleware.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 154,
+          "linesRemoved": 5,
+          "commits": 8,
+          "repository": "acuity-middleware",
+          "languages": [
+            "Nix",
+            "Rust"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/ebd9c12ddc22968dae8b5b6d03057995",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-26T00:19:32.902Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/ebd9c12ddc22968dae8b5b6d03057995",
+        "published": "2026-03-26T00:19:32.902Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/35763973bafd97f2953eb7eb7ba07f16",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-24T19:36:15.266Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/35763973bafd97f2953eb7eb7ba07f16",
+        "published": "2026-03-24T19:36:15.266Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spring peepers are deafening tonight. Walked down to the pond with a headlamp and counted at least forty calling.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/0ca1b7bf3e1f82e334faab238ab47326",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-23T13:50:09.918Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/0ca1b7bf3e1f82e334faab238ab47326",
+        "published": "2026-03-23T13:50:09.918Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Morning fog on the Androscoggin. Perfect conditions for great blue herons- counted six in a half-mile stretch.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/c45e8e8a0a6121b97546acbd713e9c99",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-22T10:39:52.274Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/c45e8e8a0a6121b97546acbd713e9c99",
+        "published": "2026-03-22T10:39:52.274Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>27.6 mi ride along the Lisbon Falls loop. 133 minutes, 497 ft elevation.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#cycling"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:bikeRide": {
+          "distanceMiles": 27.6,
+          "durationMinutes": 133,
+          "route": "Lisbon Falls loop",
+          "elevationGainFeet": 497
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/31095068f27684456ef6430436f6213e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-21T05:09:32.640Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/31095068f27684456ef6430436f6213e",
+        "published": "2026-03-21T05:09:32.640Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Reading through the Zag.js source for the scroll-area machine. The state chart is beautiful- might propose a Skeleton wrapper.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/ba4e64be4f9a4b870b1e862aac6a2785",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-20T00:22:09.434Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/ba4e64be4f9a4b870b1e862aac6a2785",
+        "published": "2026-03-20T00:22:09.434Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+114/-50 lines across 2 commits in cmux.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 114,
+          "linesRemoved": 50,
+          "commits": 2,
+          "repository": "cmux",
+          "languages": [
+            "Svelte",
+            "CSS"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/5e8cb357b80d2ee47757a210c1cdeb46",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-18T14:43:13.164Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/5e8cb357b80d2ee47757a210c1cdeb46",
+        "published": "2026-03-18T14:43:13.164Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spring peepers are deafening tonight. Walked down to the pond with a headlamp and counted at least forty calling.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/ea7f6735a3d1213e0a36ae3c8e37cb61",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-17T14:58:32.573Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/ea7f6735a3d1213e0a36ae3c8e37cb61",
+        "published": "2026-03-17T14:58:32.573Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 Great Blue Heron at Bradbury Mountain.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Great Blue Heron",
+          "scientificName": "Ardea herodias",
+          "location": {
+            "type": "Place",
+            "name": "Bradbury Mountain",
+            "latitude": 43.9017,
+            "longitude": -70.1678
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/604b976b778db7fb303b649c8d185bff",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-16T09:31:46.518Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/604b976b778db7fb303b649c8d185bff",
+        "published": "2026-03-16T09:31:46.518Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The tinyvectors extraction is cleaner than I expected. Bazel builds the package, npm publishes it, CI validates the round trip.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/04a99cdb9a5bdd4c7f32bcd964a7f61d",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-14T23:38:44.132Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/04a99cdb9a5bdd4c7f32bcd964a7f61d",
+        "published": "2026-03-14T23:38:44.132Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 2 Red-tailed Hawks at Sabattus Pond- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Red-tailed Hawk",
+          "scientificName": "Buteo jamaicensis",
+          "location": {
+            "type": "Place",
+            "name": "Sabattus Pond",
+            "latitude": 44.1209,
+            "longitude": -70.0874
+          },
+          "count": 2
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/4e8fc9a579d46bc3ee4efb5be4c8b9db",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-14T00:51:49.153Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/4e8fc9a579d46bc3ee4efb5be4c8b9db",
+        "published": "2026-03-14T00:51:49.153Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 Barred Owl at Androscoggin Riverlands.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Barred Owl",
+          "scientificName": "Strix varia",
+          "location": {
+            "type": "Place",
+            "name": "Androscoggin Riverlands",
+            "latitude": 44.0412,
+            "longitude": -70.1823
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/b8dabfc5d830d6c944f2d36759caa9de",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-12T13:35:08.946Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/b8dabfc5d830d6c944f2d36759caa9de",
+        "published": "2026-03-12T13:35:08.946Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>23.9 mi ride along the Turner Center hill climb. 112 minutes, 589 ft elevation.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#cycling"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:bikeRide": {
+          "distanceMiles": 23.9,
+          "durationMinutes": 112,
+          "route": "Turner Center hill climb",
+          "elevationGainFeet": 589
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/faefef3d75ea4eebdf1f36240980d2b1",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-11T11:55:06.301Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/faefef3d75ea4eebdf1f36240980d2b1",
+        "published": "2026-03-11T11:55:06.301Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Office: 18.3C, 37% humidity, CO2 431ppm.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#sensors"
+          }
+        ],
+        "tl:sensorReading": {
+          "sensorId": "office-env-01",
+          "sensorType": "environmental",
+          "measurements": [
+            {
+              "name": "Temperature",
+              "value": 18.3,
+              "unit": "C"
+            },
+            {
+              "name": "Humidity",
+              "value": 37,
+              "unit": "%"
+            },
+            {
+              "name": "CO2",
+              "value": 431,
+              "unit": "ppm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/a8524fe901a5d67ded4b23dcdfbece29",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-10T11:25:41.320Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/a8524fe901a5d67ded4b23dcdfbece29",
+        "published": "2026-03-10T11:25:41.320Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+240/-41 lines across 5 commits in scheduling-kit.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 240,
+          "linesRemoved": 41,
+          "commits": 5,
+          "repository": "scheduling-kit",
+          "languages": [
+            "TypeScript",
+            "CSS"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/351b03c80d6ba3cff5d558dca8e3e85b",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-08T23:23:39.121Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/351b03c80d6ba3cff5d558dca8e3e85b",
+        "published": "2026-03-08T23:23:39.121Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Three hours deep in EDID parsing. The Bigscreen Beyond reports a non-desktop display type but the kernel ignores it. Fun.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/35c760846a909343967770d1f4ad98a5",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-07T21:06:58.978Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/35c760846a909343967770d1f4ad98a5",
+        "published": "2026-03-07T21:06:58.978Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 4 Cedar Waxwings at Range Pond State Park- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Cedar Waxwing",
+          "scientificName": "Bombycilla cedrorum",
+          "location": {
+            "type": "Place",
+            "name": "Range Pond State Park",
+            "latitude": 44.0667,
+            "longitude": -70.35
+          },
+          "count": 4
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/58358cd78551db339950c6605e5fb5f7",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-06T13:50:22.830Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/58358cd78551db339950c6605e5fb5f7",
+        "published": "2026-03-06T13:50:22.830Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spring peepers are deafening tonight. Walked down to the pond with a headlamp and counted at least forty calling.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/63ada09c8d16f5fcdcd2692223647b71",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-05T13:21:52.204Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/63ada09c8d16f5fcdcd2692223647b71",
+        "published": "2026-03-05T13:21:52.204Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>The blog prebuild pipeline is getting comically long but every step earns its keep. 6 scripts chained before vite even starts.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/7d70740fa93a950f5b287195de9f0a7e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-04T11:11:51.554Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/7d70740fa93a950f5b287195de9f0a7e",
+        "published": "2026-03-04T11:11:51.554Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Reading through the Zag.js source for the scroll-area machine. The state chart is beautiful- might propose a Skeleton wrapper.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/15fd9367271144503800f07aa40cd524",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-03T03:58:45.730Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/15fd9367271144503800f07aa40cd524",
+        "published": "2026-03-03T03:58:45.730Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>5.1 mi ride along the Turner Center hill climb. 20 minutes, 659 ft elevation.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#cycling"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:bikeRide": {
+          "distanceMiles": 5.1,
+          "durationMinutes": 20,
+          "route": "Turner Center hill climb",
+          "elevationGainFeet": 659
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/396e4884df1b5e4879cb4a710917bfcd",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-03-02T00:51:35.079Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/396e4884df1b5e4879cb4a710917bfcd",
+        "published": "2026-03-02T00:51:35.079Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Rebuilt the Ghostty submodule pin for cmux. 282 commits ahead of upstream now- the fork drift is real.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/5b4358f60023247c458522bc1ad2db4e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-28T17:55:28.562Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/5b4358f60023247c458522bc1ad2db4e",
+        "published": "2026-02-28T17:55:28.562Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/23bda90c0ec9f761985cb789d83f2e1e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-27T12:26:53.071Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/23bda90c0ec9f761985cb789d83f2e1e",
+        "published": "2026-02-27T12:26:53.071Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 2 Hermit Thrushs at Androscoggin Riverlands- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Hermit Thrush",
+          "scientificName": "Catharus guttatus",
+          "location": {
+            "type": "Place",
+            "name": "Androscoggin Riverlands",
+            "latitude": 44.0412,
+            "longitude": -70.1823
+          },
+          "count": 2
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/09469d509adaada274f313ce7235a796",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-26T11:18:32.217Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/09469d509adaada274f313ce7235a796",
+        "published": "2026-02-26T11:18:32.217Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Baked a sourdough loaf while waiting for molecule tests. Both turned out better than expected.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/d95cd6fc6e01f4a93d3796cd1b255042",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-25T01:15:59.534Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/d95cd6fc6e01f4a93d3796cd1b255042",
+        "published": "2026-02-25T01:15:59.534Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 3 Barred Owls at Thorncrag Bird Sanctuary- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Barred Owl",
+          "scientificName": "Strix varia",
+          "location": {
+            "type": "Place",
+            "name": "Thorncrag Bird Sanctuary",
+            "latitude": 44.1003,
+            "longitude": -70.2148
+          },
+          "count": 3
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/6c8e700e47de6ef132a2eaef883f29be",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-24T00:37:51.920Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/6c8e700e47de6ef132a2eaef883f29be",
+        "published": "2026-02-24T00:37:51.920Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+171/-102 lines across 6 commits in jesssullivan.github.io.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 171,
+          "linesRemoved": 102,
+          "commits": 6,
+          "repository": "jesssullivan.github.io",
+          "languages": [
+            "Nix",
+            "Rust"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/40962a3677faaee44849f9a14064c3af",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-22T20:19:19.574Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/40962a3677faaee44849f9a14064c3af",
+        "published": "2026-02-22T20:19:19.574Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+7/-1 lines across 2 commits in XoxdWM.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 7,
+          "linesRemoved": 1,
+          "commits": 2,
+          "repository": "XoxdWM",
+          "languages": [
+            "Nix",
+            "Rust"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/9d4fcf18cb81e58bff9db7b39de2adf8",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-21T13:39:56.769Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/9d4fcf18cb81e58bff9db7b39de2adf8",
+        "published": "2026-02-21T13:39:56.769Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Rebuilt the Ghostty submodule pin for cmux. 282 commits ahead of upstream now- the fork drift is real.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/4a2e5fde14eb5128dc46175f685915f7",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-20T08:31:23.802Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/4a2e5fde14eb5128dc46175f685915f7",
+        "published": "2026-02-20T08:31:23.802Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Nix flake for the Chapel toolchain is reproducible on both darwin and rocky. One derivation, two platforms. Feels good.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/629ac8cd3a8d5214bfbb44751ebedae5",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-19T04:28:57.458Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/629ac8cd3a8d5214bfbb44751ebedae5",
+        "published": "2026-02-19T04:28:57.458Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Office: 19.2C, 30% humidity, CO2 463ppm.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#sensors"
+          }
+        ],
+        "tl:sensorReading": {
+          "sensorId": "office-env-01",
+          "sensorType": "environmental",
+          "measurements": [
+            {
+              "name": "Temperature",
+              "value": 19.2,
+              "unit": "C"
+            },
+            {
+              "name": "Humidity",
+              "value": 30,
+              "unit": "%"
+            },
+            {
+              "name": "CO2",
+              "value": 463,
+              "unit": "ppm"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/49e6b025cd5031fc0fb3c85210ccfb18",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-18T00:38:08.598Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/49e6b025cd5031fc0fb3c85210ccfb18",
+        "published": "2026-02-18T00:38:08.598Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 4 Barred Owls at Sabattus Pond- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Barred Owl",
+          "scientificName": "Strix varia",
+          "location": {
+            "type": "Place",
+            "name": "Sabattus Pond",
+            "latitude": 44.1209,
+            "longitude": -70.0874
+          },
+          "count": 4
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/09ef926d9821dd072a0b61953f7c6c0b",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-16T15:36:20.564Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/09ef926d9821dd072a0b61953f7c6c0b",
+        "published": "2026-02-16T15:36:20.564Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/e1e91535cb3c58a1f392b533c9ec9401",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-15T12:21:51.544Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/e1e91535cb3c58a1f392b533c9ec9401",
+        "published": "2026-02-15T12:21:51.544Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+158/-22 lines across 3 commits in scheduling-kit.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 158,
+          "linesRemoved": 22,
+          "commits": 3,
+          "repository": "scheduling-kit",
+          "languages": [
+            "Chapel",
+            "Nix"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/82ca38bf01aa1160a27d882bfee72751",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-14T09:32:23.112Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/82ca38bf01aa1160a27d882bfee72751",
+        "published": "2026-02-14T09:32:23.112Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Rebuilt the Ghostty submodule pin for cmux. 282 commits ahead of upstream now- the fork drift is real.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/0d802d944fd7563893673fd0ca52612e",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-12T23:34:42.523Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/0d802d944fd7563893673fd0ca52612e",
+        "published": "2026-02-12T23:34:42.523Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spring peepers are deafening tonight. Walked down to the pond with a headlamp and counted at least forty calling.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/b6b88cc1982ff25ecfc0a5b5f82f050c",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-12T01:22:37.107Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/b6b88cc1982ff25ecfc0a5b5f82f050c",
+        "published": "2026-02-12T01:22:37.107Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+9/-5 lines across 5 commits in acuity-middleware.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 9,
+          "linesRemoved": 5,
+          "commits": 5,
+          "repository": "acuity-middleware",
+          "languages": [
+            "Python",
+            "Chapel"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/2194d64f3c07b7b52bd96af2ea49d983",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-10T17:51:58.955Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/2194d64f3c07b7b52bd96af2ea49d983",
+        "published": "2026-02-10T17:51:58.955Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+155/-1 lines across 6 commits in jesssullivan.github.io.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 155,
+          "linesRemoved": 1,
+          "commits": 6,
+          "repository": "jesssullivan.github.io",
+          "languages": [
+            "Svelte",
+            "CSS"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/909c5ae402cf42d38ee0c113f829a1f3",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-09T10:38:22.200Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/909c5ae402cf42d38ee0c113f829a1f3",
+        "published": "2026-02-09T10:38:22.200Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Reading through the Zag.js source for the scroll-area machine. The state chart is beautiful- might propose a Skeleton wrapper.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/286d32eb3623c658e9438650c0e754b8",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-08T05:38:05.142Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/286d32eb3623c658e9438650c0e754b8",
+        "published": "2026-02-08T05:38:05.142Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+114/-42 lines across 7 commits in scheduling-kit.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 114,
+          "linesRemoved": 42,
+          "commits": 7,
+          "repository": "scheduling-kit",
+          "languages": [
+            "Rust",
+            "Python"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/54ddbfd0256d796d45fd6650163cca19",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-07T03:28:07.634Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/54ddbfd0256d796d45fd6650163cca19",
+        "published": "2026-02-07T03:28:07.634Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Baked a sourdough loaf while waiting for molecule tests. Both turned out better than expected.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/79c37666ab615886cb85257a12ac5920",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-05T18:45:00.405Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/79c37666ab615886cb85257a12ac5920",
+        "published": "2026-02-05T18:45:00.405Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spring peepers are deafening tonight. Walked down to the pond with a headlamp and counted at least forty calling.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/0701a9911329b65d867d3dd544e1383a",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-04T20:57:56.174Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/0701a9911329b65d867d3dd544e1383a",
+        "published": "2026-02-04T20:57:56.174Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 1 Barred Owl at Lost Valley trails.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Barred Owl",
+          "scientificName": "Strix varia",
+          "location": {
+            "type": "Place",
+            "name": "Lost Valley trails",
+            "latitude": 44.0889,
+            "longitude": -70.2456
+          },
+          "count": 1
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/f51ae3f23de813eb98b98f99a7ea3f0b",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-03T09:20:28.035Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/f51ae3f23de813eb98b98f99a7ea3f0b",
+        "published": "2026-02-03T09:20:28.035Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Finally got the Dell 7810 stable on the RT kernel- four weeks of chasing SMI ghosts but the hwlat numbers are clean now.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/563c23dcc5c294aceb11de7456cdca25",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-02T04:47:11.026Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/563c23dcc5c294aceb11de7456cdca25",
+        "published": "2026-02-02T04:47:11.026Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Baked a sourdough loaf while waiting for molecule tests. Both turned out better than expected.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/36ad79113eaf0b376f88e8073d5b92c4",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-02-01T01:43:59.899Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/36ad79113eaf0b376f88e8073d5b92c4",
+        "published": "2026-02-01T01:43:59.899Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Tried $state.eager() for the theme switcher. Instant visual feedback even during page transitions. Svelte 5 keeps delivering.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/ed951163e16f73b496b764b5ea5c5375",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-01-31T00:17:20.456Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/ed951163e16f73b496b764b5ea5c5375",
+        "published": "2026-01-31T00:17:20.456Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>+114/-29 lines across 6 commits in scheduling-kit.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#code"
+          }
+        ],
+        "tl:codeActivity": {
+          "linesAdded": 114,
+          "linesRemoved": 29,
+          "commits": 6,
+          "repository": "scheduling-kit",
+          "languages": [
+            "Svelte",
+            "Chapel"
+          ]
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/60caf2a69c651c2320366d598767c00b",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-01-29T16:36:32.975Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/60caf2a69c651c2320366d598767c00b",
+        "published": "2026-01-29T16:36:32.975Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Nix flake for the Chapel toolchain is reproducible on both darwin and rocky. One derivation, two platforms. Feels good.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#notes"
+          }
+        ]
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/cbe14caa0a0928be9b5554eb363d4cd2",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-01-28T10:36:30.503Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/cbe14caa0a0928be9b5554eb363d4cd2",
+        "published": "2026-01-28T10:36:30.503Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 3 Eastern Bluebirds at Bradbury Mountain- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "Eastern Bluebird",
+          "scientificName": "Sialia sialis",
+          "location": {
+            "type": "Place",
+            "name": "Bradbury Mountain",
+            "latitude": 43.9017,
+            "longitude": -70.1678
+          },
+          "count": 3
+        }
+      }
+    },
+    {
+      "@context": [
+        "https://www.w3.org/ns/activitystreams",
+        {
+          "tl": "https://tinyland.dev/ns/v1#"
+        }
+      ],
+      "type": "Create",
+      "id": "https://tinyland.dev/activities/dfc22700861a5a4cdc0f66d34da859a8",
+      "actor": "https://tinyland.dev/@jesssullivan",
+      "published": "2026-01-27T04:52:51.732Z",
+      "object": {
+        "type": "Note",
+        "id": "https://tinyland.dev/notes/dfc22700861a5a4cdc0f66d34da859a8",
+        "published": "2026-01-27T04:52:51.732Z",
+        "attributedTo": "https://tinyland.dev/@jesssullivan",
+        "content": "<p>Spotted 3 White-breasted Nuthatchs at Range Pond State Park- feeding together in the canopy.</p>",
+        "tag": [
+          {
+            "type": "Hashtag",
+            "name": "#birding"
+          },
+          {
+            "type": "Hashtag",
+            "name": "#maine"
+          }
+        ],
+        "tl:birdSighting": {
+          "species": "White-breasted Nuthatch",
+          "scientificName": "Sitta carolinensis",
+          "location": {
+            "type": "Place",
+            "name": "Range Pond State Park",
+            "latitude": 44.0667,
+            "longitude": -70.35
+          },
+          "count": 3
+        }
+      }
+    }
+  ]
+}

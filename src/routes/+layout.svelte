@@ -44,6 +44,7 @@
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
+		{ href: '/pulse', label: 'Pulse' },
 		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
 		{ href: '/making', label: 'Making' },
