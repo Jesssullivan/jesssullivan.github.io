@@ -24,7 +24,7 @@
 		"puppeteer": "^23.11.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.57.1",
-		"@sveltejs/vite-plugin-svelte": "^6.2.4",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/vite": "^4.2.2",
 		"@tummycrypt/vite-plugin-a11y": "^0.2.1",
 		"@tummycrypt/vite-plugin-skeleton-colors": "^0.2.1",
@@ -44,7 +44,7 @@
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.58.2",
 		"@vitest/coverage-v8": "^4.1.4",
-		"vite": "npm:rolldown-vite@^7.3.1",
+		"vite": "^8.0.10",
 		"vitest": "^4.1.4"
 	},
 	"dependencies": {
@@ -63,8 +63,5 @@
 	"type": "module",
 	"workspaces": [
 		"packages/*"
-	],
-	"overrides": {
-		"vite": "npm:rolldown-vite@^7.3.1"
-	}
+	]
 }
