@@ -1,13 +1,13 @@
 ---
-title: "Characterizing a Dual-Socket BCI Server Before and After RT"
+title: "Characterizing a Dual-Socket BCI Server Before Claiming RT Wins"
 date: "2026-04-25"
-description: "Building a reproducible host-characterization pipeline for a Dell T7810 BCI server-- generic lane baseline captured, RT lane next, with Chapel probes, PBT verification, and Nix+Dhall for reproducibility."
+description: "A draft result note for a Dell T7810 BCI server: first generic/RT host-characterization packet captured, generic repeats captured, no RT improvement claim yet."
 tags: ["Chapel", "Nix", "Dhall", "NUMA", "hardware", "reproducibility", "RT"]
 published: false
 slug: "reproducible-host-probes-nix-chapel-dhall"
 category: "hardware"
 source_repo: "Jesssullivan/Dell-7810"
-source_path: "docs/platform/honey-chapel-live-result-2026-04-23.md"
+source_path: "docs/platform/honey-rt-smi-hwlat-chapel-series-2026-04-25.md"
 ---
 
 I've been tuning a Dell Precision T7810 as a BCI server for real-time XR work-- two Xeon E5-2630 v3 processors, 32 threads, two NUMA nodes, the kind of dual-socket Haswell-era machine that rewards you for thinking about memory topology and punishes you for ignoring it.
@@ -21,7 +21,7 @@ The goal is to characterize this host's parallel and scheduling behavior across 
 `honey` is a Dell Precision T7810 running Rocky Linux with a heavily tuned kernel cmdline-- `tsc=nowatchdog`, `nohz_full`, `isolcpus`, `irqaffinity`, the works. Two kernel lanes are installed:
 
 - **Generic**: `6.19.5-7.xr.el10`, `PREEMPT_DYNAMIC` -- the current baseline
-- **RT**: `6.19.5-rt1-8.xr.el10`, `PREEMPT_RT` -- booted and validated, SMI storm observed (1.6 SMIs/sec)
+- **RT**: `6.19.5-rt1-8.xr.el10`, `PREEMPT_RT` -- booted once for a bounded packet, then returned to generic
 
 The question isn't whether RT is faster. The question is: what does this host's parallel behavior look like on each lane, measured the same way, with the same probe, captured in a format I can cite in a paper?
 
@@ -49,31 +49,40 @@ forall ch in 0..<numChannels {
 
 Chapel's `forall` distributes the outer loop across cores, and because the channel partitions are aligned to NUMA nodes, memory accesses stay local to each socket. The probe, its timing support, and conformance predicates total about 290 lines across three files. I also built [quickchpl](https://github.com/nicholasTng/quickchpl)-- a property-based testing library for Chapel-- to verify the partitioning and timing invariants hold across partition sizes and channel counts.
 
-## Generic lane baseline (captured)
+## First paired packet (captured)
 
-Two runs on the generic lane, same day, same kernel, same Chapel 2.8.0:
+The first paired packet exists now. It is useful, but it is not an improvement story:
 
-| Metric | Run 1 (Nix-prebuilt) | Run 2 (on-target build) |
+| Metric | Generic lane | RT lane |
 | --- | ---: | ---: |
-| Serial reduction | 22.83 ms | 22.61 ms |
-| Parallel reduction | 2.28 ms | 1.675 ms |
-| Speedup (serial / parallel) | 10.01x | 13.50x |
+| Kernel | `6.19.5-7.xr.el10` | `6.19.5-rt1-8.xr.el10` |
+| SMI samples | 73-74 / 30s | 65-74 / 30s |
+| tracefs `hwlat` max | 0-2 us | 0-2 us |
+| Serial reduction | 22.323 ms | 22.533 ms |
+| Parallel reduction | 1.807 ms | 1.927 ms |
+| Characterization ratio | 12.3536x | 11.6933x |
 | Conforms | true | true |
 
-The serial path is stable (~1%). The parallel path varies ~26% between runs-- that variance is the interesting signal, and characterizing it is part of the point.
+RT was slightly slower in this single Chapel pair, and SMI activity remained nonzero on both lanes. The safe claim is narrower: the same host-characterization probe conforms on generic and RT, under the same short SMI/`hwlat` capture shape, and `honey` returned to the generic fallback afterward.
 
-## RT lane (next)
+## Generic repeat series (captured)
 
-The RT kernel was booted on `honey` the same day. `realtime: 1`, PREEMPT_RT enabled, CONFIG_HZ=1000. SMI validation showed 1.6 SMIs/sec-- likely an SMI storm that will need BIOS-level mitigation before the RT numbers mean much.
+A five-sample generic repeat series is also captured. All five runs conform, but the ratio moves around enough that single-pair storytelling would be sloppy:
 
-The Chapel probe hasn't run on the RT lane yet. That capture, with matched SMI and `hwlat` context, is the next step and the one that will actually tell us whether RT scheduling changes the parallel characterization story on this hardware.
+| Metric | Min | Max | Mean | Sample stdev |
+| --- | ---: | ---: | ---: | ---: |
+| Serial seconds | 0.021871 | 0.025839 | 0.023723 | 0.001885 |
+| Parallel seconds | 0.001667 | 0.002431 | 0.001956 | 0.000302 |
+| Characterization ratio | 8.9967x | 14.0738x | 12.3491x | 1.9463x |
+
+The captures also record load average, which matters: the 1-minute load rose from 7.98 to 10.05 across the series. This is host characterization under lab conditions, not an idle benchmark distribution.
 
 ## The reproducibility pipeline
 
 The probe is Chapel. The reproducibility is [Nix](https://nixos.org/) (hermetic compiler sourcing) and [Dhall](https://dhall-lang.org/) (typed evidence records). One command:
 
 ```bash
-just chapel-host-capture-live-on-target target=jess@honey tag=baseline
+just chapel-host-capture-live-save-store target=jess@honey tag=generic-2026-04-25
 ```
 
 ![Chapel probe pipeline](/images/posts/chapel-probe-pipeline.svg)
@@ -82,8 +91,9 @@ Every artifact-- compiler path, host context, probe output, Dhall record-- stays
 
 ## What's next
 
-- RT-lane Chapel capture with matched SMI and `hwlat` context
-- Longer generic-lane capture series to characterize the parallel variance
+- Matching RT repeat series using the same store-prebuilt Chapel path
+- Longer generic and RT SMI/`hwlat` windows
+- Notes on lab load, reboot/recovery cost, and any BIOS or C-state changes
 - Fresh `quickchpl` PBT run for the paper-bound timing invariant claims
 
 The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo has everything: Chapel probes, Dhall records, raw captures, publication roadmap, and the claim ladder that keeps me honest.
