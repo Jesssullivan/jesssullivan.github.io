@@ -12,15 +12,11 @@ source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
 ---
 
 
-As part of my descent into multiprocessor kernel timing madness and claiming anything about kernel scheduling, I wanted a typed, repeatable characterization of the host's parallel behavior.
+As part of my descent into multiprocessor kernel timing madness and claiming anything about kernel scheduling, I wanted a typed, repeatable characterization of the host's parallel behavior.  Using these lovelies I have have screwed together something of a minimally viable EEG, XR stream and audio buffer "timing-friendlyish" characterization bench. 👀  
 
-
-The tool choices follow from the problem shape:
-
-- [Chapel](https://chapel-lang.org/) for the probe (first-class `forall` parallelism, NUMA-aware data distribution))
-- [quickchpl](https://github.com/jesssullivan/quickchpl) Hey look, this cool person named `Jess Sullivan` wrote this handy library for property-based testing in Chapel language, how else would I structure timing invariants?
+- [quickchpl](https://github.com/jesssullivan/quickchpl) **Hey look, this cool person named `Jess Sullivan` wrote this handy library for property-based testing in Chapel language, how else would I structure timing invariants?**
 - [Dhall](https://dhall-lang.org/) for typed evidence records (go read [Gabby's blog](https://haskellforall.com/))
-- [Nix](https://nixos.org/) for hermetic compiler sourcing, of course ^w^
+- [Nix](https://nixos.org/) for hermetic compiler sourcing, **of course ^w^**
 
 ![It needs Chapel Lang](/images/posts/chapel-lang-meme.webp)
 
@@ -41,7 +37,7 @@ graph LR
 
 
 
-[`HostNumaProbe.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/examples/HostNumaProbe.chpl) is ~94 lines. It partitions synthetic channel data across NUMA nodes, then measures serial versus parallel reduction:
+[`HostNumaProbe.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/examples/HostNumaProbe.chpl) partitions synthetic channel data across NUMA nodes, then measures serial versus parallel reduction:
 
 
 
@@ -97,7 +93,7 @@ Chapel's `forall` is not `#pragma omp parallel for`. It is a first-class paralle
 
 ## The type surface
 
-Three modules, ~290 lines total. The core types in [`HostNumaTiming.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/src/HostNumaTiming.chpl):
+The core types in [`HostNumaTiming.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/src/HostNumaTiming.chpl):
 
 ```text
 record Partition {
@@ -275,7 +271,7 @@ flowchart TD
 ```
 
 
-## Measurements; kinda meh but is repeatable; without this
+## Measurements; kinda meh but is repeatable 🤙
 
 The host runs two kernel lanes from [linux-xr](https://github.com/tinyland-inc/linux-xr) (my Rocky 10 kernel carry with [DRM patches](https://gitlab.freedesktop.org/drm/misc/kernel.git) and a variety of other stuff for the Bigscreen Beyond headset and related toys):
 
