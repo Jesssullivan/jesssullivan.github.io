@@ -1,0 +1,150 @@
+// Tinyland Pulse v1 event contract.
+//
+// This file is the canonical IDL for personal activity events. All clients,
+// brokers, projection workers, and static-blog consumers MUST agree on field
+// numbers and names defined here. Changes are governed by:
+//
+//   1. Field numbers and names are never reused. Removed fields are added to
+//      `proto/reserved.json` and to a `reserved` clause on the relevant
+//      message.
+//   2. New fields MUST be additive and optional in semantics. Required-by-
+//      validation behavior lives in the Zod schemas, not in the proto.
+//   3. The `oneof payload` in `PulseEvent` is part of the public contract.
+//      Adding a payload kind is allowed; renaming or renumbering is not.
+//   4. The `PublicPulseSnapshot` shape is the only thing the static blog
+//      reads. It MUST stay backward-compatible with shipped snapshots.
+//
+// M1 ships only `note` and `bird_sighting` payloads in public projections.
+// Other payloads are reserved for later milestones and are blocked at the
+// policy boundary, not at the schema boundary.
+
+syntax = "proto3";
+
+package tinyland.pulse.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// PulseEvent is the canonical private record. The broker stores it; the
+// projection worker reads it; clients send it. It is NOT what the blog reads.
+message PulseEvent {
+  string id = 1;
+  string actor = 2;
+  google.protobuf.Timestamp occurred_at = 3;
+  Visibility visibility = 4;
+  Source source = 5;
+  repeated string tags = 6;
+  repeated MediaAttachment media = 7;
+  uint32 revision = 8;
+
+  oneof payload {
+    NotePayload note = 20;
+    BirdSightingPayload bird_sighting = 21;
+    PhotoPayload photo = 22;
+    GitSummaryPayload git_summary = 23;
+    ListeningPayload listening = 24;
+  }
+}
+
+enum Visibility {
+  VISIBILITY_UNSPECIFIED = 0;
+  VISIBILITY_PRIVATE = 1;
+  VISIBILITY_UNLISTED = 2;
+  VISIBILITY_PUBLIC = 3;
+}
+
+message Source {
+  string client = 1;
+  string device_id = 2;
+  string idempotency_key = 3;
+}
+
+message NotePayload {
+  string text = 1;
+}
+
+message BirdSightingPayload {
+  string common_name = 1;
+  string scientific_name = 2;
+  uint32 count = 3;
+  Place place = 4;
+  string observation_id = 5;
+}
+
+message Place {
+  string label = 1;
+  double latitude = 2;
+  double longitude = 3;
+  LocationPrecision precision = 4;
+}
+
+enum LocationPrecision {
+  LOCATION_PRECISION_UNSPECIFIED = 0;
+  LOCATION_PRECISION_HIDDEN = 1;
+  LOCATION_PRECISION_REGION = 2;
+  LOCATION_PRECISION_EXACT = 3;
+}
+
+message MediaAttachment {
+  string id = 1;
+  string mime_type = 2;
+  string alt_text = 3;
+  // Private object store key. MUST NEVER appear in PublicPulseSnapshot.
+  string private_object_key = 4;
+  // Public, EXIF-stripped, derivative URL. Empty until media projection runs.
+  string public_url = 5;
+}
+
+message PhotoPayload {
+  string caption = 1;
+}
+
+message GitSummaryPayload {
+  string repository = 1;
+  string summary = 2;
+}
+
+message ListeningPayload {
+  string title = 1;
+  string artist = 2;
+  string album = 3;
+  string external_url = 4;
+}
+
+// PublicPulseSnapshot is the ONLY shape the static blog reads. It is derived
+// from accepted PulseEvents by the projection worker after the policy engine
+// has stripped private-only fields and rejected disallowed kinds.
+message PublicPulseSnapshot {
+  string schema_version = 1;
+  string generated_at = 2;
+  repeated PublicPulseItem items = 3;
+  PublicPulseManifest manifest = 4;
+}
+
+message PublicPulseItem {
+  string id = 1;
+  // Stable string discriminator. M1 values: "note", "bird_sighting".
+  string kind = 2;
+  string occurred_at = 3;
+  string summary = 4;
+  string content = 5;
+  repeated string tags = 6;
+
+  PublicBirdSighting bird_sighting = 20;
+}
+
+message PublicBirdSighting {
+  string common_name = 1;
+  string scientific_name = 2;
+  uint32 count = 3;
+  // Coarse, region-only place label. Never exact coordinates.
+  string place_label = 4;
+}
+
+message PublicPulseManifest {
+  string schema_version = 1;
+  string generated_at = 2;
+  string source_snapshot_id = 3;
+  string content_hash = 4;
+  uint32 item_count = 5;
+  string policy_version = 6;
+}

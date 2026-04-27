@@ -1,0 +1,31 @@
+{
+  "name": "@blog/pulse-core",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "description": "Tinyland Pulse event contract, lifecycle FSM, and in-memory broker mock for M1.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./fsm": "./src/fsm/index.ts",
+    "./broker": "./src/broker/index.ts",
+    "./policy": "./src/policy/index.ts",
+    "./fixtures": "./src/fixtures/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "validate:proto": "tsx scripts/validate-proto-reservations.mts"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "fast-check": "^4.5.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.4"
+  }
+}

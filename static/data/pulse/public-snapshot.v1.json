@@ -1,0 +1,51 @@
+{
+	"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
+	"generatedAt": "2026-04-27T17:00:00.000Z",
+	"items": [
+		{
+			"id": "evt_2",
+			"kind": "note",
+			"occurredAt": "2026-04-26T09:12:00.000Z",
+			"summary": "Cardinals on the feeder before dawn.",
+			"content": "Cardinals on the feeder before dawn.",
+			"tags": [
+				"birds",
+				"morning"
+			]
+		},
+		{
+			"id": "evt_4",
+			"kind": "bird_sighting",
+			"occurredAt": "2026-04-26T07:42:00.000Z",
+			"summary": "2× Northern Cardinal",
+			"content": "",
+			"tags": [
+				"birds"
+			],
+			"birdSighting": {
+				"commonName": "Northern Cardinal",
+				"scientificName": "Cardinalis cardinalis",
+				"count": 2,
+				"placeLabel": "Cayuga Lake basin"
+			}
+		},
+		{
+			"id": "evt_1",
+			"kind": "note",
+			"occurredAt": "2026-04-25T18:30:00.000Z",
+			"summary": "First fixture note from the M1 lab. Hello tinyland.",
+			"content": "First fixture note from the M1 lab. Hello tinyland.",
+			"tags": [
+				"lab"
+			]
+		}
+	],
+	"manifest": {
+		"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
+		"generatedAt": "2026-04-27T17:00:00.000Z",
+		"sourceSnapshotId": "pulse-core-fixtures-2026-04-27",
+		"contentHash": "sha256:e9bd3158a9546aa7577b6b9037b173ad3d9dd2303edbf6edcb36e0a99011f790",
+		"itemCount": 3,
+		"policyVersion": "m1-2026-04-27"
+	}
+}
