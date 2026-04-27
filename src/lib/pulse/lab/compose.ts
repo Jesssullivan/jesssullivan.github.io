@@ -53,13 +53,18 @@ const buildPayload = (form: LabPayloadForm): PulseEvent['payload'] | { error: st
 		}
 		return { kind: 'note', text: form.text };
 	}
+	// Build place whenever the user provides a label. Lat/long default to 0
+	// when missing — they aren't load-bearing for the policy decision (the
+	// policy only reads `precision`), and the schema accepts 0 as valid for
+	// both. This matches the lab UX: the user can pick a label + precision
+	// without entering coordinates and still see the policy gate fire.
 	const place =
-		form.placeLabel.trim().length === 0 || form.latitude === null || form.longitude === null
+		form.placeLabel.trim().length === 0
 			? undefined
 			: {
 					label: form.placeLabel,
-					latitude: form.latitude,
-					longitude: form.longitude,
+					latitude: form.latitude ?? 0,
+					longitude: form.longitude ?? 0,
 					precision: form.placePrecision,
 				};
 	const payload: PulseEvent['payload'] = {
