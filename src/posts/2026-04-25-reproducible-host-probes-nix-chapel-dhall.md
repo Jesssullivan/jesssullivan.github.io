@@ -1,7 +1,7 @@
 ---
-title: "Typed Host Characterization with Chapel, PBT, and Dhall"
+title: "Host Characterization with Chapel, Fancy Testing & Dhall"
 date: "2026-04-25"
-description: "Using Chapel's forall, property-based testing, and Dhall records to characterize a dual-socket Xeon before claiming anything about kernel scheduling."
+description: "Using Chapel's forall, my own property-based testing library and Gabby's Dhall lang for characterization records on a dual-socket Xeon machine, lets do some awesome kernel scheduling analysis"
 tags: ["Chapel", "Nix", "Dhall", "NUMA", "hardware", "reproducibility", "RT", "PBT"]
 published: false
 slug: "reproducible-host-probes-nix-chapel-dhall"
@@ -10,16 +10,20 @@ source_repo: "Jesssullivan/Dell-7810"
 source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
 ---
 
-The machine is a Dell Precision T7810 -- two Xeon E5-2630 v3 (Haswell), 32 threads, two NUMA nodes. It runs a BCI/XR stack: [OpenXR](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrFrameState.html) goggles via [Monado](https://monado.freedesktop.org/getting-started.html), an AMD RX 9070 XT, audio I/O, and an RKE2 cluster. Before claiming anything about kernel scheduling, I wanted a typed, repeatable characterization of the host's parallel behavior.
+
+As part of my descent into multiprocessor kernel timing madness and claiming anything about kernel scheduling, I wanted a typed, repeatable characterization of the host's parallel behavior.  
+
 
 The tool choices follow from the problem shape:
 
-- [Chapel](https://chapel-lang.org/) for the probe (first-class `forall` parallelism, NUMA-aware data distribution)
-- [quickchpl](https://github.com/nicholasTng/quickchpl) for property-based testing of the timing invariants
-- [Dhall](https://dhall-lang.org/) for typed evidence records
-- [Nix](https://nixos.org/) for hermetic compiler sourcing
+- [Chapel](https://chapel-lang.org/) for the probe (first-class `forall` parallelism, NUMA-aware data distribution)) 
+- [quickchpl](https://github.com/jesssullivan/quickchpl) Hey look, this cool person named `Jess Sullivan` wrote this handy library for property-based testing in Chapel language, how else would I structure timing invariants? 
+- [Dhall](https://dhall-lang.org/) for typed evidence records (go read [Gabby's blog](https://haskellforall.com/)) 
+- [Nix](https://nixos.org/) for hermetic compiler sourcing, of course ^w^
 
-The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo has everything.
+![It needs Chapel Lang](/images/posts/chapel-lang-meme.webp)                                                          
+
+
 
 ```mermaid
 graph LR
@@ -32,9 +36,14 @@ graph LR
   TestHostNumaTiming --> quickchpl
 ```
 
-## The probe
+## Probing 
+
+
 
 [`HostNumaProbe.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/examples/HostNumaProbe.chpl) is ~94 lines. It partitions synthetic channel data across NUMA nodes, then measures serial versus parallel reduction:
+
+
+
 
 ```chapel
 use Time;
@@ -142,9 +151,7 @@ proc timingConforms(intervals: list(real), budget: TimingBudget): bool {
 
 This is the kind of predicate that benefits from PBT: the `1e-12` epsilon, the edge cases around empty intervals and negative budgets, the interaction between max-deviation and worst-case constraints.
 
-## Property-based testing
-
-Nine properties across two test files, using [quickchpl](https://github.com/nicholasTng/quickchpl) (a QuickCheck-style PBT library for Chapel). From [`TestTimingProofs.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/test/TestTimingProofs.chpl):
+## Property-based testing for greatness
 
 ```chapel
 use quickchpl;
@@ -185,7 +192,7 @@ var scalingInvariant = property("scaling intervals and budget preserves conforma
   });
 ```
 
-If `timingConforms(intervals, budget)` holds, then scaling both the intervals and the budget by the same positive factor should preserve conformance. This catches unit-conversion bugs and numerical edge cases in the epsilon handling.
+If `timingConforms(intervals, budget)` holds, then scaling both the intervals and the budget by the same positive factor should preserve conformance. This catches unit-conversion bugs and numerical edge cases in the epsilon handling, which is terrific 👍
 
 From [`TestHostNumaTiming.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/test/TestHostNumaTiming.chpl), the partition properties:
 
@@ -233,7 +240,7 @@ graph TB
   P8 & P9 --> SM["summarizeSamples"]
 ```
 
-## Dhall projection
+## Projection for cleanliness 
 
 Each probe run is projected into a typed [Dhall](https://dhall-lang.org/) record via [`ChapelHostProbeRun.dhall`](https://github.com/Jesssullivan/Dell-7810/blob/main/dhall/types/ChapelHostProbeRun.dhall). The type carries metadata (date, host, compiler, kernel), configuration (locale count, channels, samples, sample rate, partitions), results (timing conforms, jitter stats), and performance (serial time, parallel time, speedup ratio). A separate [`KernelValidationRun.dhall`](https://github.com/Jesssullivan/Dell-7810/blob/main/dhall/types/KernelValidationRun.dhall) type covers kernel validation captures.
 
@@ -266,30 +273,10 @@ flowchart TD
   DH --> EV
 ```
 
-### Try it
 
-```bash
-# Enter the Nix dev shell (pins Chapel 2.8.0, qthreads, LLVM 18)
-nix develop github:Jesssullivan/Dell-7810
+## Measurements; kinda meh but is repeatable; without this 
 
-# Compile and run the probe
-chpl analysis/examples/HostNumaProbe.chpl \
-  -M analysis/src -o /tmp/HostNumaProbe
-/tmp/HostNumaProbe --numChannels=100 --numSamples=2500
-
-# Run the property-based test suites (9 properties, ~1000 iterations)
-chpl analysis/test/TestTimingProofs.chpl \
-  -M analysis/src -o /tmp/TestTimingProofs
-/tmp/TestTimingProofs
-
-chpl analysis/test/TestHostNumaTiming.chpl \
-  -M analysis/src -o /tmp/TestHostNumaTiming
-/tmp/TestHostNumaTiming
-```
-
-## Measured results
-
-The host runs two kernel lanes from [linux-xr](https://github.com/tinyland-inc/linux-xr) (a Rocky 10 kernel carry with [DRM patches](https://gitlab.freedesktop.org/drm/misc/kernel.git) for the Bigscreen Beyond headset):
+The host runs two kernel lanes from [linux-xr](https://github.com/tinyland-inc/linux-xr) (my Rocky 10 kernel carry with [DRM patches](https://gitlab.freedesktop.org/drm/misc/kernel.git) and a variety of other stuff for the Bigscreen Beyond headset and related toys):
 
 - **Generic**: `6.19.5-7.xr.el10` (`PREEMPT_DYNAMIC`)
 - **RT**: `6.19.5-rt1-8.xr.el10` (`PREEMPT_RT`)
@@ -346,16 +333,21 @@ Serial times (not shown) are nearly identical across both lanes (~22-27ms). The 
 
 PREEMPT_RT converts spinlocks to sleeping mutexes and threads interrupt handlers. The parallel degradation (serial unchanged, parallel slower and more variable) is the expected cost of that conversion on a NUMA-aware `forall` workload. The [RT necessity analysis](https://github.com/Jesssullivan/Dell-7810/blob/main/docs/research/rt-necessity-analysis-2026-04-26.md) in the repo has the full reasoning.
 
-RT is still available as insurance for specific deadline-sensitive paths -- audio buffer underruns at low sample counts, or BCI callback timing if we ever need sub-millisecond guarantees. The [linux-xr](https://github.com/tinyland-inc/linux-xr) kernel carries both lanes, and the host can one-shot boot into RT and return to generic with a validated fallback. But the current evidence says the generic lane with `isolcpus` + `SCHED_FIFO` is the stronger default for a mixed GPU + audio + Chapel + Kubernetes workload.
+RT is still available as insurance for specific deadline-sensitive paths -- audio buffer underruns at low sample counts, or BCI callback timing if we ever need sub-millisecond guarantees. The [linux-xr](https://github.com/tinyland-inc/linux-xr) kernel carries both lanes, and the host can one-shot boot into RT and return to generic with a validated fallback. But the current evidence says the generic lane with `isolcpus` + `SCHED_FIFO` is the stronger default for a mixed GPU + audio + Chapel + Kubernetes workload.  
 
-## What's next
+## What's next for me and the Dell ^w^
 
 - **Targeted isolation**: `SCHED_FIFO` on isolated cores for audio/BCI threads, then measure actual deadline behavior on the generic lane
+- **publish and manufacture the Dell hardware mods**: at somepoint I'll get around to this, still cleaning up loose ends
 - **Audio/BCI I/O packet**: period, buffer, quantum, xrun evidence -- the real latency-sensitive workload, not a proxy
 - **XR frame timing**: `xrWaitFrame` histograms via Monado (this is [XoxDWM](https://github.com/Jesssullivan/XoxdWM)-owned, not Dell)
-- **Fresh quickchpl run**: the nine properties need a current pass for paper citation
+- **Fresh quickchpl run**: the nine properties need a current pass for paper citation, ofc
 - **Fan and enclosure**: the T7810 thermal path is [its own workstream](https://github.com/Jesssullivan/Dell-7810/blob/main/docs/research/t7810-fan-and-airflow-prior-art-2026-04-22.md)
 
-The RT lane stays available. The burden of proof has shifted: a downstream deadline failure on generic would justify another RT packet. Until then, the characterization campaign produced what it was supposed to -- a measured, typed, reproducible answer.
+---
 
+The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo which may or may not be public at the time of reading contains hardware specifics, as well as my OpenSCAD drawings and measurements for the physical modification work.  To recap, the Dell 7810 itself has two Xeon E5-2630 v3 (Haswell), 32 threads, two NUMA nodes.  It is, as described before, considerably hacked up- (running two power supplies at ~2kw mean draw, an AMD RX 9070 XT, a few hundred channels 96khz AD/DA I/O, a NUT power monitor and an RKE2 cluster) as well as hosting a wide variety of BCI/XR experiments (Open BCI, ganglion, mouth trackers, eye trackers) along with [OpenXR](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrFrameState.html), BS2e goggles, my special linux-xr kernel iterations, the `xoxdwm` stack, [Monado](https://monado.freedesktop.org/getting-started.html), just silly girlie things. ^w^
+ 
+
+Cheers all and merry springtime,
 -Jess
