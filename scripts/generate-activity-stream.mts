@@ -20,6 +20,10 @@ interface OutboxCollection {
 
 async function fetchOutbox(source: string): Promise<OutboxCollection> {
 	if (source.startsWith('http')) {
+		const url = new URL(source);
+		if (url.protocol !== 'https:') {
+			throw new Error(`Remote AP_OUTBOX_URL must use https: ${source}`);
+		}
 		const res = await fetch(source, {
 			headers: { Accept: 'application/activity+json' },
 		});

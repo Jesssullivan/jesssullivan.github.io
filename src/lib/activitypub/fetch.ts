@@ -2,6 +2,14 @@ import type { AS2OrderedCollection, ResolvedActivity } from './types';
 import { resolveOutbox } from './resolve';
 import { AP_CONFIG } from './config';
 
+function isHttpsUrl(url: string): boolean {
+	try {
+		return new URL(url).protocol === 'https:';
+	} catch {
+		return false;
+	}
+}
+
 export async function loadActivities(fetchFn: typeof fetch): Promise<ResolvedActivity[]> {
 	const res = await fetchFn(AP_CONFIG.staticPath);
 	if (!res.ok) return [];
@@ -11,6 +19,7 @@ export async function loadActivities(fetchFn: typeof fetch): Promise<ResolvedAct
 
 export async function loadFreshActivities(): Promise<ResolvedActivity[]> {
 	if (!AP_CONFIG.enableLiveFetch) return [];
+	if (!isHttpsUrl(AP_CONFIG.outboxUrl)) return [];
 	try {
 		const res = await fetch(AP_CONFIG.outboxUrl, {
 			headers: { Accept: 'application/activity+json' },

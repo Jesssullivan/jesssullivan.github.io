@@ -12,6 +12,7 @@ import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { homedir } from 'node:os';
 
 const MOCK_OUTBOX = 'scripts/data/mock-outbox.json';
 const ACTOR = 'https://tinyland.dev/@jesssullivan';
@@ -146,7 +147,7 @@ function summaryToActivity(summary: DaySummary) {
 }
 
 async function main(): Promise<void> {
-	const gitDir = resolve(process.env.HOME || '~', 'git');
+	const gitDir = resolve(homedir(), 'git');
 	const thisRepo = resolve(process.cwd());
 
 	// Scan repos under ~/git/ that have recent activity

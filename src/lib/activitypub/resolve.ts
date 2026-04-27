@@ -9,8 +9,12 @@ import type {
 	ResolvedActivity,
 } from './types';
 
-function stripHtml(html: string): string {
-	return html.replace(/<[^>]*>/g, '').trim();
+export function stripHtml(html: string): string {
+	return html
+		.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+		.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+		.replace(/<[^>]*>/g, '')
+		.trim();
 }
 
 function formatBirdSummary(data: BirdSightingData): string {
@@ -68,7 +72,7 @@ export function resolveActivity(activity: AS2Activity): ResolvedActivity {
 	const obj = activity.object;
 	const tags = (obj.tag ?? []).filter((t) => t.type === 'Hashtag').map((t) => t.name.replace(/^#/, ''));
 	const resolved = detectKind(activity);
-	const content = obj.content ?? '';
+	const content = stripHtml(obj.content ?? '');
 
 	return {
 		id: activity.id,

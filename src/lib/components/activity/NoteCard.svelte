@@ -17,8 +17,7 @@
 				<span class="badge preset-outlined-surface-500 text-xs">note</span>
 			</div>
 			<div class="prose prose-sm mt-1 text-surface-700-300 leading-relaxed">
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-				{@html activity.content}
+				{activity.content}
 			</div>
 			{#if activity.tags.length > 0}
 				<div class="flex flex-wrap gap-1 mt-2">
