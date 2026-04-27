@@ -3,9 +3,10 @@ title: "Host Characterization with Chapel, Fancy Testing & Dhall"
 date: "2026-04-25"
 description: "Using Chapel's forall, my own property-based testing library and Gabby's Dhall lang for characterization records on a dual-socket Xeon machine, lets do some awesome kernel scheduling analysis"
 tags: ["Chapel", "Nix", "Dhall", "NUMA", "hardware", "reproducibility", "RT", "PBT"]
-published: false
+published: true
 slug: "reproducible-host-probes-nix-chapel-dhall"
 category: "hardware"
+feature_image: "/images/posts/chapel-lang-meme.webp"
 source_repo: "Jesssullivan/Dell-7810"
 source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
 ---
