@@ -21,6 +21,17 @@ The tool choices follow from the problem shape:
 
 The [Dell-7810](https://github.com/Jesssullivan/Dell-7810) repo has everything.
 
+```mermaid
+graph LR
+  HostNumaProbe --> HostNumaTiming
+  HostNumaProbe --> TimingProofs
+  TimingProofs --> HostNumaTiming
+  TestTimingProofs --> TimingProofs
+  TestHostNumaTiming --> HostNumaTiming
+  TestTimingProofs --> quickchpl
+  TestHostNumaTiming --> quickchpl
+```
+
 ## The probe
 
 [`HostNumaProbe.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/examples/HostNumaProbe.chpl) is ~94 lines. It partitions synthetic channel data across NUMA nodes, then measures serial versus parallel reduction:
@@ -201,6 +212,27 @@ var partitionContiguous = property("partitions are contiguous and exact",
 
 `coversExactly` checks that partitions are contiguous, non-negative, and sum to the total. Together with coverage, these two properties establish that `partitionChannels` is a correct partition function for any channel count and group count in range.
 
+```mermaid
+graph TB
+  subgraph "TimingProofs (4 properties)"
+    P1["round-trip: timestamps ↔ intervals"]
+    P2["exact budget: zero-jitter ⊢ conforms"]
+    P3["bounded jitter: ε-jitter ⊢ conforms"]
+    P4["scaling: λ·intervals, λ·budget ⊢ conforms"]
+  end
+  subgraph "HostNumaTiming (5 properties)"
+    P5["coverage: Σ partition = total"]
+    P6["contiguous: partitions exact + ordered"]
+    P7["deterministic: signal(n,s) = signal(n,s)"]
+    P8["ordered: min ≤ mean ≤ max"]
+    P9["scaling: λ·samples → λ·stats"]
+  end
+  P1 & P2 & P3 & P4 --> TC["timingConforms"]
+  P5 & P6 --> PC["partitionChannels"]
+  P7 --> SS["syntheticSignal"]
+  P8 & P9 --> SM["summarizeSamples"]
+```
+
 ## Dhall projection
 
 Each probe run is projected into a typed [Dhall](https://dhall-lang.org/) record via [`ChapelHostProbeRun.dhall`](https://github.com/Jesssullivan/Dell-7810/blob/main/dhall/types/ChapelHostProbeRun.dhall). The type carries metadata (date, host, compiler, kernel), configuration (locale count, channels, samples, sample rate, partitions), results (timing conforms, jitter stats), and performance (serial time, parallel time, speedup ratio). A separate [`KernelValidationRun.dhall`](https://github.com/Jesssullivan/Dell-7810/blob/main/dhall/types/KernelValidationRun.dhall) type covers kernel validation captures.
@@ -218,7 +250,42 @@ just platform-host-characterization-window \
 
 This captures SMI counts, tracefs `hwlat` windows, five Chapel probe runs, and projects each into a Dhall record. The Nix derivation for [Chapel 2.8.0](https://github.com/Jesssullivan/Dell-7810/blob/main/nix/packages/chapel.nix) pins the compiler, task model (`qthreads`), locale model (`flat`), and LLVM version (18).
 
-![Chapel probe pipeline](/images/posts/chapel-probe-pipeline.svg)
+```mermaid
+flowchart TD
+  J["just platform-host-characterization-window"] --> SMI["smi-validate (3× 120s windows)"]
+  J --> HW["tracefs hwlat (3× 120s windows)"]
+  J --> CH["capture-chapel-host-probe-series (5 samples)"]
+  CH --> NX["Nix: Chapel 2.8.0 + qthreads + flat locale + LLVM 18"]
+  NX --> BIN["chpl HostNumaProbe.chpl -M src"]
+  BIN --> RUN["serial + forall timing on target"]
+  RUN --> TXT["raw capture .txt per sample"]
+  TXT --> PRJ["project-chapel-host-probe-dhall"]
+  PRJ --> DH["typed Dhall record per sample"]
+  SMI --> EV["evidence packet"]
+  HW --> EV
+  DH --> EV
+```
+
+### Try it
+
+```bash
+# Enter the Nix dev shell (pins Chapel 2.8.0, qthreads, LLVM 18)
+nix develop github:Jesssullivan/Dell-7810
+
+# Compile and run the probe
+chpl analysis/examples/HostNumaProbe.chpl \
+  -M analysis/src -o /tmp/HostNumaProbe
+/tmp/HostNumaProbe --numChannels=100 --numSamples=2500
+
+# Run the property-based test suites (9 properties, ~1000 iterations)
+chpl analysis/test/TestTimingProofs.chpl \
+  -M analysis/src -o /tmp/TestTimingProofs
+/tmp/TestTimingProofs
+
+chpl analysis/test/TestHostNumaTiming.chpl \
+  -M analysis/src -o /tmp/TestHostNumaTiming
+/tmp/TestHostNumaTiming
+```
 
 ## Measured results
 
@@ -241,15 +308,37 @@ SMI: 280, 279, 279 per 120s (~2.3/s). Tracefs `hwlat`: 0 us max across all windo
 
 ### RT repeat (five samples)
 
-![Generic versus RT repeat packet](/images/posts/honey-generic-rt-repeat-packet.svg)
-
 | Metric | Min | Max | Mean | Stdev |
 | --- | ---: | ---: | ---: | ---: |
 | Serial | 0.022144s | 0.023715s | 0.022862s | 0.000690s |
 | Parallel | 0.001726s | 0.016977s | 0.005033s | 0.006683s |
 | Ratio | 1.3617x | 12.8297x | 9.3204x | 4.6220x |
 
-SMI: 279, 279, 278 per 120s (unchanged). Tracefs `hwlat`: 2, 2, 14 us (one threshold crossing). All five samples conform to the timing predicate, but sample 2 collapsed to 1.3617x -- the parallel path took 16.977ms instead of the typical ~1.8ms. That outlier is the result, not noise.
+SMI: 279, 279, 278 per 120s (unchanged). Tracefs `hwlat`: 2, 2, 14 us (one threshold crossing). All five samples conform to the timing predicate, but sample 2 collapsed to 1.3617x -- the parallel path took 16.977ms instead of the typical ~1.8ms.
+
+### Per-sample comparison
+
+```mermaid
+xychart-beta
+  title "Characterization Ratio (serial / parallel) by Sample"
+  x-axis ["S1", "S2", "S3", "S4", "S5"]
+  y-axis "Ratio" 0 --> 16
+  bar "Generic" [13.18, 14.18, 12.33, 12.35, 9.34]
+  bar "RT" [12.24, 1.36, 9.87, 10.30, 12.83]
+```
+
+The generic lane holds between 9x and 14x. The RT lane's sample 2 is the story: 1.36x while every other sample is 9x+. That outlier drove the RT parallel mean to 5.033ms (generic: 1.962ms) and inflated stdev from 1.81x to 4.62x.
+
+```mermaid
+xychart-beta
+  title "Parallel Reduction Time (ms) by Sample"
+  x-axis ["S1", "S2", "S3", "S4", "S5"]
+  y-axis "Parallel ms" 0 --> 18
+  bar "Generic" [1.93, 1.95, 1.78, 1.77, 2.38]
+  bar "RT" [1.81, 16.98, 2.35, 2.30, 1.73]
+```
+
+Serial times (not shown) are nearly identical across both lanes (~22-27ms). The parallel path is where PREEMPT_RT's sleeping-lock conversion costs show up.
 
 [Raw CSV](https://github.com/Jesssullivan/Dell-7810/blob/main/docs/publication/data/honey-generic-rt-repeat-packet-2026-04-26.csv).
 
