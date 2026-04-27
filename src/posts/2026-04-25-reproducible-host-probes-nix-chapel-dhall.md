@@ -12,7 +12,7 @@ source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
 ---
 
 
-As part of my descent into multiprocessor kernel timing madness and claiming anything about kernel scheduling, I wanted a typed, repeatable characterization of the host's parallel behavior.  Using these lovelies I have have screwed together something of a minimally viable EEG, XR stream and audio buffer "timing-friendlyish" characterization bench. 👀  
+As part of my descent into multiprocessor & timing madness I've needed a repeatable characterization of behavior.  Using these lovelies I have have screwed together something of a minimally viable EEG, XR stream and audio buffer "timing-friendlyish" characterization bench. 👀  
 
 - [quickchpl](https://github.com/jesssullivan/quickchpl) **Hey look, this cool person named `Jess Sullivan` wrote this handy library for property-based testing in Chapel language, how else would I structure timing invariants?**
 - [Dhall](https://dhall-lang.org/) for typed evidence records (go read [Gabby's blog](https://haskellforall.com/))
