@@ -64,5 +64,4 @@ EXPOSE 8080
 
 LABEL org.opencontainers.image.title="jesssullivan.github.io shadow" \
       org.opencontainers.image.description="Tailnet-only mirror of jesssullivan.github.io static build" \
-      org.opencontainers.image.source="https://github.com/Jesssullivan/jesssullivan.github.io" \
       org.opencontainers.image.licenses="CC0-1.0"
