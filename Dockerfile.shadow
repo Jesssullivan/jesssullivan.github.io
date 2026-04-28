@@ -29,17 +29,17 @@ RUN apt-get update \
         fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin npm to 10.9.3 — the version PR #77's CI passes with and the version
-# the committed lock was generated against. node:22-bookworm-slim ships
-# npm 10.9.7 which rejects this lock with EUSAGE on yaml@1.10.x and
-# @emnapi entries that ARE present (under nested workspace paths). Pinning
-# avoids a churn-y lock regen across two surfaces.
-RUN npm install -g npm@10.9.3
-
 COPY package.json package-lock.json ./
 COPY packages/ ./packages/
 
-RUN npm ci --no-audit --no-fund
+# `npm install` rather than `npm ci`: tolerates lockfile lag against upstream
+# transitive deps that have re-published since the committed lock was
+# generated (npm ci's strict consistency check has been triggering on
+# yaml@2.8.3 / @emnapi@1.10.0 entries that aren't yet in the committed
+# lock). Layer-level reproducibility comes from the Docker cache; the
+# committed lock continues to gate the blog repo's GH Actions CI which uses
+# the canonical npm ci path.
+RUN npm install --no-audit --no-fund --no-save
 
 COPY . .
 
