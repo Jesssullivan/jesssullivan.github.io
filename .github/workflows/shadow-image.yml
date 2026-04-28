@@ -5,9 +5,9 @@ name: Build shadow image
 # branches; this workflow does not run on main, on PRs against main, or on
 # any other branch pattern.
 #
-# The image registry is private. First publish requires a one-time visibility
-# flip to "private" via the GitHub package settings. Documented in
-# ~/git/jesssullivan-infra/docs/jesssullivan-blog-shadow.md.
+# The image package is intentionally separate from the earlier public bootstrap
+# package. GHCR packages default to private on first publish; once a package is
+# public, GitHub does not allow it to become private again.
 #
 # Bootstrap: the very first build can run on `runs-on: ubuntu-latest` before
 # the ARC enrollment for this repo (TIN-705/706 in jesssullivan-infra) lands.
@@ -32,7 +32,7 @@ permissions:
   packages: write
 
 env:
-  IMAGE_NAME: ghcr.io/jesssullivan/jesssullivan-github-io-shadow
+  IMAGE_NAME: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-private
 
 jobs:
   build:
