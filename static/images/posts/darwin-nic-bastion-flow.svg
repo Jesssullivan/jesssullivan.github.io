@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">DarwinNicUtil Mac bastion OOB flow</title>
+  <desc id="desc">A generic out-of-band management flow from an operator laptop over a tailnet to a Mac bastion, through a USB management NIC, to managed network hardware.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e2a2f"/>
+      <stop offset="52%" stop-color="#123a39"/>
+      <stop offset="100%" stop-color="#4c2b16"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8f0de"/>
+      <stop offset="100%" stop-color="#e9d7b8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#061112" flood-opacity="0.38"/>
+    </filter>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse">
+      <path d="M 38 0 L 0 0 0 38" fill="none" stroke="#f8f0de" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#f2c572"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L12,7 L2,12 Z" fill="#81d6ca"/>
+    </marker>
+    <style>
+      .title { font: 700 52px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -1.5px; fill: #f8f0de; }
+      .subtitle { font: 500 24px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #d6efe8; opacity: 0.92; }
+      .label { font: 700 23px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #153433; }
+      .small { font: 500 17px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #315552; }
+      .tiny { font: 600 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8f0de; opacity: 0.9; }
+      .pill { font: 700 16px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #103030; }
+      .card { fill: url(#card); stroke: rgba(255,255,255,0.48); stroke-width: 2; filter: url(#shadow); }
+      .soft { fill: #f8f0de; opacity: 0.12; }
+      .arrow { fill: none; stroke: #f2c572; stroke-width: 8; stroke-linecap: round; marker-end: url(#arrow); }
+      .arrow2 { fill: none; stroke: #81d6ca; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 12 13; marker-end: url(#arrow-teal); }
+    </style>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <circle cx="1024" cy="96" r="170" class="soft"/>
+  <circle cx="122" cy="548" r="210" class="soft"/>
+
+  <text x="76" y="86" class="title">DarwinNicUtil</text>
+  <text x="78" y="126" class="subtitle">Mac bastion USB management NIC for hardened OOB network maintenance</text>
+
+  <rect x="70" y="214" width="220" height="146" rx="28" class="card"/>
+  <text x="100" y="272" class="label">Operator</text>
+  <text x="100" y="304" class="small">laptop / workstation</text>
+  <text x="100" y="332" class="small">keeps normal network</text>
+
+  <rect x="386" y="198" width="254" height="178" rx="30" class="card"/>
+  <text x="424" y="258" class="label">Mac bastion</text>
+  <text x="424" y="290" class="small">tailnet reachable</text>
+  <text x="424" y="318" class="small">USB NIC configured</text>
+  <rect x="421" y="336" width="154" height="30" rx="15" fill="#81d6ca"/>
+  <text x="442" y="357" class="pill">darwin-nic</text>
+
+  <rect x="746" y="214" width="192" height="146" rx="28" class="card"/>
+  <text x="782" y="272" class="label">OOB link</text>
+  <text x="782" y="304" class="small">USB Ethernet</text>
+  <text x="782" y="332" class="small">management subnet</text>
+
+  <rect x="1006" y="198" width="160" height="178" rx="30" class="card"/>
+  <text x="1034" y="258" class="label">Network</text>
+  <text x="1034" y="288" class="label">gear</text>
+  <text x="1034" y="320" class="small">switch / router</text>
+  <text x="1034" y="348" class="small">OOB service</text>
+
+  <path d="M305 287 C338 287 348 287 376 287" class="arrow"/>
+  <text x="318" y="260" class="tiny">tailnet / VPN</text>
+  <path d="M652 287 C690 287 702 287 734 287" class="arrow"/>
+  <text x="668" y="260" class="tiny">preserve Wi-Fi</text>
+  <path d="M952 287 C973 287 979 287 994 287" class="arrow"/>
+
+  <path d="M1044 392 C941 486 717 494 584 390" class="arrow2"/>
+  <text x="693" y="488" class="tiny">fallback: MAC-only read path when TCP is blocked</text>
+
+  <rect x="92" y="458" width="1016" height="78" rx="24" fill="#071d20" fill-opacity="0.62" stroke="#81d6ca" stroke-opacity="0.34"/>
+  <text x="126" y="492" class="tiny">Tier A: normal TCP management when host policy allows it</text>
+  <text x="126" y="522" class="tiny">Tier B: MAC-Telnet read path for link-layer recovery</text>
+  <text x="664" y="492" class="tiny">Tier C: physical console only after software paths are exhausted</text>
+  <text x="664" y="522" class="tiny">RouterOS-specific logic stays in the network runbook</text>
+</svg>
