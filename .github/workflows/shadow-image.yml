@@ -37,7 +37,12 @@ env:
 jobs:
   build:
     name: Build and push shadow image
-    runs-on: tinyland-dind
+    # BOOTSTRAP override: this branch (shadow-deploy/m1-foundation) builds on
+    # ubuntu-latest because jesssullivan-infra TIN-705/706 (ARC enrollment for
+    # tinyland-dind on this repo) hasn't landed yet. After enrollment, this
+    # line returns to `tinyland-dind` on subsequent shadow-deploy/* branches.
+    # Tracking: TIN-710 (this workflow), TIN-706 (ARC apply).
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
