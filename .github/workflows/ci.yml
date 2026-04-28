@@ -55,6 +55,9 @@ jobs:
       - name: Blog agent tests
         run: npm --workspace packages/blog-agent run test
 
+      - name: Pulse-core tests + typecheck + proto guard
+        run: npm run test:pulse-core
+
       - name: Build
         run: npm run build
 

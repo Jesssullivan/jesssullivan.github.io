@@ -1,0 +1,64 @@
+# nginx config for the jesssullivan-blog-shadow image.
+# Listens on port 8080 (matches the unprivileged base image's default).
+# Serves the SvelteKit adapter-static `build/` output.
+# No upstream services, no rewrite away from the static contract.
+
+server {
+    listen       8080 default_server;
+    listen       [::]:8080 default_server;
+    server_name  _;
+
+    root         /usr/share/nginx/html;
+    index        index.html;
+
+    # SvelteKit adapter-static writes per-route directories with index.html.
+    # Check route index files before raw directories so `/blog` and `/blog/`
+    # do not redirect to the container's internal 8080 port or hit autoindex.
+    location = / {
+        try_files /index.html =404;
+    }
+
+    location ~ ^(.+)/$ {
+        try_files $1.html $1/index.html =404;
+    }
+
+    location / {
+        try_files $uri.html $uri/index.html $uri =404;
+    }
+
+    # Long-cache hashed assets (Vite produces hashed file names in /_app).
+    location ~* /_app/ {
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Conservative cache for other static assets.
+    location ~* \.(css|js|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|otf|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # HTML revalidates on every request so a redeploy is visible immediately.
+    location ~* \.html$ {
+        expires -1;
+        add_header Cache-Control "no-cache, must-revalidate";
+    }
+
+    # Operator probe used by the readiness/liveness checks in the tofu stack.
+    location = /healthz {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 "ok\n";
+    }
+
+    # The shadow has no directory listings.
+    autoindex off;
+
+    # Refuse the obvious privacy footguns at the edge.
+    location = /.env {
+        return 404;
+    }
+    location ~* \.git/ {
+        return 404;
+    }
+}

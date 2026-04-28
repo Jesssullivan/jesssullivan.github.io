@@ -1,0 +1,57 @@
+{
+	"$comment": "Schema-evolution ledger. Every retired field number and name MUST be added here and to a `reserved` clause on its message. Never reuse anything listed in this file. Validated by scripts/validate-proto-reservations.mts.",
+	"messages": {
+		"PulseEvent": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"NotePayload": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"BirdSightingPayload": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"Place": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"MediaAttachment": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"PhotoPayload": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"GitSummaryPayload": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"ListeningPayload": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"Source": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"PublicPulseSnapshot": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"PublicPulseItem": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"PublicBirdSighting": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		},
+		"PublicPulseManifest": {
+			"reserved_numbers": [],
+			"reserved_names": []
+		}
+	}
+}

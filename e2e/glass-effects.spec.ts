@@ -11,7 +11,7 @@ test.describe('Glass & Transparency Effects', () => {
 	for (const vp of VIEWPORTS) {
 		test(`blog listing cards have glass class (${vp.name})`, async ({ page }) => {
 			await page.setViewportSize({ width: vp.width, height: vp.height });
-			await page.goto('/blog', { waitUntil: 'networkidle' });
+			await page.goto('/blog');
 			const cards = page.locator('article.glass');
 			const count = await cards.count();
 			expect(count).toBeGreaterThan(0);
@@ -20,7 +20,7 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('blog listing cards have backdrop-filter', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const card = page.locator('article.glass').first();
 		await expect(card).toBeVisible();
 		const bf = await card.evaluate((el) => getComputedStyle(el).backdropFilter);
@@ -30,7 +30,7 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('sidebar has glass class on desktop', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const sidebar = page.locator('.sidebar-scroll.glass');
 		await expect(sidebar).toBeVisible();
 	});
@@ -38,17 +38,18 @@ test.describe('Glass & Transparency Effects', () => {
 	test('blog post sidebar has glass class on desktop', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
 		// Navigate to any post
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const firstPost = page.locator('article a[href^="/blog/"]').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		const href = await firstPost.getAttribute('href');
+		expect(href).toBeTruthy();
+		await page.goto(href!);
 		const sidebar = page.locator('.sidebar-scroll.glass');
 		await expect(sidebar).toBeVisible();
 	});
 
 	test('nav gains glass-nav class after scrolling', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 
 		// Before scroll: no glass-nav
 		const appBar = page.locator('header').first();
@@ -69,7 +70,7 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('tag page cards have glass class', async ({ page }) => {
 		// Navigate directly to a known tag page instead of clicking hidden mobile-only tag links
-		await page.goto('/blog/tag/Birding', { waitUntil: 'networkidle' });
+		await page.goto('/blog/tag/Birding');
 		const cards = page.locator('article.glass');
 		const count = await cards.count();
 		expect(count).toBeGreaterThanOrEqual(0);
@@ -77,7 +78,7 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('search dropdown uses glass', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		// If search is available, the dropdown should use glass class
 		const searchInput = page.locator('input[type="search"]');
 		if ((await searchInput.count()) > 0) {
@@ -91,7 +92,7 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('dark mode glass styles work', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		// Set dark mode
 		await page.evaluate(() => {
 			document.documentElement.setAttribute('data-mode', 'dark');
@@ -107,7 +108,7 @@ test.describe('Glass & Transparency Effects', () => {
 	test('prefers-reduced-motion disables backdrop-filter', async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: 'reduce' });
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const card = page.locator('article.glass').first();
 		await expect(card).toBeVisible();
 		const bf = await card.evaluate((el) => getComputedStyle(el).backdropFilter);
@@ -116,8 +117,9 @@ test.describe('Glass & Transparency Effects', () => {
 
 	test('theme menu dropdown opens', async ({ page }) => {
 		await page.setViewportSize({ width: 1024, height: 768 });
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const themeBtn = page.locator('button[aria-label="Theme settings"]');
+		await expect(themeBtn).toBeVisible({ timeout: 10_000 });
 		await themeBtn.click();
 		await expect(page.getByRole('button', { name: 'light' })).toBeVisible();
 	});

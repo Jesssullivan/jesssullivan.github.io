@@ -1,0 +1,127 @@
+name: Build shadow image
+
+# Builds and pushes the tailnet-only mirror image used by jesssullivan-infra's
+# jesssullivan-blog-shadow tofu stack. Triggered ONLY on shadow-deploy/*
+# branches; this workflow does not run on main, on PRs against main, or on
+# any other branch pattern.
+#
+# This workflow builds the source artifact on the tinyland-dind ARC lane. The
+# workflow-published package is not the deploy pull target: GitHub links
+# GITHUB_TOKEN publishes from this public repo back to the public repo, and the
+# resulting GHCR package is public. Operators mirror the exact pushed digest to
+# the unlinked private package with a non-GITHUB_TOKEN credential before apply.
+#
+# Bootstrap: the very first build can run on `runs-on: ubuntu-latest` before
+# the ARC enrollment for this repo (TIN-705/706 in jesssullivan-infra) lands.
+# After enrollment, swap the runs-on label to `tinyland-dind`.
+
+on:
+  push:
+    branches:
+      - "shadow-deploy/**"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build (defaults to current ref)"
+        required: false
+
+concurrency:
+  group: shadow-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
+
+jobs:
+  build:
+    name: Build and push shadow image
+    runs-on: tinyland-dind
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Compute image tag
+        id: tag
+        run: |
+          set -euo pipefail
+          REF_RAW="${{ inputs.ref || github.ref_name }}"
+          REF_SLUG="$(echo "${REF_RAW}" | tr '/' '-' | tr -cd '[:alnum:]-')"
+          if [ -z "${REF_SLUG}" ]; then
+            REF_SLUG="manual"
+          fi
+          SHA_SHORT="${GITHUB_SHA:0:12}"
+          TAG="shadow-${REF_SLUG}-${SHA_SHORT}-amd64"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Computed tag: ${TAG}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.shadow
+          push: true
+          platforms: linux/amd64
+          tags: ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Trivy scan (report-only for M1.5)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          format: table
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Summary
+        run: |
+          {
+            echo "## Shadow image build"
+            echo ""
+            echo "- Image: \`${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}\`"
+            echo "- Branch: \`${{ github.ref_name }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo ""
+            echo "### Private package mirror"
+            echo ""
+            echo "Mirror the exact CI-built artifact to the private operator package before deploy:"
+            echo ""
+            echo "\`\`\`bash"
+            echo "gh auth token | docker login ghcr.io -u Jesssullivan --password-stdin"
+            echo "docker buildx imagetools create \\"
+            echo "  -t ghcr.io/jesssullivan/jesssullivan-github-io-shadow-operator:${{ steps.tag.outputs.tag }} \\"
+            echo "  ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
+            echo "docker logout ghcr.io"
+            echo "\`\`\`"
+            echo ""
+            echo "### Operator next steps"
+            echo "From \`~/git/jesssullivan-infra/\`:"
+            echo ""
+            echo "\`\`\`bash"
+            echo "export TF_VAR_image_tag=${{ steps.tag.outputs.tag }}"
+            echo "export TF_VAR_ghcr_token=\"\$(operator-token-source)\""
+            echo "export TF_VAR_ghcr_username=\"jesssullivan\""
+            echo "just blog-shadow-plan"
+            echo "just blog-shadow-plan-show"
+            echo "just blog-shadow-apply"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
