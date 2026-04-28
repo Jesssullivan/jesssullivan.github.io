@@ -8,6 +8,8 @@
 		import: 'default',
 	}) as Record<string, Record<string, { width: number; height: number }>>;
 	const imageDimensions: Record<string, { width: number; height: number }> = Object.values(dimFiles)[0] ?? {};
+	// Firefox cannot decode this generated AVIF; prefer the WebP/PNG variants.
+	const avifDisabled = new Set(['/images/posts/darwin-nic-bastion-flow.png']);
 
 	let { post, loading = false }: { post?: Post; loading?: boolean } = $props();
 
@@ -27,6 +29,7 @@
 
 	function avifSrc(src: string): string | null {
 		if (!src) return null;
+		if (avifDisabled.has(src)) return null;
 		const avif = src.replace(/\.(jpe?g|png|gif)$/i, '.avif');
 		return avif !== src ? avif : null;
 	}
