@@ -1,11 +1,18 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function openFirstBlogPost(page: Page) {
+	await page.goto('/blog');
+	const firstPost = page.locator('article.card a').first();
+	await expect(firstPost).toBeVisible({ timeout: 10_000 });
+	const href = await firstPost.getAttribute('href');
+	expect(href).toBeTruthy();
+	await page.goto(href!);
+	await expect(page.locator('[data-testid="comments-section"]')).toBeVisible({ timeout: 10_000 });
+}
 
 test.describe('Giscus Comments', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 	});
 
 	test('comments section exists on blog post page', async ({ page }) => {
@@ -33,10 +40,7 @@ test.describe('Giscus Comments', () => {
 test.describe('Giscus lazy loading', () => {
 	test('loading skeleton appears when giscus blocked', async ({ page }) => {
 		await page.route('**/giscus.app/**', (route) => route.abort());
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const skeleton = page.locator('[data-testid="comments-loading"]');
@@ -46,10 +50,7 @@ test.describe('Giscus lazy loading', () => {
 
 	test('loading skeleton has sr-only text', async ({ page }) => {
 		await page.route('**/giscus.app/**', (route) => route.abort());
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const srText = page.locator('[data-testid="comments-loading"] .sr-only');
@@ -58,10 +59,7 @@ test.describe('Giscus lazy loading', () => {
 
 	test('error state appears when giscus is unreachable', async ({ page }) => {
 		await page.route('**/giscus.app/**', (route) => route.abort());
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const errorDiv = page.locator('[data-testid="comments-error"]');
@@ -71,10 +69,7 @@ test.describe('Giscus lazy loading', () => {
 
 	test('error state links to GitHub discussions', async ({ page }) => {
 		await page.route('**/giscus.app/**', (route) => route.abort());
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const errorDiv = page.locator('[data-testid="comments-error"]');
@@ -87,10 +82,7 @@ test.describe('Giscus lazy loading', () => {
 	});
 
 	test('giscus iframe loads when scrolled into view', async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const iframe = page.locator('iframe.giscus-frame');
@@ -107,10 +99,7 @@ test.describe('Giscus lazy loading', () => {
 	});
 
 	test('loading skeleton disappears after giscus loads', async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const iframe = page.locator('iframe.giscus-frame');
@@ -130,10 +119,7 @@ test.describe('Comments — full-width layout', () => {
 	test.use({ viewport: { width: 1280, height: 800 } });
 
 	test('comments section spans full article width on desktop', async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		const article = page.locator('article');
 		const comments = page.locator('[data-testid="comments-section"]');
@@ -145,10 +131,7 @@ test.describe('Comments — full-width layout', () => {
 	});
 
 	test('comments section is outside the grid container', async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		// Wait for comments section to render
 		const comments = page.locator('[data-testid="comments-section"]');
@@ -168,10 +151,7 @@ test.describe('Comments — mobile viewport', () => {
 	test.use({ viewport: { width: 375, height: 667 } });
 
 	test('comments section is visible on mobile', async ({ page }) => {
-		await page.goto('/blog');
-		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await openFirstBlogPost(page);
 
 		await page.locator('[data-testid="comments-section"]').scrollIntoViewIfNeeded();
 		const section = page.locator('[data-testid="comments-section"]');

@@ -8,7 +8,7 @@ test.describe('Search — main blog page', () => {
 	});
 
 	test('typing a query shows results', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bird');
@@ -18,7 +18,7 @@ test.describe('Search — main blog page', () => {
 	});
 
 	test('prefix matching works (typeahead)', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bir');
@@ -50,7 +50,7 @@ test.describe('Search — main blog page', () => {
 	});
 
 	test('search result links point to blog posts', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bird');
@@ -63,7 +63,7 @@ test.describe('Search — main blog page', () => {
 	});
 
 	test('keyboard navigation works', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog');
 		const input = page.locator('input[type="search"]').first();
 		await expect(input).toBeVisible({ timeout: 10_000 });
 		await input.fill('bird');
@@ -113,8 +113,10 @@ test.describe('Pagefind indexing — data-pagefind-body', () => {
 	test('blog post prose section has data-pagefind-body', async ({ page }) => {
 		await page.goto('/blog');
 		const firstPost = page.locator('article.card a').first();
-		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await expect(firstPost).toBeVisible({ timeout: 10_000 });
+		const href = await firstPost.getAttribute('href');
+		expect(href).toBeTruthy();
+		await page.goto(href!);
 		const prose = page.locator('[data-pagefind-body]');
 		await expect(prose).toBeVisible();
 		await expect(prose).toHaveClass(/prose/);
