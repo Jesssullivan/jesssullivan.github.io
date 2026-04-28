@@ -14,13 +14,26 @@ test.describe('Media Recovery & Image Integrity', () => {
 				if (src.startsWith('http://') || src.startsWith('https://')) continue;
 				// Skip hidden images (display:none, zero-size containers)
 				if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') continue;
+				img.loading = 'eager';
 				// Force load by scrolling into view
-				img.scrollIntoView();
-				if (!img.complete) {
-					await new Promise<void>((r) => { img.onload = () => r(); img.onerror = () => r(); });
+				img.scrollIntoView({ block: 'center' });
+				if (!img.complete || img.naturalWidth === 0) {
+					const waitForTerminalState = new Promise<void>((resolve) => {
+						const timeout = window.setTimeout(resolve, 5000);
+						const done = () => {
+							window.clearTimeout(timeout);
+							resolve();
+						};
+						img.addEventListener('load', done, { once: true });
+						img.addEventListener('error', done, { once: true });
+					});
+					const decode = typeof img.decode === 'function'
+						? img.decode().catch(() => undefined)
+						: waitForTerminalState;
+					await Promise.race([decode, waitForTerminalState]);
 				}
 				if (img.naturalWidth === 0) {
-					broken.push(src || '(no src)');
+					broken.push(img.currentSrc || src || '(no src)');
 				}
 			}
 			return broken;

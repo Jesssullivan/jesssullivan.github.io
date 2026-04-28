@@ -1,0 +1,199 @@
+name: Publish shadow preview
+
+# Builds the latest active same-repo PR branch into the public CI source image
+# package, then dispatches the private infra repo to mirror/apply that exact
+# tag to the tailnet-only shadow blog route.
+#
+# Security shape:
+# - fork PRs are ignored
+# - draft PRs are ignored
+# - the public blog workflow never receives cluster or RustFS credentials
+# - the private infra repo owns GHCR private mirroring and OpenTofu apply
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or SHA to publish to the shadow route"
+        required: false
+
+concurrency:
+  group: blog-shadow-preview
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  pull-requests: read
+
+env:
+  SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
+  DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
+
+jobs:
+  resolve:
+    name: Resolve preview target
+    runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.target.outputs.deploy }}
+      ref: ${{ steps.target.outputs.ref }}
+      branch: ${{ steps.target.outputs.branch }}
+      sha: ${{ steps.target.outputs.sha }}
+      pr_number: ${{ steps.target.outputs.pr_number }}
+      image_tag: ${{ steps.target.outputs.image_tag }}
+    steps:
+      - name: Resolve active branch or PR
+        id: target
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const eventName = context.eventName;
+
+            let deploy = false;
+            let ref = "";
+            let branch = "";
+            let sha = "";
+            let prNumber = "";
+
+            if (eventName === "pull_request") {
+              const pr = context.payload.pull_request;
+              if (pr.draft) {
+                core.notice(`Skipping draft PR #${pr.number}.`);
+              } else if (pr.head.repo.full_name !== `${owner}/${repo}`) {
+                core.notice(`Skipping fork PR #${pr.number}; shadow deploy is same-repo only.`);
+              } else {
+                deploy = true;
+                branch = pr.head.ref;
+                ref = pr.head.sha;
+                sha = pr.head.sha;
+                prNumber = String(pr.number);
+              }
+            } else if (eventName === "workflow_dispatch") {
+              const requestedRef = core.getInput("ref") || context.ref.replace(/^refs\/heads\//, "");
+              const commit = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: requestedRef,
+              });
+              deploy = true;
+              ref = commit.data.sha;
+              sha = commit.data.sha;
+              branch = requestedRef;
+            } else {
+              core.notice(`Skipping unsupported event ${eventName}.`);
+            }
+
+            let imageTag = "";
+            if (deploy) {
+              const raw = prNumber ? `pr-${prNumber}-${branch}` : branch;
+              const slug = raw.replace(/\//g, "-").replace(/[^A-Za-z0-9-]/g, "") || "manual";
+              imageTag = `shadow-${slug}-${sha.slice(0, 12)}-amd64`;
+              core.notice(`Shadow preview target: ${imageTag}`);
+            }
+
+            core.setOutput("deploy", deploy ? "true" : "false");
+            core.setOutput("ref", ref);
+            core.setOutput("branch", branch);
+            core.setOutput("sha", sha);
+            core.setOutput("pr_number", prNumber);
+            core.setOutput("image_tag", imageTag);
+
+  build:
+    name: Build source image
+    needs: resolve
+    if: needs.resolve.outputs.deploy == 'true'
+    runs-on: tinyland-dind
+    timeout-minutes: 35
+    steps:
+      - name: Require infra dispatch token
+        env:
+          HAS_DISPATCH_TOKEN: ${{ secrets.BLOG_SHADOW_DISPATCH_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          if [ "${HAS_DISPATCH_TOKEN}" != "true" ]; then
+            echo "::error::BLOG_SHADOW_DISPATCH_TOKEN is required to dispatch the private infra deploy workflow."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR for source image
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push source image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.shadow
+          push: true
+          platforms: linux/amd64
+          tags: ${{ env.SOURCE_IMAGE }}:${{ needs.resolve.outputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Trivy scan (report-only for shadow preview)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.SOURCE_IMAGE }}:${{ needs.resolve.outputs.image_tag }}
+          format: table
+          exit-code: "0"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Dispatch private infra deploy
+        uses: actions/github-script@v7
+        env:
+          IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
+          SOURCE_BRANCH: ${{ needs.resolve.outputs.branch }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+        with:
+          github-token: ${{ secrets.BLOG_SHADOW_DISPATCH_TOKEN }}
+          script: |
+            const [owner, repo] = process.env.DEPLOY_REPOSITORY.split("/");
+            await github.rest.repos.createDispatchEvent({
+              owner,
+              repo,
+              event_type: "blog-shadow-preview",
+              client_payload: {
+                source_repository: context.repo.owner + "/" + context.repo.repo,
+                source_image: process.env.SOURCE_IMAGE,
+                image_tag: process.env.IMAGE_TAG,
+                source_branch: process.env.SOURCE_BRANCH,
+                source_sha: process.env.SOURCE_SHA,
+                pr_number: process.env.PR_NUMBER,
+                source_workflow_run_id: String(context.runId),
+              },
+            });
+
+      - name: Summary
+        run: |
+          {
+            echo "## Shadow preview dispatch"
+            echo ""
+            echo "- Source image: \`${SOURCE_IMAGE}:${{ needs.resolve.outputs.image_tag }}\`"
+            echo "- Branch: \`${{ needs.resolve.outputs.branch }}\`"
+            echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
+            echo "- PR: \`${{ needs.resolve.outputs.pr_number || 'manual' }}\`"
+            echo "- Deploy repo: \`${DEPLOY_REPOSITORY}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
