@@ -38,6 +38,7 @@ permissions:
   packages: write
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   IMAGE_NAME: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
 
 jobs:
