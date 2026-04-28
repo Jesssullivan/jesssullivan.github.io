@@ -7,13 +7,6 @@
       <stop offset="52%" stop-color="#123a39"/>
       <stop offset="100%" stop-color="#4c2b16"/>
     </linearGradient>
-    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f8f0de"/>
-      <stop offset="100%" stop-color="#e9d7b8"/>
-    </linearGradient>
-    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#061112" flood-opacity="0.34"/>
-    </filter>
     <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse">
       <path d="M 38 0 L 0 0 0 38" fill="none" stroke="#f8f0de" stroke-opacity="0.05" stroke-width="1"/>
     </pattern>
@@ -25,15 +18,14 @@
     </marker>
     <style>
       .title { font: 700 50px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -1.2px; fill: #f8f0de; }
-      .subtitle { font: 500 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #e6f5ef; opacity: 1; }
-      .label { font: 700 24px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f2c2b; }
-      .small { font: 500 17px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #244845; }
-      .edge { font: 700 16px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8f0de; opacity: 1; text-anchor: middle; }
+      .subtitle { font: 500 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #e6f5ef; }
+      .label { font: 700 26px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f8f0de; text-anchor: middle; }
+      .small { font: 500 17px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #b9dccf; text-anchor: middle; }
+      .edge { font: 700 16px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2c572; text-anchor: middle; }
       .fallback { font: 700 17px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #c8efe5; text-anchor: middle; }
       .pill { font: 700 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #08221f; text-anchor: middle; }
       .tier { font: 600 18px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f5ecd6; }
       .tier-key { font: 800 18px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #f2c572; }
-      .card { fill: url(#card); stroke: rgba(255,255,255,0.42); stroke-width: 1.5; filter: url(#shadow); }
       .soft { fill: #f8f0de; opacity: 0.10; }
       .arrow { fill: none; stroke: #f2c572; stroke-width: 3; stroke-linecap: round; marker-end: url(#arrow); }
       .arrow-fb { fill: none; stroke: #81d6ca; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 8 8; marker-end: url(#arrow-teal); }
@@ -48,51 +40,47 @@
   <text x="76" y="84" class="title">DarwinNicUtil</text>
   <text x="78" y="120" class="subtitle">Mac bastion USB management NIC for hardened OOB network maintenance</text>
 
-  <!-- Main flow row: cards centered vertically around y=270, height 140 (200-340) -->
+  <!-- Node columns: Operator | Mac bastion | OOB link | Network gear -->
+  <!-- Column centers: 170 | 470 | 770 | 1040 -->
 
   <!-- Operator -->
-  <rect x="70" y="200" width="200" height="140" rx="22" class="card"/>
-  <text x="94" y="248" class="label">Operator</text>
-  <text x="94" y="278" class="small">laptop / workstation</text>
-  <text x="94" y="300" class="small">keeps normal network</text>
+  <text x="170" y="232" class="label">Operator</text>
+  <text x="170" y="312" class="small">laptop / workstation</text>
+  <text x="170" y="334" class="small">keeps normal network</text>
 
   <!-- Mac bastion -->
-  <rect x="350" y="200" width="240" height="140" rx="22" class="card"/>
-  <text x="374" y="248" class="label">Mac bastion</text>
-  <text x="374" y="278" class="small">tailnet reachable</text>
-  <text x="374" y="300" class="small">USB NIC configured</text>
-  <rect x="374" y="312" width="120" height="22" rx="11" fill="#81d6ca"/>
-  <text x="434" y="328" class="pill">darwin-nic</text>
+  <text x="470" y="232" class="label">Mac bastion</text>
+  <text x="470" y="312" class="small">tailnet reachable</text>
+  <text x="470" y="334" class="small">USB NIC configured</text>
+  <rect x="410" y="350" width="120" height="24" rx="12" fill="#81d6ca"/>
+  <text x="470" y="367" class="pill">darwin-nic</text>
 
   <!-- OOB link -->
-  <rect x="670" y="200" width="200" height="140" rx="22" class="card"/>
-  <text x="694" y="248" class="label">OOB link</text>
-  <text x="694" y="278" class="small">USB Ethernet</text>
-  <text x="694" y="300" class="small">management subnet</text>
+  <text x="770" y="232" class="label">OOB link</text>
+  <text x="770" y="312" class="small">USB Ethernet</text>
+  <text x="770" y="334" class="small">management subnet</text>
 
   <!-- Network gear -->
-  <rect x="950" y="200" width="180" height="140" rx="22" class="card"/>
-  <text x="974" y="248" class="label">Network gear</text>
-  <text x="974" y="278" class="small">switch / router</text>
-  <text x="974" y="300" class="small">OOB service</text>
+  <text x="1040" y="232" class="label">Network gear</text>
+  <text x="1040" y="312" class="small">switch / router</text>
+  <text x="1040" y="334" class="small">OOB service</text>
 
-  <!-- Forward arrows -->
-  <path d="M270 270 L346 270" class="arrow"/>
-  <text x="308" y="258" class="edge">tailnet / VPN</text>
+  <!-- Forward arrows: live in the lane between the title row (y=232) and detail rows (y=312) -->
+  <path d="M250 270 L390 270" class="arrow"/>
+  <text x="320" y="258" class="edge">tailnet / VPN</text>
 
-  <path d="M590 270 L666 270" class="arrow"/>
-  <text x="628" y="258" class="edge">preserve Wi-Fi</text>
+  <path d="M555 270 L685 270" class="arrow"/>
+  <text x="620" y="258" class="edge">preserve Wi-Fi</text>
 
-  <path d="M870 270 L946 270" class="arrow"/>
-  <text x="908" y="258" class="edge">USB NIC</text>
+  <path d="M860 270 L965 270" class="arrow"/>
+  <text x="912" y="258" class="edge">USB NIC</text>
 
-  <!-- Fallback curve: stays in lane y=370-420, well above tier panel (y=460) -->
-  <path d="M1020 340 C1000 410, 600 430, 460 360" class="arrow-fb"/>
-  <text x="740" y="418" class="fallback">fallback: MAC-only read path when TCP is blocked</text>
+  <!-- Fallback curve: lane below the columns, above the tier panel -->
+  <path d="M1080 388 C1020 446, 540 460, 360 396" class="arrow-fb"/>
+  <text x="700" y="442" class="fallback">fallback: MAC-only read path when TCP is blocked</text>
 
   <!-- Tier panel -->
-  <rect x="70" y="475" width="1060" height="105" rx="20" fill="#061a1d" fill-opacity="0.72" stroke="#81d6ca" stroke-opacity="0.38"/>
-
-  <text x="100" y="515" class="tier"><tspan class="tier-key">Tier A</tspan>   normal TCP management when host policy allows it</text>
-  <text x="100" y="555" class="tier"><tspan class="tier-key">Tier B</tspan>   MAC-Telnet read path for link-layer recovery</text>
+  <rect x="70" y="478" width="1060" height="105" rx="20" fill="#061a1d" fill-opacity="0.72" stroke="#81d6ca" stroke-opacity="0.38"/>
+  <text x="100" y="518" class="tier"><tspan class="tier-key">Tier A</tspan>   normal TCP management when host policy allows it</text>
+  <text x="100" y="558" class="tier"><tspan class="tier-key">Tier B</tspan>   MAC-Telnet read path for link-layer recovery</text>
 </svg>
