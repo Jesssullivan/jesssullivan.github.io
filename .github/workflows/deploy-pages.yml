@@ -14,20 +14,23 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
       - run: npm run build
       - run: npx tsx scripts/validate-redirects.mts
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: build
 
@@ -39,7 +42,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
 
   refresh-profile:
@@ -50,7 +53,7 @@ jobs:
       - name: Generate GitHub App token
         id: app-token
         if: vars.DISPATCH_APP_ID != ''
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.DISPATCH_APP_ID }}
           private-key: ${{ secrets.DISPATCH_APP_KEY }}

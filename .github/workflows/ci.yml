@@ -9,12 +9,15 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -24,7 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_ENABLE_COMMENTS: 'false'
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -32,7 +35,7 @@ jobs:
       - run: npm ci
 
       - name: Restore SvelteKit build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .svelte-kit
           key: sveltekit-${{ runner.os }}-${{ hashFiles('svelte.config.js', 'vite.config.ts', 'src/**') }}
@@ -89,7 +92,7 @@ jobs:
 
       - name: Upload Lighthouse results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-report
           path: .lighthouseci/
@@ -153,7 +156,7 @@ jobs:
 
       - name: Upload vitest results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vitest-report
           path: |
@@ -163,7 +166,7 @@ jobs:
 
       - name: Upload Playwright results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: test-results/

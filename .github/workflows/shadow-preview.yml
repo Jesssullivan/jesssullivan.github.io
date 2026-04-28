@@ -35,6 +35,7 @@ permissions:
   pull-requests: read
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
   DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
 
@@ -52,7 +53,7 @@ jobs:
     steps:
       - name: Resolve active branch or PR
         id: target
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const owner = context.repo.owner;
@@ -125,22 +126,22 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.resolve.outputs.sha }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR for source image
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push source image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile.shadow
@@ -161,7 +162,7 @@ jobs:
           ignore-unfixed: true
 
       - name: Dispatch private infra deploy
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
           SOURCE_BRANCH: ${{ needs.resolve.outputs.branch }}
