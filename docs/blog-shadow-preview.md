@@ -14,7 +14,7 @@ https://jesssullivan-blog-shadow.taila4c78d.ts.net
 `.github/workflows/shadow-preview.yml` publishes the newest active same-repo PR
 branch to the shared shadow route.
 
-1. A non-draft PR against `main` is opened, marked ready, or updated.
+1. A same-repo, non-draft PR against `main` is opened, marked ready, or updated.
 2. The workflow builds `Dockerfile.shadow` on the `tinyland-dind` ARC runner.
 3. The workflow pushes the CI source artifact to
    `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
@@ -27,8 +27,9 @@ Only one branch owns the shared shadow route at a time. Workflow concurrency is
 `blog-shadow-preview` with `cancel-in-progress: true`, so the newest active PR
 branch wins.
 
-Fork PRs and draft PRs are ignored. A push to a non-main branch only deploys if
-that branch has an active, non-draft PR targeting `main`.
+Fork PRs and draft PRs are ignored. Branch pushes are covered by the PR
+`synchronize` event so the workflow does not create duplicate push and PR check
+runs for the same commit.
 
 ## Required Secret
 

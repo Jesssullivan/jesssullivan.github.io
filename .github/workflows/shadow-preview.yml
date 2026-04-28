@@ -19,11 +19,6 @@ on:
       - reopened
       - synchronize
       - ready_for_review
-  push:
-    branches-ignore:
-      - main
-      - gh-pages
-      - "shadow-deploy/**"
   workflow_dispatch:
     inputs:
       ref:
@@ -81,25 +76,6 @@ jobs:
                 branch = pr.head.ref;
                 ref = pr.head.sha;
                 sha = pr.head.sha;
-                prNumber = String(pr.number);
-              }
-            } else if (eventName === "push") {
-              branch = context.ref.replace(/^refs\/heads\//, "");
-              const prs = await github.paginate(github.rest.pulls.list, {
-                owner,
-                repo,
-                state: "open",
-                head: `${owner}:${branch}`,
-                base: "main",
-                per_page: 20,
-              });
-              const pr = prs.find((candidate) => !candidate.draft);
-              if (!pr) {
-                core.notice(`Skipping ${branch}; no active non-draft PR targets main.`);
-              } else {
-                deploy = true;
-                ref = context.sha;
-                sha = context.sha;
                 prNumber = String(pr.number);
               }
             } else if (eventName === "workflow_dispatch") {
