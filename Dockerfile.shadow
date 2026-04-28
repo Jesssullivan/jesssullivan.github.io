@@ -22,7 +22,8 @@ WORKDIR /build
 # read NODE_ENV anyway.
 ENV DEBIAN_FRONTEND=noninteractive \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    CI=true
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
