@@ -1,0 +1,48 @@
+# Blog Shadow Preview
+
+The live shadow preview route is owned by `Jesssullivan/jesssullivan-infra`,
+but this repo owns the branch build that feeds it.
+
+Current review route:
+
+```text
+https://jesssullivan-blog-shadow.taila4c78d.ts.net
+```
+
+## Automatic PR Flow
+
+`.github/workflows/shadow-preview.yml` publishes the newest active same-repo PR
+branch to the shared shadow route.
+
+1. A non-draft PR against `main` is opened, marked ready, or updated.
+2. The workflow builds `Dockerfile.shadow` on the `tinyland-dind` ARC runner.
+3. The workflow pushes the CI source artifact to
+   `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
+4. The workflow dispatches `Jesssullivan/jesssullivan-infra` with the exact
+   image tag and source metadata.
+5. The private infra workflow mirrors that tag into the private operator
+   package and applies the RustFS-backed OpenTofu stack.
+
+Only one branch owns the shared shadow route at a time. Workflow concurrency is
+`blog-shadow-preview` with `cancel-in-progress: true`, so the newest active PR
+branch wins.
+
+Fork PRs and draft PRs are ignored. A push to a non-main branch only deploys if
+that branch has an active, non-draft PR targeting `main`.
+
+## Required Secret
+
+This public repo needs one secret:
+
+| Secret | Purpose |
+|---|---|
+| `BLOG_SHADOW_DISPATCH_TOKEN` | Can create `repository_dispatch` events in `Jesssullivan/jesssullivan-infra` |
+
+Cluster credentials, RustFS credentials, and private GHCR mirroring credentials
+stay in the private infra repo.
+
+## Manual Shadow Image Build
+
+`.github/workflows/shadow-image.yml` still supports the older
+`shadow-deploy/**` branch flow for explicit operator builds. That workflow only
+builds the source image; the private mirror and apply are handled by infra.

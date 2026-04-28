@@ -5,6 +5,10 @@ name: Build shadow image
 # branches; this workflow does not run on main, on PRs against main, or on
 # any other branch pattern.
 #
+# Active PR branches use shadow-preview.yml instead. That workflow builds the
+# same Dockerfile, dispatches jesssullivan-infra, and lets the private repo
+# mirror/apply the image tag to the shared tailnet shadow route.
+#
 # This workflow builds the source artifact on the tinyland-dind ARC lane. The
 # workflow-published package is not the deploy pull target: GitHub links
 # GITHUB_TOKEN publishes from this public repo back to the public repo, and the
