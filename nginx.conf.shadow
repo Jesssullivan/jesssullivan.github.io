@@ -12,9 +12,14 @@ server {
     index        index.html;
 
     # SvelteKit adapter-static writes per-route directories with index.html.
-    # Try the file directly, then with a .html suffix, then index.html, then 404.
+    # Check route index files before raw directories so `/blog` and `/blog/`
+    # do not redirect to the container's internal 8080 port or hit autoindex.
+    location = / {
+        try_files /index.html =404;
+    }
+
     location / {
-        try_files $uri $uri/ $uri.html $uri/index.html =404;
+        try_files $uri.html $uri/index.html $uri =404;
     }
 
     # Long-cache hashed assets (Vite produces hashed file names in /_app).
