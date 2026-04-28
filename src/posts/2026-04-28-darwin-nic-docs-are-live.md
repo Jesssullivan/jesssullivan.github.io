@@ -3,7 +3,7 @@ title: "Smol DarwinNicUtil Has Docs and installers now, yay"
 date: "2026-04-28"
 description: "DarwinNicUtil v2.1.2 is documented, packaged on PyPI and FlakeHub, and now reflects the Mac-bastion OOB flow I use to manage lab network hardware."
 tags: ["macOS", "Networking", "Nix", "Python", "Docs", "Tailscale"]
-published: false
+published: true
 slug: "darwin-nic-docs-are-live"
 category: "devops"
 source_repo: "Jesssullivan/DarwinNicUtil"
