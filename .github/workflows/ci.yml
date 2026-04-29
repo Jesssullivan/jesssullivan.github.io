@@ -34,6 +34,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Static production dependency audit
+        run: npm run security:audit:static
+
       - name: Restore SvelteKit build cache
         uses: actions/cache@v5
         with:
@@ -57,6 +60,10 @@ jobs:
 
       - name: Blog agent tests
         run: npm --workspace packages/blog-agent run test
+
+      - name: Blog agent production dependency audit (report-only)
+        run: npm run security:audit:blog-agent
+        continue-on-error: true
 
       - name: Pulse-core tests + typecheck + proto guard
         run: npm run test:pulse-core

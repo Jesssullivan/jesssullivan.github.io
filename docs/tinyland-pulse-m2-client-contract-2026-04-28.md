@@ -58,6 +58,11 @@ Local Playwright uses Vite dev server for fast client iteration. CI keeps the pr
 
 Those findings should be tracked as a repo hardening surface, but they should not be treated as a static Pulse route blocker unless the affected code is shipped in the static blog artifact or client runtime.
 
+CI now enforces that split explicitly:
+
+- `npm run security:audit:static` blocks static blog/Pulse release confidence. It audits the root static app with workspaces disabled and audits `@blog/pulse-core` as the shared client/runtime contract package.
+- `npm run security:audit:blog-agent` audits `@blog/agent` separately as a report-only CI step until the Agentuity/runtime advisory graph has an owned remediation path.
+
 ## Explicit Non-Scope
 
 ActivityPub federation remains separate from M2 client readiness. The existing ActivityPub planning item should own actor lifecycle, inbox/outbox, signatures, delivery, retries, moderation, and compatibility testing.
