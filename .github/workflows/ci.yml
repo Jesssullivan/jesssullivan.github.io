@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build-and-test:
@@ -80,10 +80,28 @@ jobs:
       - name: Audit links
         run: npx tsx scripts/audit-links.mts
 
-      - name: Install Playwright
+      - name: Install Playwright browsers for PR smoke
+        if: github.event_name == 'pull_request'
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Install Playwright browsers for full regression
+        if: github.event_name != 'pull_request'
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: E2E tests
+      - name: E2E PR smoke
+        if: github.event_name == 'pull_request'
+        run: >
+          npx playwright test
+          --project=chromium
+          --project=webkit
+          e2e/homepage.spec.ts
+          e2e/navigation.spec.ts
+          e2e/dark-mode.spec.ts
+          e2e/pulse-lab.spec.ts
+        continue-on-error: false
+
+      - name: E2E full regression
+        if: github.event_name != 'pull_request'
         run: npx playwright test
         continue-on-error: false
 
