@@ -4,12 +4,13 @@ const VIEWPORTS = [
 	{ width: 320, height: 900, label: '320px (mobile)' },
 	{ width: 768, height: 1024, label: '768px (tablet)' },
 	{ width: 1024, height: 768, label: '1024px (desktop)' },
-	{ width: 1440, height: 900, label: '1440px (wide)' }
+	{ width: 1440, height: 900, label: '1440px (wide)' },
 ] as const;
 
 async function visitAt(page: Page, path: string, width: number, height: number) {
 	await page.setViewportSize({ width, height });
-	await page.goto(path, { waitUntil: 'networkidle' });
+	await page.goto(path, { waitUntil: 'domcontentloaded' });
+	await expect(page.locator('article.card').first()).toBeVisible();
 }
 
 test.describe('Blog card text enhancement', () => {
@@ -51,12 +52,14 @@ test.describe('Blog card text enhancement', () => {
 	}
 
 	test('tag page descriptions use line-clamp-5', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
+		await expect(page.locator('article.card').first()).toBeVisible();
 		// Find a tag link and navigate
 		const tagLink = page.locator('article.card a[href^="/blog/tag/"]').first();
 		if ((await tagLink.count()) > 0) {
 			await tagLink.click();
-			await page.waitForLoadState('networkidle');
+			await expect(page).toHaveURL(/\/blog\/tag\//);
+			await expect(page.locator('article.card').first()).toBeVisible();
 			const description = page.locator('article.card p.line-clamp-5').first();
 			if ((await description.count()) > 0) {
 				await expect(description).toBeVisible();
