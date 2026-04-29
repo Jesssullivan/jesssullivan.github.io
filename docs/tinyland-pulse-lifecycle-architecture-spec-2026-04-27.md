@@ -6,11 +6,11 @@ Linear project: [Tinyland Pulse Lifecycle MVP](https://linear.app/tinyland/proje
 
 Milestone: M1: Mocked Lifecycle + Static Projection Contract
 
-Delivery branch: `jess/pulse-core-foundation`. Status: in review.
+Delivery branch: `jess/pulse-core-foundation`. Status: complete; merged through PR #77 and proven by the M1/M1.5 shadow and production smoke passes.
 
 Companion: [Tinyland Pulse Public-Data Policy — 2026-04-27](./tinyland-pulse-public-data-policy-2026-04-27.md). The policy doc is the operator-facing rule set; this spec is the architectural shape.
 
-## Delivery Status (2026-04-27)
+## Delivery Status (finalized 2026-04-29)
 
 The spec was written before implementation. A handful of decisions changed during build. The spec has been updated to match shipped reality; the deltas are recorded inline below where they matter.
 
@@ -375,12 +375,12 @@ Minimum validation (delivered):
 - ✅ Proto schema-evolution guard — `packages/pulse-core/scripts/validate-proto-reservations.mts` invoked by `packages/pulse-core/test/proto-reservations.test.ts`.
 - ✅ Snapshot validator — `scripts/validate-pulse-snapshot.mts` wired into `npm run check` and `npm run prebuild`.
 - ✅ Component-level SSR tests for note cards, bird cards, and lab policy result rows — `src/lib/components/pulse/PulseCards.test.ts`.
-- ✅ Playwright checks for mobile (390×844) and desktop (1280×800) composer layouts — `e2e/pulse-lab.spec.ts`.
+- ✅ Hosted GitHub Actions Playwright checks for mobile (390×844) and desktop (1280×800) composer layouts — `e2e/pulse-lab.spec.ts`.
 - ✅ Build/check validation proving `/pulse` is static-safe — `prerender = true` preserved; `npm run check` 0 errors across 1179 files.
 
 Deferred:
 
-- ⚠ Full browser-DOM component interaction tests are not present. The current split is SSR component rendering for card/policy output plus Playwright for browser interaction.
+- ⚠ Full browser-DOM component interaction tests are not present. The current split is SSR component rendering for card/policy output plus hosted CI Playwright lanes for browser interaction. Do not run Playwright locally.
 
 ## PR Split
 
@@ -395,7 +395,7 @@ Use these Linear issues as the preferred PR split:
 
 ## Review Surface
 
-End-to-end review of M1 happens against the **M1.5 shadow blog** at `https://jesssullivan-blog-shadow.tailnet.tinyland.dev`, not against gh-pages. The shadow is tailnet-only, deployed via `~/git/jesssullivan-infra` against the on-prem honey RKE2 cluster, and serves the same static `build/` artifact gh-pages would. M1 PRs cannot land on `main` until the shadow has rendered them cleanly. M1.5 issues are tracked under the same project: TIN-704 through TIN-711.
+End-to-end review of M1 happened against the **M1.5 shadow blog** at `https://jesssullivan-blog-shadow.taila4c78d.ts.net`, not against gh-pages. The initially scoped vanity hostname `https://jesssullivan-blog-shadow.tailnet.tinyland.dev` is not the live review surface. Treat that vanity route as broader platform DNS/permaroute/tofu-agent follow-up, not as an M1.5 blocker. The shadow is tailnet-only, deployed via `~/git/jesssullivan-infra` against the on-prem honey RKE2 cluster, and serves the same static `build/` artifact gh-pages would. M1.5 issues are tracked under the same project: TIN-704 through TIN-711.
 
 The shadow path means:
 
