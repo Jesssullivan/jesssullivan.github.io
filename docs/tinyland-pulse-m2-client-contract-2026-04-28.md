@@ -47,10 +47,11 @@ The current QA baseline for client iteration is:
 - `npm run test:pulse-core`
 - `npx vitest run src/lib/components/pulse/PulseCards.test.ts src/lib/pulse/lab/compose.test.ts`
 - `npm run check`
-- `npx playwright test e2e/pulse-lab.spec.ts --project=chromium`
+- PR CI smoke on the hosted GitHub Actions browser lane
+- post-merge full browser regression on `main`
 - shadow-route smoke before treating a branch as review-ready
 
-Local Playwright uses Vite dev server for fast client iteration. CI keeps the production build-and-serve path.
+Do not run Playwright locally. Browser validation for Pulse client work should stay on hosted CI and the tailnet shadow route so local development does not depend on local browser automation state.
 
 ## Audit Boundary
 
