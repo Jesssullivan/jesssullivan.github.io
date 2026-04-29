@@ -97,6 +97,8 @@ jobs:
           e2e/homepage.spec.ts
           e2e/navigation.spec.ts
           e2e/dark-mode.spec.ts
+          e2e/about-merged.spec.ts
+          e2e/card-enhancement.spec.ts
           e2e/pulse-lab.spec.ts
         continue-on-error: false
 

@@ -1,8 +1,30 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function openThemeSettings(page: Page) {
+	const trigger = page.getByRole('button', { name: 'Theme settings' });
+	const darkOption = page.getByRole('button', { name: 'Set color mode to dark' });
+
+	await expect(trigger).toBeVisible();
+	for (let attempt = 0; attempt < 3; attempt++) {
+		await trigger.click();
+		try {
+			await expect(darkOption).toBeVisible({ timeout: 2_000 });
+			return;
+		} catch {
+			// The SSR button can be visible just before WebKit has hydrated the popover handler.
+		}
+	}
+
+	await expect(darkOption).toBeVisible();
+}
 
 test.describe('About (merged) page', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/about');
+		await page.addInitScript(() => {
+			localStorage.setItem('color-mode', 'light');
+		});
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
+		await expect(page.locator('section.hero-banner')).toBeVisible();
 	});
 
 	test('hero banner visible with correct image', async ({ page }) => {
@@ -30,8 +52,9 @@ test.describe('About (merged) page', () => {
 	test('banner fades even with prefers-reduced-motion (scroll-driven, not animated)', async ({ page, browserName }) => {
 		test.skip(browserName === 'webkit', 'Scroll-driven fade timing differs on WebKit');
 		await page.emulateMedia({ reducedMotion: 'reduce' });
-		await page.goto('/about', { waitUntil: 'networkidle' });
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 		const banner = page.locator('section.hero-banner');
+		await expect(banner).toBeVisible();
 
 		await page.evaluate(() => window.scrollBy(0, 500));
 		await page.waitForTimeout(500);
@@ -66,17 +89,12 @@ test.describe('About (merged) page', () => {
 
 	test('ThemedImage swaps src on dark mode toggle', async ({ page }) => {
 		const statsImg = page.locator('img[alt="GitHub Stats"]');
-		const lightSrc = await statsImg.getAttribute('src');
-		expect(lightSrc).toContain('github-stats.svg');
+		await expect(statsImg).toHaveAttribute('src', /github-stats\.svg/);
 
-		// Toggle to dark mode
-		await page.evaluate(() => {
-			document.documentElement.setAttribute('data-mode', 'dark');
-		});
-		await page.waitForTimeout(200);
-
-		const darkSrc = await statsImg.getAttribute('src');
-		expect(darkSrc).toContain('github-stats-dark.svg');
+		await openThemeSettings(page);
+		await page.getByRole('button', { name: 'Set color mode to dark' }).click();
+		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
+		await expect(statsImg).toHaveAttribute('src', /github-stats-dark\.svg/);
 	});
 
 	test('experience section renders with bullet lists', async ({ page }) => {
@@ -133,7 +151,9 @@ test.describe('About (merged) page', () => {
 				try {
 					const data = JSON.parse(s.textContent || '');
 					if (data['@type'] === 'Person') return data;
-				} catch { /* skip */ }
+				} catch {
+					/* skip */
+				}
 			}
 			return null;
 		});
