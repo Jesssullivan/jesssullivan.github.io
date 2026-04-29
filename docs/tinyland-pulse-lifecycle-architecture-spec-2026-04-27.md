@@ -23,7 +23,7 @@ The spec was written before implementation. A handful of decisions changed durin
 - ⚠ Effect Schema is **not** used in M1. Zod is the runtime validator instead. Reason recorded below in "Event Contract".
 - ⚠ Manifest is embedded in the snapshot file, not a separate `*.manifest.json`. Reason recorded below in "Static Blog Contract".
 - ⚠ ProjectionQueue / ProjectionWriter are not separate services in M1; they collapse into `BrokerApi.deriveSnapshot` and the pure `projectAcceptedEvents` function. Service-layer split is deferred until the broker becomes a real service.
-- ❌ Component-level Svelte tests are not present; component coverage is via Playwright e2e (`e2e/pulse-lab.spec.ts`).
+- ✅ Component-level Svelte tests: added in the 2026-04-28 QA follow-up for `PulseNoteCard`, `PulseBirdCard`, and lab policy result rendering (`src/lib/components/pulse/PulseCards.test.ts`).
 
 ## Purpose
 
@@ -374,12 +374,13 @@ Minimum validation (delivered):
 - ✅ FSM determinism, reachability, and terminal-closure tests — `packages/pulse-core/test/fsm.test.ts`.
 - ✅ Proto schema-evolution guard — `packages/pulse-core/scripts/validate-proto-reservations.mts` invoked by `packages/pulse-core/test/proto-reservations.test.ts`.
 - ✅ Snapshot validator — `scripts/validate-pulse-snapshot.mts` wired into `npm run check` and `npm run prebuild`.
+- ✅ Component-level SSR tests for note cards, bird cards, and lab policy result rows — `src/lib/components/pulse/PulseCards.test.ts`.
 - ✅ Playwright checks for mobile (390×844) and desktop (1280×800) composer layouts — `e2e/pulse-lab.spec.ts`.
 - ✅ Build/check validation proving `/pulse` is static-safe — `prerender = true` preserved; `npm run check` 0 errors across 1179 files.
 
 Deferred:
 
-- ⚠ Component-level tests for `PulseNoteCard` and `PulseBirdCard`. Coverage is via Playwright e2e for now. A Vitest-Svelte testing harness can be added in a follow-up; the cards are thin presentational components so the marginal value is low.
+- ⚠ Full browser-DOM component interaction tests are not present. The current split is SSR component rendering for card/policy output plus Playwright for browser interaction.
 
 ## PR Split
 
