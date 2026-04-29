@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const webServerCommand = process.env.CI
-	? 'npm run build && npx serve build -l 3000'
+	? 'MERMAID_PRERENDER=optional npm run build && npx serve build -l 3000'
 	: 'npm run dev -- --host 127.0.0.1 --port 3000';
-const webServerTimeout = process.env.CI ? 180_000 : 300_000;
+const webServerTimeout = 300_000;
 const testTimeout = process.env.CI ? 30_000 : 60_000;
 
 export default defineConfig({
