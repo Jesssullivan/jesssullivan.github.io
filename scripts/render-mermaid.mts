@@ -23,6 +23,8 @@ const ROOT = resolve(__dirname, '..');
 const POSTS_DIR = resolve(ROOT, 'src/posts');
 const CACHE_DIR = resolve(ROOT, '.mermaid-cache');
 const PUPPETEER_CONFIG = resolve(CACHE_DIR, 'puppeteer-config.json');
+const MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'strict';
+const OPTIONAL_PRERENDER = MERMAID_PRERENDER === 'optional';
 const MMDC_BIN = resolve(
 	ROOT,
 	'node_modules',
@@ -166,6 +168,7 @@ const manifest = loadManifest();
 let rendered = 0;
 let cached = 0;
 let failed = 0;
+let skipped = 0;
 
 for (const block of blocks) {
 	const hash = hashCode(block.code);
@@ -173,6 +176,11 @@ for (const block of blocks) {
 
 	if (manifest[hash] && existsSync(svgPath)) {
 		cached++;
+		continue;
+	}
+
+	if (OPTIONAL_PRERENDER) {
+		skipped++;
 		continue;
 	}
 
@@ -188,11 +196,14 @@ for (const block of blocks) {
 }
 
 saveManifest(manifest);
-console.log(`Done: ${rendered} rendered, ${cached} cached, ${blocks.length} total`);
+console.log(`Done: ${rendered} rendered, ${cached} cached, ${skipped} skipped, ${blocks.length} total`);
 
 if (failed > 0) {
-	console.error(
-		`Mermaid prerender failed for ${failed} block(s). Refusing to continue with missing or stale diagram output.`
-	);
-	process.exit(1);
+	const message = `Mermaid prerender failed for ${failed} block(s).`;
+	if (OPTIONAL_PRERENDER) {
+		console.warn(`${message} Continuing because MERMAID_PRERENDER=optional; missing diagrams will use text fallbacks.`);
+	} else {
+		console.error(`${message} Refusing to continue with missing or stale diagram output.`);
+		process.exit(1);
+	}
 }

@@ -5,6 +5,10 @@ import { accessibilityPlugin } from '@tummycrypt/vite-plugin-a11y';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Skeleton-Tailwind v4 compatibility plugin (from tinyland.dev)
 function skeletonTailwindV4Compat(): Plugin {
@@ -51,5 +55,10 @@ export default defineConfig({
 		reportCompressedSize: true,
 		chunkSizeWarningLimit: 250,
 		cssCodeSplit: true,
+	},
+	server: {
+		fs: {
+			allow: [__dirname, resolve(__dirname, 'packages')],
+		},
 	},
 });

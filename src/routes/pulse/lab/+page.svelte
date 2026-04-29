@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { composeEvent, summarizeReadiness, type LabComposeForm, type LabFormKind } from '$lib/pulse/lab/compose';
+	import PulseLabDecisionRow from '$lib/components/pulse/PulseLabDecisionRow.svelte';
 	import { applyPolicyToEvent, type PolicyDecision } from '@blog/pulse-core/policy';
 	import type { PulseEvent, Visibility, LocationPrecision } from '@blog/pulse-core/schema';
+	import { onMount } from 'svelte';
 
 	interface SubmittedRow {
 		event: PulseEvent;
@@ -28,6 +30,11 @@
 
 	let submitted = $state<SubmittedRow[]>([]);
 	let lastError = $state<readonly string[]>([]);
+	let hydrated = $state(false);
+
+	onMount(() => {
+		hydrated = true;
+	});
 
 	const tags = $derived(
 		tagsInput
@@ -81,10 +88,6 @@
 		submitted = [];
 		lastError = [];
 	}
-
-	function decisionLabel(decision: PolicyDecision): string {
-		return decision.allowed ? 'public_projected' : `denied: ${decision.reason}`;
-	}
 </script>
 
 <svelte:head>
@@ -97,7 +100,7 @@
 </svelte:head>
 
 <div class="lab-shell mx-auto py-8 px-4">
-	<div class="phone-frame mx-auto">
+	<div class="phone-frame mx-auto" data-testid={hydrated ? 'pulse-lab-ready' : undefined}>
 		<header class="space-y-1 mb-4">
 			<p class="text-xs uppercase tracking-wider text-surface-600-400">Pulse Lab</p>
 			<h1 class="font-heading text-2xl font-bold">Compose</h1>
@@ -127,28 +130,35 @@
 			{#if kind === 'note'}
 				<label class="label">
 					<span>Note</span>
-					<textarea class="textarea" rows="3" placeholder="What did you see?" bind:value={noteText}></textarea>
+					<textarea class="textarea" rows="3" aria-label="Note" placeholder="What did you see?" bind:value={noteText}
+					></textarea>
 				</label>
 			{:else}
 				<label class="label">
 					<span>Common name</span>
-					<input class="input" type="text" bind:value={birdCommonName} />
+					<input class="input" type="text" aria-label="Common name" bind:value={birdCommonName} />
 				</label>
 				<label class="label">
 					<span>Scientific name</span>
-					<input class="input" type="text" bind:value={birdScientificName} />
+					<input class="input" type="text" aria-label="Scientific name" bind:value={birdScientificName} />
 				</label>
 				<label class="label">
 					<span>Count</span>
-					<input class="input" type="number" min="1" bind:value={birdCount} />
+					<input class="input" type="number" min="1" aria-label="Count" bind:value={birdCount} />
 				</label>
 				<label class="label">
 					<span>Place label</span>
-					<input class="input" type="text" bind:value={birdPlaceLabel} placeholder="region or feeder" />
+					<input
+						class="input"
+						type="text"
+						aria-label="Place label"
+						bind:value={birdPlaceLabel}
+						placeholder="region or feeder"
+					/>
 				</label>
 				<label class="label">
 					<span>Precision</span>
-					<select class="select" bind:value={birdPlacePrecision}>
+					<select class="select" aria-label="Precision" bind:value={birdPlacePrecision}>
 						<option value="LOCATION_PRECISION_HIDDEN">hidden</option>
 						<option value="LOCATION_PRECISION_REGION">region</option>
 						<option value="LOCATION_PRECISION_EXACT">exact (will be denied)</option>
@@ -156,13 +166,13 @@
 				</label>
 				<label class="label">
 					<span>Observation id</span>
-					<input class="input" type="text" bind:value={birdObservationId} />
+					<input class="input" type="text" aria-label="Observation id" bind:value={birdObservationId} />
 				</label>
 			{/if}
 
 			<label class="label">
 				<span>Visibility</span>
-				<select class="select" bind:value={visibility}>
+				<select class="select" aria-label="Visibility" bind:value={visibility}>
 					<option value="VISIBILITY_PUBLIC">public</option>
 					<option value="VISIBILITY_UNLISTED">unlisted</option>
 					<option value="VISIBILITY_PRIVATE">private</option>
@@ -170,11 +180,11 @@
 			</label>
 			<label class="label">
 				<span>Occurred at</span>
-				<input class="input" type="text" bind:value={occurredAt} />
+				<input class="input" type="text" aria-label="Occurred at" bind:value={occurredAt} />
 			</label>
 			<label class="label">
 				<span>Tags (comma separated)</span>
-				<input class="input" type="text" bind:value={tagsInput} />
+				<input class="input" type="text" aria-label="Tags (comma separated)" bind:value={tagsInput} />
 			</label>
 
 			{#if readiness.length > 0}
@@ -213,19 +223,8 @@
 			{:else}
 				<ol class="space-y-2">
 					{#each submitted as row (row.event.id)}
-						<li class="card p-3 preset-outlined-surface-500 text-sm space-y-1">
-							<div class="flex items-center justify-between">
-								<span class="font-mono text-xs">{row.event.id}</span>
-								<span class="badge {row.decision.allowed ? 'preset-filled-success-500' : 'preset-filled-error-500'}">
-									{decisionLabel(row.decision)}
-								</span>
-							</div>
-							<div class="text-xs text-surface-600-400">
-								{row.event.payload.kind} · {row.event.visibility}
-							</div>
-							{#if !row.decision.allowed}
-								<p class="text-xs">{row.decision.detail}</p>
-							{/if}
+						<li>
+							<PulseLabDecisionRow event={row.event} decision={row.decision} />
 						</li>
 					{/each}
 				</ol>
@@ -248,7 +247,6 @@
 	@media (prefers-color-scheme: dark) {
 		.phone-frame {
 			background: var(--color-surface-950);
-			border-color: var(--color-surface-700);
 		}
 	}
 </style>
