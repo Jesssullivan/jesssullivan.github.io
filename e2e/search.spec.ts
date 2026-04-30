@@ -1,87 +1,89 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
+
+const SEARCH_TIMEOUT = 10_000;
+
+async function mainSearchInput(page: Page): Promise<Locator> {
+	const input = page.getByRole('combobox', { name: 'Search blog posts' });
+	await expect(input).toBeVisible({ timeout: SEARCH_TIMEOUT });
+	return input;
+}
+
+async function fillMainSearch(page: Page, query: string): Promise<Locator> {
+	const input = await mainSearchInput(page);
+	await input.fill(query);
+	await expect(input).toHaveValue(query);
+	return input;
+}
+
+async function expectMainSearchResults(page: Page, query: string) {
+	const input = await fillMainSearch(page, query);
+	await expect(input).toHaveAttribute('aria-expanded', 'true', { timeout: SEARCH_TIMEOUT });
+	const dropdown = page.locator('#search-results[role="listbox"]');
+	await expect(dropdown).toBeVisible({ timeout: SEARCH_TIMEOUT });
+	await expect(dropdown.locator('[role="option"]').first()).toBeVisible({ timeout: SEARCH_TIMEOUT });
+	return { input, dropdown };
+}
 
 test.describe('Search — main blog page', () => {
 	test('search input is visible after FlexSearch loads', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
+		await mainSearchInput(page);
 	});
 
 	test('typing a query shows results', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('bird');
-		await page.waitForTimeout(500);
-		const dropdown = page.locator('[role="listbox"]');
-		await expect(dropdown).toBeVisible({ timeout: 10_000 });
+		await expectMainSearchResults(page, 'bird');
 	});
 
 	test('prefix matching works (typeahead)', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('bir');
-		await page.waitForTimeout(500);
-		const results = page.locator('[role="listbox"] li');
+		const { dropdown } = await expectMainSearchResults(page, 'bir');
+		const results = dropdown.locator('[role="option"]');
 		const count = await results.count();
 		expect(count).toBeGreaterThan(0);
 	});
 
 	test('typing a nonsense query shows "No results found"', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('xyzzynonexistent12345');
-		await page.waitForTimeout(500);
-		await expect(page.getByText('No results found')).toBeVisible();
+		const input = await fillMainSearch(page, 'xyzzynonexistent12345');
+		await expect(input).toHaveAttribute('aria-expanded', 'true', { timeout: SEARCH_TIMEOUT });
+		await expect(page.getByText('No results found')).toBeVisible({ timeout: SEARCH_TIMEOUT });
 	});
 
 	test('clearing query hides results', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('solar');
-		await page.waitForTimeout(500);
+		const { input } = await expectMainSearchResults(page, 'solar');
 		await input.fill('');
-		await page.waitForTimeout(300);
+		await expect(input).toHaveAttribute('aria-expanded', 'false', { timeout: SEARCH_TIMEOUT });
 		const noResults = page.getByText('No results found');
 		await expect(noResults).not.toBeVisible();
 	});
 
 	test('search result links point to blog posts', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('bird');
-		await page.waitForTimeout(500);
-		const firstResult = page.locator('[role="listbox"] a').first();
-		if ((await firstResult.count()) > 0) {
-			const href = await firstResult.getAttribute('href');
-			expect(href).toMatch(/\/blog\//);
-		}
+		const { dropdown } = await expectMainSearchResults(page, 'bird');
+		const firstResult = dropdown.locator('a').first();
+		await expect(firstResult).toBeVisible({ timeout: SEARCH_TIMEOUT });
+		const href = await firstResult.getAttribute('href');
+		expect(href).toMatch(/\/blog\//);
 	});
 
 	test('keyboard navigation works', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
-		await input.fill('bird');
-		await page.waitForTimeout(500);
+		const { input, dropdown } = await expectMainSearchResults(page, 'bird');
 		// Arrow down to first result
 		await input.press('ArrowDown');
-		const firstOption = page.locator('[role="option"]').first();
+		const firstOption = dropdown.locator('[role="option"]').first();
 		await expect(firstOption).toHaveAttribute('aria-selected', 'true');
 		// Escape closes dropdown
 		await input.press('Escape');
-		const dropdown = page.locator('[role="listbox"]');
+		await expect(input).toHaveAttribute('aria-expanded', 'false');
 		await expect(dropdown).not.toBeVisible();
 	});
 
 	test('search has ARIA combobox attributes', async ({ page }) => {
 		await page.goto('/blog');
-		const input = page.locator('input[type="search"]').first();
-		await expect(input).toBeVisible({ timeout: 10_000 });
+		const input = await mainSearchInput(page);
 		await expect(input).toHaveAttribute('role', 'combobox');
 		await expect(input).toHaveAttribute('aria-autocomplete', 'list');
 	});
@@ -94,18 +96,17 @@ test.describe('Search — sidebar', () => {
 		await page.goto('/blog');
 		const sidebar = page.locator('aside');
 		const input = sidebar.locator('input[type="search"]');
-		await expect(input).toBeVisible({ timeout: 10_000 });
+		await expect(input).toBeVisible({ timeout: SEARCH_TIMEOUT });
 	});
 
 	test('sidebar search returns results', async ({ page }) => {
 		await page.goto('/blog');
 		const sidebar = page.locator('aside');
 		const input = sidebar.locator('input[type="search"]');
-		await expect(input).toBeVisible({ timeout: 10_000 });
+		await expect(input).toBeVisible({ timeout: SEARCH_TIMEOUT });
 		await input.fill('solar');
-		await page.waitForTimeout(600);
 		const results = sidebar.locator('ul a');
-		await expect(results.first()).toBeVisible({ timeout: 5_000 });
+		await expect(results.first()).toBeVisible({ timeout: SEARCH_TIMEOUT });
 	});
 });
 
@@ -113,7 +114,7 @@ test.describe('Pagefind indexing — data-pagefind-body', () => {
 	test('blog post prose section has data-pagefind-body', async ({ page }) => {
 		await page.goto('/blog');
 		const firstPost = page.locator('article.card a').first();
-		await expect(firstPost).toBeVisible({ timeout: 10_000 });
+		await expect(firstPost).toBeVisible({ timeout: SEARCH_TIMEOUT });
 		const href = await firstPost.getAttribute('href');
 		expect(href).toBeTruthy();
 		await page.goto(href!);
