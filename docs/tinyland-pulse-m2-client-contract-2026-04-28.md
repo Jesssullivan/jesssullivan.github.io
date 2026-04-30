@@ -48,6 +48,15 @@ Real client development should happen as a separate client surface that consumes
 
 That split keeps the static blog honest: it renders public projections and provides a reviewable demo, but it does not become the durable write client or broker authority by accident.
 
+TIN-789 starts this as a hidden `/pulse/client` scaffold inside the blog repo rather than a separate package. That is a temporary client-development surface, not the final app home. It exists to prove the local draft, idempotency-key, broker-submit, policy-preview, and AP-shaped outbox flow against `@blog/pulse-core` before deciding whether the durable client becomes its own app/package.
+
+The division is:
+
+- `/pulse` renders the public snapshot.
+- `/pulse/lab` remains the noindex QA harness and policy experiment surface.
+- `/pulse/client` is the noindex M2 client scaffold for draft/outbox UX.
+- Real ActivityPub federation stays in the TIN-731 planning lane.
+
 ## M2 Contract Scope
 
 M2 should define these contracts before product-style client work accelerates:

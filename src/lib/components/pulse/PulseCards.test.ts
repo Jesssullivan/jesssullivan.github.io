@@ -5,6 +5,7 @@ import type { PublicPulseItem, PulseEvent } from '@blog/pulse-core/schema';
 import { publishPublicPulseItemsToActivityPubDemo } from '@blog/pulse-core/publisher';
 import PulseActivityPubQueue from './PulseActivityPubQueue.svelte';
 import PulseBirdCard from './PulseBirdCard.svelte';
+import PulseClientOutbox from './PulseClientOutbox.svelte';
 import PulseLabDecisionRow from './PulseLabDecisionRow.svelte';
 import PulseNoteCard from './PulseNoteCard.svelte';
 
@@ -142,5 +143,42 @@ describe('Pulse AP demo queue rendering', () => {
 		expect(html).toContain('policy blocked');
 		expect(html).toContain('visibility=VISIBILITY_PRIVATE');
 		expect(html).toContain('OrderedCollection');
+	});
+});
+
+describe('Pulse client outbox rendering', () => {
+	it('renders local draft queue status and idempotency keys', () => {
+		const { html } = render(PulseClientOutbox, {
+			props: {
+				items: [
+					{
+						id: 'draft_1_preview',
+						draftId: 'draft_1',
+						state: 'draft_ready',
+						idempotencyKey: 'pulse-client-1',
+						label: 'Note draft',
+						detail: 'policy preview allows public projection',
+						eventId: 'preview_draft_1',
+					},
+					{
+						id: 'draft_2_preview',
+						draftId: 'draft_2',
+						state: 'draft_blocked',
+						idempotencyKey: 'pulse-client-2',
+						label: 'Bird sighting draft',
+						detail: 'exact location is not public',
+						eventId: 'preview_draft_2',
+					},
+				],
+			},
+		});
+
+		expect(html).toContain('Client outbox');
+		expect(html).toContain('Note draft');
+		expect(html).toContain('Bird sighting draft');
+		expect(html).toContain('pulse-client-1');
+		expect(html).toContain('pulse-client-2');
+		expect(html).toContain('ready');
+		expect(html).toContain('blocked');
 	});
 });
