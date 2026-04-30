@@ -14,8 +14,17 @@ feature_image: "/images/posts/zig-ffi-apple-linux-bridge.png"
 
 I've bumped into this quandry a few times, most recently in an ongoing side quest to fully port cmux emulator and multiplexer to a wide array of popular Linux distrobutions- [I'd *love* help QAing these for a proper release, much to do](https://github.com/Jesssullivan/cmux/issues?q=is%3Aissue%20state%3Aclosed).  
 
-
 The pattern is pretty boring, it is more exciting in my head I guess: build a small native library in Zig, expose a stable C ABI, keep the SwiftUI/AppKit/UIKit/Cocoa bits as the application shell on macOS, and make the native capability boundary portable enough that a Linux build can call the same conceptual surface without pretending to be an Apple app.
+
+
+Docs for each of these live here:
+- [`zig-crypto`](https://transscendsurvival.org/zig-crypto/)
+- [`zig-notify`](https://transscendsurvival.org/zig-notify/)
+- [`zig-keychain`](https://transscendsurvival.org/zig-keychain/)
+- [`zig-ctap2`](https://transscendsurvival.org/zig-ctap2/)
+
+
+
 
 ```mermaid
 graph LR
@@ -43,12 +52,6 @@ I have been calling this "de-attestation" work as these 4 libraries represent st
 | [`zig-keychain`](https://github.com/Jesssullivan/zig-keychain) | Generic secret storage | Keychain Services `SecItemAdd`, `SecItemCopyMatching`, `SecItemDelete` | Secret Service / libsecret |
 | [`zig-ctap2`](https://github.com/Jesssullivan/zig-ctap2) | External authenticator CTAP2 over USB HID | AuthenticationServices-adjacent passkey/authenticator flows, IOKit HID access | hidraw and a direct CTAP2 stack |
 
-Docs are live here:
-
-- [`zig-crypto`](https://transscendsurvival.org/zig-crypto/)
-- [`zig-notify`](https://transscendsurvival.org/zig-notify/)
-- [`zig-keychain`](https://transscendsurvival.org/zig-keychain/)
-- [`zig-ctap2`](https://transscendsurvival.org/zig-ctap2/)
 
 Zig not any more suited to this than Rust, C3, Odin or Hare perse, this is just the screwdriver I've adopted for tiny, native boundary code that can be audited, cross-compiled, documented, and called from nearly anything that understands C, which is most things.
 
