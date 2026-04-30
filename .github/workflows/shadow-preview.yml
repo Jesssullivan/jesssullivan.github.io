@@ -153,9 +153,12 @@ jobs:
           provenance: false
 
       - name: Trivy scan (report-only for shadow preview)
-        uses: aquasecurity/trivy-action@master
+        # v0.36.0; keep this action pinned because the shadow lane has deploy credentials nearby.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
+        continue-on-error: true
         with:
           image-ref: ${{ env.SOURCE_IMAGE }}:${{ needs.resolve.outputs.image_tag }}
+          version: v0.70.0
           format: table
           exit-code: "0"
           severity: HIGH,CRITICAL
