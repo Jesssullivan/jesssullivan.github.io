@@ -9,6 +9,7 @@
     "./schema": "./src/schema/index.ts",
     "./fsm": "./src/fsm/index.ts",
     "./broker": "./src/broker/index.ts",
+    "./publisher": "./src/publisher/index.ts",
     "./policy": "./src/policy/index.ts",
     "./fixtures": "./src/fixtures/index.ts"
   },

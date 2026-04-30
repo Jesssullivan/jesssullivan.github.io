@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { composeEvent, summarizeReadiness, type LabComposeForm, type LabFormKind } from '$lib/pulse/lab/compose';
+	import PulseActivityPubQueue from '$lib/components/pulse/PulseActivityPubQueue.svelte';
 	import PulseLabDecisionRow from '$lib/components/pulse/PulseLabDecisionRow.svelte';
 	import { applyPolicyToEvent, type PolicyDecision } from '@blog/pulse-core/policy';
 	import type { PulseEvent, Visibility, LocationPrecision } from '@blog/pulse-core/schema';
+	import { publishPublicPulseItemsToActivityPubDemo, type ActivityPubDemoDenial } from '@blog/pulse-core/publisher';
 	import { onMount } from 'svelte';
 
 	interface SubmittedRow {
@@ -66,6 +68,25 @@
 
 	const readiness = $derived(summarizeReadiness(form));
 	const canSubmit = $derived(readiness.length === 0);
+	const apDenied = $derived(
+		submitted.flatMap((row): ActivityPubDemoDenial[] =>
+			row.decision.allowed ? [] : [{ eventId: row.event.id, reason: row.decision.reason, detail: row.decision.detail }],
+		),
+	);
+	const apPublication = $derived(
+		publishPublicPulseItemsToActivityPubDemo(
+			{
+				items: submitted.flatMap((row) => (row.decision.allowed ? [row.decision.item] : [])),
+				denied: apDenied,
+				generatedAt: submitted[0]?.event.occurredAt ?? occurredAt,
+				sourceSnapshotId: 'pulse-lab-browser',
+			},
+			{
+				baseUrl: 'https://jesssullivan.github.io/pulse/ap-demo',
+				actorId: 'https://jesssullivan.github.io/pulse/actors/jess',
+			},
+		),
+	);
 
 	const idGenerator = {
 		next: (prefix: string) => `${prefix}_${++counter}`,
@@ -230,6 +251,8 @@
 				</ol>
 			{/if}
 		</section>
+
+		<PulseActivityPubQueue publication={apPublication} />
 	</div>
 </div>
 

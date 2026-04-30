@@ -21,6 +21,27 @@ M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pu
 - no broker persistence
 - no real ActivityPub federation
 
+## AP-Shaped Demo Publisher
+
+TIN-846 adds a deliberately narrow ActivityPub-shaped demo lane inside `@blog/pulse-core` and `/pulse/lab`.
+
+This lane is allowed to:
+
+- turn already-public `PublicPulseItem` values into ActivityStreams `Create` activities
+- expose a deterministic demo publisher queue with `published` and `blocked` entries
+- show an `OrderedCollection` outbox preview for branch and shadow review
+- keep policy-denied events visible as blocked queue entries without placing them in the outbox
+
+This lane is not allowed to:
+
+- perform network delivery
+- own actor lifecycle or inbox semantics
+- sign HTTP requests
+- persist retries, followers, moderation state, or delivery logs
+- weaken the M1 public-data policy
+
+The purpose is client/demo development velocity: reviewers can see how a Pulse note or coarse bird sighting would look after brokering and publishing, while exact-location/private/unsupported data still stops before any public AP-shaped surface.
+
 ## Client Surface Decision
 
 Real client development should happen as a separate client surface that consumes `@blog/pulse-core`. The in-blog `/pulse/lab` route should remain a noindex QA harness, policy preview, and smoke-test target.
@@ -36,6 +57,7 @@ M2 should define these contracts before product-style client work accelerates:
 - Local draft persistence and idempotency keys.
 - Outbox/sync/retry behavior for intermittent clients.
 - Policy preview response shape for "will this project publicly?" UX.
+- AP-shaped demo queue/outbox preview for safe branch demos.
 - Media upload intent, private object storage, EXIF stripping, and derivative generation stubs.
 - Snapshot/read model consumption for public timeline rendering.
 - Compatibility boundary between `@blog/pulse-core` schemas and any generated proto client.

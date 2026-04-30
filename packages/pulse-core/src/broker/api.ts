@@ -7,6 +7,11 @@ import type { IdGenerator } from './id.js';
 import { seededIdGenerator } from './id.js';
 import { inMemoryEventStore, type EventStore, type StoredEvent } from './event-store.js';
 import { projectAcceptedEvents, type ProjectionResult, type ProjectionOptions } from './projection.js';
+import {
+	publishProjectionToActivityPubDemo,
+	type ActivityPubDemoPublishResult,
+	type ActivityPubDemoPublisherOptions,
+} from '../publisher/index.js';
 
 // IngestInput is the shape a client submits. The broker assigns id and accepts
 // the event into the lifecycle if it validates and the idempotency key is new.
@@ -27,6 +32,9 @@ export interface BrokerApi {
 	deletePublic(id: string): StoredEvent;
 	tombstone(id: string): StoredEvent;
 	deriveSnapshot(options?: { sourceSnapshotId?: string; allowExactLocation?: boolean }): ProjectionResult;
+	deriveActivityPubDemo(
+		options?: { sourceSnapshotId?: string; allowExactLocation?: boolean } & ActivityPubDemoPublisherOptions,
+	): ActivityPubDemoPublishResult;
 }
 
 export interface BrokerOptions {
@@ -87,6 +95,11 @@ export const createBroker = (options: BrokerOptions = {}): BrokerApi => {
 		return projectAcceptedEvents(projectable, projOpts);
 	};
 
+	const deriveActivityPubDemo: BrokerApi['deriveActivityPubDemo'] = (opts = {}) => {
+		const projection = deriveSnapshot(opts);
+		return publishProjectionToActivityPubDemo(projection, opts);
+	};
+
 	return {
 		ingest,
 		getEvent: (id) => store.getById(id),
@@ -95,5 +108,6 @@ export const createBroker = (options: BrokerOptions = {}): BrokerApi => {
 		deletePublic: (id) => transition(id, 'delete_public'),
 		tombstone: (id) => transition(id, 'tombstone'),
 		deriveSnapshot,
+		deriveActivityPubDemo,
 	};
 };
