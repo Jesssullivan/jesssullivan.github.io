@@ -4,7 +4,7 @@ date: "2026-04-30"
 description: "A small map of my Zig C ABI libraries for crypto, notifications, keychain storage, and CTAP2, and why I am using them as portable native capability layers for macOS-first FOSS apps that should also build cleanly on Linux."
 tags: ["zig", "foss", "ffi", "swift", "objc", "linux", "macos", "ctap2", "keychain", "notifications", "crypto"]
 category: "software"
-published: false
+published: true
 slug: "small-zig-libraries-for-apple-shaped-escape-hatches"
 excerpt: "Four tiny Zig libraries, one small thesis: keep the app shell pleasant on macOS, but move native capabilities behind a boring C ABI so Linux ports do not become full rewrites."
 feature_image: "/images/posts/zig-ffi-apple-linux-bridge.png"
