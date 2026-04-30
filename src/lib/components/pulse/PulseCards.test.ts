@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
 import type { PolicyDecision } from '@blog/pulse-core/policy';
 import type { PublicPulseItem, PulseEvent } from '@blog/pulse-core/schema';
+import { publishPublicPulseItemsToActivityPubDemo } from '@blog/pulse-core/publisher';
+import PulseActivityPubQueue from './PulseActivityPubQueue.svelte';
 import PulseBirdCard from './PulseBirdCard.svelte';
 import PulseLabDecisionRow from './PulseLabDecisionRow.svelte';
 import PulseNoteCard from './PulseNoteCard.svelte';
@@ -106,5 +108,39 @@ describe('Pulse lab policy result rendering', () => {
 		expect(html).toContain('lab_2');
 		expect(html).toContain('denied: visibility_not_public');
 		expect(html).toContain('visibility=VISIBILITY_PRIVATE');
+	});
+});
+
+describe('Pulse AP demo queue rendering', () => {
+	it('renders published AP-shaped activities and blocked policy denials', () => {
+		const publication = publishPublicPulseItemsToActivityPubDemo(
+			{
+				items: [noteItem, birdItem],
+				denied: [
+					{
+						eventId: 'lab_private',
+						reason: 'visibility_not_public',
+						detail: 'visibility=VISIBILITY_PRIVATE',
+					},
+				],
+				generatedAt: occurredAt,
+				sourceSnapshotId: 'component-test',
+			},
+			{
+				baseUrl: 'https://example.test/pulse/ap-demo',
+				actorId: 'https://example.test/pulse/actors/jess',
+			},
+		);
+
+		const { html } = render(PulseActivityPubQueue, { props: { publication } });
+
+		expect(html).toContain('Publisher queue');
+		expect(html).toContain('2 published');
+		expect(html).toContain('1 blocked');
+		expect(html).toContain('hello from pulse');
+		expect(html).toContain('2x Northern Cardinal');
+		expect(html).toContain('policy blocked');
+		expect(html).toContain('visibility=VISIBILITY_PRIVATE');
+		expect(html).toContain('OrderedCollection');
 	});
 });
