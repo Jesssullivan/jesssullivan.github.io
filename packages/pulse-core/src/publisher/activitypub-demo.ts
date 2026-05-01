@@ -128,7 +128,7 @@ const birdAttachments = (item: PublicPulseItem): readonly ActivityPubDemoAttachm
 const sortPublicItems = (items: readonly PublicPulseItem[]): readonly PublicPulseItem[] =>
 	[...items].sort((a, b) => {
 		if (a.occurredAt !== b.occurredAt) return a.occurredAt < b.occurredAt ? 1 : -1;
-		return a.id < b.id ? -1 : 1;
+		return a.id < b.id ? 1 : -1;
 	});
 
 const resolveActor = (options: ActivityPubDemoPublisherOptions, baseUrl: string): ActivityPubDemoActor => {
