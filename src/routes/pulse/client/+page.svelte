@@ -16,6 +16,8 @@
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
 	import { onMount } from 'svelte';
 
+	const initialNowIso = '2026-04-30T20:00:00.000Z';
+
 	const broker = createBroker({
 		clock: tickingClock('2026-04-30T20:00:00.000Z', 1000),
 		idGenerator: seededIdGenerator(0),
@@ -31,7 +33,7 @@
 	let sequence = $state(1);
 	let kind = $state<PulseClientDraftKind>('note');
 	let visibility = $state<Visibility>('VISIBILITY_PUBLIC');
-	let occurredAt = $state(new Date().toISOString());
+	let occurredAt = $state(initialNowIso);
 	let tagsInput = $state('client, pulse');
 	let idempotencyKey = $state('pulse-client-1');
 
@@ -170,7 +172,7 @@
 	<meta name="description" content="Temporary Pulse M2 client scaffold for local draft and broker-preview work." />
 </svelte:head>
 
-<div class="client-shell mx-auto py-8 px-4" data-testid={hydrated ? 'pulse-client-ready' : undefined}>
+<div class="client-shell mx-auto py-8 px-4" data-testid="pulse-client-shell" data-hydrated={hydrated}>
 	<header class="mb-6 space-y-2">
 		<p class="text-xs uppercase tracking-wider text-surface-600-400">Pulse Client</p>
 		<h1 class="font-heading text-3xl font-bold">Compose queue</h1>

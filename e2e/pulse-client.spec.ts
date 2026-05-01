@@ -7,8 +7,9 @@ const VIEWPORTS = [
 
 async function gotoPulseClient(page: Page) {
 	await page.goto('/pulse/client');
-	await expect(page.getByRole('heading', { name: 'Compose queue' })).toBeVisible();
-	await expect(page.getByTestId('pulse-client-ready')).toBeVisible();
+	const shell = page.getByTestId('pulse-client-shell');
+	await expect(shell).toContainText('Compose queue');
+	await expect(shell).toHaveAttribute('data-hydrated', 'true');
 }
 
 for (const vp of VIEWPORTS) {
