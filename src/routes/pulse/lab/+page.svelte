@@ -33,6 +33,7 @@
 	let submitted = $state<SubmittedRow[]>([]);
 	let lastError = $state<readonly string[]>([]);
 	let hydrated = $state(false);
+	let publicationGeneratedAt = $state(new Date().toISOString());
 
 	onMount(() => {
 		hydrated = true;
@@ -78,7 +79,7 @@
 			{
 				items: submitted.flatMap((row) => (row.decision.allowed ? [row.decision.item] : [])),
 				denied: apDenied,
-				generatedAt: submitted[0]?.event.occurredAt ?? occurredAt,
+				generatedAt: publicationGeneratedAt,
 				sourceSnapshotId: 'pulse-lab-browser',
 			},
 			{
@@ -99,6 +100,7 @@
 			return;
 		}
 		const decision = applyPolicyToEvent(next.event);
+		publicationGeneratedAt = new Date().toISOString();
 		submitted = [{ event: next.event, decision }, ...submitted];
 		lastError = [];
 		if (kind === 'note') noteText = '';
@@ -106,6 +108,7 @@
 	}
 
 	function reset() {
+		publicationGeneratedAt = new Date().toISOString();
 		submitted = [];
 		lastError = [];
 	}

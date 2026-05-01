@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
 	ACTIVITYPUB_DEMO_SCHEMA_VERSION,
 	createBroker,
+	publishPublicPulseItemsToActivityPubDemo,
 	seededIdGenerator,
 	tickingClock,
 	type IngestInput,
 	type PulseEvent,
+	type PublicPulseItem,
 } from '../src/index.js';
 import { FIXTURE_BIRDS, FIXTURE_DISALLOWED, FIXTURE_NOTES } from '../src/fixtures/index.js';
 
@@ -54,6 +56,24 @@ describe('publisher/activitypub-demo', () => {
 		expect(activity.object.type).toBe('Note');
 		expect(activity.object.content).toContain('First fixture note from the M1 lab');
 		expect(activity.object.to).toContain('https://www.w3.org/ns/activitystreams#Public');
+	});
+
+	it('keeps equal-timestamp demo items in descending id order', () => {
+		const occurredAt = '2026-04-30T12:00:00.000Z';
+		const makeItem = (id: string): PublicPulseItem => ({
+			id,
+			kind: 'note',
+			occurredAt,
+			summary: `Summary ${id}`,
+			content: `Content ${id}`,
+			tags: ['demo'],
+		});
+		const result = publishPublicPulseItemsToActivityPubDemo({
+			items: [makeItem('evt_a'), makeItem('evt_c'), makeItem('evt_b')],
+			generatedAt: '2026-04-30T12:01:00.000Z',
+			sourceSnapshotId: 'demo-snapshot',
+		});
+		expect(result.queue.map((item) => item.sourceEventId)).toEqual(['evt_c', 'evt_b', 'evt_a']);
 	});
 
 	it('keeps bird output coarse and never publishes exact coordinates', () => {
