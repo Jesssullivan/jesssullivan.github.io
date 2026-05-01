@@ -134,6 +134,7 @@ const buildPayload = (draft: PulseClientDraft): IngestInput['payload'] | { reado
 			? undefined
 			: {
 					label: draft.placeLabel,
+					// TODO: replace scaffold coordinates with explicit client lat/lng input before real broker writes.
 					latitude: 0,
 					longitude: 0,
 					precision: draft.placePrecision,

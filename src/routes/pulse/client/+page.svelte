@@ -190,7 +190,8 @@
 					submitToBroker();
 				}}
 			>
-				<fieldset class="grid grid-cols-2 gap-2" aria-label="Event kind">
+				<fieldset class="grid grid-cols-2 gap-2">
+					<legend class="sr-only">Event kind</legend>
 					<button
 						type="button"
 						class="btn {kind === 'note' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
