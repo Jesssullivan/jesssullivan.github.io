@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import {
 	PUBLIC_SNAPSHOT_SCHEMA_VERSION,
 	PUBLIC_SNAPSHOT_POLICY_VERSION,
@@ -7,6 +6,7 @@ import {
 } from '../schema/snapshot.js';
 import type { PulseEvent } from '../schema/event.js';
 import { applyPolicyToEvent, type PolicyDecision, type PolicyOptions } from '../policy/index.js';
+import { sha256Digest } from './sha256.js';
 
 export interface ProjectionDenial {
 	readonly eventId: string;
@@ -36,13 +36,7 @@ const canonicalJson = (value: unknown): string => {
 	return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(obj[k])}`).join(',')}}`;
 };
 
-const sha256 = (text: string): string =>
-	`sha256:${createHash('sha256').update(text).digest('hex')}`;
-
-export const projectAcceptedEvents = (
-	events: readonly PulseEvent[],
-	options: ProjectionOptions,
-): ProjectionResult => {
+export const projectAcceptedEvents = (events: readonly PulseEvent[], options: ProjectionOptions): ProjectionResult => {
 	const items: PublicPulseItem[] = [];
 	const denied: ProjectionDenial[] = [];
 
@@ -68,7 +62,7 @@ export const projectAcceptedEvents = (
 	});
 
 	const policyVersion = options.policyVersion ?? PUBLIC_SNAPSHOT_POLICY_VERSION;
-	const contentHash = sha256(canonicalJson(items));
+	const contentHash = sha256Digest(canonicalJson(items));
 
 	const snapshot: PublicPulseSnapshot = {
 		schemaVersion: PUBLIC_SNAPSHOT_SCHEMA_VERSION,

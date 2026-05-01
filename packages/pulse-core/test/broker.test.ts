@@ -113,9 +113,7 @@ describe('broker/snapshot derivation', () => {
 		// The broker reassigns ids; the private fixture is the third by ingest
 		// order, and its idempotencyKey is idem_note_003. Look up through the
 		// broker rather than relying on incoming ids.
-		const stored = broker
-			.allEvents()
-			.find((s) => s.event.source.idempotencyKey === 'idem_note_003');
+		const stored = broker.allEvents().find((s) => s.event.source.idempotencyKey === 'idem_note_003');
 		expect(stored).toBeDefined();
 		expect(ids).not.toContain(stored!.event.id);
 		expect(denied.some((d) => d.reason === 'visibility_not_public')).toBe(true);
@@ -135,6 +133,14 @@ describe('broker/snapshot derivation', () => {
 		expect(aSnap.snapshot.manifest.contentHash).toBe(bSnap.snapshot.manifest.contentHash);
 	});
 
+	it('the contentHash uses a standard SHA-256 digest', () => {
+		const broker = makeBroker();
+		const { snapshot } = broker.deriveSnapshot();
+		expect(snapshot.manifest.contentHash).toBe(
+			'sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945',
+		);
+	});
+
 	it('the contentHash ignores ingest order', () => {
 		const a = makeBroker();
 		const b = makeBroker();
@@ -148,12 +154,8 @@ describe('broker/snapshot derivation', () => {
 		// items themselves are identical aside from the broker-owned id, by
 		// comparing their stable, non-id content.
 		const stripIds = (snap: ReturnType<typeof a.deriveSnapshot>['snapshot']) =>
-			snap.items
-				.map((i) => ({ ...i, id: '<x>' }))
-				.sort((x, y) => (x.occurredAt < y.occurredAt ? 1 : -1));
-		expect(stripIds(a.deriveSnapshot().snapshot)).toEqual(
-			stripIds(b.deriveSnapshot().snapshot),
-		);
+			snap.items.map((i) => ({ ...i, id: '<x>' })).sort((x, y) => (x.occurredAt < y.occurredAt ? 1 : -1));
+		expect(stripIds(a.deriveSnapshot().snapshot)).toEqual(stripIds(b.deriveSnapshot().snapshot));
 	});
 
 	it('items are sorted occurredAt-desc with id tiebreak', () => {
