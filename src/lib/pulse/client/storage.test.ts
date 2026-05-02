@@ -1,0 +1,126 @@
+import { describe, expect, it } from 'vitest';
+import type { PulseClientOutboxItem } from './drafts';
+import {
+	PULSE_CLIENT_STORAGE_KEY,
+	createBrowserPulseClientStorageAdapter,
+	createMemoryPulseClientStorageAdapter,
+	createPulseClientPersistedState,
+	parsePulseClientPersistedState,
+	type PulseClientFormState,
+} from './storage';
+
+const form: PulseClientFormState = {
+	sequence: 3,
+	kind: 'bird_sighting',
+	visibility: 'VISIBILITY_PUBLIC',
+	occurredAt: '2026-05-02T20:00:00.000Z',
+	tagsInput: 'client, birds',
+	idempotencyKey: 'pulse-client-3',
+	noteText: '',
+	birdCommonName: 'Northern Cardinal',
+	birdScientificName: 'Cardinalis cardinalis',
+	birdCount: 2,
+	birdPlaceLabel: 'Cayuga Lake basin',
+	birdPlacePrecision: 'LOCATION_PRECISION_REGION',
+	birdObservationId: 'client-obs-3',
+};
+
+const outboxItem: PulseClientOutboxItem = {
+	id: 'draft_3_preview_queued',
+	draftId: 'draft_3',
+	state: 'local_queued',
+	idempotencyKey: 'pulse-client-3',
+	label: 'Bird sighting draft',
+	detail: 'queued locally; policy preview allows public projection',
+	eventId: 'preview_draft_3',
+};
+
+const createFakeStorage = () => {
+	const values = new Map<string, string>();
+	return {
+		getItem: (key: string) => values.get(key) ?? null,
+		setItem: (key: string, value: string) => {
+			values.set(key, value);
+		},
+		removeItem: (key: string) => {
+			values.delete(key);
+		},
+		values,
+	};
+};
+
+describe('pulse client storage', () => {
+	it('round-trips versioned form and outbox state through memory storage', () => {
+		const state = createPulseClientPersistedState({
+			form,
+			outbox: [outboxItem],
+			savedAt: '2026-05-02T21:00:00.000Z',
+		});
+		const storage = createMemoryPulseClientStorageAdapter();
+
+		storage.save(state);
+
+		expect(storage.load()).toEqual(state);
+	});
+
+	it('returns clones so tests cannot mutate adapter state accidentally', () => {
+		const state = createPulseClientPersistedState({
+			form,
+			outbox: [outboxItem],
+			savedAt: '2026-05-02T21:00:00.000Z',
+		});
+		const storage = createMemoryPulseClientStorageAdapter(state);
+		const loaded = storage.load();
+
+		expect(loaded).not.toBe(state);
+		expect(loaded?.outbox).not.toBe(state.outbox);
+	});
+
+	it('persists JSON through a browser storage boundary', () => {
+		const fakeStorage = createFakeStorage();
+		const storage = createBrowserPulseClientStorageAdapter(fakeStorage);
+		const state = createPulseClientPersistedState({
+			form,
+			outbox: [outboxItem],
+			savedAt: '2026-05-02T21:00:00.000Z',
+		});
+
+		storage.save(state);
+
+		expect(fakeStorage.values.has(PULSE_CLIENT_STORAGE_KEY)).toBe(true);
+		expect(storage.load()).toEqual(state);
+	});
+
+	it('ignores unsupported or malformed persisted state', () => {
+		expect(parsePulseClientPersistedState({ schemaVersion: 'tinyland.pulse.client.v0' })).toBeNull();
+		expect(
+			parsePulseClientPersistedState({
+				schemaVersion: 'tinyland.pulse.client.v1',
+				savedAt: '2026-05-02T21:00:00.000Z',
+				form: { ...form, birdCount: 'two' },
+				outbox: [],
+			}),
+		).toBeNull();
+
+		const fakeStorage = createFakeStorage();
+		fakeStorage.setItem(PULSE_CLIENT_STORAGE_KEY, '{not-json');
+
+		expect(createBrowserPulseClientStorageAdapter(fakeStorage).load()).toBeNull();
+	});
+
+	it('clears browser storage', () => {
+		const fakeStorage = createFakeStorage();
+		const storage = createBrowserPulseClientStorageAdapter(fakeStorage);
+
+		storage.save(
+			createPulseClientPersistedState({
+				form,
+				outbox: [outboxItem],
+				savedAt: '2026-05-02T21:00:00.000Z',
+			}),
+		);
+		storage.clear();
+
+		expect(storage.load()).toBeNull();
+	});
+});

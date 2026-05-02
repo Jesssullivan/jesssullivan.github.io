@@ -42,6 +42,8 @@ export type PulseClientDraftResult =
 export type PulseClientOutboxState =
 	| 'draft_ready'
 	| 'draft_blocked'
+	| 'local_queued'
+	| 'retry_pending'
 	| 'broker_accepted'
 	| 'broker_duplicate'
 	| 'broker_invalid'
@@ -233,6 +235,23 @@ export const draftPreviewToOutboxItem = (
 		decision: result.decision,
 	};
 };
+
+export const queuePulseClientOutboxItem = (item: PulseClientOutboxItem): PulseClientOutboxItem => {
+	if (item.state !== 'draft_ready') return item;
+	return {
+		...item,
+		id: `${item.id}_queued`,
+		state: 'local_queued',
+		detail: 'queued locally; policy preview allows public projection',
+	};
+};
+
+export const queuePulseClientOutboxItemForRetry = (item: PulseClientOutboxItem): PulseClientOutboxItem => ({
+	...item,
+	id: `${item.id}_retry`,
+	state: 'retry_pending',
+	detail: `retry queued from ${item.state}: ${item.detail}`,
+});
 
 const draftLabel = (draft: PulseClientDraft): string => (draft.kind === 'note' ? 'Note draft' : 'Bird sighting draft');
 

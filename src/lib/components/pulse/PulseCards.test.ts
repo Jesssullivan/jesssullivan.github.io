@@ -154,10 +154,10 @@ describe('Pulse client outbox rendering', () => {
 					{
 						id: 'draft_1_preview',
 						draftId: 'draft_1',
-						state: 'draft_ready',
+						state: 'local_queued',
 						idempotencyKey: 'pulse-client-1',
 						label: 'Note draft',
-						detail: 'policy preview allows public projection',
+						detail: 'queued locally; policy preview allows public projection',
 						eventId: 'preview_draft_1',
 					},
 					{
@@ -169,6 +169,15 @@ describe('Pulse client outbox rendering', () => {
 						detail: 'exact location is not public',
 						eventId: 'preview_draft_2',
 					},
+					{
+						id: 'draft_1_evt_1_retry',
+						draftId: 'draft_1',
+						state: 'retry_pending',
+						idempotencyKey: 'pulse-client-1',
+						label: 'Note draft',
+						detail: 'retry queued from ap_published: broker accepted',
+						eventId: 'evt_1',
+					},
 				],
 			},
 		});
@@ -178,7 +187,8 @@ describe('Pulse client outbox rendering', () => {
 		expect(html).toContain('Bird sighting draft');
 		expect(html).toContain('pulse-client-1');
 		expect(html).toContain('pulse-client-2');
-		expect(html).toContain('ready');
+		expect(html).toContain('queued');
 		expect(html).toContain('blocked');
+		expect(html).toContain('retry');
 	});
 });

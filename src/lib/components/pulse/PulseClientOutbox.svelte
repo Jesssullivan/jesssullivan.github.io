@@ -9,6 +9,10 @@
 				return 'ready';
 			case 'draft_blocked':
 				return 'blocked';
+			case 'local_queued':
+				return 'queued';
+			case 'retry_pending':
+				return 'retry';
 			case 'broker_accepted':
 				return 'accepted';
 			case 'broker_duplicate':
@@ -29,8 +33,10 @@
 			case 'ap_blocked':
 				return 'preset-filled-error-500';
 			case 'broker_duplicate':
+			case 'retry_pending':
 				return 'preset-filled-warning-500';
 			case 'draft_ready':
+			case 'local_queued':
 			case 'broker_accepted':
 			case 'ap_published':
 				return 'preset-filled-success-500';
