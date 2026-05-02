@@ -8,7 +8,7 @@ const VIEWPORTS = [
 async function gotoPulseClient(page: Page) {
 	await page.goto('/pulse/client');
 	const shell = page.getByTestId('pulse-client-shell');
-	await expect(shell).toContainText('Compose queue');
+	await expect(shell).toContainText('Draft outbox');
 	await expect(shell).toHaveAttribute('data-hydrated', 'true');
 }
 
