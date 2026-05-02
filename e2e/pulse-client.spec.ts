@@ -37,7 +37,8 @@ for (const vp of VIEWPORTS) {
 			await page.getByLabel('Precision').selectOption('LOCATION_PRECISION_EXACT');
 			await page.getByRole('button', { name: 'Submit to broker mock' }).click();
 
-			await expect(page.getByTestId('pulse-client-outbox')).toContainText('projection blocked');
+			await expect(page.getByTestId('pulse-client-outbox')).toContainText('AP demo blocked');
+			await expect(page.getByTestId('pulse-client-outbox')).toContainText('AP blocked');
 			await expect(page.getByTestId('pulse-ap-demo-queue')).toContainText('blocked');
 		});
 	});
