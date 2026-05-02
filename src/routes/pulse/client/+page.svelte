@@ -4,6 +4,7 @@
 	import {
 		draftPreviewToOutboxItem,
 		evaluatePulseClientDraft,
+		queuePulseClientOutboxItem,
 		summarizeClientDraftReadiness,
 		submitPulseClientDraftToBroker,
 		type PulseClientBirdDraft,
@@ -12,6 +13,12 @@
 		type PulseClientNoteDraft,
 		type PulseClientOutboxItem,
 	} from '$lib/pulse/client/drafts';
+	import {
+		createBrowserPulseClientStorageAdapter,
+		createPulseClientPersistedState,
+		type PulseClientFormState,
+		type PulseClientStorageAdapter,
+	} from '$lib/pulse/client/storage';
 	import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 	import type { ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
@@ -53,9 +60,19 @@
 	let publication = $state(initialPublication());
 	let lastErrors = $state<readonly string[]>([]);
 	let hydrated = $state(false);
+	let persistenceReady = $state(false);
+	let storageAdapter = $state<PulseClientStorageAdapter | null>(null);
 
 	onMount(() => {
+		const adapter = createBrowserPulseClientStorageAdapter(window.localStorage);
+		const persisted = adapter.load();
+		if (persisted) {
+			applyFormState(persisted.form);
+			outbox = [...persisted.outbox];
+		}
+		storageAdapter = adapter;
 		hydrated = true;
+		persistenceReady = true;
 	});
 
 	const draft = $derived<PulseClientDraft>(
@@ -87,6 +104,51 @@
 
 	const readiness = $derived(summarizeClientDraftReadiness(draft));
 	const preview = $derived(evaluatePulseClientDraft(draft));
+
+	function currentFormState(): PulseClientFormState {
+		return {
+			sequence,
+			kind,
+			visibility,
+			occurredAt,
+			tagsInput,
+			idempotencyKey,
+			noteText,
+			birdCommonName,
+			birdScientificName,
+			birdCount,
+			birdPlaceLabel,
+			birdPlacePrecision,
+			birdObservationId,
+		};
+	}
+
+	function applyFormState(form: PulseClientFormState) {
+		sequence = form.sequence;
+		kind = form.kind;
+		visibility = form.visibility;
+		occurredAt = form.occurredAt;
+		tagsInput = form.tagsInput;
+		idempotencyKey = form.idempotencyKey;
+		noteText = form.noteText;
+		birdCommonName = form.birdCommonName;
+		birdScientificName = form.birdScientificName;
+		birdCount = form.birdCount;
+		birdPlaceLabel = form.birdPlaceLabel;
+		birdPlacePrecision = form.birdPlacePrecision;
+		birdObservationId = form.birdObservationId;
+	}
+
+	$effect(() => {
+		if (!storageAdapter || !persistenceReady) return;
+		storageAdapter.save(
+			createPulseClientPersistedState({
+				form: currentFormState(),
+				outbox,
+				savedAt: new Date().toISOString(),
+			}),
+		);
+	});
 
 	function resetDraft(nextKind = kind) {
 		const nextSequence = sequence + 1;
@@ -138,7 +200,7 @@
 
 	function addPreview() {
 		const result = evaluatePulseClientDraft(draft);
-		outbox = [draftPreviewToOutboxItem(draft, result), ...outbox];
+		outbox = [queuePulseClientOutboxItem(draftPreviewToOutboxItem(draft, result)), ...outbox];
 		lastErrors = result.ok ? [] : result.errors;
 		if (result.ok) resetDraft();
 	}

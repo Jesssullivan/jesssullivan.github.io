@@ -4,6 +4,8 @@ import {
 	draftPreviewToOutboxItem,
 	evaluatePulseClientDraft,
 	parseClientTags,
+	queuePulseClientOutboxItem,
+	queuePulseClientOutboxItemForRetry,
 	summarizeClientDraftReadiness,
 	submitPulseClientDraftToBroker,
 	type PulseClientBirdDraft,
@@ -101,6 +103,16 @@ describe('pulse client draft helpers', () => {
 		expect(item.eventId).toBe('preview_draft_1');
 	});
 
+	it('marks local preview rows as queued without changing idempotency ownership', () => {
+		const draft = noteDraft();
+		const result = evaluatePulseClientDraft(draft);
+		const item = queuePulseClientOutboxItem(draftPreviewToOutboxItem(draft, result));
+
+		expect(item.state).toBe('local_queued');
+		expect(item.id).toBe('draft_1_preview_queued');
+		expect(item.idempotencyKey).toBe('pulse-client-1');
+	});
+
 	it('submits an allowed note through broker and AP demo publication', () => {
 		const result = submitPulseClientDraftToBroker(makeBroker(), noteDraft(), publicationOptions);
 
@@ -149,5 +161,15 @@ describe('pulse client draft helpers', () => {
 		expect(duplicate.outboxItem.eventId).toBe(first.outboxItem.eventId);
 		expect(duplicate.publication.outbox.totalItems).toBe(1);
 		expect(broker.allEvents()).toHaveLength(1);
+	});
+
+	it('models retry rows deterministically from accepted broker outcomes', () => {
+		const submitted = submitPulseClientDraftToBroker(makeBroker(), noteDraft(), publicationOptions);
+		const retry = queuePulseClientOutboxItemForRetry(submitted.outboxItem);
+
+		expect(retry.state).toBe('retry_pending');
+		expect(retry.id).toBe(`${submitted.outboxItem.id}_retry`);
+		expect(retry.idempotencyKey).toBe(submitted.outboxItem.idempotencyKey);
+		expect(retry.detail).toContain('retry queued from ap_published');
 	});
 });
