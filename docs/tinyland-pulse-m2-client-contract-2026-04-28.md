@@ -2,7 +2,7 @@
 
 Date: 2026-04-28
 
-Status: planning surface for post-M1 client development.
+Status: planning surface for post-M1 client development. Durable client-home decision recorded on 2026-05-02.
 
 Related:
 
@@ -49,6 +49,19 @@ Real client development should happen as a separate client surface that consumes
 That split keeps the static blog honest: it renders public projections and provides a reviewable demo, but it does not become the durable write client or broker authority by accident.
 
 TIN-789 starts this as a hidden `/pulse/client` scaffold inside the blog repo rather than a separate package. That is a temporary client-development surface, not the final app home. It exists to prove the local draft, idempotency-key, broker-submit, policy-preview, and AP-shaped outbox flow against `@blog/pulse-core` before deciding whether the durable client becomes its own app/package.
+
+TIN-920 decides that TIN-919 should stay inside the blog repo's hidden `/pulse/client` surface for one more implementation slice. That is a scoped M2 development choice, not a production authority choice.
+
+The selected home for TIN-919 is:
+
+- `/pulse/client` remains the review shell for local draft persistence, idempotency, broker-submit preview, and retry-state UX.
+- Reusable non-UI logic should live behind `src/lib/pulse/client` boundaries, or move into `@blog/pulse-core` only when it is genuinely shared with other clients.
+- Browser persistence should sit behind a small adapter boundary so it can move into a standalone app/package later without rewriting the draft/outbox contract.
+- The static blog must not become the durable write authority, broker persistence owner, auth authority, upload lifecycle owner, or real federation worker.
+
+The rejected alternative for this slice is splitting immediately into a separate app/package. That split is still likely, but doing it before local persistence and retry semantics are proven would add repo, package, CI, shadow, and deployment surfaces before the client contract has enough shape to justify the extra ownership boundary.
+
+Reopen the split decision before auth/device identity, live broker mutation APIs, media upload lifecycle, or real ActivityPub delivery work.
 
 The division is:
 
