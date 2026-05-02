@@ -31,7 +31,7 @@ for (const vp of VIEWPORTS) {
 		test('keeps exact-location bird sightings blocked from public projection', async ({ page }) => {
 			await gotoPulseClient(page);
 
-			await page.getByRole('button', { name: 'bird' }).click();
+			await page.getByRole('button', { name: 'bird', exact: true }).click();
 			await page.getByLabel('Common name').fill('Great Horned Owl');
 			await page.getByLabel('Place label').fill('home');
 			await page.getByLabel('Precision').selectOption('LOCATION_PRECISION_EXACT');
