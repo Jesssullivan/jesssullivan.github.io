@@ -1,5 +1,6 @@
 import { applyPolicyToEvent, type PolicyDecision } from '@blog/pulse-core/policy';
-import type { IngestInput } from '@blog/pulse-core/broker';
+import type { BrokerApi, IngestInput, IngestOutcome } from '@blog/pulse-core/broker';
+import type { ActivityPubDemoPublisherOptions, ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 import { PulseEventSchema, type LocationPrecision, type PulseEvent, type Visibility } from '@blog/pulse-core/schema';
 
 export type PulseClientDraftKind = 'note' | 'bird_sighting';
@@ -43,7 +44,9 @@ export type PulseClientOutboxState =
 	| 'draft_blocked'
 	| 'broker_accepted'
 	| 'broker_duplicate'
-	| 'broker_invalid';
+	| 'broker_invalid'
+	| 'ap_published'
+	| 'ap_blocked';
 
 export interface PulseClientOutboxItem {
 	readonly id: string;
@@ -53,6 +56,7 @@ export interface PulseClientOutboxItem {
 	readonly label: string;
 	readonly detail: string;
 	readonly eventId?: string;
+	readonly activityId?: string;
 	readonly decision?: PolicyDecision;
 }
 
@@ -60,6 +64,16 @@ export interface PulseClientDraftDefaults {
 	readonly nowIso: string;
 	readonly sequence: number;
 	readonly kind?: PulseClientDraftKind;
+}
+
+export interface PulseClientPublicationOptions extends ActivityPubDemoPublisherOptions {
+	readonly sourceSnapshotId: string;
+}
+
+export interface PulseClientSubmitResult {
+	readonly outboxItem: PulseClientOutboxItem;
+	readonly publication: ActivityPubDemoPublishResult;
+	readonly errors: readonly string[];
 }
 
 export const createPulseClientDraft = ({
@@ -217,5 +231,99 @@ export const draftPreviewToOutboxItem = (
 		detail: result.decision.allowed ? 'policy preview allows public projection' : result.decision.detail,
 		eventId: result.previewEvent.id,
 		decision: result.decision,
+	};
+};
+
+const draftLabel = (draft: PulseClientDraft): string => (draft.kind === 'note' ? 'Note draft' : 'Bird sighting draft');
+
+export const brokerOutcomeToOutboxItem = (
+	draft: PulseClientDraft,
+	result: Exclude<PulseClientDraftResult, { ok: false }>,
+	outcome: IngestOutcome,
+	publication: ActivityPubDemoPublishResult,
+): PulseClientOutboxItem => {
+	if (outcome.status === 'invalid') {
+		return {
+			id: `${draft.id}_broker_invalid`,
+			draftId: draft.id,
+			state: 'broker_invalid',
+			idempotencyKey: draft.idempotencyKey,
+			label: draftLabel(draft),
+			detail: outcome.errors.join('; '),
+		};
+	}
+
+	const eventId = outcome.stored.event.id;
+	const queueItem = publication.queue.find((item) => item.sourceEventId === eventId);
+	const duplicatePrefix =
+		outcome.status === 'duplicate' ? 'duplicate idempotency key; existing event' : 'broker accepted';
+
+	if (queueItem?.state === 'published') {
+		return {
+			id: `${draft.id}_${outcome.status}_${eventId}_ap_published`,
+			draftId: draft.id,
+			state: outcome.status === 'duplicate' ? 'broker_duplicate' : 'ap_published',
+			idempotencyKey: draft.idempotencyKey,
+			label: outcome.stored.event.payload.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
+			detail:
+				outcome.status === 'duplicate'
+					? `${duplicatePrefix}; AP demo Create activity already exists`
+					: `${duplicatePrefix}; AP demo Create activity published`,
+			eventId,
+			activityId: queueItem.activity.id,
+			decision: result.decision,
+		};
+	}
+
+	if (queueItem?.state === 'blocked') {
+		return {
+			id: `${draft.id}_${outcome.status}_${eventId}_ap_blocked`,
+			draftId: draft.id,
+			state: outcome.status === 'duplicate' ? 'broker_duplicate' : 'ap_blocked',
+			idempotencyKey: draft.idempotencyKey,
+			label: outcome.stored.event.payload.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
+			detail:
+				outcome.status === 'duplicate'
+					? `${duplicatePrefix}; AP demo remains blocked: ${queueItem.detail}`
+					: `${duplicatePrefix}; AP demo blocked: ${queueItem.detail}`,
+			eventId,
+			decision: result.decision,
+		};
+	}
+
+	return {
+		id: `${draft.id}_${outcome.status}_${eventId}`,
+		draftId: draft.id,
+		state: outcome.status === 'accepted' ? 'broker_accepted' : 'broker_duplicate',
+		idempotencyKey: draft.idempotencyKey,
+		label: outcome.stored.event.payload.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
+		detail: result.decision.allowed
+			? `${duplicatePrefix}; public projection ready`
+			: `${duplicatePrefix}; projection blocked: ${result.decision.detail}`,
+		eventId,
+		decision: result.decision,
+	};
+};
+
+export const submitPulseClientDraftToBroker = (
+	broker: BrokerApi,
+	draft: PulseClientDraft,
+	options: PulseClientPublicationOptions,
+): PulseClientSubmitResult => {
+	const result = evaluatePulseClientDraft(draft);
+	if (!result.ok) {
+		return {
+			outboxItem: draftPreviewToOutboxItem(draft, result),
+			publication: broker.deriveActivityPubDemo(options),
+			errors: result.errors,
+		};
+	}
+
+	const outcome = broker.ingest(result.input);
+	const publication = broker.deriveActivityPubDemo(options);
+	return {
+		outboxItem: brokerOutcomeToOutboxItem(draft, result, outcome, publication),
+		publication,
+		errors: outcome.status === 'invalid' ? outcome.errors : [],
 	};
 };

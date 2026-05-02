@@ -15,6 +15,25 @@
 				return 'duplicate';
 			case 'broker_invalid':
 				return 'invalid';
+			case 'ap_published':
+				return 'published';
+			case 'ap_blocked':
+				return 'AP blocked';
+		}
+	};
+
+	const badgeClass = (state: PulseClientOutboxItem['state']) => {
+		switch (state) {
+			case 'draft_blocked':
+			case 'broker_invalid':
+			case 'ap_blocked':
+				return 'preset-filled-error-500';
+			case 'broker_duplicate':
+				return 'preset-filled-warning-500';
+			case 'draft_ready':
+			case 'broker_accepted':
+			case 'ap_published':
+				return 'preset-filled-success-500';
 		}
 	};
 </script>
@@ -39,13 +58,7 @@
 							<p class="text-sm font-medium">{item.label}</p>
 							<p class="text-xs text-surface-600-400">{item.detail}</p>
 						</div>
-						<span
-							class="badge {item.state === 'draft_blocked' || item.state === 'broker_invalid'
-								? 'preset-filled-error-500'
-								: item.state === 'broker_duplicate'
-									? 'preset-filled-warning-500'
-									: 'preset-filled-success-500'}"
-						>
+						<span class="badge {badgeClass(item.state)}">
 							{stateLabel(item.state)}
 						</span>
 					</div>
@@ -56,8 +69,14 @@
 						</div>
 						{#if item.eventId}
 							<div>
-								<dt>preview event</dt>
+								<dt>event</dt>
 								<dd>{item.eventId}</dd>
+							</div>
+						{/if}
+						{#if item.activityId}
+							<div>
+								<dt>activity</dt>
+								<dd>{item.activityId}</dd>
 							</div>
 						{/if}
 					</dl>

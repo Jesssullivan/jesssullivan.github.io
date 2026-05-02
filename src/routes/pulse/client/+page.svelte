@@ -5,30 +5,33 @@
 		draftPreviewToOutboxItem,
 		evaluatePulseClientDraft,
 		summarizeClientDraftReadiness,
+		submitPulseClientDraftToBroker,
 		type PulseClientBirdDraft,
 		type PulseClientDraft,
 		type PulseClientDraftKind,
 		type PulseClientNoteDraft,
 		type PulseClientOutboxItem,
 	} from '$lib/pulse/client/drafts';
-	import { createBroker, seededIdGenerator, tickingClock, type IngestOutcome } from '@blog/pulse-core/broker';
+	import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 	import type { ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
 	import { onMount } from 'svelte';
 
 	const initialNowIso = '2026-04-30T20:00:00.000Z';
+	const publicationOptions = {
+		sourceSnapshotId: 'pulse-client-browser',
+		baseUrl: 'https://jesssullivan.github.io/pulse/ap-demo',
+		actorId: 'https://jesssullivan.github.io/pulse/actors/jess',
+	} as const;
 
 	const broker = createBroker({
 		clock: tickingClock('2026-04-30T20:00:00.000Z', 1000),
 		idGenerator: seededIdGenerator(0),
 	});
 
-	const initialPublication = (): ActivityPubDemoPublishResult =>
-		broker.deriveActivityPubDemo({
-			sourceSnapshotId: 'pulse-client-browser',
-			baseUrl: 'https://jesssullivan.github.io/pulse/ap-demo',
-			actorId: 'https://jesssullivan.github.io/pulse/actors/jess',
-		});
+	const initialPublication = (): ActivityPubDemoPublishResult => broker.deriveActivityPubDemo(publicationOptions);
+
+	const demoTimestamp = (value: number): string => new Date(Date.parse(initialNowIso) + value * 60_000).toISOString();
 
 	let sequence = $state(1);
 	let kind = $state<PulseClientDraftKind>('note');
@@ -37,12 +40,12 @@
 	let tagsInput = $state('client, pulse');
 	let idempotencyKey = $state('pulse-client-1');
 
-	let noteText = $state('');
+	let noteText = $state('Testing the Pulse client draft/outbox lane from the static demo.');
 
-	let birdCommonName = $state('');
-	let birdScientificName = $state('');
+	let birdCommonName = $state('Northern Cardinal');
+	let birdScientificName = $state('Cardinalis cardinalis');
 	let birdCount = $state(1);
-	let birdPlaceLabel = $state('');
+	let birdPlaceLabel = $state('Cayuga Lake basin');
 	let birdPlacePrecision = $state<LocationPrecision>('LOCATION_PRECISION_REGION');
 	let birdObservationId = $state('client-obs-1');
 
@@ -86,24 +89,51 @@
 	const preview = $derived(evaluatePulseClientDraft(draft));
 
 	function resetDraft(nextKind = kind) {
-		sequence += 1;
+		const nextSequence = sequence + 1;
+		sequence = nextSequence;
 		kind = nextKind;
 		visibility = 'VISIBILITY_PUBLIC';
-		occurredAt = new Date().toISOString();
+		occurredAt = demoTimestamp(nextSequence);
 		tagsInput = nextKind === 'note' ? 'client, pulse' : 'client, birds';
-		idempotencyKey = `pulse-client-${sequence}`;
+		idempotencyKey = `pulse-client-${nextSequence}`;
 		noteText = '';
 		birdCommonName = '';
 		birdScientificName = '';
 		birdCount = 1;
 		birdPlaceLabel = '';
 		birdPlacePrecision = 'LOCATION_PRECISION_REGION';
-		birdObservationId = `client-obs-${sequence}`;
+		birdObservationId = `client-obs-${nextSequence}`;
 		lastErrors = [];
 	}
 
 	function setKind(nextKind: PulseClientDraftKind) {
 		resetDraft(nextKind);
+	}
+
+	function loadDemoPreset(preset: 'note' | 'bird' | 'blocked_bird') {
+		const nextSequence = sequence + 1;
+		sequence = nextSequence;
+		occurredAt = demoTimestamp(nextSequence);
+		visibility = 'VISIBILITY_PUBLIC';
+		idempotencyKey = `pulse-client-${preset}-${nextSequence}`;
+		lastErrors = [];
+
+		if (preset === 'note') {
+			kind = 'note';
+			tagsInput = 'client, pulse';
+			noteText = 'A local Pulse client draft moving through broker preview and AP demo publish.';
+			return;
+		}
+
+		kind = 'bird_sighting';
+		tagsInput = 'client, birds';
+		noteText = '';
+		birdCommonName = preset === 'blocked_bird' ? 'Great Blue Heron' : 'Northern Cardinal';
+		birdScientificName = preset === 'blocked_bird' ? 'Ardea herodias' : 'Cardinalis cardinalis';
+		birdCount = preset === 'blocked_bird' ? 1 : 2;
+		birdPlaceLabel = preset === 'blocked_bird' ? 'Backyard snag' : 'Cayuga Lake basin';
+		birdPlacePrecision = preset === 'blocked_bird' ? 'LOCATION_PRECISION_EXACT' : 'LOCATION_PRECISION_REGION';
+		birdObservationId = `client-obs-${preset}-${nextSequence}`;
 	}
 
 	function addPreview() {
@@ -113,51 +143,12 @@
 		if (result.ok) resetDraft();
 	}
 
-	const brokerOutcomeItem = (
-		currentDraft: PulseClientDraft,
-		result: Exclude<ReturnType<typeof evaluatePulseClientDraft>, { ok: false }>,
-		outcome: IngestOutcome,
-	): PulseClientOutboxItem => {
-		if (outcome.status === 'invalid') {
-			return {
-				id: `${currentDraft.id}_broker_invalid`,
-				draftId: currentDraft.id,
-				state: 'broker_invalid',
-				idempotencyKey: currentDraft.idempotencyKey,
-				label: currentDraft.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
-				detail: outcome.errors.join('; '),
-			};
-		}
-
-		const policyDetail = result.decision.allowed
-			? 'broker accepted; public projection ready'
-			: `broker accepted; projection blocked: ${result.decision.detail}`;
-
-		return {
-			id: `${currentDraft.id}_${outcome.status}`,
-			draftId: currentDraft.id,
-			state: outcome.status === 'accepted' ? 'broker_accepted' : 'broker_duplicate',
-			idempotencyKey: currentDraft.idempotencyKey,
-			label: outcome.stored.event.payload.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
-			detail: policyDetail,
-			eventId: outcome.stored.event.id,
-			decision: result.decision,
-		};
-	};
-
 	function submitToBroker() {
-		const result = evaluatePulseClientDraft(draft);
-		if (!result.ok) {
-			lastErrors = result.errors;
-			outbox = [draftPreviewToOutboxItem(draft, result), ...outbox];
-			return;
-		}
-
-		const outcome = broker.ingest(result.input);
-		outbox = [brokerOutcomeItem(draft, result, outcome), ...outbox];
-		publication = initialPublication();
-		lastErrors = [];
-		resetDraft();
+		const submission = submitPulseClientDraftToBroker(broker, draft, publicationOptions);
+		outbox = [submission.outboxItem, ...outbox];
+		publication = submission.publication;
+		lastErrors = submission.errors;
+		if (submission.errors.length === 0) resetDraft();
 	}
 
 	function clearOutbox() {
@@ -175,9 +166,9 @@
 <div class="client-shell mx-auto py-8 px-4" data-testid="pulse-client-shell" data-hydrated={hydrated}>
 	<header class="mb-6 space-y-2">
 		<p class="text-xs uppercase tracking-wider text-surface-600-400">Pulse Client</p>
-		<h1 class="font-heading text-3xl font-bold">Compose queue</h1>
+		<h1 class="font-heading text-3xl font-bold">Draft outbox</h1>
 		<p class="max-w-2xl text-sm text-surface-600-400">
-			Local drafts, idempotency keys, broker-preview submit, and the AP-shaped outbox projection.
+			Local draft intent, idempotency keys, broker-preview submit, policy state, and AP-shaped demo publish.
 		</p>
 	</header>
 
@@ -203,6 +194,20 @@
 						onclick={() => setKind('bird_sighting')}>bird</button
 					>
 				</fieldset>
+
+				<div class="demo-row" aria-label="Demo draft presets">
+					<button type="button" class="btn btn-sm preset-outlined-surface-500" onclick={() => loadDemoPreset('note')}
+						>demo note</button
+					>
+					<button type="button" class="btn btn-sm preset-outlined-surface-500" onclick={() => loadDemoPreset('bird')}
+						>demo bird</button
+					>
+					<button
+						type="button"
+						class="btn btn-sm preset-outlined-surface-500"
+						onclick={() => loadDemoPreset('blocked_bird')}>blocked bird</button
+					>
+				</div>
 
 				{#if kind === 'note'}
 					<label class="label">
@@ -345,6 +350,11 @@
 		justify-content: space-between;
 		gap: 1rem;
 		padding: 0.75rem;
+	}
+	.demo-row {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem;
 	}
 	@media (min-width: 900px) {
 		.client-grid {
