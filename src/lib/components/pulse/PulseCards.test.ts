@@ -159,6 +159,14 @@ describe('Pulse client outbox rendering', () => {
 						label: 'Note draft',
 						detail: 'queued locally; policy preview allows public projection',
 						eventId: 'preview_draft_1',
+						identity: {
+							actor: 'demo-operator',
+							displayName: 'Demo Operator',
+							deviceId: 'demo-device-1',
+							deviceLabel: 'Demo device 1',
+							client: 'pulse-client-test',
+							sessionId: 'session-1',
+						},
 					},
 					{
 						id: 'draft_2_preview',
@@ -187,6 +195,9 @@ describe('Pulse client outbox rendering', () => {
 		expect(html).toContain('Bird sighting draft');
 		expect(html).toContain('pulse-client-1');
 		expect(html).toContain('pulse-client-2');
+		expect(html).toContain('Demo Operator');
+		expect(html).toContain('demo-device-1');
+		expect(html).toContain('session-1');
 		expect(html).toContain('queued');
 		expect(html).toContain('blocked');
 		expect(html).toContain('retry');

@@ -1,5 +1,6 @@
 import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
 import type { PulseClientDraftKind, PulseClientOutboxItem } from './drafts';
+import { PULSE_CLIENT_DEFAULT_IDENTITY, parsePulseClientIdentity, type PulseClientIdentity } from './identity';
 
 export const PULSE_CLIENT_STORAGE_SCHEMA_VERSION = 'tinyland.pulse.client.v1';
 export const PULSE_CLIENT_STORAGE_KEY = 'tinyland:pulse:client:v1';
@@ -11,6 +12,7 @@ export interface PulseClientFormState {
 	readonly occurredAt: string;
 	readonly tagsInput: string;
 	readonly idempotencyKey: string;
+	readonly identity: PulseClientIdentity;
 	readonly noteText: string;
 	readonly birdCommonName: string;
 	readonly birdScientificName: string;
@@ -77,6 +79,8 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 	if (!isString(value.idempotencyKey)) return null;
 	if (!isString(value.label)) return null;
 	if (!isString(value.detail)) return null;
+	const identity = value.identity === undefined ? undefined : parsePulseClientIdentity(value.identity);
+	if (value.identity !== undefined && !identity) return null;
 
 	return {
 		id: value.id,
@@ -87,6 +91,7 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 		detail: value.detail,
 		...(isString(value.eventId) ? { eventId: value.eventId } : {}),
 		...(isString(value.activityId) ? { activityId: value.activityId } : {}),
+		...(identity ? { identity } : {}),
 	};
 };
 
@@ -98,6 +103,9 @@ const parseFormState = (value: unknown): PulseClientFormState | null => {
 	if (!isString(value.occurredAt)) return null;
 	if (!isString(value.tagsInput)) return null;
 	if (!isString(value.idempotencyKey)) return null;
+	const identity =
+		value.identity === undefined ? PULSE_CLIENT_DEFAULT_IDENTITY : parsePulseClientIdentity(value.identity);
+	if (!identity) return null;
 	if (!isString(value.noteText)) return null;
 	if (!isString(value.birdCommonName)) return null;
 	if (!isString(value.birdScientificName)) return null;
@@ -118,6 +126,7 @@ const parseFormState = (value: unknown): PulseClientFormState | null => {
 		occurredAt: value.occurredAt,
 		tagsInput: value.tagsInput,
 		idempotencyKey: value.idempotencyKey,
+		identity,
 		noteText: value.noteText,
 		birdCommonName: value.birdCommonName,
 		birdScientificName: value.birdScientificName,

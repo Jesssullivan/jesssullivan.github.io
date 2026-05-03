@@ -19,6 +19,11 @@
 		type PulseClientFormState,
 		type PulseClientStorageAdapter,
 	} from '$lib/pulse/client/storage';
+	import {
+		PULSE_CLIENT_DEFAULT_IDENTITY,
+		createPulseClientIdentity,
+		type PulseClientIdentity,
+	} from '$lib/pulse/client/identity';
 	import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 	import type { ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
@@ -46,6 +51,12 @@
 	let occurredAt = $state(initialNowIso);
 	let tagsInput = $state('client, pulse');
 	let idempotencyKey = $state('pulse-client-1');
+	let actor = $state(PULSE_CLIENT_DEFAULT_IDENTITY.actor);
+	let displayName = $state(PULSE_CLIENT_DEFAULT_IDENTITY.displayName);
+	let deviceId = $state(PULSE_CLIENT_DEFAULT_IDENTITY.deviceId);
+	let deviceLabel = $state(PULSE_CLIENT_DEFAULT_IDENTITY.deviceLabel);
+	let clientId = $state(PULSE_CLIENT_DEFAULT_IDENTITY.client);
+	let sessionId = $state(PULSE_CLIENT_DEFAULT_IDENTITY.sessionId);
 
 	let noteText = $state('Testing the Pulse client draft/outbox lane from the static demo.');
 
@@ -79,6 +90,7 @@
 		kind === 'note'
 			? ({
 					id: `draft_${sequence}`,
+					identity: currentIdentity(),
 					kind: 'note',
 					visibility,
 					occurredAt,
@@ -88,6 +100,7 @@
 				} satisfies PulseClientNoteDraft)
 			: ({
 					id: `draft_${sequence}`,
+					identity: currentIdentity(),
 					kind: 'bird_sighting',
 					visibility,
 					occurredAt,
@@ -105,6 +118,17 @@
 	const readiness = $derived(summarizeClientDraftReadiness(draft));
 	const preview = $derived(evaluatePulseClientDraft(draft));
 
+	function currentIdentity(): PulseClientIdentity {
+		return createPulseClientIdentity({
+			actor,
+			displayName,
+			deviceId,
+			deviceLabel,
+			client: clientId,
+			sessionId,
+		});
+	}
+
 	function currentFormState(): PulseClientFormState {
 		return {
 			sequence,
@@ -113,6 +137,7 @@
 			occurredAt,
 			tagsInput,
 			idempotencyKey,
+			identity: currentIdentity(),
 			noteText,
 			birdCommonName,
 			birdScientificName,
@@ -130,6 +155,12 @@
 		occurredAt = form.occurredAt;
 		tagsInput = form.tagsInput;
 		idempotencyKey = form.idempotencyKey;
+		actor = form.identity.actor;
+		displayName = form.identity.displayName;
+		deviceId = form.identity.deviceId;
+		deviceLabel = form.identity.deviceLabel;
+		clientId = form.identity.client;
+		sessionId = form.identity.sessionId;
 		noteText = form.noteText;
 		birdCommonName = form.birdCommonName;
 		birdScientificName = form.birdScientificName;
@@ -270,6 +301,40 @@
 						onclick={() => loadDemoPreset('blocked_bird')}>blocked bird</button
 					>
 				</div>
+
+				<fieldset class="identity-fieldset">
+					<legend class="text-xs uppercase tracking-wider text-surface-600-400">Identity stub</legend>
+					<div class="grid gap-3 sm:grid-cols-2">
+						<label class="label">
+							<span>Actor</span>
+							<input class="input" type="text" aria-label="Actor" bind:value={actor} />
+						</label>
+						<label class="label">
+							<span>Display name</span>
+							<input class="input" type="text" aria-label="Display name" bind:value={displayName} />
+						</label>
+					</div>
+					<div class="grid gap-3 sm:grid-cols-2">
+						<label class="label">
+							<span>Device id</span>
+							<input class="input font-mono" type="text" aria-label="Device id" bind:value={deviceId} />
+						</label>
+						<label class="label">
+							<span>Device label</span>
+							<input class="input" type="text" aria-label="Device label" bind:value={deviceLabel} />
+						</label>
+					</div>
+					<div class="grid gap-3 sm:grid-cols-2">
+						<label class="label">
+							<span>Client id</span>
+							<input class="input font-mono" type="text" aria-label="Client id" bind:value={clientId} />
+						</label>
+						<label class="label">
+							<span>Session id</span>
+							<input class="input font-mono" type="text" aria-label="Session id" bind:value={sessionId} />
+						</label>
+					</div>
+				</fieldset>
 
 				{#if kind === 'note'}
 					<label class="label">
@@ -417,6 +482,10 @@
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 		gap: 0.5rem;
+	}
+	.identity-fieldset {
+		display: grid;
+		gap: 0.75rem;
 	}
 	@media (min-width: 900px) {
 		.client-grid {
