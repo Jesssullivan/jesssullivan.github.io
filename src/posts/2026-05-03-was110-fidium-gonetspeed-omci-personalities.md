@@ -1,7 +1,7 @@
 ---
-title: "Declarative XGS-PON: Two Fiber ISPs on One CRS309 with WAS-110 Modules"
+title: "Hacking around with XGS-PON: Fiber ISPs, WAS-110 Modules & Mikrotik"
 date: "2026-05-03"
-description: "A reproducible procedure for declaratively configuring two North American fiber ISPs — Fidium (Adtran/Calix) and GoNetSpeed (Nokia 7360 ISAM) — through BFW WAS-110 SFP+ ONT modules running 8311 community firmware on a Mikrotik CRS309. Documents OMCI managed-entity behavior, the Nokia ISAM software-download flow, an incomplete VEIP service push, and the corresponding Linux-bridge workaround."
+description: "Debugging, learning and configuring two North American fiber ISPs — Fidium (Adtran/Calix) and GoNetSpeed (Nokia 7360 ISAM) — through BFW WAS-110 SFP+ ONT modules running 8311 community firmware on a Mikrotik CRS309.  OMCI managed-entity behavior, the Nokia ISAM software-download flow, VEIP service push, Linux-bridge workaround."
 feature_image: "/images/posts/was110-fidium-gonetspeed-omci-personalities.webp"
 tags: ["xgs-pon", "ont", "was-110", "mikrotik", "crs309", "fiber", "homelab", "fidium", "gonetspeed", "omci", "nokia", "8311", "g988", "isam"]
 category: "devops"
@@ -10,7 +10,7 @@ slug: "was110-fidium-gonetspeed-omci-personalities"
 excerpt: "Two fiber ISPs, one switch, two BFW WAS-110 SFP+ XGS-PON modules running 8311 community firmware. Fidium and GoNetSpeed both authenticate the same way (clone the operator-supplied ONT's identity into IaC), but their upstream OLTs push very different OMCI service profiles. This is the procedure I used to land both, with annotated scripts and OMCI captures."
 ---
 
-Lets take an adventure declaratively configuring two fiber ISP uplinks — Fidium and GoNetSpeed — through [BFW Solutions WAS-110](https://pon.wiki/xgs-pon/ont/bfw-solutions/was-110/) [\[1\]](#ref-1) XGS-PON SFP+ ONT modules.
+Lets take an adventure in comfort hacking, exploring and ultimately configuring two fiber ISP uplinks — Fidium and GoNetSpeed — through [BFW Solutions WAS-110](https://pon.wiki/xgs-pon/ont/bfw-solutions/was-110/) [\[1\]](#ref-1) XGS-PON SFP+ ONT modules.
 
 ## Index
 
