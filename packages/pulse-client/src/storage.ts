@@ -1,4 +1,5 @@
-import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
+import { POLICY_DENY_REASONS, type PolicyDecision, type PolicyDenyReason } from '@blog/pulse-core/policy';
+import { PublicPulseItemSchema, type LocationPrecision, type Visibility } from '@blog/pulse-core/schema';
 import type { PulseClientDraftKind, PulseClientOutboxItem } from './drafts';
 import { PULSE_CLIENT_DEFAULT_IDENTITY, parsePulseClientIdentity, type PulseClientIdentity } from './identity';
 import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, parsePulseClientMediaIntent, type PulseClientMediaIntent } from './media';
@@ -70,10 +71,15 @@ const outboxStateValues = new Set<PulseClientOutboxItem['state']>([
 	'ap_blocked',
 ]);
 
+const policyDenyReasonValues = new Set(POLICY_DENY_REASONS);
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const isString = (value: unknown): value is string => typeof value === 'string';
+
+const isPolicyDenyReason = (value: unknown): value is PolicyDenyReason =>
+	isString(value) && policyDenyReasonValues.has(value as PolicyDenyReason);
 
 const clonePersistedState = (state: PulseClientPersistedState): PulseClientPersistedState =>
 	JSON.parse(JSON.stringify(state)) as PulseClientPersistedState;
@@ -92,6 +98,24 @@ const parseOutboxMediaIntents = (value: unknown): readonly PulseClientMediaInten
 	return intents;
 };
 
+const parsePolicyDecision = (value: unknown): PolicyDecision | null => {
+	if (!isRecord(value)) return null;
+	if (value.allowed === true) {
+		const item = PublicPulseItemSchema.safeParse(value.item);
+		return item.success ? { allowed: true, item: item.data } : null;
+	}
+	if (value.allowed === false) {
+		if (!isPolicyDenyReason(value.reason)) return null;
+		if (!isString(value.detail)) return null;
+		return {
+			allowed: false,
+			reason: value.reason,
+			detail: value.detail,
+		};
+	}
+	return null;
+};
+
 const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 	if (!isRecord(value)) return null;
 	if (!isString(value.id)) return null;
@@ -104,6 +128,8 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 	if (value.identity !== undefined && !identity) return null;
 	const mediaIntents = parseOutboxMediaIntents(value.mediaIntents);
 	if (!mediaIntents) return null;
+	const decision = value.decision === undefined ? undefined : parsePolicyDecision(value.decision);
+	if (value.decision !== undefined && !decision) return null;
 
 	return {
 		id: value.id,
@@ -114,6 +140,7 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 		detail: value.detail,
 		...(isString(value.eventId) ? { eventId: value.eventId } : {}),
 		...(isString(value.activityId) ? { activityId: value.activityId } : {}),
+		...(decision ? { decision } : {}),
 		...(identity ? { identity } : {}),
 		...(mediaIntents.length > 0 ? { mediaIntents } : {}),
 	};
