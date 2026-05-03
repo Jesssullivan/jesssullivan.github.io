@@ -68,6 +68,9 @@ jobs:
       - name: Pulse-core tests + typecheck + proto guard
         run: npm run test:pulse-core
 
+      - name: Pulse-client tests + typecheck
+        run: npm run test:pulse-client
+
       - name: Build
         run: npm run build
 
