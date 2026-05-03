@@ -2,7 +2,7 @@
 
 Date: 2026-04-28
 
-Status: planning surface for post-M1 client development. Durable client-home decision recorded on 2026-05-02.
+Status: active planning surface for post-M1 client development. TIN-920 and TIN-919 are landed; `/pulse/client` now has adapter-shaped local draft/outbox persistence and retry-state semantics.
 
 Related:
 
@@ -11,7 +11,9 @@ Related:
 
 ## Current Truth
 
-M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pulse`, and a hidden `/pulse/lab` composer. The lab composer is useful as a QA harness and design probe, but it is not a production client:
+M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pulse`, and a hidden `/pulse/lab` composer. M2 now also has a hidden `/pulse/client` scaffold with local draft persistence, stable idempotency keys, local outbox storage, and deterministic retry-state UX.
+
+The lab composer remains useful as a QA harness and design probe, but it is not a production client:
 
 - no durable drafts
 - no auth or device identity beyond fixture strings
@@ -20,6 +22,8 @@ M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pu
 - no offline outbox or retry model
 - no broker persistence
 - no real ActivityPub federation
+
+The `/pulse/client` scaffold is one step further than the lab route. It owns local browser persistence for demo/client development, but it still does not own production write authority, broker persistence, auth, upload lifecycle, or real federation.
 
 ## AP-Shaped Demo Publisher
 
@@ -52,6 +56,8 @@ TIN-789 starts this as a hidden `/pulse/client` scaffold inside the blog repo ra
 
 TIN-920 decides that TIN-919 should stay inside the blog repo's hidden `/pulse/client` surface for one more implementation slice. That is a scoped M2 development choice, not a production authority choice.
 
+TIN-919 landed on 2026-05-02 in PR #98 / commit `60c5e71fda2024f3e57c6722d1f04b4286eeda5f`. It added the local storage adapter, draft and outbox serialization tests, retry-state restoration, and a small UI restore path in `/pulse/client`.
+
 The selected home for TIN-919 is:
 
 - `/pulse/client` remains the review shell for local draft persistence, idempotency, broker-submit preview, and retry-state UX.
@@ -76,24 +82,34 @@ M2 should define these contracts before product-style client work accelerates:
 
 - Client API boundary for submitting draft events to the broker.
 - Auth and device identity semantics.
-- Local draft persistence and idempotency keys.
-- Outbox/sync/retry behavior for intermittent clients.
+- Local draft persistence and idempotency keys. Landed for local browser storage in TIN-919; durable broker/client authority is still non-scope.
+- Outbox/sync/retry behavior for intermittent clients. Landed for local deterministic retry-state UX in TIN-919; network sync and broker persistence are still future work.
 - Policy preview response shape for "will this project publicly?" UX.
 - AP-shaped demo queue/outbox preview for safe branch demos.
 - Media upload intent, private object storage, EXIF stripping, and derivative generation stubs.
 - Snapshot/read model consumption for public timeline rendering.
 - Compatibility boundary between `@blog/pulse-core` schemas and any generated proto client.
 
+## Next M2 Queue
+
+The next functional slices should stay inside the same temporary `/pulse/client` shell unless the split decision is reopened:
+
+- TIN-921: auth and device identity stubs that model session/device provenance without becoming real auth authority.
+- TIN-922: media upload intent and privacy lifecycle stubs for private object storage, EXIF stripping, derivatives, and public projection eligibility.
+- TIN-923: renewed app/package split decision before live broker mutation APIs, durable auth/media authority, or real ActivityPub delivery.
+
 ## QA Gates
 
 The current QA baseline for client iteration is:
 
 - `npm run test:pulse-core`
-- `npx vitest run src/lib/components/pulse/PulseCards.test.ts src/lib/pulse/lab/compose.test.ts`
+- `npx vitest run src/lib/components/pulse/PulseCards.test.ts src/lib/pulse/lab/compose.test.ts src/lib/pulse/client/drafts.test.ts src/lib/pulse/client/storage.test.ts`
+- `npm run lint`
 - `npm run check`
 - PR CI smoke on the hosted GitHub Actions browser lane
 - post-merge full browser regression on `main`
 - shadow-route smoke before treating a branch as review-ready
+- production curl smoke for `/pulse`, `/pulse/lab`, `/pulse/client`, and the public snapshot after merge
 
 Do not run Playwright locally. Browser validation for Pulse client work should stay on hosted CI and the tailnet shadow route so local development does not depend on local browser automation state.
 
