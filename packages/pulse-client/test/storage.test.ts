@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { PulseClientOutboxItem } from './drafts';
+import type { PulseClientOutboxItem } from '../src/drafts';
 import {
 	PULSE_CLIENT_STORAGE_KEY,
 	createBrowserPulseClientStorageAdapter,
@@ -7,9 +7,9 @@ import {
 	createPulseClientPersistedState,
 	parsePulseClientPersistedState,
 	type PulseClientFormState,
-} from './storage';
-import { PULSE_CLIENT_DEFAULT_IDENTITY } from './identity';
-import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, createPulseClientMediaIntent } from './media';
+} from '../src/storage';
+import { PULSE_CLIENT_DEFAULT_IDENTITY } from '../src/identity';
+import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, createPulseClientMediaIntent } from '../src/media';
 
 const form: PulseClientFormState = {
 	sequence: 3,

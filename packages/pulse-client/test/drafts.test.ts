@@ -10,9 +10,9 @@ import {
 	submitPulseClientDraftToBroker,
 	type PulseClientBirdDraft,
 	type PulseClientNoteDraft,
-} from './drafts';
-import { createPulseClientIdentity } from './identity';
-import { createPulseClientMediaIntent } from './media';
+} from '../src/drafts';
+import { createPulseClientIdentity } from '../src/identity';
+import { createPulseClientMediaIntent } from '../src/media';
 import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 
 const nowIso = '2026-04-30T20:00:00.000Z';
