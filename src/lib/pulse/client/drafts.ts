@@ -9,6 +9,13 @@ import {
 	summarizePulseClientIdentity,
 	type PulseClientIdentity,
 } from './identity';
+import {
+	createPulseClientMediaIntent,
+	mediaIntentToAttachment,
+	normalizePulseClientMediaIntent,
+	summarizePulseClientMediaIntent,
+	type PulseClientMediaIntent,
+} from './media';
 
 export type PulseClientDraftKind = 'note' | 'bird_sighting';
 
@@ -19,6 +26,7 @@ interface PulseClientDraftBase {
 	readonly occurredAt: string;
 	readonly tagsInput: string;
 	readonly idempotencyKey: string;
+	readonly mediaIntents: readonly PulseClientMediaIntent[];
 }
 
 export interface PulseClientNoteDraft extends PulseClientDraftBase {
@@ -69,6 +77,7 @@ export interface PulseClientOutboxItem {
 	readonly activityId?: string;
 	readonly decision?: PolicyDecision;
 	readonly identity?: PulseClientIdentity;
+	readonly mediaIntents?: readonly PulseClientMediaIntent[];
 }
 
 export interface PulseClientDraftDefaults {
@@ -99,6 +108,7 @@ export const createPulseClientDraft = ({
 		occurredAt: nowIso,
 		tagsInput: kind === 'note' ? 'client, pulse' : 'client, birds',
 		idempotencyKey: `pulse-client-${sequence}`,
+		mediaIntents: [],
 	};
 
 	if (kind === 'note') {
@@ -132,6 +142,9 @@ export const summarizeClientDraftReadiness = (draft: PulseClientDraft): readonly
 	errors.push(...summarizePulseClientIdentity(draft.identity));
 	if (draft.visibility === 'VISIBILITY_UNSPECIFIED') errors.push('choose a visibility');
 	if (draft.idempotencyKey.trim().length === 0) errors.push('idempotency key missing');
+	for (const mediaIntent of draft.mediaIntents) {
+		errors.push(...summarizePulseClientMediaIntent(mediaIntent));
+	}
 
 	if (draft.kind === 'note') {
 		if (draft.text.trim().length === 0) errors.push('write a note');
@@ -177,6 +190,24 @@ const buildPayload = (draft: PulseClientDraft): IngestInput['payload'] | { reado
 	};
 };
 
+const buildMediaAttachments = (
+	intents: readonly PulseClientMediaIntent[],
+): IngestInput['media'] | { readonly errors: readonly string[] } => {
+	const media: IngestInput['media'] = [];
+	const errors: string[] = [];
+
+	for (const intent of intents) {
+		const attachment = mediaIntentToAttachment(intent);
+		if ('errors' in attachment) {
+			errors.push(...attachment.errors);
+		} else {
+			media.push(attachment);
+		}
+	}
+
+	return errors.length > 0 ? { errors } : media;
+};
+
 export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDraftResult => {
 	const identityErrors = summarizePulseClientIdentity(draft.identity);
 	if (identityErrors.length > 0) return { ok: false, errors: identityErrors };
@@ -187,6 +218,8 @@ export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDr
 
 	const payload = buildPayload(draft);
 	if ('error' in payload) return { ok: false, errors: [payload.error] };
+	const media = buildMediaAttachments(draft.mediaIntents);
+	if ('errors' in media) return { ok: false, errors: media.errors };
 
 	const identity = normalizePulseClientIdentity(draft.identity);
 
@@ -196,7 +229,7 @@ export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDr
 		visibility: draft.visibility,
 		source: identityToPulseSource(identity, draft.idempotencyKey),
 		tags: [...parseClientTags(draft.tagsInput)],
-		media: [],
+		media,
 		payload,
 	};
 
@@ -224,6 +257,9 @@ export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDr
 const outboxIdentity = (draft: PulseClientDraft): PulseClientIdentity =>
 	createPulseClientIdentity(normalizePulseClientIdentity(draft.identity));
 
+const outboxMediaIntents = (draft: PulseClientDraft): readonly PulseClientMediaIntent[] =>
+	draft.mediaIntents.map((intent) => createPulseClientMediaIntent(normalizePulseClientMediaIntent(intent)));
+
 export const draftPreviewToOutboxItem = (
 	draft: PulseClientDraft,
 	result: PulseClientDraftResult,
@@ -237,6 +273,7 @@ export const draftPreviewToOutboxItem = (
 			label: draft.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
 			detail: result.errors.join('; '),
 			identity: outboxIdentity(draft),
+			...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 		};
 	}
 
@@ -250,6 +287,7 @@ export const draftPreviewToOutboxItem = (
 		eventId: result.previewEvent.id,
 		decision: result.decision,
 		identity: outboxIdentity(draft),
+		...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 	};
 };
 
@@ -287,6 +325,7 @@ export const brokerOutcomeToOutboxItem = (
 			label: draftLabel(draft),
 			detail: outcome.errors.join('; '),
 			identity: outboxIdentity(draft),
+			...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 		};
 	}
 
@@ -310,6 +349,7 @@ export const brokerOutcomeToOutboxItem = (
 			activityId: queueItem.activity.id,
 			decision: result.decision,
 			identity: outboxIdentity(draft),
+			...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 		};
 	}
 
@@ -327,6 +367,7 @@ export const brokerOutcomeToOutboxItem = (
 			eventId,
 			decision: result.decision,
 			identity: outboxIdentity(draft),
+			...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 		};
 	}
 
@@ -342,6 +383,7 @@ export const brokerOutcomeToOutboxItem = (
 		eventId,
 		decision: result.decision,
 		identity: outboxIdentity(draft),
+		...(draft.mediaIntents.length > 0 ? { mediaIntents: outboxMediaIntents(draft) } : {}),
 	};
 };
 

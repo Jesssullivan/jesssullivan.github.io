@@ -12,6 +12,7 @@ import {
 	type PulseClientNoteDraft,
 } from './drafts';
 import { createPulseClientIdentity } from './identity';
+import { createPulseClientMediaIntent } from './media';
 import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 
 const nowIso = '2026-04-30T20:00:00.000Z';
@@ -121,6 +122,82 @@ describe('pulse client draft helpers', () => {
 		}
 	});
 
+	it('blocks private media intents at policy preview time', () => {
+		const result = evaluatePulseClientDraft({
+			...noteDraft(),
+			mediaIntents: [
+				createPulseClientMediaIntent({
+					id: 'media_private',
+					lifecycle: 'private_object_staged',
+					privateObjectKey: 'pulse/client/drafts/media_private/original.jpg',
+				}),
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			const item = draftPreviewToOutboxItem(
+				{
+					...noteDraft(),
+					mediaIntents: [
+						createPulseClientMediaIntent({
+							id: 'media_private',
+							lifecycle: 'private_object_staged',
+							privateObjectKey: 'pulse/client/drafts/media_private/original.jpg',
+						}),
+					],
+				},
+				result,
+			);
+
+			expect(result.input.media[0]?.privateObjectKey).toBe('pulse/client/drafts/media_private/original.jpg');
+			expect(result.decision.allowed).toBe(false);
+			expect(result.decision.allowed ? '' : result.decision.reason).toBe('private_object_key_present');
+			expect(item.mediaIntents?.[0]?.lifecycle).toBe('private_object_staged');
+		}
+	});
+
+	it('allows public-ready media derivatives through policy preview', () => {
+		const result = evaluatePulseClientDraft({
+			...noteDraft(),
+			mediaIntents: [
+				createPulseClientMediaIntent({
+					id: 'media_public',
+					lifecycle: 'public_projection_ready',
+					publicUrl: 'https://example.test/pulse/media/media_public.jpg',
+					privateObjectKey: 'pulse/client/private/media_public.jpg',
+				}),
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			expect(result.input.media[0]).toMatchObject({
+				id: 'media_public',
+				privateObjectKey: '',
+				publicUrl: 'https://example.test/pulse/media/media_public.jpg',
+			});
+			expect(result.decision.allowed).toBe(true);
+		}
+	});
+
+	it('surfaces unsupported media intent before broker preview', () => {
+		const result = evaluatePulseClientDraft({
+			...noteDraft(),
+			mediaIntents: [
+				createPulseClientMediaIntent({
+					lifecycle: 'unsupported',
+					mimeType: 'audio/wav',
+				}),
+			],
+		});
+
+		expect(result).toEqual({
+			ok: false,
+			errors: ['media type unsupported for public projection'],
+		});
+	});
+
 	it('summarizes missing client fields before compose', () => {
 		const errors = summarizeClientDraftReadiness({
 			...noteDraft(),
@@ -132,6 +209,11 @@ describe('pulse client draft helpers', () => {
 			}),
 			text: '   ',
 			idempotencyKey: '',
+			mediaIntents: [
+				createPulseClientMediaIntent({
+					altText: '',
+				}),
+			],
 		});
 
 		expect(errors).toContain('actor identity missing');
@@ -140,6 +222,7 @@ describe('pulse client draft helpers', () => {
 		expect(errors).toContain('session id missing');
 		expect(errors).toContain('write a note');
 		expect(errors).toContain('idempotency key missing');
+		expect(errors).toContain('media alt text missing');
 	});
 
 	it('maps preview decisions into outbox rows', () => {

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PulseClientOutboxItem } from '$lib/pulse/client/drafts';
+	import { mediaLifecycleLabel } from '$lib/pulse/client/media';
 
 	let { items }: { items: readonly PulseClientOutboxItem[] } = $props();
 
@@ -86,6 +87,14 @@
 								<dt>session</dt>
 								<dd>{item.identity.sessionId}</dd>
 							</div>
+						{/if}
+						{#if item.mediaIntents}
+							{#each item.mediaIntents as mediaIntent (mediaIntent.id)}
+								<div>
+									<dt>media</dt>
+									<dd>{mediaIntent.filename} - {mediaLifecycleLabel(mediaIntent.lifecycle)}</dd>
+								</div>
+							{/each}
 						{/if}
 						{#if item.eventId}
 							<div>

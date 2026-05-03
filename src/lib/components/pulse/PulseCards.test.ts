@@ -167,6 +167,17 @@ describe('Pulse client outbox rendering', () => {
 							client: 'pulse-client-test',
 							sessionId: 'session-1',
 						},
+						mediaIntents: [
+							{
+								id: 'media_1',
+								filename: 'cardinal-demo.jpg',
+								mimeType: 'image/jpeg',
+								altText: 'Northern Cardinal perched near Cayuga Lake',
+								lifecycle: 'private_object_staged',
+								privateObjectKey: 'pulse/client/drafts/media_1/cardinal-demo-original.jpg',
+								publicUrl: '',
+							},
+						],
 					},
 					{
 						id: 'draft_2_preview',
@@ -198,6 +209,8 @@ describe('Pulse client outbox rendering', () => {
 		expect(html).toContain('Demo Operator');
 		expect(html).toContain('demo-device-1');
 		expect(html).toContain('session-1');
+		expect(html).toContain('cardinal-demo.jpg');
+		expect(html).toContain('private object staged');
 		expect(html).toContain('queued');
 		expect(html).toContain('blocked');
 		expect(html).toContain('retry');
