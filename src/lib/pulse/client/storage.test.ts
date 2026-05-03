@@ -8,6 +8,7 @@ import {
 	parsePulseClientPersistedState,
 	type PulseClientFormState,
 } from './storage';
+import { PULSE_CLIENT_DEFAULT_IDENTITY } from './identity';
 
 const form: PulseClientFormState = {
 	sequence: 3,
@@ -16,6 +17,14 @@ const form: PulseClientFormState = {
 	occurredAt: '2026-05-02T20:00:00.000Z',
 	tagsInput: 'client, birds',
 	idempotencyKey: 'pulse-client-3',
+	identity: {
+		actor: 'demo-operator',
+		displayName: 'Demo Operator',
+		deviceId: 'demo-device-3',
+		deviceLabel: 'Demo device 3',
+		client: 'pulse-client-test',
+		sessionId: 'session-3',
+	},
 	noteText: '',
 	birdCommonName: 'Northern Cardinal',
 	birdScientificName: 'Cardinalis cardinalis',
@@ -33,6 +42,7 @@ const outboxItem: PulseClientOutboxItem = {
 	label: 'Bird sighting draft',
 	detail: 'queued locally; policy preview allows public projection',
 	eventId: 'preview_draft_3',
+	identity: form.identity,
 };
 
 const createFakeStorage = () => {
@@ -101,11 +111,39 @@ describe('pulse client storage', () => {
 				outbox: [],
 			}),
 		).toBeNull();
+		expect(
+			parsePulseClientPersistedState({
+				schemaVersion: 'tinyland.pulse.client.v1',
+				savedAt: '2026-05-02T21:00:00.000Z',
+				form: { ...form, identity: { ...form.identity, deviceId: 123 } },
+				outbox: [],
+			}),
+		).toBeNull();
 
 		const fakeStorage = createFakeStorage();
 		fakeStorage.setItem(PULSE_CLIENT_STORAGE_KEY, '{not-json');
 
 		expect(createBrowserPulseClientStorageAdapter(fakeStorage).load()).toBeNull();
+	});
+
+	it('loads existing v1 form state with default identity values', () => {
+		const parsed = parsePulseClientPersistedState({
+			schemaVersion: 'tinyland.pulse.client.v1',
+			savedAt: '2026-05-02T21:00:00.000Z',
+			form: {
+				...form,
+				identity: undefined,
+			},
+			outbox: [
+				{
+					...outboxItem,
+					identity: undefined,
+				},
+			],
+		});
+
+		expect(parsed?.form.identity).toEqual(PULSE_CLIENT_DEFAULT_IDENTITY);
+		expect(parsed?.outbox[0]?.identity).toBeUndefined();
 	});
 
 	it('clears browser storage', () => {

@@ -2,11 +2,19 @@ import { applyPolicyToEvent, type PolicyDecision } from '@blog/pulse-core/policy
 import type { BrokerApi, IngestInput, IngestOutcome } from '@blog/pulse-core/broker';
 import type { ActivityPubDemoPublisherOptions, ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 import { PulseEventSchema, type LocationPrecision, type PulseEvent, type Visibility } from '@blog/pulse-core/schema';
+import {
+	createPulseClientIdentity,
+	identityToPulseSource,
+	normalizePulseClientIdentity,
+	summarizePulseClientIdentity,
+	type PulseClientIdentity,
+} from './identity';
 
 export type PulseClientDraftKind = 'note' | 'bird_sighting';
 
 interface PulseClientDraftBase {
 	readonly id: string;
+	readonly identity: PulseClientIdentity;
 	readonly visibility: Visibility;
 	readonly occurredAt: string;
 	readonly tagsInput: string;
@@ -60,6 +68,7 @@ export interface PulseClientOutboxItem {
 	readonly eventId?: string;
 	readonly activityId?: string;
 	readonly decision?: PolicyDecision;
+	readonly identity?: PulseClientIdentity;
 }
 
 export interface PulseClientDraftDefaults {
@@ -85,6 +94,7 @@ export const createPulseClientDraft = ({
 }: PulseClientDraftDefaults): PulseClientDraft => {
 	const base = {
 		id: `draft_${sequence}`,
+		identity: createPulseClientIdentity(),
 		visibility: 'VISIBILITY_PUBLIC' as const,
 		occurredAt: nowIso,
 		tagsInput: kind === 'note' ? 'client, pulse' : 'client, birds',
@@ -119,6 +129,7 @@ export const parseClientTags = (input: string): readonly string[] =>
 
 export const summarizeClientDraftReadiness = (draft: PulseClientDraft): readonly string[] => {
 	const errors: string[] = [];
+	errors.push(...summarizePulseClientIdentity(draft.identity));
 	if (draft.visibility === 'VISIBILITY_UNSPECIFIED') errors.push('choose a visibility');
 	if (draft.idempotencyKey.trim().length === 0) errors.push('idempotency key missing');
 
@@ -167,6 +178,9 @@ const buildPayload = (draft: PulseClientDraft): IngestInput['payload'] | { reado
 };
 
 export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDraftResult => {
+	const identityErrors = summarizePulseClientIdentity(draft.identity);
+	if (identityErrors.length > 0) return { ok: false, errors: identityErrors };
+
 	if (draft.visibility === 'VISIBILITY_UNSPECIFIED') {
 		return { ok: false, errors: ['visibility must be explicit'] };
 	}
@@ -174,15 +188,13 @@ export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDr
 	const payload = buildPayload(draft);
 	if ('error' in payload) return { ok: false, errors: [payload.error] };
 
+	const identity = normalizePulseClientIdentity(draft.identity);
+
 	const input: IngestInput = {
-		actor: 'jess',
+		actor: identity.actor,
 		occurredAt: draft.occurredAt,
 		visibility: draft.visibility,
-		source: {
-			client: 'pulse-client-scaffold',
-			deviceId: 'browser-local',
-			idempotencyKey: draft.idempotencyKey,
-		},
+		source: identityToPulseSource(identity, draft.idempotencyKey),
 		tags: [...parseClientTags(draft.tagsInput)],
 		media: [],
 		payload,
@@ -209,6 +221,9 @@ export const evaluatePulseClientDraft = (draft: PulseClientDraft): PulseClientDr
 	};
 };
 
+const outboxIdentity = (draft: PulseClientDraft): PulseClientIdentity =>
+	createPulseClientIdentity(normalizePulseClientIdentity(draft.identity));
+
 export const draftPreviewToOutboxItem = (
 	draft: PulseClientDraft,
 	result: PulseClientDraftResult,
@@ -221,6 +236,7 @@ export const draftPreviewToOutboxItem = (
 			idempotencyKey: draft.idempotencyKey,
 			label: draft.kind === 'note' ? 'Note draft' : 'Bird sighting draft',
 			detail: result.errors.join('; '),
+			identity: outboxIdentity(draft),
 		};
 	}
 
@@ -233,6 +249,7 @@ export const draftPreviewToOutboxItem = (
 		detail: result.decision.allowed ? 'policy preview allows public projection' : result.decision.detail,
 		eventId: result.previewEvent.id,
 		decision: result.decision,
+		identity: outboxIdentity(draft),
 	};
 };
 
@@ -269,6 +286,7 @@ export const brokerOutcomeToOutboxItem = (
 			idempotencyKey: draft.idempotencyKey,
 			label: draftLabel(draft),
 			detail: outcome.errors.join('; '),
+			identity: outboxIdentity(draft),
 		};
 	}
 
@@ -291,6 +309,7 @@ export const brokerOutcomeToOutboxItem = (
 			eventId,
 			activityId: queueItem.activity.id,
 			decision: result.decision,
+			identity: outboxIdentity(draft),
 		};
 	}
 
@@ -307,6 +326,7 @@ export const brokerOutcomeToOutboxItem = (
 					: `${duplicatePrefix}; AP demo blocked: ${queueItem.detail}`,
 			eventId,
 			decision: result.decision,
+			identity: outboxIdentity(draft),
 		};
 	}
 
@@ -321,6 +341,7 @@ export const brokerOutcomeToOutboxItem = (
 			: `${duplicatePrefix}; projection blocked: ${result.decision.detail}`,
 		eventId,
 		decision: result.decision,
+		identity: outboxIdentity(draft),
 	};
 };
 

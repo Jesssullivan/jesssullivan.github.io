@@ -73,6 +73,20 @@
 							<dt>idempotency</dt>
 							<dd>{item.idempotencyKey}</dd>
 						</div>
+						{#if item.identity}
+							<div>
+								<dt>actor</dt>
+								<dd>{item.identity.displayName} ({item.identity.actor})</dd>
+							</div>
+							<div>
+								<dt>device</dt>
+								<dd>{item.identity.deviceLabel} ({item.identity.deviceId})</dd>
+							</div>
+							<div>
+								<dt>session</dt>
+								<dd>{item.identity.sessionId}</dd>
+							</div>
+						{/if}
 						{#if item.eventId}
 							<div>
 								<dt>event</dt>

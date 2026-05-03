@@ -11,6 +11,7 @@ import {
 	type PulseClientBirdDraft,
 	type PulseClientNoteDraft,
 } from './drafts';
+import { createPulseClientIdentity } from './identity';
 import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 
 const nowIso = '2026-04-30T20:00:00.000Z';
@@ -51,6 +52,11 @@ describe('pulse client draft helpers', () => {
 		expect(draft.id).toBe('draft_7');
 		expect(draft.idempotencyKey).toBe('pulse-client-7');
 		expect(draft.occurredAt).toBe(nowIso);
+		expect(draft.identity).toMatchObject({
+			actor: 'jess',
+			deviceId: 'browser-local',
+			client: 'pulse-client-scaffold',
+		});
 	});
 
 	it('parses comma-separated tags', () => {
@@ -63,9 +69,42 @@ describe('pulse client draft helpers', () => {
 		expect(result.ok).toBe(true);
 		if (result.ok) {
 			expect(result.input.source.client).toBe('pulse-client-scaffold');
+			expect(result.input.source.deviceId).toBe('browser-local');
 			expect(result.input.source.idempotencyKey).toBe('pulse-client-1');
 			expect(result.previewEvent.id).toBe('preview_draft_1');
 			expect(result.decision.allowed).toBe(true);
+		}
+	});
+
+	it('propagates explicit client identity into broker input and outbox rows', () => {
+		const draft: PulseClientNoteDraft = {
+			...noteDraft(),
+			identity: createPulseClientIdentity({
+				actor: 'demo-operator',
+				displayName: 'Demo Operator',
+				deviceId: 'tin-921-demo-device',
+				deviceLabel: 'TIN-921 demo device',
+				client: 'pulse-client-m2-demo',
+				sessionId: 'tin-921-session',
+			}),
+		};
+		const result = evaluatePulseClientDraft(draft);
+
+		expect(result.ok).toBe(true);
+		if (result.ok) {
+			const item = draftPreviewToOutboxItem(draft, result);
+
+			expect(result.input.actor).toBe('demo-operator');
+			expect(result.input.source.client).toBe('pulse-client-m2-demo');
+			expect(result.input.source.deviceId).toBe('tin-921-demo-device');
+			expect(item.identity).toEqual({
+				actor: 'demo-operator',
+				displayName: 'Demo Operator',
+				deviceId: 'tin-921-demo-device',
+				deviceLabel: 'TIN-921 demo device',
+				client: 'pulse-client-m2-demo',
+				sessionId: 'tin-921-session',
+			});
 		}
 	});
 
@@ -85,10 +124,20 @@ describe('pulse client draft helpers', () => {
 	it('summarizes missing client fields before compose', () => {
 		const errors = summarizeClientDraftReadiness({
 			...noteDraft(),
+			identity: createPulseClientIdentity({
+				actor: '',
+				deviceId: '',
+				client: '',
+				sessionId: '',
+			}),
 			text: '   ',
 			idempotencyKey: '',
 		});
 
+		expect(errors).toContain('actor identity missing');
+		expect(errors).toContain('device id missing');
+		expect(errors).toContain('client id missing');
+		expect(errors).toContain('session id missing');
 		expect(errors).toContain('write a note');
 		expect(errors).toContain('idempotency key missing');
 	});
@@ -101,6 +150,7 @@ describe('pulse client draft helpers', () => {
 		expect(item.state).toBe('draft_ready');
 		expect(item.idempotencyKey).toBe('pulse-client-1');
 		expect(item.eventId).toBe('preview_draft_1');
+		expect(item.identity?.deviceId).toBe('browser-local');
 	});
 
 	it('marks local preview rows as queued without changing idempotency ownership', () => {
@@ -120,6 +170,7 @@ describe('pulse client draft helpers', () => {
 		expect(result.outboxItem.state).toBe('ap_published');
 		expect(result.outboxItem.eventId).toBe('evt_1');
 		expect(result.outboxItem.activityId).toBe('https://example.test/pulse/ap-demo/activities/evt_1/create');
+		expect(result.outboxItem.identity?.sessionId).toBe('local-session-1');
 		expect(result.publication.outbox.totalItems).toBe(1);
 		expect(result.publication.queue.map((item) => item.state)).toEqual(['published']);
 	});
