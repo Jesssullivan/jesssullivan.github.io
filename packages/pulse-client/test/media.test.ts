@@ -4,7 +4,7 @@ import {
 	mediaIntentToAttachment,
 	parsePulseClientMediaIntent,
 	summarizePulseClientMediaIntent,
-} from './media';
+} from '../src/media';
 
 describe('pulse client media intent helpers', () => {
 	it('serializes private staged media as a policy-held attachment', () => {
