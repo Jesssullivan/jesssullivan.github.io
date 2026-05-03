@@ -9,6 +9,7 @@ import {
 	type PulseClientFormState,
 } from './storage';
 import { PULSE_CLIENT_DEFAULT_IDENTITY } from './identity';
+import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, createPulseClientMediaIntent } from './media';
 
 const form: PulseClientFormState = {
 	sequence: 3,
@@ -25,6 +26,13 @@ const form: PulseClientFormState = {
 		client: 'pulse-client-test',
 		sessionId: 'session-3',
 	},
+	mediaIntentEnabled: true,
+	mediaIntent: createPulseClientMediaIntent({
+		id: 'media_3',
+		filename: 'cardinal-demo.jpg',
+		lifecycle: 'private_object_staged',
+		privateObjectKey: 'pulse/client/drafts/media_3/cardinal-demo-original.jpg',
+	}),
 	noteText: '',
 	birdCommonName: 'Northern Cardinal',
 	birdScientificName: 'Cardinalis cardinalis',
@@ -43,6 +51,7 @@ const outboxItem: PulseClientOutboxItem = {
 	detail: 'queued locally; policy preview allows public projection',
 	eventId: 'preview_draft_3',
 	identity: form.identity,
+	mediaIntents: [form.mediaIntent],
 };
 
 const createFakeStorage = () => {
@@ -119,6 +128,14 @@ describe('pulse client storage', () => {
 				outbox: [],
 			}),
 		).toBeNull();
+		expect(
+			parsePulseClientPersistedState({
+				schemaVersion: 'tinyland.pulse.client.v1',
+				savedAt: '2026-05-02T21:00:00.000Z',
+				form: { ...form, mediaIntent: { ...form.mediaIntent, lifecycle: 'invented' } },
+				outbox: [],
+			}),
+		).toBeNull();
 
 		const fakeStorage = createFakeStorage();
 		fakeStorage.setItem(PULSE_CLIENT_STORAGE_KEY, '{not-json');
@@ -133,17 +150,23 @@ describe('pulse client storage', () => {
 			form: {
 				...form,
 				identity: undefined,
+				mediaIntentEnabled: undefined,
+				mediaIntent: undefined,
 			},
 			outbox: [
 				{
 					...outboxItem,
 					identity: undefined,
+					mediaIntents: undefined,
 				},
 			],
 		});
 
 		expect(parsed?.form.identity).toEqual(PULSE_CLIENT_DEFAULT_IDENTITY);
+		expect(parsed?.form.mediaIntentEnabled).toBe(false);
+		expect(parsed?.form.mediaIntent).toEqual(PULSE_CLIENT_DEFAULT_MEDIA_INTENT);
 		expect(parsed?.outbox[0]?.identity).toBeUndefined();
+		expect(parsed?.outbox[0]?.mediaIntents).toBeUndefined();
 	});
 
 	it('clears browser storage', () => {

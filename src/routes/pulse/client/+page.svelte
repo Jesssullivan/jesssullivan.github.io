@@ -24,6 +24,15 @@
 		createPulseClientIdentity,
 		type PulseClientIdentity,
 	} from '$lib/pulse/client/identity';
+	import {
+		PULSE_CLIENT_DEFAULT_MEDIA_INTENT,
+		PULSE_CLIENT_MEDIA_LIFECYCLES,
+		createPulseClientMediaIntent,
+		isMediaIntentPublicProjectable,
+		mediaLifecycleLabel,
+		type PulseClientMediaIntent,
+		type PulseClientMediaLifecycle,
+	} from '$lib/pulse/client/media';
 	import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 	import type { ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
@@ -57,6 +66,13 @@
 	let deviceLabel = $state(PULSE_CLIENT_DEFAULT_IDENTITY.deviceLabel);
 	let clientId = $state(PULSE_CLIENT_DEFAULT_IDENTITY.client);
 	let sessionId = $state(PULSE_CLIENT_DEFAULT_IDENTITY.sessionId);
+	let mediaIntentEnabled = $state(false);
+	let mediaFilename = $state(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.filename);
+	let mediaMimeType = $state(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.mimeType);
+	let mediaAltText = $state(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.altText);
+	let mediaLifecycle = $state<PulseClientMediaLifecycle>(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.lifecycle);
+	let mediaPrivateObjectKey = $state(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.privateObjectKey);
+	let mediaPublicUrl = $state(PULSE_CLIENT_DEFAULT_MEDIA_INTENT.publicUrl);
 
 	let noteText = $state('Testing the Pulse client draft/outbox lane from the static demo.');
 
@@ -91,6 +107,7 @@
 			? ({
 					id: `draft_${sequence}`,
 					identity: currentIdentity(),
+					mediaIntents: currentMediaIntents(),
 					kind: 'note',
 					visibility,
 					occurredAt,
@@ -101,6 +118,7 @@
 			: ({
 					id: `draft_${sequence}`,
 					identity: currentIdentity(),
+					mediaIntents: currentMediaIntents(),
 					kind: 'bird_sighting',
 					visibility,
 					occurredAt,
@@ -117,6 +135,10 @@
 
 	const readiness = $derived(summarizeClientDraftReadiness(draft));
 	const preview = $derived(evaluatePulseClientDraft(draft));
+	const mediaProjectionReady = $derived(mediaIntentEnabled && isMediaIntentPublicProjectable(currentMediaIntent()));
+	const mediaProjectionState = $derived(
+		mediaProjectionReady ? 'projectable' : mediaLifecycle === 'unsupported' ? 'unsupported' : 'private',
+	);
 
 	function currentIdentity(): PulseClientIdentity {
 		return createPulseClientIdentity({
@@ -129,6 +151,22 @@
 		});
 	}
 
+	function currentMediaIntent(): PulseClientMediaIntent {
+		return createPulseClientMediaIntent({
+			id: `media_${sequence}`,
+			filename: mediaFilename,
+			mimeType: mediaMimeType,
+			altText: mediaAltText,
+			lifecycle: mediaLifecycle,
+			privateObjectKey: mediaPrivateObjectKey,
+			publicUrl: mediaPublicUrl,
+		});
+	}
+
+	function currentMediaIntents(): readonly PulseClientMediaIntent[] {
+		return mediaIntentEnabled ? [currentMediaIntent()] : [];
+	}
+
 	function currentFormState(): PulseClientFormState {
 		return {
 			sequence,
@@ -138,6 +176,8 @@
 			tagsInput,
 			idempotencyKey,
 			identity: currentIdentity(),
+			mediaIntentEnabled,
+			mediaIntent: currentMediaIntent(),
 			noteText,
 			birdCommonName,
 			birdScientificName,
@@ -161,6 +201,13 @@
 		deviceLabel = form.identity.deviceLabel;
 		clientId = form.identity.client;
 		sessionId = form.identity.sessionId;
+		mediaIntentEnabled = form.mediaIntentEnabled;
+		mediaFilename = form.mediaIntent.filename;
+		mediaMimeType = form.mediaIntent.mimeType;
+		mediaAltText = form.mediaIntent.altText;
+		mediaLifecycle = form.mediaIntent.lifecycle;
+		mediaPrivateObjectKey = form.mediaIntent.privateObjectKey;
+		mediaPublicUrl = form.mediaIntent.publicUrl;
 		noteText = form.noteText;
 		birdCommonName = form.birdCommonName;
 		birdScientificName = form.birdScientificName;
@@ -189,6 +236,7 @@
 		occurredAt = demoTimestamp(nextSequence);
 		tagsInput = nextKind === 'note' ? 'client, pulse' : 'client, birds';
 		idempotencyKey = `pulse-client-${nextSequence}`;
+		mediaPrivateObjectKey = `pulse/client/drafts/media_${nextSequence}/${mediaFilename || 'media-original'}`;
 		noteText = '';
 		birdCommonName = '';
 		birdScientificName = '';
@@ -227,6 +275,25 @@
 		birdPlaceLabel = preset === 'blocked_bird' ? 'Backyard snag' : 'Cayuga Lake basin';
 		birdPlacePrecision = preset === 'blocked_bird' ? 'LOCATION_PRECISION_EXACT' : 'LOCATION_PRECISION_REGION';
 		birdObservationId = `client-obs-${preset}-${nextSequence}`;
+	}
+
+	function loadMediaPreset(preset: 'private' | 'public' | 'unsupported') {
+		mediaIntentEnabled = true;
+		mediaFilename = preset === 'unsupported' ? 'field-recording.wav' : 'cardinal-demo.jpg';
+		mediaMimeType = preset === 'unsupported' ? 'audio/wav' : 'image/jpeg';
+		mediaAltText =
+			preset === 'unsupported'
+				? 'Raw field recording awaiting client media support'
+				: 'Northern Cardinal perched near Cayuga Lake';
+		mediaLifecycle =
+			preset === 'public'
+				? 'public_projection_ready'
+				: preset === 'unsupported'
+					? 'unsupported'
+					: 'private_object_staged';
+		mediaPrivateObjectKey = `pulse/client/drafts/media_${sequence}/${mediaFilename}`;
+		mediaPublicUrl = preset === 'public' ? 'https://jesssullivan.github.io/pulse/media/cardinal-demo-public.jpg' : '';
+		lastErrors = [];
 	}
 
 	function addPreview() {
@@ -334,6 +401,72 @@
 							<input class="input font-mono" type="text" aria-label="Session id" bind:value={sessionId} />
 						</label>
 					</div>
+				</fieldset>
+
+				<fieldset class="media-fieldset">
+					<legend class="text-xs uppercase tracking-wider text-surface-600-400">Media intent</legend>
+					<label class="media-toggle">
+						<input type="checkbox" aria-label="Media intent enabled" bind:checked={mediaIntentEnabled} />
+						<span>{mediaIntentEnabled ? 'enabled' : 'disabled'}</span>
+					</label>
+					{#if mediaIntentEnabled}
+						<div class="demo-row" aria-label="Media intent presets">
+							<button
+								type="button"
+								class="btn btn-sm preset-outlined-surface-500"
+								onclick={() => loadMediaPreset('private')}>private</button
+							>
+							<button
+								type="button"
+								class="btn btn-sm preset-outlined-surface-500"
+								onclick={() => loadMediaPreset('public')}>public</button
+							>
+							<button
+								type="button"
+								class="btn btn-sm preset-outlined-surface-500"
+								onclick={() => loadMediaPreset('unsupported')}>unsupported</button
+							>
+						</div>
+						<div class="grid gap-3 sm:grid-cols-2">
+							<label class="label">
+								<span>Filename</span>
+								<input class="input" type="text" aria-label="Media filename" bind:value={mediaFilename} />
+							</label>
+							<label class="label">
+								<span>MIME type</span>
+								<input class="input font-mono" type="text" aria-label="Media MIME type" bind:value={mediaMimeType} />
+							</label>
+						</div>
+						<label class="label">
+							<span>Alt text</span>
+							<input class="input" type="text" aria-label="Media alt text" bind:value={mediaAltText} />
+						</label>
+						<label class="label">
+							<span>Lifecycle</span>
+							<select class="select" aria-label="Media lifecycle" bind:value={mediaLifecycle}>
+								{#each PULSE_CLIENT_MEDIA_LIFECYCLES as lifecycle}
+									<option value={lifecycle}>{mediaLifecycleLabel(lifecycle)}</option>
+								{/each}
+							</select>
+						</label>
+						<label class="label">
+							<span>Private object key</span>
+							<input
+								class="input font-mono"
+								type="text"
+								aria-label="Private object key"
+								bind:value={mediaPrivateObjectKey}
+							/>
+						</label>
+						<label class="label">
+							<span>Public URL</span>
+							<input class="input font-mono" type="text" aria-label="Media public URL" bind:value={mediaPublicUrl} />
+						</label>
+						<div class="media-lifecycle-row">
+							<span>{mediaLifecycleLabel(mediaLifecycle)}</span>
+							<span>{mediaProjectionState}</span>
+						</div>
+					{/if}
 				</fieldset>
 
 				{#if kind === 'note'}
@@ -487,6 +620,30 @@
 		display: grid;
 		gap: 0.75rem;
 	}
+	.media-fieldset {
+		display: grid;
+		gap: 0.75rem;
+		border-top: 1px solid var(--color-surface-200);
+		padding-top: 0.75rem;
+	}
+	.media-toggle,
+	.media-lifecycle-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+	.media-toggle {
+		justify-content: flex-start;
+		font-size: 0.875rem;
+	}
+	.media-lifecycle-row {
+		border: 1px solid var(--color-surface-200);
+		border-radius: 0.5rem;
+		padding: 0.625rem 0.75rem;
+		font-size: 0.75rem;
+		color: var(--color-surface-600);
+	}
 	@media (min-width: 900px) {
 		.client-grid {
 			grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
@@ -495,7 +652,9 @@
 	}
 	@media (prefers-color-scheme: dark) {
 		.compose-panel,
-		.preview-row {
+		.preview-row,
+		.media-fieldset,
+		.media-lifecycle-row {
 			border-color: var(--color-surface-800);
 		}
 	}

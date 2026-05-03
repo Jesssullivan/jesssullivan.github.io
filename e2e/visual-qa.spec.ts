@@ -16,10 +16,11 @@ const VIEWPORTS = [
 
 const BLOG_POST_PATH = '/blog/840-watts-of-solar-power';
 
-/** Helper: set viewport and navigate, waiting for network idle. */
+/** Helper: set viewport and navigate without waiting on background requests. */
 async function visitAt(page: Page, path: string, width: number, height: number) {
 	await page.setViewportSize({ width, height });
-	await page.goto(path, { waitUntil: 'networkidle' });
+	await page.goto(path, { waitUntil: 'load' });
+	await expect(page.locator('body')).toBeVisible();
 }
 
 // ---------------------------------------------------------------------------
@@ -38,9 +39,7 @@ test.describe('Homepage — visual QA across viewports', () => {
 			});
 
 			test('site title is visible', async ({ page }) => {
-				await expect(
-					page.locator('.hero-banner-title')
-				).toBeVisible();
+				await expect(page.locator('.hero-banner-title')).toBeVisible();
 			});
 
 			test('navigation is accessible', async ({ page }) => {
@@ -125,9 +124,7 @@ test.describe('Blog listing — visual QA across viewports', () => {
 
 			test('post listing is visible', async ({ page }) => {
 				// The blog listing heading
-				await expect(
-					page.getByRole('heading', { name: 'Blog', level: 1 })
-				).toBeVisible();
+				await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
 
 				// At least one post card is rendered
 				const articles = page.locator('article.card');
@@ -172,7 +169,7 @@ test.describe('Blog listing — visual QA across viewports', () => {
 test.describe('Dark mode consistency', () => {
 	test('homepage: switching to dark mode sets data-mode="dark"', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/about', { waitUntil: 'networkidle' });
+		await page.goto('/about', { waitUntil: 'load' });
 
 		// Open the theme menu and click "Dark"
 		const themeButton = page.getByRole('button', { name: 'Theme settings' });
@@ -195,7 +192,7 @@ test.describe('Dark mode consistency', () => {
 
 	test('dark mode persists across navigation', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/about', { waitUntil: 'networkidle' });
+		await page.goto('/about', { waitUntil: 'load' });
 
 		// Switch to dark
 		await page.getByRole('button', { name: 'Theme settings' }).click();
@@ -203,11 +200,11 @@ test.describe('Dark mode consistency', () => {
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 
 		// Navigate to blog
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'load' });
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 
 		// Navigate to a post
-		await page.goto(BLOG_POST_PATH, { waitUntil: 'networkidle' });
+		await page.goto(BLOG_POST_PATH, { waitUntil: 'load' });
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 	});
 });

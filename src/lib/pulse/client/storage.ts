@@ -1,6 +1,7 @@
 import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';
 import type { PulseClientDraftKind, PulseClientOutboxItem } from './drafts';
 import { PULSE_CLIENT_DEFAULT_IDENTITY, parsePulseClientIdentity, type PulseClientIdentity } from './identity';
+import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, parsePulseClientMediaIntent, type PulseClientMediaIntent } from './media';
 
 export const PULSE_CLIENT_STORAGE_SCHEMA_VERSION = 'tinyland.pulse.client.v1';
 export const PULSE_CLIENT_STORAGE_KEY = 'tinyland:pulse:client:v1';
@@ -13,6 +14,8 @@ export interface PulseClientFormState {
 	readonly tagsInput: string;
 	readonly idempotencyKey: string;
 	readonly identity: PulseClientIdentity;
+	readonly mediaIntentEnabled: boolean;
+	readonly mediaIntent: PulseClientMediaIntent;
 	readonly noteText: string;
 	readonly birdCommonName: string;
 	readonly birdScientificName: string;
@@ -71,6 +74,20 @@ const isString = (value: unknown): value is string => typeof value === 'string';
 const clonePersistedState = (state: PulseClientPersistedState): PulseClientPersistedState =>
 	JSON.parse(JSON.stringify(state)) as PulseClientPersistedState;
 
+const parseOutboxMediaIntents = (value: unknown): readonly PulseClientMediaIntent[] | null => {
+	if (value === undefined) return [];
+	if (!Array.isArray(value)) return null;
+
+	const intents: PulseClientMediaIntent[] = [];
+	for (const item of value) {
+		const parsed = parsePulseClientMediaIntent(item);
+		if (!parsed) return null;
+		intents.push(parsed);
+	}
+
+	return intents;
+};
+
 const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 	if (!isRecord(value)) return null;
 	if (!isString(value.id)) return null;
@@ -81,6 +98,8 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 	if (!isString(value.detail)) return null;
 	const identity = value.identity === undefined ? undefined : parsePulseClientIdentity(value.identity);
 	if (value.identity !== undefined && !identity) return null;
+	const mediaIntents = parseOutboxMediaIntents(value.mediaIntents);
+	if (!mediaIntents) return null;
 
 	return {
 		id: value.id,
@@ -92,6 +111,7 @@ const parseOutboxItem = (value: unknown): PulseClientOutboxItem | null => {
 		...(isString(value.eventId) ? { eventId: value.eventId } : {}),
 		...(isString(value.activityId) ? { activityId: value.activityId } : {}),
 		...(identity ? { identity } : {}),
+		...(mediaIntents.length > 0 ? { mediaIntents } : {}),
 	};
 };
 
@@ -106,6 +126,13 @@ const parseFormState = (value: unknown): PulseClientFormState | null => {
 	const identity =
 		value.identity === undefined ? PULSE_CLIENT_DEFAULT_IDENTITY : parsePulseClientIdentity(value.identity);
 	if (!identity) return null;
+	const mediaIntentEnabled = value.mediaIntentEnabled === undefined ? false : value.mediaIntentEnabled;
+	if (typeof mediaIntentEnabled !== 'boolean') return null;
+	const mediaIntent =
+		value.mediaIntent === undefined
+			? PULSE_CLIENT_DEFAULT_MEDIA_INTENT
+			: parsePulseClientMediaIntent(value.mediaIntent);
+	if (!mediaIntent) return null;
 	if (!isString(value.noteText)) return null;
 	if (!isString(value.birdCommonName)) return null;
 	if (!isString(value.birdScientificName)) return null;
@@ -127,6 +154,8 @@ const parseFormState = (value: unknown): PulseClientFormState | null => {
 		tagsInput: value.tagsInput,
 		idempotencyKey: value.idempotencyKey,
 		identity,
+		mediaIntentEnabled,
+		mediaIntent,
 		noteText: value.noteText,
 		birdCommonName: value.birdCommonName,
 		birdScientificName: value.birdScientificName,
