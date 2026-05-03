@@ -31,4 +31,9 @@ npm run -w @blog/pulse-client test
 npm run -w @blog/pulse-client typecheck
 ```
 
+## Hosted Proof
+
 Browser proof stays hosted-only through GitHub Actions and the shadow route. Do not run Playwright locally.
+
+The current proof contract is documented in
+[`docs/tinyland-pulse-durable-client-ci-shadow-2026-05-03.md`](../../docs/tinyland-pulse-durable-client-ci-shadow-2026-05-03.md).

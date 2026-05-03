@@ -47,3 +47,25 @@ stay in the private infra repo.
 `.github/workflows/shadow-image.yml` still supports the older
 `shadow-deploy/**` branch flow for explicit operator builds. That workflow only
 builds the source image; the private mirror and apply are handled by infra.
+
+## Pulse Client Smoke
+
+The durable Pulse client package currently uses `/pulse/client` as its noindex
+browser smoke target. The full proof contract is documented in
+[`tinyland-pulse-durable-client-ci-shadow-2026-05-03.md`](./tinyland-pulse-durable-client-ci-shadow-2026-05-03.md).
+
+After a Pulse client branch deploys to the shared shadow route, smoke these from
+a tailnet-connected machine:
+
+```sh
+SHADOW="https://jesssullivan-blog-shadow.taila4c78d.ts.net"
+
+curl -fsSIL "$SHADOW/"
+curl -fsSIL "$SHADOW/pulse"
+curl -fsSIL "$SHADOW/pulse/lab"
+curl -fsSIL "$SHADOW/pulse/client"
+curl -fsSL "$SHADOW/data/pulse/public-snapshot.v1.json"
+```
+
+Browser validation for the client route stays in hosted GitHub Actions. Do not
+run Playwright locally.
