@@ -2,24 +2,43 @@
 
 Date: 2026-04-28
 
-Status: planning surface for post-M1 client development. Durable client-home decision recorded on 2026-05-02.
+Status: active planning surface for post-M1 client development. As of 2026-05-03, the temporary in-blog proof has completed local persistence, auth/device stubs, and media intent stubs. TIN-923 records the next durable-home decision: split production client authority before live broker writes.
 
 Related:
 
 - [Tinyland Pulse Lifecycle Architecture Spec](./tinyland-pulse-lifecycle-architecture-spec-2026-04-27.md)
 - [Tinyland Pulse Public-Data Policy](./tinyland-pulse-public-data-policy-2026-04-27.md)
+- [Tinyland Pulse Client Home Decision](./tinyland-pulse-client-home-decision-2026-05-03.md)
+- [PR #96 - TIN-918 Pulse client draft/outbox demo](https://github.com/Jesssullivan/jesssullivan.github.io/pull/96)
+- [PR #97 - TIN-920 Pulse client-home decision](https://github.com/Jesssullivan/jesssullivan.github.io/pull/97)
+- [PR #98 - TIN-919 Pulse client local persistence/retry](https://github.com/Jesssullivan/jesssullivan.github.io/pull/98)
+- [PR #100 - TIN-921 Pulse auth/device identity stubs](https://github.com/Jesssullivan/jesssullivan.github.io/pull/100)
+- [PR #101 - TIN-922 Pulse media intent stubs](https://github.com/Jesssullivan/jesssullivan.github.io/pull/101)
 
 ## Current Truth
 
-M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pulse`, and a hidden `/pulse/lab` composer. The lab composer is useful as a QA harness and design probe, but it is not a production client:
+M1 proves the lifecycle with `@blog/pulse-core`, a checked public snapshot, `/pulse`, and a hidden `/pulse/lab` composer. M2 now has a richer hidden `/pulse/client` proof, but that proof is still a static-blog review shell, not production write authority.
 
-- no durable drafts
-- no auth or device identity beyond fixture strings
-- no mutation API
-- no upload lifecycle
-- no offline outbox or retry model
-- no broker persistence
-- no real ActivityPub federation
+Landed M2 client slices:
+
+- `TIN-739` defined the Pulse M2 client API, identity, and sync contract.
+- `TIN-789` shipped the hidden `/pulse/client` scaffold on `main`.
+- `TIN-846` and child issues shipped the AP-shaped demo queue, broker, publisher, policy, hosted CI, shadow image, infra apply, and smoke path.
+- `TIN-918` / PR #96 promoted `/pulse/client` into a demoable draft/outbox workflow using `@blog/pulse-core`.
+- `TIN-920` / PR #97 allowed one more in-blog implementation slice before reopening the durable-home decision.
+- `TIN-919` / PR #98 added versioned local storage, draft/outbox persistence, and deterministic queued/retry states.
+- `TIN-921` / PR #100 added auth/device/session/display identity stubs.
+- `TIN-922` / PR #101 added media upload intent stubs, privacy lifecycle states, policy-result rendering, and serialization coverage.
+
+Latest hosted proof for TIN-922:
+
+- PR CI `25267906906`: success.
+- Shadow source image `25267906904`: success.
+- Private infra apply/smoke `25268044444`: success.
+- Pages `25268096111`: success.
+- Post-merge main CI `25268096107`: success, including hosted E2E full regression and Lighthouse.
+- Hosted E2E full regression reported 936 passed, 6 skipped.
+- No local Playwright was run.
 
 ## AP-Shaped Demo Publisher
 
@@ -44,38 +63,29 @@ The purpose is client/demo development velocity: reviewers can see how a Pulse n
 
 ## Client Surface Decision
 
-Real client development should happen as a separate client surface that consumes `@blog/pulse-core`. The in-blog `/pulse/lab` route should remain a noindex QA harness, policy preview, and smoke-test target.
+TIN-923 decides that durable Pulse client authority should split out of the static blog before live broker writes.
 
-That split keeps the static blog honest: it renders public projections and provides a reviewable demo, but it does not become the durable write client or broker authority by accident.
+The blog repo may keep `/pulse/client` as a noindex QA and demo route. It should not keep accumulating production authority. That route has done its job: it proved draft intent, local persistence, retry states, identity stubs, media lifecycle intent, broker preview, policy preview, and AP-shaped demo output against `@blog/pulse-core`.
 
-TIN-789 starts this as a hidden `/pulse/client` scaffold inside the blog repo rather than a separate package. That is a temporary client-development surface, not the final app home. It exists to prove the local draft, idempotency-key, broker-submit, policy-preview, and AP-shaped outbox flow against `@blog/pulse-core` before deciding whether the durable client becomes its own app/package.
+The durable split keeps the static blog honest:
 
-TIN-920 decides that TIN-919 should stay inside the blog repo's hidden `/pulse/client` surface for one more implementation slice. That is a scoped M2 development choice, not a production authority choice.
-
-The selected home for TIN-919 is:
-
-- `/pulse/client` remains the review shell for local draft persistence, idempotency, broker-submit preview, and retry-state UX.
-- Reusable non-UI logic should live behind `src/lib/pulse/client` boundaries, or move into `@blog/pulse-core` only when it is genuinely shared with other clients.
-- Browser persistence should sit behind a small adapter boundary so it can move into a standalone app/package later without rewriting the draft/outbox contract.
-- The static blog must not become the durable write authority, broker persistence owner, auth authority, upload lifecycle owner, or real federation worker.
-
-The rejected alternative for this slice is splitting immediately into a separate app/package. That split is still likely, but doing it before local persistence and retry semantics are proven would add repo, package, CI, shadow, and deployment surfaces before the client contract has enough shape to justify the extra ownership boundary.
-
-Reopen the split decision before auth/device identity, live broker mutation APIs, media upload lifecycle, or real ActivityPub delivery work.
-
-The division is:
-
-- `/pulse` renders the public snapshot.
+- `/pulse` renders public snapshots.
 - `/pulse/lab` remains the noindex QA harness and policy experiment surface.
-- `/pulse/client` is the noindex M2 client scaffold for draft/outbox UX.
+- `/pulse/client` remains the noindex M2 client scaffold for review and smoke coverage.
+- `@blog/pulse-core` owns shared schema, FSM, policy, in-memory broker, and demo publisher contracts.
+- A future Pulse client app/package owns product client UI, local/offline sync, and client runtime concerns.
+- A future broker service owns private append-only event truth, live mutation APIs, idempotency enforcement, durable retries, and projection jobs.
+- Future media workers own object storage, EXIF stripping, derivatives, and public media eligibility.
 - Real ActivityPub federation stays in the TIN-731 planning lane.
+
+The static blog must not become the durable write authority, broker persistence owner, auth authority, upload lifecycle owner, or real federation worker.
 
 ## M2 Contract Scope
 
-M2 should define these contracts before product-style client work accelerates:
+M2 has now proven these contracts far enough to justify the split:
 
 - Client API boundary for submitting draft events to the broker.
-- Auth and device identity semantics.
+- Stubbed auth and device identity semantics.
 - Local draft persistence and idempotency keys.
 - Outbox/sync/retry behavior for intermittent clients.
 - Policy preview response shape for "will this project publicly?" UX.
@@ -84,30 +94,45 @@ M2 should define these contracts before product-style client work accelerates:
 - Snapshot/read model consumption for public timeline rendering.
 - Compatibility boundary between `@blog/pulse-core` schemas and any generated proto client.
 
+## Immediate Queue
+
+TIN-923 created the split-path implementation queue:
+
+- `TIN-926` - scaffold durable Pulse client app/package consuming `@blog/pulse-core`.
+- `TIN-927` - define live Pulse broker mutation API and idempotency contract.
+- `TIN-928` - define Pulse auth and device identity authority boundary.
+- `TIN-929` - define Pulse media object-storage lifecycle and worker boundaries.
+- `TIN-930` - add hosted CI and shadow route for the durable Pulse client surface.
+- `TIN-731` - design real ActivityPub federation contract for Pulse after static projection MVP.
+
+The order should be decision first, client scaffold second, broker mutation boundary third. Auth/media authority should not be treated as form fields, and ActivityPub delivery should not ride along with the first live-write client slice.
+
 ## QA Gates
 
 The current QA baseline for client iteration is:
 
 - `npm run test:pulse-core`
-- `npx vitest run src/lib/components/pulse/PulseCards.test.ts src/lib/pulse/lab/compose.test.ts`
+- targeted Vitest for `src/lib/pulse/client` and Pulse component rendering
 - `npm run check`
+- `npm run lint`
 - PR CI smoke on the hosted GitHub Actions browser lane
 - post-merge full browser regression on `main`
 - shadow-route smoke before treating a branch as review-ready
+- production curl smoke after merge when Pages deploys
 
 Do not run Playwright locally. Browser validation for Pulse client work should stay on hosted CI and the tailnet shadow route so local development does not depend on local browser automation state.
 
 ## Audit Boundary
 
-`npm audit --omit=dev` currently reports production advisories concentrated in `packages/blog-agent` and its Agentuity/runtime transitive graph, including `@agentuity/runtime`, OpenTelemetry host metrics, `protobufjs`, `drizzle-orm`, `kysely`, `hono`, `effect`, `uuid`, `yaml`, and `defu`.
+`npm audit --omit=dev` previously reported production advisories concentrated in `packages/blog-agent` and its Agentuity/runtime transitive graph, including `@agentuity/runtime`, OpenTelemetry host metrics, `protobufjs`, `drizzle-orm`, `kysely`, `hono`, `effect`, `uuid`, `yaml`, and `defu`.
 
-Those findings should be tracked as a repo hardening surface, but they should not be treated as a static Pulse route blocker unless the affected code is shipped in the static blog artifact or client runtime.
+Those findings are tracked as repo hardening, but they should not be treated as static Pulse route blockers unless the affected code ships in the static blog artifact or client runtime.
 
-CI now enforces that split explicitly:
+CI enforces that split explicitly:
 
 - `npm run security:audit:static` blocks static blog/Pulse release confidence. It audits the root static app with workspaces disabled and audits `@blog/pulse-core` as the shared client/runtime contract package.
 - `npm run security:audit:blog-agent` audits `@blog/agent` separately as a report-only CI step until the Agentuity/runtime advisory graph has an owned remediation path.
 
 ## Explicit Non-Scope
 
-ActivityPub federation remains separate from M2 client readiness. The existing ActivityPub planning item should own actor lifecycle, inbox/outbox, signatures, delivery, retries, moderation, and compatibility testing.
+ActivityPub federation remains separate from M2 client readiness. TIN-731 owns actor lifecycle, inbox/outbox, signatures, delivery, retries, moderation, and compatibility testing.
