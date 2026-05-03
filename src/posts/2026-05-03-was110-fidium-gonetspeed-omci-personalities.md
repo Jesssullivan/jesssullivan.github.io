@@ -127,7 +127,7 @@ sequenceDiagram
     participant OLT as Nokia 7360 ISAM
     ONU->>OLT: PLOAM Serial_Number
     OLT->>ONU: PLOAM Assign_ONU-ID
-    Note over ONU,OLT: Activation OK; auth_status=0
+    Note over ONU,OLT: Activation OK, auth_status 0
     ONU->>OLT: PLOAM Ranging_Request
     OLT->>ONU: PLOAM Ranging_Time / Reply
     Note over ONU,OLT: PLOAM state O5.1 reached
