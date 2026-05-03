@@ -1,0 +1,27 @@
+{
+	"name": "@blog/pulse-client",
+	"version": "0.0.1",
+	"type": "module",
+	"private": true,
+	"description": "Tinyland Pulse durable client contract scaffold and local draft/outbox adapters.",
+	"exports": {
+		".": "./src/index.ts",
+		"./drafts": "./src/drafts.ts",
+		"./identity": "./src/identity.ts",
+		"./media": "./src/media.ts",
+		"./storage": "./src/storage.ts"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@blog/pulse-core": "0.0.1"
+	},
+	"devDependencies": {
+		"@types/node": "^25.2.3",
+		"typescript": "^5.9.3",
+		"vitest": "^4.1.4"
+	}
+}
