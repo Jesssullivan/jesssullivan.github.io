@@ -25,10 +25,6 @@ on:
         description: "Branch, tag, or SHA to publish to the shadow route"
         required: false
 
-concurrency:
-  group: blog-shadow-preview
-  cancel-in-progress: true
-
 permissions:
   contents: read
   packages: write
@@ -114,6 +110,9 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.deploy == 'true'
     runs-on: tinyland-dind
+    concurrency:
+      group: blog-shadow-preview
+      cancel-in-progress: true
     timeout-minutes: 35
     steps:
       - name: Require infra dispatch token
