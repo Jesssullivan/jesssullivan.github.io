@@ -2,6 +2,7 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { mdsvex, escapeSvelte } from 'mdsvex';
 import { createHighlighter } from 'shiki';
+import rehypeSlug from 'rehype-slug';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -109,6 +110,11 @@ const mdsvexOptions = {
 		}
 	},
 	rehypePlugins: [
+		// Auto-assign id="..." to headings so in-page anchor links
+		// (Index blocks at the top of a post) can target them. Uses
+		// github-slugger semantics: lowercase, whitespace -> '-',
+		// non-word chars stripped. Em-dash + spaces collapses to '--'.
+		rehypeSlug,
 		// Wrap local post images in <picture> with WebP source for responsive loading
 		() => (tree) => {
 			const visitImg = (node, parent) => {
