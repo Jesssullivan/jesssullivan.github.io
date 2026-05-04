@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { PulseClientOutboxItem } from './drafts';
+import type { PulseClientOutboxItem } from '../src/drafts';
 import {
 	PULSE_CLIENT_STORAGE_KEY,
 	createBrowserPulseClientStorageAdapter,
@@ -7,9 +7,9 @@ import {
 	createPulseClientPersistedState,
 	parsePulseClientPersistedState,
 	type PulseClientFormState,
-} from './storage';
-import { PULSE_CLIENT_DEFAULT_IDENTITY } from './identity';
-import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, createPulseClientMediaIntent } from './media';
+} from '../src/storage';
+import { PULSE_CLIENT_DEFAULT_IDENTITY } from '../src/identity';
+import { PULSE_CLIENT_DEFAULT_MEDIA_INTENT, createPulseClientMediaIntent } from '../src/media';
 
 const form: PulseClientFormState = {
 	sequence: 3,
@@ -50,8 +50,37 @@ const outboxItem: PulseClientOutboxItem = {
 	label: 'Bird sighting draft',
 	detail: 'queued locally; policy preview allows public projection',
 	eventId: 'preview_draft_3',
+	decision: {
+		allowed: true,
+		item: {
+			id: 'preview_draft_3',
+			kind: 'bird_sighting',
+			occurredAt: form.occurredAt,
+			summary: '2x Northern Cardinal',
+			content: '',
+			tags: ['client', 'birds'],
+			birdSighting: {
+				commonName: form.birdCommonName,
+				scientificName: form.birdScientificName,
+				count: form.birdCount,
+				placeLabel: form.birdPlaceLabel,
+			},
+		},
+	},
 	identity: form.identity,
 	mediaIntents: [form.mediaIntent],
+};
+
+const blockedOutboxItem: PulseClientOutboxItem = {
+	...outboxItem,
+	id: 'draft_3_preview_blocked',
+	state: 'draft_blocked',
+	detail: 'media=media_3',
+	decision: {
+		allowed: false,
+		reason: 'private_object_key_present',
+		detail: 'media=media_3',
+	},
 };
 
 const createFakeStorage = () => {
@@ -100,7 +129,7 @@ describe('pulse client storage', () => {
 		const storage = createBrowserPulseClientStorageAdapter(fakeStorage);
 		const state = createPulseClientPersistedState({
 			form,
-			outbox: [outboxItem],
+			outbox: [outboxItem, blockedOutboxItem],
 			savedAt: '2026-05-02T21:00:00.000Z',
 		});
 
@@ -134,6 +163,14 @@ describe('pulse client storage', () => {
 				savedAt: '2026-05-02T21:00:00.000Z',
 				form: { ...form, mediaIntent: { ...form.mediaIntent, lifecycle: 'invented' } },
 				outbox: [],
+			}),
+		).toBeNull();
+		expect(
+			parsePulseClientPersistedState({
+				schemaVersion: 'tinyland.pulse.client.v1',
+				savedAt: '2026-05-02T21:00:00.000Z',
+				form,
+				outbox: [{ ...outboxItem, decision: { allowed: false, reason: 'invented', detail: 'nope' } }],
 			}),
 		).toBeNull();
 
