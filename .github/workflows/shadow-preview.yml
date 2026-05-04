@@ -24,6 +24,10 @@ on:
       ref:
         description: "Branch, tag, or SHA to publish to the shadow route"
         required: false
+      source_runner:
+        description: "Runner for the public source image build"
+        required: false
+        default: "tinyland-dind"
 
 permissions:
   contents: read
@@ -34,6 +38,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
   DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
+  SOURCE_RUNNER: ${{ inputs.source_runner || vars.BLOG_SHADOW_SOURCE_RUNNER || 'tinyland-dind' }}
 
 jobs:
   resolve:
@@ -46,6 +51,7 @@ jobs:
       sha: ${{ steps.target.outputs.sha }}
       pr_number: ${{ steps.target.outputs.pr_number }}
       image_tag: ${{ steps.target.outputs.image_tag }}
+      source_runner: ${{ steps.target.outputs.source_runner }}
     steps:
       - name: Resolve active branch or PR
         id: target
@@ -61,6 +67,12 @@ jobs:
             let branch = "";
             let sha = "";
             let prNumber = "";
+            const sourceRunner = process.env.SOURCE_RUNNER || "tinyland-dind";
+            const allowedSourceRunners = new Set(["tinyland-dind", "ubuntu-latest"]);
+
+            if (!allowedSourceRunners.has(sourceRunner)) {
+              throw new Error(`Unsupported source runner ${sourceRunner}. Allowed: tinyland-dind, ubuntu-latest.`);
+            }
 
             if (eventName === "pull_request") {
               const pr = context.payload.pull_request;
@@ -104,12 +116,13 @@ jobs:
             core.setOutput("sha", sha);
             core.setOutput("pr_number", prNumber);
             core.setOutput("image_tag", imageTag);
+            core.setOutput("source_runner", sourceRunner);
 
   build:
     name: Build source image
     needs: resolve
     if: needs.resolve.outputs.deploy == 'true'
-    runs-on: tinyland-dind
+    runs-on: ${{ needs.resolve.outputs.source_runner }}
     concurrency:
       group: blog-shadow-preview
       cancel-in-progress: true
@@ -198,5 +211,6 @@ jobs:
             echo "- Branch: \`${{ needs.resolve.outputs.branch }}\`"
             echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
             echo "- PR: \`${{ needs.resolve.outputs.pr_number || 'manual' }}\`"
+            echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo "- Deploy repo: \`${DEPLOY_REPOSITORY}\`"
           } >> "$GITHUB_STEP_SUMMARY"
