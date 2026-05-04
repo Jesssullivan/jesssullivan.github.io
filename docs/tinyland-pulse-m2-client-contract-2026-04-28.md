@@ -10,6 +10,7 @@ Related:
 - [Tinyland Pulse Public-Data Policy](./tinyland-pulse-public-data-policy-2026-04-27.md)
 - [Tinyland Pulse Client Home Decision](./tinyland-pulse-client-home-decision-2026-05-03.md)
 - [Tinyland Pulse Broker Mutation API](./tinyland-pulse-broker-mutation-api-2026-05-03.md)
+- [Tinyland Pulse Auth and Device Authority](./tinyland-pulse-auth-device-authority-2026-05-03.md)
 - [PR #96 - TIN-918 Pulse client draft/outbox demo](https://github.com/Jesssullivan/jesssullivan.github.io/pull/96)
 - [PR #97 - TIN-920 Pulse client-home decision](https://github.com/Jesssullivan/jesssullivan.github.io/pull/97)
 - [PR #98 - TIN-919 Pulse client local persistence/retry](https://github.com/Jesssullivan/jesssullivan.github.io/pull/98)
@@ -101,7 +102,7 @@ TIN-923 created the split-path implementation queue:
 
 - `TIN-926` - scaffold durable Pulse client app/package consuming `@blog/pulse-core`.
 - `TIN-927` - define live Pulse broker mutation API and idempotency contract. The first live write boundary should preserve current `IngestInput`/`IngestOutcome` semantics while moving event id assignment, idempotency uniqueness, append-only event truth, and projection enqueue into durable broker storage.
-- `TIN-928` - define Pulse auth and device identity authority boundary.
+- `TIN-928` - define Pulse auth and device identity authority boundary. The rule is now explicit: client-submitted identity fields are claims or hints, while the broker edge must resolve trusted actor, device, session, and audit authority before accepting live writes.
 - `TIN-929` - define Pulse media object-storage lifecycle and worker boundaries.
 - `TIN-930` - add hosted CI and shadow route for the durable Pulse client surface.
 - `TIN-731` - design real ActivityPub federation contract for Pulse after static projection MVP.
