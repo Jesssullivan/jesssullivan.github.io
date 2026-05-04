@@ -70,14 +70,20 @@ Automatic flow:
 
 1. A same-repo PR against `main` is marked ready for review or updated while ready.
 2. `.github/workflows/shadow-preview.yml` resolves the PR branch and SHA.
-3. The workflow builds `Dockerfile.shadow` on `tinyland-dind`.
+3. The workflow builds `Dockerfile.shadow` on `tinyland-dind` by default.
 4. The workflow pushes the source image to `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
 5. The workflow dispatches `Jesssullivan/jesssullivan-infra`.
 6. Infra mirrors the artifact into the private operator package and applies the RustFS-backed stack.
 
 Draft PRs intentionally do not deploy automatically. A draft PR should show `Resolve preview target` passing and `Build source image` skipped. To publish a draft branch anyway, use the workflow's manual dispatch input with the branch or SHA and keep the result tied to the PR review note.
 
-Only one branch owns the shared shadow route at a time. The newest active shadow preview wins.
+Manual dispatch can override the public source-image runner to
+`ubuntu-latest` when the ARC source-image lane is unavailable. That is a source
+artifact fallback only; it does not replace the private infra mirror/apply/smoke
+proof.
+
+Only one branch owns the shared shadow route at a time. The newest active
+shadow preview wins.
 
 ## Source Artifact Shape
 

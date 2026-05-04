@@ -15,7 +15,8 @@ https://jesssullivan-blog-shadow.taila4c78d.ts.net
 branch to the shared shadow route.
 
 1. A same-repo, non-draft PR against `main` is opened, marked ready, or updated.
-2. The workflow builds `Dockerfile.shadow` on the `tinyland-dind` ARC runner.
+2. The workflow builds `Dockerfile.shadow` on the `tinyland-dind` ARC runner
+   by default.
 3. The workflow pushes the CI source artifact to
    `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
 4. The workflow dispatches `Jesssullivan/jesssullivan-infra` with the exact
@@ -23,9 +24,10 @@ branch to the shared shadow route.
 5. The private infra workflow mirrors that tag into the private operator
    package and applies the RustFS-backed OpenTofu stack.
 
-Only one branch owns the shared shadow route at a time. Workflow concurrency is
-`blog-shadow-preview` with `cancel-in-progress: true`, so the newest active PR
-branch wins.
+Only one branch owns the shared shadow route at a time. The source-image build
+job uses concurrency group `blog-shadow-preview` with `cancel-in-progress:
+true`, so the newest active PR branch wins without draft resolve-only runs
+canceling an in-flight deploy.
 
 Fork PRs and draft PRs are ignored. Branch pushes are covered by the PR
 `synchronize` event so the workflow does not create duplicate push and PR check
@@ -41,6 +43,15 @@ This public repo needs one secret:
 
 Cluster credentials, RustFS credentials, and private GHCR mirroring credentials
 stay in the private infra repo.
+
+## Runner Fallback
+
+The default source-image runner remains `tinyland-dind`; that is the real ARC
+proof for private-route preview builds. Manual dispatch also accepts
+`source_runner=ubuntu-latest` as a guarded fallback when the ARC source-image
+lane is unavailable. That fallback only proves the public source artifact build
+and dispatch. It does not prove private GHCR mirroring, RustFS-backed
+OpenTofu apply, or tailnet smoke; those remain private infra responsibilities.
 
 ## Manual Shadow Image Build
 
