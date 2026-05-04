@@ -38,6 +38,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
   DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
+  REQUESTED_REF: ${{ inputs.ref || '' }}
   SOURCE_RUNNER: ${{ inputs.source_runner || vars.BLOG_SHADOW_SOURCE_RUNNER || 'tinyland-dind' }}
 
 jobs:
@@ -88,7 +89,7 @@ jobs:
                 prNumber = String(pr.number);
               }
             } else if (eventName === "workflow_dispatch") {
-              const requestedRef = core.getInput("ref") || context.ref.replace(/^refs\/heads\//, "");
+              const requestedRef = process.env.REQUESTED_REF || context.ref.replace(/^refs\/heads\//, "");
               const commit = await github.rest.repos.getCommit({
                 owner,
                 repo,
