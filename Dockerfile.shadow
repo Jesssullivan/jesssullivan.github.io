@@ -54,7 +54,14 @@ FROM nginxinc/nginx-unprivileged:alpine AS runtime
 
 USER root
 COPY nginx.conf.shadow /etc/nginx/conf.d/default.conf
-RUN rm -f /etc/nginx/conf.d/default.conf.bak
+RUN apk upgrade --no-cache nghttp2-libs \
+    && installed="$(apk info -v nghttp2-libs | sed 's/^nghttp2-libs-//')" \
+    && fixed_min="1.68.1-r0" \
+    && if [ "$(apk version -t "${installed}" "${fixed_min}")" = "<" ]; then \
+        echo "nghttp2-libs ${installed} is below fixed minimum ${fixed_min}" >&2; \
+        exit 1; \
+    fi \
+    && rm -f /etc/nginx/conf.d/default.conf.bak
 
 USER nginx
 
