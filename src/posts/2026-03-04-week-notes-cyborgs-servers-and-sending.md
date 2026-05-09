@@ -1,15 +1,19 @@
 ---
 title: "Week Notes: Cyborgs, Servers, and Sending"
 date: "2026-03-04"
-description: "Bifurcation woes on a jumped-up Dell 7810, BCI goggles on my face, tcfs gets native macOS FileProvider support, Dhall eats Ansible for breakfast, and Tuesday sends."
+description: "Dell 7810 bifurcation woes, BCI goggles laced up, tcfs gets macOS FileProvider, 4k lines of Ansible replaced with Dhall, 5.13 top rope project, and Norwegian metal in the office."
 tags: ["weeknotes", "homelab", "bci", "xoxdwm", "tcfs", "dhall", "climbing", "metal", "reverse-engineering"]
 category: "personal"
 published: true
-feature_image: "/images/posts/IMG_2125.jpg"
 slug: "week-notes-cyborgs-servers-and-sending"
-excerpt: "Dell 7810 bifurcation woes, BCI goggles laced up, tcfs gets macOS FileProvider, 4k lines of Ansible replaced with Dhall, 5.13 top rope project, and Norwegian metal in the office."
+author_slug: "jesssullivan"
+feature_image: "/images/posts/IMG_2125.jpg"
+tinyland_projection: true
+tinyland_projection_snapshot: "jesssullivan-github-io-posts-pulse-static-2026-05-10"
+tinyland_projection_snapshot_hash_prefix: "sha256:3ff059b493f5"
+tinyland_projection_source: "content/users/jesssullivan/blog/week-notes-cyborgs-servers-and-sending.md"
+tinyland_projection_source_hash_prefix: "sha256:13a16d0211d9"
 ---
-
 ![Cyborg lab: goggles, server guts, drives](/images/posts/IMG_2125.jpg)
 
 ## Trash Computing

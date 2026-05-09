@@ -5,7 +5,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"prebuild": "tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/validate-pulse-snapshot.mts",
+		"prebuild": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/validate-pulse-snapshot.mts",
 		"build": "vite build",
 		"postbuild": "tsx scripts/generate-redirects.mts && pagefind --site build",
 		"test:redirects": "npm run build && tsx scripts/validate-redirects.mts",
@@ -14,7 +14,8 @@
 		"test:pulse-client": "npm run -w @blog/pulse-client test && npm run -w @blog/pulse-client typecheck",
 		"test:e2e": "playwright test",
 		"preview": "vite preview",
-		"check": "tsx scripts/generate-search-index.mts && tsx scripts/validate-pulse-snapshot.mts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/validate-pulse-snapshot.mts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"ingest:tinyland-posts": "tsx scripts/ingest-tinyland-posts.mts --adopt-reviewed",
 		"security:audit:static": "npm audit --omit=dev --workspaces=false && npm audit --omit=dev --workspace @blog/pulse-core && npm audit --omit=dev --workspace @blog/pulse-client",
 		"security:audit:blog-agent": "npm audit --omit=dev --workspace @blog/agent",
 		"lint": "eslint src/lib packages/blog-agent/src packages/blog-agent/test packages/pulse-core/src packages/pulse-core/test packages/pulse-client/src packages/pulse-client/test --max-warnings 0",

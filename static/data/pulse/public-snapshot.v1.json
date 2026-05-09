@@ -1,23 +1,35 @@
 {
 	"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
-	"generatedAt": "2026-04-27T17:00:00.000Z",
+	"generatedAt": "2026-05-10T13:00:00.000Z",
 	"items": [
 		{
-			"id": "evt_2",
+			"id": "tinyland-pulse-note-2026-05-10-001",
 			"kind": "note",
-			"occurredAt": "2026-04-26T09:12:00.000Z",
-			"summary": "Cardinals on the feeder before dawn.",
-			"content": "Cardinals on the feeder before dawn.",
+			"occurredAt": "2026-05-10T12:30:00.000Z",
+			"summary": "Static Pulse projection is now sourced from Tinyland review records.",
+			"content": "Static Pulse projection is now sourced from Tinyland review records.",
 			"tags": [
-				"birds",
-				"morning"
+				"tinyland",
+				"pulse",
+				"static-projection"
 			]
 		},
 		{
-			"id": "evt_4",
+			"id": "tinyland-pulse-note-2026-05-10-002",
+			"kind": "note",
+			"occurredAt": "2026-05-10T12:12:00.000Z",
+			"summary": "transscendsurvival.org stays a checked-in static consumer while the broker and delivery planes mature.",
+			"content": "transscendsurvival.org stays a checked-in static consumer while the broker and delivery planes mature.",
+			"tags": [
+				"transscendsurvival",
+				"static-spoke"
+			]
+		},
+		{
+			"id": "tinyland-pulse-bird-2026-05-10-001",
 			"kind": "bird_sighting",
-			"occurredAt": "2026-04-26T07:42:00.000Z",
-			"summary": "2× Northern Cardinal",
+			"occurredAt": "2026-05-10T11:42:00.000Z",
+			"summary": "2x Northern Cardinal",
 			"content": "",
 			"tags": [
 				"birds"
@@ -28,23 +40,13 @@
 				"count": 2,
 				"placeLabel": "Cayuga Lake basin"
 			}
-		},
-		{
-			"id": "evt_1",
-			"kind": "note",
-			"occurredAt": "2026-04-25T18:30:00.000Z",
-			"summary": "First fixture note from the M1 lab. Hello tinyland.",
-			"content": "First fixture note from the M1 lab. Hello tinyland.",
-			"tags": [
-				"lab"
-			]
 		}
 	],
 	"manifest": {
 		"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
-		"generatedAt": "2026-04-27T17:00:00.000Z",
-		"sourceSnapshotId": "pulse-core-fixtures-2026-04-27",
-		"contentHash": "sha256:e9bd3158a9546aa7577b6b9037b173ad3d9dd2303edbf6edcb36e0a99011f790",
+		"generatedAt": "2026-05-10T13:00:00.000Z",
+		"sourceSnapshotId": "tinyland-jesssullivan-pulse-static-seed-2026-05-10",
+		"contentHash": "sha256:fc3b04ec97946d6777e5245040b09a3ead296a9bf4614d0fea7df2d3cfb2ccb7",
 		"itemCount": 3,
 		"policyVersion": "m1-2026-04-27"
 	}

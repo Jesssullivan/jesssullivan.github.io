@@ -55,6 +55,10 @@ preview-only:
 validate-frontmatter:
     npx tsx scripts/validate-frontmatter.mts
 
+# Materialize reviewed Tinyland post projections into src/posts/*.md
+ingest-tinyland-posts:
+    npm run ingest:tinyland-posts
+
 # Type check with svelte-check
 check:
     npm run check

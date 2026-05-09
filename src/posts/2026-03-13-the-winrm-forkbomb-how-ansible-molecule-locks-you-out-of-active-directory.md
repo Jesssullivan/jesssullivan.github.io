@@ -3,14 +3,19 @@ title: "WinRM Quotas, Plugin Confusion, and Why PSRP Has Been the Answer Since 2
 date: "2026-03-13"
 description: "Bah!  WinRM has a hidden quota layer, some error messages lie, and the fix has been sitting in ansible-core since 2018."
 tags: ["ansible", "winrm", "molecule", "windows", "devops", "psrp", "active-directory"]
-published: true
 category: "devops"
+published: true
 slug: "winrm-quotas-hidden-plugin-layers-and-why-psrp-has-been-the-answer-since-2018"
+author_slug: "jesssullivan"
 feature_image: "/images/posts/winrm-forkbomb-flow.png"
 source_repo: "Jesssullivan/winrm-molecule-forkbomb-demo"
 source_path: "docs/forkbomb-mechanism.md"
+tinyland_projection: true
+tinyland_projection_snapshot: "jesssullivan-github-io-posts-pulse-static-2026-05-10"
+tinyland_projection_snapshot_hash_prefix: "sha256:3ff059b493f5"
+tinyland_projection_source: "content/users/jesssullivan/blog/winrm-quotas-hidden-plugin-layers-and-why-psrp-has-been-the-answer-since-2018.md"
+tinyland_projection_source_hash_prefix: "sha256:56a5c55505d2"
 ---
-
 ---
 
 
