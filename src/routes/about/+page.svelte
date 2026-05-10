@@ -14,8 +14,7 @@
 	let { data }: { data: PageData } = $props();
 
 	const ventures = [
-		{ name: 'Tinyland.dev, Inc', url: 'https://github.com/tinyland-inc', period: '2024\u2013Present', desc: 'Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped, source-available.' },
-		{ name: 'xoxd.ai', url: 'https://xoxd.ai', period: '2024\u2013Present', desc: 'ML/AI research arm of Tinyland. Bespoke SLM development, property-based testing of agent systems, multi-cloud federation research.' },
+		{ name: 'Tinyland, Inc', url: 'https://github.com/tinyland-inc', period: '2024\u2013Present', desc: 'Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate.' },
 		{ name: 'Columbari.us LLC', url: 'https://columbari.us', period: '2017\u20132021', desc: 'Independent Gov. contractor in GIS & ML.' },
 		{ name: 'Moonlight Coworking LLC', url: null, period: '2021\u20132024', desc: 'HPC hackerspace initiative in NY; shelved due to move to Maine.' },
 		{ name: 'Kitten Spit Labs', url: null, period: '2022\u2013Present', desc: 'Ultrasonic phantom network gel synthesis. Currently on mfg. pause.' },
@@ -81,6 +80,18 @@
 			]
 		},
 		{
+			label: 'Systems & Security',
+			projects: [
+				{ name: 'linux-xr', url: 'https://github.com/tinyland-inc/linux-xr', desc: 'Rocky Linux 10 RPM kernel lane with XR display patches and CVE backports' },
+				{ name: 'zig-crypto', url: 'https://github.com/Jesssullivan/zig-crypto', desc: 'Hashing, HMAC, AES-CBC, PBKDF2, ECDH, Ed25519, CSPRNG over a C ABI' },
+				{ name: 'zig-keychain', url: 'https://github.com/Jesssullivan/zig-keychain', desc: 'Generic secret storage with a portable C ABI' },
+				{ name: 'zig-ctap2', url: 'https://github.com/Jesssullivan/zig-ctap2', desc: 'CTAP2-over-USB-HID external authenticator support' },
+				{ name: 'zig-notify', url: 'https://github.com/Jesssullivan/zig-notify', desc: 'Cross-platform desktop notifications via a C ABI' },
+				{ name: 'oauth-mux', url: 'https://github.com/Jesssullivan/oauth-mux', desc: 'OAuth multiplexing in Zig' },
+				{ name: 'DarwinNicUtil', url: 'https://github.com/Jesssullivan/DarwinNicUtil', desc: 'OOB management / air-gapped NIC utility for institutional Macs' },
+			]
+		},
+		{
 			label: 'Web & Apps',
 			projects: [
 				{ name: 'tetrahedron', url: 'https://github.com/Jesssullivan/tetrahedron', desc: 'Mental health social service application' },
@@ -97,23 +108,30 @@
 	];
 
 	const fossContributions = [
-		{ name: 'Chapel', url: 'https://chapel-lang.org/' },
 		{ name: 'rspamd', url: 'https://rspamd.com/' },
-		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
-		{ name: 'Mason', url: 'https://github.com/chapel-lang/mason' },
-		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
-		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
-		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
-		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
+		{ name: 'numtide/nix-vm-test', url: 'https://github.com/numtide/nix-vm-test' },
+		{ name: 'manaflow-ai/cmux', url: 'https://github.com/manaflow-ai/cmux' },
+		{ name: 'diku-dk/Futhark', url: 'https://github.com/diku-dk/futhark' },
 		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy' },
-		{ name: 'fft.js', url: 'https://github.com/nicbarker/fft.js' },
 		{ name: 'libdns', url: 'https://github.com/libdns/libdns' },
-		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
-		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
 		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms' },
+		{ name: 'Mason', url: 'https://github.com/chapel-lang/mason' },
 		{ name: 'Klipper', url: 'https://github.com/Klipper3d/klipper' },
-		{ name: 'Liqo', url: 'https://liqo.io/' },
 		{ name: 'Joplin', url: 'https://joplinapp.org/' },
+		{ name: 'fft.js', url: 'https://github.com/nicbarker/fft.js' },
+		{ name: 'Chapel', url: 'https://chapel-lang.org/' },
+		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
+		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
+		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
+		{ name: 'NixOS/nixpkgs', url: 'https://github.com/NixOS/nixpkgs' },
+		{ name: 'shikijs', url: 'https://github.com/shikijs/shiki' },
+		{ name: 'charmbracelet', url: 'https://github.com/charmbracelet' },
+		{ name: 'ggplot2', url: 'https://github.com/tidyverse/ggplot2' },
+		{ name: 'Liqo', url: 'https://liqo.io/' },
+		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
+		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
+		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
+		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
 	];
 
 	function badgeUrl(text: string, color: string, opts?: { logo?: string; style?: string; emoji?: string }): string {
