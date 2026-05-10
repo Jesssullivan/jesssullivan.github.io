@@ -59,6 +59,37 @@ OpenTofu apply, or tailnet smoke; those remain private infra responsibilities.
 `shadow-deploy/**` branch flow for explicit operator builds. That workflow only
 builds the source image; the private mirror and apply are handled by infra.
 
+## Cloudflare Pages Shadow
+
+`.github/workflows/cloudflare-pages-shadow.yml` builds the same static
+SvelteKit output and can publish it to Cloudflare Pages by Direct Upload.
+
+This is a shadow lane for moving `transscendsurvival.org` toward the Tinyland
+static-spoke edge posture. It does not cut over DNS, replace GitHub Pages
+production, or add live Tinyland broker fallback behavior.
+
+Required repository secrets:
+
+| Secret | Purpose |
+|---|---|
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account that owns the Pages project |
+| `CLOUDFLARE_API_TOKEN` | Token with Cloudflare Pages edit/deploy access |
+
+Optional repository variable:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CLOUDFLARE_PAGES_PROJECT_NAME` | `transscendsurvival-org` | Cloudflare Pages project name |
+
+PRs and missing-credential runs build and validate the static site, then skip
+the Cloudflare deploy with an explicit notice. Manual dispatch accepts
+`require_deploy=true` when the operator wants missing credentials to fail
+instead of skip.
+
+Keep GitHub Pages as production until the Cloudflare deploy URL, TLS, route
+smoke, and rollback notes are proven. Browser validation remains in GitHub
+Actions or an approved remote lane. Do not run local Playwright for this slice.
+
 ## Pulse Client Smoke
 
 The durable Pulse client package currently uses `/pulse/client` as its noindex
