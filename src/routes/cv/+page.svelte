@@ -1,5 +1,18 @@
 <script lang="ts">
-	let activeTab = $state<'cv' | 'resume'>('cv');
+	import { onMount } from 'svelte';
+
+	type ActiveTab = 'cv' | 'resume';
+
+	let activeTab = $state<ActiveTab>('cv');
+	let hydrated = $state(false);
+
+	function setActiveTab(tab: ActiveTab): void {
+		activeTab = tab;
+	}
+
+	onMount(() => {
+		hydrated = true;
+	});
 </script>
 
 <svelte:head>
@@ -23,11 +36,13 @@
 	<div class="flex items-center gap-2 mb-6">
 		<button
 			class="btn text-sm {activeTab === 'cv' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
-			onclick={() => activeTab = 'cv'}
+			disabled={!hydrated}
+			onclick={() => setActiveTab('cv')}
 		>Full CV</button>
 		<button
 			class="btn text-sm {activeTab === 'resume' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
-			onclick={() => activeTab = 'resume'}
+			disabled={!hydrated}
+			onclick={() => setActiveTab('resume')}
 		>Resume</button>
 	</div>
 
