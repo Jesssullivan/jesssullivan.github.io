@@ -11,11 +11,15 @@
 %------------------------------------------------------------------------------
 % PACKAGES
 %------------------------------------------------------------------------------
+\PassOptionsToPackage{hyphens}{url}
 \usepackage[margin=0.65in, top=0.5in, bottom=0.6in]{geometry}
 \usepackage{fontspec}
 \usepackage{titlesec}
 \usepackage{titletoc}
 \usepackage{hyperref}
+\usepackage{xurl}
+\setlength{\emergencystretch}{2em}
+\Urlmuskip=0mu plus 1mu\relax
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
@@ -119,7 +123,7 @@
 }
 
 \newcommand{\tech}[1]{\texttt{\small\color{secondary}#1}}
-\newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}\underline{#2}}}
+\newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}#2}}
 
 %------------------------------------------------------------------------------
 % DOCUMENT START
@@ -140,7 +144,7 @@
     
     \vspace{0.4em}
     
-    {\color{muted} Agent Orchestration \quad$\cdot$\quad Computer Vision \quad$\cdot$\quad Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad ML/HPC}
+    {\color{muted} Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad Kernel \& Systems Research \quad$\cdot$\quad ML/HPC}
     
     \vspace{0.4em}
     
@@ -184,7 +188,10 @@ Zig, Go, C\# & MLOps \& model evaluation & Realtime \& time-series pipelines \\
 %--- Full Stack Contracting & FOSS ---
 \role{Full Stack Contracting and FOSS}{Ongoing}
 
-Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation} (Solr web security), \textbf{rspamd}, \textbf{Chapel-lang}, \textbf{Caddy}/xcaddy, \textbf{libdns}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), \textbf{Liqo} (K8s topology fabric, used by CERN), \textbf{Budgie DE}, \textbf{Mason}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
+Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \textbf{svelte-superforms}, \textbf{Mason} (Chapel package registry), \textbf{Klipper}, \textbf{Joplin}, and \textbf{FFT.js}. Long-term member and supporter of \textbf{Chapel-lang}, \textbf{Skeleton UI}, \textbf{KeePassXC}, \textbf{qutebrowser}, \textbf{NixOS}/nixpkgs, \textbf{shikijs}, \textbf{charmbracelet}, \textbf{ggplot2}, \textbf{Liqo}, \textbf{Budgie DE}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), and the \textbf{Apache Foundation}.
+
+\vspace{0.3em}
+\noindent\textit{\color{muted}Selected open source:} \textbf{hiberpower-ntfs} (NVMe FTL recovery research), \textbf{tummycrypt} (encrypted file sync), \textbf{oauth-mux} (Zig OAuth multiplexing), \textbf{DarwinNicUtil} (institutional Mac OOB management), \textbf{quickchpl} (property-based testing for Chapel), \textbf{pixelwise-research} (Futhark/WebGPU glyph compositor).
 
 \begin{itemize}
     \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
@@ -202,9 +209,11 @@ Ongoing contributor and community member of numerous open source projects includ
 \vspace{0.3em}
 \noindent\textit{\color{muted}Research:}
 \begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{Zig} --- firmware RE and NVMe controller recovery via USB bridge XRAM injection (\S\ref{sec:publications}). 5,400 LOC Zig tool for bypassing ASMedia ASM2362 opcode whitelists.
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{ILSpy}, \tech{Mitre Caldera}, \tech{Zig}. Firmware RE and NVMe controller recovery via USB bridge XRAM injection (5{,}400 LOC Zig tool, see \S\ref{sec:publications}).
+    \item \textbf{Zig capability libraries} (C ABI surfaces, cross-platform): \tech{zig-crypto} (hashing, HMAC, AES-CBC, PBKDF2, P-256 ECDH, Ed25519, CSPRNG), \tech{zig-notify}, \tech{zig-keychain} (secret storage), \tech{zig-ctap2} (CTAP2 over USB HID).
+    \item \textbf{linux-xr} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports (\cvlink{https://github.com/tinyland-inc/linux-xr}{tinyland-inc/linux-xr}). Backported \textbf{CVE-2026-31431} (Copy Fail), \textbf{CVE-2026-43284} (Dirty Frag ESP), and \textbf{CVE-2026-43500} (Dirty Frag RxRPC) into 6.1.y roughly 25 hours before public disclosure. Reproducibly built and signed.
     \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
+    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research. \tech{Rust} (SIMD), \tech{Nix} (build systems).
 \end{itemize}
 
 \vspace{0.4em}
@@ -267,15 +276,9 @@ Led 501(c)(3) makerspace through rapid growth; coached hundreds via ``Fusion 360
 \section{Business Ventures}
 \label{sec:ventures}
 
-\role{Tinyland.dev, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
+\role{Tinyland, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
 
-Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; targeting source-available / zlib dual licensing.
-
-\vspace{0.2em}
-\noindent\textit{\color{muted}Scope:} 5 bespoke SLMs, 100+ autonomously callable tools, full IaC lifecycle coverage via a multicloud harness. Horizontal scaling with Chapel-based parallelism. Kubernetes-native architecture with Liqo-based multicloud topology.
-
-\vspace{0.2em}
-\noindent\textit{\color{muted}xoxd.ai} --- ML/AI research arm. Bespoke SLM development, property-based testing of agent systems, and multi-cloud federation research. Chapel, Python, Go.
+Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate.
 
 \vspace{0.3em}
 
@@ -291,7 +294,7 @@ Reitsma, L.R., Burns, C., \& \textbf{Sullivan, J.} (2019). \textit{Poecile atric
 
 \vspace{0.3em}
 
-\textbf{Sullivan, J.} (2026). Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist. \cvlink{https://transscendsurvival.org/papers/recovery-paper.pdf}{transscendsurvival.org/papers/recovery-paper.pdf}
+\textbf{Sullivan, J.} (2026). Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist. \cvlink{https://transscendsurvival.org/papers/recovery-paper.pdf}{recovery-paper.pdf}
 
 \vspace{0.4em}
 \noindent\textit{\color{muted}Presentations:}
