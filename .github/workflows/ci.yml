@@ -104,6 +104,7 @@ jobs:
           e2e/card-enhancement.spec.ts
           e2e/pulse-lab.spec.ts
           e2e/pulse-client.spec.ts
+          e2e/pulse-brokered-stream.spec.ts
         continue-on-error: false
 
       - name: E2E full regression
