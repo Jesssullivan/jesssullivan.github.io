@@ -120,6 +120,14 @@
     "post_title": "XRAM Injection: Bypassing USB Bridge Whitelists to Recover NVMe Drives"
   },
   {
+    "src": "/images/posts/IMG_2147.jpg",
+    "webp": "/images/posts/IMG_2147.webp",
+    "width": 1200,
+    "height": 1116,
+    "post_slug": "week-notes-indeterminism-passkeys-and-spring",
+    "post_title": "Week Notes: Indeterminism, Passkeys, and Spring"
+  },
+  {
     "src": "/images/posts/img_2209.jpg",
     "webp": "/images/posts/img_2209.webp",
     "width": 1200,
@@ -540,14 +548,6 @@
     "webp": "/images/posts/IMG_1221-Edit.webp",
     "width": 920,
     "height": 613,
-    "post_slug": null,
-    "post_title": null
-  },
-  {
-    "src": "/images/posts/IMG_2147.jpg",
-    "webp": "/images/posts/IMG_2147.webp",
-    "width": 1200,
-    "height": 1116,
     "post_slug": null,
     "post_title": null
   },

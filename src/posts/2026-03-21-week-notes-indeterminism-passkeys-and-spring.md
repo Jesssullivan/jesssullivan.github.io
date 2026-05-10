@@ -1,15 +1,19 @@
 ---
 title: "Week Notes: Indeterminism, Passkeys, and Spring"
 date: "2026-03-21"
-description: "Now that determinism governs my personal computing life, I've gotten fascinated by *indeterminism*, lol. Also: cmux FIDO2 patches, qutebrowser lab builds, Neo teletype, 20km on legs, and doh!  The BCI rack idles at 4kWh, probably should do somthing about that"
+description: "Determinism begets fascination with indeterminism. FIDO2 work for cmux, qutebrowser & keepassxc, a 2026 teletype, 20km spring run, lead climbing, and the BCI server rack draws a concerning 4kWh at idle."
 tags: ["weeknotes", "foss", "indeterminism", "nix", "cmux", "qutebrowser", "fido2", "ambienttalk", "climbing", "bci", "promise-theory", "music", "jazz", "metal"]
 category: "personal"
 published: true
 slug: "week-notes-indeterminism-passkeys-and-spring"
-excerpt: "Determinism begets fascination with indeterminism. FIDO2 work for cmux, qutebrowser & keepassxc, a 2026 teletype, 20km spring run, lead climbing, and the BCI server rack draws a concerning 4kWh at idle."
+author_slug: "jesssullivan"
 feature_image: "/images/posts/IMG_2147.jpg"
+tinyland_projection: true
+tinyland_projection_snapshot: "jesssullivan-github-io-posts-pulse-static-2026-05-10"
+tinyland_projection_snapshot_hash_prefix: "sha256:3ff059b493f5"
+tinyland_projection_source: "content/users/jesssullivan/blog/week-notes-indeterminism-passkeys-and-spring.md"
+tinyland_projection_source_hash_prefix: "sha256:24ec8400456e"
 ---
-
 ![Spring grilling and stuff](/images/posts/IMG_2147.jpg)
 
 The grill is out for first-of-the-spring burgers and I spotted my first groundhog of the year peeking out this morning. Spring is real- also happy belated (ie, right on time) st. Patricks day dear reader, from a real life Sullivan ^w^  *corned beef curtesy of my lovely partner*
@@ -54,4 +58,4 @@ Iterating on some similar work in the keepassxc codebase as well.
 
 Basically, this passkey work has been somewhat spurred on because I picked up the new Apple [Neo](https://www.apple.com/macbook-neo/) to serve as a dedicated "teletype" for the wide array of servers in the basement in which (and on which, in the case of the BCI server) I do my work, contracting and projects.  As is tradition, all my widgets have been ceremoniously velcroed to this little macbook- between cmux, qutebrowser and my nix-based intellij gateway setup the little screen is all I need.  FIDO2 support makes it way easier to traverse orgs / glab instances / signing keys / this key store or that keystore / this server or that server etc.  
 
-As far as the Neo goes, I'll begrudgingly say is a genuinely pleasant experience, total AlphaSmart vibes.  Just a terminal multiplexer with a good screen, a new battery, a good keyboard and a slab of velcro with little keys, two SDRs, 2 KVMs, 3 keystores, 3 hardware keys and a few adapters.  
+As far as the Neo goes, I'll begrudgingly say is a genuinely pleasant experience, total AlphaSmart vibes.  Just a terminal multiplexer with a good screen, a new battery, a good keyboard and a slab of velcro with little keys, two SDRs, 2 KVMs, 3 keystores, 3 hardware keys and a few adapters.
