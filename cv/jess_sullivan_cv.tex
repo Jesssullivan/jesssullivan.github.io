@@ -249,10 +249,13 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
 \section{Full Stack Contracting and FOSS}
 \label{sec:foss}
 
-Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \textbf{svelte-superforms}, \textbf{Mason} (Chapel package registry), \textbf{Klipper}, \textbf{Joplin}, and \textbf{FFT.js}. Long-term member and supporter of \textbf{Chapel-lang}, \textbf{Skeleton UI}, \textbf{KeePassXC}, \textbf{qutebrowser}, \textbf{NixOS}/nixpkgs, \textbf{shikijs}, \textbf{charmbracelet}, \textbf{ggplot2}, \textbf{Liqo}, \textbf{Budgie DE}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), and the \textbf{Apache Foundation}.
+Contributor across \cvlink{https://github.com/jesssullivan}{github.com/jesssullivan} and \cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc} --- recent and ongoing work in \textbf{rspamd}, \textbf{numtide}, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \textbf{svelte-superforms}, \cvlink{https://github.com/chapel-lang/mason}{Mason}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \cvlink{https://chapel-lang.org/}{Chapel-lang}, \cvlink{https://skeleton.dev/}{Skeleton UI}, \textbf{KeePassXC}, \textbf{qutebrowser}, \textbf{NixOS/nixpkgs}, \textbf{shikijs}, \textbf{charmbracelet}, \textbf{ggplot2}, \textbf{Liqo}, \textbf{Budgie DE}, the \textbf{Rocky Enterprise Linux Foundation}, and the \textbf{Apache Foundation}.
 
 \vspace{0.5em}
-\noindent\textit{\color{muted}Selected open source:} \textbf{hiberpower-ntfs} (NVMe FTL recovery research), \textbf{tummycrypt} (encrypted file sync), \textbf{oauth-mux} (Zig OAuth multiplexing), \textbf{DarwinNicUtil} (institutional Mac OOB management), \textbf{quickchpl} (property-based testing for Chapel), \textbf{pixelwise-research} (Futhark/WebGPU glyph compositor).
+\noindent\textit{\color{muted}Polyglot by appetite, not novelty} --- 10+ years in \textbf{Python}, \textbf{TypeScript}, \textbf{R}, \textbf{C++}, \textbf{Shell}, and Linux systems; multi-year ongoing work in \textbf{Chapel}, \textbf{Haskell}, \textbf{Go}, \textbf{Zig}, and \textbf{Rust}.
+
+\vspace{0.5em}
+\noindent\textit{\color{muted}Daily stack:} \tech{podman}, \tech{postgres}, \tech{redis}, \tech{justfile}, \tech{sops+age}, \cvlink{https://github.com/tinyland-inc/tinyland-kdbx}{\tech{kdbx}}, \cvlink{https://github.com/tinyland-inc/bazel-registry}{\tech{Bazel}}, \tech{OpenTofu}.
 
 \begin{itemize}
     \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
@@ -274,11 +277,11 @@ Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{ma
 \noindent\textit{\color{muted}Research:}
 
 \begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{ILSpy}, \tech{Mitre Caldera}, \tech{Zig} --- firmware RE and NVMe controller recovery via USB bridge XRAM injection (see \S\ref{sec:publications}). 5,400 LOC open-source Zig tool for bypassing ASMedia ASM2362 opcode whitelists to recover write-protected NVMe SSDs over USB.
-    \item \textbf{Zig capability libraries} with C ABI surfaces and cross-platform builds: \tech{zig-crypto} (hashing, HMAC, AES-CBC, PBKDF2, P-256 ECDH, Ed25519, CSPRNG), \tech{zig-notify} (desktop notifications), \tech{zig-keychain} (generic secret storage), \tech{zig-ctap2} (CTAP2 over USB HID). A boring native boundary that audits, cross-compiles, and calls from anything that speaks C.
-    \item \textbf{linux-xr} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports (\cvlink{https://github.com/tinyland-inc/linux-xr}{tinyland-inc/linux-xr}). Backported \textbf{CVE-2026-31431} (Copy Fail), \textbf{CVE-2026-43284} (Dirty Frag ESP), and \textbf{CVE-2026-43500} (Dirty Frag RxRPC) into 6.1.y roughly 25 hours before public disclosure. Reproducibly built and signed.
-    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language) --- exploring GPU-accelerated workloads and deeper WASM integration for inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems). With years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox), 2026 may be my first year of learning Rust in earnest.
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/tinyland-inc/caldera.tinyland.dev}{Caldera}. NVMe controller recovery via USB bridge XRAM injection on \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs}{hiberpower-ntfs}; institutional Mac OOB tooling on \cvlink{https://github.com/Jesssullivan/DarwinNicUtil}{DarwinNicUtil}.
+    \item \textbf{Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}}, \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}}, \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}}, \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}}. A small native boundary that audits, cross-compiles, and calls from anything that speaks C.
+    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports. Backported \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-31431}{\textbf{CVE-2026-31431}}, \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-43284}{\textbf{CVE-2026-43284}}, and \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-43500}{\textbf{CVE-2026-43500}} into 6.1.y ahead of public disclosure.
+    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} --- GPU-accelerated workloads and deeper WASM integration for inference pipelines.
+    \item \textbf{Functional Programming:} ESDT Monads and \cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise} classification research. \tech{Rust} (SIMD), \tech{Nix}, property-based testing in \cvlink{https://github.com/Jesssullivan/quickchpl}{quickchpl}. With years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox), 2026 may be my first year of learning Rust in earnest.
 \end{itemize}
 
 %==============================================================================
@@ -349,7 +352,7 @@ Reitsma, L.R., Burns, C., \& \textbf{Sullivan, J.} (2019). \textit{Poecile atric
 \textbf{Sullivan, J.} (2026). Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist. \cvlink{https://transscendsurvival.org/papers/recovery-paper.pdf}{recovery-paper.pdf}
 
 \vspace{0.3em}
-\noindent Novel technique for recovering firmware write-protected NVMe SSDs over USB by injecting NVMe Submission Queue entries directly into the ASMedia ASM2362 bridge controller's internal XRAM via vendor SCSI commands, bypassing the bridge's opcode whitelist. Open-source tool implemented in approximately 5,400 lines of Zig with 26 unit tests. Demonstrated successful recovery of a Phison PS5012-E12 based SSD from permanent silent-write-failure mode using Sanitize Block Erase via XRAM injection and PCIe TLP doorbell signaling.
+\noindent Novel technique for recovering firmware write-protected NVMe SSDs over USB by injecting NVMe Submission Queue entries directly into the ASMedia ASM2362 bridge controller's internal XRAM via vendor SCSI commands, bypassing the bridge's opcode whitelist. Demonstrated successful recovery of a Phison PS5012-E12 based SSD from permanent silent-write-failure mode using Sanitize Block Erase via XRAM injection and PCIe TLP doorbell signaling.
 
 \vspace{1em}
 \subsection{Presentations}
@@ -358,11 +361,6 @@ Reitsma, L.R., Burns, C., \& \textbf{Sullivan, J.} (2019). \textit{Poecile atric
 
 \vspace{0.3em}
 \noindent Presented community-driven GIS mapping and Photovoice methods for youth recreation access in New Hampshire, alongside avian field research tools built with R, Shiny, and GDAL for KML/CSV/SHP data conversion and centroid analysis of banded bird territories. Work conducted in collaboration with the National Park Service, Foundation for Healthy Communities, GPRED, and Northern Border Regional Commission.
-
-\vspace{0.8em}
-\subsection{Research Repositories}
-
-\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research} --- ESDT Monads and pixelwise classification research.
 
 %==============================================================================
 \newpage

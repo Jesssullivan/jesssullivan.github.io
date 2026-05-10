@@ -144,7 +144,7 @@
     
     \vspace{0.4em}
     
-    {\color{muted} Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad Kernel \& Systems Research \quad$\cdot$\quad ML/HPC}
+    {\color{muted} Full Stack Engineer \quad$\cdot$\quad DevSecOps \quad$\cdot$\quad Computer Vision \quad$\cdot$\quad Kernel \& Security Research \quad$\cdot$\quad ML/HPC}
     
     \vspace{0.4em}
     
@@ -168,12 +168,12 @@
 \vspace{-0.3em}
 \begin{center}
 \footnotesize
-\begin{tabular}{@{}l@{\hspace{1.2em}}l@{\hspace{1.2em}}l@{}}
-\textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
-Python (10+ yrs, enterprise) & Fine-grained classification & CI/CD pipelines (expert) \\
-TypeScript / SvelteKit (SOTA) & Horizontal parallelism in ML/AI & Kubernetes orchestration \\
-Chapel (expert), Haskell & WASM-native inference & Binary analysis (Ghidra, Frida) \\
-Zig, Go, C\# & MLOps \& model evaluation & Realtime \& time-series pipelines \\
+\begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{1em}}l@{\hspace{1em}}l@{}}
+\textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
+Python, Rust, Zig    & Fine-grained classification & GhidraScript                                                                            & \cvlink{https://nixos.org/}{Nix}, \cvlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
+TypeScript, Svelte   & TensorFlow, NUMA-aware      & Frida, ILSpy                                                                            & OpenTofu \\
+Chapel, Haskell, Go  & WASM-native inference       & Mitre \cvlink{https://github.com/tinyland-inc/caldera.tinyland.dev}{Caldera}            & k8s, RKE2 \\
+C++, R               & Horizontal parallelism      & \cvlink{https://github.com/tinyland-inc/saml}{SAML}, \cvlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, \cvlink{https://github.com/tinyland-inc/saml}{TOTP} & Ansible, GitLab \\
 \end{tabular}
 \end{center}
 
@@ -188,10 +188,13 @@ Zig, Go, C\# & MLOps \& model evaluation & Realtime \& time-series pipelines \\
 %--- Full Stack Contracting & FOSS ---
 \role{Full Stack Contracting and FOSS}{Ongoing}
 
-Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \textbf{svelte-superforms}, \textbf{Mason} (Chapel package registry), \textbf{Klipper}, \textbf{Joplin}, and \textbf{FFT.js}. Long-term member and supporter of \textbf{Chapel-lang}, \textbf{Skeleton UI}, \textbf{KeePassXC}, \textbf{qutebrowser}, \textbf{NixOS}/nixpkgs, \textbf{shikijs}, \textbf{charmbracelet}, \textbf{ggplot2}, \textbf{Liqo}, \textbf{Budgie DE}, the \textbf{Rocky Enterprise Linux Foundation} (Community Team, Kernel SIG, AltArch SIG), and the \textbf{Apache Foundation}.
+Contributor across \cvlink{https://github.com/jesssullivan}{github.com/jesssullivan} and \cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc} --- recent and ongoing work in \textbf{rspamd}, \textbf{numtide}, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \textbf{svelte-superforms}, \cvlink{https://github.com/chapel-lang/mason}{Mason}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \cvlink{https://chapel-lang.org/}{Chapel-lang}, \cvlink{https://skeleton.dev/}{Skeleton UI}, \textbf{KeePassXC}, \textbf{qutebrowser}, \textbf{NixOS/nixpkgs}, \textbf{shikijs}, \textbf{charmbracelet}, \textbf{ggplot2}, \textbf{Liqo}, \textbf{Budgie DE}, the \textbf{Rocky Enterprise Linux Foundation}, and the \textbf{Apache Foundation}.
 
 \vspace{0.3em}
-\noindent\textit{\color{muted}Selected open source:} \textbf{hiberpower-ntfs} (NVMe FTL recovery research), \textbf{tummycrypt} (encrypted file sync), \textbf{oauth-mux} (Zig OAuth multiplexing), \textbf{DarwinNicUtil} (institutional Mac OOB management), \textbf{quickchpl} (property-based testing for Chapel), \textbf{pixelwise-research} (Futhark/WebGPU glyph compositor).
+\noindent\textit{\color{muted}Polyglot by appetite, not novelty} --- 10+ years in \textbf{Python}, \textbf{TypeScript}, \textbf{R}, \textbf{C++}, \textbf{Shell}, and Linux systems; multi-year ongoing work in \textbf{Chapel}, \textbf{Haskell}, \textbf{Go}, \textbf{Zig}, and \textbf{Rust}.
+
+\vspace{0.3em}
+\noindent\textit{\color{muted}Daily stack:} \tech{podman}, \tech{postgres}, \tech{redis}, \tech{justfile}, \tech{sops+age}, \cvlink{https://github.com/tinyland-inc/tinyland-kdbx}{\tech{kdbx}}, \cvlink{https://github.com/tinyland-inc/bazel-registry}{\tech{Bazel}}, \tech{OpenTofu}.
 
 \begin{itemize}
     \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
@@ -209,11 +212,11 @@ Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{ma
 \vspace{0.3em}
 \noindent\textit{\color{muted}Research:}
 \begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{ILSpy}, \tech{Mitre Caldera}, \tech{Zig}. Firmware RE and NVMe controller recovery via USB bridge XRAM injection (5{,}400 LOC Zig tool, see \S\ref{sec:publications}).
-    \item \textbf{Zig capability libraries} (C ABI surfaces, cross-platform): \tech{zig-crypto} (hashing, HMAC, AES-CBC, PBKDF2, P-256 ECDH, Ed25519, CSPRNG), \tech{zig-notify}, \tech{zig-keychain} (secret storage), \tech{zig-ctap2} (CTAP2 over USB HID).
-    \item \textbf{linux-xr} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports (\cvlink{https://github.com/tinyland-inc/linux-xr}{tinyland-inc/linux-xr}). Backported \textbf{CVE-2026-31431} (Copy Fail), \textbf{CVE-2026-43284} (Dirty Frag ESP), and \textbf{CVE-2026-43500} (Dirty Frag RxRPC) into 6.1.y roughly 25 hours before public disclosure. Reproducibly built and signed.
-    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research. \tech{Rust} (SIMD), \tech{Nix} (build systems).
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/tinyland-inc/caldera.tinyland.dev}{Caldera}. NVMe controller recovery via USB bridge XRAM injection on \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs}{hiberpower-ntfs}; institutional Mac OOB tooling on \cvlink{https://github.com/Jesssullivan/DarwinNicUtil}{DarwinNicUtil}.
+    \item \textbf{Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}}, \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}}, \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}}, \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}}.
+    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports. Backported \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-31431}{\textbf{CVE-2026-31431}}, \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-43284}{\textbf{CVE-2026-43284}}, and \cvlink{https://nvd.nist.gov/vuln/detail/CVE-2026-43500}{\textbf{CVE-2026-43500}} into 6.1.y ahead of public disclosure.
+    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark}, deeper WASM integration and WASM-native inference pipelines.
+    \item \textbf{Functional Programming:} ESDT Monads and \cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise} classification research. \tech{Rust} (SIMD), \tech{Nix}, property-based testing in \cvlink{https://github.com/Jesssullivan/quickchpl}{quickchpl}.
 \end{itemize}
 
 \vspace{0.4em}
@@ -221,7 +224,7 @@ Ongoing contributor to \textbf{rspamd}, \textbf{numtide}/nix-vm-test, \textbf{ma
 %--- Systems Analyst ---
 \role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
 
-Scalable enterprise systems supporting staff, faculty, and ILS team. Legacy modernization; bespoke Ansible extensions/roles/plugins; 24/7 CVE mitigation; SAML and application interoperability; OpenTelemetry reporting; CI/CD pipelines (GitLab AutoDevOps, OpenTofu, RKE2 + Rancher); leading IaC adoption college-wide.
+Scalable enterprise systems supporting staff, faculty, and ILS team. Legacy modernization; bespoke Ansible extensions/roles/plugins; 24/7 CVE mitigation; SAML and application interoperability; OpenTelemetry reporting; CI/CD pipelines on GitLab AutoDevOps, OpenTofu, RKE2; leading IaC adoption college-wide.
 
 \subsubsection{Noteworthy projects:}
 \begin{itemize}
