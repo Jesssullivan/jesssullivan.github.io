@@ -47,9 +47,22 @@
 %------------------------------------------------------------------------------
 % FONTS
 %------------------------------------------------------------------------------
-\setmainfont{Latin Modern Roman}
-\setsansfont{Latin Modern Sans}
-\setmonofont{Latin Modern Mono}
+% Use Tectonic bundle filenames so builds do not depend on OS font registration.
+\setmainfont{lmroman10-regular.otf}[
+    BoldFont=lmroman10-bold.otf,
+    ItalicFont=lmroman10-italic.otf,
+    BoldItalicFont=lmroman10-bolditalic.otf
+]
+\setsansfont{lmsans10-regular.otf}[
+    BoldFont=lmsans10-bold.otf,
+    ItalicFont=lmsans10-oblique.otf,
+    BoldItalicFont=lmsans10-boldoblique.otf
+]
+\setmonofont{lmmono10-regular.otf}[
+    BoldFont=lmmonolt10-bold.otf,
+    ItalicFont=lmmono10-italic.otf,
+    BoldItalicFont=lmmonolt10-boldoblique.otf
+]
 
 %------------------------------------------------------------------------------
 % HYPERREF CONFIGURATION
@@ -171,9 +184,9 @@
 \begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{1em}}l@{\hspace{1em}}l@{}}
 \textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
 Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, \cvlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
-TypeScript, Rust      & TensorFlow on NUMA-aware systems     & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
-Zig, Chapel, Haskell  & Horizontal parallelism               & Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}                            & RKE2 (k8s) \\
-Go, C++, R, Shell     & WASM-native inference                & \cvlink{https://github.com/tinyland-inc/saml}{SAML}, \cvlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, \cvlink{https://github.com/tinyland-inc/saml}{TOTP} & GitLab AutoDevOps \\
+TypeScript, Rust      & TensorFlow, pandas                   & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
+Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}                            & RKE2 (k8s) \\
+Go, C++, R, Shell     & realtime evaluation \& inference     & \cvlink{https://github.com/Jesssullivan/caldera}{SAML}, \cvlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{TOTP} & GitLab AutoDevOps \\
 \end{tabular}
 \end{center}
 
@@ -188,7 +201,7 @@ Go, C++, R, Shell     & WASM-native inference                & \cvlink{https://g
 %--- Full Stack Contracting & FOSS ---
 \role{Full Stack Contracting and FOSS}{Ongoing}
 
-Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation}, \textbf{rspamd}, \textbf{Chapel-lang}, \textbf{numtide}/nix-vm-test, \textbf{manaflow-ai}/cmux, \textbf{diku-dk}/Futhark, \textbf{xCaddy}, \textbf{libdns}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation}, \textbf{Liqo}, \textbf{Budgie DE}, \textbf{Mason}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
+Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation}, \cvlink{https://github.com/rspamd/rspamd/pull/5923}{\textbf{rspamd}}, \textbf{Chapel-lang}, \cvlink{https://github.com/numtide/nix-vm-test/pull/172}{\textbf{numtide}/nix-vm-test}, \cvlink{https://github.com/manaflow-ai/cmux/pull/1877}{\textbf{manaflow-ai}/cmux}, \cvlink{https://github.com/diku-dk/futhark/pull/2365}{\textbf{diku-dk}/Futhark}, \cvlink{https://github.com/caddyserver/xcaddy/pull/238}{\textbf{xCaddy}}, \textbf{libdns}, \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{KeePassXC}, \tech{svelte-superforms}, the \textbf{Rocky Enterprise Linux Foundation}, \textbf{Liqo}, \textbf{Budgie DE}, \textbf{Mason}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
 
 \begin{itemize}
     \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
@@ -199,16 +212,16 @@ Ongoing contributor and community member of numerous open source projects includ
 \vspace{0.4em}
 \noindent\textit{\color{muted}Current stack:}
 \begin{itemize}
-    \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Proprietary SvelteKit libraries for fingerprinting, auth, mapping, telemetry.
+    \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Auth, scheduling, mapping, telemetry and site systems including \cvlink{https://github.com/Jesssullivan/jesssullivan.github.io}{this SvelteKit repo}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{\tech{tinyland-auth}}, \cvlink{https://github.com/Jesssullivan/scheduling-kit}{\tech{scheduling-kit}}, and \cvlink{https://github.com/Jesssullivan/scheduling-bridge}{\tech{scheduling-bridge}}.
     \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}. Performance-oriented systems and property-based testing.
 \end{itemize}
 
 \vspace{0.3em}
 \noindent\textit{\color{muted}Research:}
 \begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and NVMe controller recovery (see \S\ref{sec:publications}).
-    \item \textbf{Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}}, \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}}, \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}}, \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}}.
-    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and security backports. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
+    \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
+    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
     \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
     \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
 \end{itemize}
@@ -275,7 +288,7 @@ Led 501(c)(3) makerspace through rapid growth; coached hundreds via ``Fusion 360
 
 \role{Tinyland, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
 
-Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate.
+Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Package and IaC work spans \cvlink{https://github.com/tinyland-inc/GloriousFlywheel}{GloriousFlywheel}, \cvlink{https://github.com/tinyland-inc/blahaj}{blahaj}, \cvlink{https://github.com/tinyland-inc/lab}{lab}, and the \cvlink{https://github.com/tinyland-inc/bazel-registry/pull/42}{Tinyland Bazel registry}.
 
 \vspace{0.3em}
 

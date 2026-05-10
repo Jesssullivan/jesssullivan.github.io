@@ -13,6 +13,24 @@
 
 	let { data }: { data: PageData } = $props();
 
+	type FossProject = {
+		name: string;
+		url: string;
+		desc: string;
+		docsUrl?: string;
+		proofUrl?: string;
+	};
+
+	type FossCategory = {
+		label: string;
+		projects: FossProject[];
+	};
+
+	type FossContribution = {
+		name: string;
+		url: string;
+	};
+
 	const ventures = [
 		{ name: 'Tinyland, Inc', url: 'https://github.com/tinyland-inc', period: '2024\u2013Present', desc: 'Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate.' },
 		{ name: 'Columbari.us LLC', url: 'https://columbari.us', period: '2017\u20132021', desc: 'Independent Gov. contractor in GIS & ML.' },
@@ -54,20 +72,21 @@
 		},
 	];
 
-	const fossCategories = [
+	const fossCategories: FossCategory[] = [
 		{
 			label: 'Languages & Compilers',
 			projects: [
 				{ name: 'quickchpl', url: 'https://github.com/Jesssullivan/quickchpl', desc: 'Property-Based Testing for Chapel' },
-				{ name: 'RemoteJuggler', url: 'https://github.com/Jesssullivan/RemoteJuggler', desc: 'Multi-identity git credential resolver in Chapel' },
-				{ name: 'pixelwise-research', url: 'https://github.com/Jesssullivan/pixelwise-research', desc: 'WebGPU glyph compositor demo in Futhark' },
+				{ name: 'RemoteJuggler', url: 'https://github.com/Jesssullivan/remote-juggler', desc: 'Multi-identity git credential resolver in Chapel', docsUrl: 'https://transscendsurvival.org/remote-juggler/' },
+				{ name: 'pixelwise-research', url: 'https://github.com/Jesssullivan/pixelwise-research', desc: 'WebGPU glyph compositor demo in Futhark', proofUrl: 'https://github.com/Jesssullivan/pixelwise-research/pull/7' },
 			]
 		},
 		{
 			label: 'Infrastructure & DevOps',
 			projects: [
-				{ name: 'GloriousFlywheel', url: 'https://github.com/Jesssullivan/GloriousFlywheel', desc: 'Recursive IaC flywheel for GitLab' },
+				{ name: 'GloriousFlywheel', url: 'https://github.com/tinyland-inc/GloriousFlywheel', desc: 'Recursive IaC flywheel for GitLab', docsUrl: 'https://tinyland-inc.github.io/GloriousFlywheel/' },
 				{ name: 'Ansible-DAG-Harness', url: 'https://github.com/Jesssullivan/Ansible-DAG-Harness', desc: 'LangGraph DAG harness for Ansible iteration cycles' },
+				{ name: 'bazel-registry', url: 'https://github.com/tinyland-inc/bazel-registry', desc: 'Bazel Central Registry for @tummycrypt packages', proofUrl: 'https://github.com/tinyland-inc/bazel-registry/pull/42' },
 				{ name: 'searchies', url: 'https://github.com/Jesssullivan/searchies', desc: 'SearXNG infrastructure with Caddy & OpenTofu' },
 			]
 		},
@@ -83,11 +102,13 @@
 			label: 'Systems & Security',
 			projects: [
 				{ name: 'linux-xr', url: 'https://github.com/tinyland-inc/linux-xr', desc: 'Rocky Linux 10 RPM kernel lane with XR display patches and CVE backports' },
-				{ name: 'zig-crypto', url: 'https://github.com/Jesssullivan/zig-crypto', desc: 'Portable Zig crypto primitives with a stable C FFI' },
-				{ name: 'zig-keychain', url: 'https://github.com/Jesssullivan/zig-keychain', desc: 'Cross-platform keychain abstraction in Zig with C FFI' },
-				{ name: 'zig-ctap2', url: 'https://github.com/Jesssullivan/zig-ctap2', desc: 'CTAP2-over-USB-HID external authenticator support' },
-				{ name: 'zig-notify', url: 'https://github.com/Jesssullivan/zig-notify', desc: 'Cross-platform desktop notifications via a C ABI' },
+				{ name: 'zig-crypto', url: 'https://github.com/Jesssullivan/zig-crypto', desc: 'Portable Zig crypto primitives with a stable C FFI', docsUrl: 'https://transscendsurvival.org/zig-crypto/' },
+				{ name: 'zig-keychain', url: 'https://github.com/Jesssullivan/zig-keychain', desc: 'Cross-platform keychain abstraction in Zig with C FFI', docsUrl: 'https://transscendsurvival.org/zig-keychain/' },
+				{ name: 'zig-ctap2', url: 'https://github.com/Jesssullivan/zig-ctap2', desc: 'CTAP2-over-USB-HID external authenticator support', docsUrl: 'https://transscendsurvival.org/zig-ctap2/' },
+				{ name: 'zig-notify', url: 'https://github.com/Jesssullivan/zig-notify', desc: 'Cross-platform desktop notifications via a C ABI', docsUrl: 'https://transscendsurvival.org/zig-notify/' },
 				{ name: 'oauth-mux', url: 'https://github.com/Jesssullivan/oauth-mux', desc: 'OAuth multiplexing in Zig' },
+				{ name: 'tinyland-auth', url: 'https://github.com/tinyland-inc/tinyland-auth', desc: 'Production auth with TOTP, RBAC, and pluggable storage' },
+				{ name: 'tummycrypt', url: 'https://github.com/Jesssullivan/tummycrypt', desc: 'Encrypted file sync with TCFS auth and hydration proofs', proofUrl: 'https://github.com/Jesssullivan/tummycrypt/pull/356' },
 				{ name: 'DarwinNicUtil', url: 'https://github.com/Jesssullivan/DarwinNicUtil', desc: 'OOB management / air-gapped NIC utility for institutional Macs' },
 				{ name: 'caldera', url: 'https://github.com/Jesssullivan/caldera', desc: 'Local OpenTofu deployment of MITRE Caldera for Shibboleth/SAML hacking' },
 			]
@@ -95,6 +116,8 @@
 		{
 			label: 'Web & Apps',
 			projects: [
+				{ name: 'scheduling-bridge', url: 'https://github.com/Jesssullivan/scheduling-bridge', desc: 'Server-side Acuity migration bridge with async worker hardening', proofUrl: 'https://github.com/Jesssullivan/scheduling-bridge/pull/135' },
+				{ name: 'scheduling-kit', url: 'https://github.com/Jesssullivan/scheduling-kit', desc: 'Backend-agnostic scheduling system with adapter abstractions', proofUrl: 'https://github.com/Jesssullivan/scheduling-kit/pull/94' },
 				{ name: 'tetrahedron', url: 'https://github.com/Jesssullivan/tetrahedron', desc: 'Mental health social service application' },
 				{ name: 'timberbuddy', url: 'https://github.com/Jesssullivan/timberbuddy', desc: 'Control package for Amish sawmill robotics' },
 				{ name: 'FastPhotoAPI', url: 'https://github.com/Jesssullivan/FastPhotoAPI', desc: 'Flask image server with Lanczos resampling' },
@@ -108,19 +131,19 @@
 		},
 	];
 
-	const fossContributions = [
+	const fossContributions: FossContribution[] = [
 		{ name: 'Chapel', url: 'https://chapel-lang.org/' },
-		{ name: 'rspamd', url: 'https://rspamd.com/' },
-		{ name: 'numtide/nix-vm-test', url: 'https://github.com/numtide/nix-vm-test' },
-		{ name: 'manaflow-ai/cmux', url: 'https://github.com/manaflow-ai/cmux' },
-		{ name: 'diku-dk/Futhark', url: 'https://github.com/diku-dk/futhark' },
+		{ name: 'rspamd', url: 'https://github.com/rspamd/rspamd/pull/5923' },
+		{ name: 'numtide/nix-vm-test', url: 'https://github.com/numtide/nix-vm-test/pull/172' },
+		{ name: 'manaflow-ai/cmux', url: 'https://github.com/manaflow-ai/cmux/pull/1877' },
+		{ name: 'diku-dk/Futhark', url: 'https://github.com/diku-dk/futhark/pull/2365' },
 		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
 		{ name: 'Mason', url: 'https://github.com/chapel-lang/mason' },
 		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
 		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
 		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
 		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
-		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy' },
+		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy/pull/238' },
 		{ name: 'fft.js', url: 'https://github.com/nicbarker/fft.js' },
 		{ name: 'libdns', url: 'https://github.com/libdns/libdns' },
 		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
@@ -438,10 +461,22 @@
 			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-4 mb-2">{cat.label}</h4>
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
 				{#each cat.projects as proj}
-					<a href={proj.url} class="card p-4 hover:ring-2 ring-primary-500 transition-all" target="_blank" rel="noopener" aria-label={`Open project: ${proj.name}`}>
-						<h5 class="font-semibold">{proj.name}</h5>
-						<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
-					</a>
+					<div class="card p-4 hover:ring-2 ring-primary-500 transition-all">
+						<a href={proj.url} class="block" target="_blank" rel="noopener" aria-label={`Open project: ${proj.name}`}>
+							<h5 class="font-semibold">{proj.name}</h5>
+							<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
+						</a>
+						{#if proj.docsUrl || proj.proofUrl}
+							<div class="flex flex-wrap gap-2 mt-3">
+								{#if proj.docsUrl}
+									<a href={proj.docsUrl} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-all" aria-label={`Open documentation for ${proj.name}`}>docs</a>
+								{/if}
+								{#if proj.proofUrl}
+									<a href={proj.proofUrl} target="_blank" rel="noopener" class="badge preset-outlined-secondary-500 text-xs hover:preset-filled-secondary-500 transition-all" aria-label={`Open proof link for ${proj.name}`}>proof</a>
+								{/if}
+							</div>
+						{/if}
+					</div>
 				{/each}
 			</div>
 		{/each}
@@ -516,7 +551,7 @@
 			<a href="https://github.com/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitHub</a>
 			<a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a>
 			<a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a>
-			<a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland.dev</a>
+			<a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland</a>
 			<a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a>
 			<a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a>
 			<a href="/aag" class="text-primary-500 hover:underline">AAG 2019 Poster</a>
