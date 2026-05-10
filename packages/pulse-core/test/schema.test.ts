@@ -2,8 +2,11 @@ import { describe, it, expect } from 'vitest';
 import {
 	PulseEventSchema,
 	PublicPulseSnapshotSchema,
+	PulseApStreamDemoSchema,
 	PUBLIC_SNAPSHOT_SCHEMA_VERSION,
 	PUBLIC_SNAPSHOT_POLICY_VERSION,
+	PULSE_AP_STREAM_DEMO_SCHEMA_VERSION,
+	PULSE_AP_STREAM_DEMO_STATUS,
 	NotePayloadSchema,
 	PayloadSchema,
 	type PulseEvent,
@@ -144,5 +147,60 @@ describe('schema/snapshot', () => {
 			manifest: { ...validSnapshot.manifest, itemCount: 1 },
 		};
 		expect(PublicPulseSnapshotSchema.safeParse(broken).success).toBe(false);
+	});
+});
+
+describe('schema/ap-stream-demo', () => {
+	const validDemo = {
+		schemaVersion: PULSE_AP_STREAM_DEMO_SCHEMA_VERSION,
+		generatedAt: '2026-05-10T13:00:00.000Z',
+		sourceAuthority: 'tinyland.dev',
+		sourceAuthorityUrl: 'https://tinyland.dev',
+		sourceSnapshotId: 'tinyland-jesssullivan-pulse-static-seed-2026-05-10',
+		contentHash: `sha256:${'b'.repeat(64)}`,
+		policyVersion: PUBLIC_SNAPSHOT_POLICY_VERSION,
+		projectionKind: 'pulse-ap-stream-demo',
+		demoStatus: PULSE_AP_STREAM_DEMO_STATUS,
+		publicFediverseDelivery: false,
+		activityPubStatus: 'ap-shaped-projection-only',
+		spokeRef: 'jesssullivan-github-io',
+		spokeTarget: 'transscendsurvival.org',
+		routePath: '/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
+		publicUrl: 'https://tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
+		itemCount: 1,
+		orderedItems: [
+			{
+				id: 'https://tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json#note-1',
+				type: 'Note',
+				published: '2026-05-10T12:30:00.000Z',
+				summary: 'hello',
+				content: 'hello',
+				tag: [{ type: 'Hashtag', name: '#pulse' }],
+				tinylandPulse: {
+					id: 'note-1',
+					kind: 'note',
+					sourceSnapshotId: 'tinyland-jesssullivan-pulse-static-seed-2026-05-10',
+				},
+			},
+		],
+	};
+
+	it('accepts a well-formed Tinyland AP stream demo', () => {
+		expect(PulseApStreamDemoSchema.safeParse(validDemo).success).toBe(true);
+	});
+
+	it('rejects public Fediverse delivery claims', () => {
+		const broken = { ...validDemo, publicFediverseDelivery: true };
+		expect(PulseApStreamDemoSchema.safeParse(broken).success).toBe(false);
+	});
+
+	it('rejects leaked delivery-worker internals', () => {
+		const broken = { ...validDemo, deliveryWorker: { retryQueue: ['evt_1'] } };
+		expect(PulseApStreamDemoSchema.safeParse(broken).success).toBe(false);
+	});
+
+	it('rejects itemCount drift', () => {
+		const broken = { ...validDemo, itemCount: 2 };
+		expect(PulseApStreamDemoSchema.safeParse(broken).success).toBe(false);
 	});
 });
