@@ -1,4 +1,4 @@
-Hi! This is just my personal static github pages blog ^w^ 
+Hi! This is just my boring personal static blog ^w^ 
 
 
 | Surface | Route |
