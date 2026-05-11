@@ -550,7 +550,6 @@
 		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center">
 			<a href="https://github.com/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitHub</a>
 			<a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a>
-			<a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a>
 			<a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland</a>
 			<a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a>
 			<a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a>

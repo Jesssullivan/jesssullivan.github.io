@@ -135,7 +135,7 @@
     \noindent\textbf{\color{secondary}#1} \hfill \textit{\color{muted}(#2)}\par\vspace{0.3em}
 }
 
-\newcommand{\tech}[1]{\texttt{\small\color{secondary}#1}}
+\newcommand{\tech}[1]{#1}
 \newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}#2}}
 
 %------------------------------------------------------------------------------
@@ -183,10 +183,10 @@
 \footnotesize
 \begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{1em}}l@{\hspace{1em}}l@{}}
 \textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
-Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, \cvlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
+Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, Bazel \\
 TypeScript, Rust      & TensorFlow, pandas                   & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
 Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}                            & RKE2 (k8s) \\
-Go, C++, R, Shell     & realtime evaluation \& inference     & \cvlink{https://github.com/Jesssullivan/caldera}{SAML}, \cvlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{TOTP} & GitLab AutoDevOps \\
+Go, C++, R, Shell     & realtime evaluation \& inference     & \cvlink{https://github.com/Jesssullivan/caldera}{SAML}, \cvlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, \cvlink{https://github.com/Jesssullivan/tummycrypt}{TOTP} & GitLab AutoDevOps \\
 \end{tabular}
 \end{center}
 
@@ -212,7 +212,7 @@ Ongoing contributor and community member of numerous open source projects includ
 \vspace{0.4em}
 \noindent\textit{\color{muted}Current stack:}
 \begin{itemize}
-    \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Auth, scheduling, mapping, telemetry and site systems including \cvlink{https://github.com/Jesssullivan/jesssullivan.github.io}{this SvelteKit repo}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{\tech{tinyland-auth}}, \cvlink{https://github.com/Jesssullivan/scheduling-kit}{\tech{scheduling-kit}}, and \cvlink{https://github.com/Jesssullivan/scheduling-bridge}{\tech{scheduling-bridge}}.
+    \item \textbf{Web:} SvelteKit (Runes), Bun, Vite 8 (Rolldown), TS7. Auth, scheduling, mapping, telemetry and site systems including \cvlink{https://github.com/Jesssullivan/jesssullivan.github.io}{this SvelteKit repo}, \cvlink{https://github.com/Jesssullivan/scheduling-kit}{scheduling-kit}, and \cvlink{https://github.com/Jesssullivan/scheduling-bridge}{scheduling-bridge}.
     \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}. Performance-oriented systems and property-based testing.
 \end{itemize}
 
@@ -221,7 +221,7 @@ Ongoing contributor and community member of numerous open source projects includ
 \begin{itemize}
     \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
     \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
-    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
+    \item \textbf{linux-xr} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and Dirty Frag security backports. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
     \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
     \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
 \end{itemize}
@@ -279,20 +279,6 @@ Taught \textbf{Advanced GIS Programming} \& \textbf{Intro to Electromechanics}. 
 \role{Membership Chair \& 3D Printing Captain @ Ithaca Generator}{2020--2022}
 
 Led 501(c)(3) makerspace through rapid growth; coached hundreds via ``Fusion 360 for 3D printing'' series.
-
-%==============================================================================
-% BUSINESS VENTURES
-%==============================================================================
-\section{Business Ventures}
-\label{sec:ventures}
-
-\role{Tinyland, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
-
-Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Package and IaC work spans \cvlink{https://github.com/tinyland-inc/GloriousFlywheel}{GloriousFlywheel}, \cvlink{https://github.com/tinyland-inc/blahaj}{blahaj}, \cvlink{https://github.com/tinyland-inc/lab}{lab}, and the \cvlink{https://github.com/tinyland-inc/bazel-registry/pull/42}{Tinyland Bazel registry}.
-
-\vspace{0.3em}
-
-\noindent\textit{\color{muted}Previous:} \textbf{Columbari.us LLC} (2017--2021) --- GIS \& ML contracting for UNH, NH municipal, Cornell. HPC hackerspace venture (2021--2024).
 
 %==============================================================================
 % PUBLICATIONS
