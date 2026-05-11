@@ -1,15 +1,5 @@
-# jesssullivan.github.io
+Hi! This is just my personal static github pages blog ^w^ 
 
-Hi! This is my blog. This is a WIP static rewrite / redux of my formerly fairly active WordPress based site.
-
-```sh
-npm ci
-npm run check
-npm run test:unit
-npm run build
-```
-
-## Routes
 
 | Surface | Route |
 | --- | --- |
@@ -19,7 +9,76 @@ npm run build
 | Tailnet-only shadow | `https://jesssullivan-blog-shadow.taila4c78d.ts.net` |
 | Tailnet vanity target | `https://jesssullivan-blog-shadow.tailnet.tinyland.dev` |
 
-No credentials, account IDs, backend endpoints, deployment hashes, or local operator paths belong in this README.
+
+
+## Pulse Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> accepted: submit
+    draft --> failed: fail
+    accepted --> queued: queue
+    accepted --> public_projected: project_public
+    accepted --> hidden: mark_hidden
+    accepted --> updated: supersede
+    accepted --> failed: fail
+    queued --> enriched: enrich
+    queued --> failed: fail
+    enriched --> public_projected: project_public
+    enriched --> hidden: mark_hidden
+    enriched --> updated: supersede
+    enriched --> failed: fail
+    public_projected --> updated: supersede
+    public_projected --> deleted: delete_public
+    public_projected --> failed: fail
+    hidden --> updated: supersede
+    hidden --> failed: fail
+    updated --> failed: fail
+    deleted --> tombstoned: tombstone
+    deleted --> failed: fail
+    tombstoned --> [*]
+    failed --> [*]
+```
+
+
+## Content Automation
+
+```mermaid
+flowchart LR
+    SourceRepo["source repo blog/docs/posts"] --> Notify["repository_dispatch"]
+    Notify --> Collect["collect-posts workflow"]
+    Collect --> DraftPR["draft content PR"]
+    DraftPR --> Bot["blog-agent review"]
+    DraftPR --> DateGuard["future-date guard"]
+    Bot --> Human["review and edit"]
+    DateGuard --> Human
+    Human --> Schedule["scheduled label and PR body gate"]
+    Schedule --> AutoMerge["daily auto-merge check"]
+    AutoMerge --> Main["main"]
+```
+
+## AP Federation Approach
+
+```mermaid
+flowchart TB
+    Tinyland["tinyland.dev projection authority"] --> PostSnapshot["reviewed post snapshot"]
+    Tinyland --> PulseSnapshot["public Pulse snapshot"]
+    Tinyland --> StreamDemo["AP-shaped stream demo"]
+    Tinyland --> Edge["projection-only public edge"]
+    Edge --> WebFinger["WebFinger and NodeInfo"]
+
+    PostSnapshot --> IngestPosts["materialize checked posts"]
+    IngestPosts --> Blog["/blog"]
+
+    PulseSnapshot --> PulseRoute["/pulse"]
+    StreamDemo --> HiddenLab["/pulse/client/brokered-stream"]
+
+    HiddenLab --> Boundary["projection demo only"]
+    Boundary --> NotFederation["not public Fediverse delivery"]
+```
+
+
 
 ## Build Chain
 
@@ -88,68 +147,3 @@ flowchart LR
     PrivateMirror --> Tailnet["jesssullivan-blog-shadow.taila4c78d.ts.net"]
 ```
 
-## Tinyland And Pulse
-
-```mermaid
-flowchart TB
-    Tinyland["tinyland.dev projection authority"] --> PostSnapshot["reviewed post snapshot"]
-    Tinyland --> PulseSnapshot["public Pulse snapshot"]
-    Tinyland --> StreamDemo["AP-shaped stream demo"]
-    Tinyland --> Edge["projection-only public edge"]
-    Edge --> WebFinger["WebFinger and NodeInfo"]
-
-    PostSnapshot --> IngestPosts["materialize checked posts"]
-    IngestPosts --> Blog["/blog"]
-
-    PulseSnapshot --> PulseRoute["/pulse"]
-    StreamDemo --> HiddenLab["/pulse/client/brokered-stream"]
-
-    HiddenLab --> Boundary["projection demo only"]
-    Boundary --> NotFederation["not public Fediverse delivery"]
-```
-
-## Content Automation
-
-```mermaid
-flowchart LR
-    SourceRepo["source repo blog/docs/posts"] --> Notify["repository_dispatch"]
-    Notify --> Collect["collect-posts workflow"]
-    Collect --> DraftPR["draft content PR"]
-    DraftPR --> Bot["blog-agent review"]
-    DraftPR --> DateGuard["future-date guard"]
-    Bot --> Human["review and edit"]
-    DateGuard --> Human
-    Human --> Schedule["scheduled label and PR body gate"]
-    Schedule --> AutoMerge["daily auto-merge check"]
-    AutoMerge --> Main["main"]
-```
-
-## Pulse Lifecycle
-
-```mermaid
-stateDiagram-v2
-    [*] --> draft
-    draft --> accepted: submit
-    draft --> failed: fail
-    accepted --> queued: queue
-    accepted --> public_projected: project_public
-    accepted --> hidden: mark_hidden
-    accepted --> updated: supersede
-    accepted --> failed: fail
-    queued --> enriched: enrich
-    queued --> failed: fail
-    enriched --> public_projected: project_public
-    enriched --> hidden: mark_hidden
-    enriched --> updated: supersede
-    enriched --> failed: fail
-    public_projected --> updated: supersede
-    public_projected --> deleted: delete_public
-    public_projected --> failed: fail
-    hidden --> updated: supersede
-    hidden --> failed: fail
-    updated --> failed: fail
-    deleted --> tombstoned: tombstone
-    deleted --> failed: fail
-    tombstoned --> [*]
-    failed --> [*]
-```
