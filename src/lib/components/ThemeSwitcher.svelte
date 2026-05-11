@@ -1,16 +1,33 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { cubicOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 	import { Popover, Portal } from '@skeletonlabs/skeleton-svelte';
 	import { theme, THEMES } from '$lib/theme.svelte';
 
 	const NUDGE_STORAGE_KEY = 'theme-switcher-nudge-last-shown';
 	const NUDGE_DELAY_MS = 3000;
+	const NUDGE_IDLE_TIMEOUT_MS = 1000;
 	const DESKTOP_QUERY = '(min-width: 768px)';
+	const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+	type IdleCapableWindow = {
+		requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+		cancelIdleCallback?: (handle: number) => void;
+		setTimeout: typeof window.setTimeout;
+		clearTimeout: typeof window.clearTimeout;
+	};
 
 	let isOpen = $state(false);
 	let showNudgeContent = $state(false);
+	let pendingNudgeClose = $state(false);
+	let prefersReducedMotion = $state(false);
 	let userInteracted = false;
 	const nudgeActive = $derived(isOpen && showNudgeContent);
+	const nudgeTransition = $derived(
+		prefersReducedMotion
+			? { y: 0, duration: 1, opacity: 1 }
+			: { y: -6, duration: 180, opacity: 0.85, easing: cubicOut },
+	);
 
 	function todayKey(): string {
 		const now = new Date();
@@ -28,8 +45,7 @@
 		}
 	}
 
-	function markNudgeShown() {
-		showNudgeContent = false;
+	function storeNudgeShown() {
 		try {
 			localStorage.setItem(NUDGE_STORAGE_KEY, todayKey());
 		} catch {
@@ -37,8 +53,21 @@
 		}
 	}
 
+	function markNudgeShown() {
+		showNudgeContent = false;
+		storeNudgeShown();
+	}
+
 	function shouldAutoShowNudge(): boolean {
 		return window.matchMedia(DESKTOP_QUERY).matches && getLastShownDate() !== todayKey();
+	}
+
+	function revealNudge() {
+		if (userInteracted || !shouldAutoShowNudge()) return;
+		showNudgeContent = true;
+		window.requestAnimationFrame(() => {
+			isOpen = true;
+		});
 	}
 
 	function handleTriggerClick() {
@@ -58,15 +87,51 @@
 		isOpen = false;
 	}
 
+	function dismissNudge() {
+		userInteracted = true;
+		storeNudgeShown();
+		if (!showNudgeContent) {
+			isOpen = false;
+			return;
+		}
+		pendingNudgeClose = true;
+		showNudgeContent = false;
+	}
+
+	function handleNudgeOutroEnd() {
+		if (!pendingNudgeClose) return;
+		pendingNudgeClose = false;
+		isOpen = false;
+	}
+
 	onMount(() => {
+		const idleWindow = window as unknown as IdleCapableWindow;
+		const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
+		prefersReducedMotion = reducedMotion.matches;
+		const handleReducedMotionChange = (event: MediaQueryListEvent) => {
+			prefersReducedMotion = event.matches;
+		};
+		reducedMotion.addEventListener('change', handleReducedMotionChange);
+
+		let idleCallback: number | undefined;
 		const timer = window.setTimeout(() => {
 			if (userInteracted || !shouldAutoShowNudge()) return;
-			showNudgeContent = true;
-			isOpen = true;
+			if (idleWindow.requestIdleCallback) {
+				idleCallback = idleWindow.requestIdleCallback(revealNudge, { timeout: NUDGE_IDLE_TIMEOUT_MS });
+			} else {
+				idleCallback = idleWindow.setTimeout(revealNudge, 0);
+			}
 		}, NUDGE_DELAY_MS);
 
 		return () => {
 			window.clearTimeout(timer);
+			reducedMotion.removeEventListener('change', handleReducedMotionChange);
+			if (idleCallback === undefined) return;
+			if (idleWindow.cancelIdleCallback) {
+				idleWindow.cancelIdleCallback(idleCallback);
+			} else {
+				idleWindow.clearTimeout(idleCallback);
+			}
 		};
 	});
 </script>
@@ -111,11 +176,16 @@
 				</Popover.Arrow>
 			{/if}
 			<Popover.Content
-				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 rounded-lg shadow-lg py-2 min-w-[200px] max-w-[20rem] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain"
+				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 rounded-lg shadow-lg py-2 min-w-[200px] max-w-[20rem] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain origin-top-right transform-gpu opacity-0 scale-95 transition-[opacity,transform] duration-150 ease-out data-[state=open]:opacity-100 data-[state=open]:scale-100 motion-reduce:transition-none"
 				data-testid="theme-switcher-content"
 			>
 				{#if showNudgeContent}
-					<div class="px-3 pb-3 mb-2 border-b border-surface-300-700" data-testid="theme-welcome-nudge">
+					<div
+						class="px-3 pb-3 mb-2 border-b border-surface-300-700"
+						data-testid="theme-welcome-nudge"
+						transition:fly={nudgeTransition}
+						onoutroend={handleNudgeOutroEnd}
+					>
 						<div class="flex items-start justify-between gap-3">
 							<div>
 								<Popover.Title class="text-sm font-semibold text-surface-950 dark:text-surface-50">
@@ -148,10 +218,11 @@
 									>. -Jess
 								</Popover.Description>
 							</div>
-							<Popover.CloseTrigger
+							<button
+								type="button"
 								class="shrink-0 rounded p-1 text-surface-500 hover:bg-surface-200-800 hover:text-surface-950 dark:hover:text-surface-50 transition-colors"
 								aria-label="Dismiss theme welcome nudge"
-								onclick={markNudgeShown}
+								onclick={dismissNudge}
 							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +234,7 @@
 								>
 									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
 								</svg>
-							</Popover.CloseTrigger>
+							</button>
 						</div>
 					</div>
 				{/if}

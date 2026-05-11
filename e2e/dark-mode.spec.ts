@@ -142,7 +142,7 @@ test.describe('Dark Mode', () => {
 		}, NUDGE_STORAGE_KEY);
 
 		await page.goto('/');
-		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 5000 });
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 8000 });
 
 		const trigger = page.getByTestId('theme-switcher-trigger');
 		const content = page.getByTestId('theme-switcher-content');
@@ -165,7 +165,7 @@ test.describe('Dark Mode', () => {
 		}, NUDGE_STORAGE_KEY);
 
 		await page.goto('/');
-		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 5000 });
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 8000 });
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 		await expect(page.locator('html')).toHaveAttribute('data-theme', 'rose');
 
@@ -194,7 +194,7 @@ test.describe('Dark Mode', () => {
 		}, NUDGE_STORAGE_KEY);
 
 		await page.goto('/');
-		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 5000 });
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 8000 });
 
 		const contentBox = await page.getByTestId('theme-switcher-content').boundingBox();
 		expect(contentBox).not.toBeNull();
