@@ -10,8 +10,10 @@
 	const NUDGE_IDLE_TIMEOUT_MS = 1000;
 	const DESKTOP_QUERY = '(min-width: 768px)';
 	const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+	type IdleDeadlineLike = { didTimeout: boolean; timeRemaining: () => number };
+	type IdleCallback = (deadline: IdleDeadlineLike) => void;
 	type IdleCapableWindow = {
-		requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+		requestIdleCallback?: (callback: IdleCallback, options?: { timeout?: number }) => number;
 		cancelIdleCallback?: (handle: number) => void;
 		setTimeout: typeof window.setTimeout;
 		clearTimeout: typeof window.clearTimeout;
