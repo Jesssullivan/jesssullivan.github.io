@@ -1,71 +1,155 @@
-Hi!  This is my blog.  This is a WIP static rewrite / redux of my formerly fairly active wordpress based site.  
+# jesssullivan.github.io
 
+Hi! This is my blog. This is a WIP static rewrite / redux of my formerly fairly active WordPress based site.
 
+```sh
+npm ci
+npm run check
+npm run test:unit
+npm run build
+```
+
+## Routes
+
+| Surface | Route |
+| --- | --- |
+| Production | `https://transscendsurvival.org` |
+| Cloudflare Pages shadow | `https://tss.tinyland.dev` |
+| Alternate Cloudflare shadow | `https://tss.ephemera.tinyland.dev` |
+| Tailnet-only shadow | `https://jesssullivan-blog-shadow.taila4c78d.ts.net` |
+| Tailnet vanity target | `https://jesssullivan-blog-shadow.tailnet.tinyland.dev` |
+
+No credentials, account IDs, backend endpoints, deployment hashes, or local operator paths belong in this README.
 
 ## Build Chain
 
 ```mermaid
 flowchart LR
-    Posts["Markdown posts"] --> Ingest["Tinyland projection check"]
-    Routes["SvelteKit routes"] --> Kit["SvelteKit compiler"]
-    Posts --> Mdsvex["mdsvex"]
-    Mdsvex --> Shiki["Shiki highlight"]
-    Mdsvex --> Mermaid["Mermaid SVG cache"]
+    Posts["src/posts Markdown"] --> Mdsvex["mdsvex"]
+    TinylandPosts["Tinyland post snapshot"] --> Ingest["ingest check"]
+    PulseJson["Pulse public snapshot"] --> PulseCheck["snapshot validator"]
     Static["static assets"] --> Images["image optimization"]
-    Ingest --> Prebuild["prebuild scripts"]
+    Routes["SvelteKit routes"] --> Svelte["Svelte 5 compiler"]
+
+    Mdsvex --> Shiki["Shiki"]
+    Mdsvex --> Mermaid["Mermaid cache"]
+    Mdsvex --> Rehype["rehype cleanup"]
+    Ingest --> Prebuild["prebuild"]
     Shiki --> Prebuild
     Mermaid --> Prebuild
+    Rehype --> Prebuild
     Images --> Prebuild
-    Prebuild --> Vite["Vite with Rolldown"]
-    Kit --> Vite
-    Vite --> Tailwind["Tailwind v4 and Skeleton utilities"]
-    Tailwind --> Adapter["SvelteKit adapter-static"]
-    Adapter --> Build["build directory"]
-    Build --> Redirects["redirect generation"]
+    PulseCheck --> Prebuild
+
+    Prebuild --> Vite["Vite via Rolldown"]
+    Svelte --> Vite
+    Vite --> Tailwind["Tailwind v4"]
+    Vite --> Skeleton["Skeleton utilities"]
+    Vite --> A11y["a11y plugin"]
+    Tailwind --> Adapter["adapter-static"]
+    Skeleton --> Adapter
+    A11y --> Adapter
+    Adapter --> Build["build/"]
+    Build --> Redirects["redirect pages"]
     Build --> Pagefind["Pagefind index"]
+
+    CvTex["CV TeX"] --> Tectonic["Tectonic PDF workflow"]
 ```
 
 ## Checks And Deploys
 
 ```mermaid
 flowchart LR
-    PR["Pull request"] --> CI["CI"]
-    CI --> Secrets["secret scan"]
-    CI --> StaticAudit["production dependency audit"]
-    CI --> Lint["lint"]
-    CI --> Typecheck["Svelte and TypeScript check"]
-    CI --> Unit["Vitest suites"]
-    CI --> E2E["Playwright smoke"]
-    CI --> Build["static build"]
-    CI --> Audits["redirect, frontmatter, link, bundle checks"]
+    PR["PR to main"] --> CI["CI"]
+    Main["main push"] --> CI
+    CI --> Scan["secret scan"]
+    Scan --> Audit["prod dependency audit"]
+    Audit --> Lint["lint"]
+    Lint --> Check["svelte-check and validators"]
+    Check --> Unit["Vitest"]
+    Unit --> Pulse["pulse-core and pulse-client"]
+    Pulse --> Agent["blog-agent"]
+    Agent --> Build["npm run build"]
+    Build --> StaticChecks["redirect, frontmatter, link, bundle checks"]
+    StaticChecks --> Browser["Playwright smoke or regression"]
+    Browser --> Lighthouse["Lighthouse report-only"]
 
-    Main["main push"] --> Pages["GitHub Pages workflow"]
-    Pages --> Artifact["Pages artifact"]
-    Artifact --> Production["transscendsurvival.org"]
+    Main --> Pages["GitHub Pages deploy"]
+    Pages --> Prod["transscendsurvival.org"]
+    Pages --> Profile["profile refresh dispatch"]
 
-    PR --> ShadowPreview["shadow preview workflow"]
-    ShadowPreview --> SourceImage["public CI source image"]
-    SourceImage --> PrivateHandoff["private infra handoff"]
-    PrivateHandoff --> TailnetPreview["tailnet-only preview"]
+    Main --> CfShadow["Cloudflare Pages shadow"]
+    CfShadow --> Tss["tss.tinyland.dev"]
+    CfShadow --> Ephemera["tss.ephemera.tinyland.dev"]
 
-    Main --> CloudflareShadow["Cloudflare Pages shadow workflow"]
-    CloudflareShadow --> ShadowDeploy["public-safe shadow deployment"]
+    PR --> Preview["shadow preview"]
+    Preview --> SourceImage["public source image"]
+    SourceImage --> PrivateMirror["private deploy mirror"]
+    PrivateMirror --> Tailnet["jesssullivan-blog-shadow.taila4c78d.ts.net"]
 ```
 
-## Projection Boundary
+## Tinyland And Pulse
 
 ```mermaid
-flowchart LR
+flowchart TB
     Tinyland["tinyland.dev projection authority"] --> PostSnapshot["reviewed post snapshot"]
     Tinyland --> PulseSnapshot["public Pulse snapshot"]
     Tinyland --> StreamDemo["AP-shaped stream demo"]
+    Tinyland --> Edge["projection-only public edge"]
+    Edge --> WebFinger["WebFinger and NodeInfo"]
 
     PostSnapshot --> IngestPosts["materialize checked posts"]
-    IngestPosts --> Blog["blog routes"]
+    IngestPosts --> Blog["/blog"]
 
     PulseSnapshot --> PulseRoute["/pulse"]
     StreamDemo --> HiddenLab["/pulse/client/brokered-stream"]
 
     HiddenLab --> Boundary["projection demo only"]
     Boundary --> NotFederation["not public Fediverse delivery"]
+```
+
+## Content Automation
+
+```mermaid
+flowchart LR
+    SourceRepo["source repo blog/docs/posts"] --> Notify["repository_dispatch"]
+    Notify --> Collect["collect-posts workflow"]
+    Collect --> DraftPR["draft content PR"]
+    DraftPR --> Bot["blog-agent review"]
+    DraftPR --> DateGuard["future-date guard"]
+    Bot --> Human["review and edit"]
+    DateGuard --> Human
+    Human --> Schedule["scheduled label and PR body gate"]
+    Schedule --> AutoMerge["daily auto-merge check"]
+    AutoMerge --> Main["main"]
+```
+
+## Pulse Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft
+    draft --> accepted: submit
+    draft --> failed: fail
+    accepted --> queued: queue
+    accepted --> public_projected: project_public
+    accepted --> hidden: mark_hidden
+    accepted --> updated: supersede
+    accepted --> failed: fail
+    queued --> enriched: enrich
+    queued --> failed: fail
+    enriched --> public_projected: project_public
+    enriched --> hidden: mark_hidden
+    enriched --> updated: supersede
+    enriched --> failed: fail
+    public_projected --> updated: supersede
+    public_projected --> deleted: delete_public
+    public_projected --> failed: fail
+    hidden --> updated: supersede
+    hidden --> failed: fail
+    updated --> failed: fail
+    deleted --> tombstoned: tombstone
+    deleted --> failed: fail
+    tombstoned --> [*]
+    failed --> [*]
 ```
