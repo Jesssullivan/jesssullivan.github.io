@@ -97,19 +97,20 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		}
 	}, 240_000);
 
-	test('resume competency links are shadow links and security entries stay broad', () => {
+	test('resume competency entries stay broad and package-neutral', () => {
 		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
 		const table = resumeSource.slice(resumeSource.indexOf('% CORE COMPETENCIES')).split('\\end{tabular}', 1)[0];
 
-		expect(resumeSource).toContain('\\newcommand{\\shadowlink}[2]{\\href{#1}{\\textcolor{black}{#2}}}');
 		expect(table).not.toContain('\\cvlink');
+		expect(table).not.toContain('\\shadowlink');
 		expect(table).not.toContain('tinyland-auth');
 		expect(table).not.toContain('Mitre');
 		expect(table).not.toContain('Caldera');
 		expect(table).not.toContain('TOTP');
-		expect(table).toContain('\\shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel}');
+		expect(table).toContain('Nix, Bazel');
 		expect(table).toContain('Enterprise MFA systems \\& standards');
-		expect(table).toContain('SAML, OAuth, identity interoperability');
+		expect(table).toContain('OpenTelemetry');
+		expect(table).not.toContain('SAML, OAuth, identity interoperability');
 	});
 
 	test('current stack sections use uniform prose without package callouts', () => {
@@ -124,9 +125,6 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 			expect(stack).toContain('Skeleton UI');
 			expect(stack).toContain('Effect TS');
 			expect(stack).toContain('Tempo/Grafana');
-			expect(stack).toContain('Futhark');
-			expect(stack).toContain('Caldera');
-			expect(stack).toContain('Wireshark');
 			expect(stack).not.toContain('ABI/FFI work');
 			expect(stack).not.toContain('performance-oriented systems');
 			expect(stack).not.toContain('\\tech');
@@ -139,25 +137,46 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 			expect(stack).not.toContain('OpenTelemetry');
 		}
 
+		expect(resumeStack).not.toContain('Systems \\& research');
+		expect(resumeStack).not.toContain('Futhark');
+		expect(resumeStack).not.toContain('Caldera');
+		expect(resumeStack).not.toContain('Wireshark');
+		expect(cvStack).toContain('Futhark');
+		expect(cvStack).toContain('Caldera');
+		expect(cvStack).toContain('Wireshark');
 		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/scheduling-bridge/pull/135}{\\tech{scheduling-bridge}}');
 		expect(cvSource).toContain('\\cvlink{https://github.com/tinyland-inc/tinyland-auth}{\\tech{tinyland-auth}}');
 		expect(resumeSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-crypto}{\\tech{zig-crypto}}');
 		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-ctap2}{\\tech{zig-ctap2}}');
 		expect(resumeSource).toContain('\\textbf{Functional \\& Heterogeneous Compute:}');
 		expect(cvSource).toContain('\\textbf{Functional \\& Heterogeneous Compute:}');
+		expect(resumeSource).toContain('ESDT monads, fine-grained classification systems');
+		expect(cvSource).toContain('ESDT monads, fine-grained classification systems');
+		expect(resumeSource.toLowerCase()).not.toContain('pixelwise');
+		expect(cvSource.toLowerCase()).not.toContain('pixelwise');
 		expect(resumeSource).not.toContain('\\textbf{Heterogeneous Compute:}');
 		expect(cvSource).not.toContain('\\textbf{Functional Programming:}');
 	});
 
-	test('resume PDF top competency annotations omit package-specific security links', () => {
-		const annotations = extractUriAnnotations(join(staticCvDir, 'jess_sullivan_resume.pdf'));
-		const topCompetencyUris = annotations
-			.filter(({ rect: [x1, y1] }) => x1 >= 200 && x1 <= 520 && y1 >= 600 && y1 <= 650)
-			.map(({ uri }) => uri);
+	test('resume experience starts with reverse-chronological employment and ends with FOSS', () => {
+		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
+		const experience = sectionBetween(resumeSource, '\\section{Experience}', '% VOLUNTEER & COMMUNITY');
+		const bates = experience.indexOf('Systems Analyst (DevSecOps) @ Bates College');
+		const fabLab = experience.indexOf('Fabrication Laboratory Manager @ Cornell CALS');
+		const macaulay = experience.indexOf('Computer Vision Software Engineer @ Macaulay Library');
+		const foss = experience.indexOf('Full Stack Contracting and FOSS');
 
-		expect(topCompetencyUris).toEqual(expect.arrayContaining(['https://github.com/tinyland-inc/bazel-registry']));
-		expect(topCompetencyUris).not.toContain('https://github.com/Jesssullivan/caldera');
-		expect(topCompetencyUris).not.toContain('https://github.com/Jesssullivan/oauth-mux');
-		expect(topCompetencyUris).not.toContain('https://github.com/tinyland-inc/tinyland-auth');
+		expect(bates).toBeGreaterThanOrEqual(0);
+		expect(fabLab).toBeGreaterThan(bates);
+		expect(macaulay).toBeGreaterThan(fabLab);
+		expect(foss).toBeGreaterThan(macaulay);
+	});
+
+	test('resume PDF annotations omit removed header package links', () => {
+		const uris = extractUriAnnotations(join(staticCvDir, 'jess_sullivan_resume.pdf')).map(({ uri }) => uri);
+
+		expect(uris).not.toContain('https://github.com/tinyland-inc/bazel-registry');
+		expect(uris).not.toContain('https://github.com/Jesssullivan/oauth-mux');
+		expect(uris).not.toContain('https://github.com/tinyland-inc/tinyland-auth');
 	});
 });
