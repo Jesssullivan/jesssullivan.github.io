@@ -155,6 +155,10 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		expect(cvSource).toContain('ESDT monads, fine-grained classification systems');
 		expect(resumeSource.toLowerCase()).not.toContain('pixelwise');
 		expect(cvSource.toLowerCase()).not.toContain('pixelwise');
+		expect(cvSource).toContain('\\textbf{Always building:}');
+		expect(cvSource).toContain('\\cvlink{https://transscendsurvival.org}{blog}');
+		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan}{personal GitHub}');
+		expect(cvSource).toContain('\\cvlink{https://github.com/tinyland-inc}{Tinyland organization}');
 		expect(resumeSource).not.toContain('\\textbf{Heterogeneous Compute:}');
 		expect(cvSource).not.toContain('\\textbf{Functional Programming:}');
 	});
