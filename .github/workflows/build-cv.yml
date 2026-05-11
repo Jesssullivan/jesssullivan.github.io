@@ -3,7 +3,22 @@ name: Build CV PDFs
 on:
   push:
     branches: [main]
-    paths: ['cv/**']
+    paths:
+      - 'cv/**'
+      - 'static/cv/**'
+      - 'scripts/cv-pdf-validation.test.mts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-cv.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cv/**'
+      - 'static/cv/**'
+      - 'scripts/cv-pdf-validation.test.mts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-cv.yml'
   workflow_dispatch:
 
 permissions:
@@ -16,6 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - run: npm ci
+
       - name: Install tectonic
         uses: WtfJoke/setup-tectonic@8a63d072f8390efdff59da7fa08aa49e3c1f5e1b # v3
         with:
@@ -24,17 +46,28 @@ jobs:
       - name: Install Latin Modern fonts
         run: sudo apt-get install -y fonts-lmodern
 
+      - name: Validate tracked CV PDFs
+        if: github.event_name == 'pull_request'
+        run: npm run test:cv-pdf
+
       - name: Build CV PDFs
+        if: github.event_name != 'pull_request'
         run: |
           cd cv
-          tectonic jess_sullivan_cv.tex || echo "CV build failed (may need header_image.png)"
-          tectonic jess_sullivan_resume.tex || echo "Resume build failed"
+          tectonic jess_sullivan_cv.tex
+          tectonic jess_sullivan_resume.tex
 
       - name: Copy PDFs to static
+        if: github.event_name != 'pull_request'
         run: |
-          cp cv/*.pdf static/cv/ 2>/dev/null || true
+          cp cv/*.pdf static/cv/
+
+      - name: Validate generated CV PDFs
+        if: github.event_name != 'pull_request'
+        run: npm run test:cv-pdf
 
       - name: Commit updated PDFs
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
         with:
           commit_message: 'chore: rebuild CV PDFs'

@@ -10,6 +10,7 @@
 		"postbuild": "tsx scripts/generate-redirects.mts && pagefind --site build",
 		"test:redirects": "npm run build && tsx scripts/validate-redirects.mts",
 		"test:unit": "vitest run",
+		"test:cv-pdf": "vitest run scripts/cv-pdf-validation.test.mts",
 		"test:pulse-core": "npm run -w @blog/pulse-core test && npm run -w @blog/pulse-core typecheck && npm run -w @blog/pulse-core validate:proto",
 		"test:pulse-client": "npm run -w @blog/pulse-client test && npm run -w @blog/pulse-client typecheck",
 		"test:e2e": "playwright test",
