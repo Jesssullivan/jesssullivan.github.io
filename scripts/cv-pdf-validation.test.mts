@@ -69,6 +69,14 @@ function extractUriAnnotations(pdfPath: string): PdfAnnotation[] {
 	);
 }
 
+function sectionBetween(source: string, start: string, end: string): string {
+	const startIndex = source.indexOf(start);
+	expect(startIndex).toBeGreaterThanOrEqual(0);
+	const endIndex = source.indexOf(end, startIndex);
+	expect(endIndex).toBeGreaterThan(startIndex);
+	return source.slice(startIndex, endIndex);
+}
+
 describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 	test('tracked PDFs match freshly rendered hyperlink structure', () => {
 		const outDir = mkdtempSync(join(tmpdir(), 'cv-pdf-validation-'));
@@ -101,6 +109,34 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/caldera}{SAML}');
 		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}');
 		expect(table).toContain('OAuth}, TOTP & GitLab AutoDevOps');
+	});
+
+	test('current stack sections use uniform prose without package callouts', () => {
+		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
+		const cvSource = readFileSync(join(cvDir, 'jess_sullivan_cv.tex'), 'utf8');
+		const resumeStack = sectionBetween(resumeSource, 'Current stack:', 'Research:');
+		const cvStack = sectionBetween(cvSource, 'My current stack:', 'Research:');
+
+		for (const stack of [resumeStack, cvStack]) {
+			expect(stack).toContain('SvelteKit Runes');
+			expect(stack).toContain('Tailwind CSS');
+			expect(stack).toContain('Skeleton UI');
+			expect(stack).toContain('Effect TS');
+			expect(stack).toContain('Tempo/Grafana');
+			expect(stack).not.toContain('\\tech');
+			expect(stack).not.toContain('\\cvlink');
+			expect(stack).not.toContain('tinyland-auth');
+			expect(stack).not.toContain('scheduling-kit');
+			expect(stack).not.toContain('scheduling-bridge');
+			expect(stack).not.toContain('jesssullivan.github.io');
+			expect(stack.toLowerCase()).not.toContain('telemetry');
+			expect(stack).not.toContain('OpenTelemetry');
+		}
+
+		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/scheduling-bridge/pull/135}{\\tech{scheduling-bridge}}');
+		expect(cvSource).toContain('\\cvlink{https://github.com/tinyland-inc/tinyland-auth}{\\tech{tinyland-auth}}');
+		expect(resumeSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-crypto}{\\tech{zig-crypto}}');
+		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-ctap2}{\\tech{zig-ctap2}}');
 	});
 
 	test('resume PDF top competency annotations omit the tinyland-auth TOTP link', () => {
