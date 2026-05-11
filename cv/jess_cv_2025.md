@@ -11,7 +11,7 @@
 
 ![][image1]
 
-My name is Jess Sullivan- I am a full stack engineer, musician and bidwatcher and currently based in Lewiston, ME.  Find below a cover letter highlighting my recent and current activities and an up-to-date technical resume.  
+My name is Jess Sullivan- I am a full stack engineer, musician and bidwatcher and currently based in Lewiston, ME & Boston, MA.  Find below a cover letter highlighting my recent and current activities and an up-to-date technical resume.
 
 ### ***Technical Resume***
 

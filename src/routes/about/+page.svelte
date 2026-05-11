@@ -170,16 +170,16 @@
 
 <svelte:head>
 	<title>About | transscendsurvival.org</title>
-	<meta name="description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta name="description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta property="og:title" content="About | transscendsurvival.org" />
-	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/about" />
 	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
 	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="About | transscendsurvival.org" />
-	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/about" />
 	{@html `<script type="application/ld+json">${JSON.stringify({
@@ -195,7 +195,7 @@
 			"https://www.linkedin.com/in/jess-sullivan-11032a367/",
 			"https://soundcloud.com/jesssullivan"
 		],
-		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME."
+		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME & Boston, MA."
 	})}</script>`}
 </svelte:head>
 
@@ -224,7 +224,7 @@
 	<!-- 4. Bio -->
 	<section class="mb-8">
 		<p class="text-surface-600-400 leading-relaxed mb-4">
-			Full stack engineer, musician, and birdwatcher based in Lewiston, ME.
+			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA.
 		</p>
 		<p class="text-surface-600-400 leading-relaxed mb-4">
 			I spent about a year completely offline &mdash; no LinkedIn, no blog, no social media.
