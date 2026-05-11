@@ -132,23 +132,25 @@
 	];
 
 	const fossContributions: FossContribution[] = [
-		{ name: 'Chapel', url: 'https://chapel-lang.org/' },
+		{ name: 'Chapel-lang', url: 'https://github.com/chapel-lang/mason-registry/pull/77' },
 		{ name: 'rspamd', url: 'https://github.com/rspamd/rspamd/pull/5923' },
 		{ name: 'numtide/nix-vm-test', url: 'https://github.com/numtide/nix-vm-test/pull/172' },
 		{ name: 'manaflow-ai/cmux', url: 'https://github.com/manaflow-ai/cmux/pull/1877' },
 		{ name: 'diku-dk/Futhark', url: 'https://github.com/diku-dk/futhark/pull/2365' },
 		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
-		{ name: 'Mason', url: 'https://github.com/chapel-lang/mason' },
+		{ name: 'Mason', url: 'https://github.com/Jesssullivan/quickchpl' },
 		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
 		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
 		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
 		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
 		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy/pull/238' },
-		{ name: 'fft.js', url: 'https://github.com/nicbarker/fft.js' },
+		{ name: 'fft.js', url: 'https://github.com/indutny/fft.js' },
 		{ name: 'libdns', url: 'https://github.com/libdns/libdns' },
+		{ name: 'ShikiJS', url: 'https://github.com/shikijs/shiki' },
+		{ name: 'ggplot2', url: 'https://github.com/tidyverse/ggplot2' },
 		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
 		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
-		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms' },
+		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms/pull/678' },
 		{ name: 'Klipper', url: 'https://github.com/Klipper3d/klipper' },
 		{ name: 'Liqo', url: 'https://liqo.io/' },
 		{ name: 'Joplin', url: 'https://joplinapp.org/' },
@@ -168,16 +170,16 @@
 
 <svelte:head>
 	<title>About | transscendsurvival.org</title>
-	<meta name="description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta name="description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta property="og:title" content="About | transscendsurvival.org" />
-	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/about" />
 	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
 	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="About | transscendsurvival.org" />
-	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME." />
+	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/about" />
 	{@html `<script type="application/ld+json">${JSON.stringify({
@@ -193,7 +195,7 @@
 			"https://www.linkedin.com/in/jess-sullivan-11032a367/",
 			"https://soundcloud.com/jesssullivan"
 		],
-		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME."
+		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME & Boston, MA."
 	})}</script>`}
 </svelte:head>
 
@@ -222,7 +224,7 @@
 	<!-- 4. Bio -->
 	<section class="mb-8">
 		<p class="text-surface-600-400 leading-relaxed mb-4">
-			Full stack engineer, musician, and birdwatcher based in Lewiston, ME.
+			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA.
 		</p>
 		<p class="text-surface-600-400 leading-relaxed mb-4">
 			I spent about a year completely offline &mdash; no LinkedIn, no blog, no social media.

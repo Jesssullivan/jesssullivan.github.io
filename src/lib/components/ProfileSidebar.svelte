@@ -44,7 +44,7 @@
 		</div>
 
 		<p class="text-sm text-surface-600-400 mb-4">
-			Full stack engineer, musician, and birdwatcher based in Lewiston, ME.
+			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA.
 			I build infrastructure tooling, digital automata, hack upon compilers,
 			love learning new languages, futz with hardware, and maintain a lot of
 			fun projects here and elsewhere.
