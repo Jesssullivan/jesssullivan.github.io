@@ -18,16 +18,22 @@ name: Build shadow image
 # Bootstrap: the very first build can run on `runs-on: ubuntu-latest` before
 # the ARC enrollment for this repo (TIN-705/706 in jesssullivan-infra) lands.
 # After enrollment, swap the runs-on label to `tinyland-dind`.
+# Operator fallback: set BLOG_SHADOW_SOURCE_RUNNER=ubuntu-latest, or pass
+# source_runner on manual dispatch, when the ARC lane is unavailable.
 
 on:
   push:
     branches:
-      - "shadow-deploy/**"
+      - 'shadow-deploy/**'
   workflow_dispatch:
     inputs:
       ref:
-        description: "Git ref to build (defaults to current ref)"
+        description: 'Git ref to build (defaults to current ref)'
         required: false
+      source_runner:
+        description: 'Runner for the public source image build'
+        required: false
+        default: 'tinyland-dind'
 
 concurrency:
   group: shadow-image-${{ github.ref }}
@@ -38,13 +44,35 @@ permissions:
   packages: write
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   IMAGE_NAME: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
+  SOURCE_RUNNER: ${{ inputs.source_runner || vars.BLOG_SHADOW_SOURCE_RUNNER || 'tinyland-dind' }}
 
 jobs:
+  resolve:
+    name: Resolve shadow image runner
+    runs-on: ubuntu-latest
+    outputs:
+      source_runner: ${{ steps.runner.outputs.source_runner }}
+    steps:
+      - name: Resolve source runner
+        id: runner
+        run: |
+          set -euo pipefail
+          case "${SOURCE_RUNNER}" in
+            tinyland-dind|ubuntu-latest)
+              ;;
+            *)
+              echo "::error::Unsupported source runner ${SOURCE_RUNNER}. Allowed: tinyland-dind, ubuntu-latest."
+              exit 1
+              ;;
+          esac
+          echo "source_runner=${SOURCE_RUNNER}" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build and push shadow image
-    runs-on: tinyland-dind
+    needs: resolve
+    runs-on: ${{ needs.resolve.outputs.source_runner }}
     timeout-minutes: 30
 
     steps:
@@ -96,7 +124,7 @@ jobs:
           image-ref: ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
           version: v0.70.0
           format: table
-          exit-code: "0"
+          exit-code: '0'
           severity: HIGH,CRITICAL
           ignore-unfixed: true
 
@@ -108,6 +136,7 @@ jobs:
             echo "- Image: \`${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}\`"
             echo "- Branch: \`${{ github.ref_name }}\`"
             echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo ""
             echo "### Private package mirror"
             echo ""

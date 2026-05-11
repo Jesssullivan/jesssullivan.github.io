@@ -57,7 +57,10 @@ OpenTofu apply, or tailnet smoke; those remain private infra responsibilities.
 
 `.github/workflows/shadow-image.yml` still supports the older
 `shadow-deploy/**` branch flow for explicit operator builds. That workflow only
-builds the source image; the private mirror and apply are handled by infra.
+builds the source image; the private mirror and apply are handled by infra. It
+uses the `tinyland-dind` ARC runner by default and accepts the same
+`BLOG_SHADOW_SOURCE_RUNNER=ubuntu-latest` fallback, or manual dispatch
+`source_runner=ubuntu-latest`, when the ARC source-image lane is unavailable.
 
 ## Cloudflare Pages Shadow
 
