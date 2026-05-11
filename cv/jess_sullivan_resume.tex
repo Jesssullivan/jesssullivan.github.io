@@ -137,7 +137,6 @@
 
 \newcommand{\tech}[1]{\texttt{\small\color{secondary}#1}}
 \newcommand{\cvlink}[2]{\href{#1}{\color{linkcolor}#2}}
-\newcommand{\shadowlink}[2]{\href{#1}{\textcolor{black}{#2}}}
 
 %------------------------------------------------------------------------------
 % DOCUMENT START
@@ -184,10 +183,10 @@
 \footnotesize
 \begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{1em}}l@{\hspace{1em}}l@{}}
 \textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
-Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, \shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
+Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, Bazel \\
 TypeScript, Rust      & TensorFlow, pandas                   & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
 Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Enterprise MFA systems \& standards                                                       & RKE2 (k8s) \\
-Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & SAML, OAuth, identity interoperability                                                    & GitLab AutoDevOps \\
+Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & OpenTelemetry                                                                             & GitLab AutoDevOps \\
 \end{tabular}
 \end{center}
 
@@ -198,37 +197,6 @@ Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & SAML, OAuth
 %==============================================================================
 \section{Experience}
 \label{sec:resume}
-
-%--- Full Stack Contracting & FOSS ---
-\role{Full Stack Contracting and FOSS}{Ongoing}
-
-Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation}, \cvlink{https://github.com/rspamd/rspamd/pull/5923}{\textbf{rspamd}}, \cvlink{https://github.com/chapel-lang/mason-registry/pull/77}{\textbf{Chapel-lang}}, \cvlink{https://github.com/numtide/nix-vm-test/pull/172}{\textbf{numtide}/nix-vm-test}, \cvlink{https://github.com/manaflow-ai/cmux/pull/1877}{\textbf{manaflow-ai}/cmux}, \cvlink{https://github.com/diku-dk/futhark/pull/2365}{\textbf{diku-dk}/Futhark}, \cvlink{https://github.com/caddyserver/xcaddy/pull/238}{\textbf{xCaddy}}, \textbf{libdns}, Skeleton UI, \textbf{Klipper}, \textbf{Joplin}, \cvlink{https://github.com/indutny/fft.js}{\textbf{FFT.js}}, \textbf{KeePassXC}, \cvlink{https://github.com/ciscoheat/sveltekit-superforms/pull/678}{svelte-superforms}, \cvlink{https://github.com/shikijs/shiki}{\textbf{ShikiJS}}, \cvlink{https://github.com/tidyverse/ggplot2}{\textbf{ggplot2}}, the \textbf{Rocky Enterprise Linux Foundation}, \textbf{Liqo}, \textbf{Budgie DE}, \cvlink{https://github.com/Jesssullivan/quickchpl}{\textbf{Mason}}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
-
-\begin{itemize}
-    \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
-    \item Web GIS tools for \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, \textbf{Northern Border Regional Commission}. Presented at 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications}).
-    \item Fine-grained image classification with \textbf{MushroomObserver.org} and \textbf{Visipedia}; early adopter of CNN-based species ID at scale.
-\end{itemize}
-
-\vspace{0.4em}
-\noindent\textit{\color{muted}Current stack \& technologies:}
-\begin{itemize}
-    \item \textbf{Web \& product:} SvelteKit Runes, Bun, Vite 8/Rolldown, TypeScript (TS7), Tailwind CSS, Skeleton UI, Effect TS, Postgres, FingerprintJS; auth, scheduling, mapping, and site systems.
-    \item \textbf{Operations \& observability:} Tempo/Grafana, Caddy, Tailscale Operator, on-prem RKE2, Podman Compose.
-    \item \textbf{Infrastructure:} Nix flakes, Bazel RBE, justfile, OpenTofu, sops+age, Ansible.
-    \item \textbf{Systems \& research:} Chapel, Rust, Zig, Haskell, Futhark, GhidraScript, Frida, ILSpy, Caldera, Wireshark.
-\end{itemize}
-
-\vspace{0.3em}
-\noindent\textit{\color{muted}Research:}
-\begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
-    \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
-    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
-    \item \textbf{Functional \& Heterogeneous Compute:} \tech{Futhark}/\tech{WebGPU}, ESDT monads, pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}), \tech{Rust} SIMD, \tech{Nix} build systems, deeper WASM integration, and WASM-native inference pipelines.
-\end{itemize}
-
-\vspace{0.4em}
 
 %--- Systems Analyst ---
 \role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
@@ -264,6 +232,36 @@ Developed \& launched \cvlink{https://merlin.allaboutbirds.org/download/}{\textb
     \item \textbf{Model Training:} Python (\tech{TensorFlow}, \tech{NumPy}, \tech{Pandas}, \tech{Matplotlib}, \tech{Jupyter})
     \item \textbf{Web \& Inference:} \tech{Flask}, \tech{TypeScript}, \tech{React}, \tech{Vue}, \tech{Docker}, \tech{WebAssembly}, \tech{React Native}, \tech{Swift}
     \item \textbf{Infrastructure:} EC2, Heroku, BitBucket CI/CD, production model deployment at scale
+\end{itemize}
+
+\vspace{0.4em}
+
+%--- Full Stack Contracting & FOSS ---
+\role{Full Stack Contracting and FOSS}{Ongoing}
+
+Ongoing contributor and community member of numerous open source projects including---and not limited to---the \textbf{Apache Foundation}, \cvlink{https://github.com/rspamd/rspamd/pull/5923}{\textbf{rspamd}}, \cvlink{https://github.com/chapel-lang/mason-registry/pull/77}{\textbf{Chapel-lang}}, \cvlink{https://github.com/numtide/nix-vm-test/pull/172}{\textbf{numtide}/nix-vm-test}, \cvlink{https://github.com/manaflow-ai/cmux/pull/1877}{\textbf{manaflow-ai}/cmux}, \cvlink{https://github.com/diku-dk/futhark/pull/2365}{\textbf{diku-dk}/Futhark}, \cvlink{https://github.com/caddyserver/xcaddy/pull/238}{\textbf{xCaddy}}, \textbf{libdns}, Skeleton UI, \textbf{Klipper}, \textbf{Joplin}, \cvlink{https://github.com/indutny/fft.js}{\textbf{FFT.js}}, \textbf{KeePassXC}, \cvlink{https://github.com/ciscoheat/sveltekit-superforms/pull/678}{svelte-superforms}, \cvlink{https://github.com/shikijs/shiki}{\textbf{ShikiJS}}, \cvlink{https://github.com/tidyverse/ggplot2}{\textbf{ggplot2}}, the \textbf{Rocky Enterprise Linux Foundation}, \textbf{Liqo}, \textbf{Budgie DE}, \cvlink{https://github.com/Jesssullivan/quickchpl}{\textbf{Mason}}, along with authoring numerous FOSS automation tools, libraries and open source utilities. Expanded client list and customer references available upon request.
+
+\begin{itemize}
+    \item Startup work: \textbf{Dover Micro} (2017), \textbf{Adaptive Motorsport} (2018)
+    \item Web GIS tools for \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, \textbf{Northern Border Regional Commission}. Presented at 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications}).
+    \item Fine-grained image classification with \textbf{MushroomObserver.org} and \textbf{Visipedia}; early adopter of CNN-based species ID at scale.
+\end{itemize}
+
+\vspace{0.4em}
+\noindent\textit{\color{muted}Current stack \& technologies:}
+\begin{itemize}
+    \item \textbf{Web \& product:} SvelteKit Runes, Bun, Vite 8/Rolldown, TypeScript (TS7), Tailwind CSS, Skeleton UI, Effect TS, Postgres, FingerprintJS; auth, scheduling, mapping, and site systems.
+    \item \textbf{Operations \& observability:} Tempo/Grafana, Caddy, Tailscale Operator, on-prem RKE2, Podman Compose.
+    \item \textbf{Infrastructure:} Nix flakes, Bazel RBE, justfile, OpenTofu, sops+age, Ansible.
+\end{itemize}
+
+\vspace{0.3em}
+\noindent\textit{\color{muted}Research:}
+\begin{itemize}
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
+    \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
+    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
+    \item \textbf{Functional \& Heterogeneous Compute:} \tech{Futhark}/\tech{WebGPU}, ESDT monads, fine-grained classification systems, \tech{Rust} SIMD, \tech{Nix} build systems, deeper WASM integration, and WASM-native inference pipelines.
 \end{itemize}
 
 %==============================================================================
