@@ -1,15 +1,6 @@
-# jesssullivan.github.io
+Hi!  This is my blog.  This is a WIP static rewrite / redux of my formerly fairly active wordpress based site.  
 
-Static SvelteKit site for `transscendsurvival.org`: longform posts, CV PDFs, Tinyland Pulse projections, search, media processing, and gated preview/deploy lanes.
 
-```sh
-npm ci
-npm run check
-npm run test:unit
-npm run build
-```
-
-Full public-safe architecture notes live in [docs/site-pipeline-architecture.md](docs/site-pipeline-architecture.md).
 
 ## Build Chain
 
@@ -61,7 +52,7 @@ flowchart LR
     CloudflareShadow --> ShadowDeploy["public-safe shadow deployment"]
 ```
 
-## Tinyland Projection Boundary
+## Projection Boundary
 
 ```mermaid
 flowchart LR
