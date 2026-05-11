@@ -186,8 +186,8 @@
 \textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
 Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, \shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
 TypeScript, Rust      & TensorFlow, pandas                   & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
-Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Mitre \shadowlink{https://github.com/Jesssullivan/caldera}{Caldera}                        & RKE2 (k8s) \\
-Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & \shadowlink{https://github.com/Jesssullivan/caldera}{SAML}, \shadowlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, TOTP & GitLab AutoDevOps \\
+Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Enterprise MFA systems \& standards                                                       & RKE2 (k8s) \\
+Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & SAML, OAuth, identity interoperability                                                    & GitLab AutoDevOps \\
 \end{tabular}
 \end{center}
 
@@ -211,12 +211,12 @@ Ongoing contributor and community member of numerous open source projects includ
 \end{itemize}
 
 \vspace{0.4em}
-\noindent\textit{\color{muted}Current stack:}
+\noindent\textit{\color{muted}Current stack \& technologies:}
 \begin{itemize}
     \item \textbf{Web \& product:} SvelteKit Runes, Bun, Vite 8/Rolldown, TypeScript (TS7), Tailwind CSS, Skeleton UI, Effect TS, Postgres, FingerprintJS; auth, scheduling, mapping, and site systems.
     \item \textbf{Operations \& observability:} Tempo/Grafana, Caddy, Tailscale Operator, on-prem RKE2, Podman Compose.
     \item \textbf{Infrastructure:} Nix flakes, Bazel RBE, justfile, OpenTofu, sops+age, Ansible.
-    \item \textbf{Systems \& research:} Chapel, Rust, Zig, Haskell, GhidraScript, Frida, ILSpy; ABI/FFI work, property-based testing, binary analysis, and performance-oriented systems.
+    \item \textbf{Systems \& research:} Chapel, Rust, Zig, Haskell, Futhark, GhidraScript, Frida, ILSpy, Caldera, Wireshark.
 \end{itemize}
 
 \vspace{0.3em}
@@ -225,8 +225,7 @@ Ongoing contributor and community member of numerous open source projects includ
     \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig}. Firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
     \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
     \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
-    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
+    \item \textbf{Functional \& Heterogeneous Compute:} \tech{Futhark}/\tech{WebGPU}, ESDT monads, pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}), \tech{Rust} SIMD, \tech{Nix} build systems, deeper WASM integration, and WASM-native inference pipelines.
 \end{itemize}
 
 \vspace{0.4em}

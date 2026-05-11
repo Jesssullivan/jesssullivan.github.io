@@ -97,25 +97,26 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		}
 	}, 240_000);
 
-	test('resume competency links are shadow links and TOTP is not linked to tinyland-auth', () => {
+	test('resume competency links are shadow links and security entries stay broad', () => {
 		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
 		const table = resumeSource.slice(resumeSource.indexOf('% CORE COMPETENCIES')).split('\\end{tabular}', 1)[0];
 
 		expect(resumeSource).toContain('\\newcommand{\\shadowlink}[2]{\\href{#1}{\\textcolor{black}{#2}}}');
 		expect(table).not.toContain('\\cvlink');
 		expect(table).not.toContain('tinyland-auth');
+		expect(table).not.toContain('Mitre');
+		expect(table).not.toContain('Caldera');
+		expect(table).not.toContain('TOTP');
 		expect(table).toContain('\\shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel}');
-		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/caldera}{Caldera}');
-		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/caldera}{SAML}');
-		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}');
-		expect(table).toContain('OAuth}, TOTP & GitLab AutoDevOps');
+		expect(table).toContain('Enterprise MFA systems \\& standards');
+		expect(table).toContain('SAML, OAuth, identity interoperability');
 	});
 
 	test('current stack sections use uniform prose without package callouts', () => {
 		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
 		const cvSource = readFileSync(join(cvDir, 'jess_sullivan_cv.tex'), 'utf8');
-		const resumeStack = sectionBetween(resumeSource, 'Current stack:', 'Research:');
-		const cvStack = sectionBetween(cvSource, 'My current stack:', 'Research:');
+		const resumeStack = sectionBetween(resumeSource, 'Current stack \\& technologies:', 'Research:');
+		const cvStack = sectionBetween(cvSource, 'My current stack \\& technologies:', 'Research:');
 
 		for (const stack of [resumeStack, cvStack]) {
 			expect(stack).toContain('SvelteKit Runes');
@@ -123,6 +124,11 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 			expect(stack).toContain('Skeleton UI');
 			expect(stack).toContain('Effect TS');
 			expect(stack).toContain('Tempo/Grafana');
+			expect(stack).toContain('Futhark');
+			expect(stack).toContain('Caldera');
+			expect(stack).toContain('Wireshark');
+			expect(stack).not.toContain('ABI/FFI work');
+			expect(stack).not.toContain('performance-oriented systems');
 			expect(stack).not.toContain('\\tech');
 			expect(stack).not.toContain('\\cvlink');
 			expect(stack).not.toContain('tinyland-auth');
@@ -137,21 +143,21 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		expect(cvSource).toContain('\\cvlink{https://github.com/tinyland-inc/tinyland-auth}{\\tech{tinyland-auth}}');
 		expect(resumeSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-crypto}{\\tech{zig-crypto}}');
 		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-ctap2}{\\tech{zig-ctap2}}');
+		expect(resumeSource).toContain('\\textbf{Functional \\& Heterogeneous Compute:}');
+		expect(cvSource).toContain('\\textbf{Functional \\& Heterogeneous Compute:}');
+		expect(resumeSource).not.toContain('\\textbf{Heterogeneous Compute:}');
+		expect(cvSource).not.toContain('\\textbf{Functional Programming:}');
 	});
 
-	test('resume PDF top competency annotations omit the tinyland-auth TOTP link', () => {
+	test('resume PDF top competency annotations omit package-specific security links', () => {
 		const annotations = extractUriAnnotations(join(staticCvDir, 'jess_sullivan_resume.pdf'));
 		const topCompetencyUris = annotations
-			.filter(({ rect: [x1, y1] }) => x1 >= 330 && x1 <= 475 && y1 >= 590 && y1 <= 635)
+			.filter(({ rect: [x1, y1] }) => x1 >= 200 && x1 <= 520 && y1 >= 600 && y1 <= 650)
 			.map(({ uri }) => uri);
 
-		expect(topCompetencyUris).toEqual(
-			expect.arrayContaining([
-				'https://github.com/tinyland-inc/bazel-registry',
-				'https://github.com/Jesssullivan/caldera',
-				'https://github.com/Jesssullivan/oauth-mux',
-			]),
-		);
+		expect(topCompetencyUris).toEqual(expect.arrayContaining(['https://github.com/tinyland-inc/bazel-registry']));
+		expect(topCompetencyUris).not.toContain('https://github.com/Jesssullivan/caldera');
+		expect(topCompetencyUris).not.toContain('https://github.com/Jesssullivan/oauth-mux');
 		expect(topCompetencyUris).not.toContain('https://github.com/tinyland-inc/tinyland-auth');
 	});
 });
