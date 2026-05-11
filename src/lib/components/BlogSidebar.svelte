@@ -41,16 +41,20 @@
 				placeholder="Search posts..."
 				bind:value={searchQuery}
 				aria-label="Search recent blog posts"
-				class="w-full px-3 py-1.5 rounded-lg border border-surface-300-700 bg-surface-50-950 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+				class="w-full px-3 py-1.5 rounded-lg border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-950 dark:text-surface-50 caret-primary-600 dark:caret-primary-400 placeholder:text-surface-500 dark:placeholder:text-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
 			/>
 			{#if searchQuery.trim() && searchResults.length > 0}
 				<ul class="mt-3 space-y-2">
-						{#each searchResults as result (result.slug)}
-							<li>
-								<a href="/blog/{result.slug}" class="block hover:text-primary-500 transition-colors" aria-label={`Read search result: ${result.title}`}>
-									<span class="text-sm font-medium leading-tight line-clamp-2">{result.title}</span>
-									<span class="text-xs text-surface-500 mt-0.5 block line-clamp-2">{result.description}</span>
-								</a>
+					{#each searchResults as result (result.slug)}
+						<li>
+							<a
+								href="/blog/{result.slug}"
+								class="block hover:text-primary-500 transition-colors"
+								aria-label={`Read search result: ${result.title}`}
+							>
+								<span class="text-sm font-medium leading-tight line-clamp-2">{result.title}</span>
+								<span class="text-xs text-surface-500 mt-0.5 block line-clamp-2">{result.description}</span>
+							</a>
 						</li>
 					{/each}
 				</ul>
@@ -69,11 +73,15 @@
 		<div>
 			<h3 class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3">Recent Posts</h3>
 			<ul class="space-y-3">
-					{#each recentPosts as post (post.slug)}
-						<li>
-							<a href="/blog/{post.slug}" class="block hover:text-primary-500 transition-colors" aria-label={`Read recent post: ${post.title}`}>
-								<span class="text-sm font-medium leading-tight line-clamp-2">{post.title}</span>
-								<time class="text-xs text-surface-500 mt-0.5 block">
+				{#each recentPosts as post (post.slug)}
+					<li>
+						<a
+							href="/blog/{post.slug}"
+							class="block hover:text-primary-500 transition-colors"
+							aria-label={`Read recent post: ${post.title}`}
+						>
+							<span class="text-sm font-medium leading-tight line-clamp-2">{post.title}</span>
+							<time class="text-xs text-surface-500 mt-0.5 block">
 								{new Date(post.date).toLocaleDateString('en-US', {
 									month: 'short',
 									day: 'numeric',
@@ -92,13 +100,12 @@
 		<div>
 			<h3 class="font-heading text-sm font-bold uppercase tracking-wider text-surface-500 mb-3">Tags</h3>
 			<div class="flex flex-wrap gap-1.5">
-					{#each allTags as tag (tag)}
-						<a
-							href="/blog/tag/{encodeURIComponent(tag)}"
-							class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-							aria-label={`View posts tagged ${tag}`}
-							>{tag}</a
-						>
+				{#each allTags as tag (tag)}
+					<a
+						href="/blog/tag/{encodeURIComponent(tag)}"
+						class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
+						aria-label={`View posts tagged ${tag}`}>{tag}</a
+					>
 				{/each}
 			</div>
 		</div>

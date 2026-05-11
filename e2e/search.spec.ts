@@ -24,6 +24,42 @@ async function expectMainSearchResults(page: Page, query: string) {
 	return { input, dropdown };
 }
 
+async function expectSearchInputReadable(input: Locator) {
+	const initialStyles = await input.evaluate((element) => {
+		const styles = window.getComputedStyle(element);
+		const placeholder = window.getComputedStyle(element, '::placeholder');
+		return {
+			background: styles.backgroundColor,
+			text: styles.color,
+			caret: styles.caretColor,
+			placeholder: placeholder.color,
+		};
+	});
+
+	expect(initialStyles.placeholder).not.toBe(initialStyles.background);
+
+	await input.fill('solar');
+	const filledStyles = await input.evaluate((element) => {
+		const styles = window.getComputedStyle(element);
+		return {
+			background: styles.backgroundColor,
+			text: styles.color,
+			caret: styles.caretColor,
+		};
+	});
+
+	expect(filledStyles.text).not.toBe(filledStyles.background);
+	expect(filledStyles.caret).not.toBe(filledStyles.background);
+}
+
+function todayKey() {
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
 test.describe('Search — main blog page', () => {
 	test('search input is visible after FlexSearch loads', async ({ page }) => {
 		await page.goto('/blog');
@@ -86,6 +122,32 @@ test.describe('Search — main blog page', () => {
 		const input = await mainSearchInput(page);
 		await expect(input).toHaveAttribute('role', 'combobox');
 		await expect(input).toHaveAttribute('aria-autocomplete', 'list');
+	});
+});
+
+test.describe('Search — color modes', () => {
+	test.use({ viewport: { width: 1280, height: 800 } });
+
+	test('main and sidebar inputs keep readable text in light and dark modes', async ({ page }) => {
+		await page.goto('/blog');
+
+		for (const mode of ['light', 'dark'] as const) {
+			await page.evaluate(
+				({ mode, today }) => {
+					localStorage.setItem('color-mode', mode);
+					localStorage.setItem('skeleton-theme', 'pine');
+					localStorage.setItem('theme-switcher-nudge-last-shown', today);
+				},
+				{ mode, today: todayKey() },
+			);
+			await page.reload({ waitUntil: 'domcontentloaded' });
+			await expect(page.locator('html')).toHaveAttribute('data-mode', mode);
+
+			const inputs = page.locator('input[type="search"]');
+			await expect(inputs.first()).toBeVisible({ timeout: SEARCH_TIMEOUT });
+			await expectSearchInputReadable(inputs.nth(0));
+			await expectSearchInputReadable(inputs.nth(1));
+		}
 	});
 });
 
