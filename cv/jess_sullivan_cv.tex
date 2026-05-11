@@ -193,10 +193,10 @@ My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher
 %------------------------------------------------------------------------------
 \begin{center}
 \small\color{muted}
-\hyperref[sec:resume]{\textsc{Technical Resume}} $\cdot$ 
-\hyperref[sec:foss]{\textsc{Full Stack \& FOSS}} $\cdot$ 
+\hyperref[sec:foss]{\textsc{Full Stack \& FOSS}} $\cdot$
+\hyperref[sec:resume]{\textsc{Technical Resume}} $\cdot$
 \hyperref[sec:volunteer]{\textsc{Volunteer \& Community}} $\cdot$
-\hyperref[sec:ventures]{\textsc{Ventures}} $\cdot$ 
+\hyperref[sec:ventures]{\textsc{Previous Ventures}} $\cdot$
 \hyperref[sec:publications]{\textsc{Publications}} $\cdot$
 \hyperref[sec:funfacts]{\textsc{Fun Facts}}
 \end{center}
@@ -204,10 +204,75 @@ My name is Jess Sullivan--- I am a full stack engineer, musician and birdwatcher
 \vspace{0.5em}
 
 %==============================================================================
+% FULL STACK & FOSS
+%==============================================================================
+\section{Full Stack Contracting and FOSS}
+\label{sec:foss}
+
+Long term committer, member and supporter of numerous organizations including the \textbf{Rocky Enterprise Linux Foundation}, \cvlink{https://github.com/rspamd/rspamd/pull/5923}{\textbf{rspamd}}, \cvlink{https://github.com/chapel-lang/mason-registry/pull/77}{\textbf{Chapel-lang}}, \cvlink{https://github.com/numtide/nix-vm-test/pull/172}{\textbf{numtide}/nix-vm-test}, \cvlink{https://github.com/manaflow-ai/cmux/pull/1877}{\textbf{manaflow-ai}/cmux}, \cvlink{https://github.com/diku-dk/futhark/pull/2365}{\textbf{diku-dk}/Futhark}, \textbf{Liqo}, the \textbf{Apache Foundation}, \cvlink{https://github.com/caddyserver/xcaddy/pull/238}{\textbf{xCaddy}}, \textbf{libdns}, Skeleton UI, \textbf{Klipper}, \textbf{Joplin}, \cvlink{https://github.com/indutny/fft.js}{\textbf{FFT.js}}, \textbf{KeePassXC}, \cvlink{https://github.com/ciscoheat/sveltekit-superforms/pull/678}{svelte-superforms}, \cvlink{https://github.com/shikijs/shiki}{\textbf{ShikiJS}}, \cvlink{https://github.com/tidyverse/ggplot2}{\textbf{ggplot2}}, and \cvlink{https://github.com/Jesssullivan/quickchpl}{\textbf{Mason}}, along with the creation of numerous FOSS automation tools and GIS utilities.
+
+\begin{itemize}
+    \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
+    \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications})
+    \item \textbf{Machine Learning} with \textbf{MushroomObserver.org} and \textbf{Visipedia:} Collaborated on the development and adoption of fine-grained image classification models among crowd-sourced community science niches
+    \item \textbf{Current package work:} \cvlink{https://github.com/Jesssullivan/scheduling-bridge/pull/135}{\tech{scheduling-bridge}}, \cvlink{https://github.com/Jesssullivan/scheduling-kit/pull/94}{\tech{scheduling-kit}}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{\tech{tinyland-auth}} TOTP/RBAC, \cvlink{https://github.com/Jesssullivan/tummycrypt}{\tech{tummycrypt}} (\cvlink{https://github.com/Jesssullivan/tummycrypt/pull/356}{TCFS proof}), and \cvlink{https://github.com/tinyland-inc/bazel-registry/pull/42}{Tinyland Bazel registry releases}.
+    \item \textbf{Expanded client list} on request. Current clients include the entire business stack for \cvlink{https://MassageIthaca.com}{\textbf{MassageIthaca.com}} (grown through four business expansions over 3 years!), \textbf{Rossel \& Co}, Tetrahedron Services, R\&D for TimberBuddy hydraulic sawmill systems, many more.
+\end{itemize}
+
+\vspace{0.8em}
+
+\noindent\textit{\color{muted}My current stack:}
+\begin{itemize}
+    \item \textbf{Web \& product systems:} \tech{SvelteKit} Runes, \tech{Bun}, \tech{Vite 8} (Rolldown), TS7; auth, scheduling, mapping, telemetry, and site systems.
+    \item \textbf{Infrastructure \& platform:} \tech{Nix} flakes, \tech{Bazel RBE}, justfile, \tech{OpenTofu}, sops+age, \tech{Ansible}, \tech{Postgres}, Podman Compose, on-prem \tech{RKE2}, Tailscale Operator, \tech{Caddy}, Tempo/Grafana.
+    \item \textbf{Systems, HPC \& reverse engineering:} \tech{Chapel}, \tech{Rust}, \tech{Zig} for ABI/FFI work, \tech{Haskell}, \tech{GhidraScript}, \tech{Ghidra}, \tech{Frida}; performance systems, property-based testing, and binary analysis.
+\end{itemize}
+\noindent\textit{\color{muted}Daily operating environment:} fish shell, direnv, YubiKey, KeePassXC/kdbx, Linear, macOS teletype workstation, Rocky Linux daily-driver, and personal SearXNG/search/indexing/MCP research tooling.
+
+\vspace{0.5em}
+
+\noindent\textit{\color{muted}Research:}
+
+\begin{itemize}
+    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig} --- firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
+    \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces and cross-platform builds: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), and \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
+    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
+    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language) --- exploring GPU-accelerated workloads and deeper WASM integration for inference pipelines.
+    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems), and everyday \tech{Chapel}/\tech{Rust}/\tech{Zig} systems work.
+\end{itemize}
+
+%==============================================================================
+\newpage
+%==============================================================================
+
+%==============================================================================
 % TECHNICAL RESUME
 %==============================================================================
 \section{Technical Resume}
 \label{sec:resume}
+
+%--- Systems Analyst ---
+\role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
+
+Building and maintaining reliable, scalable enterprise systems directly supporting staff, faculty and the technical ILS team. Responsibilities include the maintenance and modernization of legacy systems; the development of bespoke Ansible extensions, roles, and plugins; 24/7 availability for CVE mitigation; SAML and application interoperability integration work; OpenTelemetry and reporting development; CI/CD pipelines across GitLab AutoDevOps, OpenTofu, and RKE2 + Rancher clusters; and leading IaC adoption across the College.
+
+\subsubsection{Noteworthy projects include:}
+\begin{itemize}
+    \item Developed high performance orchestrator and instrumentation tooling for degree management and degree auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for development, FPM for packaging and autodevops for CI/CD); uplifted ``unautomatable'' 1980s morris-worm era code unique to higher ed into a verifiable, traceable, k8s friendly workload
+    \item Overhauled and completely automated the lifecycle of our event management system (extensive development in \tech{C\#}, \tech{Go}, \tech{Ansible})
+    \item Led adoption of horizontally scalable \tech{Apache Solr} instances for multiple public and private indexing and search applications
+    \item Led adoption and built out numerous internal ACME-first certificate management and DNS libraries, templates and tooling
+    \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
+\end{itemize}
+
+\vspace{0.8em}
+
+%--- Tinyland ---
+\role{Tinyland, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
+
+Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate. Current work spans SLM-backed automation, multicloud IaC harnesses, Chapel-based parallelism, Kubernetes-native research infrastructure, and public-safe projection surfaces.
+
+\vspace{0.8em}
 
 %--- Computer Vision ---
 \role{Computer Vision Software Engineer @ Macaulay Library}{2018--2022}
@@ -236,61 +301,9 @@ Developed and taught rapid fabrication curricula for DLA students and faculty.
     \item Project management in GitHub \& Linear. Built a small Discord ticketing system and OBS printer monitoring system.
 \end{itemize}
 
-\vspace{0.8em}
-
-%--- Systems Analyst ---
-\role{Systems Analyst (DevSecOps) @ Bates College}{2024--Present}
-
-Building and maintaining reliable, scalable enterprise systems directly supporting staff, faculty and the technical ILS team. Responsibilities include the maintenance and modernization of legacy systems; the development of bespoke Ansible extensions, roles, and plugins; 24/7 availability for CVE mitigation; SAML and application interoperability integration work; Open Telemetry and reporting development; the development of CI/CD pipelines (extensive work in GitLab AutoDevOps, OpenTofu and RKE2 + Rancher clusters) as well as leading IaC adoption across the College. I enjoy a fair amount of autonomy, and can be found wriggling across a wide variety of languages, projects and epics throughout any given week.
-
-\subsubsection{Noteworthy projects include:}
-\begin{itemize}
-    \item Developed high performance orchestrator and instrumentation tooling for degree management and degree auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for development, FPM for packaging and autodevops for CI/CD); uplifted ``unautomatable'' 1980s morris-worm era code unique to higher ed into a verifiable, traceable, k8s friendly workload
-    \item Overhauled and completely automated the lifecycle of our event management system (extensive development in \tech{C\#}, \tech{Go}, \tech{Ansible})
-    \item Led adoption of horizontally scalable \tech{Apache Solr} instances for multiple public and private indexing and search applications
-    \item Led adoption and built out numerous internal ACME-first certificate management and DNS libraries, templates and tooling
-    \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
-\end{itemize}
-
 %==============================================================================
 \newpage
 %==============================================================================
-
-%==============================================================================
-% FULL STACK & FOSS
-%==============================================================================
-\section{Full Stack Contracting and FOSS}
-\label{sec:foss}
-
-Long term committer, member and supporter of numerous organizations including the \textbf{Rocky Enterprise Linux Foundation}, \cvlink{https://github.com/rspamd/rspamd/pull/5923}{\textbf{rspamd}}, \cvlink{https://github.com/chapel-lang/mason-registry/pull/77}{\textbf{Chapel-lang}}, \cvlink{https://github.com/numtide/nix-vm-test/pull/172}{\textbf{numtide}/nix-vm-test}, \cvlink{https://github.com/manaflow-ai/cmux/pull/1877}{\textbf{manaflow-ai}/cmux}, \cvlink{https://github.com/diku-dk/futhark/pull/2365}{\textbf{diku-dk}/Futhark}, \textbf{Liqo}, the \textbf{Apache Foundation}, \cvlink{https://github.com/caddyserver/xcaddy/pull/238}{\textbf{xCaddy}}, \textbf{libdns}, Skeleton UI, \textbf{Klipper}, \textbf{Joplin}, \cvlink{https://github.com/indutny/fft.js}{\textbf{FFT.js}}, \textbf{KeePassXC}, \cvlink{https://github.com/ciscoheat/sveltekit-superforms/pull/678}{svelte-superforms}, \cvlink{https://github.com/shikijs/shiki}{\textbf{ShikiJS}}, \cvlink{https://github.com/tidyverse/ggplot2}{\textbf{ggplot2}}, and \cvlink{https://github.com/Jesssullivan/quickchpl}{\textbf{Mason}}, along with the creation of numerous FOSS automation tools and GIS utilities.
-
-\begin{itemize}
-    \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
-    \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications})
-    \item \textbf{Machine Learning} with \textbf{MushroomObserver.org} and \textbf{Visipedia:} Collaborated on the development and adoption of fine-grained image classification models among crowd-sourced community science niches
-    \item \textbf{Current package work:} \cvlink{https://github.com/Jesssullivan/scheduling-bridge/pull/135}{\tech{scheduling-bridge}}, \cvlink{https://github.com/Jesssullivan/scheduling-kit/pull/94}{\tech{scheduling-kit}}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{\tech{tinyland-auth}} TOTP/RBAC, \cvlink{https://github.com/Jesssullivan/tummycrypt}{\tech{tummycrypt}} (\cvlink{https://github.com/Jesssullivan/tummycrypt/pull/356}{TCFS proof}), and \cvlink{https://github.com/tinyland-inc/bazel-registry/pull/42}{Tinyland Bazel registry releases}.
-    \item \textbf{Expanded client list} on request. Current clients include the entire business stack for \cvlink{https://MassageIthaca.com}{\textbf{MassageIthaca.com}} (grown through four business expansions over 3 years!), \textbf{Rossel \& Co}, Tetrahedron Services, R\&D for TimberBuddy hydraulic sawmill systems, many more.
-\end{itemize}
-
-\vspace{0.8em}
-
-\noindent\textit{\color{muted}My current stack:}
-\begin{itemize}
-    \item \textbf{Web:} \tech{SvelteKit}, Runes, TS7, Vite 8 (Rolldown). I am deeply embedded in SvelteKit and have developed a broad library of packages and expertise ranging from fingerprinting, mapping, authentication, scheduling, horizontal data scalability and telemetry. This site/CV lives in \cvlink{https://github.com/Jesssullivan/jesssullivan.github.io}{\tech{jesssullivan.github.io}}.
-    \item \textbf{HPC} and performance oriented code written in \textbf{Chapel} and increasingly \textbf{Haskell}; \textbf{TensorFlow}, \textbf{pandas}, NUMA-aware horizontal parallelism, and Realtime model evaluation \& SLM inference from earlier ML production work.
-\end{itemize}
-
-\vspace{0.5em}
-
-\noindent\textit{\color{muted}Research:}
-
-\begin{itemize}
-    \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{GhidraScript}, \tech{Frida}, \tech{ILSpy}, Mitre \cvlink{https://github.com/Jesssullivan/caldera}{Caldera}, \tech{Zig} --- firmware RE and \cvlink{https://github.com/Jesssullivan/hiberpower-ntfs/pull/1}{NVMe XRAM recovery} (see \S\ref{sec:publications}).
-    \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces and cross-platform builds: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), and \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
-    \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
-    \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language) --- exploring GPU-accelerated workloads and deeper WASM integration for inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems). With years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox), 2026 may be my first year of learning Rust in earnest.
-\end{itemize}
 
 %==============================================================================
 % VOLUNTEER & COMMUNITY
@@ -319,9 +332,9 @@ Long term committer, member and supporter of numerous organizations including th
 %==============================================================================
 
 %==============================================================================
-% VENTURES
+% PREVIOUS VENTURES
 %==============================================================================
-\section{Ventures}
+\section{Previous Ventures}
 \label{sec:ventures}
 
 \role{Columbari.us LLC}{2017--2021}
@@ -333,12 +346,6 @@ Independent contractor / contributor business while in the GIS \& ML space. Full
 \role{Moonlight Coworking LLC}{2021--2024}
 
 Formed in NY to raise capital and interest in a for-profit hackerspace with a focus on mathematics and high performance computing alongside my nonprofit work leading the Ithaca Generator; shelved due to move to Maine.
-
-\vspace{0.8em}
-
-\role{Tinyland, Inc (\cvlink{https://github.com/tinyland-inc}{github.com/tinyland-inc})}{2024--present}
-
-Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate. Infrastructure flywheel work spans \cvlink{https://github.com/tinyland-inc/GloriousFlywheel}{GloriousFlywheel} (\cvlink{https://tinyland-inc.github.io/GloriousFlywheel/}{docs}), \cvlink{https://github.com/tinyland-inc/blahaj}{blahaj}, \cvlink{https://github.com/tinyland-inc/lab}{lab}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{tinyland-auth}, and the \cvlink{https://github.com/tinyland-inc/bazel-registry/pull/42}{Tinyland Bazel registry}.
 
 %==============================================================================
 \newpage
