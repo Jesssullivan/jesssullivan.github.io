@@ -144,8 +144,9 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		expect(cvStack).toContain('Futhark');
 		expect(cvStack).toContain('Caldera');
 		expect(cvStack).toContain('Wireshark');
-		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/scheduling-bridge/pull/135}{\\tech{scheduling-bridge}}');
-		expect(cvSource).toContain('\\cvlink{https://github.com/tinyland-inc/tinyland-auth}{\\tech{tinyland-auth}}');
+		expect(cvSource).not.toContain('\\textbf{Current package work:}');
+		expect(cvSource).not.toContain('scheduling-bridge');
+		expect(cvSource).not.toContain('scheduling-kit');
 		expect(resumeSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-crypto}{\\tech{zig-crypto}}');
 		expect(cvSource).toContain('\\cvlink{https://github.com/Jesssullivan/zig-ctap2}{\\tech{zig-ctap2}}');
 		expect(resumeSource).toContain('\\textbf{Functional \\& Heterogeneous Compute:}');
@@ -170,6 +171,21 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		expect(fabLab).toBeGreaterThan(bates);
 		expect(macaulay).toBeGreaterThan(fabLab);
 		expect(foss).toBeGreaterThan(macaulay);
+	});
+
+	test('full CV leads with FOSS before chronological employment', () => {
+		const cvSource = readFileSync(join(cvDir, 'jess_sullivan_cv.tex'), 'utf8');
+		const foss = cvSource.indexOf('\\section{Full Stack Contracting and FOSS}');
+		const resume = cvSource.indexOf('\\section{Technical Resume}');
+		const macaulay = cvSource.indexOf('Computer Vision Software Engineer @ Macaulay Library', resume);
+		const fabLab = cvSource.indexOf('Fabrication Laboratory Manager for the Landscape Architecture Makerspace @ Cornell CALS', resume);
+		const bates = cvSource.indexOf('Systems Analyst (DevSecOps) @ Bates College', resume);
+
+		expect(foss).toBeGreaterThanOrEqual(0);
+		expect(resume).toBeGreaterThan(foss);
+		expect(macaulay).toBeGreaterThan(resume);
+		expect(fabLab).toBeGreaterThan(macaulay);
+		expect(bates).toBeGreaterThan(fabLab);
 	});
 
 	test('resume PDF annotations omit removed header package links', () => {
