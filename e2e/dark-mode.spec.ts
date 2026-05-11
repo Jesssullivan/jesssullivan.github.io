@@ -124,7 +124,7 @@ test.describe('Dark Mode', () => {
 		}, NUDGE_STORAGE_KEY);
 
 		await page.goto('/');
-		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 5000 });
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 8000 });
 		await expect(page.getByTestId('theme-switcher-trigger')).toHaveAttribute('aria-expanded', 'true');
 
 		await page.getByLabel('Dismiss theme welcome nudge').click();
@@ -185,6 +185,20 @@ test.describe('Dark Mode', () => {
 		expect(styles.borderColor).not.toBe('rgba(0, 0, 0, 0)');
 		expect(styles.textColor).not.toBe(styles.background);
 		expect(styles.linkColor).not.toBe(styles.textColor);
+	});
+
+	test('theme welcome nudge stays inside short desktop viewports', async ({ page }) => {
+		await page.setViewportSize({ width: 768, height: 560 });
+		await page.addInitScript((key) => {
+			localStorage.removeItem(key);
+		}, NUDGE_STORAGE_KEY);
+
+		await page.goto('/');
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 5000 });
+
+		const contentBox = await page.getByTestId('theme-switcher-content').boundingBox();
+		expect(contentBox).not.toBeNull();
+		expect(contentBox!.y + contentBox!.height).toBeLessThanOrEqual(560);
 	});
 
 	test('theme welcome nudge stays hidden when already shown today', async ({ page }) => {

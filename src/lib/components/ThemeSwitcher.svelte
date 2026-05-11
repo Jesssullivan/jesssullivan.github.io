@@ -111,7 +111,7 @@
 				</Popover.Arrow>
 			{/if}
 			<Popover.Content
-				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 rounded-lg shadow-lg py-2 min-w-[200px] max-w-[20rem]"
+				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 rounded-lg shadow-lg py-2 min-w-[200px] max-w-[20rem] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain"
 				data-testid="theme-switcher-content"
 			>
 				{#if showNudgeContent}
