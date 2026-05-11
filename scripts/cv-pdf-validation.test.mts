@@ -69,14 +69,6 @@ function extractUriAnnotations(pdfPath: string): PdfAnnotation[] {
 	);
 }
 
-function sectionBetween(source: string, start: string, end: string): string {
-	const startIndex = source.indexOf(start);
-	expect(startIndex).toBeGreaterThanOrEqual(0);
-	const endIndex = source.indexOf(end, startIndex);
-	expect(endIndex).toBeGreaterThan(startIndex);
-	return source.slice(startIndex, endIndex);
-}
-
 describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 	test('tracked PDFs match freshly rendered hyperlink structure', () => {
 		const outDir = mkdtempSync(join(tmpdir(), 'cv-pdf-validation-'));
@@ -97,42 +89,33 @@ describe.skipIf(!hasTectonic())('CV PDF rendering', () => {
 		}
 	}, 240_000);
 
-	test('resume competency links are shadow links and current-stack package links are absent', () => {
+	test('resume competency links are shadow links and TOTP is not linked to tinyland-auth', () => {
 		const resumeSource = readFileSync(join(cvDir, 'jess_sullivan_resume.tex'), 'utf8');
 		const table = resumeSource.slice(resumeSource.indexOf('% CORE COMPETENCIES')).split('\\end{tabular}', 1)[0];
-		const resumeStack = sectionBetween(resumeSource, 'Current stack:', 'Research:');
-		const cvSource = readFileSync(join(cvDir, 'jess_sullivan_cv.tex'), 'utf8');
-		const cvStack = sectionBetween(cvSource, 'My current stack:', 'Research:');
 
 		expect(resumeSource).toContain('\\newcommand{\\shadowlink}[2]{\\href{#1}{\\textcolor{black}{#2}}}');
 		expect(table).not.toContain('\\cvlink');
 		expect(table).not.toContain('tinyland-auth');
-		expect(table).toContain('\\shadowlink{https://svelte.dev/docs/svelte/what-are-runes}{SvelteKit Runes}');
-		expect(table).toContain('\\shadowlink{https://bazel.build/remote/rbe}{Bazel RBE}');
-		expect(table).toContain('\\shadowlink{https://ghidra-sre.org/}{GhidraScript}');
-		expect(table).toContain('\\shadowlink{https://vite.dev/rolldown}{Vite 8/Rolldown}');
-		expect(table).toContain('\\shadowlink{https://tailscale.com/kb/1236/kubernetes-operator}{Tailscale Operator}');
-
-		for (const stack of [resumeStack, cvStack]) {
-			expect(stack).not.toContain('\\cvlink');
-			expect(stack).not.toContain('tinyland-auth');
-			expect(stack).not.toContain('scheduling-kit');
-			expect(stack).not.toContain('scheduling-bridge');
-		}
+		expect(table).toContain('\\shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel}');
+		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/caldera}{Caldera}');
+		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/caldera}{SAML}');
+		expect(table).toContain('\\shadowlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}');
+		expect(table).toContain('OAuth}, TOTP & GitLab AutoDevOps');
 	});
 
-	test('resume PDF top competency annotations are shadow-link targets', () => {
-		const annotationUris = extractUriAnnotations(join(staticCvDir, 'jess_sullivan_resume.pdf')).map(({ uri }) => uri);
+	test('resume PDF top competency annotations omit the tinyland-auth TOTP link', () => {
+		const annotations = extractUriAnnotations(join(staticCvDir, 'jess_sullivan_resume.pdf'));
+		const topCompetencyUris = annotations
+			.filter(({ rect: [x1, y1] }) => x1 >= 330 && x1 <= 475 && y1 >= 590 && y1 <= 635)
+			.map(({ uri }) => uri);
 
-		expect(annotationUris).toEqual(
+		expect(topCompetencyUris).toEqual(
 			expect.arrayContaining([
-				'https://svelte.dev/docs/svelte/what-are-runes',
-				'https://bazel.build/remote/rbe',
-				'https://ghidra-sre.org/',
-				'https://vite.dev/rolldown',
-				'https://tailscale.com/kb/1236/kubernetes-operator',
+				'https://github.com/tinyland-inc/bazel-registry',
+				'https://github.com/Jesssullivan/caldera',
+				'https://github.com/Jesssullivan/oauth-mux',
 			]),
 		);
-		expect(annotationUris).not.toContain('https://github.com/tinyland-inc/tinyland-auth');
+		expect(topCompetencyUris).not.toContain('https://github.com/tinyland-inc/tinyland-auth');
 	});
 });

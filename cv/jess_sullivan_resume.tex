@@ -183,11 +183,11 @@
 \begin{center}
 \footnotesize
 \begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{1em}}l@{\hspace{1em}}l@{}}
-\textbf{\color{secondary}Languages} & \textbf{\color{secondary}Web \& Product} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
-Python, TypeScript    & \shadowlink{https://svelte.dev/docs/svelte/what-are-runes}{SvelteKit Runes}, Bun       & \shadowlink{https://ghidra-sre.org/}{GhidraScript}, Frida                                  & Nix flakes, \shadowlink{https://bazel.build/remote/rbe}{Bazel RBE} \\
-Rust, Zig             & \shadowlink{https://vite.dev/rolldown}{Vite 8/Rolldown}, TS7                           & Zig ABI/FFI, ILSpy                                                                        & OpenTofu, sops+age \\
-Chapel, Haskell       & Auth, scheduling, mapping, telemetry                                                    & SAML, OAuth, YubiKey                                                                      & Ansible, RKE2 \\
-Go, C++, R, fish      & Postgres, Tempo/Grafana                                                                 & Caddy, KeePassXC/kdbx                                                                     & Podman Compose, \shadowlink{https://tailscale.com/kb/1236/kubernetes-operator}{Tailscale Operator} \\
+\textbf{\color{secondary}Languages} & \textbf{\color{secondary}ML/AI \& HPC} & \textbf{\color{secondary}Systems \& Security} & \textbf{\color{secondary}Infrastructure} \\[0.2em]
+Python                & Fine-grained classification          & GhidraScript                                                                              & Nix, \shadowlink{https://github.com/tinyland-inc/bazel-registry}{Bazel} \\
+TypeScript, Rust      & TensorFlow, pandas                   & Frida, ILSpy                                                                              & OpenTofu, Ansible \\
+Zig, Chapel, Haskell  & NUMA-aware horizontal parallelism    & Mitre \shadowlink{https://github.com/Jesssullivan/caldera}{Caldera}                        & RKE2 (k8s) \\
+Go, C++, R, Shell     & Realtime model evaluation \& SLM inference & \shadowlink{https://github.com/Jesssullivan/caldera}{SAML}, \shadowlink{https://github.com/Jesssullivan/oauth-mux}{OAuth}, TOTP & GitLab AutoDevOps \\
 \end{tabular}
 \end{center}
 
@@ -213,11 +213,9 @@ Ongoing contributor and community member of numerous open source projects includ
 \vspace{0.4em}
 \noindent\textit{\color{muted}Current stack:}
 \begin{itemize}
-    \item \textbf{Web \& product systems:} \tech{SvelteKit} Runes, \tech{Bun}, \tech{Vite 8} (Rolldown), TS7; auth, scheduling, mapping, telemetry, and site systems without package-level public coupling.
-    \item \textbf{Infrastructure \& platform:} \tech{Nix} flakes, \tech{Bazel RBE}, justfile, \tech{OpenTofu}, sops+age, \tech{Ansible}, \tech{Postgres}, Podman Compose, on-prem \tech{RKE2}, Tailscale Operator, \tech{Caddy}, Tempo/Grafana.
-    \item \textbf{Systems, HPC \& reverse engineering:} \tech{Chapel}, \tech{Rust}, \tech{Zig} for ABI/FFI work, \tech{Haskell}, \tech{GhidraScript}, \tech{Ghidra}, \tech{Frida}; performance systems, property-based testing, and binary analysis.
+    \item \textbf{Web:} \tech{SvelteKit} (Runes), \tech{Bun}, \tech{Vite 8} (Rolldown), TS7. Auth, scheduling, mapping, telemetry and site systems including \cvlink{https://github.com/Jesssullivan/jesssullivan.github.io}{this SvelteKit repo}, \cvlink{https://github.com/tinyland-inc/tinyland-auth}{\tech{tinyland-auth}}, \cvlink{https://github.com/Jesssullivan/scheduling-kit}{\tech{scheduling-kit}}, and \cvlink{https://github.com/Jesssullivan/scheduling-bridge}{\tech{scheduling-bridge}}.
+    \item \textbf{HPC:} \tech{Chapel}, \tech{Haskell}. Performance-oriented systems and property-based testing.
 \end{itemize}
-\noindent\textit{\color{muted}Daily operating environment:} fish shell, direnv, YubiKey, KeePassXC/kdbx, Linear, macOS teletype workstation, Rocky Linux daily-driver, and personal SearXNG/search/indexing/MCP research tooling.
 
 \vspace{0.3em}
 \noindent\textit{\color{muted}Research:}
@@ -226,7 +224,7 @@ Ongoing contributor and community member of numerous open source projects includ
     \item \textbf{Author of numerous Zig capability libraries} with C ABI surfaces: \cvlink{https://github.com/Jesssullivan/zig-crypto}{\tech{zig-crypto}} (\cvlink{https://transscendsurvival.org/zig-crypto/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-notify}{\tech{zig-notify}} (\cvlink{https://transscendsurvival.org/zig-notify/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-keychain}{\tech{zig-keychain}} (\cvlink{https://transscendsurvival.org/zig-keychain/}{docs}), \cvlink{https://github.com/Jesssullivan/zig-ctap2}{\tech{zig-ctap2}} (\cvlink{https://transscendsurvival.org/zig-ctap2/}{docs}).
     \item \cvlink{https://github.com/tinyland-inc/linux-xr}{\textbf{linux-xr}} --- Rocky Linux 10 RPM kernel lane carrying XR display patches and \cvlink{https://github.com/tinyland-inc/linux-xr/pull/66}{Dirty Frag security backports}. Backported \textbf{CVE-2026-31431}, \textbf{CVE-2026-43284}, and \textbf{CVE-2026-43500} into 6.1.y ahead of public disclosure.
     \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language), deeper WASM integration and WASM-native inference pipelines.
-    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems), and everyday \tech{Chapel}/\tech{Rust}/\tech{Zig} systems work.
+    \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems).
 \end{itemize}
 
 \vspace{0.4em}
@@ -247,10 +245,10 @@ Scalable enterprise systems supporting staff, faculty, and ILS team. Legacy mode
 
 \vspace{0.4em}
 
-%--- Tinyland ---
-\role{Tinyland, Inc}{2024--Present}
+%--- Fab Lab ---
+\role{Fabrication Laboratory Manager @ Cornell CALS}{2021--2022}
 
-Agent orchestration and source-available infrastructure lifecycle tooling for higher education and lab-scale systems. Current work spans SLM-backed automation, multicloud IaC harnesses, Chapel-based parallelism, and Kubernetes-native research infrastructure.
+Developed and taught rapid fabrication curricula. \tech{OpenSCAD}, \tech{Fusion 360}, \tech{Inkscape}, \tech{C++}. GitHub/Linear project management.
 
 \vspace{0.4em}
 
@@ -266,13 +264,6 @@ Developed \& launched \cvlink{https://merlin.allaboutbirds.org/download/}{\textb
     \item \textbf{Web \& Inference:} \tech{Flask}, \tech{TypeScript}, \tech{React}, \tech{Vue}, \tech{Docker}, \tech{WebAssembly}, \tech{React Native}, \tech{Swift}
     \item \textbf{Infrastructure:} EC2, Heroku, BitBucket CI/CD, production model deployment at scale
 \end{itemize}
-
-\vspace{0.4em}
-
-%--- Fab Lab ---
-\role{Fabrication Laboratory Manager @ Cornell CALS}{2021--2022}
-
-Developed and taught rapid fabrication curricula. \tech{OpenSCAD}, \tech{Fusion 360}, \tech{Inkscape}, \tech{C++}. GitHub/Linear project management.
 
 %==============================================================================
 % VOLUNTEER & COMMUNITY
