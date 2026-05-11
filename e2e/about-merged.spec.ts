@@ -106,7 +106,7 @@ test.describe('About (merged) page', () => {
 
 	test('ventures section renders', async ({ page }) => {
 		await expect(page.getByRole('heading', { name: 'Ventures' })).toBeVisible();
-		await expect(page.getByRole('link', { name: 'Tinyland.dev, Inc' })).toBeVisible();
+		await expect(page.getByRole('link', { name: 'Tinyland, Inc' })).toBeVisible();
 		await expect(page.getByRole('link', { name: 'xoxd.ai', exact: true }).first()).toBeVisible();
 	});
 
