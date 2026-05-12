@@ -419,7 +419,7 @@
     "@@aspect_rules_js+//npm:extensions.bzl%pnpm": {
       "general": {
         "bzlTransitiveDigest": "O00I3IcLXtw3yKeykFsMFUfv921iauEwYKS9eq7mhzo=",
-        "usagesDigest": "fMrE7lHqcBd2zZ/MglfPpi5LeHHsMGsb1j7svPITOac=",
+        "usagesDigest": "F+toSLmw3e7PcfuMD5HOd7Fq6It0Wj835W0Qf0ylnY8=",
         "recordedInputs": [
           "REPO_MAPPING:aspect_bazel_lib+,bazel_lib bazel_lib+",
           "REPO_MAPPING:aspect_bazel_lib+,bazel_skylib bazel_skylib+",
@@ -445,11 +445,11 @@
             "repoRuleId": "@@aspect_rules_js+//npm/private:npm_import.bzl%npm_import_rule",
             "attributes": {
               "package": "pnpm",
-              "version": "8.15.9",
+              "version": "9.15.9",
               "root_package": "",
               "link_workspace": "",
               "link_packages": {},
-              "integrity": "sha512-SZQ0ydj90aJ5Tr9FUrOyXApjOrzuW7Fee13pDzL0e1E6ypjNXP0AHDHw20VLw4BO3M1XhQHkyik6aBYWa72fgQ==",
+              "integrity": "sha512-aARhQYk8ZvrQHAeSMRKOmvuJ74fiaR1p5NQO7iKJiClf1GghgbrlW1hBjDolO95lpQXsfF+UA+zlzDzTfc8lMQ==",
               "url": "",
               "commit": "",
               "patch_args": [
@@ -471,7 +471,7 @@
             "repoRuleId": "@@aspect_rules_js+//npm/private:npm_import.bzl%npm_import_links",
             "attributes": {
               "package": "pnpm",
-              "version": "8.15.9",
+              "version": "9.15.9",
               "dev": false,
               "root_package": "",
               "link_packages": {},
