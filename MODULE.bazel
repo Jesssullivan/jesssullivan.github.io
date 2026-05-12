@@ -1,0 +1,44 @@
+"""Bazel consumer module for jesssullivan.github.io."""
+
+module(
+    name = "jesssullivan_github_io",
+    version = "0.0.1",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
+bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "aspect_rules_js", version = "2.9.1")
+
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "22.13.1")
+
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(
+    name = "pnpm",
+    pnpm_version = "9.15.9",
+)
+use_repo(pnpm, "pnpm")
+
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "jesssullivan_github_io_npm",
+    data = [
+        "//:package.json",
+        "//packages/blog-agent:package.json",
+        "//packages/pulse-client:package.json",
+        "//packages/pulse-core:package.json",
+    ],
+    lifecycle_hooks_envs = {
+        "puppeteer": [
+            "PUPPETEER_SKIP_DOWNLOAD=true",
+            "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true",
+        ],
+    },
+    npmrc = "//:.npmrc",
+    # The app remains npm/package-lock based. rules_js consumes this generated
+    # pnpm lock as Bazel's external dependency graph.
+    pnpm_lock = "//:pnpm-lock.yaml",
+)
+use_repo(npm, "jesssullivan_github_io_npm")
