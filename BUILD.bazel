@@ -1,0 +1,69 @@
+"""Root Bazel targets for jesssullivan.github.io."""
+
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
+load("@jesssullivan_github_io_npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages(name = "node_modules")
+
+filegroup(
+    name = "vitest_srcs",
+    srcs = glob(
+        [
+            "src/**/*.ts",
+            "src/**/*.svelte",
+            "scripts/**/*.mts",
+            "packages/**/*.ts",
+            "packages/**/*.svelte",
+        ],
+        allow_empty = True,
+    ) + [
+        ".npmrc",
+        "package-lock.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "svelte.config.js",
+        "tsconfig.json",
+        "vite.config.ts",
+        "vitest.bazel.config.ts",
+        "vitest.config.ts",
+    ],
+)
+
+js_binary(
+    name = "vitest_bazel",
+    data = [
+        ":node_modules",
+        "scripts/run-vitest-bazel.mjs",
+    ],
+    entry_point = "scripts/run-vitest-bazel.mjs",
+)
+
+js_test(
+    name = "types_unit_tests",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":vitest_srcs",
+    ],
+    entry_point = "scripts/run-vitest-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "gloriousflywheel-rbe-candidate",
+        "sveltekit",
+        "vite",
+        "vitest",
+    ],
+    timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
+exports_files(
+    [
+        "package-lock.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "scripts/run-vitest-bazel.mjs",
+        "vitest.bazel.config.ts",
+    ],
+    visibility = ["//visibility:public"],
+)

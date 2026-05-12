@@ -79,6 +79,16 @@ flowchart LR
     PrivateMirror --> Tailnet["jesssullivan-blog-shadow.taila4c78d.ts.net"]
 ```
 
+## GloriousFlywheel Bazel/RBE Pilot Surface
+
+This repo still uses the npm/SvelteKit workflow for normal local development and deployment. The Bazel files are a narrow GloriousFlywheel consumer proof surface, not a wholesale migration of the blog build.
+
+- `//:types_unit_tests` wraps Vitest through `vitest.bazel.config.ts` and runs the existing `src/lib/types.test.ts` slice.
+- `package-lock.json` remains the npm dependency authority for the app. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.
+- GloriousFlywheel proof runs should use the external GF REAPI proof harness against this public repo checkout.
+
+Current boundary: this proves one public SvelteKit/Vite/Vitest target class for remote execution evidence. It does not prove default repo-wide RBE, Playwright/Puppeteer browser execution, the full SvelteKit build, or deployment.
+
 
 
 ## Content Automation
@@ -147,4 +157,3 @@ stateDiagram-v2
     tombstoned --> [*]
     failed --> [*]
 ```
-
