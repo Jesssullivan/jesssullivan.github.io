@@ -38,6 +38,27 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "sveltekit_build_srcs",
+    srcs = glob(
+        [
+            "packages/**",
+            "scripts/**",
+            "src/**",
+            "static/**",
+        ],
+        allow_empty = True,
+    ) + [
+        ".npmrc",
+        "package-lock.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "svelte.config.js",
+        "tsconfig.json",
+        "vite.config.ts",
+    ],
+)
+
 js_binary(
     name = "vitest_bazel",
     data = [
@@ -63,6 +84,25 @@ js_test(
         "vitest",
     ],
     timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "sveltekit_vite_build_smoke",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":sveltekit_build_srcs",
+    ],
+    entry_point = "scripts/run-sveltekit-vite-build-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "gloriousflywheel-rbe-candidate",
+        "sveltekit",
+        "vite",
+        "web-build-runtime-authority",
+    ],
+    timeout = "long",
     visibility = ["//visibility:public"],
 )
 
@@ -115,6 +155,7 @@ exports_files(
         "pnpm-lock.yaml",
         "scripts/run-playwright-chromium-bazel.mjs",
         "scripts/run-puppeteer-chromium-bazel.mjs",
+        "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",
     ],
