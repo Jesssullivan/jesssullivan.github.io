@@ -31,6 +31,9 @@ npm.npm_translate_lock(
         "//packages/pulse-core:package.json",
     ],
     lifecycle_hooks_envs = {
+        "playwright": [
+            "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1",
+        ],
         "puppeteer": [
             "PUPPETEER_SKIP_DOWNLOAD=true",
             "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true",
