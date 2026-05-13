@@ -84,11 +84,12 @@ flowchart LR
 This repo still uses the npm/SvelteKit workflow for normal local development and deployment. The Bazel files are a narrow GloriousFlywheel consumer proof surface, not a wholesale migration of the blog build.
 
 - `//:types_unit_tests` wraps Vitest through `vitest.bazel.config.ts` and runs the existing `src/lib/types.test.ts` slice.
+- `//:playwright_chromium_smoke` launches Playwright against the pinned GloriousFlywheel Chromium runtime path. It is a browser-runtime smoke target, not the full hosted Playwright regression suite.
 - `package-lock.json` remains the npm dependency authority for the app. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.
-- Bazel npm lifecycle hooks skip Puppeteer browser downloads; browser-backed Playwright/Puppeteer RBE needs a separate pinned browser/toolchain tranche.
+- Bazel npm lifecycle hooks skip Playwright and Puppeteer browser downloads. Browser-backed RBE must use the pinned worker Chromium path rather than downloading browsers during proof actions.
 - GloriousFlywheel proof runs should use the external GF REAPI proof harness against this public repo checkout.
 
-Current boundary: this proves one public SvelteKit/Vite/Vitest target class for remote execution evidence. It does not prove default repo-wide RBE, Playwright/Puppeteer browser execution, the full SvelteKit build, or deployment.
+Current boundary: this proves narrow public SvelteKit/Vite/Vitest and Playwright/Chromium target classes for remote execution evidence. It does not prove default repo-wide RBE, the full hosted Playwright suite, Puppeteer browser execution, the full SvelteKit build, or deployment.
 
 
 
