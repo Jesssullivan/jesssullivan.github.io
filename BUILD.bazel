@@ -34,6 +34,7 @@ filegroup(
     srcs = [
         "package.json",
         "scripts/run-playwright-chromium-bazel.mjs",
+        "scripts/run-puppeteer-chromium-bazel.mjs",
     ],
 )
 
@@ -86,12 +87,34 @@ js_test(
     visibility = ["//visibility:public"],
 )
 
+js_test(
+    name = "puppeteer_chromium_smoke",
+    copy_data_to_bin = False,
+    data = [
+        ":browser_smoke_srcs",
+        ":node_modules",
+    ],
+    entry_point = "scripts/run-puppeteer-chromium-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "chromium",
+        "gloriousflywheel-rbe-candidate",
+        "puppeteer",
+        "sveltekit",
+        "vite",
+        "web-browser-runtime-authority",
+    ],
+    timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
         "package.json",
         "pnpm-lock.yaml",
         "scripts/run-playwright-chromium-bazel.mjs",
+        "scripts/run-puppeteer-chromium-bazel.mjs",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",
     ],
