@@ -45,7 +45,7 @@ export const PulseApStreamDemoSchema = z
 		projectionKind: z.literal('pulse-ap-stream-demo'),
 		demoStatus: z.literal(PULSE_AP_STREAM_DEMO_STATUS),
 		publicFediverseDelivery: z.literal(false),
-		activityPubStatus: z.literal('ap-shaped-projection-only'),
+		activityPubStatus: z.literal('broker-projection-only'),
 		spokeRef: z.string().min(1),
 		spokeTarget: z.string().min(1),
 		routePath: z.string().regex(/^\/projections\/[^/]+\/pulse\/ap-stream-demo\.v1\.json$/),

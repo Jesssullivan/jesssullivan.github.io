@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 const endpoint = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json';
-const endpointPattern = '**/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json**';
 
 const liveDemo = {
 	schemaVersion: 'tinyland.pulse.ap-stream-demo.v1',
@@ -14,7 +13,7 @@ const liveDemo = {
 	projectionKind: 'pulse-ap-stream-demo',
 	demoStatus: 'controlled-broker-source-demo',
 	publicFediverseDelivery: false,
-	activityPubStatus: 'ap-shaped-projection-only',
+	activityPubStatus: 'broker-projection-only',
 	spokeRef: 'jesssullivan-github-io',
 	spokeTarget: 'transscendsurvival.org',
 	routePath: '/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
@@ -39,7 +38,7 @@ const liveDemo = {
 
 test.describe('Pulse brokered stream lab', () => {
 	test('renders AP-shaped broker data from the live Tinyland endpoint', async ({ page }) => {
-		await page.route(endpointPattern, (route) =>
+		await page.route(endpoint, (route) =>
 			route.fulfill({
 				status: 200,
 				contentType: 'application/json',
@@ -61,7 +60,7 @@ test.describe('Pulse brokered stream lab', () => {
 	});
 
 	test('shows unavailable instead of falling back to checked-in static data', async ({ page }) => {
-		await page.route(endpointPattern, (route) =>
+		await page.route(endpoint, (route) =>
 			route.fulfill({
 				status: 503,
 				contentType: 'application/json',

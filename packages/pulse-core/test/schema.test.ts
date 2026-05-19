@@ -162,7 +162,7 @@ describe('schema/ap-stream-demo', () => {
 		projectionKind: 'pulse-ap-stream-demo',
 		demoStatus: PULSE_AP_STREAM_DEMO_STATUS,
 		publicFediverseDelivery: false,
-		activityPubStatus: 'ap-shaped-projection-only',
+		activityPubStatus: 'broker-projection-only',
 		spokeRef: 'jesssullivan-github-io',
 		spokeTarget: 'transscendsurvival.org',
 		routePath: '/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',

@@ -17,7 +17,7 @@ const readyState: PulseApStreamDemoPanelState = {
 		projectionKind: 'pulse-ap-stream-demo',
 		demoStatus: 'controlled-broker-source-demo',
 		publicFediverseDelivery: false,
-		activityPubStatus: 'ap-shaped-projection-only',
+		activityPubStatus: 'broker-projection-only',
 		spokeRef: 'jesssullivan-github-io',
 		spokeTarget: 'transscendsurvival.org',
 		routePath: '/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
