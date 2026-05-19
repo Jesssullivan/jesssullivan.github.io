@@ -117,6 +117,7 @@ jobs:
 
       - name: Lighthouse CI
         id: lhci
+        timeout-minutes: 5
         run: |
           npm install -g @lhci/cli
           lhci autorun
