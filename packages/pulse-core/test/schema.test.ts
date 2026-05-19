@@ -155,7 +155,7 @@ describe('schema/ap-stream-demo', () => {
 		schemaVersion: PULSE_AP_STREAM_DEMO_SCHEMA_VERSION,
 		generatedAt: '2026-05-10T13:00:00.000Z',
 		sourceAuthority: 'tinyland.dev',
-		sourceAuthorityUrl: 'https://tinyland.dev',
+		sourceAuthorityUrl: 'https://hub.tinyland.dev',
 		sourceSnapshotId: 'tinyland-jesssullivan-pulse-static-seed-2026-05-10',
 		contentHash: `sha256:${'b'.repeat(64)}`,
 		policyVersion: PUBLIC_SNAPSHOT_POLICY_VERSION,
@@ -166,11 +166,11 @@ describe('schema/ap-stream-demo', () => {
 		spokeRef: 'jesssullivan-github-io',
 		spokeTarget: 'transscendsurvival.org',
 		routePath: '/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
-		publicUrl: 'https://tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
+		publicUrl: 'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json',
 		itemCount: 1,
 		orderedItems: [
 			{
-				id: 'https://tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json#note-1',
+				id: 'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json#note-1',
 				type: 'Note',
 				published: '2026-05-10T12:30:00.000Z',
 				summary: 'hello',

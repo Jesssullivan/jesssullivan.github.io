@@ -10,7 +10,7 @@ const readyState: PulseApStreamDemoPanelState = {
 		schemaVersion: 'tinyland.pulse.ap-stream-demo.v1',
 		generatedAt: '2026-05-10T13:00:00.000Z',
 		sourceAuthority: 'tinyland.dev',
-		sourceAuthorityUrl: 'https://tinyland.dev',
+		sourceAuthorityUrl: 'https://hub.tinyland.dev',
 		sourceSnapshotId: 'tinyland-jesssullivan-pulse-static-seed-2026-05-10',
 		contentHash: 'sha256:fc3b04ec97946d6777e5245040b09a3ead296a9bf4614d0fea7df2d3cfb2ccb7',
 		policyVersion: 'm1-2026-04-27',

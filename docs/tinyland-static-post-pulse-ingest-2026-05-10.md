@@ -3,8 +3,13 @@
 Date: 2026-05-10
 
 This repo is the static consumer for `transscendsurvival.org`. Tinyland owns the
-reviewed source projection; this site keeps rendering ordinary frontmatter posts
-and a checked-in Pulse snapshot.
+reviewed source projection.
+
+2026-05-19 correction: this checked-in ingest path is fallback and migration
+evidence only. The intended Cloudflare Pages display path is runtime broker
+fetch from `hub.tinyland.dev`, with Tinyland-managed greymatter as the source of
+truth. Checked-in snapshots must not be treated as the live blog federation
+mechanism.
 
 ## Checked-In Inputs
 
@@ -20,8 +25,13 @@ Pulse projection snapshot:
 static/data/pulse/public-snapshot.v1.json
 ```
 
-Both are copied from Tinyland reviewed static artifacts. They are not fetched
-from a live broker at runtime.
+Both are copied from Tinyland reviewed static artifacts. They remain useful as
+first-paint and regression fixtures, but canonical blog display now hydrates
+from:
+
+```text
+https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json
+```
 
 ## Post Ingest
 
@@ -85,13 +95,14 @@ index and validating Pulse.
 
 Allowed:
 
-- checked-in static snapshots;
-- ordinary Markdown/frontmatter posts in `src/posts`;
+- checked-in static snapshots as fallback/regression fixtures;
+- ordinary Markdown/frontmatter posts in `src/posts` for legacy/static
+  first-paint content;
+- runtime display fetches from the public `hub.tinyland.dev` broker stream;
 - the existing `PublicPulseSnapshot` validator and `/pulse` renderer.
 
 Blocked:
 
-- live broker fetches during SvelteKit render;
 - mutations back into Tinyland;
 - ActivityPub delivery, inbox, follower, retry, tombstone, or moderation claims;
 - private storage refs, exact location payloads, credentials, or payment data.

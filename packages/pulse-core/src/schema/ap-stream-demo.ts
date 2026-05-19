@@ -38,7 +38,7 @@ export const PulseApStreamDemoSchema = z
 		schemaVersion: z.literal(PULSE_AP_STREAM_DEMO_SCHEMA_VERSION),
 		generatedAt: IsoTimestampSchema,
 		sourceAuthority: z.literal('tinyland.dev'),
-		sourceAuthorityUrl: z.literal('https://tinyland.dev'),
+		sourceAuthorityUrl: z.literal('https://hub.tinyland.dev'),
 		sourceSnapshotId: z.string().min(1),
 		contentHash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
 		policyVersion: z.string().min(1),

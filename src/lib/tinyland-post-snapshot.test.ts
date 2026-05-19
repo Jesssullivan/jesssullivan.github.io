@@ -43,7 +43,7 @@ function snapshotHash(snapshot: TinylandPostSnapshot): string {
 }
 
 describe('Tinyland post projection snapshot', () => {
-	it('keeps transscendsurvival.org as a checked-in static consumer', () => {
+	it('keeps checked-in post snapshots fallback-only and non-authoritative', () => {
 		const snapshot = readJson<TinylandPostSnapshot>('static/data/tinyland/posts/public-snapshot.v1.json');
 
 		expect(snapshot.schemaVersion).toBe('tinyland.static-spoke.snapshot.v1');
@@ -60,7 +60,7 @@ describe('Tinyland post projection snapshot', () => {
 		);
 	});
 
-	it('materializes reviewed posts into the extant frontmatter flow', () => {
+	it('materializes reviewed snapshot evidence into the legacy frontmatter flow', () => {
 		const snapshot = readJson<TinylandPostSnapshot>('static/data/tinyland/posts/public-snapshot.v1.json');
 
 		for (const post of snapshot.posts) {

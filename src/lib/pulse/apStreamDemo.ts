@@ -1,7 +1,7 @@
 import { PulseApStreamDemoSchema, type PulseApStreamDemo } from '@blog/pulse-core/schema';
 
 export const TINYLAND_PULSE_AP_STREAM_DEMO_URL =
-	'https://tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json';
+	'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/ap-stream-demo.v1.json';
 
 export type PulseApStreamFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 

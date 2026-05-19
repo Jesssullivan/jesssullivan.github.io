@@ -1,10 +1,10 @@
 import type { PageLoad, EntryGenerator } from './$types';
-import { error } from '@sveltejs/kit';
 import searchIndexData from '../../../../static/search-index.json';
 
 interface PostMeta {
 	title: string;
 	date: string;
+	slug: string;
 	published?: boolean;
 	description?: string;
 	tags?: string[];
@@ -90,13 +90,31 @@ export const load: PageLoad = async ({ params }) => {
 
 		return {
 			content: post.default,
-			metadata: post.metadata,
+			metadata: { ...post.metadata, slug: params.slug },
 			reading_time,
 			prev,
 			next,
-			relatedPosts
+			relatedPosts,
+			brokerSlug: params.slug,
+			brokerOnly: false,
 		};
 	}
 
-	error(404, 'Post not found');
+	return {
+		content: null,
+		metadata: {
+			title: params.slug,
+			slug: params.slug,
+			date: '',
+			description: '',
+			tags: [],
+			published: true,
+		},
+		reading_time: null,
+		prev: null,
+		next: null,
+		relatedPosts: [],
+		brokerSlug: params.slug,
+		brokerOnly: true,
+	};
 };
