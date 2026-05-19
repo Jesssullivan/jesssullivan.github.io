@@ -3,8 +3,8 @@ Hi! This is just my boring personal static blog ^w^
 
 | Surface | Route |
 | --- | --- |
-| Production | `https://transscendsurvival.org` |
-| Cloudflare Pages shadow | `https://tss.tinyland.dev` |
+| Production | `https://transscendsurvival.org` (current production, GitHub Pages) |
+| Cloudflare Pages shadow | `https://tss.tinyland.dev` (development shadow) |
 | Alternate Cloudflare shadow | `https://tss.ephemera.tinyland.dev` |
 | Tailnet-only shadow | `https://jesssullivan-blog-shadow.taila4c78d.ts.net` |
 | Tailnet vanity target | `https://jesssullivan-blog-shadow.tailnet.tinyland.dev` |
@@ -15,7 +15,9 @@ Hi! This is just my boring personal static blog ^w^
 The build produces a static SvelteKit artifact. Tinyland snapshots and local
 Markdown remain first-paint, no-JS, and regression fixtures; canonical blog and
 Pulse display hydrates in the browser from the public Tinyland broker when it is
-available.
+available. `transscendsurvival.org` is the production consumer today even while
+it is still served by GitHub Pages; `tss.tinyland.dev` is the Cloudflare Pages
+development shadow until the production cutover is explicitly proven.
 
 ```mermaid
 flowchart LR
@@ -131,7 +133,7 @@ primary authoring path for Tinyland-managed posts.
 flowchart TB
     TinylandEditor["tinyland.dev blog editor"] --> Greymatter["content/users/jesssullivan greymatter"]
     Greymatter --> BlogBroker["hub.tinyland.dev blog broker stream"]
-    BlogBroker --> BlogRuntime["CF Pages /blog and /blog/[slug] runtime display"]
+    BlogBroker --> BlogRuntime["production + shadow /blog and /blog/[slug] runtime display"]
 
     PulseBroker["Tinyland Pulse broker/public policy"] --> PulseSnapshot["hub.tinyland.dev Pulse public snapshot"]
     PulseSnapshot --> PulseRuntime["CF Pages /pulse runtime refresh"]

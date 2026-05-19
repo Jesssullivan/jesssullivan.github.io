@@ -67,11 +67,14 @@ uses the `tinyland-dind` ARC runner by default and accepts the same
 `.github/workflows/cloudflare-pages-shadow.yml` builds the same static
 SvelteKit output and can publish it to Cloudflare Pages by Direct Upload.
 
-This is a shadow lane for moving `transscendsurvival.org` toward the Tinyland
-static-spoke edge posture. It does not cut over DNS or replace GitHub Pages
-production. The built site is still static, but current `/blog`, `/blog/[slug]`,
-and `/pulse` client code may hydrate from public `hub.tinyland.dev` broker
-endpoints at runtime when those endpoints are available.
+This is a development shadow lane for moving `transscendsurvival.org` toward the
+Tinyland static-spoke edge posture. It does not cut over DNS or replace the
+current GitHub Pages production surface. Production remains
+`https://transscendsurvival.org`; `https://tss.tinyland.dev` is the Cloudflare
+Pages shadow. The built site is still static, but current `/blog`,
+`/blog/[slug]`, and `/pulse` client code may hydrate from public
+`hub.tinyland.dev` broker endpoints at runtime when those endpoints are
+available.
 
 Required repository secrets:
 
