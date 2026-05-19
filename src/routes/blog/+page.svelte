@@ -6,11 +6,30 @@
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
+	import {
+		TINYLAND_BLOG_BROKER_STREAM_URL,
+		loadTinylandBlogBrokerStream,
+		summarizeTinylandBlogBrokerError,
+		tinylandBlogBrokerStreamToPosts,
+		type TinylandBlogBrokerState,
+	} from '$lib/tinyland/blogBrokerStream';
+
 	let { data }: { data: PageData } = $props();
 
 	const POSTS_PER_PAGE = 20;
+	const brokerEndpoint = TINYLAND_BLOG_BROKER_STREAM_URL;
 
-	let totalPages = $derived(Math.ceil(data.posts.length / POSTS_PER_PAGE));
+	let brokerState = $state<TinylandBlogBrokerState>({
+		status: 'loading',
+		endpoint: brokerEndpoint,
+	});
+
+	let displayPosts = $derived(
+		brokerState.status === 'ready' ? brokerState.posts : data.posts
+	);
+
+	let totalPages = $derived(Math.ceil(displayPosts.length / POSTS_PER_PAGE));
 	let pageParam = $derived(
 		browser ? parseInt($page.url.searchParams.get('page') || '1') : 1
 	);
@@ -18,16 +37,55 @@
 		Math.max(0, Math.min(pageParam - 1, totalPages - 1))
 	);
 	let paginatedPosts = $derived(
-		data.posts.slice(currentPage * POSTS_PER_PAGE, (currentPage + 1) * POSTS_PER_PAGE)
+		displayPosts.slice(currentPage * POSTS_PER_PAGE, (currentPage + 1) * POSTS_PER_PAGE)
 	);
 
 	// Collect all unique tags
 	let allTags = $derived(
-		[...new Set(data.posts.flatMap(p => p.tags))].sort()
+		[...new Set(displayPosts.flatMap(p => p.tags))].sort()
 	);
 
 	// Recent 5 posts for sidebar
-	let recentPosts = $derived(data.posts.slice(0, 5));
+	let recentPosts = $derived(displayPosts.slice(0, 5));
+
+	onMount(() => {
+		let cancelled = false;
+		const controller = new AbortController();
+		const timer = window.setTimeout(() => controller.abort(), 10_000);
+
+		loadTinylandBlogBrokerStream(fetch, {
+			endpoint: brokerEndpoint,
+			signal: controller.signal,
+		})
+			.then((stream) => {
+				if (!cancelled) {
+					brokerState = {
+						status: 'ready',
+						endpoint: brokerEndpoint,
+						stream,
+						posts: tinylandBlogBrokerStreamToPosts(stream),
+					};
+				}
+			})
+			.catch((error: unknown) => {
+				if (!cancelled) {
+					brokerState = {
+						status: 'unavailable',
+						endpoint: brokerEndpoint,
+						reason: summarizeTinylandBlogBrokerError(error),
+					};
+				}
+			})
+			.finally(() => {
+				window.clearTimeout(timer);
+			});
+
+		return () => {
+			cancelled = true;
+			window.clearTimeout(timer);
+			controller.abort();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -42,9 +100,19 @@
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-5xl">
+	<div class="sr-only" aria-live="polite" data-testid="tinyland-blog-broker-state">
+		{#if brokerState.status === 'ready'}
+			Tinyland broker stream loaded.
+		{:else if brokerState.status === 'unavailable'}
+			Tinyland broker stream unavailable: {brokerState.reason}
+		{:else}
+			Tinyland broker stream loading.
+		{/if}
+	</div>
+
 	<div class="flex items-baseline justify-between mb-8">
 		<h1 class="font-heading text-3xl font-bold">Blog</h1>
-		<span class="text-sm text-surface-500">{data.posts.length} posts</span>
+		<span class="text-sm text-surface-500">{displayPosts.length} posts</span>
 	</div>
 
 	<!-- Mobile profile (visible on small screens only) -->

@@ -7,9 +7,62 @@
 	import ReadingProgressRing from '$lib/components/ReadingProgressRing.svelte';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import {
+		TINYLAND_BLOG_BROKER_STREAM_URL,
+		findTinylandBlogBrokerPost,
+		loadTinylandBlogBrokerStream,
+		summarizeTinylandBlogBrokerError,
+		tinylandBlogBrokerPostToPost,
+		type TinylandBlogBrokerPost,
+	} from '$lib/tinyland/blogBrokerStream';
+	import { renderTrustedBrokerMarkdown } from '$lib/tinyland/runtimeMarkdown';
+
 	let { data }: { data: PageData } = $props();
 
+	type ActiveMetadata = {
+		title: string;
+		slug: string;
+		date: string;
+		published?: boolean;
+		description?: string;
+		tags?: string[];
+		original_url?: string;
+		category?: string;
+		feature_image?: string;
+	};
+
 	let readingProgress = $state(0);
+	let brokerPost = $state<TinylandBlogBrokerPost | null>(null);
+	let brokerHtml = $state('');
+	let brokerStatus = $state<'idle' | 'loading' | 'ready' | 'unavailable'>('idle');
+	let brokerUnavailableReason = $state('');
+
+	let activePost = $derived(brokerPost ? tinylandBlogBrokerPostToPost(brokerPost) : null);
+	let activeMetadata = $derived(
+		activePost
+			? {
+					...data.metadata,
+					title: activePost.title,
+					slug: activePost.slug,
+					date: activePost.date,
+					description: activePost.description,
+					tags: activePost.tags,
+					category: activePost.category,
+					feature_image: activePost.feature_image,
+				}
+			: data.metadata
+	) as ActiveMetadata;
+	let activeReadingTime = $derived(activePost?.reading_time ?? data.reading_time);
+	let activeImageUrl = $derived(resolveSiteImageUrl(activeMetadata.feature_image));
+	let activeOriginalUrl = $derived(activeMetadata.original_url);
+	let activeOriginalHost = $derived(activeOriginalUrl ? new URL(activeOriginalUrl).hostname : '');
+
+	function resolveSiteImageUrl(value: string | undefined): string {
+		if (!value) return 'https://transscendsurvival.org/images/header.png';
+		if (/^https?:\/\//.test(value)) return value;
+		const path = value.startsWith('/') ? value : `/${value}`;
+		return `https://transscendsurvival.org${path}`;
+	}
 
 	function updateReadingProgress() {
 		const article = document.querySelector('article');
@@ -77,48 +130,95 @@
 			heading.prepend(link);
 		});
 	});
+
+	onMount(() => {
+		const slug = data.brokerSlug;
+		if (!slug) return;
+
+		let cancelled = false;
+		const controller = new AbortController();
+		const timer = window.setTimeout(() => controller.abort(), 10_000);
+		brokerStatus = 'loading';
+
+		loadTinylandBlogBrokerStream(fetch, {
+			endpoint: TINYLAND_BLOG_BROKER_STREAM_URL,
+			signal: controller.signal,
+		})
+			.then(async (stream) => {
+				const post = findTinylandBlogBrokerPost(stream, slug);
+				if (!post) {
+					if (!cancelled && data.brokerOnly) {
+						brokerStatus = 'unavailable';
+						brokerUnavailableReason = 'post is not in the reviewed Tinyland broker stream';
+					}
+					return;
+				}
+
+				const html = await renderTrustedBrokerMarkdown(post.contentMarkdown);
+				if (!cancelled) {
+					brokerPost = post;
+					brokerHtml = html;
+					brokerStatus = 'ready';
+				}
+			})
+			.catch((error: unknown) => {
+				if (!cancelled) {
+					brokerStatus = 'unavailable';
+					brokerUnavailableReason = summarizeTinylandBlogBrokerError(error);
+				}
+			})
+			.finally(() => {
+				window.clearTimeout(timer);
+			});
+
+		return () => {
+			cancelled = true;
+			window.clearTimeout(timer);
+			controller.abort();
+		};
+	});
 </script>
 
 <svelte:head>
-	<title>{data.metadata.title} | transscendsurvival.org</title>
-	{#if data.metadata.description}
-		<meta name="description" content={data.metadata.description} />
+	<title>{activeMetadata.title} | transscendsurvival.org</title>
+	{#if activeMetadata.description}
+		<meta name="description" content={activeMetadata.description} />
 	{/if}
-	<meta property="og:title" content={data.metadata.title} />
+	<meta property="og:title" content={activeMetadata.title} />
 	<meta property="og:type" content="article" />
-	<meta property="og:url" content="https://transscendsurvival.org/blog/{data.metadata.slug}" />
+	<meta property="og:url" content="https://transscendsurvival.org/blog/{activeMetadata.slug}" />
 	<meta property="og:site_name" content="transscendsurvival.org" />
-	<meta property="article:published_time" content={data.metadata.date} />
+	<meta property="article:published_time" content={activeMetadata.date} />
 	<meta property="article:author" content="Jess Sullivan" />
-	{#if data.metadata.description}
-		<meta property="og:description" content={data.metadata.description} />
+	{#if activeMetadata.description}
+		<meta property="og:description" content={activeMetadata.description} />
 	{/if}
-	{#if data.metadata.tags?.length}
-		{#each data.metadata.tags as tag}
+	{#if activeMetadata.tags?.length}
+		{#each activeMetadata.tags as tag}
 			<meta property="article:tag" content={tag} />
 		{/each}
 	{/if}
-	<meta property="og:image" content={data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : 'https://transscendsurvival.org/images/header.png'} />
+	<meta property="og:image" content={activeImageUrl} />
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content={data.metadata.title} />
-	{#if data.metadata.description}
-		<meta name="twitter:description" content={data.metadata.description} />
+	<meta name="twitter:title" content={activeMetadata.title} />
+	{#if activeMetadata.description}
+		<meta name="twitter:description" content={activeMetadata.description} />
 	{/if}
-	<meta name="twitter:image" content={data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : 'https://transscendsurvival.org/images/header.png'} />
-	<link rel="canonical" href="https://transscendsurvival.org/blog/{data.metadata.slug}" />
+	<meta name="twitter:image" content={activeImageUrl} />
+	<link rel="canonical" href="https://transscendsurvival.org/blog/{activeMetadata.slug}" />
 	{@html `<script type="application/ld+json">${JSON.stringify({
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
-		"headline": data.metadata.title,
-		"datePublished": data.metadata.date,
-		"dateModified": data.metadata.date,
+		"headline": activeMetadata.title,
+		"datePublished": activeMetadata.date,
+		"dateModified": brokerPost?.updatedAt ?? activeMetadata.date,
 		"author": { "@type": "Person", "name": "Jess Sullivan", "url": "https://github.com/Jesssullivan" },
 		"publisher": { "@type": "Person", "name": "Jess Sullivan" },
-		"url": `https://transscendsurvival.org/blog/${data.metadata.slug}`,
-		"image": data.metadata.feature_image ? `https://transscendsurvival.org${data.metadata.feature_image}` : "https://transscendsurvival.org/images/header.png",
-		"mainEntityOfPage": { "@type": "WebPage", "@id": `https://transscendsurvival.org/blog/${data.metadata.slug}` },
-		...(data.metadata.description ? { "description": data.metadata.description } : {}),
-		...(data.metadata.tags?.length ? { "keywords": data.metadata.tags.join(", ") } : {})
+		"url": `https://transscendsurvival.org/blog/${activeMetadata.slug}`,
+		"image": activeImageUrl,
+		"mainEntityOfPage": { "@type": "WebPage", "@id": `https://transscendsurvival.org/blog/${activeMetadata.slug}` },
+		...(activeMetadata.description ? { "description": activeMetadata.description } : {}),
+		...(activeMetadata.tags?.length ? { "keywords": activeMetadata.tags.join(", ") } : {})
 	})}</script>`}
 </svelte:head>
 
@@ -135,29 +235,41 @@
 {/if}
 
 <article class="container mx-auto px-4 py-12 max-w-5xl">
+	<div class="sr-only" aria-live="polite" data-testid="tinyland-blog-post-broker-state">
+		{#if brokerStatus === 'ready'}
+			Tinyland broker post loaded.
+		{:else if brokerStatus === 'unavailable'}
+			Tinyland broker post unavailable: {brokerUnavailableReason}
+		{:else if brokerStatus === 'loading'}
+			Tinyland broker post loading.
+		{/if}
+	</div>
+
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<div class="min-w-0">
 			<header class="mb-8">
 				<Breadcrumbs crumbs={[
 					{ label: 'Home', href: '/' },
 					{ label: 'Blog', href: '/blog' },
-					{ label: data.metadata.title, href: `/blog/${data.metadata.slug}` }
+					{ label: activeMetadata.title, href: `/blog/${activeMetadata.slug}` }
 				]} />
-				<h1 class="text-3xl font-bold mt-2">{data.metadata.title}</h1>
+				<h1 class="text-3xl font-bold mt-2">{activeMetadata.title}</h1>
 				<div class="flex items-center gap-3 mt-3 text-sm text-surface-500">
-					<time>{new Date(data.metadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-					{#if data.reading_time}
-						<span>&middot;</span>
-						<span>{data.reading_time} min read</span>
+					{#if activeMetadata.date}
+						<time>{new Date(activeMetadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
 					{/if}
-					{#if data.metadata.category}
+					{#if activeReadingTime}
 						<span>&middot;</span>
-						<span class="badge preset-outlined-surface-500 text-xs capitalize">{data.metadata.category}</span>
+						<span>{activeReadingTime} min read</span>
+					{/if}
+					{#if activeMetadata.category}
+						<span>&middot;</span>
+						<span class="badge preset-outlined-surface-500 text-xs capitalize">{activeMetadata.category}</span>
 					{/if}
 				</div>
-				{#if data.metadata.tags?.length}
+				{#if activeMetadata.tags?.length}
 						<div class="flex flex-wrap gap-2 mt-3">
-							{#each data.metadata.tags as tag}
+							{#each activeMetadata.tags as tag}
 								<a
 									href="/blog/tag/{encodeURIComponent(tag)}"
 									class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors"
@@ -169,12 +281,20 @@
 			</header>
 
 			<div class="prose prose-lg max-w-none overflow-x-hidden" data-pagefind-body>
-				{@render data.content()}
+				{#if brokerHtml}
+					{@html brokerHtml}
+				{:else if data.content}
+					{@render data.content()}
+				{:else if brokerStatus === 'unavailable'}
+					<p>Post unavailable.</p>
+				{:else}
+					<p>Loading post.</p>
+				{/if}
 			</div>
 
-			{#if data.metadata.original_url}
+			{#if activeOriginalUrl}
 				<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
-					Originally published at <a href={data.metadata.original_url} class="text-primary-500 hover:underline" aria-label={`Visit original post on ${new URL(data.metadata.original_url).hostname}`}>{new URL(data.metadata.original_url).hostname}</a>
+					Originally published at <a href={activeOriginalUrl} class="text-primary-500 hover:underline" aria-label={`Visit original post on ${activeOriginalHost}`}>{activeOriginalHost}</a>
 				</p>
 			{/if}
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { IsoTimestampSchema } from './event.js';
 
 export const PULSE_AP_STREAM_DEMO_SCHEMA_VERSION = 'tinyland.pulse.ap-stream-demo.v1';
-export const PULSE_AP_STREAM_DEMO_STATUS = 'controlled-static-source-live-broker-demo';
+export const PULSE_AP_STREAM_DEMO_STATUS = 'controlled-broker-source-demo';
 
 export const PulseApStreamDemoTagSchema = z
 	.object({
@@ -38,14 +38,14 @@ export const PulseApStreamDemoSchema = z
 		schemaVersion: z.literal(PULSE_AP_STREAM_DEMO_SCHEMA_VERSION),
 		generatedAt: IsoTimestampSchema,
 		sourceAuthority: z.literal('tinyland.dev'),
-		sourceAuthorityUrl: z.literal('https://tinyland.dev'),
+		sourceAuthorityUrl: z.literal('https://hub.tinyland.dev'),
 		sourceSnapshotId: z.string().min(1),
 		contentHash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
 		policyVersion: z.string().min(1),
 		projectionKind: z.literal('pulse-ap-stream-demo'),
 		demoStatus: z.literal(PULSE_AP_STREAM_DEMO_STATUS),
 		publicFediverseDelivery: z.literal(false),
-		activityPubStatus: z.literal('ap-shaped-projection-only'),
+		activityPubStatus: z.literal('broker-projection-only'),
 		spokeRef: z.string().min(1),
 		spokeTarget: z.string().min(1),
 		routePath: z.string().regex(/^\/projections\/[^/]+\/pulse\/ap-stream-demo\.v1\.json$/),

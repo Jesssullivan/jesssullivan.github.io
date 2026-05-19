@@ -1,7 +1,8 @@
 #!/usr/bin/env tsx
-// Materializes reviewed tinyland.dev post projections into the existing
-// src/posts/*.md frontmatter flow. The static site remains a read-only
-// consumer: this script only reads a checked-in snapshot.
+// Fallback/migration only. The canonical blog display path is the CF Pages
+// runtime fetch from the public Tinyland broker stream, not checked-in posts.
+// This script materializes reviewed snapshot evidence into the legacy
+// src/posts/*.md frontmatter flow when explicitly invoked.
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
