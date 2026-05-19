@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { IsoTimestampSchema } from './event.js';
 
 export const PULSE_AP_STREAM_DEMO_SCHEMA_VERSION = 'tinyland.pulse.ap-stream-demo.v1';
-export const PULSE_AP_STREAM_DEMO_STATUS = 'controlled-static-source-live-broker-demo';
+export const PULSE_AP_STREAM_DEMO_STATUS = 'controlled-broker-source-demo';
 
 export const PulseApStreamDemoTagSchema = z
 	.object({

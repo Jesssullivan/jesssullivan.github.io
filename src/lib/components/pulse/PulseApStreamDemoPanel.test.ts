@@ -15,7 +15,7 @@ const readyState: PulseApStreamDemoPanelState = {
 		contentHash: 'sha256:fc3b04ec97946d6777e5245040b09a3ead296a9bf4614d0fea7df2d3cfb2ccb7',
 		policyVersion: 'm1-2026-04-27',
 		projectionKind: 'pulse-ap-stream-demo',
-		demoStatus: 'controlled-static-source-live-broker-demo',
+		demoStatus: 'controlled-broker-source-demo',
 		publicFediverseDelivery: false,
 		activityPubStatus: 'ap-shaped-projection-only',
 		spokeRef: 'jesssullivan-github-io',
