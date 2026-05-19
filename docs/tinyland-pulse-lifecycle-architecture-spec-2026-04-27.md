@@ -47,7 +47,10 @@ The core rule is simple: the tinyland broker owns the source of truth. The stati
 - Production photo upload and processing.
 - A production native/mobile app.
 - Public exposure of local git summaries.
-- Runtime dependency from the static blog to a live tinyland broker.
+- Runtime dependency from the static blog to a private Tinyland broker,
+  mutation API, queue, or event store. A browser fetch from the public
+  `hub.tinyland.dev` Pulse snapshot projection is allowed as a display refresh
+  after static first paint.
 
 ## System Shape
 
@@ -58,7 +61,8 @@ client/demo composer
   -> queue/workflow boundary
   -> projection worker
   -> public snapshot + manifest
-  -> static blog /pulse
+  -> static blog /pulse first paint
+  -> hub.tinyland.dev public snapshot refresh
 
 optional later projections:
   -> ActivityStreams outbox mirror
@@ -297,7 +301,10 @@ Build behavior:
 - `/pulse` remains `prerender = true`.
 - `npm run check` or a dedicated validation script fails on invalid snapshot shape.
 - `npm run build` must not require the broker to be online.
-- A future optional fetch step may refresh the checked snapshot before build, but only behind an explicit operator command or CI input.
+- Runtime browser hydration may refresh from the public hub snapshot endpoint
+  after first paint. Failure keeps the checked snapshot visible.
+- A future optional fetch step may refresh the checked snapshot before build,
+  but only behind an explicit operator command or CI input.
 
 This keeps the static site fast and reviewable.
 
@@ -332,7 +339,7 @@ M1 public projection must block:
 - generated git summaries
 - listening history
 - sensor readings
-- live broker fetches
+- private broker fetches, mutation APIs, and non-public event streams
 
 Photo support requires a separate media lifecycle:
 

@@ -12,11 +12,16 @@ Hi! This is just my boring personal static blog ^w^
 
 ## Build Chain
 
+The build produces a static SvelteKit artifact. Tinyland snapshots and local
+Markdown remain first-paint, no-JS, and regression fixtures; canonical blog and
+Pulse display hydrates in the browser from the public Tinyland broker when it is
+available.
+
 ```mermaid
 flowchart LR
     Posts["src/posts Markdown"] --> Mdsvex["mdsvex"]
-    TinylandPosts["Tinyland post snapshot"] --> Ingest["ingest check"]
-    PulseJson["Pulse public snapshot"] --> PulseCheck["snapshot validator"]
+    TinylandPosts["Tinyland post snapshot fixture"] --> Ingest["fallback ingest check"]
+    PulseJson["Pulse public snapshot fixture"] --> PulseCheck["snapshot validator"]
     Static["static assets"] --> Images["image optimization"]
     Routes["SvelteKit routes"] --> Svelte["Svelte 5 compiler"]
 
@@ -41,6 +46,11 @@ flowchart LR
     Adapter --> Build["build/"]
     Build --> Redirects["redirect pages"]
     Build --> Pagefind["Pagefind index"]
+    Build --> RuntimeHydration["browser runtime hydration"]
+    HubBlog["hub.tinyland.dev blog broker stream"] --> RuntimeHydration
+    HubPulse["hub.tinyland.dev Pulse public snapshot"] --> RuntimeHydration
+    RuntimeHydration --> Blog["/blog and /blog/[slug]"]
+    RuntimeHydration --> PulseRoute["/pulse"]
 
     CvTex["CV TeX"] --> Tectonic["Tectonic PDF workflow"]
 ```
@@ -95,40 +105,50 @@ Current boundary: this proves narrow public SvelteKit/Vite/Vitest, SvelteKit/Vit
 
 
 
-## Content Automation
+## Content Authority And Fallback Automation
 
 ```mermaid
 flowchart LR
-    SourceRepo["source repo blog/docs/posts"] --> Notify["repository_dispatch"]
+    Author["Jess edits greymatter in tinyland.dev"] --> Tinyland["tinyland.dev content authority"]
+    Tinyland --> HubStream["hub.tinyland.dev broker stream"]
+    HubStream --> RuntimeBlog["/blog runtime hydration"]
+
+    Tinyland --> StaticSnapshots["checked snapshot fixtures"]
+    StaticSnapshots --> FirstPaint["static first paint and no-JS fallback"]
+
+    SourceRepo["legacy source repo posts"] --> Notify["repository_dispatch"]
     Notify --> Collect["collect-posts workflow"]
-    Collect --> DraftPR["draft content PR"]
-    DraftPR --> Bot["blog-agent review"]
-    DraftPR --> DateGuard["future-date guard"]
-    Bot --> Human["review and edit"]
-    DateGuard --> Human
-    Human --> Schedule["scheduled label and PR body gate"]
-    Schedule --> AutoMerge["daily auto-merge check"]
-    AutoMerge --> Main["main"]
+    Collect --> DraftPR["draft fallback PR"]
+    DraftPR --> Human["review before merge"]
 ```
 
-## Federation Approach
+Cross-repo collection is legacy/static intake for fallback content. It is not the
+primary authoring path for Tinyland-managed posts.
+
+## Brokered Display And Federation Boundary
 
 ```mermaid
 flowchart TB
-    Tinyland["tinyland.dev projection authority"] --> PostSnapshot["reviewed post snapshot"]
-    Tinyland --> PulseSnapshot["public Pulse snapshot"]
-    Tinyland --> StreamDemo["AP-shaped stream demo"]
-    Tinyland --> Edge["projection-only public edge"]
-    Edge --> WebFinger["WebFinger and NodeInfo"]
+    TinylandEditor["tinyland.dev blog editor"] --> Greymatter["content/users/jesssullivan greymatter"]
+    Greymatter --> BlogBroker["hub.tinyland.dev blog broker stream"]
+    BlogBroker --> BlogRuntime["CF Pages /blog and /blog/[slug] runtime display"]
 
-    PostSnapshot --> IngestPosts["materialize checked posts"]
-    IngestPosts --> Blog["/blog"]
+    PulseBroker["Tinyland Pulse broker/public policy"] --> PulseSnapshot["hub.tinyland.dev Pulse public snapshot"]
+    PulseSnapshot --> PulseRuntime["CF Pages /pulse runtime refresh"]
 
-    PulseSnapshot --> PulseRoute["/pulse"]
-    StreamDemo --> HiddenLab["/pulse/client/brokered-stream"]
+    StaticFixtures["checked-in snapshots and src/posts"] --> FirstPaint["static first paint/fallback"]
+    FirstPaint --> BlogRuntime
+    FirstPaint --> PulseRuntime
 
-    HiddenLab --> Boundary["projection demo only"]
-    Boundary --> NotFederation["not public Fediverse delivery"]
+    BlogBroker --> DisplayOnly["brokered display only"]
+    PulseSnapshot --> DisplayOnly
+    DisplayOnly --> NotFederation["not public Fediverse delivery"]
+
+    ApLab["/pulse/client/brokered-stream"] --> ApDemo["AP-shaped hidden lab demo"]
+    ApDemo --> NotFederation
+
+    HubDiscovery["hub.tinyland.dev WebFinger and NodeInfo"] --> DiscoveryOnly["public discovery/projection metadata"]
+    DiscoveryOnly --> NotFederation
 ```
 
 

@@ -56,12 +56,28 @@
 	let activeImageUrl = $derived(resolveSiteImageUrl(activeMetadata.feature_image));
 	let activeOriginalUrl = $derived(activeMetadata.original_url);
 	let activeOriginalHost = $derived(activeOriginalUrl ? new URL(activeOriginalUrl).hostname : '');
+	let brokerStatusLabel = $derived(
+		brokerStatus === 'ready' && brokerPost
+			? `Updated ${formatTimestamp(brokerPost.updatedAt)}`
+			: brokerStatus === 'unavailable' && !data.brokerOnly
+				? 'Static snapshot may be stale'
+				: brokerStatus === 'loading'
+					? 'Checking broker'
+					: '',
+	);
 
 	function resolveSiteImageUrl(value: string | undefined): string {
 		if (!value) return 'https://transscendsurvival.org/images/header.png';
 		if (/^https?:\/\//.test(value)) return value;
 		const path = value.startsWith('/') ? value : `/${value}`;
 		return `https://transscendsurvival.org${path}`;
+	}
+
+	function formatTimestamp(value: string): string {
+		return new Date(value).toLocaleString(undefined, {
+			dateStyle: 'medium',
+			timeStyle: 'short',
+		});
 	}
 
 	function updateReadingProgress() {
@@ -278,6 +294,14 @@
 							{/each}
 						</div>
 					{/if}
+				{#if brokerStatusLabel}
+					<p
+						class="mt-3 text-xs text-surface-600-400"
+						title={brokerStatus === 'unavailable' ? brokerUnavailableReason : TINYLAND_BLOG_BROKER_STREAM_URL}
+					>
+						{brokerStatusLabel}
+					</p>
+				{/if}
 			</header>
 
 			<div class="prose prose-lg max-w-none overflow-x-hidden" data-pagefind-body>

@@ -68,8 +68,10 @@ uses the `tinyland-dind` ARC runner by default and accepts the same
 SvelteKit output and can publish it to Cloudflare Pages by Direct Upload.
 
 This is a shadow lane for moving `transscendsurvival.org` toward the Tinyland
-static-spoke edge posture. It does not cut over DNS, replace GitHub Pages
-production, or add live Tinyland broker fallback behavior.
+static-spoke edge posture. It does not cut over DNS or replace GitHub Pages
+production. The built site is still static, but current `/blog`, `/blog/[slug]`,
+and `/pulse` client code may hydrate from public `hub.tinyland.dev` broker
+endpoints at runtime when those endpoints are available.
 
 Required repository secrets:
 

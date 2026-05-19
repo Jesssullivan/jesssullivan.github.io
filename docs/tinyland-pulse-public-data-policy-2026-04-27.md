@@ -30,13 +30,18 @@ These remain blocked until they have their own policy version. Adding one of the
 - Generated git summaries. Require an explicit per-repository allowlist and a redaction layer for paths and committer information.
 - Listening history. Require either explicit user-facing opt-in per item or a heavy aggregation step that strips temporal granularity.
 - Sensor readings. Require an explicit decision about which environmental contexts can be inferred from the data.
-- Live broker fetches at render time. The static blog must always read a checked or generated snapshot, never the live broker.
+- Private broker fetches, mutation APIs, or non-public event streams at render
+  time. The static blog may only hydrate from the public
+  `hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v1.json`
+  projection after first paint, and it must keep the checked snapshot as a
+  fallback.
 
 ## ActivityPub language guidelines
 
 The blog has shipped WebFinger discovery only ([PR #68](https://github.com/Jesssullivan/jesssullivan.github.io/pull/68)). It has not shipped real ActivityPub federation. Until it does, PRs and posts should use the following terms:
 
-- "WebFinger discovery" - what is currently live: `acct:jess@transscendsurvival.org` resolves to `https://tinyland.dev/@jesssullivan` via `.well-known/webfinger`.
+- "WebFinger discovery" - public discovery metadata only. The canonical public
+  broker actor handle is `acct:jesssullivan@hub.tinyland.dev`.
 - "AP-shaped mirror" or "ActivityStreams projection" - any future static `outbox.json` or actor document that is not actually delivered to remote servers. This is a publication shape, not a federation.
 - "ActivityPub federation" or "federated" - reserved for the day the broker speaks server-to-server: actor lifecycle, signed delivery, follower collection, inbox handling, retries, updates/deletes, tombstones, moderation, and compatibility testing against real servers.
 

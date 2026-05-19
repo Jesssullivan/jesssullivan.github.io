@@ -7,9 +7,9 @@ reviewed source projection.
 
 2026-05-19 correction: this checked-in ingest path is fallback and migration
 evidence only. The intended Cloudflare Pages display path is runtime broker
-fetch from `hub.tinyland.dev`, with Tinyland-managed greymatter as the source of
-truth. Checked-in snapshots must not be treated as the live blog federation
-mechanism.
+fetch from `hub.tinyland.dev`, with Tinyland-managed greymatter and Pulse policy
+snapshots as the source of truth. Checked-in snapshots must not be treated as
+the live blog federation mechanism.
 
 ## Checked-In Inputs
 
@@ -26,11 +26,12 @@ static/data/pulse/public-snapshot.v1.json
 ```
 
 Both are copied from Tinyland reviewed static artifacts. They remain useful as
-first-paint and regression fixtures, but canonical blog display now hydrates
-from:
+first-paint and regression fixtures, but canonical display now hydrates from the
+public broker endpoints when available:
 
 ```text
 https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json
+https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v1.json
 ```
 
 ## Post Ingest
@@ -98,8 +99,9 @@ Allowed:
 - checked-in static snapshots as fallback/regression fixtures;
 - ordinary Markdown/frontmatter posts in `src/posts` for legacy/static
   first-paint content;
-- runtime display fetches from the public `hub.tinyland.dev` broker stream;
-- the existing `PublicPulseSnapshot` validator and `/pulse` renderer.
+- runtime display fetches from public `hub.tinyland.dev` broker endpoints;
+- the existing `PublicPulseSnapshot` validator and `/pulse` first-paint
+  renderer.
 
 Blocked:
 

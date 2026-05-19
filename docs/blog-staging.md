@@ -1,5 +1,21 @@
 # Cross-Repo Blog Staging Pipeline
 
+Status on 2026-05-19: this is a legacy/static intake path for fallback posts,
+migration evidence, and source-repo drafts. It is not the primary authoring path
+for the live blog.
+
+The primary content path is:
+
+```text
+tinyland.dev blog editor / greymatter
+  -> hub.tinyland.dev broker stream
+  -> transscendsurvival.org /blog runtime hydration
+```
+
+Checked-in posts and snapshots remain useful for first paint, no-JS fallback,
+search/index fixtures, and regression tests. New Tinyland-managed blog posts are
+authored and edited in `tinyland.dev`, not in this repo's collector flow.
+
 Blog posts can live in any repo. A collection pipeline pulls them into
 `jesssullivan.github.io`, normalizes frontmatter, rewrites links and images,
 and stages them as draft PRs for review before publication.
@@ -26,6 +42,14 @@ Source repo push        repository_dispatch        Collector script
 
 ## Writing a Blog Post
 
+For live Tinyland-managed posts, write or edit the post in the `tinyland.dev`
+blog editor. The public site consumes the reviewed broker stream and must not
+own mutation APIs, admin credentials, ActivityPub delivery workers, or media
+lifecycle state.
+
+Use this collector flow only when intentionally staging a legacy/static fallback
+post from another repository.
+
 Put a markdown file in one of the scanned directories (`blog/`, `posts/`, or
 `docs/blog/`) in any configured source repo.
 
@@ -50,11 +74,10 @@ linear_project: "Blog + Profile Integration"
 intended for the blog. If a file is already inside a scanned directory, the
 marker is optional.
 
-If you are running the post through Tinyland's Linear surface, add
-`linear_issue` and optionally `linear_project`. Keep the actual post body in
-git-backed markdown, not in a Linear document. Linear is the control plane
-for idea state, review state, and scheduling context — not the canonical
-longform content store.
+If you are running a legacy/static fallback post through Tinyland's Linear
+surface, add `linear_issue` and optionally `linear_project`. Linear is the
+control plane for idea state, review state, and scheduling context, not the
+canonical longform content store.
 
 ### Image conventions
 

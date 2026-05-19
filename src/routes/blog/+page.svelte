@@ -47,6 +47,20 @@
 
 	// Recent 5 posts for sidebar
 	let recentPosts = $derived(displayPosts.slice(0, 5));
+	let brokerStatusLabel = $derived(
+		brokerState.status === 'ready'
+			? `Updated ${formatTimestamp(brokerState.stream.generatedAt)}`
+			: brokerState.status === 'unavailable'
+				? 'Static snapshot may be stale'
+				: 'Checking broker',
+	);
+
+	function formatTimestamp(value: string): string {
+		return new Date(value).toLocaleString(undefined, {
+			dateStyle: 'medium',
+			timeStyle: 'short',
+		});
+	}
 
 	onMount(() => {
 		let cancelled = false;
@@ -110,9 +124,17 @@
 		{/if}
 	</div>
 
-	<div class="flex items-baseline justify-between mb-8">
+	<div class="flex flex-wrap items-baseline justify-between gap-3 mb-8">
 		<h1 class="font-heading text-3xl font-bold">Blog</h1>
-		<span class="text-sm text-surface-500">{displayPosts.length} posts</span>
+		<div class="text-right">
+			<p class="text-sm text-surface-500">{displayPosts.length} posts</p>
+			<p
+				class="text-xs text-surface-600-400"
+				title={brokerState.status === 'unavailable' ? brokerState.reason : brokerEndpoint}
+			>
+				{brokerStatusLabel}
+			</p>
+		</div>
 	</div>
 
 	<!-- Mobile profile (visible on small screens only) -->
