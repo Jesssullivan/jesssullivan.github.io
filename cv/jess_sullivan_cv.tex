@@ -244,7 +244,7 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
     \item Overhauled and automated the event-management lifecycle (\tech{C\#}, \tech{Go}, \tech{Ansible}).
     \item Led adoption of horizontally-scalable \tech{Apache Solr} instances across multiple public and private indexing and search applications.
     \item Built out internal ACME-first certificate-management and DNS libraries, templates, and tooling.
-    \item Drove enterprise secret-management practice and SAML integration college-wide; developed multiple SAML, LTI, and Shibboleth integrations; led adoption of \tech{KeePassXC} inside a declarative Ansible workflow.
+    \item Drove enterprise secret-management practice and authentication / authorization college-wide; developed multiple SAML, LTI, Shibboleth, and bespoke TOTP / OAuth integrations; led adoption of \tech{KeePassXC}, \tech{firewalld}, and \tech{fail2ban} inside declarative Ansible workflows; OTEL / LGTM / Tempo telemetry stack in production.
 \end{itemize}
 
 %==============================================================================
@@ -260,7 +260,7 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
 Long term committer, member and supporter of numerous organizations including \textbf{Rocky Enterprise Linux Foundation} (Community Team and kernel SIG, AltArch SIG), \textbf{rspamd}, \textbf{Chapel-lang}, \textbf{Liqo} (kubernetes topology fabric, used by \textbf{CERN}), The \textbf{Apache Foundation} (ASF \textbf{Solr} web security), \textbf{Caddy} (and xcaddy build tooling), \textbf{libdns} (ACME \& DNS integrations), \tech{Skeleton UI}, \textbf{Klipper}, \textbf{Joplin}, \textbf{FFT.js}, \textbf{keepassxc}, \tech{svelte-superforms} and the creation of numerous FOSS automation tools and GIS utilities.
 
 \begin{itemize}
-    \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018)
+    \item Extensive technical work with startups including \textbf{Dover Micro} (2017) and \textbf{Adaptive Motorsport} (2018); long thread of personal HID, XR, and sensor-fusion side projects
     \item Developed web GIS tools used by the \textbf{National Park Service}, \textbf{Foundation for Healthy Communities}, \textbf{GPRED}, the \textbf{Northern Border Regional Commission}, presented at the 2019 \textbf{AAG Annual Meeting} in Washington, DC (\S\ref{sec:publications})
     \item \textbf{Machine Learning} with \textbf{MushroomObserver.org} and \textbf{Visipedia:} Collaborated on the development and adoption of fine-grained image classification models among crowd-sourced community science niches
     \item \textbf{Expanded client list} on request. Current clients include the entire business stack for \cvlink{https://MassageIthaca.com}{\textbf{MassageIthaca.com}} (grown through four business expansions over 3 years!), \textbf{Rossel \& Co}, Tetrahedron Services, R\&D for TimberBuddy hydraulic sawmill systems, many more.
@@ -272,6 +272,7 @@ Long term committer, member and supporter of numerous organizations including \t
 \begin{itemize}
     \item \textbf{Web:} \tech{SvelteKit}, Runes, TS7, Vite 8 (Rolldown). I am deeply embedded in SvelteKit and have developed a (largely proprietary, alas) fairly large library of novel SvelteKit packages and expertise ranging from fingerprinting, mapping, authentication to horizontal data scalability and telemetry.
     \item \textbf{HPC} and performance oriented code written in \textbf{Chapel} and increasingly \textbf{Haskell}.
+    \item \textbf{Tooling:} \tech{LLVM/Clang} toolchains, \tech{GNU Make}, \tech{Justfile}, \tech{Nix} flake-structured codebases.
 \end{itemize}
 
 \vspace{0.5em}
@@ -282,6 +283,7 @@ Long term committer, member and supporter of numerous organizations including \t
     \item \textbf{Reverse Engineering \& Binary Analysis:} \tech{Ghidra}, \tech{Frida}, \tech{Zig} --- firmware RE and NVMe controller recovery via USB bridge XRAM injection (see \S\ref{sec:publications}). Developed a 5,400 LOC open-source Zig tool for bypassing ASMedia ASM2362 opcode whitelists to recover write-protected NVMe SSDs over USB.
     \item \textbf{Heterogeneous Compute:} \tech{WebGPU}, \tech{Futhark} (GPU-targeting functional language) --- exploring GPU-accelerated workloads and deeper WASM integration for inference pipelines.
     \item \textbf{Functional Programming:} ESDT Monads and pixelwise classification research (\cvlink{https://github.com/Jesssullivan/pixelwise-research}{pixelwise-research}). \tech{Rust} (SIMD), \tech{Nix} (build systems). With years of friendly pressure from my friend Lena Berlin (Innovation @ Analog Devices, SHARC, Farmblox), 2026 may be my first year of learning Rust in earnest.
+    \item \textbf{Linux Kernel:} Ongoing maintainer of a Rocky 10 \tech{PREEMPT\_RT} kernel lane for scientific and HPC experimentation; upstream CVE backports against 6.1.y LTS.
 \end{itemize}
 
 %==============================================================================
