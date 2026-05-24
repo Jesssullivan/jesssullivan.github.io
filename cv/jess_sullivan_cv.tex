@@ -43,9 +43,21 @@
 %------------------------------------------------------------------------------
 % FONTS
 %------------------------------------------------------------------------------
-\setmainfont{Latin Modern Roman}
-\setsansfont{Latin Modern Sans}
-\setmonofont{Latin Modern Mono}
+\setmainfont{lmroman10-regular.otf}[
+    BoldFont=lmroman10-bold.otf,
+    ItalicFont=lmroman10-italic.otf,
+    BoldItalicFont=lmroman10-bolditalic.otf
+]
+\setsansfont{lmsans10-regular.otf}[
+    BoldFont=lmsans10-bold.otf,
+    ItalicFont=lmsans10-oblique.otf,
+    BoldItalicFont=lmsans10-boldoblique.otf
+]
+\setmonofont{lmmono10-regular.otf}[
+    BoldFont=lmmonolt10-bold.otf,
+    ItalicFont=lmmono10-italic.otf,
+    BoldItalicFont=lmmonolt10-boldoblique.otf
+]
 
 %------------------------------------------------------------------------------
 % HYPERREF CONFIGURATION
@@ -228,11 +240,11 @@ Building and maintaining reliable, scalable enterprise systems directly supporti
 
 \subsubsection{Noteworthy projects include:}
 \begin{itemize}
-    \item Developed high performance orchestrator and instrumentation tooling for degree management and degree auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for development, FPM for packaging and autodevops for CI/CD); uplifted ``unautomatable'' 1980s morris-worm era code unique to higher ed into a verifiable, traceable, k8s friendly workload
-    \item Overhauled and completely automated the lifecycle of our event management system (extensive development in \tech{C\#}, \tech{Go}, \tech{Ansible})
-    \item Led adoption of horizontally scalable \tech{Apache Solr} instances for multiple public and private indexing and search applications
-    \item Led adoption and built out numerous internal ACME-first certificate management and DNS libraries, templates and tooling
-    \item Extensive work and peer education around enterprise secret management patterns and SAML at the college. Developed numerous SAML integrations, LTI integrations, Shibboleth and led adoption of \tech{KeePassXC} as part of a declarative Ansible workflow.
+    \item Built a property-based orchestrator and instrumentation harness for degree-management and degree-auditing software in \tech{Haskell} + \tech{Python} (QuickCheck, Cabal, podman-compose for dev parity, FPM for packaging, AutoDevOps for CI/CD); turned an unautomatable 1980s-era C codebase unique to higher ed into a verifiable, traceable, k8s-friendly workload.
+    \item Overhauled and automated the event-management lifecycle (\tech{C\#}, \tech{Go}, \tech{Ansible}).
+    \item Led adoption of horizontally-scalable \tech{Apache Solr} instances across multiple public and private indexing and search applications.
+    \item Built out internal ACME-first certificate-management and DNS libraries, templates, and tooling.
+    \item Drove enterprise secret-management practice and SAML integration college-wide; developed multiple SAML, LTI, and Shibboleth integrations; led adoption of \tech{KeePassXC} inside a declarative Ansible workflow.
 \end{itemize}
 
 %==============================================================================
