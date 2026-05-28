@@ -20,16 +20,54 @@ try {
 }
 
 const theme = 'github-dark';
+const SHIKI_LANGS = [
+	'javascript',
+	'typescript',
+	'python',
+	'r',
+	'bash',
+	'html',
+	'css',
+	'json',
+	'yaml',
+	'toml',
+	'haskell',
+	'go',
+	'rust',
+	'markdown',
+	'shellscript',
+	'sql',
+	'nix',
+	'c',
+	'cpp',
+	'zig',
+];
 const highlighter = await createHighlighter({
 	themes: [theme],
-	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'toml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig']
+	langs: SHIKI_LANGS,
 });
+const REGISTERED_LANGS = new Set([...highlighter.getLoadedLanguages(), 'text', 'plaintext', '']);
+// Map language tags Shiki does not bundle to a visually similar registered
+// fallback. The fallback is "best effort" colorization, not a claim of
+// language parity. Add to this map after confirming the fallback is closer
+// than plain text. For now Chapel borrows from C; Dhall is too distinct, so
+// it falls through to plain text.
+const LANG_FALLBACKS = {
+	chapel: 'c',
+};
+const resolveLang = (lang) => {
+	if (!lang) return 'text';
+	if (REGISTERED_LANGS.has(lang)) return lang;
+	const fallback = LANG_FALLBACKS[lang];
+	if (fallback && REGISTERED_LANGS.has(fallback)) return fallback;
+	if (process.env.NODE_ENV !== 'production') {
+		console.warn(`[shiki] no grammar for "${lang}", falling back to plain text`);
+	}
+	return 'text';
+};
 
 function escapeHtml(value) {
-	return value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
+	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function extractNodeText(node) {
@@ -63,10 +101,7 @@ function normalizeImageLabel(imageNode) {
 	const stem = filename.replace(/\.[^.]+$/, '');
 	if (!stem) return 'image';
 
-	return stem
-		.replace(/[_-]+/g, ' ')
-		.replace(/\s+/g, ' ')
-		.trim();
+	return stem.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function visitNodes(node, parent, visitor) {
@@ -89,22 +124,19 @@ const mdsvexOptions = {
 				const hash = createHash('sha256').update(trimmed).digest('hex').slice(0, 16);
 				const svgPath = resolve(__dirname, '.mermaid-cache', `${hash}.svg`);
 				if (existsSync(svgPath)) {
-					const svg = readFileSync(svgPath, 'utf-8')
-						.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
+					const svg = readFileSync(svgPath, 'utf-8').replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
 					return `<div class="mermaid-diagram my-6 not-prose" role="figure" aria-label="Mermaid diagram">${svg}</div>`;
 				}
 				if (process.env.NODE_ENV !== 'production') {
 					return `<pre class="mermaid-diagram my-6 not-prose overflow-x-auto rounded-xl p-4"><code>${escapeHtml(trimmed)}</code></pre>`;
 				}
 				throw new Error(
-					`Missing Mermaid prerender cache for ${hash}. Run the prebuild pipeline before shipping blog content with Mermaid diagrams.`
+					`Missing Mermaid prerender cache for ${hash}. Run the prebuild pipeline before shipping blog content with Mermaid diagrams.`,
 				);
 			}
-			const html = escapeSvelte(
-				highlighter.codeToHtml(code, { lang: lang || 'text', theme })
-			);
+			const html = escapeSvelte(highlighter.codeToHtml(code, { lang: resolveLang(lang), theme }));
 			return `{@html \`${html}\`}`;
-		}
+		},
 	},
 	rehypePlugins: [
 		// Wrap local post images in <picture> with WebP source for responsive loading
@@ -145,10 +177,10 @@ const mdsvexOptions = {
 									type: 'element',
 									tagName: 'source',
 									properties: { srcSet: webpSrc, type: 'image/webp' },
-									children: []
+									children: [],
 								},
-								node
-							]
+								node,
+							],
 						};
 
 						// Replace the img node with the picture node in parent's children
@@ -248,10 +280,7 @@ const mdsvexOptions = {
 					const isPlaceholder = PLACEHOLDER_PATTERNS.some((p) => p.test(textContent));
 					if (isPlaceholder) {
 						node.properties = node.properties || {};
-						node.properties.className = [
-							...(node.properties.className || []),
-							'missing-image-notice'
-						];
+						node.properties.className = [...(node.properties.className || []), 'missing-image-notice'];
 						node.properties.role = 'note';
 						node.properties['aria-label'] = 'Image no longer available';
 					}
@@ -286,8 +315,8 @@ const mdsvexOptions = {
 				}
 			};
 			visit(tree);
-		}
-	]
+		},
+	],
 };
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -295,7 +324,7 @@ const config = {
 	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [vitePreprocess(), mdsvex(mdsvexOptions)],
 	compilerOptions: {
-		runes: true
+		runes: true,
 	},
 	kit: {
 		adapter: adapter({
@@ -303,16 +332,16 @@ const config = {
 			assets: 'build',
 			fallback: '404.html',
 			precompress: true,
-			strict: false
+			strict: false,
 		}),
 		paths: {
-			base: ''
+			base: '',
 		},
 		prerender: {
 			handleHttpError: 'warn',
-			handleMissingId: 'warn'
-		}
-	}
+			handleMissingId: 'warn',
+		},
+	},
 };
 
 export default config;
