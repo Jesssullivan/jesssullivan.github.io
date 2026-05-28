@@ -24,6 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # spear_resumes is a private repo; we fetch it with a read-only SSH
+      # deploy key. Public half lives on the spear-resumes repo as a Deploy
+      # Key; private half is this repo's SPEAR_RESUMES_DEPLOY_KEY secret.
+      - name: Set up SSH for spear-resumes
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SPEAR_RESUMES_DEPLOY_KEY }}
+
       - name: Cache Bazel
         uses: actions/cache@v4
         with:
