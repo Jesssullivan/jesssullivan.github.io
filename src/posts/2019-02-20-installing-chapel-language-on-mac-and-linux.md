@@ -28,7 +28,7 @@ The thinking here is one could write a global, shorthand / tag-based note manage
 
 The test uses $D for date: `$D 09/14/19`
 
-```
+```chapel
 //  Chapel-Language  //
 
 // non-annotated file @ /GenericTagIterator/nScan.chpl //
@@ -112,7 +112,7 @@ apm install language-chapel
 
 To compile with Chapel:
 
-```
+```bash
 chpl MyFile.chpl # chpl command is self sufficient
 
 # chpl one file class into another:
@@ -125,7 +125,7 @@ chpl -M classFile runFile.chpl
 
 # Now Some Python3 Evaluation:
 
-```
+```bash
 # Ajacent to compiled FileCheck.chpl binary:
 
 python3 Timer_FileCheck.py
@@ -133,7 +133,7 @@ python3 Timer_FileCheck.py
 
 Timer_FileCheck.py will loop FileCheck and find the average times it takes to complete, with a variety of additional arguments to toggle parallel and serial operation. The iterations are:
 
-```
+```python
 ListOptions = [Default, Serial_SE, Serial_SP, Serial_SE_SP]
 ```
 

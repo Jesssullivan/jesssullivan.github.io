@@ -10,6 +10,11 @@ import { createHash } from 'node:crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticDir = resolve(__dirname, 'static');
+
+// Vendored Chapel TextMate grammar (shikijs/textmate-grammars-themes#203, not yet in a published Shiki release)
+const chapelGrammar = JSON.parse(
+	readFileSync(resolve(__dirname, 'src/lib/shiki/chapel.tmLanguage.json'), 'utf-8')
+);
 const allowMermaidTextFallback =
 	process.env.NODE_ENV !== 'production' || process.env.MERMAID_PRERENDER === 'optional';
 
@@ -25,7 +30,7 @@ try {
 const theme = 'github-dark';
 const highlighter = await createHighlighter({
 	themes: [theme],
-	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'toml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig']
+	langs: ['javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json', 'yaml', 'toml', 'haskell', 'go', 'rust', 'markdown', 'shellscript', 'sql', 'nix', 'c', 'cpp', 'zig', chapelGrammar]
 });
 
 function escapeHtml(value) {
