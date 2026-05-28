@@ -1,0 +1,24 @@
+"""Static CV / resume PDFs synced from the spear_resumes module.
+
+Run `bazel run //static/cv:sync_pdfs` to write/update the PDFs in the
+source tree at:
+
+  static/cv/jess_sullivan_resume.pdf            (from //generic:resume)
+  static/cv/jess_sullivan_resume_targeted.pdf   (from //cra:resume)
+  static/cv/jess_sullivan_cv.pdf                (from //generic:cv)
+
+SvelteKit reads them as plain static files; the diff-check action
+guards against forgetting to re-sync after a spear_resumes bump.
+"""
+
+load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
+
+write_source_files(
+    name = "sync_pdfs",
+    files = {
+        "jess_sullivan_resume.pdf": "@spear_resumes//generic:resume",
+        "jess_sullivan_resume_targeted.pdf": "@spear_resumes//cra:resume",
+        "jess_sullivan_cv.pdf": "@spear_resumes//generic:cv",
+    },
+    visibility = ["//visibility:public"],
+)

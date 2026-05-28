@@ -11,6 +11,13 @@ bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 
+# CV / resume PDFs are sourced from the spear_resumes module, which in turn
+# uses rules_tectonic to compile its .tex via the tectonic binary. Both
+# modules live in the tinyland-inc/bazel-registry (wired in via .bazelrc).
+# Source-of-truth TeX lives at https://github.com/Jesssullivan/spear-resumes.
+bazel_dep(name = "spear_resumes", version = "0.2.0")
+bazel_dep(name = "rules_tectonic", version = "0.1.0")
+
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "22.13.1")
 

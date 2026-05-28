@@ -1,74 +1,48 @@
-name: Build CV PDFs
+name: Sync CV PDFs
+
+# Bazel-driven sync of the three resume / CV PDFs from spear_resumes into
+# static/cv/. Triggered on changes to the Bazel surface or by manual
+# dispatch (e.g. after bumping the spear_resumes pin).
 
 on:
   push:
     branches: [main]
     paths:
-      - 'cv/**'
-      - 'static/cv/**'
-      - 'scripts/cv-pdf-validation.test.mts'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/build-cv.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'cv/**'
-      - 'static/cv/**'
-      - 'scripts/cv-pdf-validation.test.mts'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/build-cv.yml'
+      - MODULE.bazel
+      - .bazelversion
+      - .bazelrc
+      - static/cv/BUILD.bazel
+      - .github/workflows/build-cv.yml
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v6
+      - name: Cache Bazel
+        uses: actions/cache@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', '.bazelversion') }}
+          restore-keys: bazel-${{ runner.os }}-
 
-      - run: npm ci
-
-      - name: Install tectonic
-        uses: WtfJoke/setup-tectonic@8a63d072f8390efdff59da7fa08aa49e3c1f5e1b # v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Latin Modern fonts
-        run: sudo apt-get install -y fonts-lmodern
-
-      - name: Validate tracked CV PDFs
-        if: github.event_name == 'pull_request'
-        run: npm run test:cv-pdf
-
-      - name: Build CV PDFs
-        if: github.event_name != 'pull_request'
+      - name: Install bazelisk
         run: |
-          cd cv
-          tectonic jess_sullivan_cv.tex
-          tectonic jess_sullivan_resume.tex
+          curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel
+          chmod +x /usr/local/bin/bazel
 
-      - name: Copy PDFs to static
-        if: github.event_name != 'pull_request'
-        run: |
-          cp cv/*.pdf static/cv/
+      - name: Sync PDFs from spear_resumes
+        run: bazel run //static/cv:sync_pdfs
 
-      - name: Validate generated CV PDFs
-        if: github.event_name != 'pull_request'
-        run: npm run test:cv-pdf
-
-      - name: Commit updated PDFs
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
+      - name: Commit refreshed PDFs
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'chore: rebuild CV PDFs'
+          commit_message: 'chore: rebuild CV PDFs from spear_resumes'
           file_pattern: 'static/cv/*.pdf'
