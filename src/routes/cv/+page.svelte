@@ -1,12 +1,35 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	type ActiveTab = 'cv' | 'resume';
+	type Tab = 'resume' | 'resume_targeted' | 'cv';
 
-	let activeTab = $state<ActiveTab>('cv');
+	let activeTab = $state<Tab>('resume');
 	let hydrated = $state(false);
 
-	function setActiveTab(tab: ActiveTab): void {
+	const docs: Record<Tab, { label: string; file: string; iframeTitle: string; downloadLabel: string }> = {
+		resume: {
+			label: 'Resume',
+			file: '/cv/jess_sullivan_resume.pdf',
+			iframeTitle: 'Jess Sullivan Resume',
+			downloadLabel: 'Download Resume PDF',
+		},
+		resume_targeted: {
+			label: 'Resume — Targeted',
+			file: '/cv/jess_sullivan_resume_targeted.pdf',
+			iframeTitle: 'Jess Sullivan Resume — Targeted',
+			downloadLabel: 'Download Targeted Resume PDF',
+		},
+		cv: {
+			label: 'Full CV',
+			file: '/cv/jess_sullivan_cv.pdf',
+			iframeTitle: 'Jess Sullivan Full CV',
+			downloadLabel: 'Download Full CV PDF',
+		},
+	};
+
+	const order: Tab[] = ['resume', 'resume_targeted', 'cv'];
+
+	function setActiveTab(tab: Tab): void {
 		activeTab = tab;
 	}
 
@@ -30,63 +53,48 @@
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-4xl">
-	<h1 class="text-3xl font-bold mb-6">CV / Resume</h1>
+	<h1 class="text-3xl font-bold mb-2">CV / Resume</h1>
+	<p class="text-sm text-surface-400 mb-6">
+		<strong>Resume</strong> is the broad pitch. <strong>Resume — Targeted</strong> is the applied-R&amp;D framing.
+		<strong>Full CV</strong> is the long-form record.
+	</p>
 
 	<!-- Tab switcher -->
-	<div class="flex items-center gap-2 mb-6">
-		<button
-			class="btn text-sm {activeTab === 'cv' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
-			disabled={!hydrated}
-			onclick={() => setActiveTab('cv')}
-		>Full CV</button>
-		<button
-			class="btn text-sm {activeTab === 'resume' ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
-			disabled={!hydrated}
-			onclick={() => setActiveTab('resume')}
-		>Resume</button>
+	<div class="flex flex-wrap items-center gap-2 mb-6">
+		{#each order as tab}
+			<button
+				class="btn text-sm {activeTab === tab ? 'preset-filled-primary-500' : 'preset-outlined-surface-500'}"
+				disabled={!hydrated}
+				onclick={() => setActiveTab(tab)}
+			>{docs[tab].label}</button>
+		{/each}
 	</div>
 
 	<!-- Action bar -->
 	<div class="flex flex-wrap items-center gap-3 mb-6">
-		{#if activeTab === 'cv'}
-			<a href="/cv/jess_sullivan_cv.pdf" download class="btn preset-filled-primary-500 text-sm">Download CV PDF</a>
-			<a
-				href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/cv/jess_sullivan_cv.tex"
-				target="_blank"
-				rel="noopener"
-				class="btn preset-outlined-surface-500 text-sm"
-			>View TeX Source</a>
-		{:else}
-			<a href="/cv/jess_sullivan_resume.pdf" download class="btn preset-filled-primary-500 text-sm">Download Resume PDF</a>
-			<a
-				href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/cv/jess_sullivan_resume.tex"
-				target="_blank"
-				rel="noopener"
-				class="btn preset-outlined-surface-500 text-sm"
-			>View TeX Source</a>
-		{/if}
+		<a href={docs[activeTab].file} download class="btn preset-filled-primary-500 text-sm">{docs[activeTab].downloadLabel}</a>
+		<a
+			href="https://github.com/Jesssullivan/spear-resumes"
+			target="_blank"
+			rel="noopener"
+			class="btn preset-outlined-surface-500 text-sm"
+		>View TeX Source</a>
 	</div>
 
 	<!-- PDF viewer -->
 	<div class="card mb-8">
-		{#if activeTab === 'cv'}
-			<iframe
-				src="/cv/jess_sullivan_cv.pdf"
-				class="w-full h-[85dvh] rounded-lg"
-				title="Jess Sullivan CV"
-			></iframe>
-		{:else}
-			<iframe
-				src="/cv/jess_sullivan_resume.pdf"
-				class="w-full h-[85dvh] rounded-lg"
-				title="Jess Sullivan Resume"
-			></iframe>
-		{/if}
+		<iframe
+			src={docs[activeTab].file}
+			class="w-full h-[85dvh] rounded-lg"
+			title={docs[activeTab].iframeTitle}
+		></iframe>
 	</div>
 
 	<!-- Build info -->
 	<p class="text-xs text-surface-400 text-center">
-		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>.
-		PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">auto-compiled in CI</a> from TeX source on every push.
+		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,
+		orchestrated by <a href="https://github.com/Jesssullivan/rules_tectonic" target="_blank" rel="noopener" class="hover:text-primary-500 underline">rules_tectonic</a>.
+		Sources live in <a href="https://github.com/Jesssullivan/spear-resumes" target="_blank" rel="noopener" class="hover:text-primary-500 underline">spear-resumes</a>;
+		PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">synced into this site by CI</a>.
 	</p>
 </div>
