@@ -11,6 +11,21 @@ bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 
+# CV / resume PDFs are sourced from the spear_resumes module, which in turn
+# uses rules_tectonic to compile its .tex via the tectonic binary.
+# rules_tectonic is published in tinyland-inc/bazel-registry (wired in via
+# .bazelrc) and resolves normally. spear_resumes lives in a private GitHub
+# repo (sensitive STR-variant content) so it is pinned via git_override; CI
+# uses an SSH deploy key (secret SPEAR_RESUMES_DEPLOY_KEY) to fetch it.
+bazel_dep(name = "spear_resumes", version = "0.2.0")
+bazel_dep(name = "rules_tectonic", version = "0.1.0")
+
+git_override(
+    module_name = "spear_resumes",
+    remote = "git@github.com:Jesssullivan/spear-resumes.git",
+    commit = "4507db4721e70711f4f1400e7d9392fb04ae7e49",
+)
+
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "22.13.1")
 
