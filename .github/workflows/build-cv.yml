@@ -43,8 +43,8 @@ jobs:
 
       - name: Install bazelisk
         run: |
-          curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel
-          chmod +x /usr/local/bin/bazel
+          sudo curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel
+          sudo chmod +x /usr/local/bin/bazel
 
       - name: Sync PDFs from spear_resumes
         run: bazel run //static/cv:sync_pdfs
