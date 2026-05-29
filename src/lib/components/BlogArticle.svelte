@@ -74,6 +74,31 @@
 	let activeImageUrl = $derived(resolveSiteImageUrl(activeMetadata.feature_image));
 	let activeOriginalUrl = $derived(activeMetadata.original_url);
 	let activeOriginalHost = $derived(activeOriginalUrl ? new URL(activeOriginalUrl).hostname : '');
+	// Build the JSON-LD tag here with split tag literals so neither the Svelte
+	// compiler nor svelte-eslint-parser mis-tokenizes the embedded element in markup.
+	let jsonLdScript = $derived(
+		'<' +
+			'script type="application/ld+json">' +
+			JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'BlogPosting',
+				headline: activeMetadata.title,
+				datePublished: activeMetadata.date,
+				dateModified: brokerPost?.updatedAt ?? activeMetadata.date,
+				author: { '@type': 'Person', name: 'Jess Sullivan', url: 'https://github.com/Jesssullivan' },
+				publisher: { '@type': 'Person', name: 'Jess Sullivan' },
+				url: `https://transscendsurvival.org/blog/${activeMetadata.slug}`,
+				image: activeImageUrl,
+				mainEntityOfPage: {
+					'@type': 'WebPage',
+					'@id': `https://transscendsurvival.org/blog/${activeMetadata.slug}`,
+				},
+				...(activeMetadata.description ? { description: activeMetadata.description } : {}),
+				...(activeMetadata.tags?.length ? { keywords: activeMetadata.tags.join(', ') } : {}),
+			}) +
+			'</' +
+			'script>'
+	);
 	let brokerStatusLabel = $derived(
 		brokerStatus === 'ready' && brokerPost
 			? `Updated ${formatTimestamp(brokerPost.updatedAt)}`
@@ -229,7 +254,7 @@
 		<meta property="og:description" content={activeMetadata.description} />
 	{/if}
 	{#if activeMetadata.tags?.length}
-		{#each activeMetadata.tags as tag}
+		{#each activeMetadata.tags as tag (tag)}
 			<meta property="article:tag" content={tag} />
 		{/each}
 	{/if}
@@ -241,20 +266,8 @@
 	{/if}
 	<meta name="twitter:image" content={activeImageUrl} />
 	<link rel="canonical" href="https://transscendsurvival.org/blog/{activeMetadata.slug}" />
-	{@html `<script type="application/ld+json">${JSON.stringify({
-		"@context": "https://schema.org",
-		"@type": "BlogPosting",
-		"headline": activeMetadata.title,
-		"datePublished": activeMetadata.date,
-		"dateModified": brokerPost?.updatedAt ?? activeMetadata.date,
-		"author": { "@type": "Person", "name": "Jess Sullivan", "url": "https://github.com/Jesssullivan" },
-		"publisher": { "@type": "Person", "name": "Jess Sullivan" },
-		"url": `https://transscendsurvival.org/blog/${activeMetadata.slug}`,
-		"image": activeImageUrl,
-		"mainEntityOfPage": { "@type": "WebPage", "@id": `https://transscendsurvival.org/blog/${activeMetadata.slug}` },
-		...(activeMetadata.description ? { "description": activeMetadata.description } : {}),
-		...(activeMetadata.tags?.length ? { "keywords": activeMetadata.tags.join(", ") } : {})
-	})}</script>`}
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- self-constructed JSON-LD, no user input -->
+	{@html jsonLdScript}
 </svelte:head>
 
 {#if browser && readingProgress > 0}
@@ -304,7 +317,7 @@
 				</div>
 				{#if activeMetadata.tags?.length}
 						<div class="flex flex-wrap gap-2 mt-3">
-							{#each activeMetadata.tags as tag}
+							{#each activeMetadata.tags as tag (tag)}
 								<a
 									href="/blog/tag/{encodeURIComponent(tag)}"
 									class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors"
@@ -327,6 +340,7 @@
 				{#if data.content}
 					{@render data.content()}
 				{:else if brokerHtml}
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -- broker markdown sanitized via dompurify in renderTrustedBrokerMarkdown -->
 					{@html brokerHtml}
 				{:else if brokerStatus === 'unavailable'}
 					<p>Post unavailable.</p>
@@ -364,7 +378,7 @@
 				<section class="mt-10 pt-6 border-t border-surface-300-700" aria-label="Related posts">
 					<h2 class="text-lg font-semibold mb-4">Related Posts</h2>
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-						{#each data.relatedPosts as related}
+						{#each data.relatedPosts as related (related.slug)}
 							<a
 								href="/blog/{related.slug}"
 								class="block p-4 border border-surface-300-700 hover:border-primary-500 transition-colors"
