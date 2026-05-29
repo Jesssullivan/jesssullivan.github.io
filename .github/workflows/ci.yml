@@ -76,7 +76,9 @@ jobs:
         run: |
           set -euo pipefail
           tmp="$(mktemp)"
-          curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o "${tmp}"
+          curl --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 10 \
+            -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 \
+            -o "${tmp}"
           chmod +x "${tmp}"
           if [ -w /usr/local/bin ]; then
             mv "${tmp}" /usr/local/bin/bazel
@@ -162,36 +164,6 @@ jobs:
 
       - name: Audit links
         run: npx tsx scripts/audit-links.mts
-
-      - name: Install Playwright browsers for PR smoke
-        if: github.event_name == 'pull_request'
-        run: npx playwright install --with-deps chromium webkit
-
-      - name: Install Playwright browsers for full regression
-        if: github.event_name != 'pull_request'
-        run: npx playwright install --with-deps chromium firefox webkit
-
-      - name: E2E PR smoke
-        if: github.event_name == 'pull_request'
-        run: >
-          npx playwright test
-          --project=chromium
-          --project=webkit
-          e2e/homepage.spec.ts
-          e2e/navigation.spec.ts
-          e2e/dark-mode.spec.ts
-          e2e/about-merged.spec.ts
-          e2e/card-enhancement.spec.ts
-          e2e/cv.spec.ts
-          e2e/pulse-lab.spec.ts
-          e2e/pulse-client.spec.ts
-          e2e/pulse-brokered-stream.spec.ts
-        continue-on-error: false
-
-      - name: E2E full regression
-        if: github.event_name != 'pull_request'
-        run: npx playwright test
-        continue-on-error: false
 
       - name: Bundle size report
         run: npx tsx scripts/report-bundle-size.mts

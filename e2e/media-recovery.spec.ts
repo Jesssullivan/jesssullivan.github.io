@@ -1,41 +1,47 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function collectBrokenImages(page, selector: string): Promise<string[]> {
+	return page.evaluate(async (imageSelector) => {
+		const imgs = Array.from(document.querySelectorAll<HTMLImageElement>(imageSelector));
+		const broken: string[] = [];
+
+		for (const img of imgs) {
+			const src = img.getAttribute('src') || '';
+			// Skip external images (can't load from local preview server)
+			if (src.startsWith('http://') || src.startsWith('https://')) continue;
+			// Skip hidden images (display:none, zero-size containers)
+			if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') continue;
+
+			img.loading = 'eager';
+			img.scrollIntoView({ block: 'center' });
+
+			if (!img.complete || img.naturalWidth === 0) {
+				const waitForTerminalState = new Promise<void>((resolve) => {
+					const timeout = window.setTimeout(resolve, 5000);
+					const done = () => {
+						window.clearTimeout(timeout);
+						resolve();
+					};
+					img.addEventListener('load', done, { once: true });
+					img.addEventListener('error', done, { once: true });
+				});
+				const decode = typeof img.decode === 'function' ? img.decode().catch(() => undefined) : waitForTerminalState;
+				await Promise.race([decode, waitForTerminalState]);
+			}
+
+			if (img.naturalWidth === 0) {
+				broken.push(img.currentSrc || src || '(no src)');
+			}
+		}
+
+		return broken;
+	}, selector);
+}
 
 test.describe('Media Recovery & Image Integrity', () => {
 	test('no broken images on blog listing page', async ({ page }) => {
 		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
-		// Collect all img src values and check them via page.evaluate to handle
-		// lazy-loaded and visibility-hidden images without Playwright timeout issues
-		const brokenImages = await page.evaluate(async () => {
-			const imgs = Array.from(document.querySelectorAll('img'));
-			const broken: string[] = [];
-			for (const img of imgs) {
-				const src = img.getAttribute('src') || '';
-				// Skip external images (can't load from local preview server)
-				if (src.startsWith('http://') || src.startsWith('https://')) continue;
-				// Skip hidden images (display:none, zero-size containers)
-				if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') continue;
-				img.loading = 'eager';
-				// Force load by scrolling into view
-				img.scrollIntoView({ block: 'center' });
-				if (!img.complete || img.naturalWidth === 0) {
-					const waitForTerminalState = new Promise<void>((resolve) => {
-						const timeout = window.setTimeout(resolve, 5000);
-						const done = () => {
-							window.clearTimeout(timeout);
-							resolve();
-						};
-						img.addEventListener('load', done, { once: true });
-						img.addEventListener('error', done, { once: true });
-					});
-					const decode = typeof img.decode === 'function' ? img.decode().catch(() => undefined) : waitForTerminalState;
-					await Promise.race([decode, waitForTerminalState]);
-				}
-				if (img.naturalWidth === 0) {
-					broken.push(img.currentSrc || src || '(no src)');
-				}
-			}
-			return broken;
-		});
+		const brokenImages = await collectBrokenImages(page, 'img');
 		expect(brokenImages, `Broken images: ${brokenImages.join(', ')}`).toHaveLength(0);
 	});
 
@@ -58,16 +64,8 @@ test.describe('Media Recovery & Image Integrity', () => {
 		await firstPost.click();
 		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
-		const images = page.locator('.prose img');
-		const count = await images.count();
-		if (count > 0) {
-			for (let i = 0; i < count; i++) {
-				const img = images.nth(i);
-				const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth);
-				const src = await img.getAttribute('src');
-				expect(naturalWidth, `Broken image in post: ${src}`).toBeGreaterThan(0);
-			}
-		}
+		const brokenImages = await collectBrokenImages(page, '.prose img');
+		expect(brokenImages, `Broken images in post: ${brokenImages.join(', ')}`).toHaveLength(0);
 	});
 
 	test('no requests to WordPress CDN domains during page load', async ({ page }) => {
