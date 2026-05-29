@@ -29,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",
-		"@mermaid-js/mermaid-cli": "^11.12.0",
+		"@mermaid-js/mermaid-cli": "^11.15.0",
 		"@playwright/test": "^1.59.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.57.1",
@@ -45,7 +45,7 @@
 		"pagefind": "^1.5.2",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.4.1",
-		"puppeteer": "^23.11.1",
+		"puppeteer": "^24.43.1",
 		"rehype-slug": "^6.0.0",
 		"rollup-plugin-visualizer": "^6.0.5",
 		"serve": "^14.2.5",
