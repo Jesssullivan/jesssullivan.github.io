@@ -348,7 +348,7 @@
 						{#each data.relatedPosts as related}
 							<a
 								href="/blog/{related.slug}"
-								class="block p-4 rounded-lg border border-surface-300-700 hover:border-primary-500 transition-colors"
+								class="block p-4 border border-surface-300-700 hover:border-primary-500 transition-colors"
 								aria-label={`Read related post: ${related.title}`}
 							>
 								<h3 class="text-sm font-semibold line-clamp-2">{related.title}</h3>
@@ -362,7 +362,7 @@
 		</div>
 
 		<div class="hidden lg:block">
-			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto space-y-6 sidebar-scroll glass rounded-xl p-4">
+			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto space-y-6 sidebar-scroll glass p-4">
 				{#if browser && readingProgress > 0}
 					<div class="flex flex-col items-center">
 						<ReadingProgressRing progress={readingProgress} />

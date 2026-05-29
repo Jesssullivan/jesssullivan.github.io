@@ -57,13 +57,13 @@
 		<div class="h-48 bg-surface-300/30"></div>
 		<div class="p-6 space-y-3">
 			<div class="flex gap-3">
-				<div class="h-4 w-24 bg-surface-300/40 rounded"></div>
-				<div class="h-4 w-16 bg-surface-300/40 rounded"></div>
+				<div class="h-4 w-24 bg-surface-300/40"></div>
+				<div class="h-4 w-16 bg-surface-300/40"></div>
 			</div>
-			<div class="h-6 w-3/4 bg-surface-300/50 rounded"></div>
+			<div class="h-6 w-3/4 bg-surface-300/50"></div>
 			<div class="space-y-2">
-				<div class="h-4 w-full bg-surface-300/30 rounded"></div>
-				<div class="h-4 w-5/6 bg-surface-300/30 rounded"></div>
+				<div class="h-4 w-full bg-surface-300/30"></div>
+				<div class="h-4 w-5/6 bg-surface-300/30"></div>
 			</div>
 			<div class="flex gap-2 pt-2">
 				<div class="h-5 w-14 bg-surface-300/30 rounded-full"></div>
