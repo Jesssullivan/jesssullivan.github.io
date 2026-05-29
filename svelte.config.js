@@ -303,10 +303,25 @@ const mdsvexOptions = {
 	]
 };
 
+// mdsvex 0.12.7 still emits legacy Svelte module script syntax for frontmatter.
+const mdsvexPreprocessor = mdsvex(mdsvexOptions);
+const mdsvexSvelte5Preprocessor = {
+	...mdsvexPreprocessor,
+	async markup(options) {
+		const result = await mdsvexPreprocessor.markup(options);
+		if (!result?.code) return result;
+
+		return {
+			...result,
+			code: result.code.replaceAll('<script context="module">', '<script module>')
+		};
+	}
+};
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	extensions: ['.svelte', '.md', '.svx'],
-	preprocess: [vitePreprocess(), mdsvex(mdsvexOptions)],
+	preprocess: [vitePreprocess(), mdsvexSvelte5Preprocessor],
 	compilerOptions: {
 		runes: true
 	},
