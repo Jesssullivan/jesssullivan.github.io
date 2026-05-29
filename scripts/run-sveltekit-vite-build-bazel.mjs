@@ -40,6 +40,10 @@ for (const command of [
 	['tsx', 'scripts/validate-pulse-snapshot.mts'],
 	['svelte-kit', 'sync'],
 	['vite', 'build'],
+	['tsx', 'scripts/generate-redirects.mts'],
+	['tsx', 'scripts/validate-redirects.mts'],
+	['tsx', 'scripts/validate-frontmatter.mts'],
+	['tsx', 'scripts/audit-links.mts'],
 ]) {
 	run(command[0], command.slice(1));
 }

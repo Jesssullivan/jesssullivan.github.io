@@ -40,6 +40,19 @@ filegroup(
 )
 
 filegroup(
+    name = "workspace_package_check_srcs",
+    srcs = [
+        "package-lock.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "//packages/blog-agent:srcs",
+        "//packages/pulse-client:srcs",
+        "//packages/pulse-core:srcs",
+    ],
+)
+
+filegroup(
     name = "browser_smoke_srcs",
     srcs = [
         "package.json",
@@ -131,6 +144,29 @@ js_test(
         "blog-agent",
         "gloriousflywheel-rbe-candidate",
         "node-test",
+    ],
+    timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "workspace_package_checks",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":workspace_package_check_srcs",
+        "//packages/blog-agent:node_modules",
+        "//packages/pulse-client:node_modules",
+        "//packages/pulse-core:node_modules",
+        "scripts/run-package-checks-bazel.mjs",
+    ],
+    entry_point = "scripts/run-package-checks-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "gloriousflywheel-rbe-candidate",
+        "node-test",
+        "package-check",
+        "typescript",
     ],
     timeout = "moderate",
     visibility = ["//visibility:public"],
@@ -258,6 +294,7 @@ exports_files(
         "scripts/bazel-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
         "scripts/chromium-fontconfig.mjs",
+        "scripts/run-package-checks-bazel.mjs",
         "scripts/run-blog-agent-tests-bazel.mjs",
         "scripts/run-playwright-chromium-bazel.mjs",
         "scripts/run-playwright-e2e-bazel.mjs",

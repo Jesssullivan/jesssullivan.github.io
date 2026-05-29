@@ -130,40 +130,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type check
-        run: npm run check
-
-      - name: Unit tests
-        run: npx vitest run --coverage
-        continue-on-error: false
-
-      - name: Blog agent typecheck
-        run: npm --workspace packages/blog-agent run typecheck
-
-      - name: Blog agent tests
-        run: npm --workspace packages/blog-agent run test
+      - name: Test authority
+        run: |
+          echo "check/test/e2e are intentionally owned by bazel-remote-gates."
+          echo "The GloriousFlywheel RBE lane runs remote:check, remote:test, and remote:e2e."
 
       - name: Blog agent production dependency audit (report-only)
         run: npm run security:audit:blog-agent
         continue-on-error: true
 
-      - name: Pulse-core tests + typecheck + proto guard
-        run: npm run test:pulse-core
-
-      - name: Pulse-client tests + typecheck
-        run: npm run test:pulse-client
-
       - name: Build
         run: npm run build
-
-      - name: Validate redirects
-        run: npx tsx scripts/validate-redirects.mts
-
-      - name: Validate frontmatter
-        run: npx tsx scripts/validate-frontmatter.mts
-
-      - name: Audit links
-        run: npx tsx scripts/audit-links.mts
 
       - name: Bundle size report
         run: npx tsx scripts/report-bundle-size.mts
@@ -238,21 +215,3 @@ jobs:
 
             console.log(lines.join('\n'));
           " >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload vitest results
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: vitest-report
-          path: |
-            coverage/
-            test-results/vitest/
-          retention-days: 7
-
-      - name: Upload Playwright results
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: test-results/
-          retention-days: 7
