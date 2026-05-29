@@ -63,7 +63,7 @@
 			{/if}
 		{:else}
 			<div class="animate-pulse">
-				<div class="w-full h-8 rounded-lg bg-surface-300/30"></div>
+				<div class="w-full h-8 bg-surface-300/30"></div>
 			</div>
 		{/if}
 	</div>

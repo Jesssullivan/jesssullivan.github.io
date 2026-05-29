@@ -106,7 +106,7 @@
 <div class="min-h-screen flex flex-col relative">
 	<a
 		href="#main-content"
-		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded focus:text-sm focus:font-semibold"
+		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:text-sm focus:font-semibold"
 		>Skip to content</a
 	>
 	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} shadow-sm">
@@ -149,7 +149,7 @@
 					closeOnEscape
 					preventScroll
 				>
-					<Dialog.Trigger class="md:hidden p-2 hover:bg-surface-200-800 rounded" aria-label="Open navigation">
+					<Dialog.Trigger class="md:hidden p-2 hover:bg-surface-200-800" aria-label="Open navigation">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-5 w-5"
@@ -164,7 +164,7 @@
 					<Dialog.Positioner class="drawer-positioner">
 						<Dialog.Content class="drawer-content">
 							<div class="flex items-center justify-end px-4 py-3 border-b border-surface-300-700">
-								<Dialog.CloseTrigger class="p-2 hover:bg-surface-200-800 rounded" aria-label="Close navigation">
+								<Dialog.CloseTrigger class="p-2 hover:bg-surface-200-800" aria-label="Close navigation">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										class="h-5 w-5"
@@ -211,7 +211,7 @@
 														theme.setMode(mode);
 													}}
 													aria-label={`Set color mode to ${mode}`}
-													class="flex-1 py-1.5 text-center rounded text-sm hover:bg-surface-200-800 transition-colors capitalize {theme.mode ===
+													class="flex-1 py-1.5 text-center text-sm hover:bg-surface-200-800 transition-colors capitalize {theme.mode ===
 													mode
 														? 'text-primary-500 font-semibold'
 														: ''}">{mode}</button
@@ -225,7 +225,7 @@
 														theme.setTheme(t.id);
 													}}
 													aria-label={`Set color theme to ${t.label}`}
-													class="px-2 py-1 rounded text-xs hover:bg-surface-200-800 transition-colors flex items-center gap-1 {theme.currentTheme ===
+													class="px-2 py-1 text-xs hover:bg-surface-200-800 transition-colors flex items-center gap-1 {theme.currentTheme ===
 													t.id
 														? 'text-primary-500 font-semibold ring-1 ring-primary-500'
 														: ''}"

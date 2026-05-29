@@ -26,7 +26,7 @@
 		<img
 			src="/images/aag/AAG_1.webp"
 			alt="AAG 2019 poster — Web GIS: Telling Stories & Solving Problems. Community-driven GIS mapping and Photovoice methods for youth recreation access in New Hampshire."
-			class="w-full h-auto rounded-lg"
+			class="w-full h-auto"
 			loading="eager"
 		/>
 	</div>

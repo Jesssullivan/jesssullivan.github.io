@@ -58,7 +58,7 @@ When you are dealing with field data at this scale -- hundreds of GPS points wit
 
 The full step-by-step tutorial is below if you want to follow along with your own KML data.
 
-<iframe src="/papers/kml-qgis-r-tutorial.pdf" class="w-full h-[600px] rounded-lg border border-surface-300" title="How to Query KML Point Data as CSV using QGIS and R"></iframe>
+<iframe src="/papers/kml-qgis-r-tutorial.pdf" class="w-full h-[600px] border border-surface-300" title="How to Query KML Point Data as CSV using QGIS and R"></iframe>
 
 Cheers,
 

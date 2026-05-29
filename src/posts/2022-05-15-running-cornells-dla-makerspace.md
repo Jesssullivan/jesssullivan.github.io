@@ -27,4 +27,4 @@ I developed curricula covering rapid fabrication from digital design through mac
 
 ![Small-scale 3D printing projects](/images/posts/tiny_printer_projects.webp)
 
-<iframe src="/papers/dla-makerspace-intro.pdf" class="w-full h-[600px] rounded-lg border border-surface-300" title="DLA Makerspace Introduction"></iframe>
+<iframe src="/papers/dla-makerspace-intro.pdf" class="w-full h-[600px] border border-surface-300" title="DLA Makerspace Introduction"></iframe>

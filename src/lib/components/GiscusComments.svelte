@@ -113,9 +113,9 @@
 			aria-label="Loading comments"
 			data-testid="comments-loading"
 		>
-			<div class="h-4 bg-surface-300-700 rounded w-3/4"></div>
-			<div class="h-4 bg-surface-300-700 rounded w-1/2"></div>
-			<div class="h-10 bg-surface-300-700 rounded w-full mt-4"></div>
+			<div class="h-4 bg-surface-300-700 w-3/4"></div>
+			<div class="h-4 bg-surface-300-700 w-1/2"></div>
+			<div class="h-10 bg-surface-300-700 w-full mt-4"></div>
 			<span class="sr-only">Loading comments...</span>
 		</div>
 	{/if}

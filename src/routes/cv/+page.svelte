@@ -85,7 +85,7 @@
 	<div class="card mb-8">
 		<iframe
 			src={docs[activeTab].file}
-			class="w-full h-[85dvh] rounded-lg"
+			class="w-full h-[85dvh]"
 			title={docs[activeTab].iframeTitle}
 		></iframe>
 	</div>

@@ -109,7 +109,7 @@
 				lightSrc="/images/tag-graph.svg"
 				darkSrc="/images/tag-graph-dark.svg"
 				alt="Tag Co-occurrence Network"
-				class="w-full rounded"
+				class="w-full"
 			/>
 		</div>
 
@@ -120,31 +120,31 @@
 				lightSrc={THEMED_IMAGES.githubStats.light}
 				darkSrc={THEMED_IMAGES.githubStats.dark}
 				alt={THEMED_IMAGES.githubStats.alt}
-				class="w-full rounded"
+				class="w-full"
 			/>
 			<ThemedImage
 				lightSrc={THEMED_IMAGES.topLangs.light}
 				darkSrc={THEMED_IMAGES.topLangs.dark}
 				alt={THEMED_IMAGES.topLangs.alt}
-				class="w-full rounded"
+				class="w-full"
 			/>
 			<ThemedImage
 				lightSrc={THEMED_IMAGES.repoGraph.light}
 				darkSrc={THEMED_IMAGES.repoGraph.dark}
 				alt={THEMED_IMAGES.repoGraph.alt}
-				class="w-full rounded"
+				class="w-full"
 			/>
 			<ThemedImage
 				lightSrc={THEMED_IMAGES.snake.light}
 				darkSrc={THEMED_IMAGES.snake.dark}
 				alt={THEMED_IMAGES.snake.alt}
-				class="w-full rounded"
+				class="w-full"
 			/>
 			<ThemedImage
 				lightSrc={THEMED_IMAGES.streak.light}
 				darkSrc={THEMED_IMAGES.streak.dark}
 				alt={THEMED_IMAGES.streak.alt}
-				class="w-full rounded"
+				class="w-full"
 			/>
 			{#if statsUpdated}
 				<p class="text-xs text-surface-400 mt-1">stats updated {statsUpdated}</p>

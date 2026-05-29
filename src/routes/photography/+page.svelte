@@ -63,7 +63,7 @@
 							height={photo.height || undefined}
 							loading="lazy"
 							decoding="async"
-							class="w-full rounded-lg transition-transform group-hover:scale-[1.02] group-hover:shadow-lg"
+							class="w-full transition-transform group-hover:scale-[1.02] group-hover:shadow-lg"
 						/>
 					</picture>
 					{#if photo.post_title}
@@ -106,7 +106,7 @@
 					<img
 						src={selectedPhoto.src}
 						alt={selectedPhoto.post_title || 'Photo'}
-						class="max-w-full max-h-[85dvh] object-contain rounded-lg"
+						class="max-w-full max-h-[85dvh] object-contain"
 					/>
 				</picture>
 				{#if selectedPhoto.post_slug}
@@ -144,7 +144,7 @@
 						{/if}
 						<div class="flex flex-wrap gap-1 mt-2">
 							{#each post.tags as tag}
-								<span class="text-xs px-2 py-0.5 bg-surface-200-800 rounded">{tag}</span>
+								<span class="text-xs px-2 py-0.5 bg-surface-200-800">{tag}</span>
 							{/each}
 						</div>
 					</a>

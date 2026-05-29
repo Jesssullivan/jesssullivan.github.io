@@ -25,7 +25,7 @@ This work fed directly into a presentation at the 2019 AAG Annual Meeting in Was
 
 The full GIS presentation is embedded below:
 
-<iframe src="/papers/gis-warblers-2019.pdf" class="w-full h-[600px] rounded-lg border border-surface-300" title="Succession, Warblers, and GIS"></iframe>
+<iframe src="/papers/gis-warblers-2019.pdf" class="w-full h-[600px] border border-surface-300" title="Succession, Warblers, and GIS"></iframe>
 
 Looking back, this project was where I really started to appreciate how much of field ecology is actually data management. The birds are the fun part, but the hours spent cleaning KML files, troubleshooting coordinate reference systems in ArcMap, and writing R scripts to wrangle waypoint descriptions into usable data frames -- that is where most of the work happens. It also got me thinking seriously about better tooling for field data collection, which eventually led to some of the software projects I picked up later.
 
