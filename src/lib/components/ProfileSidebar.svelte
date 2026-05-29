@@ -4,6 +4,17 @@
 	import { THEMED_IMAGES } from '$lib/data/github-profile';
 
 	let { compact = false }: { compact?: boolean } = $props();
+
+	let statsUpdated = $state<string | null>(null);
+
+	$effect(() => {
+		fetch('/images/github-profile/updated.json')
+			.then((r) => (r.ok ? r.json() : null))
+			.then((d) => {
+				if (d?.updated) statsUpdated = d.updated.slice(0, 10);
+			})
+			.catch(() => {});
+	});
 </script>
 
 <div class="profile-sidebar {compact ? 'profile-sidebar--compact' : ''}">
@@ -135,6 +146,9 @@
 				alt={THEMED_IMAGES.streak.alt}
 				class="w-full rounded"
 			/>
+			{#if statsUpdated}
+				<p class="text-xs text-surface-400 mt-1">stats updated {statsUpdated}</p>
+			{/if}
 		</div>
 
 	{/if}

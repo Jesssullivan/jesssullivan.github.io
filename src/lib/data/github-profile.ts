@@ -1,4 +1,4 @@
-const PROFILE_BASE = 'https://raw.githubusercontent.com/Jesssullivan/Jesssullivan/feature/update-script';
+const PROFILE_BASE = '/images/github-profile';
 
 export interface Badge {
 	text: string;

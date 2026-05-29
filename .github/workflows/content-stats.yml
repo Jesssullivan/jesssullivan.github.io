@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   stats:
@@ -27,6 +27,28 @@ jobs:
 
       - name: Generate tag graph
         run: npx tsx scripts/generate-tag-graph.mts
+
+      - name: Mirror GitHub profile SVGs
+        run: |
+          mkdir -p static/images/github-profile
+          for name in github-stats github-stats-dark top-langs top-langs-dark github-snake github-snake-dark repo-graph repo-graph-dark; do
+            curl -fsSL "https://raw.githubusercontent.com/Jesssullivan/Jesssullivan/feature/update-script/${name}.svg" \
+              -o "static/images/github-profile/${name}.svg"
+          done
+          printf '{"updated":"%s"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > static/images/github-profile/updated.json
+
+      - name: Commit generated artifacts
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add static/blog-stats.json static/images/tag-graph.svg static/images/tag-graph-dark.svg static/images/github-profile/
+          if git diff --cached --quiet; then
+            echo "No stats changes to commit"
+          else
+            git commit -m 'chore(stats): refresh weekly content + profile snapshot'
+            git push
+          fi
 
       - name: Summary
         run: |
