@@ -103,7 +103,7 @@ export const load: PageLoad = async ({ params }) => {
 	return {
 		content: null,
 		metadata: {
-			title: params.slug,
+			title: 'Post unavailable',
 			slug: params.slug,
 			date: '',
 			description: '',
