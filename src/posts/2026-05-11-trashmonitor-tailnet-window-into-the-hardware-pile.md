@@ -10,7 +10,7 @@ source_repo: "Jesssullivan/tailnet-trashmonitor"
 source_path: "README.md"
 excerpt: "I glued together a tittle tailnet-only streaming surface so I can oggle my goggles, blinkenlights, dev boards, and the hardware pile from the sanctum of anywhere"
 feature_image: "/images/posts/trashmonitor-setup.webp"
-thumbnail_image: "/images/posts/trashmonitor-screenshot.webp"
+thumbnail_image: "/images/posts/trashmonitor-dashboard-screenshot.jpg"
 ---
 
 
@@ -21,7 +21,7 @@ Find the repo here: [`tailnet-trashmonitor`](https://github.com/Jesssullivan/tai
 
 | The bench view | The stream view |
 | --- | --- |
-| ![Physical trashmonitor capture setup pointed at the hardware bench](/images/posts/trashmonitor-setup.webp) | ![Trashmonitor dashboard showing tailnet camera streams](/images/posts/trashmonitor-screenshot.webp) |
+| ![Physical trashmonitor capture setup pointed at the hardware bench](/images/posts/trashmonitor-setup.webp) | ![Trashmonitor dashboard showing tailnet camera streams](/images/posts/trashmonitor-dashboard-screenshot.jpg) |
 
 
 The whole architecture is basically "push video into the cluster, watch HLS from the tailnet."
