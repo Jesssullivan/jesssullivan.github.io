@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build:
@@ -61,10 +61,29 @@ jobs:
           repositories: Jesssullivan
 
       - name: Trigger profile repo README refresh
-        continue-on-error: true
         run: |
+          if [ -z "${GH_TOKEN:-}" ]; then
+            {
+              echo "## Profile README refresh"
+              echo ""
+              echo "Skipped because no GitHub App token or PROFILE_DISPATCH_TOKEN is configured."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          set +e
           gh api repos/Jesssullivan/Jesssullivan/dispatches \
             -f event_type=blog-deployed \
             -f 'client_payload[source]=jesssullivan.github.io'
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "## Profile README refresh"
+              echo ""
+              echo "Dispatch failed with status $status."
+              echo "Keeping this sidecar refresh informational so Pages deployment truth stays attached to the build and deploy jobs."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 0
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.PROFILE_DISPATCH_TOKEN }}
