@@ -8,7 +8,6 @@
 	import { TinyVectors } from '@tummycrypt/tinyvectors';
 	import { theme, THEMES } from '$lib/theme.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
-	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 
 	let { children } = $props();
 
@@ -285,16 +284,9 @@
 		</div>
 	</section>
 
-	<div class="flex-1 w-full lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:max-w-7xl lg:mx-auto lg:px-4">
-		<main id="main-content" class="min-w-0">
-			{@render children()}
-		</main>
-		<aside class="hidden lg:block">
-			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto sidebar-scroll glass p-4 mt-12">
-				<ProfileSidebar />
-			</div>
-		</aside>
-	</div>
+	<main id="main-content" class="flex-1">
+		{@render children()}
+	</main>
 
 	<footer class="bg-surface-100-900 border-t border-surface-300-700 py-6 text-center text-sm text-surface-500">
 		<div class="container mx-auto px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">

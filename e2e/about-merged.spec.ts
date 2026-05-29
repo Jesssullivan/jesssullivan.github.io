@@ -31,7 +31,7 @@ test.describe('About (merged) page', () => {
 		await expect(page.locator('section.hero-banner')).toBeVisible();
 		await expect(page.locator('img[alt="Great Blue Heron"]')).toBeVisible();
 		await expect(page.locator('.hero-banner-title')).toBeVisible();
-		await expect(page.locator('section.hero-banner').getByText('Jess Sullivan')).toBeVisible();
+		await expect(page.getByText('Jess Sullivan')).toBeVisible();
 	});
 
 	test('banner fades on scroll', async ({ page, browserName }) => {
@@ -83,13 +83,12 @@ test.describe('About (merged) page', () => {
 
 	test('GitHub stats images present', async ({ page, browserName }) => {
 		test.skip(browserName !== 'chromium', 'External image loading varies across browsers');
-		const main = page.locator('#main-content');
-		await expect(main.locator('img[alt="GitHub Stats"]')).toBeVisible();
-		await expect(main.locator('img[alt="Top Languages"]')).toBeVisible();
+		await expect(page.locator('img[alt="GitHub Stats"]')).toBeVisible();
+		await expect(page.locator('img[alt="Top Languages"]')).toBeVisible();
 	});
 
 	test('ThemedImage swaps src on dark mode toggle', async ({ page }) => {
-		const statsImg = page.locator('#main-content').locator('img[alt="GitHub Stats"]');
+		const statsImg = page.locator('img[alt="GitHub Stats"]');
 		await expect(statsImg).toHaveAttribute('src', /github-stats\.svg/);
 
 		await openThemeSettings(page);
@@ -106,7 +105,7 @@ test.describe('About (merged) page', () => {
 	});
 
 	test('ventures section renders', async ({ page }) => {
-		await expect(page.locator('#main-content').getByRole('heading', { name: 'Ventures' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Ventures' })).toBeVisible();
 		await expect(page.getByRole('link', { name: 'Tinyland, Inc' })).toBeVisible();
 		await expect(page.getByRole('link', { name: 'xoxd.ai', exact: true }).first()).toBeVisible();
 	});
@@ -164,14 +163,13 @@ test.describe('About (merged) page', () => {
 	});
 
 	test('learning formula image present', async ({ page }) => {
-		await expect(page.locator('#main-content').locator('img[alt*="Learning"]')).toBeVisible();
+		await expect(page.locator('img[alt*="Learning"]')).toBeVisible();
 	});
 
 	test('links section renders', async ({ page }) => {
-		const main = page.locator('#main-content');
-		await expect(main.getByRole('heading', { name: 'Links' })).toBeVisible();
-		await expect(main.getByRole('link', { name: 'GitHub', exact: true }).first()).toBeVisible();
-		await expect(main.getByRole('link', { name: 'GitLab', exact: true })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Links' })).toBeVisible();
+		await expect(page.getByRole('link', { name: 'GitHub', exact: true }).first()).toBeVisible();
+		await expect(page.getByRole('link', { name: 'GitLab', exact: true })).toBeVisible();
 	});
 
 	test('nav links work from about page', async ({ page }) => {

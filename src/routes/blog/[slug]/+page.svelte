@@ -3,6 +3,7 @@
 	import GiscusComments from '$lib/components/GiscusComments.svelte';
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import ReadingProgressRing from '$lib/components/ReadingProgressRing.svelte';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
@@ -368,6 +369,8 @@
 					</div>
 				{/if}
 				<TableOfContents />
+				<hr class="border-surface-300-700" />
+				<ProfileSidebar />
 			</div>
 		</div>
 	</div>
