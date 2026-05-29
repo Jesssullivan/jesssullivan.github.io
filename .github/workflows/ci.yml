@@ -136,8 +136,19 @@ jobs:
           echo "The GloriousFlywheel RBE lane runs remote:check, remote:test, and remote:e2e."
 
       - name: Blog agent production dependency audit (report-only)
-        run: npm run security:audit:blog-agent
-        continue-on-error: true
+        run: |
+          set +e
+          npm run security:audit:blog-agent
+          status=$?
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "## Blog agent production dependency audit"
+              echo ""
+              echo "Report-only audit exited with status $status."
+              echo "Keeping this informational so build-and-test stays visually green while test authority remains in bazel-remote-gates."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit 0
 
       - name: Build
         run: npm run build
