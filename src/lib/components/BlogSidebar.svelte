@@ -41,7 +41,7 @@
 				placeholder="Search posts..."
 				bind:value={searchQuery}
 				aria-label="Search recent blog posts"
-				class="w-full px-3 py-1.5 rounded-lg border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-950 dark:text-surface-50 caret-primary-600 dark:caret-primary-400 placeholder:text-surface-500 dark:placeholder:text-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+				class="w-full px-3 py-1.5 border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-950 dark:text-surface-50 caret-primary-600 dark:caret-primary-400 placeholder:text-surface-500 dark:placeholder:text-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
 			/>
 			{#if searchQuery.trim() && searchResults.length > 0}
 				<ul class="mt-3 space-y-2">
