@@ -3,6 +3,7 @@
 	import Search from '$lib/components/Search.svelte';
 	import BlogCard from '$lib/components/BlogCard.svelte';
 	import BlogSidebar from '$lib/components/BlogSidebar.svelte';
+	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
@@ -136,6 +137,11 @@
 		</div>
 	</div>
 
+	<!-- Mobile profile (visible on small screens only) -->
+	<div class="lg:hidden mb-6">
+		<ProfileSidebar compact={true} />
+	</div>
+
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<!-- Main content column -->
 		<div>
@@ -190,7 +196,9 @@
 
 		<!-- Sidebar column (hidden on mobile) -->
 		<div class="hidden lg:block">
-			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto sidebar-scroll glass p-4">
+			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto space-y-8 sidebar-scroll glass p-4">
+				<ProfileSidebar />
+				<hr class="border-surface-300-700" />
 				<BlogSidebar {recentPosts} {allTags} />
 			</div>
 		</div>
