@@ -12,6 +12,7 @@ guards against forgetting to re-sync after a spear_resumes bump.
 """
 
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
+load("@aspect_rules_js//js:defs.bzl", "js_test")
 
 write_source_files(
     name = "sync_pdfs",
@@ -20,5 +21,27 @@ write_source_files(
         "jess_sullivan_resume_targeted.pdf": "@spear_resumes//cra:resume",
         "jess_sullivan_cv.pdf": "@spear_resumes//generic:cv",
     },
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "pdfs_synced_test",
+    data = [
+        ":jess_sullivan_cv.pdf",
+        ":jess_sullivan_resume.pdf",
+        ":jess_sullivan_resume_targeted.pdf",
+        "@spear_resumes//cra:resume",
+        "@spear_resumes//generic:cv",
+        "@spear_resumes//generic:resume",
+    ],
+    entry_point = "assert_pdfs_synced.mjs",
+    patch_node_fs = False,
+    tags = [
+        "cv",
+        "gloriousflywheel-rbe-candidate",
+        "pdf",
+        "resume",
+    ],
+    timeout = "short",
     visibility = ["//visibility:public"],
 )

@@ -58,7 +58,7 @@ test.describe('Profile Sidebar', () => {
 		// Click an actual post link (inside article cards), not a tag link
 		const postLink = page.locator('article a[href^="/blog/"]').first();
 		await postLink.click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 		const sidebar = page.locator('.profile-sidebar').first();
 		await expect(sidebar).toBeVisible();
 	});

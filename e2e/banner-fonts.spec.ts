@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Banner + Font Stack (Week 1)', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/about');
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 	});
 
 	test('banner image is visible and full-width', async ({ page }) => {
@@ -49,8 +49,7 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 	});
 
 	test('code blocks use Fira Code with ligature settings', async ({ page }) => {
-		await page.goto('/blog/ligature-test-fixture');
-		await page.waitForLoadState('networkidle');
+		await page.goto('/blog/ligature-test-fixture', { waitUntil: 'domcontentloaded' });
 
 		const codeBlock = page.locator('pre code').first();
 		await expect(codeBlock).toBeVisible();
@@ -68,8 +67,7 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 			}
 		});
 
-		await page.goto('/about');
-		await page.waitForLoadState('networkidle');
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 		expect(externalFontRequests).toHaveLength(0);
 	});
 

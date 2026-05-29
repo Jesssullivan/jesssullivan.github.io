@@ -11,9 +11,11 @@ filegroup(
         [
             "src/**/*.ts",
             "src/**/*.svelte",
+            "src/**/*.json",
+            "src/**/*.html",
             "scripts/**/*.mts",
-            "packages/**/*.ts",
-            "packages/**/*.svelte",
+            "src/posts/**/*.md",
+            "static/data/**",
         ],
         allow_empty = True,
     ) + [
@@ -21,20 +23,41 @@ filegroup(
         "package-lock.json",
         "package.json",
         "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
         "svelte.config.js",
         "tsconfig.json",
         "vite.config.ts",
         "vitest.bazel.config.ts",
         "vitest.config.ts",
+        "//packages/pulse-client:srcs",
+        "//packages/pulse-core:srcs",
     ],
+)
+
+filegroup(
+    name = "blog_agent_test_srcs",
+    srcs = ["//packages/blog-agent:srcs"],
 )
 
 filegroup(
     name = "browser_smoke_srcs",
     srcs = [
         "package.json",
+        "scripts/chromium-fontconfig.mjs",
         "scripts/run-playwright-chromium-bazel.mjs",
         "scripts/run-puppeteer-chromium-bazel.mjs",
+    ],
+)
+
+filegroup(
+    name = "playwright_e2e_srcs",
+    srcs = glob(
+        [
+            "e2e/**",
+        ],
+        allow_empty = True,
+    ) + [
+        "playwright.bazel.config.ts",
     ],
 )
 
@@ -53,9 +76,13 @@ filegroup(
         "package-lock.json",
         "package.json",
         "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
         "svelte.config.js",
         "tsconfig.json",
         "vite.config.ts",
+        "//packages/blog-agent:srcs",
+        "//packages/pulse-client:srcs",
+        "//packages/pulse-core:srcs",
     ],
 )
 
@@ -69,11 +96,13 @@ js_binary(
 )
 
 js_test(
-    name = "types_unit_tests",
+    name = "vitest_unit_tests",
     copy_data_to_bin = False,
     data = [
         ":node_modules",
         ":vitest_srcs",
+        "//packages/pulse-client:node_modules",
+        "//packages/pulse-core:node_modules",
     ],
     entry_point = "scripts/run-vitest-bazel.mjs",
     patch_node_fs = False,
@@ -84,6 +113,53 @@ js_test(
         "vitest",
     ],
     timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "blog_agent_node_tests",
+    copy_data_to_bin = False,
+    data = [
+        ":blog_agent_test_srcs",
+        ":node_modules",
+        "//packages/blog-agent:node_modules",
+        "scripts/run-blog-agent-tests-bazel.mjs",
+    ],
+    entry_point = "scripts/run-blog-agent-tests-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "blog-agent",
+        "gloriousflywheel-rbe-candidate",
+        "node-test",
+    ],
+    timeout = "moderate",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "types_unit_tests",
+    actual = ":vitest_unit_tests",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "sveltekit_check",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":sveltekit_build_srcs",
+        "scripts/run-sveltekit-check-bazel.mjs",
+    ],
+    entry_point = "scripts/run-sveltekit-check-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "gloriousflywheel-rbe-candidate",
+        "sveltekit",
+        "svelte-check",
+        "vite",
+        "web-check-runtime-authority",
+    ],
+    timeout = "long",
     visibility = ["//visibility:public"],
 )
 
@@ -128,6 +204,31 @@ js_test(
 )
 
 js_test(
+    name = "playwright_chromium_e2e",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":playwright_e2e_srcs",
+        ":sveltekit_build_srcs",
+        "scripts/run-playwright-e2e-bazel.mjs",
+        "scripts/serve-static-build.mjs",
+    ],
+    entry_point = "scripts/run-playwright-e2e-bazel.mjs",
+    patch_node_fs = False,
+    tags = [
+        "chromium",
+        "e2e",
+        "gloriousflywheel-rbe-candidate",
+        "playwright",
+        "sveltekit",
+        "vite",
+        "web-browser-runtime-authority",
+    ],
+    timeout = "eternal",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
     name = "puppeteer_chromium_smoke",
     copy_data_to_bin = False,
     data = [
@@ -152,10 +253,18 @@ exports_files(
     [
         "package-lock.json",
         "package.json",
+        "playwright.bazel.config.ts",
         "pnpm-lock.yaml",
+        "scripts/bazel-cache-backed.sh",
+        "scripts/cache-attachment-contract.sh",
+        "scripts/chromium-fontconfig.mjs",
+        "scripts/run-blog-agent-tests-bazel.mjs",
         "scripts/run-playwright-chromium-bazel.mjs",
+        "scripts/run-playwright-e2e-bazel.mjs",
         "scripts/run-puppeteer-chromium-bazel.mjs",
+        "scripts/run-sveltekit-check-bazel.mjs",
         "scripts/run-sveltekit-vite-build-bazel.mjs",
+        "scripts/serve-static-build.mjs",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",
     ],

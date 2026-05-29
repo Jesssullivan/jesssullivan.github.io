@@ -13,6 +13,86 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
+  bazel-remote-gates:
+    runs-on: tinyland-dind
+    timeout-minutes: 60
+    env:
+      GF_RBE_CHROMIUM_EXECUTABLE: /bin/chromium
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Require executor-backed GloriousFlywheel lane
+        run: |
+          set -euo pipefail
+          if [ -z "${BAZEL_REMOTE_CACHE:-}" ]; then
+            echo "::error::BAZEL_REMOTE_CACHE is missing. This job must run on the GloriousFlywheel ARC lane with cache hints attached."
+            exit 1
+          fi
+
+          if [ -z "${BAZEL_REMOTE_EXECUTOR:-}" ]; then
+            echo "::error::BAZEL_REMOTE_EXECUTOR is missing. Refusing to run check/test/e2e as shared-cache local work while this lane is named RBE."
+            exit 1
+          fi
+
+          echo "GF_BAZEL_SUBSTRATE_MODE=executor-backed" >> "$GITHUB_ENV"
+          echo "GF_BAZEL_REMOTE_EXECUTION_PLATFORM=${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}" >> "$GITHUB_ENV"
+
+      - name: Validate GloriousFlywheel RBE attachment
+        run: bash scripts/cache-attachment-contract.sh --strict
+
+      - name: Set up SSH for spear-resumes
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SPEAR_RESUMES_DEPLOY_KEY }}
+
+      - name: Trust GitHub SSH host keys
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          {
+            echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
+            echo 'github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg='
+            echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk='
+          } > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Cache Bazel
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', '.bazelversion', 'pnpm-lock.yaml') }}
+          restore-keys: bazel-${{ runner.os }}-
+
+      - name: Install bazelisk
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp)"
+          curl -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o "${tmp}"
+          chmod +x "${tmp}"
+          if [ -w /usr/local/bin ]; then
+            mv "${tmp}" /usr/local/bin/bazel
+          else
+            sudo mv "${tmp}" /usr/local/bin/bazel
+          fi
+
+      - name: Remote check
+        run: npm run remote:check
+
+      - name: Remote test
+        run: npm run remote:test
+
+      - name: Remote e2e
+        run: npm run remote:e2e
+
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -102,6 +182,7 @@ jobs:
           e2e/dark-mode.spec.ts
           e2e/about-merged.spec.ts
           e2e/card-enhancement.spec.ts
+          e2e/cv.spec.ts
           e2e/pulse-lab.spec.ts
           e2e/pulse-client.spec.ts
           e2e/pulse-brokered-stream.spec.ts

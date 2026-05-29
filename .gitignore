@@ -32,6 +32,7 @@ CLAUDE.md
 
 # Build artifacts
 bazel-*
+!scripts/bazel-cache-backed.sh
 .mermaid-cache/
 static/search-index.json
 static/blog-stats.json

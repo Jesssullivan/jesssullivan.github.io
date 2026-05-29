@@ -1,0 +1,25 @@
+"""Bazel package wiring for @blog/agent."""
+
+load("@jesssullivan_github_io_npm//:defs.bzl", "npm_link_all_packages")
+load("@aspect_rules_js//npm:defs.bzl", "npm_package")
+
+npm_link_all_packages(name = "node_modules")
+
+filegroup(
+    name = "srcs",
+    srcs = glob(
+        ["**"],
+        exclude = [
+            "BUILD.bazel",
+            "node_modules/**",
+        ],
+        allow_empty = True,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+npm_package(
+    name = "pkg",
+    srcs = [":srcs"],
+    visibility = ["//visibility:public"],
+)

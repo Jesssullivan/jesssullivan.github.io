@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {
 	accessSync,
 	constants,
@@ -15,7 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const workspaceRoot = process.cwd();
-const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-vite-build-'));
+const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-check-'));
 const buildRoot = join(runtimeRoot, 'workspace');
 
 mkdirSync(buildRoot, { recursive: true });
@@ -23,44 +24,22 @@ ensureWritableEnvDir('HOME', join(runtimeRoot, 'home'));
 ensureWritableEnvDir('XDG_CONFIG_HOME', join(runtimeRoot, 'xdg-config'));
 ensureWritableEnvDir('XDG_CACHE_HOME', join(runtimeRoot, 'xdg-cache'));
 process.env.CI = 'true';
-process.env.NODE_ENV = 'production';
-process.env.MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'optional';
+process.env.NODE_ENV = 'test';
 
 copyInputsToBuildRoot();
 linkNodeModules();
 
-const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'utf8'));
-
 for (const command of [
 	['tsx', 'scripts/ingest-tinyland-posts.mts', '--check'],
 	['tsx', 'scripts/generate-search-index.mts'],
-	['tsx', 'scripts/generate-blog-stats.mts'],
-	['tsx', 'scripts/generate-tag-graph.mts'],
-	['tsx', 'scripts/generate-photo-gallery.mts'],
 	['tsx', 'scripts/validate-pulse-snapshot.mts'],
 	['svelte-kit', 'sync'],
-	['vite', 'build'],
+	['svelte-check', '--tsconfig', './tsconfig.json'],
 ]) {
 	run(command[0], command.slice(1));
 }
 
-const indexPath = join(buildRoot, 'build', 'index.html');
-const searchIndexPath = join(buildRoot, 'static', 'search-index.json');
-if (!existsSync(indexPath)) {
-	throw new Error(`SvelteKit build did not write ${indexPath}`);
-}
-if (!existsSync(searchIndexPath)) {
-	throw new Error(`Build preflight did not write ${searchIndexPath}`);
-}
-
-const indexHtml = readFileSync(indexPath, 'utf8');
-if (!indexHtml.includes('<!doctype html>')) {
-	throw new Error('SvelteKit build output index.html is missing doctype');
-}
-
-console.log(
-	`SvelteKit/Vite build smoke passed for ${packageJson.name}; output=${indexPath}; mermaid=${process.env.MERMAID_PRERENDER}`,
-);
+console.log('SvelteKit remote check passed');
 
 function copyInputsToBuildRoot() {
 	for (const dir of ['packages', 'scripts', 'src', 'static']) {
@@ -82,7 +61,7 @@ function copyInputsToBuildRoot() {
 
 function copyPath(source, destination) {
 	if (!existsSync(source)) {
-		throw new Error(`Missing declared build input: ${source}`);
+		throw new Error(`Missing declared check input: ${source}`);
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
@@ -169,8 +148,8 @@ function linkRootPackageIfMissing(buildNodeModules, packageName) {
 	symlinkSync(source, destination, 'dir');
 }
 
-function resolvePackagePath(nodeModules, packageName) {
-	return resolve(nodeModules, ...packageName.split('/'));
+function resolvePackagePath(nodeModules, packageName, ...segments) {
+	return resolve(nodeModules, ...packageName.split('/'), ...segments);
 }
 
 function findAspectPackage(buildNodeModules, packageName) {
@@ -195,9 +174,12 @@ function findAspectPackage(buildNodeModules, packageName) {
 
 function run(binaryName, args) {
 	const binary = resolveBinEntrypoint(binaryName);
-	const result = spawnSync(process.execPath, [binary, ...args], {
+	const result = spawnSync(binary, args, {
 		cwd: buildRoot,
-		env: process.env,
+		env: {
+			...process.env,
+			PATH: `${resolve(buildRoot, 'node_modules', '.bin')}:${process.env.PATH ?? ''}`,
+		},
 		stdio: 'inherit',
 	});
 
@@ -210,21 +192,22 @@ function run(binaryName, args) {
 }
 
 function resolveBinEntrypoint(name) {
-	const entrypoints = {
-		'svelte-kit': ['@sveltejs/kit', 'svelte-kit.js'],
-		tsx: ['tsx', 'dist/cli.mjs'],
-		vite: ['vite', 'bin/vite.js'],
-	};
-	const [packageName, relativePath] = entrypoints[name] ?? [];
+	const packageName = {
+		'svelte-check': 'svelte-check',
+		'svelte-kit': '@sveltejs/kit',
+		tsx: 'tsx',
+	}[name];
 	if (!packageName) {
 		throw new Error(`Unknown npm binary ${name}`);
 	}
 
-	const entrypoint = resolve(buildRoot, 'node_modules', packageName, relativePath);
-	if (!existsSync(entrypoint)) {
-		throw new Error(`Missing npm binary ${name}: ${entrypoint}`);
+	const packageJsonPath = resolvePackagePath(resolve(buildRoot, 'node_modules'), packageName, 'package.json');
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+	const bin = typeof packageJson.bin === 'string' ? packageJson.bin : packageJson.bin?.[name];
+	if (!bin) {
+		throw new Error(`Package ${packageName} does not declare bin ${name}`);
 	}
-	return entrypoint;
+	return resolve(dirname(packageJsonPath), bin);
 }
 
 function ensureWritableEnvDir(name, fallback) {

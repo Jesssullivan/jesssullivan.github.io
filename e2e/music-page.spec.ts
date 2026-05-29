@@ -62,7 +62,7 @@ test.describe('Music Navigation', () => {
 	test('music link in navbar navigates to /music', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('nav a[href="/music"]').first().click();
-		await page.waitForURL(/\/music/);
+		await page.waitForURL(/\/music/, { waitUntil: 'domcontentloaded' });
 		await expect(page.getByRole('heading', { name: 'Music', level: 1 })).toBeVisible();
 	});
 });

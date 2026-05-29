@@ -19,7 +19,7 @@ const BLOG_POST_PATH = '/blog/840-watts-of-solar-power';
 /** Helper: set viewport and navigate without waiting on background requests. */
 async function visitAt(page: Page, path: string, width: number, height: number) {
 	await page.setViewportSize({ width, height });
-	await page.goto(path, { waitUntil: 'load' });
+	await page.goto(path, { waitUntil: 'domcontentloaded' });
 	await expect(page.locator('body')).toBeVisible();
 }
 
@@ -169,7 +169,7 @@ test.describe('Blog listing — visual QA across viewports', () => {
 test.describe('Dark mode consistency', () => {
 	test('homepage: switching to dark mode sets data-mode="dark"', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/about', { waitUntil: 'load' });
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 
 		// Open the theme menu and click "Dark"
 		const themeButton = page.getByRole('button', { name: 'Theme settings' });
@@ -192,7 +192,7 @@ test.describe('Dark mode consistency', () => {
 
 	test('dark mode persists across navigation', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
-		await page.goto('/about', { waitUntil: 'load' });
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 
 		// Switch to dark
 		await page.getByRole('button', { name: 'Theme settings' }).click();
@@ -200,11 +200,11 @@ test.describe('Dark mode consistency', () => {
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 
 		// Navigate to blog
-		await page.goto('/blog', { waitUntil: 'load' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 
 		// Navigate to a post
-		await page.goto(BLOG_POST_PATH, { waitUntil: 'load' });
+		await page.goto(BLOG_POST_PATH, { waitUntil: 'domcontentloaded' });
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
 	});
 });
