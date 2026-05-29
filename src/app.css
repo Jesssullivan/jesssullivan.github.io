@@ -8,6 +8,15 @@
 @import '$lib/styles/themes/trans.css';
 @custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
+/* Sharp corners site-wide: flatten Skeleton radius tokens for every active theme
+   (pine/catppuccin/rose built-ins included), overriding each theme's own
+   --radius-* block. Structural rounded-full and functional 2px radii (focus
+   ring, scrollbar) are left untouched. */
+[data-theme] {
+	--radius-base: 0;
+	--radius-container: 0;
+}
+
 /* Self-hosted fonts via @fontsource */
 @import '@fontsource/crimson-pro/latin-400.css';
 @import '@fontsource/crimson-pro/latin-400-italic.css';
@@ -308,7 +317,7 @@ pre.shiki span {
 .prose code:not(pre code) {
 	font-size: 0.875em;
 	padding: 0.15em 0.3em;
-	border-radius: 0.25rem;
+	border-radius: 0;
 	background: var(--color-surface-200);
 	color: var(--color-surface-900);
 	overflow-wrap: break-word;
@@ -321,7 +330,7 @@ pre.shiki span {
 }
 
 .prose pre {
-	border-radius: 0.5rem;
+	border-radius: 0;
 	padding: 1em;
 	overflow-x: auto;
 	margin: 1.5em 0;
@@ -339,7 +348,7 @@ pre.shiki span {
 .prose img {
 	max-width: 100%;
 	height: auto;
-	border-radius: 0.5rem;
+	border-radius: 0;
 	margin: 1.5em 0;
 }
 
@@ -359,7 +368,7 @@ pre.shiki span {
 	margin: 1.5em 0;
 	border-left: 3px solid var(--color-surface-400);
 	background: color-mix(in srgb, var(--color-surface-200) 50%, transparent);
-	border-radius: 0 0.375rem 0.375rem 0;
+	border-radius: 0;
 	font-style: italic;
 	font-size: 0.85em;
 	color: var(--color-surface-500);

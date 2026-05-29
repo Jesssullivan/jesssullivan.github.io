@@ -78,13 +78,13 @@
 				aria-autocomplete="list"
 				aria-controls="search-results"
 				aria-label="Search blog posts"
-				class="w-full px-4 py-2 rounded-lg border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-950 dark:text-surface-50 caret-primary-600 dark:caret-primary-400 placeholder:text-surface-500 dark:placeholder:text-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+				class="w-full px-4 py-2 border border-surface-300 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 text-surface-950 dark:text-surface-50 caret-primary-600 dark:caret-primary-400 placeholder:text-surface-500 dark:placeholder:text-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
 			/>
 			{#if showDropdown && query && results.length > 0}
 				<ul
 					id="search-results"
 					role="listbox"
-					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid rounded-lg max-h-80 overflow-y-auto"
+					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid max-h-80 overflow-y-auto"
 				>
 					{#each results as result, i (result.slug)}
 						<li role="option" aria-selected={i === activeIndex}>
@@ -113,7 +113,7 @@
 				</ul>
 			{:else if showDropdown && query && results.length === 0}
 				<div
-					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid rounded-lg px-4 py-3 text-sm text-surface-500"
+					class="absolute z-50 top-full left-0 right-0 mt-1 glass-solid px-4 py-3 text-sm text-surface-500"
 				>
 					No results found.
 				</div>
@@ -123,6 +123,6 @@
 {:else}
 	<!-- Skeleton loading state -->
 	<div class="mb-8 animate-pulse">
-		<div class="w-full h-10 rounded-lg bg-surface-300/30"></div>
+		<div class="w-full h-10 bg-surface-300/30"></div>
 	</div>
 {/if}

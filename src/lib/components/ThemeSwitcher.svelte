@@ -147,7 +147,7 @@
 	autoFocus={false}
 >
 	<Popover.Trigger
-		class="p-1.5 hover:bg-surface-200-800 rounded transition-colors {nudgeActive
+		class="p-1.5 hover:bg-surface-200-800 transition-colors {nudgeActive
 			? 'ring-2 ring-primary-500 ring-offset-2 ring-offset-surface-50 dark:ring-offset-surface-900'
 			: ''}"
 		aria-label="Theme settings"
@@ -178,7 +178,7 @@
 				</Popover.Arrow>
 			{/if}
 			<Popover.Content
-				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 rounded-lg shadow-lg py-2 min-w-[200px] max-w-[20rem] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain origin-top-right transform-gpu opacity-0 scale-95 transition-[opacity,transform] duration-150 ease-out data-[state=open]:opacity-100 data-[state=open]:scale-100 motion-reduce:transition-none"
+				class="bg-surface-50 dark:bg-surface-900 border border-surface-300-700 shadow-lg py-2 min-w-[200px] max-w-[20rem] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain origin-top-right transform-gpu opacity-0 scale-95 transition-[opacity,transform] duration-150 ease-out data-[state=open]:opacity-100 data-[state=open]:scale-100 motion-reduce:transition-none"
 				data-testid="theme-switcher-content"
 			>
 				{#if showNudgeContent}
@@ -222,7 +222,7 @@
 							</div>
 							<button
 								type="button"
-								class="shrink-0 rounded p-1 text-surface-500 hover:bg-surface-200-800 hover:text-surface-950 dark:hover:text-surface-50 transition-colors"
+								class="shrink-0 p-1 text-surface-500 hover:bg-surface-200-800 hover:text-surface-950 dark:hover:text-surface-50 transition-colors"
 								aria-label="Dismiss theme welcome nudge"
 								onclick={dismissNudge}
 							>

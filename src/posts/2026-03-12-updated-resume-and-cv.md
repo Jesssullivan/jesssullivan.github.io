@@ -33,7 +33,7 @@ Embedded below, or grab it from the [dedicated CV page](/cv) where you can switc
 
 <iframe
   src="/cv/jess_sullivan_resume.pdf"
-  class="w-full h-[600px] rounded-lg border border-surface-300"
+  class="w-full h-[600px] border border-surface-300"
   title="Jess Sullivan Resume — March 2026"
 ></iframe>
 

@@ -156,7 +156,7 @@
 
 			const btn = document.createElement('button');
 			btn.className =
-				'absolute top-2 right-2 px-2 py-1 text-xs rounded bg-surface-700 text-surface-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
+				'absolute top-2 right-2 px-2 py-1 text-xs bg-surface-700 text-surface-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
 			btn.textContent = 'Copy';
 			btn.addEventListener('click', () => {
 				const code = pre.querySelector('code')?.textContent || pre.textContent || '';
