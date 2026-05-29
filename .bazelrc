@@ -12,6 +12,8 @@ build --remote_cache_async
 build --experimental_guard_against_concurrent_changes
 build --allow_unresolved_symlinks
 build --action_env=NODE_OPTIONS=--max-old-space-size=4096
+build --action_env=SOURCE_DATE_EPOCH=1710000000
+build --action_env=TZ=UTC
 
 test --test_output=errors
 test --test_timeout=120,600,1800,3600
@@ -23,15 +25,24 @@ build:ci --color=no
 build:ci --curses=no
 build:ci --noshow_loading_progress
 build:ci --disk_cache=
+common:ci --lockfile_mode=error
 test:ci --test_output=errors
 
-build:ci-cached --config=ci
-build:ci-cached --remote_upload_local_results=true
-build:ci-cached --remote_download_minimal
-build:ci-cached --remote_timeout=60
-build:ci-cached --spawn_strategy=remote,worker,sandboxed,local
+build:ci-remote-base --config=ci
+build:ci-remote-base --remote_upload_local_results=true
+build:ci-remote-base --remote_download_minimal
+build:ci-remote-base --remote_timeout=60
 
-build:executor-backed --config=ci-cached
+build:ci-cached --config=ci-remote-base
+build:ci-cached --remote_cache_compression
+
+build:executor-backed --config=ci-remote-base
+build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home
+build:executor-backed --action_env=TMPDIR=/tmp
+build:executor-backed --action_env=XDG_CACHE_HOME=/var/lib/gf-reapi-cell/xdg-cache
+build:executor-backed --action_env=XDG_CONFIG_HOME=/var/lib/gf-reapi-cell/xdg-config
+build:executor-backed --action_env=XDG_DATA_HOME=/var/lib/gf-reapi-cell/xdg-data
+build:executor-backed --spawn_strategy=remote,worker,sandboxed,local
 build:cache-readonly --remote_upload_local_results=false
 build:no-remote-cache --remote_cache=
 

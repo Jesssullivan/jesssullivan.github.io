@@ -14,13 +14,13 @@ test.describe('Navigation', () => {
 	test('blog link navigates to blog', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('nav a[href="/blog"]').first().click();
-		await page.waitForURL(/\/blog/);
+		await page.waitForURL(/\/blog/, { waitUntil: 'domcontentloaded' });
 	});
 
 	test('about link navigates to about', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('nav a[href="/about"]').first().click();
-		await page.waitForURL(/\/about/);
+		await page.waitForURL(/\/about/, { waitUntil: 'domcontentloaded' });
 	});
 
 	test('footer has public domain dedication', async ({ page }) => {

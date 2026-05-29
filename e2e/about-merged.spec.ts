@@ -176,6 +176,6 @@ test.describe('About (merged) page', () => {
 
 	test('nav links work from about page', async ({ page }) => {
 		await page.getByRole('link', { name: 'Read the Blog' }).click();
-		await page.waitForURL(/\/blog/);
+		await page.waitForURL(/\/blog/, { waitUntil: 'domcontentloaded' });
 	});
 });

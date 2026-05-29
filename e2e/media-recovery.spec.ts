@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Media Recovery & Image Integrity', () => {
 	test('no broken images on blog listing page', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 		// Collect all img src values and check them via page.evaluate to handle
 		// lazy-loaded and visibility-hidden images without Playwright timeout issues
 		const brokenImages = await page.evaluate(async () => {
@@ -27,9 +27,7 @@ test.describe('Media Recovery & Image Integrity', () => {
 						img.addEventListener('load', done, { once: true });
 						img.addEventListener('error', done, { once: true });
 					});
-					const decode = typeof img.decode === 'function'
-						? img.decode().catch(() => undefined)
-						: waitForTerminalState;
+					const decode = typeof img.decode === 'function' ? img.decode().catch(() => undefined) : waitForTerminalState;
 					await Promise.race([decode, waitForTerminalState]);
 				}
 				if (img.naturalWidth === 0) {
@@ -42,10 +40,10 @@ test.describe('Media Recovery & Image Integrity', () => {
 	});
 
 	test('no external WordPress CDN URLs in rendered blog posts', async ({ page }) => {
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 		const firstPost = page.locator('article a[href^="/blog/"]').first();
 		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
 		// Check page HTML for WordPress CDN URLs rather than iterating images
 		const html = await page.content();
@@ -55,10 +53,10 @@ test.describe('Media Recovery & Image Integrity', () => {
 
 	test('local post images load correctly', async ({ page }) => {
 		// Navigate to a post that has images
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 		const firstPost = page.locator('article a[href^="/blog/"]').first();
 		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
 		const images = page.locator('.prose img');
 		const count = await images.count();
@@ -76,20 +74,17 @@ test.describe('Media Recovery & Image Integrity', () => {
 		const wpRequests: string[] = [];
 		page.on('request', (req) => {
 			const url = req.url();
-			if (
-				url.includes('wp-content/uploads') ||
-				/i[0-2]\.wp\.com/.test(url)
-			) {
+			if (url.includes('wp-content/uploads') || /i[0-2]\.wp\.com/.test(url)) {
 				wpRequests.push(url);
 			}
 		});
 
-		await page.goto('/blog', { waitUntil: 'networkidle' });
+		await page.goto('/blog', { waitUntil: 'domcontentloaded' });
 		expect(wpRequests).toHaveLength(0);
 	});
 
 	test('header image loads correctly', async ({ page }) => {
-		await page.goto('/', { waitUntil: 'networkidle' });
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
 		const headerImg = page.locator('.hero-banner-img');
 		await expect(headerImg).toBeVisible();
 		const naturalWidth = await headerImg.evaluate((el: HTMLImageElement) => el.naturalWidth);

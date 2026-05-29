@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import {
 	accessSync,
 	constants,
@@ -7,63 +8,70 @@ import {
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	rmSync,
 	statSync,
 	symlinkSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { configureChromiumFontconfig } from './chromium-fontconfig.mjs';
 
 const workspaceRoot = process.cwd();
-const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-vite-build-'));
+const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-playwright-e2e-'));
 const buildRoot = join(runtimeRoot, 'workspace');
+const chromiumExecutable = findChromiumExecutable();
+
+if (!chromiumExecutable) {
+	console.error(
+		'No Chromium executable found. Set GF_RBE_CHROMIUM_EXECUTABLE, PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, or CHROME_BIN.',
+	);
+	process.exit(1);
+}
 
 mkdirSync(buildRoot, { recursive: true });
 ensureWritableEnvDir('HOME', join(runtimeRoot, 'home'));
 ensureWritableEnvDir('XDG_CONFIG_HOME', join(runtimeRoot, 'xdg-config'));
 ensureWritableEnvDir('XDG_CACHE_HOME', join(runtimeRoot, 'xdg-cache'));
+configureChromiumFontconfig(runtimeRoot);
 process.env.CI = 'true';
 process.env.NODE_ENV = 'production';
 process.env.MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'optional';
+process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = '1';
+process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = chromiumExecutable;
 
-copyInputsToBuildRoot();
-linkNodeModules();
+try {
+	copyInputsToBuildRoot();
+	linkNodeModules();
 
-const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'utf8'));
+	for (const command of [
+		['tsx', 'scripts/ingest-tinyland-posts.mts', '--check'],
+		['tsx', 'scripts/generate-search-index.mts'],
+		['tsx', 'scripts/optimize-images.mts'],
+		['tsx', 'scripts/render-mermaid.mts'],
+		['tsx', 'scripts/generate-blog-stats.mts'],
+		['tsx', 'scripts/generate-tag-graph.mts'],
+		['tsx', 'scripts/generate-photo-gallery.mts'],
+		['tsx', 'scripts/validate-pulse-snapshot.mts'],
+		['svelte-kit', 'sync'],
+		['vite', 'build'],
+		['tsx', 'scripts/generate-redirects.mts'],
+		['pagefind', '--site', 'build'],
+	]) {
+		run(command[0], command.slice(1));
+	}
 
-for (const command of [
-	['tsx', 'scripts/ingest-tinyland-posts.mts', '--check'],
-	['tsx', 'scripts/generate-search-index.mts'],
-	['tsx', 'scripts/generate-blog-stats.mts'],
-	['tsx', 'scripts/generate-tag-graph.mts'],
-	['tsx', 'scripts/generate-photo-gallery.mts'],
-	['tsx', 'scripts/validate-pulse-snapshot.mts'],
-	['svelte-kit', 'sync'],
-	['vite', 'build'],
-]) {
-	run(command[0], command.slice(1));
+	run('playwright', ['test', '--config', 'playwright.bazel.config.ts', ...process.argv.slice(2)]);
+
+	console.log(`Playwright Chromium e2e passed with ${chromiumExecutable}`);
+} finally {
+	if (process.env.GF_KEEP_BAZEL_BROWSER_TMP !== '1') {
+		rmSync(runtimeRoot, { recursive: true, force: true });
+	}
 }
-
-const indexPath = join(buildRoot, 'build', 'index.html');
-const searchIndexPath = join(buildRoot, 'static', 'search-index.json');
-if (!existsSync(indexPath)) {
-	throw new Error(`SvelteKit build did not write ${indexPath}`);
-}
-if (!existsSync(searchIndexPath)) {
-	throw new Error(`Build preflight did not write ${searchIndexPath}`);
-}
-
-const indexHtml = readFileSync(indexPath, 'utf8');
-if (!indexHtml.includes('<!doctype html>')) {
-	throw new Error('SvelteKit build output index.html is missing doctype');
-}
-
-console.log(
-	`SvelteKit/Vite build smoke passed for ${packageJson.name}; output=${indexPath}; mermaid=${process.env.MERMAID_PRERENDER}`,
-);
 
 function copyInputsToBuildRoot() {
-	for (const dir of ['packages', 'scripts', 'src', 'static']) {
+	for (const dir of ['e2e', 'packages', 'scripts', 'src', 'static']) {
 		copyPath(resolve(workspaceRoot, dir), resolve(buildRoot, dir));
 	}
 
@@ -71,6 +79,7 @@ function copyInputsToBuildRoot() {
 		'.npmrc',
 		'package-lock.json',
 		'package.json',
+		'playwright.bazel.config.ts',
 		'pnpm-lock.yaml',
 		'svelte.config.js',
 		'tsconfig.json',
@@ -82,7 +91,7 @@ function copyInputsToBuildRoot() {
 
 function copyPath(source, destination) {
 	if (!existsSync(source)) {
-		throw new Error(`Missing declared build input: ${source}`);
+		throw new Error(`Missing declared e2e input: ${source}`);
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
@@ -129,28 +138,19 @@ function linkNodeModules() {
 		symlinkSync(resolve(buildRoot, 'packages', packageDir), resolve(blogScope, name), 'dir');
 	}
 
-	linkPackageDependencies(buildNodeModules, join(buildRoot, 'package.json'), [
-		'dependencies',
-		'devDependencies',
-		'optionalDependencies',
-	]);
 	linkWorkspacePackageDependencies(buildNodeModules);
-}
-
-function linkPackageDependencies(buildNodeModules, packageJsonPath, sections) {
-	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-	for (const dependencyName of sections.flatMap((section) => Object.keys(packageJson[section] ?? {}))) {
-		if (dependencyName.startsWith('@blog/')) {
-			continue;
-		}
-		linkRootPackageIfMissing(buildNodeModules, dependencyName);
-	}
 }
 
 function linkWorkspacePackageDependencies(buildNodeModules) {
 	for (const packageDir of ['pulse-client', 'pulse-core']) {
 		const packageJsonPath = resolve(buildRoot, 'packages', packageDir, 'package.json');
-		linkPackageDependencies(buildNodeModules, packageJsonPath, ['dependencies']);
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+		for (const dependencyName of Object.keys(packageJson.dependencies ?? {})) {
+			if (dependencyName.startsWith('@blog/')) {
+				continue;
+			}
+			linkRootPackageIfMissing(buildNodeModules, dependencyName);
+		}
 	}
 }
 
@@ -169,8 +169,8 @@ function linkRootPackageIfMissing(buildNodeModules, packageName) {
 	symlinkSync(source, destination, 'dir');
 }
 
-function resolvePackagePath(nodeModules, packageName) {
-	return resolve(nodeModules, ...packageName.split('/'));
+function resolvePackagePath(nodeModules, packageName, ...segments) {
+	return resolve(nodeModules, ...packageName.split('/'), ...segments);
 }
 
 function findAspectPackage(buildNodeModules, packageName) {
@@ -195,9 +195,12 @@ function findAspectPackage(buildNodeModules, packageName) {
 
 function run(binaryName, args) {
 	const binary = resolveBinEntrypoint(binaryName);
-	const result = spawnSync(process.execPath, [binary, ...args], {
+	const result = spawnSync(binary, args, {
 		cwd: buildRoot,
-		env: process.env,
+		env: {
+			...process.env,
+			PATH: `${resolve(buildRoot, 'node_modules', '.bin')}:${process.env.PATH ?? ''}`,
+		},
 		stdio: 'inherit',
 	});
 
@@ -210,21 +213,47 @@ function run(binaryName, args) {
 }
 
 function resolveBinEntrypoint(name) {
-	const entrypoints = {
-		'svelte-kit': ['@sveltejs/kit', 'svelte-kit.js'],
-		tsx: ['tsx', 'dist/cli.mjs'],
-		vite: ['vite', 'bin/vite.js'],
-	};
-	const [packageName, relativePath] = entrypoints[name] ?? [];
+	const packageName = {
+		pagefind: 'pagefind',
+		playwright: '@playwright/test',
+		'svelte-kit': '@sveltejs/kit',
+		tsx: 'tsx',
+		vite: 'vite',
+	}[name];
 	if (!packageName) {
 		throw new Error(`Unknown npm binary ${name}`);
 	}
 
-	const entrypoint = resolve(buildRoot, 'node_modules', packageName, relativePath);
-	if (!existsSync(entrypoint)) {
-		throw new Error(`Missing npm binary ${name}: ${entrypoint}`);
+	const packageJsonPath = resolvePackagePath(resolve(buildRoot, 'node_modules'), packageName, 'package.json');
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+	const bin = typeof packageJson.bin === 'string' ? packageJson.bin : packageJson.bin?.[name];
+	if (!bin) {
+		throw new Error(`Package ${packageName} does not declare bin ${name}`);
 	}
-	return entrypoint;
+	return resolve(dirname(packageJsonPath), bin);
+}
+
+function findChromiumExecutable() {
+	const candidates = [
+		process.env.GF_RBE_CHROMIUM_EXECUTABLE,
+		process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
+		process.env.CHROME_BIN,
+		'/bin/chromium',
+		'/usr/bin/chromium',
+		'/usr/bin/chromium-browser',
+		'/usr/bin/google-chrome',
+		'/usr/bin/google-chrome-stable',
+		'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+		'/Applications/Chromium.app/Contents/MacOS/Chromium',
+	].filter(Boolean);
+
+	for (const candidate of candidates) {
+		if (existsSync(candidate)) {
+			return candidate;
+		}
+	}
+
+	return '';
 }
 
 function ensureWritableEnvDir(name, fallback) {

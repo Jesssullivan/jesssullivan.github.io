@@ -4,7 +4,7 @@ test.describe('Fira Code Ligature Verification', () => {
 	const TEST_POST = '/blog/ligature-test-fixture';
 
 	test.beforeEach(async ({ page }) => {
-		await page.goto(TEST_POST, { waitUntil: 'load' });
+		await page.goto(TEST_POST, { waitUntil: 'domcontentloaded' });
 		await expect(page.locator('pre code').first()).toBeVisible();
 	});
 
@@ -54,19 +54,39 @@ test.describe('Fira Code Ligature Verification', () => {
 				fontRequests.push(url);
 			}
 		});
-		await page.goto(TEST_POST, { waitUntil: 'load' });
+		await page.goto(TEST_POST, { waitUntil: 'domcontentloaded' });
 		expect(fontRequests).toHaveLength(0);
 	});
 
-	test('Fira Code woff2 font file is loaded', async ({ page, browserName }) => {
-		test.skip(browserName !== 'chromium', 'Font request interception varies across browsers');
-		const fontRequests: string[] = [];
-		page.on('response', (res) => {
-			if (res.url().includes('fira-code') && res.url().endsWith('.woff2')) {
-				fontRequests.push(res.url());
-			}
+	test('Fira Code webfont is registered and loaded', async ({ page, browserName }) => {
+		test.skip(browserName !== 'chromium', 'Font loading telemetry varies across browsers');
+		await page.evaluate(async () => {
+			await document.fonts.ready;
 		});
-		await page.goto(TEST_POST, { waitUntil: 'load' });
-		expect(fontRequests.length).toBeGreaterThanOrEqual(1);
+		const fontState = await page
+			.locator('pre code')
+			.first()
+			.evaluate((el) => {
+				const style = getComputedStyle(el);
+				const faces = Array.from(document.fonts)
+					.filter((face) => face.family.replace(/['"]/g, '').toLowerCase() === 'fira code')
+					.map((face) => ({
+						family: face.family.replace(/['"]/g, ''),
+						status: face.status,
+						weight: face.weight,
+					}));
+
+				return {
+					faces,
+					fontFamily: style.fontFamily,
+					fontReady: document.fonts.check(`${style.fontSize} "Fira Code"`),
+				};
+			});
+
+		expect(fontState.fontFamily.toLowerCase()).toContain('fira code');
+		expect(fontState.fontReady).toBe(true);
+		expect(fontState.faces).toEqual(
+			expect.arrayContaining([expect.objectContaining({ family: 'Fira Code', status: 'loaded' })]),
+		);
 	});
 });

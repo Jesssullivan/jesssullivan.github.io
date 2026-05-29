@@ -16,6 +16,10 @@
 		"test:e2e": "playwright test",
 		"preview": "vite preview",
 		"check": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/validate-pulse-snapshot.mts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"remote:check": "bash scripts/bazel-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //static/cv:pdfs_synced_test",
+		"remote:test": "bash scripts/bazel-cache-backed.sh test //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke",
+		"remote:e2e": "bash scripts/bazel-cache-backed.sh test //:playwright_chromium_e2e",
+		"remote:all": "npm run remote:check && npm run remote:test && npm run remote:e2e",
 		"ingest:tinyland-posts": "tsx scripts/ingest-tinyland-posts.mts --adopt-reviewed",
 		"security:audit:static": "npm audit --omit=dev --workspaces=false && npm audit --omit=dev --workspace @blog/pulse-core && npm audit --omit=dev --workspace @blog/pulse-client",
 		"security:audit:blog-agent": "npm audit --omit=dev --workspace @blog/agent",
@@ -75,5 +79,15 @@
 	],
 	"overrides": {
 		"vite": "npm:rolldown-vite@^7.3.1"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"fsevents",
+			"msgpackr-extract",
+			"protobufjs",
+			"puppeteer",
+			"sharp"
+		]
 	}
 }

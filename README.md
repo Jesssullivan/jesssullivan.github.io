@@ -93,18 +93,24 @@ flowchart LR
 
 ## GloriousFlywheel Bazel/RBE Pilot Surface
 
-This repo still uses the npm/SvelteKit workflow for normal local development and deployment. The Bazel files are a narrow GloriousFlywheel consumer proof surface, not a wholesale migration of the blog build.
+This repo still uses the npm/SvelteKit workflow for normal local development and deployment. CI also carries a blocking GloriousFlywheel Bazel lane on the `tinyland-dind` ARC runner so check, test, and Chromium e2e coverage are not proven only by local `npm`/`npx` commands.
 
-- `//:types_unit_tests` wraps Vitest through `vitest.bazel.config.ts` and runs the existing `src/lib/types.test.ts` slice.
+- `npm run remote:check`, `npm run remote:test`, and `npm run remote:e2e` route through `scripts/bazel-cache-backed.sh`, which refuses to run without a valid `BAZEL_REMOTE_CACHE` and the expected GloriousFlywheel substrate mode.
+- GitHub CI runs the Bazel lane on `tinyland-dind` and refuses to run the RBE gate unless `BAZEL_REMOTE_EXECUTOR` and `BAZEL_REMOTE_CACHE` are attached by the ARC runner environment.
+- In executor-backed mode, the wrapper uses the executor endpoint as Bazel's effective REAPI CAS/cache by default so remote Execute can read uploaded action/input digests. This profile disables remote cache compression for the current GF proof cell and gives remote actions writable GF worker cache paths. `BAZEL_REMOTE_EXECUTOR_CACHE` can override the cache endpoint only when a separate executor-readable CAS is wired.
+- `//:sveltekit_check` runs the SvelteKit check path under Bazel.
+- `//static/cv:pdfs_synced_test` byte-compares the checked-in resume/CV PDFs against the Bazel-built `spear_resumes` outputs; `.bazelrc` pins `SOURCE_DATE_EPOCH` and `TZ` so Tectonic output stays reproducible across local sync, CI, and GF RBE.
+- `//:vitest_unit_tests` wraps the root and Pulse Vitest suites through `vitest.bazel.config.ts`.
+- `//:blog_agent_node_tests` wraps the blog-agent `node:test` suite through `tsx --test`.
 - `//:sveltekit_vite_build_smoke` runs a copied-workdir SvelteKit/Vite production build smoke. It proves the build target class, not the full npm prebuild/postbuild publication chain.
-- `//:playwright_chromium_smoke` launches Playwright against the pinned GloriousFlywheel Chromium runtime path. It is a browser-runtime smoke target, not the full hosted Playwright regression suite.
+- `//:playwright_chromium_e2e` runs the Chromium Playwright e2e suite through Bazel against the pinned GloriousFlywheel Chromium runtime path.
+- `//:playwright_chromium_smoke` remains a narrow diagnostic target for browser runtime authority, not the remote e2e gate.
 - `//:puppeteer_chromium_smoke` launches Puppeteer against the same pinned Chromium runtime path. It proves Puppeteer can consume browser runtime authority without lifecycle downloads.
-- `package-lock.json` remains the npm dependency authority for the app. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.
+- `package-lock.json` remains the npm dependency authority for the app. `pnpm-workspace.yaml` makes the package importers explicit for Bazel, and `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.
 - Bazel npm lifecycle hooks skip Playwright and Puppeteer browser downloads. Browser-backed RBE must use the pinned worker Chromium path rather than downloading browsers during proof actions.
-- GloriousFlywheel proof runs should use the external GF REAPI proof harness against this public repo checkout.
+- GloriousFlywheel proof runs use the external GF REAPI proof harness or the repository `remote:*` scripts against this public repo checkout; remote cache hits, hosted runners, and shared-cache-only execution do not count as RBE.
 
-Current boundary: this proves narrow public SvelteKit/Vite/Vitest, SvelteKit/Vite build-smoke, Playwright/Chromium, and Puppeteer/Chromium target classes for remote execution evidence. It does not prove default repo-wide RBE, the full hosted Playwright suite, the full npm prebuild/postbuild publication chain, or deployment.
-
+Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift under GloriousFlywheel. Deployment still publishes the SvelteKit static artifact through the existing Pages workflows.
 
 
 ## Content Authority And Fallback Automation

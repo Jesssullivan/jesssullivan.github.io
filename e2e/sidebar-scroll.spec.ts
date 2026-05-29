@@ -3,12 +3,13 @@ import { test, expect, type Page } from '@playwright/test';
 const DESKTOP_VIEWPORTS = [
 	{ width: 1024, height: 600, label: '1024x600 (short desktop)' },
 	{ width: 1024, height: 768, label: '1024x768 (standard desktop)' },
-	{ width: 1440, height: 900, label: '1440x900 (wide desktop)' }
+	{ width: 1440, height: 900, label: '1440x900 (wide desktop)' },
 ] as const;
 
 async function visitAt(page: Page, path: string, w: number, h: number) {
 	await page.setViewportSize({ width: w, height: h });
-	await page.goto(path, { waitUntil: 'networkidle' });
+	await page.goto(path, { waitUntil: 'domcontentloaded' });
+	await expect(page.locator('main')).toBeVisible();
 }
 
 test.describe('Blog listing sidebar scrollability', () => {
@@ -25,7 +26,7 @@ test.describe('Blog listing sidebar scrollability', () => {
 					const cs = getComputedStyle(el);
 					return {
 						maxHeight: cs.maxHeight,
-						overflowY: cs.overflowY
+						overflowY: cs.overflowY,
 					};
 				});
 				expect(styles.maxHeight).not.toBe('none');
@@ -43,7 +44,7 @@ test.describe('Blog listing sidebar scrollability', () => {
 				const sidebar = page.locator('.sidebar-scroll').first();
 				const { clientHeight, scrollHeight } = await sidebar.evaluate((el) => ({
 					clientHeight: el.clientHeight,
-					scrollHeight: el.scrollHeight
+					scrollHeight: el.scrollHeight,
 				}));
 				if (scrollHeight > clientHeight) {
 					await sidebar.evaluate((el) => (el.scrollTop = 100));
@@ -62,7 +63,7 @@ test.describe('Blog post sidebar scrollability', () => {
 			// Navigate to a post via clicking
 			const firstPost = page.locator('article.card a').first();
 			await firstPost.click();
-			await page.waitForLoadState('networkidle');
+			await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
 			const sidebar = page.locator('.sidebar-scroll').first();
 			if ((await sidebar.count()) > 0 && (await sidebar.isVisible())) {
@@ -80,7 +81,7 @@ test.describe('TableOfContents nested sticky fix', () => {
 		await visitAt(page, '/blog', 1440, 900);
 		const firstPost = page.locator('article.card a').first();
 		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
 		const tocNav = page.locator('nav:has(> ul.border-l)');
 		if ((await tocNav.count()) > 0) {
@@ -93,7 +94,7 @@ test.describe('TableOfContents nested sticky fix', () => {
 		await visitAt(page, '/blog', 1440, 900);
 		const firstPost = page.locator('article.card a').first();
 		await firstPost.click();
-		await page.waitForLoadState('networkidle');
+		await page.waitForURL(/\/blog\/.+/, { waitUntil: 'domcontentloaded' });
 
 		const tocNav = page.locator('nav:has(> ul.border-l)');
 		if ((await tocNav.count()) > 0) {

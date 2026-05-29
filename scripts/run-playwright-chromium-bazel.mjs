@@ -1,13 +1,15 @@
-import { accessSync, constants, existsSync, mkdirSync, mkdtempSync, statSync } from 'node:fs';
+import { accessSync, constants, existsSync, mkdirSync, mkdtempSync, rmSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
+import { configureChromiumFontconfig } from './chromium-fontconfig.mjs';
 
 const runtimeDir = mkdtempSync(join(tmpdir(), 'ghio-playwright-chromium-'));
 ensureWritableEnvDir('HOME', join(runtimeDir, 'home'));
 ensureWritableEnvDir('XDG_CONFIG_HOME', join(runtimeDir, 'xdg-config'));
 ensureWritableEnvDir('XDG_CACHE_HOME', join(runtimeDir, 'xdg-cache'));
+configureChromiumFontconfig(runtimeDir);
 
 const chromiumExecutable = findChromiumExecutable();
 if (!chromiumExecutable) {
@@ -35,11 +37,15 @@ try {
 
 	const title = await page.locator('main h1').textContent();
 	const target = await page.locator('[data-rbe-target]').textContent();
+	const headingBox = await page.locator('main h1').boundingBox();
 	if (title !== 'GloriousFlywheel browser RBE smoke') {
 		throw new Error(`unexpected smoke title: ${title}`);
 	}
 	if (target !== packageJson.name) {
 		throw new Error(`unexpected package marker: ${target}`);
+	}
+	if (!headingBox || headingBox.height <= 0 || headingBox.width <= 0) {
+		throw new Error(`Chromium text layout is unavailable: ${JSON.stringify(headingBox)}`);
 	}
 
 	console.log(`Playwright Chromium smoke passed with ${chromiumExecutable}`);
@@ -50,6 +56,9 @@ try {
 	throw error;
 } finally {
 	await browser?.close();
+	if (process.env.GF_KEEP_BAZEL_BROWSER_TMP !== '1') {
+		rmSync(runtimeDir, { recursive: true, force: true });
+	}
 }
 
 function renderSmokePage(packageName) {
