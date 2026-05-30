@@ -29,6 +29,19 @@ export function parseValue(val: string): string | number | boolean | null | stri
 	return stripQuotes(val);
 }
 
+import type { ParsedFrontmatter } from './types.mts';
+
+/**
+ * Split a file into its raw frontmatter YAML and body without parsing values.
+ * Returns `{ raw, body }` so callers can edit/append frontmatter lines and
+ * losslessly reconstruct the file as `---\n${raw}\n---\n${body}`.
+ */
+export function parseFrontmatterRaw(content: string): ParsedFrontmatter | null {
+	const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+	if (!match) return null;
+	return { raw: match[1], body: match[2] };
+}
+
 export function parseFrontmatter(raw: string): Record<string, any> | null {
 	const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 	if (!match) return null;
