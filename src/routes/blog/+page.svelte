@@ -25,8 +25,23 @@
 		endpoint: brokerEndpoint,
 	});
 
+	// Local (SSR) posts indexed by slug. The hub broker stream derives
+	// feature_image from raw frontmatter only, so it omits images for posts
+	// whose card image came from the spoke's richer derivation (body-image
+	// scan + slug-hash backfill). Merge rather than replace so hydrating to
+	// the broker stream never drops a feature_image the local snapshot had.
+	let localPostsBySlug = $derived(
+		new Map(data.posts.map((post) => [post.slug, post]))
+	);
+
 	let displayPosts = $derived(
-		brokerState.status === 'ready' ? brokerState.posts : data.posts
+		brokerState.status === 'ready'
+			? brokerState.posts.map((post) =>
+					post.feature_image
+						? post
+						: { ...post, feature_image: localPostsBySlug.get(post.slug)?.feature_image }
+				)
+			: data.posts
 	);
 
 	let totalPages = $derived(Math.ceil(displayPosts.length / POSTS_PER_PAGE));
