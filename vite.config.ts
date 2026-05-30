@@ -55,6 +55,11 @@ export default defineConfig({
 		reportCompressedSize: true,
 		chunkSizeWarningLimit: 250,
 		cssCodeSplit: true,
+		rolldownOptions: {
+			checks: {
+				pluginTimings: false,
+			},
+		},
 	},
 	server: {
 		fs: {

@@ -25,6 +25,9 @@ const CACHE_DIR = resolve(ROOT, '.mermaid-cache');
 const PUPPETEER_CONFIG = resolve(CACHE_DIR, 'puppeteer-config.json');
 const MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'strict';
 const OPTIONAL_PRERENDER = MERMAID_PRERENDER === 'optional';
+const parsedRenderAttempts = Number.parseInt(process.env.MERMAID_RENDER_ATTEMPTS ?? '3', 10);
+const RENDER_ATTEMPTS =
+	Number.isFinite(parsedRenderAttempts) && parsedRenderAttempts > 0 ? parsedRenderAttempts : 3;
 const MMDC_BIN = resolve(
 	ROOT,
 	'node_modules',
@@ -36,7 +39,17 @@ mkdirSync(CACHE_DIR, { recursive: true });
 writeFileSync(
 	PUPPETEER_CONFIG,
 	JSON.stringify({
-		args: process.env.CI || process.env.GITHUB_ACTIONS ? ['--no-sandbox'] : []
+		args:
+			process.env.CI || process.env.GITHUB_ACTIONS
+				? [
+						'--no-sandbox',
+						'--disable-setuid-sandbox',
+						'--disable-dev-shm-usage',
+						'--disable-gpu',
+						'--disable-crash-reporter',
+						'--disable-crashpad'
+					]
+				: []
 	})
 );
 
@@ -48,6 +61,11 @@ interface MermaidBlock {
 
 interface MermaidManifest {
 	[hash: string]: { file: string; hash: string };
+}
+
+interface RenderResult {
+	ok: boolean;
+	message?: string;
 }
 
 function extractMermaidBlocks(postsDir: string): MermaidBlock[] {
@@ -90,7 +108,7 @@ function saveManifest(manifest: MermaidManifest): void {
 	);
 }
 
-function renderToSvg(code: string, hash: string): boolean {
+function renderToSvgOnce(code: string, hash: string): RenderResult {
 	const inputFile = resolve(tmpdir(), `mermaid-${hash}.mmd`);
 	const outputFile = resolve(CACHE_DIR, `${hash}.svg`);
 
@@ -139,17 +157,48 @@ function renderToSvg(code: string, hash: string): boolean {
 				.replace(/ aria-roledescription="[^"]*"/g, '')
 				.replace(/style="[^"]*"/, 'style="max-width:100%;height:auto"');
 			writeFileSync(outputFile, svg);
-			return true;
+			return { ok: true };
 		}
 	} catch (err) {
-		const message = (err as Error).message;
-		if (message.includes("Cannot find package 'puppeteer'")) {
-			console.error(
-				`  Failed to render ${hash}: ${message}. Install dev dependencies so Mermaid diagrams can be prerendered.`
+		return { ok: false, message: (err as Error).message };
+	}
+
+	return { ok: false, message: `mmdc did not create ${outputFile}` };
+}
+
+function isRetryableRenderError(message: string): boolean {
+	return ![
+		"Cannot find package 'puppeteer'",
+		'Could not find Chrome',
+		'Missing Mermaid CLI binary'
+	].some(nonRetryable => message.includes(nonRetryable));
+}
+
+function renderToSvg(code: string, hash: string): boolean {
+	let lastMessage = '';
+
+	for (let attempt = 1; attempt <= RENDER_ATTEMPTS; attempt++) {
+		const result = renderToSvgOnce(code, hash);
+		if (result.ok) {
+			return true;
+		}
+
+		lastMessage = result.message ?? 'unknown error';
+		if (attempt < RENDER_ATTEMPTS && isRetryableRenderError(lastMessage)) {
+			console.warn(
+				`\n  Mermaid render attempt ${attempt}/${RENDER_ATTEMPTS} failed for ${hash}; retrying.`
 			);
 		} else {
-			console.error(`  Failed to render ${hash}: ${message}`);
+			break;
 		}
+	}
+
+	if (lastMessage.includes("Cannot find package 'puppeteer'")) {
+		console.error(
+			`  Failed to render ${hash}: ${lastMessage}. Install dev dependencies so Mermaid diagrams can be prerendered.`
+		);
+	} else {
+		console.error(`  Failed to render ${hash}: ${lastMessage}`);
 	}
 	return false;
 }
