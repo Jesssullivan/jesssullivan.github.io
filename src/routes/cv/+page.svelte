@@ -90,6 +90,19 @@
 		></iframe>
 	</div>
 
+	<!-- Build flow diagram -->
+	<section class="mb-8" aria-labelledby="cv-build-flow-heading">
+		<h2 id="cv-build-flow-heading" class="text-lg font-semibold mb-3">How these PDFs are built</h2>
+		<div class="card p-4 flex justify-center">
+			<img
+				src="/cv/build-flow.svg"
+				alt="Build flow: private spear-resumes XeLaTeX sources (//generic:resume, //generic:cv, //cra:resume) compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs; bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo, which the /cv page serves as an iframe per tab. The build-cv.yml GitHub Actions workflow fetches the private source with an SSH deploy key, installs bazelisk, runs the sync, and auto-commits the refreshed PDFs."
+				class="max-w-full h-auto"
+				loading="lazy"
+			/>
+		</div>
+	</section>
+
 	<!-- Build info -->
 	<p class="text-xs text-surface-400 text-center">
 		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,

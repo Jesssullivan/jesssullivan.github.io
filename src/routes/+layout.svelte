@@ -332,12 +332,6 @@
 				class="hover:text-primary-500 transition-colors underline"
 				target="_blank"
 				rel="noopener">Skeleton</a
-			>, hosted for free on
-			<a
-				href="https://pages.github.com"
-				class="hover:text-primary-500 transition-colors underline"
-				target="_blank"
-				rel="noopener">GitHub Pages</a
 			>
 			&mdash;
 			<a
