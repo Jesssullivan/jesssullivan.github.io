@@ -1,12 +1,12 @@
 ---
 title: "Gingersnap Cookies (from a milk-free, soy-free recipe card)"
 date: "2026-05-29"
-description: "An old milk-free, soy-free, egg-free Gingersnap Cookies recipe card, OCR'd with Apple Vision and transcribed faithfully- with metric volume + weight equivalents, an interactive batch scaler, and the acid/base chemistry that makes it rise without eggs or dairy."
+description: "A milk-free, soy-free, egg-free Gingersnap Cookies recipe card, OCR'd with Apple Vision and checked against the photo- with metric equivalents, a batch scaler, and the baking soda chemistry that makes it rise."
 tags: ["recipe", "baking", "baking-science", "cookies", "gingersnap", "allergen-friendly", "ocr", "apple-vision", "swift", "llvm", "macos"]
 category: "tutorial"
 published: true
 slug: "gingersnap-cookies"
-excerpt: "A stained lil recipe card for milk-free, soy-free gingersnaps- someone scrawled 'good' across it in pen, so it must be true. Transcribed faithfully, with the chemistry of how it rises without eggs or butter."
+excerpt: "A milk-free, soy-free gingersnap recipe card, transcribed from a photo with Apple Vision OCR, metric equivalents, a scaler, and notes on the baking soda reaction."
 feature_image: "/images/posts/gingersnap-cookies.webp"
 thumbnail_image: "/images/posts/gingersnap-cookies.webp"
 ---
@@ -15,15 +15,19 @@ thumbnail_image: "/images/posts/gingersnap-cookies.webp"
 	import GingersnapScaler from '$lib/components/GingersnapScaler.svelte';
 </script>
 
-A recipe card. Stained, dog-eared, splotched with what is almost certainly molasses. Someone- not me- wrote **"good"** across it in looping pen, which is the highest honor a recipe card can receive and also the entire reason this one survived.
+A recipe card. Milk-free, soy-free, egg-free gingersnaps, with **"good"** written across the top in pen.
 
-It's from the *Cookies & Snacks* section of an allergen cookbook- the kind organized around what each recipe leaves *out*: nut-free, shellfish-free, gluten-free, and so on. The corner is stamped with the book's free-from legend, `P, S, N`, flagging the major allergens this recipe is safe from. Everything here is milk-free and soy-free- the fat is a free-from margarine- and there are no eggs anywhere, so these are gingersnaps you can hand to nearly anyone at the table without a nervous speech first.
+It's from the *Cookies & Snacks* section of an allergen cookbook. The corner is stamped with the book's free-from legend, `P, S, N`, and the recipe uses milk-free, soy-free margarine with no eggs.
 
-I photographed the card and ran it through Apple's Vision OCR (a tiny throwaway Swift program- more on that at the end) rather than hand-typing it, then reconciled the output against the photo line by line. Here it is, faithfully- with metric volume and weight beside each measure, since a "cup" means different things in different kitchens.
+I photographed the card, ran a first pass through Apple's Vision OCR, then checked the output against the photo line by line. The recipe below keeps the card's wording and adds metric volume and weight equivalents.
 
 ![A stained, dog-eared recipe card titled Gingersnap Cookies from the Cookies and Snacks section, with the word good handwritten across it in pen](/images/posts/gingersnap-cookies.webp)
 
-## Gingersnap Cookies
+## Amount scaler
+
+<GingersnapScaler />
+
+## Verbatim transcription
 
 **Ingredients** — as written on the card, with metric equivalents (volume · weight):
 
@@ -50,33 +54,25 @@ I photographed the card and ran it through Apple's Vision OCR (a tiny throwaway 
 
 Makes about 5 dozen cookies.
 
-Doubling for a crowd, or halving because five dozen is a lot? Tap a multiplier and the amounts update live- toggle US/metric too:
-
-<GingersnapScaler />
-
 ## How it rises without eggs or butter
 
-Two teaspoons of baking soda is a *lot* for a single batch- and that is the whole game. Baking soda is sodium bicarbonate, a base, and on its own it does almost nothing useful in the oven. It needs an acid. Give it one and you get a neutralization reaction- bicarbonate plus acid yields carbon dioxide, water, and a neutral salt. That CO₂, trapped in the dough, is the lift.
+The baking soda is the leavener. Sodium bicarbonate needs moisture and acid to release carbon dioxide. [Baking Sense](https://www.baking-sense.com/baking-school/baking-science/ingredients/baking-powder-baking-soda/) lists molasses and citrus juice as acidic ingredients that trigger the reaction, and notes that unneutralized soda can leave a soapy, bitter flavor.
 
-In most cookies the acid rides in on eggs, buttermilk, or sour cream. This recipe has none of those- no eggs, no dairy. So where does the acid come from? The **orange juice** (citric and ascorbic acid) and the **molasses** (mildly acidic in its own right). They are not flavor garnish- they are the functional partner the soda needs. Leave the soda unreacted and you taste it: soapy, metallic, faintly bitter. The juice and molasses spend it down to gas and a clean finish- and, as a bonus, the soda mellows the molasses' sharper edges along the way.
-
-That is the quietly impressive part. Coaxing reliable rise out of fruit juice and molasses- in a bake that is simultaneously **egg-free and dairy-free**, with neither of the usual structural or acidic crutches- is a genuinely tidy bit of mid-century formulation. Harold McGee walks through the bicarbonate/acid neutralization (and why leftover soda tastes off) in *On Food and Cooking*; [Baking Sense](https://www.baking-sense.com/baking-school/baking-science/ingredients/baking-powder-baking-soda/) covers the same chemistry from the baker's side. The gram weights above come from [King Arthur's ingredient weight chart](https://www.kingarthurbaking.com/learn/ingredient-weight-chart).
+Here, the molasses and orange juice do that job without eggs or dairy. The gram weights above come from [King Arthur's ingredient weight chart](https://www.kingarthurbaking.com/learn/ingredient-weight-chart).
 
 ## Digitizing the card- Apple Vision OCR
 
-I didn't want to hand-type a stained card and quietly fat-finger the clove measurement. So I let the machine read it. No `tesseract`, no pip install, no cloud upload of grandma-adjacent recipe cards- just the OCR engine that already ships inside macOS. Apple's **Vision** framework (`VNRecognizeTextRequest`) is genuinely excellent at this, and you can drive it from a ~40-line Swift program.
+I used Apple's **Vision** framework (`VNRecognizeTextRequest`) for the first OCR pass and checked the result manually.
 
-The flow was three steps:
-
-1. `sips` to turn the iPhone HEIC into a PNG Vision can chew on:
+1. `sips` to turn the iPhone HEIC into a PNG for Vision:
    ```sh
    sips -s format png IMG_4509.HEIC --out recipe.png
    ```
-2. Run the little Swift program below over the PNG.
-3. Reconcile its output against the photo by eye. Vision even nailed the easily-smudged `2¼ cups flour`- the kind of cramped fraction I'd have second-guessed myself.
+2. Run the Swift program below over the PNG.
+3. Reconcile its output against the photo by eye.
 
-<details>
-<summary><strong>Apple Vision OCR in ~40 lines of Swift</strong> (<code>VNRecognizeTextRequest</code>, accurate mode)</summary>
+<details open>
+<summary><strong>Apple Vision OCR in ~40 lines of Swift (VNRecognizeTextRequest, accurate mode)</strong></summary>
 
 ```swift
 import Foundation
@@ -115,15 +111,15 @@ let handler = VNImageRequestHandler(cgImage: cg, options: [:])
 try handler.perform([request])
 ```
 
-The only non-obvious bit is the sort. Vision hands back text observations in no particular order, each with a normalized `boundingBox`; sorting by `midY` (descending- Vision's origin is bottom-left) and then `midX` rebuilds the human reading order. `customWords` nudges the language model toward cooking vocabulary so it doesn't "correct" *molasses* into something tidier.
+Vision returns text observations with normalized bounding boxes, not a finished reading order. Sorting by `midY` (descending- Vision's origin is bottom-left) and then `midX` rebuilds the card order; `customWords` keeps cooking terms like *molasses* from being autocorrected away.
 
 </details>
 
-It spat out the whole card in one pass- title, both ingredient columns, the method paragraph- in the right order, fractions and all.
+That produced the card text in one pass- title, ingredient columns, method paragraph, and fractions.
 
 ### Footer: building it with the LLVM/Swift toolchain
 
-No package manager involved. The OCR brains live in Apple's `Vision.framework`; the only "toolchain" is the Swift compiler that ships with the Xcode command-line tools- and that compiler *is* LLVM.
+No package manager involved. The OCR API lives in Apple's `Vision.framework`, and the compiler is the Swift toolchain from Xcode command-line tools.
 
 ```sh
 # What's under the hood — swiftc is an LLVM frontend, bundled with clang:
@@ -132,13 +128,13 @@ Apple Swift version 6.3.2 (swiftlang-6.3.2.1.108 clang-2100.1.1.101)
 Target: arm64-apple-macosx26.0
 ```
 
-Two ways to run it. Quick-and-dirty, let the toolchain JIT it:
+Two ways to run it. Interpret the script:
 
 ```sh
 swift ocr.swift recipe.png
 ```
 
-Or compile an optimized native binary and keep it around:
+Or compile an optimized native binary:
 
 ```sh
 # -O turns on LLVM's optimizer; link the two system frameworks we touch.
@@ -146,4 +142,4 @@ swiftc -O ocr.swift -o ocr -framework Vision -framework AppKit
 ./ocr recipe.png
 ```
 
-That `swiftc` invocation is the whole pipeline: Swift source → **SIL** (Swift's own IR) → **LLVM IR** → the LLVM backend emits `arm64` machine code for the `arm64-apple-macosx` target, linked against the system frameworks. The bundled `clang` shares the same LLVM. Roughly 87 KB of binary, no runtime dependencies beyond what's already on the Mac- and it reads a 70-year-feeling recipe card better than I can.
+That `swiftc` invocation is the whole pipeline: Swift source → **SIL** (Swift's own IR) → **LLVM IR** → the LLVM backend emits `arm64` machine code for the `arm64-apple-macosx` target, linked against the system frameworks. The bundled `clang` shares the same LLVM.
