@@ -6,6 +6,7 @@ tags: ["gis", "r", "qgis", "kml", "data-wrangling"]
 published: true
 slug: "querying-kml-data-with-qgis-and-r"
 category: "software"
+feature_image: "/images/posts/IMG_0815-Edit.jpg"
 ---
 
 This semester I have been working with Dr. Leonard Reitsma at Plymouth State University on warbler territory research, and one of the recurring tasks is wrangling GPS point data collected in the field. We have roughly 800 point observations of banded birds stored as KML files -- the kind of thing Google Earth spits out -- and I needed a reliable way to pull specific subsets of those observations for analysis. The full tutorial PDF is embedded below, but here is the gist of the workflow.

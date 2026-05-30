@@ -22,6 +22,16 @@ export interface PostFrontmatter {
 	author_slug?: string;
 }
 
+/**
+ * Raw frontmatter split: `raw` is the inner YAML text (no `---` fences),
+ * `body` is the markdown after the closing fence. Consumers reconstruct a
+ * file as `---\n${raw}\n---\n${body}`.
+ */
+export interface ParsedFrontmatter {
+	raw: string;
+	body: string;
+}
+
 export interface SearchIndexEntry {
 	id: string;
 	title: string;

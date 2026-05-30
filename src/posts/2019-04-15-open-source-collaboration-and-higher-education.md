@@ -6,6 +6,7 @@ tags: ["open-source", "higher-education", "collaboration"]
 published: true
 slug: "open-source-collaboration-and-higher-education"
 category: "software"
+feature_image: "/images/posts/IMG_6649-Edit.jpg"
 ---
 
 I have been thinking a lot lately about how much the open source world reminds me of being at university. Not the tuition part, obviously, and not the part where you have to take that one required course that has nothing to do with your interests. I mean the actual good parts -- the knowledge sharing, the mentorship, the sense that everyone is working on something bigger than themselves.
