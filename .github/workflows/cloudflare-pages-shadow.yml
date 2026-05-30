@@ -112,9 +112,10 @@ jobs:
 
       - name: Deploy shadow build to Cloudflare Pages
         if: steps.cloudflare.outputs.can_deploy == 'true'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ steps.cloudflare.outputs.branch }}
+          wranglerVersion: "4.95.0"
+          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ steps.cloudflare.outputs.branch }} --commit-dirty=true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
