@@ -55,8 +55,10 @@
 <div class="container mx-auto px-4 py-12 max-w-4xl">
 	<h1 class="text-3xl font-bold mb-2">CV / Resume</h1>
 	<p class="text-sm text-surface-400 mb-6">
-		<strong>Resume</strong> is the broad pitch. <strong>Resume — Targeted</strong> is the applied-R&amp;D framing.
-		<strong>Full CV</strong> is the long-form record.
+		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,
+		orchestrated by <a href="https://github.com/Jesssullivan/rules_tectonic" target="_blank" rel="noopener" class="hover:text-primary-500 underline">rules_tectonic</a>.
+		Sources live in <a href="https://github.com/Jesssullivan/spear-resumes" target="_blank" rel="noopener" class="hover:text-primary-500 underline">spear-resumes</a>;
+		PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">synced into this site by CI</a>.
 	</p>
 
 	<!-- Tab switcher -->
@@ -102,12 +104,4 @@
 			/>
 		</div>
 	</section>
-
-	<!-- Build info -->
-	<p class="text-xs text-surface-400 text-center">
-		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,
-		orchestrated by <a href="https://github.com/Jesssullivan/rules_tectonic" target="_blank" rel="noopener" class="hover:text-primary-500 underline">rules_tectonic</a>.
-		Sources live in <a href="https://github.com/Jesssullivan/spear-resumes" target="_blank" rel="noopener" class="hover:text-primary-500 underline">spear-resumes</a>;
-		PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">synced into this site by CI</a>.
-	</p>
 </div>
