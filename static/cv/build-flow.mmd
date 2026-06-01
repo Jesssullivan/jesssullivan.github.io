@@ -1,18 +1,16 @@
 flowchart TD
   subgraph SPEAR["spear-resumes · private repo"]
     direction LR
-    GEN["//generic:resume<br/>//generic:cv"]
-    CRA["//cra:resume<br/>(targeted)"]
+    GEN["//generic:resume<br/>//generic:precis<br/>//generic:cv"]
   end
   REG[("tinyland-inc/<br/>bazel-registry")]
   RT["rules_tectonic<br/>Tectonic · XeLaTeX engine"]
-  PDFS["resume · resume-targeted · cv<br/>3 compiled PDFs"]
+  PDFS["resume · précis · cv<br/>3 compiled PDFs"]
   SYNC["bazel run //static/cv:sync_pdfs<br/>write_source_files"]
   STATIC["static/cv/*.pdf<br/>(committed to this repo)"]
   PAGE["/cv page<br/>iframe per tab"]
 
   GEN --> RT
-  CRA --> RT
   REG -. "bazel_dep · .bazelrc" .-> RT
   RT --> PDFS
   PDFS --> SYNC
@@ -26,7 +24,7 @@ flowchart TD
   classDef bz fill:#bfdbfe,stroke:#1d4ed8,color:#1f2937;
   classDef out fill:#bbf7d0,stroke:#15803d,color:#1f2937;
   classDef ci fill:#e9d5ff,stroke:#7e22ce,color:#1f2937;
-  class GEN,CRA priv;
+  class GEN priv;
   class RT,REG,SYNC bz;
   class PDFS,STATIC,PAGE out;
   class CI ci;
