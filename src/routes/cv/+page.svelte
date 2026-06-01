@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	type Tab = 'resume' | 'resume_targeted' | 'cv';
+	type Tab = 'resume' | 'precis' | 'cv';
 
 	let activeTab = $state<Tab>('resume');
 	let hydrated = $state(false);
@@ -13,11 +13,11 @@
 			iframeTitle: 'Jess Sullivan Resume',
 			downloadLabel: 'Download Resume PDF',
 		},
-		resume_targeted: {
-			label: 'Resume — Targeted',
-			file: '/cv/jess_sullivan_resume_targeted.pdf',
-			iframeTitle: 'Jess Sullivan Resume — Targeted',
-			downloadLabel: 'Download Targeted Resume PDF',
+		precis: {
+			label: 'Précis',
+			file: '/cv/jess_sullivan_precis.pdf',
+			iframeTitle: 'Jess Sullivan Précis',
+			downloadLabel: 'Download Précis PDF',
 		},
 		cv: {
 			label: 'Full CV',
@@ -27,7 +27,7 @@
 		},
 	};
 
-	const order: Tab[] = ['resume', 'resume_targeted', 'cv'];
+	const order: Tab[] = ['resume', 'precis', 'cv'];
 
 	function setActiveTab(tab: Tab): void {
 		activeTab = tab;
@@ -98,7 +98,7 @@
 		<div class="card p-4 flex justify-center">
 			<img
 				src="/cv/build-flow.svg"
-				alt="Build flow: private spear-resumes XeLaTeX sources (//generic:resume, //generic:cv, //cra:resume) compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs; bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo, which the /cv page serves as an iframe per tab. The build-cv.yml GitHub Actions workflow fetches the private source with an SSH deploy key, installs bazelisk, runs the sync, and auto-commits the refreshed PDFs."
+				alt="Build flow: private spear-resumes XeLaTeX sources (//generic:resume, //generic:precis, //generic:cv) compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs; bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo, which the /cv page serves as an iframe per tab. The build-cv.yml GitHub Actions workflow fetches the private source with an SSH deploy key, installs bazelisk, runs the sync, and auto-commits the refreshed PDFs."
 				class="max-w-full h-auto"
 				loading="lazy"
 			/>

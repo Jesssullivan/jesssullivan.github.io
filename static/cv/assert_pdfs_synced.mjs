@@ -19,9 +19,9 @@ const pairs = [
 		static: ['static/cv/jess_sullivan_resume.pdf'],
 	},
 	{
-		name: 'targeted resume',
-		source: ['../spear_resumes+/cra/resume.pdf', 'spear_resumes+/cra/resume.pdf'],
-		static: ['static/cv/jess_sullivan_resume_targeted.pdf'],
+		name: 'précis',
+		source: ['../spear_resumes+/generic/precis.pdf', 'spear_resumes+/generic/precis.pdf'],
+		static: ['static/cv/jess_sullivan_precis.pdf'],
 	},
 	{
 		name: 'full CV',

@@ -3,11 +3,15 @@
 Run `bazel run //static/cv:sync_pdfs` to write/update the PDFs in the
 source tree at:
 
-  static/cv/jess_sullivan_resume.pdf            (from //generic:resume)
-  static/cv/jess_sullivan_resume_targeted.pdf   (from //cra:resume)
-  static/cv/jess_sullivan_cv.pdf                (from //generic:cv)
+  static/cv/jess_sullivan_resume.pdf   (from //generic:resume)
+  static/cv/jess_sullivan_precis.pdf   (from //generic:precis)
+  static/cv/jess_sullivan_cv.pdf       (from //generic:cv)
 
-SvelteKit reads them as plain static files; the diff-check action
+The public /cv page surfaces the generic lane only (resume, precis, full
+CV). The targeted (//cra:resume) lane stays in spear_resumes and is sent
+privately, not published here.
+
+SvelteKit reads them as plain static files; the pdfs_synced_test below
 guards against forgetting to re-sync after a spear_resumes bump.
 """
 
@@ -18,7 +22,7 @@ write_source_files(
     name = "sync_pdfs",
     files = {
         "jess_sullivan_resume.pdf": "@spear_resumes//generic:resume",
-        "jess_sullivan_resume_targeted.pdf": "@spear_resumes//cra:resume",
+        "jess_sullivan_precis.pdf": "@spear_resumes//generic:precis",
         "jess_sullivan_cv.pdf": "@spear_resumes//generic:cv",
     },
     visibility = ["//visibility:public"],
@@ -28,10 +32,10 @@ js_test(
     name = "pdfs_synced_test",
     data = [
         ":jess_sullivan_cv.pdf",
+        ":jess_sullivan_precis.pdf",
         ":jess_sullivan_resume.pdf",
-        ":jess_sullivan_resume_targeted.pdf",
-        "@spear_resumes//cra:resume",
         "@spear_resumes//generic:cv",
+        "@spear_resumes//generic:precis",
         "@spear_resumes//generic:resume",
     ],
     entry_point = "assert_pdfs_synced.mjs",

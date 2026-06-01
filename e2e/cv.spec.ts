@@ -13,14 +13,19 @@ test.describe('CV page', () => {
 
 	test('tab switcher renders with Resume active by default', async ({ page }) => {
 		const resumeBtn = page.getByRole('button', { name: 'Resume', exact: true });
-		const targetedBtn = page.getByRole('button', { name: 'Resume — Targeted' });
+		const precisBtn = page.getByRole('button', { name: 'Précis' });
 		const cvBtn = page.getByRole('button', { name: 'Full CV' });
 		await expect(resumeBtn).toBeVisible();
-		await expect(targetedBtn).toBeVisible();
+		await expect(precisBtn).toBeVisible();
 		await expect(cvBtn).toBeVisible();
 		await expect(resumeBtn).toHaveClass(/preset-filled/);
-		await expect(targetedBtn).toHaveClass(/preset-outlined/);
+		await expect(precisBtn).toHaveClass(/preset-outlined/);
 		await expect(cvBtn).toHaveClass(/preset-outlined/);
+	});
+
+	test('switching to Précis tab updates links', async ({ page }) => {
+		await page.getByRole('button', { name: 'Précis' }).click();
+		await expect(page.getByRole('link', { name: 'Download Précis PDF' })).toBeVisible();
 	});
 
 	test('Resume download and source links visible by default', async ({ page }) => {
