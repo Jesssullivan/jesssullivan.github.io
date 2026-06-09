@@ -1,7 +1,7 @@
 ---
-title: "Clearing Canon's 5B00 Lock: A Native, Key-Free MegaTank Waste-Ink Reset over USB"
+title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native, Key-Free Waste-Ink Reset over USB with Ghidra, Frida and friends"
 date: "2026-06-02"
-description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux — recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher, and the finding that the commercial tool's cloud is licensing-only and the reset bytes are entirely local."
+description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and corrolating payload against friendly fire RE dumps from printer potty"
 tags: ["canon", "megatank", "g6020", "5b00", "usb-protocol", "reverse-engineering", "right-to-repair", "ghidra", "frida", "usbmon"]
 published: false
 slug: "clearing-canon-5b00-lock-native-key-free-megatank-reset"
@@ -15,36 +15,35 @@ publish_to: "blog"
 
 ## Introduction
 
-If you own a Canon MegaTank — a G6020, G6050, G7020, or any of the G5000/G6000/G7000-generation
-refillable-tank printers — there is a fair chance you will one day power it on and find it dead
-with a single code on the panel: **5B00**, "the ink absorber is full." Canon's official position
-on 5B00 is one sentence: *service is required.* There is no menu, no key combination, no user
-reset. For a printer whose entire selling point is cheap, refillable ink, the sanctioned repair
-path is to throw it away and buy another one.
 
-The absorber in our unit was not even saturated. 5B00 is not a hardware failure; it is a counter
-in EEPROM crossing a threshold, and firmware refusing to print until that counter is reset — a
+Everything here is implemented in the open-source
+[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset) (zlib code,
+CC-BY-4.0 [docs available in mkdocs here](https://transscendsurvival.org/canon-megatank-reset)).
+
+
+> Note, I am finalizing a proper paper I hope to present later this year on this misadventure
+
+If you own a Canon MegaTank — a G6020, G6050, G7020, or any of the G5000/G6000/G7000-generation
+refillable-tank printers — there is a fair chance you will one day power it on and find it dead, stricken with error **5B00**.
+
+<NOT DEAD YET GIF GOES HERE>
+
+5B00 is not a hardware failure; it is a counter
+in EEPROM crossing a threshold, and firmware refusing to print until that counter is reset.  a
 service-mode operation Canon's field tools perform and the consumer firmware hides. On this
 printer generation, the classic in-firmware reset combo was *removed*: the printer enters service
-mode but accept-and-ignores the clear. The only tools that actually clear a G6020 are commercial,
-per-unit, cloud-licensed resetters.
+mode but accept-and-ignores the clear.
 
 So we did it the other way: figure out what the maintenance lock actually *is*, recover the
 protocol, and clear it ourselves — on Linux, over `libusb`, with **no vendor cloud, no Windows,
-and no per-unit key**. This post is the complete technical reference for that work. It covers the
-service-mode USB device, the `usbprint` vendor-control transport, the four-step reset session, the
-per-session keyword-bound write cipher, the (surprisingly thin) role of the commercial tool's
-cloud, and the one nuance — *how the write commits* — that separated "the device ACKs everything
-and stays bricked" from "it reboots clean." Everything here is implemented in the open-source
-[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset) (zlib code,
-CC-BY-4.0 docs); the repo carries the full protocol spec, the reverse-engineering trail, and the
-diagrams behind every claim.
+and no per-unit key**. This post ideally serves a a fairly complete technical reference for that work. It covers the
+service-mode USB device, the `usbprint` vendor-control transport, the four-step reset session and the
+per-session keyword-bound write cipher.
 
-> **Warning.** This manipulates an EEPROM write path on a printer in service mode. The waste-ink
-> counter exists for a reason — a genuinely saturated absorber will spill ink inside the chassis.
-> **Install a fresh waste-ink pad kit before you reset**, and only apply any of this to hardware
-> you own. This is right-to-repair and interoperability research, not a license to touch a printer
-> that is not yours.
+> I corroborated findings against WICReset's binary payload (sorry mate, couldn't help myself to some friendly decompilation).
+
+
+
 
 ### When You Need This
 
@@ -52,13 +51,13 @@ diagrams behind every claim.
 - You have installed (or are installing) a fresh waste-ink absorber kit
 - You want an offline, key-free, fleet-reproducible reset rather than a per-unit cloud license
 - You are comfortable entering service mode and issuing USB control transfers as root on Linux
+  
 
 ### Prerequisites
 
-- **Linux** with `libusb`/`pyusb` (tested on Rocky Linux 10, kernel 6.12.x)
+- **Linux** with `libusb`/`pyusb`
 - **Root** or membership in a group your udev rule grants `04a9` device access
 - A G-series MegaTank in **service mode** (see below) — it enumerates as a *different* USB device
-- Basic familiarity with USB control transfers and hex
 
 ---
 
@@ -76,18 +75,11 @@ five times**, release. The LCD goes to a flat block-color field and the printer 
 `04a9:12fe`. That `12fe` device is where the waste-counter reset lives — and it speaks a protocol
 that does *not* look like the normal-mode `usbscan` lane at all.
 
-The first trap is here. On `12fe`, the printer-class **bulk-IN endpoint `0x82` is silent**: every
-bulk read returns zero bytes. You can send bulk-OUT frames all day and the device will take them;
-it will never answer on bulk-IN. That dead bulk channel sent more than one prior effort down a
-rabbit hole.
-
-**Lesson: when an endpoint is silent, suspect the transfer *type*, not the endpoint.**
-
 ---
 
-## The Transport: usbprint Vendor Control Transfers
+## usbprint and cracking open Canon's tooling
 
-The maintenance protocol is not bulk at all. On Windows, Canon's tooling talks to the printer
+AFAICT, on Windows Canon's tooling talks to the printer
 through `usbprint.sys`, and its IOCTL frames map onto **USB control transfers**. Decompiling
 `usbprint.sys` and correlating it against a `usbmon` capture of the genuine tool pinned the exact
 mapping:
@@ -111,8 +103,6 @@ flowchart LR
 ```
 
 ---
-
-## The Session: Four Steps and a Power Button
 
 The reset is a short, ordered, **keyed** session. Three frames go out, one value comes back, and
 the whole thing commits on a clean power-off:
@@ -138,9 +128,6 @@ stateDiagram-v2
    20-byte payload is enciphered (next section).
 4. **`get_command`** (`0x86`) returns **empty** — and that is correct, not a failure. There is no
    "finalize" command in this protocol. **Do not gate on a `0x86` reply.**
-
-Then the part that cost a full day:
-
 5. **Commit.** Release the host USB handle (exit the process), then perform a **clean
    power-button shutdown**. You will hear the printhead park — that mechanical settle *is* the
    EEPROM flush. Power back on and 5B00 is gone; the printer re-enumerates as `04a9:1865`.
@@ -169,81 +156,36 @@ in the repo's own SSOT (`printers/canon-g6020/maintenance.yaml`) — recovered o
 tool never reads `devices.xml` or the vendor binary at runtime. This post gives the shape, the repo
 gives every byte.
 
-### Where the template comes from
 
-The per-model template is not fetched from anywhere at reset time — it ships *inside* the commercial
-tool as a PE resource named `APP.BIN` (~558 KB). "Encrypted," in the loosest sense:
-
-```
-APP.BIN  --3DES-EDE3-CBC (all-zero 24-byte key, all-zero IV)-->  ZIP
-   └─ devices.srs  --same zero-key 3DES-->  devices.xml  (2.5 MB cleartext)
-        └─ "Canon G6000 Series"  class="canon.printer.std.standard"  specs="CANON-SR5"
-```
-
-A zero key and a zero IV is not encryption; it is obfuscation. Once decrypted, `devices.xml` hands
-you the entire per-model maintenance template in cleartext — opcodes, the keyword table, and the
-cipher tables. **The reset bytes are bundled and trivially recoverable, not cloud-sourced.**
-
----
-
-## Reading the Printer Back — and a Red Herring
+## Exploiting `0x8c` read back
 
 Service mode answers two status reads, `0x84` and `0x8c`, both obfuscated with the per-session
 keyword. To find the waste counter I captured ~550 **read-only** sessions (open session → read
 keyword → read both registers; no writes) against the locked G6020, then looked for the register
 whose decoded plaintext stays constant while the keyword churns.
 
-`0x84` fell fast: a linear keyword-XOR stream over a fixed 20-byte device descriptor. Decoded, it
+`0x84`  Not it, a linear keyword-XOR stream over a fixed 20-byte device descriptor. Decoded, it
 is byte-identical every session — clearly *not* the counter.
 
-`0x8c` looked like the prize. It changed every single session — exactly what a live counter under a
-rotating key should do — and it resisted: nonlinear in all three keyword bytes, no linear fit. Then
-the obvious-in-hindsight test: what if `0x8c` isn't a *new* cipher at all, but the printer echoing
+
+`0x8c` changes every single session.  What if `0x8c` isn't a *new* cipher at all, but the printer echoing
 its **own write keystream**? I ran our `functor2_transform` over a 20-byte **zero** plaintext, keyed
-by the same bound session keyword the writes use — and it reproduced `0x8c` byte-for-byte. **540
+by the same bound session keyword the writes use- and it reproduced `0x8c` byte-for-byte. **540
 sessions in-sample with zero conflicts, then 16 fresh sessions predicted *before* I read them.**
 
 So `0x8c` carries no counter. It is a keyed keystream echo over zeros, and its per-session
-"variation" is just the keyword moving. The register that *looked* most like the counter — because
-it varied independently — was the textbook false positive.
+"variation" is just the keyword moving.
 
-The happy accident: a register that echoes our write keystream is a **free oracle**. Those ~550 live
+
+
+#### This is exploitable. 
+
+A register that echoes our write keystream is a pretty damn good way to weasle in. Those ~550 live
 responses independently confirm the write cipher we ship is byte-exact against the real printer
 across hundreds of keywords — the strongest validation of the clear path short of re-running the
 clear hundreds of times. (The real counter is read through the template's `query.normal` *select*
 path, `[10 07 7C][15]`, not a bare register read.)
 
----
-
-## The Cloud Is Licensing, Not Logic
-
-The commercial resetters (WICReset / Printer Potty) validate a paid, per-unit key against a server
-before they will run. The obvious worry for an offline reimplementation is that the *device write*
-itself carries a server-signed nonce — in which case no offline tool could ever work. It does not.
-
-Pulling the genuine tool apart two ways — statically in Ghidra, and dynamically by neutralizing its
-online checks under Frida and watching what still functioned — gave a clear verdict. The reset
-orchestrator reaches the device-write path through cloud round-trips that are pure **gates**: a
-key-entitlement boolean before, and an accounting report after. A call-graph trace of the
-counter-clear routine and everything it calls is **network-free** — sockets only appear one level
-up, in the licensing orchestrator. The server gates *whether you may run the tool*; it sources
-**none** of the bytes that go to the printer.
-
-```mermaid
-flowchart TD
-    start["ClearCounters orchestrator"] --> g1{"key entitlement?<br/>(cloud)"}
-    g1 -->|"yes"| emit["clearCounters subtree<br/>(NET-FREE: builds + sends<br/>the device frames locally)"]
-    emit --> g2["accounting report<br/>(cloud, after the write)"]
-    g1 -->|"no"| err["abort"]
-    style emit fill:#51cf6622,stroke:#51cf66
-    style g1 fill:#ff6b6b22,stroke:#ff6b6b
-    style g2 fill:#ffa50022,stroke:#ffa500
-```
-
-This is the whole right-to-repair point: because the device bytes are built locally from a bundled,
-trivially-decryptable template plus a per-session keyword you read off your own printer, a native
-tool needs **no key and never spends one**. Our reset is not a way to use someone else's resetter
-for free — it is an independent reimplementation built from the protocol itself.
 
 ---
 
@@ -274,56 +216,9 @@ Canon; they protect *you* from running a destructive EEPROM write against the wr
 
 ---
 
-## Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| Bulk reads on `0x82` return 0 bytes | Maintenance replies come over control-IN, not bulk | Read via `VENDOR_GET` (`0xC1`), not bulk `0x82` |
-| `set_session` STALLs | You enciphered it | `set_session` (`81 00 00 03`) is **plaintext**; only `set_command` is enciphered |
-| Frames ACK but 5B00 persists after reboot | You unplugged instead of power-buttoning | Release the USB handle, then clean power-button shutdown |
-| Power button "hangs" (slow green blink) | Host still holds the USB session | Exit the tool first, *then* press power |
-| Encoder emits 4 bytes, not 20 | functor-2 subject/seed reversed | Subject = 20-byte functor-3 envelope; seed = bound keyword |
-| 17/20 frames validate, not 23/23 | Cipher tables drifted from the decrypted source | Re-sync `command.*` tables from `devices.xml` |
-| `get_command` (`0x86`) returns empty | By design — no finalize command exists | Ignore it; the commit is the power-off |
+## My favorite things, a RE trifecta.
 
----
-
-## How We Got Here: The Dead Ends
-
-The path was not a straight line, and the failures are as instructive as the fix.
-
-### Dead End 1: The Bare Reset Frame
-Early on, the obvious-looking reset `85 00 00 00 03 01 03 07` was sent over both the normal-mode
-lane and service mode. Every byte ACKed. Power-cycle: 5B00, unchanged. The frame was the wrong
-opcode family, with no session and no cipher — and the firmware accept-and-ignores well-formed
-writes on a gated path.
-
-**Lesson: a device that ACKs is not a device that obeyed. Verify the *effect*, not the transport status.**
-
-### Dead End 2: The Silent Bulk-IN
-Days went into characterizing why bulk-IN `0x82` only ever returned zero-length packets. It was not
-a bug to fix; it was the wrong pipe. The maintenance reply is a control-IN transfer.
-
-**Lesson: check the transfer type before you debug the endpoint.**
-
-### Dead End 3: Plaintext set_command
-Sending the logically-correct reset payload in the clear got it rejected. The firmware honors the
-*enciphered* form and ignores the plaintext one. The gate was never a different opcode — it was the
-session cipher.
-
-**Lesson: "the device ignores my correct command" sometimes means "my command is correct but unsigned."**
-
-### Dead End 4: Unplug as a Commit
-Pulling power "to be safe" never committed the reset — it skipped the EEPROM flush entirely. The
-commit is a *graceful* shutdown: the printhead-park routine is what writes the counter back.
-
-**Lesson: the commit can be a side effect of a clean shutdown. Cutting power is not the same as turning off.**
-
----
-
-## The Methodology: A Trifecta
-
-None of this came from one tool. It came from three, in a loop:
 
 ```mermaid
 flowchart LR
@@ -339,6 +234,9 @@ flowchart LR
 the driver; Ghidra explains why. Trace, decompile, correlate, repeat — until all three agree on the
 same story. They eventually did, and the story was reproducible enough to rebuild from scratch.
 
+> Corrolating payloads by cracking commercial software followed by rubbing your hands togther while staying "I'm in" is highly reccomended and you should tell all your friends to do it too
+
+
 ---
 
 ## Security & Right-to-Repair Considerations
@@ -346,15 +244,15 @@ same story. They eventually did, and the story was reproducible enough to rebuil
 - **The "lock" is a policy, shipped as firmware.** 5B00 is a counter and a threshold, not a broken
   part. On this printer generation the in-firmware reset was deliberately removed and pushed to
   paid, cloud-licensed tooling.
-- **The device bytes are local.** The cloud in the commercial path is a licensing gate, not a
-  signing oracle; the per-model template is bundled and zero-key "encrypted." Offline reset is
-  therefore computable without a key.
 - **This is interoperability on owned hardware.** The native tool resets a waste-ink counter on a
   printer you own, after you have installed fresh pads. It does not circumvent a content-protection
   scheme and it does not pirate the commercial tool — it reimplements the protocol.
-- **Install the pads first.** The one genuinely destructive failure mode here is resetting a *truly*
+- **Install the pads first and/or buy / build a continuous drain kit.** The one genuinely destructive failure mode here is resetting a *truly*
   full absorber and spilling ink. Respect the counter's actual job.
-
+- **The device bytes are local.** The cloud in the commercial path is a licensing gate, not a
+  signing oracle; the per-model template is bundled and zero-key "encrypted." Offline reset is
+  therefore computable without a key.  Not that I am saying this is sanctioned, but I am saying I did it and it helped speed things along :eyes:
+  
 ---
 
 ## References & Credits
@@ -403,7 +301,7 @@ outer: payload   = functor2(subject = envelope3, seed = bound 4-byte keyword)   
 wire:  85 00 00 || payload(20)   = 23 bytes   (validated 23/23 vs ground truth)
 ```
 
-### Template recovery
+### Template recovery with commercial payload sniffing
 ```
 APP.BIN (PE resource) --3DES-EDE3-CBC, zero key, zero IV--> ZIP --> devices.srs --(same)--> devices.xml
 "Canon G6000 Series"  class=canon.printer.std.standard  specs=CANON-SR5
