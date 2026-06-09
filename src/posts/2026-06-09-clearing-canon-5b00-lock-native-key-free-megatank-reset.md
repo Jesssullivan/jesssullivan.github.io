@@ -1,5 +1,5 @@
 ---
-title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native, Key-Free Waste-Ink Reset over USB with Ghidra, Frida and friends"
+title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native Waste-Ink Reset over USB with Ghidra, Frida and friends"
 date: "2026-06-09"
 description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and correlating payloads against friendly-fire RE dumps from WICReset"
 tags: ["canon", "megatank", "g6020", "5b00", "usb-protocol", "reverse-engineering", "right-to-repair", "ghidra", "frida", "usbmon"]
@@ -22,22 +22,19 @@ Everything here is implemented in the open-source
 
 > Note, I am finalizing a proper paper I hope to present later this year on this misadventure
 
-If you own a Canon MegaTank — a G6020, G6050, G7020, or any of the G5000/G6000/G7000-generation
-refillable-tank printers — there is a fair chance you will one day power it on and find it dead, stricken with error **5B00**.
+If you own a Canon MegaTank consumer inkjet printer there is a fair chance you will one day power it on and find it dead, stricken with error **5B00**.
 
 ![Not dead yet](/images/posts/notdeadyet.gif)
 
 5B00 is not a hardware failure; it is a counter
-in EEPROM crossing a threshold, and firmware refusing to print until that counter is reset — a
-service-mode operation Canon's field tools perform and the consumer firmware hides. On this
+in EEPROM crossing a threshold and firmware refusing to print until that counter is reset.  Manipulating this soft buffer is a
+service-mode only operation Canon's field tools perform and the consumer firmware hides. On this
 printer generation, the classic in-firmware reset combo was *removed*: the printer enters service
 mode but accepts and ignores the clear.
 
-So we did it the other way: figure out what the maintenance lock actually *is*, recover the
-protocol, and clear it ourselves — on Linux, over `libusb`, with **no vendor cloud, no Windows,
-and no per-unit key**. This post ideally serves as a fairly complete technical reference for that work. It covers the
-service-mode USB device, the `usbprint` vendor-control transport, the four-step reset session and the
-per-session keyword-bound write cipher.
+I went about clearing the buffer and error a different way.  figure out what (and where) the maintenance lock actually *is*, recover the
+protocol, and clear it myself - on Linux, over `libusb`. This post ideally serves as a fairly complete technical reference for that work. It covers the service-mode USB device, the `usbprint` vendor-control transport, the four-step reset session and the
+per-session keyword-bound write cipher.  
 
 > I corroborated findings against WICReset's binary payload (sorry mate, couldn't help myself to some friendly decompilation).
 
@@ -47,16 +44,14 @@ per-session keyword-bound write cipher.
 ### When You Need This
 
 - Your G-series MegaTank is stuck on **5B00** ("ink absorber full" / "support code 5B00")
-- You have installed (or are installing) a fresh waste-ink absorber kit
-- You want an offline, key-free, fleet-reproducible reset rather than a per-unit cloud license
-- You are comfortable entering service mode and issuing USB control transfers as root on Linux
-  
+- You have installed (or are installing) a fresh waste-ink absorber kit or choose to throw caution to the wind
+
 
 ### Prerequisites
 
 - **Linux** with `libusb`/`pyusb`
-- **Root** or membership in a group your udev rule grants `04a9` device access
-- A G-series MegaTank in **service mode** (see below) — it enumerates as a *different* USB device
+- user membership in a group your udev rule grants `04a9` device access
+- A G-series MegaTank in **service mode** (see below) - it enumerates as a *different* USB device
 
 ---
 
@@ -71,7 +66,7 @@ A MegaTank presents **two completely different USB identities** depending on mod
 
 Service mode is entered with the Canon button dance: power off, hold **ON**, tap **Stop/Resume
 five times**, release. The LCD goes to a flat block-color field and the printer re-enumerates as
-`04a9:12fe`. That `12fe` device is where the waste-counter reset lives — and it speaks a protocol
+`04a9:12fe`. That `12fe` device is where the waste-counter reset lives - and it speaks a protocol
 that does *not* look like the normal-mode `usbscan` lane at all.
 
 ---
@@ -86,11 +81,11 @@ mapping:
 | Direction | `bmRequestType` | `bRequest` | `wValue` | data stage |
 |---|---|---|---|---|
 | **VENDOR_SET** (write) | `0x41` (OUT, vendor, interface) | frame byte 0 (the command) | `(frame[1] << 8) \| frame[2]` | the **entire** frame, verbatim |
-| **VENDOR_GET** (read) | `0xC1` (IN, vendor, interface) | the command byte | — | response bytes |
+| **VENDOR_GET** (read) | `0xC1` (IN, vendor, interface) | the command byte | - | response bytes |
 
 So a maintenance "frame" like `81 00 00 03` becomes a control-OUT with `bRequest=0x81`,
 `wValue=0x0000`, carrying `81 00 00 03` as its data stage. The reply to a read command comes back
-on the **control-IN** pipe (`0xC1`), never on bulk-IN. Once we moved reads from bulk `0x82` to
+on the **control-IN** pipe (`0xC1`), never on bulk-IN. Once I moved reads from bulk `0x82` to
 control-IN `0xC1`, the device started answering.
 
 ```mermaid
@@ -116,19 +111,19 @@ stateDiagram-v2
     Commit --> [*]: printhead parks → EEPROM flush → 5B00 cleared
 ```
 
-1. **`set_session`** — send `81 00 00 03` **in the clear**. The device length-validates the `0x81`
+1. **`set_session`** - send `81 00 00 03` **in the clear**. The device length-validates the `0x81`
    command; an *enciphered* `set_session` (a longer frame) STALLs. This frame is the only one that
    stays plaintext.
-2. **`get_keyword`** — `VENDOR_GET(0x82)` returns a **live, per-session 3-byte keyword**. Pad it to
+2. **`get_keyword`** - `VENDOR_GET(0x82)` returns a **live, per-session 3-byte keyword**. Pad it to
    four bytes and "bind" it; this value seeds the cipher for the rest of the session, which is why
    the reset is device-bound and cannot be replayed as a static byte string.
-3. **`set_command`** — two 23-byte frames, `85 00 00 || payload(20)`. The first selects the target
+3. **`set_command`** - two 23-byte frames, `85 00 00 || payload(20)`. The first selects the target
    (operand `10 07 7c`); the second is the actual `waste:common` clear (operand `0d 00 00`). The
    20-byte payload is enciphered (next section).
-4. **`get_command`** (`0x86`) returns **empty** — and that is correct, not a failure. There is no
+4. **`get_command`** (`0x86`) returns **empty** - and that is correct, not a failure. There is no
    "finalize" command in this protocol. **Do not gate on a `0x86` reply.**
 5. **Commit.** Release the host USB handle (exit the process), then perform a **clean
-   power-button shutdown**. You will hear the printhead park — that mechanical settle *is* the
+   power-button shutdown**. You will hear the printhead park - that mechanical settle *is* the
    EEPROM flush. Power back on and 5B00 is gone; the printer re-enumerates as `04a9:1865`.
 
 ---
@@ -139,19 +134,19 @@ The reset payload is not sent in the clear, and getting the encoding right was t
 piece. The genuine `set_command` is a two-layer construction:
 
 - An inner **functor-3 envelope**: a deterministic 20-byte structure, `00 12 01 <op>` followed by
-  16 fixed bytes from an MSVC `rand()` stream seeded at `0x12345678`. This is template data — the
+  16 fixed bytes from an MSVC `rand()` stream seeded at `0x12345678`. This is template data - the
   G6000-series "CANON-SR5" maintenance family uses functor/method 3.
 - An outer **functor-2 transform** with the buffer roles **swapped** from the obvious reading: the
   *subject* is the 20-byte functor-3 envelope, and the *seed* is the 4-byte **bound keyword** from
   step 2. (An earlier pass had subject and seed reversed, which only ever emits 4 bytes and silently
   fails.)
 
-The wire frame is `85 00 00 || functor2(envelope3(85 00 00 || op), bound_keyword)` — 23 bytes
+The wire frame is `85 00 00 || functor2(envelope3(85 00 00 || op), bound_keyword)` - 23 bytes
 total. Validated **23/23** against ground truth captured from the genuine tool: e.g. for the
 SELECTOR operand `10 07 7c` with a known keyword, the encoder reproduces
 `85 00 00 db bb 00 67 59 a1 b0 1f 84 2f d5 83 04 4a 3a c3 51 d2 b1 ef` byte-for-byte. The full
 keystream tables (`command.index`, `command.codes`, the operator-VM `command.shift` programs) live
-in the repo's own SSOT (`printers/canon-g6020/maintenance.yaml`) — recovered once, then ours; the
+in the repo's own SSOT (`printers/canon-g6020/maintenance.yaml`) - recovered once, then ours; the
 tool never reads `devices.xml` or the vendor binary at runtime. This post gives the shape, the repo
 gives every byte.
 
@@ -164,7 +159,7 @@ keyword → read both registers; no writes) against the locked G6020, then looke
 whose decoded plaintext stays constant while the keyword churns.
 
 `0x84`  Not it, a linear keyword-XOR stream over a fixed 20-byte device descriptor. Decoded, it
-is byte-identical every session — clearly *not* the counter.
+is byte-identical every session - clearly *not* the counter.
 
 
 `0x8c` changes every single session.  What if `0x8c` isn't a *new* cipher at all, but the printer echoing
@@ -180,8 +175,8 @@ So `0x8c` carries no counter. It is a keyed keystream echo over zeros, and its p
 #### This is exploitable. 
 
 A register that echoes our write keystream is a pretty damn good way to weasel in. Those ~550 live
-responses independently confirm the write cipher we ship is byte-exact against the real printer
-across hundreds of keywords — the strongest validation of the clear path short of re-running the
+responses independently confirm the write cipher I shipped is byte-exact against the real printer
+across hundreds of keywords - the strongest validation of the clear path short of re-running the
 clear hundreds of times. (The real counter is read through the template's `query.normal` *select*
 path, `[10 07 7C][15]`, not a bare register read.)
 
@@ -197,14 +192,14 @@ path, `[10 07 7C][15]`, not a bare register read.)
 #    The printer re-enumerates as 04a9:12fe (flat block-color LCD).
 
 # 2. Dry run (default). Reads the live keyword, builds the enciphered frames,
-#    prints exactly what it WOULD send — and writes nothing.
+#    prints exactly what it WOULD send - and writes nothing.
 canon-megatank reset-native            # dry-run is the default
 
 # 3. Execute, behind the gates (test-unit UUID, EEPROM pre-dump, write budget, lockfile):
 canon-megatank reset-native --execute
 
 # 4. Release the handle (the command exits) and POWER-BUTTON the printer off.
-#    Listen for the printhead to park — that is the EEPROM flush.
+#    Listen for the printhead to park - that is the EEPROM flush.
 
 # 5. Power on. 5B00 is gone; the printer comes back as 04a9:1865 and prints.
 ```
@@ -230,7 +225,7 @@ flowchart LR
 ```
 
 `usbmon` shows the bytes; Frida shows the application frame *before* it is enciphered and handed to
-the driver; Ghidra explains why. Trace, decompile, correlate, repeat — until all three agree on the
+the driver; Ghidra explains why. Trace, decompile, correlate, repeat - until all three agree on the
 same story. They eventually did, and the story was reproducible enough to rebuild from scratch.
 
 > Correlating payloads by cracking commercial software followed by rubbing your hands together while saying "I'm in" is highly recommended and you should tell all your friends to do it too
@@ -245,7 +240,7 @@ same story. They eventually did, and the story was reproducible enough to rebuil
   paid, cloud-licensed tooling.
 - **This is interoperability on owned hardware.** The native tool resets a waste-ink counter on a
   printer you own, after you have installed fresh pads. It does not circumvent a content-protection
-  scheme and it does not pirate the commercial tool — it reimplements the protocol.
+  scheme and it does not pirate the commercial tool - it reimplements the protocol.
 - **Install the pads first and/or buy / build a continuous drain kit.** The one genuinely destructive failure mode here is resetting a *truly*
   full absorber and spilling ink. Respect the counter's actual job.
 - **The device bytes are local.** The cloud in the commercial path is a licensing gate, not a
@@ -256,15 +251,15 @@ same story. They eventually did, and the story was reproducible enough to rebuil
 
 ## References & Credits
 
-- **[leecher1337/pixma](https://github.com/leecher1337/pixma)** — the Canon firmware-unpack lineage
+- **[leecher1337/pixma](https://github.com/leecher1337/pixma)** - the Canon firmware-unpack lineage
   (`pixma_decrypt`, `pixma_unpack`), built on the Context Information Security 2016 talk *"Hacking
-  Canon PIXMA Printers — Doomed Encryption."* The firmware-decrypt cross-check builds on this work.
-- **Context IS, "Hacking Canon PIXMA Printers — Doomed Encryption" (2016)** — the original public
+  Canon PIXMA Printers - Doomed Encryption."* The firmware-decrypt cross-check builds on this work.
+- **Context IS, "Hacking Canon PIXMA Printers - Doomed Encryption" (2016)** - the original public
   analysis of Canon's firmware obfuscation; the zero-key pattern rhymes with what `APP.BIN` from WICReset uses.
-- **OctoInkjet / Printer Potty** — the waste-ink absorber kits that make a reset safe to perform,
+- **OctoInkjet / Printer Potty** - the waste-ink absorber kits that make a reset safe to perform,
   and public documentation of the MegaTank waste-counter problem.
-- **Frida, Ghidra, Wireshark/`usbmon`, pyusb/`libusb`** — the reverse-engineering and reset toolchain.
-- **[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset)** — this work: the
+- **Frida, Ghidra, Wireshark/`usbmon`, pyusb/`libusb`** - the reverse-engineering and reset toolchain.
+- **[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset)** - this work: the
   native tool, the protocol spec, the full RE trail, the diagrams, and the paper. Code is zlib;
   docs/paper are CC-BY-4.0.  
 
