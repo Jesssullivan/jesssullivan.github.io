@@ -10,6 +10,7 @@
 	import {
 		TINYLAND_BLOG_BROKER_STREAM_URL,
 		loadTinylandBlogBrokerStream,
+		mergeBrokerPostsIntoStatic,
 		summarizeTinylandBlogBrokerError,
 		tinylandBlogBrokerStreamToPosts,
 		type TinylandBlogBrokerState,
@@ -25,22 +26,16 @@
 		endpoint: brokerEndpoint,
 	});
 
-	// Local (SSR) posts indexed by slug. The hub broker stream derives
-	// feature_image from raw frontmatter only, so it omits images for posts
-	// whose card image came from the spoke's richer derivation (body-image
-	// scan + slug-hash backfill). Merge rather than replace so hydrating to
-	// the broker stream never drops a feature_image the local snapshot had.
-	let localPostsBySlug = $derived(
-		new Map(data.posts.map((post) => [post.slug, post]))
-	);
-
+	// The build-time static index (data.posts) is authoritative for which posts
+	// EXIST — it is always at least as fresh as the deploy. The hub broker stream
+	// can lag the deploy (a just-published post sits in the hub's held-back
+	// remainder for a window), so it is merged additively: it enriches existing
+	// posts and appends broker-only ones, but can never drop a freshly published
+	// post. This fixes the listing flash-then-disappear on hydration; see
+	// mergeBrokerPostsIntoStatic for the full rationale.
 	let displayPosts = $derived(
 		brokerState.status === 'ready'
-			? brokerState.posts.map((post) =>
-					post.feature_image
-						? post
-						: { ...post, feature_image: localPostsBySlug.get(post.slug)?.feature_image }
-				)
+			? mergeBrokerPostsIntoStatic(data.posts, brokerState.posts)
 			: data.posts
 	);
 

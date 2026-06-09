@@ -286,6 +286,47 @@ export function tinylandBlogBrokerStreamToPosts(stream: TinylandBlogBrokerStream
 		.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || a.slug.localeCompare(b.slug));
 }
 
+/**
+ * Merge the hub broker stream into the spoke's authoritative static post set.
+ *
+ * The build-time static index (search-index.json, bundled into the prerendered
+ * HTML) is always at least as fresh as the deploy, so it — not the runtime
+ * broker — owns which posts EXIST. The hub's reviewed broker stream can lag the
+ * deploy (a newly published post sits in the hub's held-back/un-reviewed
+ * remainder for a window), so letting the broker REPLACE the list made fresh
+ * posts render on SSR then vanish on hydration once the broker fetch resolved.
+ *
+ * This makes the broker additive / enrichment-only:
+ *   - every static post is kept (a static slug is NEVER dropped),
+ *   - a static post with no feature_image is backfilled from the matching broker
+ *     post only,
+ *   - broker-only posts (live posts not present in the repo) are appended,
+ *   - the result is re-sorted newest-first to match the static ordering.
+ *
+ * Net: new-post visibility is independent of broker freshness.
+ */
+export function mergeBrokerPostsIntoStatic(
+	staticPosts: readonly Post[],
+	brokerPosts: readonly Post[],
+): Post[] {
+	const brokerBySlug = new Map(brokerPosts.map((post) => [post.slug, post]));
+	const staticSlugs = new Set(staticPosts.map((post) => post.slug));
+
+	const merged: Post[] = staticPosts.map((post) => {
+		if (post.feature_image) return post;
+		const broker = brokerBySlug.get(post.slug);
+		return broker?.feature_image ? { ...post, feature_image: broker.feature_image } : post;
+	});
+
+	for (const post of brokerPosts) {
+		if (!staticSlugs.has(post.slug)) merged.push(post);
+	}
+
+	return merged.sort(
+		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || a.slug.localeCompare(b.slug),
+	);
+}
+
 export function findTinylandBlogBrokerPost(
 	stream: TinylandBlogBrokerStream,
 	slug: string,
