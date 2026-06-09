@@ -3,10 +3,12 @@ import {
 	TINYLAND_BLOG_BROKER_STREAM_URL,
 	findTinylandBlogBrokerPost,
 	loadTinylandBlogBrokerStream,
+	mergeBrokerPostsIntoStatic,
 	tinylandBlogBrokerStreamToPosts,
 	type TinylandBlogBrokerFetch,
 	type TinylandBlogBrokerStream,
 } from './blogBrokerStream';
+import type { Post } from '$lib/types';
 
 const validStream: TinylandBlogBrokerStream = {
 	schemaVersion: 'tinyland.blog.broker-stream.v1',
@@ -154,5 +156,58 @@ describe('loadTinylandBlogBrokerStream', () => {
 	it('finds a stream post by slug for canonical route hydration', () => {
 		expect(findTinylandBlogBrokerPost(validStream, 'example')?.title).toBe('Example');
 		expect(findTinylandBlogBrokerPost(validStream, 'missing')).toBeNull();
+	});
+});
+
+describe('mergeBrokerPostsIntoStatic', () => {
+	const post = (slug: string, date: string, feature_image?: string): Post =>
+		({
+			title: slug,
+			slug,
+			date,
+			description: '',
+			tags: [],
+			published: true,
+			feature_image,
+		}) as unknown as Post;
+
+	it('never drops a static post the broker stream omits (no-drop invariant)', () => {
+		// The exact production regression: broker stream lags the deploy and is
+		// missing freshly published posts. They must NOT disappear on hydration.
+		const staticPosts = [post('canon', '2026-06-09'), post('glue', '2026-06-08'), post('old', '2026-05-01')];
+		const broker = [post('old', '2026-05-01')]; // stale: missing canon + glue
+		const slugs = mergeBrokerPostsIntoStatic(staticPosts, broker).map((p) => p.slug);
+		expect(slugs).toContain('canon');
+		expect(slugs).toContain('glue');
+		expect(slugs).toContain('old');
+	});
+
+	it('keeps the static set authoritative and re-sorts newest-first', () => {
+		const staticPosts = [post('old', '2026-05-01'), post('canon', '2026-06-09')];
+		expect(mergeBrokerPostsIntoStatic(staticPosts, []).map((p) => p.slug)).toEqual(['canon', 'old']);
+	});
+
+	it('backfills a missing static feature_image from the matching broker post only', () => {
+		const merged = mergeBrokerPostsIntoStatic(
+			[post('canon', '2026-06-09')],
+			[post('canon', '2026-06-09', '/images/posts/canon.jpg')],
+		);
+		expect(merged[0].feature_image).toBe('/images/posts/canon.jpg');
+	});
+
+	it('never overwrites an existing static feature_image', () => {
+		const merged = mergeBrokerPostsIntoStatic(
+			[post('canon', '2026-06-09', '/images/posts/local.jpg')],
+			[post('canon', '2026-06-09', '/images/posts/broker.jpg')],
+		);
+		expect(merged[0].feature_image).toBe('/images/posts/local.jpg');
+	});
+
+	it('appends broker-only posts (live posts not in the repo) in date order', () => {
+		const merged = mergeBrokerPostsIntoStatic(
+			[post('canon', '2026-06-09'), post('old', '2026-05-01')],
+			[post('federated', '2026-06-01')],
+		);
+		expect(merged.map((p) => p.slug)).toEqual(['canon', 'federated', 'old']);
 	});
 });
