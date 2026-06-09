@@ -85,7 +85,7 @@ mapping:
 
 | Direction | `bmRequestType` | `bRequest` | `wValue` | data stage |
 |---|---|---|---|---|
-| **VENDOR_SET** (write) | `0x41` (OUT, vendor, interface) | frame byte 0 (the command) | `(frame[1] << 8) | frame[2]` | the **entire** frame, verbatim |
+| **VENDOR_SET** (write) | `0x41` (OUT, vendor, interface) | frame byte 0 (the command) | `(frame[1] << 8) \| frame[2]` | the **entire** frame, verbatim |
 | **VENDOR_GET** (read) | `0xC1` (IN, vendor, interface) | the command byte | — | response bytes |
 
 So a maintenance "frame" like `81 00 00 03` becomes a control-OUT with `bRequest=0x81`,
