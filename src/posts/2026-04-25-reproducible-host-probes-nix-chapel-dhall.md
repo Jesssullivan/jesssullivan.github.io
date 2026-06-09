@@ -42,7 +42,7 @@ graph LR
 
 
 
-```text
+```chapel
 use Time;
 use HostNumaTiming;
 use TimingProofs;
@@ -57,7 +57,7 @@ The `config const` declarations are Chapel's mechanism for runtime-configurable 
 
 Data generation uses `forall` to distribute across cores:
 
-```text
+```chapel
 var data: [0..<numChannels, 0..<numSamples] real;
 forall ch in 0..<numChannels {
   const signal = syntheticSignal(numSamples, ch);
@@ -68,7 +68,7 @@ forall ch in 0..<numChannels {
 
 The timing surface is a serial/parallel comparison. Serial is a single-threaded nested loop; parallel distributes the outer loop via `forall`:
 
-```text
+```chapel
 var serialTimer = new stopwatch();
 serialTimer.start();
 var serialTotal: real = 0.0;
@@ -95,7 +95,7 @@ Chapel's `forall` is not `#pragma omp parallel for`. It is a first-class paralle
 
 The core types in [`HostNumaTiming.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/src/HostNumaTiming.chpl):
 
-```text
+```chapel
 record Partition {
   var start: int;
   var count: int;
@@ -111,7 +111,7 @@ record TimingStats {
 
 `partitionChannels` distributes channels across partitions with remainder handling:
 
-```text
+```chapel
 proc partitionChannels(numChannels: int, partitions: int): [0..<partitions] Partition {
   var parts: [0..<partitions] Partition;
   const base = numChannels / partitions;
@@ -128,7 +128,7 @@ proc partitionChannels(numChannels: int, partitions: int): [0..<partitions] Part
 
 The conformance predicate in [`TimingProofs.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/src/TimingProofs.chpl):
 
-```text
+```chapel
 record TimingBudget {
   var targetPeriodSeconds: real;
   var maxJitterSeconds: real;
@@ -150,7 +150,7 @@ This is the kind of predicate that benefits from PBT: the `1e-12` epsilon, the e
 
 ## Property-based testing for greatness
 
-```text
+```chapel
 use quickchpl;
 use TimingProofs;
 
@@ -173,7 +173,7 @@ The generator `listGen(realGen(0.0, 0.05), 1, 128)` produces lists of 1-128 non-
 
 The scaling invariant is the most interesting:
 
-```text
+```chapel
 var scalingInvariant = property("scaling intervals and budget preserves conformance",
   tupleGen(
     realGen(2.0, 256.0),   // sample count
@@ -193,7 +193,7 @@ If `timingConforms(intervals, budget)` holds, then scaling both the intervals an
 
 From [`TestHostNumaTiming.chpl`](https://github.com/Jesssullivan/Dell-7810/blob/main/analysis/test/TestHostNumaTiming.chpl), the partition properties:
 
-```text
+```chapel
 var partitionCoverage = property("partition coverage equals channel total",
   tupleGen(
     listGen(realGen(-1.0, 1.0), 0, 512),

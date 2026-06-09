@@ -12,9 +12,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticDir = resolve(__dirname, 'static');
 
 // Vendored Chapel TextMate grammar (shikijs/textmate-grammars-themes#203, not yet in a published Shiki release)
-const chapelGrammar = JSON.parse(
-	readFileSync(resolve(__dirname, 'src/lib/shiki/chapel.tmLanguage.json'), 'utf-8')
-);
+const chapelGrammar = {
+	...JSON.parse(
+		readFileSync(resolve(__dirname, 'src/lib/shiki/chapel.tmLanguage.json'), 'utf-8')
+	),
+	aliases: ['chpl']
+};
 const allowMermaidTextFallback =
 	process.env.NODE_ENV !== 'production' || process.env.MERMAID_PRERENDER === 'optional';
 

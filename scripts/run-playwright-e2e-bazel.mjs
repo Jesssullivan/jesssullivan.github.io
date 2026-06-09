@@ -12,6 +12,7 @@ import {
 	statSync,
 	symlinkSync,
 } from 'node:fs';
+import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -39,6 +40,7 @@ process.env.NODE_ENV = 'production';
 process.env.MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'optional';
 process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = '1';
 process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = chromiumExecutable;
+process.env.PLAYWRIGHT_E2E_PORT = process.env.PLAYWRIGHT_E2E_PORT ?? String(await findOpenLoopbackPort());
 
 try {
 	copyInputsToBuildRoot();
@@ -277,4 +279,27 @@ function isWritableDirectory(path) {
 	} catch {
 		return false;
 	}
+}
+
+function findOpenLoopbackPort() {
+	return new Promise((resolvePort, reject) => {
+		const server = createServer();
+		server.unref();
+		server.on('error', reject);
+		server.listen(0, '127.0.0.1', () => {
+			const address = server.address();
+			const port = typeof address === 'object' && address ? address.port : 0;
+			server.close((error) => {
+				if (error) {
+					reject(error);
+					return;
+				}
+				if (!port) {
+					reject(new Error('Unable to allocate a loopback port for Playwright e2e'));
+					return;
+				}
+				resolvePort(port);
+			});
+		});
+	});
 }
