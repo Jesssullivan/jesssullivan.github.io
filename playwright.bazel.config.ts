@@ -5,6 +5,7 @@ type TraceMode = 'off' | 'on' | 'retain-on-failure' | 'on-first-retry';
 const chromiumExecutable =
 	process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || process.env.GF_RBE_CHROMIUM_EXECUTABLE || process.env.CHROME_BIN;
 const traceMode = parseTraceMode(process.env.PLAYWRIGHT_TRACE_MODE);
+const e2ePort = parsePort(process.env.PLAYWRIGHT_E2E_PORT);
 
 if (!chromiumExecutable) {
 	throw new Error(
@@ -21,7 +22,7 @@ export default defineConfig({
 	workers: 1,
 	reporter: process.env.GITHUB_ACTIONS ? 'github' : 'line',
 	use: {
-		baseURL: 'http://127.0.0.1:3000',
+		baseURL: `http://127.0.0.1:${e2ePort}`,
 		trace: traceMode,
 	},
 	projects: [
@@ -42,8 +43,8 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: 'node scripts/serve-static-build.mjs build 3000',
-		port: 3000,
+		command: `node scripts/serve-static-build.mjs build ${e2ePort}`,
+		port: e2ePort,
 		reuseExistingServer: false,
 		timeout: 300_000,
 	},
@@ -54,4 +55,16 @@ function parseTraceMode(value: string | undefined): TraceMode {
 		return value;
 	}
 	return 'off';
+}
+
+function parsePort(value: string | undefined): number {
+	if (!value) {
+		return 3000;
+	}
+
+	const port = Number(value);
+	if (!Number.isInteger(port) || port < 1 || port > 65535) {
+		throw new Error(`Invalid PLAYWRIGHT_E2E_PORT: ${value}`);
+	}
+	return port;
 }
