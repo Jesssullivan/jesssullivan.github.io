@@ -7,6 +7,7 @@ published: false
 category: "personal"
 slug: "week-notes-scroll-wheels-and-chasing-the-sun"
 author_slug: "jesssullivan"
+feature_image: "/images/posts/chainwax-emulsion.jpg"
 ---
 
 It's June and the evenings are finally long enough that a ride after work doesn't end in the dark. Spring stuck the landing. I'm a little sunburned and very happy about it.

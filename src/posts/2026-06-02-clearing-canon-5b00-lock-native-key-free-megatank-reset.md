@@ -7,6 +7,7 @@ published: false
 slug: "clearing-canon-5b00-lock-native-key-free-megatank-reset"
 category: "hardware"
 author_slug: "jesssullivan"
+feature_image: "/images/posts/canon-megatank-g6020.jpg"
 source_repo: "Jesssullivan/canon-megatank-reset"
 source_path: "docs/blog/canon-5b00-native-reset.md"
 publish_to: "blog"
