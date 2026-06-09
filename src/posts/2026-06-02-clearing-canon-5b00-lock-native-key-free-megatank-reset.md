@@ -1,7 +1,7 @@
 ---
 title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native, Key-Free Waste-Ink Reset over USB with Ghidra, Frida and friends"
 date: "2026-06-02"
-description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and corrolating payload against friendly fire RE dumps from printer potty"
+description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and corrolating payload against friendly fire RE dumps from WICReset"
 tags: ["canon", "megatank", "g6020", "5b00", "usb-protocol", "reverse-engineering", "right-to-repair", "ghidra", "frida", "usbmon"]
 published: false
 slug: "clearing-canon-5b00-lock-native-key-free-megatank-reset"
@@ -261,13 +261,13 @@ same story. They eventually did, and the story was reproducible enough to rebuil
   (`pixma_decrypt`, `pixma_unpack`), built on the Context Information Security 2016 talk *"Hacking
   Canon PIXMA Printers — Doomed Encryption."* The firmware-decrypt cross-check builds on this work.
 - **Context IS, "Hacking Canon PIXMA Printers — Doomed Encryption" (2016)** — the original public
-  analysis of Canon's firmware obfuscation; the zero-key pattern rhymes with what `APP.BIN` uses.
+  analysis of Canon's firmware obfuscation; the zero-key pattern rhymes with what `APP.BIN` from WICReset uses.
 - **OctoInkjet / Printer Potty** — the waste-ink absorber kits that make a reset safe to perform,
   and public documentation of the MegaTank waste-counter problem.
 - **Frida, Ghidra, Wireshark/`usbmon`, pyusb/`libusb`** — the reverse-engineering and reset toolchain.
 - **[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset)** — this work: the
   native tool, the protocol spec, the full RE trail, the diagrams, and the paper. Code is zlib;
-  docs/paper are CC-BY-4.0.
+  docs/paper are CC-BY-4.0.  
 
 ---
 
