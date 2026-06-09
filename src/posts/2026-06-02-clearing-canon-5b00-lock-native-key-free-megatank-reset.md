@@ -1,9 +1,9 @@
 ---
 title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native, Key-Free Waste-Ink Reset over USB with Ghidra, Frida and friends"
 date: "2026-06-02"
-description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and corrolating payload against friendly fire RE dumps from WICReset"
+description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and correlating payloads against friendly-fire RE dumps from WICReset"
 tags: ["canon", "megatank", "g6020", "5b00", "usb-protocol", "reverse-engineering", "right-to-repair", "ghidra", "frida", "usbmon"]
-published: false
+published: true
 slug: "clearing-canon-5b00-lock-native-key-free-megatank-reset"
 category: "hardware"
 author_slug: "jesssullivan"
@@ -17,8 +17,7 @@ publish_to: "blog"
 
 
 Everything here is implemented in the open-source
-[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset) (zlib code,
-CC-BY-4.0 [docs available in mkdocs here](https://transscendsurvival.org/canon-megatank-reset)).
+[canon-megatank-reset](https://github.com/Jesssullivan/canon-megatank-reset) (zlib code; CC-BY-4.0 [docs available in mkdocs here](https://transscendsurvival.org/canon-megatank-reset)).
 
 
 > Note, I am finalizing a proper paper I hope to present later this year on this misadventure
@@ -26,17 +25,17 @@ CC-BY-4.0 [docs available in mkdocs here](https://transscendsurvival.org/canon-m
 If you own a Canon MegaTank — a G6020, G6050, G7020, or any of the G5000/G6000/G7000-generation
 refillable-tank printers — there is a fair chance you will one day power it on and find it dead, stricken with error **5B00**.
 
-<NOT DEAD YET GIF GOES HERE>
+![Not dead yet](/images/posts/notdeadyet.gif)
 
 5B00 is not a hardware failure; it is a counter
-in EEPROM crossing a threshold, and firmware refusing to print until that counter is reset.  a
+in EEPROM crossing a threshold, and firmware refusing to print until that counter is reset — a
 service-mode operation Canon's field tools perform and the consumer firmware hides. On this
 printer generation, the classic in-firmware reset combo was *removed*: the printer enters service
-mode but accept-and-ignores the clear.
+mode but accepts and ignores the clear.
 
 So we did it the other way: figure out what the maintenance lock actually *is*, recover the
 protocol, and clear it ourselves — on Linux, over `libusb`, with **no vendor cloud, no Windows,
-and no per-unit key**. This post ideally serves a a fairly complete technical reference for that work. It covers the
+and no per-unit key**. This post ideally serves as a fairly complete technical reference for that work. It covers the
 service-mode USB device, the `usbprint` vendor-control transport, the four-step reset session and the
 per-session keyword-bound write cipher.
 
@@ -180,7 +179,7 @@ So `0x8c` carries no counter. It is a keyed keystream echo over zeros, and its p
 
 #### This is exploitable. 
 
-A register that echoes our write keystream is a pretty damn good way to weasle in. Those ~550 live
+A register that echoes our write keystream is a pretty damn good way to weasel in. Those ~550 live
 responses independently confirm the write cipher we ship is byte-exact against the real printer
 across hundreds of keywords — the strongest validation of the clear path short of re-running the
 clear hundreds of times. (The real counter is read through the template's `query.normal` *select*
@@ -234,7 +233,7 @@ flowchart LR
 the driver; Ghidra explains why. Trace, decompile, correlate, repeat — until all three agree on the
 same story. They eventually did, and the story was reproducible enough to rebuild from scratch.
 
-> Corrolating payloads by cracking commercial software followed by rubbing your hands togther while staying "I'm in" is highly reccomended and you should tell all your friends to do it too
+> Correlating payloads by cracking commercial software followed by rubbing your hands together while saying "I'm in" is highly recommended and you should tell all your friends to do it too
 
 
 ---
