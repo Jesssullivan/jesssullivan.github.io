@@ -1,6 +1,6 @@
 ---
 title: "Hacking Canon MegaTank and clearing 5B00 Lock: A Native, Key-Free Waste-Ink Reset over USB with Ghidra, Frida and friends"
-date: "2026-06-02"
+date: "2026-06-09"
 description: "A complete technical reference for resetting the Canon G-series MegaTank '5B00 ink absorber full' lock from Linux.  Recovering the usbprint vendor-control maintenance protocol, the per-session keyword-bound write cipher and correlating payloads against friendly-fire RE dumps from WICReset"
 tags: ["canon", "megatank", "g6020", "5b00", "usb-protocol", "reverse-engineering", "right-to-repair", "ghidra", "frida", "usbmon"]
 published: true

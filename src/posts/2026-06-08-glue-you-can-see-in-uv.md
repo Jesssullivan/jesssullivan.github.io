@@ -10,6 +10,11 @@ author_slug: "jesssullivan"
 feature_image: "/images/posts/uv-glue-development.jpg"
 ---
 
+<script>
+	import GlueScaler from '$lib/components/GlueScaler.svelte';
+	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
+</script>
+
 
 ## 3D-printer bed glue you / your printer can *see*.
 
@@ -42,7 +47,13 @@ By weight, for a 0.01 g scale. The [live page](https://jesssullivan.github.io/ti
 
 **Stronger than Frank's** via three levers: PVP-**K90** (cohesion), **PEG-400** (tack), and a **trace boric-acid** crosslink (cohesion without killing release). Solids ≈ 14.6%, PVP:PVA ≈ 77:23.
 
+Scale any batch by weight right here:
+
+<GlueScaler />
+
 Note, bare strontium aluminate *hydrolyzes in water and stops glowing.* You need a silica/fluoride-**coated/encapsulated** ("waterproof") grade. And don't go anhydrous- the PVA needs water. There's also an "in a pinch" PVP-40 derivation on the page for less mission-critical printers, built from common stock only (no K90, no boric acid, no coated phosphor).
+
+<GlueScalerPinch />
 
 ## Seeing coverage
 
