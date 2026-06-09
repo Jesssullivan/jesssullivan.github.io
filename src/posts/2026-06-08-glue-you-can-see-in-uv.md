@@ -11,12 +11,12 @@ feature_image: "/images/posts/uv-glue-development.jpg"
 ---
 
 
-3D-printer bed glue you / your printer can *see*.
+## 3D-printer bed glue you / your printer can *see*.
 
 
 See the full docs and mix calculators and also a more basic recipe here, in the Docs and repo:
 
-**→ [transscendsurvival.org/tinyland-goo](https://transscendsurvival.org/tinyland-goo/)** · source: [github.com/Jesssullivan/tinyland-goo](https://github.com/Jesssullivan/tinyland-goo)
+### **→ [transscendsurvival.org/tinyland-goo](https://transscendsurvival.org/tinyland-goo/)** · source: [github.com/Jesssullivan/tinyland-goo](https://github.com/Jesssullivan/tinyland-goo)
 
 
 
@@ -26,7 +26,7 @@ The whole thing- recipe, an interactive by-weight batch scaler, the full bill of
 
 
 
-## The recipe (4 oz)
+### The recipe (4 oz)
 
 By weight, for a 0.01 g scale. The [live page](https://jesssullivan.github.io/tinyland-goo/) has a scaler that does this for any batch size, but here's the headline:
 
