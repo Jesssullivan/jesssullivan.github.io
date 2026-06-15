@@ -1,0 +1,440 @@
+{
+  "generated": "2026-06-15T08:34:23.436Z",
+  "totals": {
+    "posts": 140,
+    "words": 65343,
+    "avgWordsPerPost": 467,
+    "avgReadingTime": 2,
+    "tags": 154,
+    "categories": 8
+  },
+  "postsPerYear": {
+    "2016": 11,
+    "2017": 39,
+    "2018": 24,
+    "2019": 11,
+    "2020": 22,
+    "2021": 6,
+    "2022": 4,
+    "2023": 3,
+    "2024": 4,
+    "2026": 16
+  },
+  "postsPerQuarter": {
+    "2016-Q4": 11,
+    "2017-Q1": 12,
+    "2017-Q2": 23,
+    "2017-Q3": 4,
+    "2018-Q1": 3,
+    "2018-Q2": 12,
+    "2018-Q3": 7,
+    "2018-Q4": 2,
+    "2019-Q1": 3,
+    "2019-Q2": 3,
+    "2019-Q3": 3,
+    "2019-Q4": 2,
+    "2020-Q1": 2,
+    "2020-Q2": 11,
+    "2020-Q3": 6,
+    "2020-Q4": 3,
+    "2021-Q1": 4,
+    "2021-Q2": 1,
+    "2021-Q4": 1,
+    "2022-Q1": 2,
+    "2022-Q2": 2,
+    "2023-Q1": 1,
+    "2023-Q4": 2,
+    "2024-Q1": 2,
+    "2024-Q2": 1,
+    "2024-Q4": 1,
+    "2026-Q1": 7,
+    "2026-Q2": 9
+  },
+  "readingTimeDistribution": {
+    "< 2 min": 56,
+    "2-5 min": 71,
+    "5-10 min": 8,
+    "10-20 min": 2,
+    "20+ min": 3
+  },
+  "wordCountTrends": {
+    "2016": {
+      "avgWords": 210,
+      "totalWords": 2307,
+      "posts": 11
+    },
+    "2017": {
+      "avgWords": 348,
+      "totalWords": 13570,
+      "posts": 39
+    },
+    "2018": {
+      "avgWords": 247,
+      "totalWords": 5937,
+      "posts": 24
+    },
+    "2019": {
+      "avgWords": 517,
+      "totalWords": 5682,
+      "posts": 11
+    },
+    "2020": {
+      "avgWords": 223,
+      "totalWords": 4909,
+      "posts": 22
+    },
+    "2021": {
+      "avgWords": 316,
+      "totalWords": 1895,
+      "posts": 6
+    },
+    "2022": {
+      "avgWords": 164,
+      "totalWords": 655,
+      "posts": 4
+    },
+    "2023": {
+      "avgWords": 171,
+      "totalWords": 513,
+      "posts": 3
+    },
+    "2024": {
+      "avgWords": 202,
+      "totalWords": 808,
+      "posts": 4
+    },
+    "2026": {
+      "avgWords": 1817,
+      "totalWords": 29067,
+      "posts": 16
+    }
+  },
+  "topTags": {
+    "Featured": 60,
+    "Ideas": 40,
+    "Birding": 29,
+    "Nature Observations": 28,
+    "DIY": 27,
+    "How-To": 21,
+    "Music": 6,
+    "3d-printing": 6,
+    "Headphones": 5,
+    "Waxwing Audio": 5,
+    "hardware": 5,
+    "Photography": 4,
+    "Reviews": 4,
+    "maker": 4,
+    "personal": 4,
+    "reverse-engineering": 4,
+    "Fitness": 3,
+    "zig": 3,
+    "weeknotes": 3,
+    "homelab": 3
+  },
+  "tagCooccurrence": [
+    {
+      "source": "Featured",
+      "target": "Ideas",
+      "weight": 34
+    },
+    {
+      "source": "DIY",
+      "target": "Featured",
+      "weight": 20
+    },
+    {
+      "source": "How-To",
+      "target": "Ideas",
+      "weight": 18
+    },
+    {
+      "source": "DIY",
+      "target": "Ideas",
+      "weight": 18
+    },
+    {
+      "source": "Featured",
+      "target": "How-To",
+      "weight": 16
+    },
+    {
+      "source": "Birding",
+      "target": "Featured",
+      "weight": 14
+    },
+    {
+      "source": "Birding",
+      "target": "Nature Observations",
+      "weight": 13
+    },
+    {
+      "source": "DIY",
+      "target": "How-To",
+      "weight": 10
+    },
+    {
+      "source": "Birding",
+      "target": "Ideas",
+      "weight": 9
+    },
+    {
+      "source": "Headphones",
+      "target": "Waxwing Audio",
+      "weight": 5
+    },
+    {
+      "source": "Birding",
+      "target": "How-To",
+      "weight": 4
+    },
+    {
+      "source": "Featured",
+      "target": "Music",
+      "weight": 4
+    },
+    {
+      "source": "Featured",
+      "target": "Reviews",
+      "weight": 4
+    },
+    {
+      "source": "3d-printing",
+      "target": "maker",
+      "weight": 4
+    },
+    {
+      "source": "Featured",
+      "target": "Photography",
+      "weight": 3
+    },
+    {
+      "source": "Ideas",
+      "target": "Reviews",
+      "weight": 3
+    },
+    {
+      "source": "Birding",
+      "target": "DIY",
+      "weight": 3
+    },
+    {
+      "source": "Electrostatic",
+      "target": "Headphones",
+      "weight": 2
+    },
+    {
+      "source": "Electrostatic",
+      "target": "Waxwing Audio",
+      "weight": 2
+    },
+    {
+      "source": "Featured",
+      "target": "Nature Observations",
+      "weight": 2
+    },
+    {
+      "source": "DIY",
+      "target": "Reviews",
+      "weight": 2
+    },
+    {
+      "source": "Birding",
+      "target": "Photography",
+      "weight": 2
+    },
+    {
+      "source": "hardware",
+      "target": "maker",
+      "weight": 2
+    },
+    {
+      "source": "3d-printing",
+      "target": "hardware",
+      "weight": 2
+    },
+    {
+      "source": "3d-printing",
+      "target": "cnc",
+      "weight": 2
+    },
+    {
+      "source": "nature",
+      "target": "observations",
+      "weight": 2
+    },
+    {
+      "source": "nvme",
+      "target": "reverse-engineering",
+      "weight": 2
+    },
+    {
+      "source": "nvme",
+      "target": "usb-bridge",
+      "weight": 2
+    },
+    {
+      "source": "nvme",
+      "target": "zig",
+      "weight": 2
+    },
+    {
+      "source": "reverse-engineering",
+      "target": "usb-bridge",
+      "weight": 2
+    }
+  ],
+  "categories": {
+    "photography": 6,
+    "hardware": 24,
+    "ecology": 35,
+    "tutorial": 14,
+    "music": 7,
+    "personal": 21,
+    "software": 19,
+    "devops": 14
+  },
+  "codeLanguages": {
+    "bash": 84,
+    "mermaid": 26,
+    "text": 17,
+    "python": 13,
+    "chapel": 10,
+    "zig": 8,
+    "r": 6,
+    "yaml": 5,
+    "sh": 4,
+    "typescript": 2,
+    "sql": 1,
+    "json": 1,
+    "go": 1,
+    "txt": 1,
+    "swift": 1
+  },
+  "codeLanguagesByYear": {
+    "2018": {
+      "r": 1
+    },
+    "2019": {
+      "chapel": 1,
+      "bash": 24,
+      "python": 4,
+      "r": 4
+    },
+    "2020": {
+      "python": 4,
+      "r": 1,
+      "bash": 12,
+      "text": 2,
+      "typescript": 1,
+      "sql": 1
+    },
+    "2021": {
+      "bash": 9,
+      "python": 1
+    },
+    "2023": {
+      "bash": 1
+    },
+    "2024": {
+      "bash": 2,
+      "typescript": 1
+    },
+    "2026": {
+      "mermaid": 26,
+      "json": 1,
+      "go": 1,
+      "bash": 36,
+      "zig": 8,
+      "python": 4,
+      "yaml": 5,
+      "chapel": 9,
+      "txt": 1,
+      "text": 15,
+      "sh": 4,
+      "swift": 1
+    }
+  },
+  "rolling12MonthPosts": {
+    "2016-12": 11,
+    "2017-02": 12,
+    "2017-03": 23,
+    "2017-04": 34,
+    "2017-05": 46,
+    "2017-07": 50,
+    "2018-03": 53,
+    "2018-04": 57,
+    "2018-05": 62,
+    "2018-06": 65,
+    "2018-07": 69,
+    "2018-09": 72,
+    "2018-11": 63,
+    "2019-02": 63,
+    "2019-03": 54,
+    "2019-04": 45,
+    "2019-05": 34,
+    "2019-07": 31,
+    "2019-08": 29,
+    "2019-09": 26,
+    "2019-10": 23,
+    "2020-03": 22,
+    "2020-04": 23,
+    "2020-05": 21,
+    "2020-06": 24,
+    "2020-07": 26,
+    "2020-08": 25,
+    "2020-09": 25,
+    "2020-10": 26,
+    "2020-12": 26,
+    "2021-01": 27,
+    "2021-02": 27,
+    "2021-03": 26,
+    "2021-04": 25,
+    "2021-11": 21,
+    "2022-01": 21,
+    "2022-02": 17,
+    "2022-05": 16,
+    "2023-03": 16,
+    "2023-11": 15,
+    "2023-12": 14,
+    "2024-01": 14,
+    "2024-02": 13,
+    "2024-05": 13,
+    "2024-12": 13,
+    "2026-02": 13,
+    "2026-03": 18,
+    "2026-04": 20,
+    "2026-05": 22,
+    "2026-06": 23
+  },
+  "mostActiveMonth": {
+    "month": "2017-05",
+    "posts": 12
+  },
+  "recentPosts": [
+    {
+      "slug": "clearing-canon-5b00-lock-native-key-free-megatank-reset",
+      "title": "Hacking Canon MegaTank and clearing 5B00 Lock: A Native Waste-Ink Reset over USB with Ghidra, Frida and friends",
+      "date": "2026-06-09"
+    },
+    {
+      "slug": "glue-you-can-see-in-uv",
+      "title": "Glue You Can See in UV",
+      "date": "2026-06-08"
+    },
+    {
+      "slug": "week-notes-scroll-wheels-and-chasing-the-sun",
+      "title": "Week Notes: scroll wheels, spring legs, and chasing the sun",
+      "date": "2026-06-08"
+    },
+    {
+      "slug": "gingersnap-cookies",
+      "title": "Gingersnap Cookies (from a milk-free, soy-free recipe card)",
+      "date": "2026-05-29"
+    },
+    {
+      "slug": "trashmonitor-tailnet-window-into-the-hardware-pile",
+      "title": "Trashmonitor to oggle my goggles and behold the blinkenlights",
+      "date": "2026-05-11"
+    }
+  ]
+}
