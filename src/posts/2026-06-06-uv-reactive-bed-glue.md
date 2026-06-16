@@ -54,6 +54,12 @@ It still beats Frank's — same PVP/PVA backbone, a hair more solids, and the PE
 
 <GlueScalerPinch />
 
+## Mixing & gear
+
+Reassuringly low-tech at these sizes. Only one step wants heat — the PVA, at ~50 °C (or ~85–90 °C then cooled if your lab powder is fully hydrolyzed); everything else is room temperature, and you combine the phases *cool* because the carrier is flammable. Working time comes in three flavors: a sealed batch keeps weeks–months (days for the uncoated-phosphor pinch version), the dense phosphor resettles in minutes so you shake the bottle before use, and a thin coat flashes off in seconds on a hot bed.
+
+Gear-wise, a hotplate magnetic stirrer does the main recipe end to end; the in-a-pinch batch's heavy PEO turns stringy enough to stall a stir bar, so a drill + small paddle at low rpm finishes it. A vertical overhead mixer is suitable but overkill until you scale past ~8 oz — and steer clear of high-shear blenders, which just chop the PEO back up. Full per-step table on the [project page](https://transscendsurvival.org/tinyland-goo/).
+
 ## Seeing coverage
 
 Flood the bed with 365 nm UV and read the green that comes back. An [AMS AS7341 spectral sensor](https://www.adafruit.com/product/4698) has channels at 515 nm and 555 nm straddling the phosphor peak, and its on-chip interference filters reject the 365 nm excitation — so a single-point read often needs no separate glass filter. Baseline the bare bed once; coverage is the green rise above it. The whole sensing BOM (OSRAM 365 nm LED, MEAN WELL driver, the sensor, a Pi) is on the [project page](https://transscendsurvival.org/tinyland-goo/).
