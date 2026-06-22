@@ -1,4 +1,8 @@
 import { Resolver } from 'node:dns/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 type Check = {
 	name: string;
@@ -12,9 +16,12 @@ const apex = 'transscendsurvival.org';
 const www = `www.${apex}`;
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 
-const expectedA = ['185.199.108.153', '185.199.109.153', '185.199.110.153', '185.199.111.153'];
-
-const expectedAAAA = ['2606:50c0:8000::153', '2606:50c0:8001::153', '2606:50c0:8002::153', '2606:50c0:8003::153'];
+// Host-agnostic resolution health. The apex is migrating from GitHub Pages anycast
+// (185.199.x / 2606:50c0::) to a Cloudflare-proxied CNAME whose A/AAAA rotate, so we
+// assert the records RESOLVE (non-empty, no SERVFAIL) rather than matching fixed IPs.
+// "Right site" is proven by the HTTP + broker-stream checks below. A SERVFAIL or empty
+// AAAA is the exact DreamHost authoritative-DNS failure that broke IPv6 visitors — these
+// checks stay RED until DNS reliably serves A + AAAA + SOA over UDP and TCP/53.
 
 const publicResolvers = [
 	['Cloudflare', '1.1.1.1'],
@@ -22,15 +29,6 @@ const publicResolvers = [
 	['Quad9', '9.9.9.9'],
 	['OpenDNS', '208.67.222.222'],
 ] as const;
-
-function normalizeAddress(value: string) {
-	return value.toLowerCase();
-}
-
-function sameSet(actual: string[], expected: string[]) {
-	const actualSet = new Set(actual.map(normalizeAddress));
-	return expected.every((value) => actualSet.has(normalizeAddress(value)));
-}
 
 function format(values: string[]) {
 	return values.length > 0 ? values.sort().join(', ') : '(none)';
@@ -59,13 +57,9 @@ async function tryResolveRecords(server: string, name: string, family: 4 | 6): P
 	}
 }
 
-function recordCheck(name: string, actual: string[], expected: string[]): Check {
-	const ok = sameSet(actual, expected);
-	return {
-		name,
-		ok,
-		detail: ok ? format(actual) : `expected ${format(expected)}; got ${format(actual)}`,
-	};
+function resolvesCheck(name: string, values: string[]): Check {
+	const ok = values.length > 0;
+	return { name, ok, detail: ok ? format(values) : 'NODATA (resolved but empty)' };
 }
 
 async function authoritativeRecordCheck(
@@ -73,7 +67,6 @@ async function authoritativeRecordCheck(
 	server: string,
 	host: string,
 	family: 4 | 6,
-	expected: string[],
 ): Promise<Check> {
 	const attempts = 5;
 	const failures: string[] = [];
@@ -86,8 +79,8 @@ async function authoritativeRecordCheck(
 			continue;
 		}
 
-		if (!sameSet(result.values, expected)) {
-			failures.push(`attempt ${attempt}: expected ${format(expected)}; got ${format(result.values)}`);
+		if (result.values.length === 0) {
+			failures.push(`attempt ${attempt}: NODATA (empty)`);
 			continue;
 		}
 
@@ -105,10 +98,9 @@ async function publicDnsChecks(): Promise<Check[]> {
 	const checks: Check[] = [];
 
 	for (const [label, server] of publicResolvers) {
-		checks.push(await publicRecordCheck(`${label} apex A`, server, apex, 4, expectedA));
-		checks.push(await publicRecordCheck(`${label} apex AAAA`, server, apex, 6, expectedAAAA));
-		checks.push(await publicRecordCheck(`${label} www A`, server, www, 4, expectedA));
-		checks.push(await publicRecordCheck(`${label} www AAAA`, server, www, 6, expectedAAAA));
+		checks.push(await publicRecordCheck(`${label} apex A resolves`, server, apex, 4));
+		checks.push(await publicRecordCheck(`${label} apex AAAA resolves`, server, apex, 6));
+		checks.push(await publicRecordCheck(`${label} www AAAA resolves`, server, www, 6));
 	}
 
 	return checks;
@@ -119,13 +111,12 @@ async function publicRecordCheck(
 	server: string,
 	host: string,
 	family: 4 | 6,
-	expected: string[],
 ): Promise<Check> {
 	const result = await tryResolveRecords(server, host, family);
 	if (!result.ok) {
 		return { name, ok: false, detail: result.detail };
 	}
-	return recordCheck(name, result.values, expected);
+	return resolvesCheck(name, result.values);
 }
 
 async function authoritativeDnsChecks(): Promise<Check[]> {
@@ -142,11 +133,40 @@ async function authoritativeDnsChecks(): Promise<Check[]> {
 			continue;
 		}
 
-		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex A`, server, apex, 4, expectedA));
-		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA`, server, apex, 6, expectedAAAA));
+		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4));
+		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA resolves`, server, apex, 6));
+		checks.push(await authoritativeSoaCheck(`authoritative ${nsName} apex SOA resolves`, server));
+		checks.push(await tcpDnsCheck(`authoritative ${nsName} answers over TCP/53`, server));
 	}
 
 	return checks;
+}
+
+async function authoritativeSoaCheck(name: string, server: string): Promise<Check> {
+	const resolver = new Resolver();
+	resolver.setServers([server]);
+	try {
+		const soa = await resolver.resolveSoa(apex);
+		return { name, ok: Boolean(soa), detail: soa ? `serial=${soa.serial}` : 'no SOA' };
+	} catch (error) {
+		const code = error instanceof Error && 'code' in error ? String(error.code) : 'UNKNOWN';
+		const message = error instanceof Error ? error.message : String(error);
+		return { name, ok: false, detail: `${code}: ${message}` };
+	}
+}
+
+async function tcpDnsCheck(name: string, server: string): Promise<Check> {
+	try {
+		const { stdout } = await execFileAsync('dig', ['+tcp', '+time=3', '+tries=1', `@${server}`, apex, 'A'], {
+			timeout: 8000,
+		});
+		const ok = /status:\s*NOERROR/.test(stdout);
+		const status = stdout.match(/status:\s*\w+/)?.[0] ?? 'no answer';
+		return { name, ok, detail: ok ? 'NOERROR over TCP/53' : `${status} (or TCP/53 blocked)` };
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		return { name, ok: false, detail: `TCP/53 failed: ${message}` };
+	}
 }
 
 async function head(url: string) {

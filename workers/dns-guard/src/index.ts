@@ -48,9 +48,9 @@ const APEX = 'transscendsurvival.org';
 const WWW = `www.${APEX}`;
 const BLOG_BROKER_STREAM_URL = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 
-// Canonical GitHub Pages address sets (verbatim — keep in sync with the GH checker).
-const EXPECTED_A = ['185.199.108.153', '185.199.109.153', '185.199.110.153', '185.199.111.153'];
-const EXPECTED_AAAA = ['2606:50c0:8000::153', '2606:50c0:8001::153', '2606:50c0:8002::153', '2606:50c0:8003::153'];
+// Host-agnostic: assert the apex/www RESOLVE (non-empty answer, no SERVFAIL) — not
+// fixed IPs. The apex is migrating GitHub Pages anycast → a Cloudflare-proxied CNAME
+// whose A/AAAA rotate; "right site" is proven by the HTTPS + broker-stream checks.
 
 // Independent public resolvers. Cloudflare/Google/AdGuard expose JSON APIs.
 // OpenDNS uses standards-based RFC 8484 DoH on 443. Quad9 remains covered by
@@ -96,22 +96,6 @@ interface CheckResult {
 	name: string;
 	status: Status;
 	detail: string;
-}
-
-/** Normalize for set comparison: lowercase IPv4; canonical-compress IPv6. */
-function normalize(addr: string): string {
-	const a = addr.trim().toLowerCase();
-	if (!a.includes(':')) return a;
-	try {
-		return new URL(`http://[${a}]`).hostname.replace(/^\[|\]$/g, '');
-	} catch {
-		return a;
-	}
-}
-
-function hasAll(actual: string[], expected: string[]): boolean {
-	const seen = new Set(actual.map(normalize));
-	return expected.every((e) => seen.has(normalize(e)));
 }
 
 function fmt(values: string[]): string {
@@ -281,27 +265,26 @@ async function recordCheck(
 	name: string,
 	label: string,
 	type: RecordType,
-	expected: string[],
 ): Promise<CheckResult> {
 	const { ok, addrs, note } = await dohQuery(resolver, name, type);
 	// A transport/timeout/non-NOERROR hiccup is resolver noise, not a record defect:
-	// skip it so a single flaky resolver never pages. A clean NOERROR answer that is
-	// MISSING expected records (exactly the 2026-06-22 AAAA outage) is a hard fail.
+	// skip it so a single flaky resolver never pages. A clean NOERROR answer with NO
+	// records (the apex resolving to nothing — e.g. the 2026-06-22 AAAA outage) is a fail.
 	if (!ok) return { name: label, status: 'skip', detail: `lookup unavailable (${note})` };
-	const pass = hasAll(addrs, expected);
+	const pass = addrs.length > 0;
 	return {
 		name: label,
 		status: pass ? 'pass' : 'fail',
-		detail: pass ? fmt(addrs) : `expected ${fmt(expected)}; got ${fmt(addrs)}`,
+		detail: pass ? fmt(addrs) : 'NODATA (resolved but empty)',
 	};
 }
 
 async function dnsChecks(): Promise<CheckResult[]> {
 	const jobs: Promise<CheckResult>[] = [];
 	for (const r of DOH_RESOLVERS) {
-		jobs.push(recordCheck(r, APEX, `${r.label} apex A`, 'A', EXPECTED_A));
-		jobs.push(recordCheck(r, APEX, `${r.label} apex AAAA`, 'AAAA', EXPECTED_AAAA));
-		jobs.push(recordCheck(r, WWW, `${r.label} www AAAA`, 'AAAA', EXPECTED_AAAA));
+		jobs.push(recordCheck(r, APEX, `${r.label} apex A resolves`, 'A'));
+		jobs.push(recordCheck(r, APEX, `${r.label} apex AAAA resolves`, 'AAAA'));
+		jobs.push(recordCheck(r, WWW, `${r.label} www AAAA resolves`, 'AAAA'));
 	}
 	return Promise.all(jobs);
 }
