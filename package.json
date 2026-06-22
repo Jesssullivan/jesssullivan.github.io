@@ -67,7 +67,7 @@
 		"@skeletonlabs/skeleton": "^4.15.2",
 		"@skeletonlabs/skeleton-svelte": "^4.15.2",
 		"@tummycrypt/tinyvectors": "^0.2.3",
-		"dompurify": "^3.4.7",
+		"dompurify": "^3.4.11",
 		"flexsearch": "^0.8.212",
 		"marked": "^4.3.0",
 		"mdsvex": "^0.12.7",
