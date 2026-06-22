@@ -59,6 +59,8 @@ try {
 		['vite', 'build'],
 		['tsx', 'scripts/generate-redirects.mts'],
 		['pagefind', '--site', 'build'],
+		['tsx', 'scripts/generate-directory-index-aliases.mts'],
+		['tsx', 'scripts/validate-directory-index-aliases.mts'],
 	]) {
 		run(command[0], command.slice(1));
 	}

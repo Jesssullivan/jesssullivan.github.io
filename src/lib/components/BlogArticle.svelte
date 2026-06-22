@@ -209,7 +209,7 @@
 				if (!post) {
 					if (!cancelled && data.brokerOnly) {
 						brokerStatus = 'unavailable';
-						brokerUnavailableReason = 'post is not in the reviewed Tinyland broker stream';
+						brokerUnavailableReason = 'post is not in the Tinyland public display stream';
 					}
 					return;
 				}

@@ -41,7 +41,9 @@ for (const command of [
 	['svelte-kit', 'sync'],
 	['vite', 'build'],
 	['tsx', 'scripts/generate-redirects.mts'],
+	['tsx', 'scripts/generate-directory-index-aliases.mts'],
 	['tsx', 'scripts/validate-redirects.mts'],
+	['tsx', 'scripts/validate-directory-index-aliases.mts'],
 	['tsx', 'scripts/validate-frontmatter.mts'],
 	['tsx', 'scripts/audit-links.mts'],
 ]) {

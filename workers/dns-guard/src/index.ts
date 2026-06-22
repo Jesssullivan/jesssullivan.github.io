@@ -46,6 +46,7 @@ export interface Env {
 
 const APEX = 'transscendsurvival.org';
 const WWW = `www.${APEX}`;
+const BLOG_BROKER_STREAM_URL = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 
 // Canonical GitHub Pages address sets (verbatim — keep in sync with the GH checker).
 const EXPECTED_A = ['185.199.108.153', '185.199.109.153', '185.199.110.153', '185.199.111.153'];
@@ -91,6 +92,24 @@ function fmt(values: string[]): string {
 	return values.length ? [...values].sort().join(', ') : '(none)';
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function hasPublicDisplayMembershipPolicy(policy: Record<string, unknown>): boolean {
+	const legacyReviewPolicy = policy.unreviewedContentIncluded === false;
+	const displayMembershipPolicy =
+		policy.projectionPolicy === 'publicPublishedManagedPosts-display-stream' &&
+		policy.displayMembershipPolicy === 'public-published-display-membership' &&
+		policy.displayMembershipGate === 'frontmatter-published-status-visibility';
+
+	return legacyReviewPolicy || displayMembershipPolicy;
+}
+
+function isPublicPublishedFrontmatter(frontmatter: Record<string, unknown>): boolean {
+	return frontmatter.published === true && frontmatter.status === 'published' && frontmatter.visibility === 'public';
+}
+
 interface DohAnswer {
 	type: number;
 	data: string;
@@ -125,7 +144,11 @@ async function recordCheck(label: string, url: string, type: RecordType, expecte
 	// MISSING expected records (exactly the 2026-06-22 AAAA outage) is a hard fail.
 	if (!ok) return { name: label, status: 'skip', detail: `lookup unavailable (${note})` };
 	const pass = hasAll(addrs, expected);
-	return { name: label, status: pass ? 'pass' : 'fail', detail: pass ? fmt(addrs) : `expected ${fmt(expected)}; got ${fmt(addrs)}` };
+	return {
+		name: label,
+		status: pass ? 'pass' : 'fail',
+		detail: pass ? fmt(addrs) : `expected ${fmt(expected)}; got ${fmt(addrs)}`,
+	};
 }
 
 async function dnsChecks(): Promise<CheckResult[]> {
@@ -144,12 +167,23 @@ async function head(url: string): Promise<Response> {
 
 async function httpChecks(): Promise<CheckResult[]> {
 	const out: CheckResult[] = [];
-	try {
-		const res = await head(`https://${APEX}/`);
-		out.push({ name: 'HTTPS apex 200', status: res.status === 200 ? 'pass' : 'fail', detail: `status=${res.status}` });
-	} catch (err) {
-		out.push({ name: 'HTTPS apex 200', status: 'skip', detail: `fetch failed (${err instanceof Error ? err.name : String(err)})` });
+	const livePaths: [string, string][] = [
+		['HTTPS apex 200', `https://${APEX}/`],
+		['HTTPS /blog 200', `https://${APEX}/blog`],
+		['HTTPS /blog/ 200', `https://${APEX}/blog/`],
+		['HTTPS representative post 200', `https://${APEX}/blog/tmpui-the-merlin-sound-id-project`],
+		['HTTPS representative post slash 200', `https://${APEX}/blog/tmpui-the-merlin-sound-id-project/`],
+	];
+
+	for (const [name, url] of livePaths) {
+		try {
+			const res = await head(url);
+			out.push({ name, status: res.status === 200 ? 'pass' : 'fail', detail: `status=${res.status}` });
+		} catch (err) {
+			out.push({ name, status: 'skip', detail: `fetch failed (${err instanceof Error ? err.name : String(err)})` });
+		}
 	}
+
 	const redirects: [string, string][] = [
 		[`http://${APEX}/`, `https://${APEX}/`],
 		[`http://${WWW}/`, `https://${APEX}/`],
@@ -160,16 +194,103 @@ async function httpChecks(): Promise<CheckResult[]> {
 			const res = await head(from);
 			const loc = res.headers.get('location') ?? '';
 			const pass = res.status >= 300 && res.status < 400 && loc === to;
-			out.push({ name: `${from} -> apex`, status: pass ? 'pass' : 'fail', detail: `status=${res.status}; location=${loc || '(none)'}` });
+			out.push({
+				name: `${from} -> apex`,
+				status: pass ? 'pass' : 'fail',
+				detail: `status=${res.status}; location=${loc || '(none)'}`,
+			});
 		} catch (err) {
-			out.push({ name: `${from} -> apex`, status: 'skip', detail: `fetch failed (${err instanceof Error ? err.name : String(err)})` });
+			out.push({
+				name: `${from} -> apex`,
+				status: 'skip',
+				detail: `fetch failed (${err instanceof Error ? err.name : String(err)})`,
+			});
 		}
 	}
 	return out;
 }
 
+function validateBrokerStream(data: unknown): string {
+	if (!isRecord(data)) return 'broker payload is not an object';
+	if (data.schemaVersion !== 'tinyland.blog.broker-stream.v1') return 'unexpected schemaVersion';
+	if (data.sourceAuthority !== 'tinyland.dev') return 'unexpected sourceAuthority';
+	if (data.contentAuthority !== 'tinyland.dev') return 'unexpected contentAuthority';
+	if (data.spokeRef !== 'jesssullivan-github-io') return 'unexpected spokeRef';
+	if (data.spokeTarget !== APEX) return 'unexpected spokeTarget';
+	if (data.runtimeBrokerFetch !== true) return 'runtimeBrokerFetch must be true';
+	if (data.publicFediverseDelivery !== false) return 'publicFediverseDelivery must be false';
+
+	if (!isRecord(data.policy)) return 'policy is not an object';
+	if (data.policy.contentTransport !== 'dynamic-broker-stream') return 'unexpected contentTransport';
+	if (data.policy.contentMarkdownIncluded !== true) return 'contentMarkdownIncluded must be true';
+	if (data.policy.draftContentIncluded !== false) return 'draftContentIncluded must be false';
+	if (data.policy.publicFediverseDelivery !== false) return 'policy publicFediverseDelivery must be false';
+	if (!hasPublicDisplayMembershipPolicy(data.policy)) return 'missing public display membership policy';
+
+	if (!Array.isArray(data.posts)) return 'posts is not an array';
+	if (data.posts.length === 0) return 'posts is empty';
+
+	for (const [index, post] of data.posts.entries()) {
+		if (!isRecord(post)) return `post ${index} is not an object`;
+		if (post.type !== 'Article') return `post ${index} type is not Article`;
+		if (post.publicFediverseDelivery !== false) return `post ${index} publicFediverseDelivery must be false`;
+		if (typeof post.contentMarkdown !== 'string' || post.contentMarkdown.length === 0) {
+			return `post ${index} contentMarkdown is empty`;
+		}
+		if (!isRecord(post.frontmatter)) return `post ${index} frontmatter is not an object`;
+		if (typeof post.reviewStatus === 'string' && post.reviewStatus !== 'operator-reviewed-source-public') {
+			return `post ${index} unexpected reviewStatus`;
+		}
+		const legacyReviewGate = post.reviewStatus === 'operator-reviewed-source-public';
+		const displayMembershipGate =
+			post.displayStatus === 'public-published-display-source' && isPublicPublishedFrontmatter(post.frontmatter);
+		if (!legacyReviewGate && !displayMembershipGate) {
+			return `post ${index} is not public published display content`;
+		}
+	}
+
+	if (!isRecord(data.counts)) return 'counts is not an object';
+	if (
+		data.counts.reviewedStreamPosts !== data.posts.length &&
+		data.counts.publicPublishedDisplayPosts !== data.posts.length
+	) {
+		return `post count mismatch: posts=${data.posts.length}`;
+	}
+
+	return '';
+}
+
+async function brokerChecks(): Promise<CheckResult[]> {
+	try {
+		const res = await fetch(BLOG_BROKER_STREAM_URL, {
+			headers: { accept: 'application/json', 'user-agent': 'transscend-dns-guard/1.0' },
+		});
+		if (!res.ok) {
+			return [{ name: 'Tinyland blog broker stream contract', status: 'fail', detail: `status=${res.status}` }];
+		}
+		const data = await res.json();
+		const error = validateBrokerStream(data);
+		const postCount = isRecord(data) && Array.isArray(data.posts) ? data.posts.length : 0;
+		return [
+			{
+				name: 'Tinyland blog broker stream contract',
+				status: error ? 'fail' : 'pass',
+				detail: error || `posts=${postCount}`,
+			},
+		];
+	} catch (err) {
+		return [
+			{
+				name: 'Tinyland blog broker stream contract',
+				status: 'skip',
+				detail: `fetch failed (${err instanceof Error ? err.name : String(err)})`,
+			},
+		];
+	}
+}
+
 async function runChecks(): Promise<{ checks: CheckResult[]; failures: CheckResult[]; skipped: CheckResult[] }> {
-	const checks = [...(await dnsChecks()), ...(await httpChecks())];
+	const checks = [...(await dnsChecks()), ...(await httpChecks()), ...(await brokerChecks())];
 	return {
 		checks,
 		failures: checks.filter((c) => c.status === 'fail'),
@@ -178,7 +299,11 @@ async function runChecks(): Promise<{ checks: CheckResult[]; failures: CheckResu
 }
 
 function summarize(failures: CheckResult[], skipped: CheckResult[], total: number): string {
-	if (failures.length === 0) return `OK: ${total - skipped.length}/${total} passed (${skipped.length} skipped) for ${APEX}`;
+	if (failures.length === 0 && skipped.length === 0) return `OK: ${total}/${total} passed for ${APEX}`;
+	if (failures.length === 0) {
+		const lines = skipped.map((f) => `  SKIP ${f.name}: ${f.detail}`);
+		return `DNS GUARD DEGRADED for ${APEX} — ${skipped.length} skipped check(s):\n${lines.join('\n')}`;
+	}
 	const lines = failures.map((f) => `  FAIL ${f.name}: ${f.detail}`);
 	return (
 		`DNS GUARD FAILED for ${APEX} — ${failures.length} problem(s):\n${lines.join('\n')}\n\n` +
@@ -213,8 +338,9 @@ export default {
 	async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
 		const { checks, failures, skipped } = await runChecks();
 		const summary = summarize(failures, skipped, checks.length);
-		ctx.waitUntil(report(env, failures.length > 0, summary));
-		if (failures.length) console.error(summary);
+		const failed = failures.length > 0 || skipped.length > 0;
+		ctx.waitUntil(report(env, failed, summary));
+		if (failed) console.error(summary);
 		else console.log(summary);
 	},
 
@@ -224,15 +350,16 @@ export default {
 	async fetch(req: Request, _env: Env): Promise<Response> {
 		const path = new URL(req.url).pathname;
 		const { checks, failures, skipped } = await runChecks();
-		const healthy = failures.length === 0;
+		const healthy = failures.length === 0 && skipped.length === 0;
+		const degraded = failures.length === 0 && skipped.length > 0;
 
 		if (path === '/badge') {
 			return Response.json(
 				{
 					schemaVersion: 1,
 					label: 'dns guard',
-					message: healthy ? 'operational' : `${failures.length} failing`,
-					color: healthy ? 'brightgreen' : 'red',
+					message: healthy ? 'operational' : degraded ? `${skipped.length} skipped` : `${failures.length} failing`,
+					color: healthy ? 'brightgreen' : degraded ? 'yellow' : 'red',
 				},
 				{ headers: { 'cache-control': 'max-age=300' } },
 			);

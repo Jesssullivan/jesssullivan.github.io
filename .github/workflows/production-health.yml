@@ -24,6 +24,14 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
+      - name: Ensure Chromium for hydration check
+        run: |
+          if ! command -v chromium >/dev/null 2>&1 && \
+             ! command -v chromium-browser >/dev/null 2>&1 && \
+             ! command -v google-chrome >/dev/null 2>&1 && \
+             ! command -v google-chrome-stable >/dev/null 2>&1; then
+            npx playwright install --with-deps chromium
+          fi
       - run: npm run test:production-health
       - name: Verify Pages deployment is current main
         run: |

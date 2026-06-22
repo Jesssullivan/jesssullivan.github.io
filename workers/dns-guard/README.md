@@ -3,7 +3,8 @@
 Edge monitor for **https://transscendsurvival.org**. Asserts, from Cloudflare's
 edge across several independent public resolvers, that the **apex and www resolve
 the full GitHub Pages `A` *and* `AAAA` sets**, then checks HTTPS + the canonical
-redirects.
+redirects plus slashless and trailing-slash blog routes, and validates the
+Tinyland blog broker display-stream contract.
 
 ## Why
 
@@ -17,8 +18,8 @@ that.** This guard fails on the missing record class instead. (Incident: TIN-214
 
 | Layer | Vantage | Catches |
 |---|---|---|
-| **this Worker** (cron 15m) | CF edge, ~4 DoH resolvers | apex/www `A`+`AAAA` missing at public resolvers; HTTPS/redirects |
-| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | **authoritative** DreamHost NS records + **stale-deploy self-heal** |
+| **this Worker** (cron 15m) | CF edge, ~4 DoH resolvers | apex/www `A`+`AAAA` missing at public resolvers; HTTPS/redirects; broker contract drift |
+| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | **authoritative** DreamHost NS records + **stale-deploy self-heal** + browser hydration |
 | UptimeRobot | external, **IPv6 transport** | apex unreachable over a real v6 socket |
 | StatusCake | external | apex `AAAA` record-value drift + HTTPS |
 | Healthchecks.io | — | alert routing (email) + dead-man's-switch |
@@ -40,8 +41,13 @@ npx wrangler secret put NTFY_TOPIC_URL    # e.g. https://ntfy.sh/blahaj-blog-ale
 ```
 
 The cron fires every 15 min. `GET https://transscend-dns-guard.<subdomain>.workers.dev/`
-runs the checks on demand and returns **200** (all good) or **503** (records wrong)
-with a JSON breakdown — usable directly as a StatusCake/UptimeRobot monitor target.
+runs the checks on demand and returns **200** (all checks passed) or **503** (a
+check failed or was skipped) with a JSON breakdown — usable directly as a
+StatusCake/UptimeRobot monitor target.
+
+This catches DreamHost authoritative drift and public route failures, but it
+does not remove the DreamHost dependency. The service-level fix is the
+Cloudflare Pages / Cloudflare DNS canonical cutover tracked in TIN-1110.
 
 ## External monitors (email alerting)
 
@@ -58,9 +64,9 @@ with a JSON breakdown — usable directly as a StatusCake/UptimeRobot monitor ta
 
 ## Status badges
 
-The Worker serves `GET /badge` as shields.io endpoint JSON (green `operational` /
-red `N failing`). After deploy, wire these into the **root `README.md`** (tracked in
-the monitoring initiative):
+The Worker serves `GET /badge` as shields.io endpoint JSON (green `operational`,
+yellow `N skipped`, red `N failing`). After deploy, wire these into the **root
+`README.md`** (tracked in the monitoring initiative):
 
 ```md
 <!-- self-hosted, from this Worker -->

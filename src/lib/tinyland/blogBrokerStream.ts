@@ -27,7 +27,8 @@ export interface TinylandBlogBrokerPost {
 	readonly sourceRecord: string;
 	readonly sourceHash: string;
 	readonly contentHash: string;
-	readonly reviewStatus: string;
+	readonly reviewStatus?: string;
+	readonly displayStatus?: string;
 	readonly frontmatter: Record<string, unknown>;
 	readonly contentMarkdown: string;
 	readonly contentFormat: 'text/markdown';
@@ -51,7 +52,8 @@ export interface TinylandBlogBrokerStream {
 	readonly activityPubStatus: 'broker-display-stream-not-public-fediverse-delivery';
 	readonly contentHash: string;
 	readonly counts: {
-		readonly reviewedStreamPosts: number;
+		readonly reviewedStreamPosts?: number;
+		readonly publicPublishedDisplayPosts?: number;
 		readonly [key: string]: unknown;
 	};
 	readonly consumerContract: {
@@ -64,10 +66,13 @@ export interface TinylandBlogBrokerStream {
 		readonly [key: string]: unknown;
 	};
 	readonly policy: {
+		readonly projectionPolicy?: 'publicPublishedManagedPosts-display-stream';
+		readonly displayMembershipPolicy?: 'public-published-display-membership';
 		readonly contentTransport: 'dynamic-broker-stream';
 		readonly contentMarkdownIncluded: true;
 		readonly draftContentIncluded: false;
-		readonly unreviewedContentIncluded: false;
+		readonly unreviewedContentIncluded?: false;
+		readonly displayMembershipGate?: 'frontmatter-published-status-visibility';
 		readonly publicFediverseDelivery: false;
 		readonly [key: string]: unknown;
 	};
@@ -85,8 +90,9 @@ export type TinylandBlogBrokerState =
 	  }
 	| { readonly status: 'unavailable'; readonly endpoint: string; readonly reason: string };
 
-const FORBIDDEN_PRIVATE_FIELD_PATTERN =
-	/privateKey|publicKeyPem|apiKey|accessToken|privateObjectKey|s3:\/\//i;
+const FORBIDDEN_PRIVATE_FIELD_PATTERN = /privateKey|publicKeyPem|apiKey|accessToken|privateObjectKey|s3:\/\//i;
+const LEGACY_REVIEW_STATUS = 'operator-reviewed-source-public';
+const DISPLAY_STATUS = 'public-published-display-source';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -100,11 +106,7 @@ function requireString(record: Record<string, unknown>, key: string): string {
 	return value;
 }
 
-function requireLiteral<T extends string | boolean>(
-	record: Record<string, unknown>,
-	key: string,
-	expected: T,
-): T {
+function requireLiteral<T extends string | boolean>(record: Record<string, unknown>, key: string, expected: T): T {
 	if (record[key] !== expected) {
 		throw new Error(`blog broker stream field ${key} must be ${String(expected)}`);
 	}
@@ -116,6 +118,52 @@ function requireSha256(value: string, label: string): string {
 		throw new Error(`blog broker stream ${label} must be a sha256 digest`);
 	}
 	return value;
+}
+
+function optionalString(record: Record<string, unknown>, key: string): string | undefined {
+	const value = record[key];
+	return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function isPublicPublishedFrontmatter(frontmatter: Record<string, unknown>): boolean {
+	return frontmatter.published === true && frontmatter.status === 'published' && frontmatter.visibility === 'public';
+}
+
+function requireDisplayMembershipPolicy(policy: Record<string, unknown>): void {
+	const legacyReviewPolicy = policy.unreviewedContentIncluded === false;
+	const displayMembershipPolicy =
+		policy.projectionPolicy === 'publicPublishedManagedPosts-display-stream' &&
+		policy.displayMembershipPolicy === 'public-published-display-membership' &&
+		policy.displayMembershipGate === 'frontmatter-published-status-visibility';
+
+	if (!legacyReviewPolicy && !displayMembershipPolicy) {
+		throw new Error('blog broker stream policy must declare a public display membership gate');
+	}
+}
+
+function requireDisplayEligiblePost(
+	post: Record<string, unknown>,
+	index: number,
+	frontmatter: Record<string, unknown>,
+): { reviewStatus?: string; displayStatus?: string } {
+	const reviewStatus = optionalString(post, 'reviewStatus');
+	const displayStatus = optionalString(post, 'displayStatus');
+
+	if (reviewStatus !== undefined && reviewStatus !== LEGACY_REVIEW_STATUS) {
+		throw new Error(`blog broker stream post ${index} reviewStatus must be ${LEGACY_REVIEW_STATUS}`);
+	}
+
+	const legacyReviewGate = reviewStatus === LEGACY_REVIEW_STATUS;
+	const displayMembershipGate = displayStatus === DISPLAY_STATUS && isPublicPublishedFrontmatter(frontmatter);
+
+	if (!legacyReviewGate && !displayMembershipGate) {
+		throw new Error(`blog broker stream post ${index} must be public-published display content`);
+	}
+
+	return {
+		...(reviewStatus ? { reviewStatus } : {}),
+		...(displayStatus ? { displayStatus } : {}),
+	};
 }
 
 function stringTags(value: readonly unknown[] | undefined): string[] {
@@ -181,7 +229,7 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 	requireLiteral(policy, 'contentTransport', 'dynamic-broker-stream');
 	requireLiteral(policy, 'contentMarkdownIncluded', true);
 	requireLiteral(policy, 'draftContentIncluded', false);
-	requireLiteral(policy, 'unreviewedContentIncluded', false);
+	requireDisplayMembershipPolicy(policy);
 	requireLiteral(policy, 'publicFediverseDelivery', false);
 
 	if (!Array.isArray(data.posts)) {
@@ -196,7 +244,6 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 		requireLiteral(post, 'type', 'Article');
 		requireLiteral(post, 'contentFormat', 'text/markdown');
 		requireLiteral(post, 'publicFediverseDelivery', false);
-		requireLiteral(post, 'reviewStatus', 'operator-reviewed-source-public');
 		const sourceHash = requireSha256(requireString(post, 'sourceHash'), `post ${index} sourceHash`);
 		const contentHash = requireSha256(requireString(post, 'contentHash'), `post ${index} contentHash`);
 
@@ -206,6 +253,7 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 		if (!Array.isArray(post.tags)) {
 			throw new Error(`blog broker stream post ${index} tags must be an array`);
 		}
+		const displayGateFields = requireDisplayEligiblePost(post, index, post.frontmatter);
 
 		return {
 			type: 'Article',
@@ -223,7 +271,7 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			sourceRecord: requireString(post, 'sourceRecord'),
 			sourceHash,
 			contentHash,
-			reviewStatus: 'operator-reviewed-source-public',
+			...displayGateFields,
 			frontmatter: post.frontmatter,
 			contentMarkdown: requireString(post, 'contentMarkdown'),
 			contentFormat: 'text/markdown',
@@ -232,8 +280,11 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 	});
 
 	const counts = data.counts;
-	if (!isRecord(counts) || counts.reviewedStreamPosts !== posts.length) {
-		throw new Error('blog broker stream reviewedStreamPosts must match posts.length');
+	if (
+		!isRecord(counts) ||
+		(counts.reviewedStreamPosts !== posts.length && counts.publicPublishedDisplayPosts !== posts.length)
+	) {
+		throw new Error('blog broker stream public display post count must match posts.length');
 	}
 
 	return {
@@ -291,10 +342,10 @@ export function tinylandBlogBrokerStreamToPosts(stream: TinylandBlogBrokerStream
  *
  * The build-time static index (search-index.json, bundled into the prerendered
  * HTML) is always at least as fresh as the deploy, so it — not the runtime
- * broker — owns which posts EXIST. The hub's reviewed broker stream can lag the
- * deploy (a newly published post sits in the hub's held-back/un-reviewed
- * remainder for a window), so letting the broker REPLACE the list made fresh
- * posts render on SSR then vanish on hydration once the broker fetch resolved.
+ * broker — owns which posts EXIST. The hub public display stream can lag the
+ * deploy while spoke-to-hub ingest catches up, so letting the broker REPLACE
+ * the list made fresh posts render on SSR then vanish on hydration once the
+ * broker fetch resolved.
  *
  * This makes the broker additive / enrichment-only:
  *   - every static post is kept (a static slug is NEVER dropped),
@@ -305,10 +356,7 @@ export function tinylandBlogBrokerStreamToPosts(stream: TinylandBlogBrokerStream
  *
  * Net: new-post visibility is independent of broker freshness.
  */
-export function mergeBrokerPostsIntoStatic(
-	staticPosts: readonly Post[],
-	brokerPosts: readonly Post[],
-): Post[] {
+export function mergeBrokerPostsIntoStatic(staticPosts: readonly Post[], brokerPosts: readonly Post[]): Post[] {
 	const brokerBySlug = new Map(brokerPosts.map((post) => [post.slug, post]));
 	const staticSlugs = new Set(staticPosts.map((post) => post.slug));
 
@@ -322,9 +370,7 @@ export function mergeBrokerPostsIntoStatic(
 		if (!staticSlugs.has(post.slug)) merged.push(post);
 	}
 
-	return merged.sort(
-		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || a.slug.localeCompare(b.slug),
-	);
+	return merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || a.slug.localeCompare(b.slug));
 }
 
 export function findTinylandBlogBrokerPost(
