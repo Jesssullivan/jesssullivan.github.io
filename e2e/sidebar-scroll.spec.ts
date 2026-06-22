@@ -120,4 +120,29 @@ test.describe('Sidebar hidden on mobile/tablet', () => {
 			await expect(sidebar.first()).not.toBeVisible();
 		}
 	});
+
+	for (const vp of [
+		{ width: 390, height: 844, label: 'mobile' },
+		{ width: 768, height: 1024, label: 'tablet' },
+	] as const) {
+		test(`top tag cloud is hidden before posts on ${vp.label}`, async ({ page }) => {
+			await visitAt(page, '/blog', vp.width, vp.height);
+			const tagLinksBeforeFirstCard = await page.locator('main').evaluate((main) => {
+				const firstCard = main.querySelector('article.card');
+				if (!firstCard) return -1;
+
+				const range = document.createRange();
+				range.selectNode(firstCard);
+
+				let count = 0;
+				for (const link of main.querySelectorAll<HTMLAnchorElement>('a[href^="/blog/tag/"]')) {
+					if (range.comparePoint(link, 0) < 0) count += 1;
+				}
+				range.detach();
+				return count;
+			});
+
+			expect(tagLinksBeforeFirstCard).toBe(0);
+		});
+	}
 });

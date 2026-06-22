@@ -34,26 +34,16 @@
 	// post. This fixes the listing flash-then-disappear on hydration; see
 	// mergeBrokerPostsIntoStatic for the full rationale.
 	let displayPosts = $derived(
-		brokerState.status === 'ready'
-			? mergeBrokerPostsIntoStatic(data.posts, brokerState.posts)
-			: data.posts
+		brokerState.status === 'ready' ? mergeBrokerPostsIntoStatic(data.posts, brokerState.posts) : data.posts,
 	);
 
 	let totalPages = $derived(Math.ceil(displayPosts.length / POSTS_PER_PAGE));
-	let pageParam = $derived(
-		browser ? parseInt($page.url.searchParams.get('page') || '1') : 1
-	);
-	let currentPage = $derived(
-		Math.max(0, Math.min(pageParam - 1, totalPages - 1))
-	);
-	let paginatedPosts = $derived(
-		displayPosts.slice(currentPage * POSTS_PER_PAGE, (currentPage + 1) * POSTS_PER_PAGE)
-	);
+	let pageParam = $derived(browser ? parseInt($page.url.searchParams.get('page') || '1') : 1);
+	let currentPage = $derived(Math.max(0, Math.min(pageParam - 1, totalPages - 1)));
+	let paginatedPosts = $derived(displayPosts.slice(currentPage * POSTS_PER_PAGE, (currentPage + 1) * POSTS_PER_PAGE));
 
 	// Collect all unique tags
-	let allTags = $derived(
-		[...new Set(displayPosts.flatMap(p => p.tags))].sort()
-	);
+	let allTags = $derived([...new Set(displayPosts.flatMap((p) => p.tags))].sort());
 
 	// Recent 5 posts for sidebar
 	let recentPosts = $derived(displayPosts.slice(0, 5));
@@ -157,18 +147,6 @@
 		<div>
 			<Search />
 
-			{#if allTags.length > 0}
-				<div class="flex flex-wrap gap-2 mb-8 lg:hidden">
-						{#each allTags as tag}
-							<a
-								href="/blog/tag/{encodeURIComponent(tag)}"
-								class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-								aria-label={`View posts tagged ${tag}`}
-							>{tag}</a>
-						{/each}
-				</div>
-			{/if}
-
 			{#if paginatedPosts.length === 0}
 				<p class="text-surface-500">No posts yet.</p>
 			{:else}
@@ -181,10 +159,7 @@
 				{#if totalPages > 1}
 					<nav class="flex items-center justify-center gap-2 mt-8">
 						{#if currentPage > 0}
-							<a
-								href="/blog?page={currentPage}"
-								class="btn btn-sm preset-outlined-surface-500"
-							>&larr; Newer</a>
+							<a href="/blog?page={currentPage}" class="btn btn-sm preset-outlined-surface-500">&larr; Newer</a>
 						{:else}
 							<span class="btn btn-sm preset-outlined-surface-500 opacity-50 pointer-events-none">&larr; Newer</span>
 						{/if}
@@ -192,10 +167,7 @@
 							Page {currentPage + 1} of {totalPages}
 						</span>
 						{#if currentPage < totalPages - 1}
-							<a
-								href="/blog?page={currentPage + 2}"
-								class="btn btn-sm preset-outlined-surface-500"
-							>Older &rarr;</a>
+							<a href="/blog?page={currentPage + 2}" class="btn btn-sm preset-outlined-surface-500">Older &rarr;</a>
 						{:else}
 							<span class="btn btn-sm preset-outlined-surface-500 opacity-50 pointer-events-none">Older &rarr;</span>
 						{/if}
