@@ -1,0 +1,37 @@
+name: Production Health
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  production-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:production-health
+      - name: Verify Pages deployment is current main
+        run: |
+          set -euo pipefail
+          latest_main="$(gh api repos/${GITHUB_REPOSITORY}/commits/main --jq .sha)"
+          latest_pages="$(gh api "repos/${GITHUB_REPOSITORY}/deployments?environment=github-pages&per_page=1" --jq '.[0].sha')"
+          if [ "${latest_pages}" != "${latest_main}" ]; then
+            echo "::error title=GitHub Pages is stale::github-pages deployment ${latest_pages} does not match main ${latest_main}"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

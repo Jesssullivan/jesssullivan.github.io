@@ -2,11 +2,12 @@ name: Content Analytics
 
 on:
   schedule:
-    - cron: '30 6 * * 1'  # Weekly Monday 6:30 AM UTC
+    - cron: '30 6 * * 1' # Weekly Monday 6:30 AM UTC
   workflow_dispatch:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   stats:
@@ -39,6 +40,7 @@ jobs:
             > static/images/github-profile/updated.json
 
       - name: Commit generated artifacts
+        id: commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -47,10 +49,18 @@ jobs:
           git add -f static/blog-stats.json static/images/tag-graph.svg static/images/tag-graph-dark.svg static/images/github-profile/
           if git diff --cached --quiet; then
             echo "No stats changes to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m 'chore(stats): refresh weekly content + profile snapshot'
             git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Dispatch Pages deploy for generated artifacts
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run deploy-pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Summary
         run: |

@@ -14,6 +14,7 @@
 		"test:pulse-core": "bash scripts/bazel-cache-backed.sh test //:vitest_unit_tests //:workspace_package_checks",
 		"test:pulse-client": "bash scripts/bazel-cache-backed.sh test //:vitest_unit_tests //:workspace_package_checks",
 		"test:e2e": "npm run remote:e2e",
+		"test:production-health": "tsx scripts/check-production-health.mts",
 		"preview": "vite preview",
 		"check": "npm run remote:check",
 		"remote:check": "bash scripts/bazel-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks //static/cv:pdfs_synced_test",
