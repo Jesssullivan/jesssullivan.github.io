@@ -3,18 +3,26 @@
 Operational runbook for the apex/`www` domain of this site. Spelling is
 **tranSScend** (double-s) — not a typo.
 
-## Landing state (2026-06-22)
+## Current verified state (2026-06-22)
 
-- **Registrar:** DreamHost (registration only). Nameservers are flipped to
-  Cloudflare. DreamHost's API **cannot** change NS or DS — those are manual in
-  the DreamHost registrar panel. The DreamHost API only exposes
-  `dns-add_record` / `dns-list_records` / `dns-remove_record`.
-- **DNS authority:** Cloudflare. Zone id `602400322c1ecac4983542c76af90115`.
-  Nameservers `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`.
+- **Registrar:** DreamHost. The `.org` parent currently delegates to
+  `ns1.dreamhost.com`, `ns2.dreamhost.com`, and `ns3.dreamhost.com`.
+  DreamHost's API **cannot** change NS or DS — those are manual in the
+  DreamHost registrar panel. The DreamHost API only exposes `dns-add_record` /
+  `dns-list_records` / `dns-remove_record`.
+- **Current DNS authority:** DreamHost. The DreamHost zone must continue serving
+  the GitHub Pages A/AAAA apex records and the `www` CNAME until the registrar
+  NS change is complete.
+- **Prepared cutover DNS authority:** Cloudflare. Zone id
+  `602400322c1ecac4983542c76af90115`. Nameservers
+  `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. The prepared
+  Cloudflare zone mirrors the safe GitHub Pages records and is drift-checked,
+  but it is not the parent-delegated authority until the registrar NS changes.
 - **Serving:** GitHub Pages, **unchanged**. `static/CNAME` =
   `transscendsurvival.org`. Let's Encrypt cert (state `approved`) covers both
   apex and `www`, expires 2026-09-09.
-- **DNS records in Cloudflare — GREY / DNS-only (NOT proxied):**
+- **DNS records in DreamHost and in the prepared Cloudflare zone — DNS-only
+  (NOT proxied):**
 
   | Name  | Type  | Value                                                                              |
   | ----- | ----- | ---------------------------------------------------------------------------------- |
@@ -26,22 +34,27 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
   **`www` MUST be a CNAME.** `www` as A/AAAA breaks the `www` TLS handshake
   (cert presentation failure).
 
-- **DNSSEC:** enabled on Cloudflare (zone signed). The registrar-side DS record
-  is the manual completion step (see below).
+- **DNSSEC:** no DS is present at the `.org` parent right now. Do not add a
+  Cloudflare DS until the parent NS delegation has actually moved to Cloudflare
+  and Cloudflare signing is stable.
 - **CF Pages (`transscendsurvival-org`):** builds via
   `.github/workflows/cloudflare-pages-shadow.yml`. apex + `www` custom domains
   are **PENDING**. The Pages serving cut is **DEFERRED** — see the hard rule.
 
 ```text
-DreamHost (registrar)            Cloudflare (DNS authority)         GitHub Pages (serving)
-  NS -> *.ns.cloudflare.com  -->   apex A/AAAA (GitHub anycast)  -->  static/CNAME
-  DS (manual, DNSSEC)              www CNAME -> *.github.io           Let's Encrypt apex+www
+DreamHost (registrar)          DreamHost DNS (current)          GitHub Pages (serving)
+  NS -> ns*.dreamhost.com  -->  apex A/AAAA + www CNAME  -->  static/CNAME
+
+Prepared, not delegated yet:
+  Cloudflare DNS zone mirrors the same safe GitHub Pages records.
 ```
 
-## ROLLBACK: revert NS to DreamHost
+## ROLLBACK: keep or revert NS to DreamHost
 
 The GitHub Pages records are still **staged in the DreamHost zone**, so a
-rollback is just a registrar-side NS revert — no record re-entry needed.
+rollback from a future Cloudflare NS cutover is just a registrar-side NS revert
+— no record re-entry needed. If the parent still shows DreamHost, there is
+nothing to roll back at the delegation layer.
 
 **When to roll back:** Cloudflare is the DNS failure mode (zone-wide SERVFAIL,
 signing breakage you can't fix forward, account/billing lockout) AND DreamHost
@@ -62,7 +75,8 @@ Order:
    from the parent (`.org`) before continuing:
    `dig DS transscendsurvival.org @a0.org.afilias-nst.info` → no DS.
 2. **Revert NS** in the DreamHost registrar panel from the Cloudflare pair back
-   to `ns1.dreamhost.com`, `ns2.dreamhost.com`, `ns3.dreamhost.com`.
+   to `ns1.dreamhost.com`, `ns2.dreamhost.com`, `ns3.dreamhost.com`. Skip this
+   if the `.org` parent already returns the DreamHost nameservers.
 3. Verify DreamHost is authoritative and serving the staged records (both
    families + SOA + TCP):
 
@@ -82,8 +96,8 @@ an outage — always pull DS first.
 
 ## DNSSEC completion (forward path)
 
-Only after Cloudflare signing is **stable** (zone shows DNSSEC active, Cloudflare
-serving RRSIG/DNSKEY):
+Only after the `.org` parent shows Cloudflare NS and Cloudflare signing is
+**stable** (zone shows DNSSEC active, Cloudflare serving RRSIG/DNSKEY):
 
 1. In the **DreamHost registrar DNSSEC panel**, add the DS from LANDING:
 
@@ -157,7 +171,11 @@ is what makes a live `pages.dev` re-proxy fail the drift check loudly.
 ## Verification one-liners
 
 ```sh
-# Authoritative Cloudflare NS — both families + SOA must answer non-empty.
+# Current parent delegation — this is the real public authority today.
+dig NS transscendsurvival.org @a0.org.afilias-nst.info +short
+dig DS transscendsurvival.org @a0.org.afilias-nst.info +short
+
+# Prepared Cloudflare NS — both families + SOA must answer non-empty before cutover.
 dig @izabella.ns.cloudflare.com AAAA transscendsurvival.org +short
 dig @izabella.ns.cloudflare.com A    transscendsurvival.org +short
 dig @izabella.ns.cloudflare.com SOA  transscendsurvival.org +short

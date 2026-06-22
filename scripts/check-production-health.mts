@@ -23,15 +23,16 @@ type DirectTarget = {
 
 const apex = 'transscendsurvival.org';
 const www = `www.${apex}`;
+const wwwCanonicalTarget = 'jesssullivan.github.io';
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 
-// Host-agnostic resolution health. The apex is migrating from GitHub Pages anycast
-// (185.199.x / 2606:50c0::) to a Cloudflare-proxied CNAME whose A/AAAA rotate, so we
-// assert the records RESOLVE (non-empty, no SERVFAIL) rather than matching fixed IPs.
+// Host-agnostic resolution health. The apex is served by GitHub Pages anycast
+// (185.199.x / 2606:50c0::), and www is the canonical GitHub Pages CNAME. Public
+// resolvers must expand both apex and www to A + AAAA. Authoritative nameservers may
+// return only the CNAME for www, so the authority layer checks that CNAME directly.
 // "Right site" is proven by the HTTP + broker-stream checks below. A SERVFAIL or empty
-// AAAA is the exact DreamHost authoritative-DNS failure that broke IPv6 visitors — these
-// checks stay RED until DNS reliably serves A + AAAA + SOA over UDP and TCP/53.
+// AAAA is the exact DNS failure that broke IPv6 visitors.
 
 const publicResolvers = [
 	['Cloudflare', '1.1.1.1'],
@@ -189,17 +190,50 @@ async function authoritativeDnsChecks(): Promise<Check[]> {
 		const apexA = await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4);
 		checks.push(apexA);
 		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA resolves`, server, apex, 6));
-		const wwwA = await authoritativeRecordCheck(`authoritative ${nsName} www A resolves`, server, www, 4);
-		checks.push(wwwA);
-		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} www AAAA resolves`, server, www, 6));
+		checks.push(await authoritativeCnameCheck(`authoritative ${nsName} www CNAME`, server, www, wwwCanonicalTarget));
 		checks.push(await authoritativeSoaCheck(`authoritative ${nsName} apex SOA resolves`, server));
 		checks.push(await tcpDnsCheck(`authoritative ${nsName} answers over TCP/53`, server));
 		queueDirectTargets(targets, seenTargets, apex, apexA.values);
-		queueDirectTargets(targets, seenTargets, www, wwwA.values);
 	}
 
 	checks.push(...(await runDirectTargetChecks(targets)));
 	return checks;
+}
+
+async function authoritativeCnameCheck(
+	name: string,
+	server: string,
+	host: string,
+	expectedTarget: string,
+): Promise<Check> {
+	const attempts = 5;
+	const failures: string[] = [];
+	let lastGood: string[] = [];
+	const expected = normalizeDnsName(expectedTarget);
+
+	for (let attempt = 1; attempt <= attempts; attempt++) {
+		const resolver = new Resolver();
+		resolver.setServers([server]);
+		try {
+			const values = (await resolver.resolveCname(host)).map(normalizeDnsName);
+			lastGood = values;
+			if (!values.includes(expected)) failures.push(`attempt ${attempt}: got ${format(values)}, want ${expected}`);
+		} catch (error) {
+			const code = error instanceof Error && 'code' in error ? String(error.code) : 'UNKNOWN';
+			const message = error instanceof Error ? error.message : String(error);
+			failures.push(`attempt ${attempt}: ${code}: ${message}`);
+		}
+	}
+
+	return {
+		name,
+		ok: failures.length === 0,
+		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
+	};
+}
+
+function normalizeDnsName(name: string): string {
+	return name.toLowerCase().replace(/\.$/, '');
 }
 
 async function authoritativeSoaCheck(name: string, server: string): Promise<Check> {

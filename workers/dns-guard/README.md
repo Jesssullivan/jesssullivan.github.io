@@ -22,7 +22,7 @@ instead. (Incidents: TIN-2146, TIN-1110 follow-up.)
 | Layer | Vantage | Catches |
 |---|---|---|
 | **this Worker** (cron 15m) | CF edge, ~4 DoH resolvers | apex/www `A`+`AAAA` missing at public resolvers; HTTPS/redirects; broker contract drift |
-| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | delegated + cutover authoritative records, direct IPv4 HTTPS target checks, stale-deploy self-heal, browser hydration |
+| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | delegated + cutover authoritative apex records + `www` CNAME, direct IPv4 HTTPS target checks, stale-deploy self-heal, browser hydration |
 | UptimeRobot | external, **IPv6 transport** | apex unreachable over a real v6 socket |
 | StatusCake | external | apex `AAAA` record-value drift + HTTPS |
 | Healthchecks.io | — | alert routing (email) + dead-man's-switch |

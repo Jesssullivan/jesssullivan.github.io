@@ -130,6 +130,9 @@ Cloudflare zone must resolve the apex and `www` to working HTTPS targets.
 major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
 redirects, live HTTPS responses for the homepage plus slashless and trailing-slash
 blog routes, the Tinyland blog broker contract, and browser hydration on `/blog`.
+At the authoritative layer, apex must answer A/AAAA and `www` must answer the
+canonical `jesssullivan.github.io` CNAME; public resolver checks verify that
+`www` expands to A/AAAA.
 The static build keeps slashless canonical URLs but emits directory-index aliases
 so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
