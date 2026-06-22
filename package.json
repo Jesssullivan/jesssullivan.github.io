@@ -17,6 +17,7 @@
 		"test:production-health": "tsx scripts/check-production-health.mts && tsx scripts/check-public-blog-hydration.mts",
 		"preview": "vite preview",
 		"check": "npm run remote:check",
+		"icons:generate": "tsx scripts/generate-favicon-kit.mts",
 		"remote:check": "bash scripts/bazel-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks //static/cv:pdfs_synced_test",
 		"remote:test": "bash scripts/bazel-cache-backed.sh test //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke",
 		"remote:e2e": "bash scripts/bazel-cache-backed.sh test //:playwright_chromium_e2e",

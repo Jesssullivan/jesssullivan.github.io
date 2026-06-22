@@ -59,7 +59,13 @@ flowchart LR
     CvTex["CV TeX"] --> Tectonic["Tectonic PDF workflow"]
 ```
 
+## Icon Kit
 
+Browser icons are generated from `https://github.com/Jesssullivan.png` by
+`npm run icons:generate`. The script pins the fetched source at
+`static/icons/favicon-source.jpg`, writes the favicon/Apple/Android/maskable
+PNG set, emits the multi-size `favicon.ico`, and keeps the web app manifest,
+Safari mask, and Microsoft tile config in `static/`.
 
 ## Checks And Deploys
 

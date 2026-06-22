@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 const appHtml = readFileSync(new URL('../app.html', import.meta.url), 'utf8');
 
 function cspDirective(name: string): string[] {
-	const content = appHtml.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
+	const cspMeta = appHtml.match(/<meta\b(?=[^>]*\bhttp-equiv="Content-Security-Policy")[^>]*>/s)?.[0];
+	const content = cspMeta?.match(/\bcontent="([^"]+)"/)?.[1];
 	if (!content) {
 		throw new Error('Content-Security-Policy meta tag not found');
 	}
