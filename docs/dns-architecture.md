@@ -1,19 +1,22 @@
 # DNS Architecture — transscendsurvival.org
 
-Canonical landing state as of 2026-06-22. The domain (double-s "tranSScend" — this
-is the correct spelling, not a typo) is registered at DreamHost, resolved
-authoritatively by Cloudflare, and served by GitHub Pages. This doc is the picture
-of how those three planes fit together and why the DNS authority moved.
+Current and prepared DNS state as of 2026-06-22. The domain (double-s
+"tranSScend" — this is the correct spelling, not a typo) is registered at
+DreamHost, currently delegated to DreamHost nameservers at the `.org` parent, and
+served by GitHub Pages. A Cloudflare DNS zone is prepared and drift-checked for a
+registrar NS cutover, but it is not the public authority until the parent
+delegation changes.
 
-## Landing State
+## Current And Prepared State
 
 | Plane | State |
 | --- | --- |
-| Registrar | DreamHost — registration only. Nameservers flipped to `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com` (registrar-manual; the DreamHost API cannot change NS — it exposes only `dns-add_record` / `dns-list_records` / `dns-remove_record`). |
-| DNS authority | Cloudflare. Zone id `602400322c1ecac4983542c76af90115`. Reliably serves AAAA + SOA + TCP/53. |
-| Records | apex `A` = `185.199.108.153` / `.109.153` / `.110.153` / `.111.153`; apex `AAAA` = `2606:50c0:8000::153` / `8001::153` / `8002::153` / `8003::153`; `www` = `CNAME` → `jesssullivan.github.io`. All records are GREY / DNS-only (NOT proxied). |
+| Registrar | DreamHost. Current parent NS = `ns1.dreamhost.com` / `ns2.dreamhost.com` / `ns3.dreamhost.com`. Future Cloudflare NS cutover is manual in the DreamHost registrar panel; the DreamHost API cannot change NS or DS and exposes only `dns-add_record` / `dns-list_records` / `dns-remove_record`. |
+| Current DNS authority | DreamHost nameservers. They must serve the GitHub Pages A/AAAA apex records and the `www` CNAME while the parent remains delegated to DreamHost. |
+| Prepared DNS authority | Cloudflare zone `602400322c1ecac4983542c76af90115`, nameservers `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. This zone mirrors the safe GitHub Pages records and is drift-checked, but is not public authority until the registrar NS changes. |
+| Records | apex `A` = `185.199.108.153` / `.109.153` / `.110.153` / `.111.153`; apex `AAAA` = `2606:50c0:8000::153` / `8001::153` / `8002::153` / `8003::153`; `www` = `CNAME` → `jesssullivan.github.io`. All records are DNS-only (NOT proxied). |
 | Serving | GitHub Pages, unchanged. `static/CNAME` = `transscendsurvival.org`. |
-| DNSSEC | Enabled on Cloudflare (zone signed). DS at the DreamHost registrar (manual; no API path): key_tag `2371`, algorithm `13` (ECDSAP256SHA256), digest_type `2` (SHA-256). |
+| DNSSEC | No DS at the `.org` parent right now. Add Cloudflare DS only after the parent NS cutover is complete and Cloudflare signing is stable. |
 | Cert | Let's Encrypt, state `approved`, covers BOTH apex + `www`, expires `2026-09-09`. |
 
 The GitHub Pages canonical split is load-bearing: **apex = `A`/`AAAA`, `www` =
@@ -22,21 +25,26 @@ presentation (handshake failure); `www` MUST stay a `CNAME`.
 
 ## 1. Topology
 
-DreamHost holds the registration and delegates the zone to Cloudflare via NS.
-Cloudflare is the authoritative DNS plane and answers with grey (DNS-only) records
-that point straight at GitHub Pages. Cloudflare's proxy edge is intentionally NOT
-in the request path.
+DreamHost holds the registration and currently delegates the zone to DreamHost
+nameservers. Those nameservers answer with DNS-only records that point straight
+at GitHub Pages. The Cloudflare zone is prepared as the future DNS authority and
+must match the same safe record shape before any registrar NS cutover. The
+Cloudflare proxy edge is intentionally NOT in the request path.
 
 ```mermaid
 flowchart LR
-    subgraph Registrar["DreamHost — registrar (registration only)"]
+    subgraph Registrar["DreamHost — registrar"]
         Reg["transscendsurvival.org<br/>registration"]
-        DS["DS record (manual)<br/>key_tag 2371 · alg 13 · digest 2"]
-        NSdeleg["NS delegation"]
+        DS["no parent DS today"]
+        NSdeleg["current NS delegation"]
     end
 
-    subgraph CF["Cloudflare — authoritative DNS (reliable)"]
-        Zone["zone 602400322c1ecac4983542c76af90115<br/>izabella + sullivan .ns.cloudflare.com<br/>DNSSEC signed · AAAA + SOA + TCP/53"]
+    subgraph DH["DreamHost DNS — current authority"]
+        DhZone["ns1/ns2/ns3.dreamhost.com<br/>serves GitHub Pages records"]
+    end
+
+    subgraph CF["Cloudflare DNS — prepared cutover zone"]
+        Zone["zone 602400322c1ecac4983542c76af90115<br/>izabella + sullivan .ns.cloudflare.com<br/>mirrors GitHub Pages records"]
         Apex["apex A/AAAA (grey, DNS-only)<br/>185.199.108/109/110/111.153<br/>2606:50c0:8000-8003::153"]
         WWW["www CNAME (grey, DNS-only)<br/>jesssullivan.github.io"]
     end
@@ -46,10 +54,13 @@ flowchart LR
     end
 
     Reg --> NSdeleg
-    NSdeleg -- "NS delegation" --> Zone
-    DS -. "DNSSEC chain of trust" .-> Zone
-    Zone --> Apex
-    Zone --> WWW
+    NSdeleg -- "current NS delegation" --> DhZone
+    DS -. "no DS published" .-> DhZone
+    DhZone --> Apex
+    DhZone --> WWW
+    NSdeleg -. "future registrar NS cutover" .-> Zone
+    Zone -. "same safe records" .-> Apex
+    Zone -. "same safe records" .-> WWW
     Apex -- "grey record → origin" --> Pages
     WWW -- "grey record → origin" --> Pages
 ```
@@ -57,29 +68,30 @@ flowchart LR
 ## 2. Request Flow
 
 A client resolves the name through a recursive resolver, which follows the
-DreamHost → Cloudflare delegation and gets `A`/`AAAA` from Cloudflare. The client
-then connects directly to GitHub Pages (Cloudflare is not proxying). The apex
-serves `200`; `www` redirects `301` to the apex.
+current `.org` parent delegation to DreamHost and gets `A`/`AAAA` from the
+DreamHost zone. Monitors also query the prepared Cloudflare zone directly so the
+cutover target cannot drift. The client then connects directly to GitHub Pages.
+The apex serves `200`; `www` redirects `301` to the apex.
 
 ```mermaid
 sequenceDiagram
     participant C as Client (browser)
     participant R as Recursive resolver
-    participant CF as Cloudflare NS (authoritative)
+    participant DH as DreamHost NS (current authority)
     participant GHP as GitHub Pages
 
     Note over C,GHP: apex request — transscendsurvival.org
     C->>R: A/AAAA? transscendsurvival.org
-    R->>CF: query (follows DreamHost→Cloudflare delegation)
-    CF-->>R: A 185.199.10x.153 / AAAA 2606:50c0:800x::153 (NOERROR, signed)
+    R->>DH: query (follows current .org delegation)
+    DH-->>R: A 185.199.10x.153 / AAAA 2606:50c0:800x::153 (NOERROR)
     R-->>C: resolved A/AAAA
     C->>GHP: HTTPS GET / (direct, not proxied)
     GHP-->>C: 200 OK (Let's Encrypt cert)
 
     Note over C,GHP: www request — www.transscendsurvival.org
     C->>R: A/AAAA? www.transscendsurvival.org
-    R->>CF: query
-    CF-->>R: CNAME → jesssullivan.github.io → A/AAAA (NOERROR, signed)
+    R->>DH: query
+    DH-->>R: CNAME → jesssullivan.github.io → A/AAAA (NOERROR)
     R-->>C: resolved
     C->>GHP: HTTPS GET / (Host: www)
     GHP-->>C: 301 → https://transscendsurvival.org/
@@ -93,8 +105,10 @@ The 2026-06-22 P0: DreamHost's authoritative DNS platform intermittently
 SERVFAILed apex `AAAA` + `SOA` and had dead `TCP/53` — platform-wide, to the point
 that `dreamhost.com` itself SERVFAILed `AAAA`. IPv6 / Happy-Eyeballs visitors got
 `ERR_NAME_NOT_RESOLVED` while the IPv4 owner saw the site working. This was not
-code, not GitHub Pages transport — it was the DNS authority. The fix was to move
-authority to Cloudflare, which reliably answers `AAAA` + `SOA` over `TCP/53`.
+code, not GitHub Pages transport — it was the DNS authority. The durable service
+fix is the registrar NS cutover to the prepared Cloudflare zone; until that is
+complete, production health checks must prove both the current DreamHost
+authority and the Cloudflare cutover target are healthy.
 
 ```mermaid
 flowchart TB
@@ -116,7 +130,7 @@ flowchart TB
         b_tcp --> b_out
     end
 
-    subgraph After["AFTER — Cloudflare authoritative (reliable)"]
+    subgraph After["TARGET — Cloudflare authoritative (reliable)"]
         direction TB
         a_c["IPv6 / Happy-Eyeballs client"]
         a_r["Recursive resolver"]
@@ -134,12 +148,13 @@ flowchart TB
         a_tcp --> a_out
     end
 
-    Before -. "move DNS authority to Cloudflare" .-> After
+    Before -. "prepare and verify Cloudflare authority, then change registrar NS" .-> After
 ```
 
 The root cause lived purely in the DNS-authority plane: GitHub Pages transport and
-the application code were never implicated. Moving authority to Cloudflare removed
-the failing platform from the resolution path entirely.
+the application code were never implicated. The prepared Cloudflare zone removes
+the failing platform from the target resolution path, but the parent delegation
+must be verified before calling the cutover complete.
 
 ## 4. Deferred Cloudflare Pages Serving Cut
 
@@ -211,9 +226,11 @@ sequenceDiagram
 
 ## Monitoring
 
-Monitoring is host-agnostic and already shipped — do not author or modify it. It
-lives in `scripts/check-production-health.mts`, `.github/workflows/production-health.yml`,
-and the `workers/dns-guard/` Worker. It asserts non-empty resolution plus
-`AAAA`/`SOA`/`TCP` across Cloudflare NS and public resolvers, with no hardcoded IPs,
-so it survives both the current GitHub Pages posture and any future Cloudflare Pages
-cut without edits.
+Monitoring is host-agnostic and already shipped. It lives in
+`scripts/check-production-health.mts`,
+`.github/workflows/production-health.yml`, and the `workers/dns-guard/` Worker.
+It asserts non-empty resolution plus `AAAA`/`SOA`/`TCP` across the current
+delegated nameservers, the prepared Cloudflare nameservers, and public
+resolvers, with no hardcoded public-resolver IP expectations. It survives both
+the current GitHub Pages posture and any future Cloudflare Pages cut without
+edits.
