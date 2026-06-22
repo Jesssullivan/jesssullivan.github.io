@@ -23,6 +23,7 @@ type DirectTarget = {
 
 const apex = 'transscendsurvival.org';
 const www = `www.${apex}`;
+const wwwCnameTarget = 'jesssullivan.github.io';
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 
@@ -67,6 +68,20 @@ async function tryResolveRecords(server: string, name: string, family: 4 | 6): P
 	}
 }
 
+async function tryResolveCname(server: string, host: string): Promise<ResolveAttempt> {
+	const resolver = new Resolver();
+	resolver.setServers([server]);
+
+	try {
+		return { ok: true, values: await resolver.resolveCname(host) };
+	} catch (error) {
+		const code = error instanceof Error && 'code' in error ? String(error.code) : 'UNKNOWN';
+		if (code === 'ENODATA' || code === 'ENOTFOUND') return { ok: true, values: [] };
+		const message = error instanceof Error ? error.message : String(error);
+		return { ok: false, detail: `${code}: ${message}` };
+	}
+}
+
 function resolvesCheck(name: string, values: string[]): RecordCheck {
 	const ok = values.length > 0;
 	return { name, ok, detail: ok ? format(values) : 'NODATA (resolved but empty)', values };
@@ -102,6 +117,44 @@ async function authoritativeRecordCheck(
 		ok: failures.length === 0,
 		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
 		values: lastGood,
+	};
+}
+
+function normalizeDnsName(value: string) {
+	return value.toLowerCase().replace(/\.$/, '');
+}
+
+async function authoritativeCnameCheck(
+	name: string,
+	server: string,
+	host: string,
+	expectedTarget: string,
+): Promise<Check> {
+	const attempts = 5;
+	const expected = normalizeDnsName(expectedTarget);
+	const failures: string[] = [];
+	let lastGood: string[] = [];
+
+	for (let attempt = 1; attempt <= attempts; attempt++) {
+		const result = await tryResolveCname(server, host);
+		if (!result.ok) {
+			failures.push(`attempt ${attempt}: ${result.detail}`);
+			continue;
+		}
+
+		const normalizedValues = result.values.map(normalizeDnsName);
+		if (!normalizedValues.includes(expected)) {
+			failures.push(`attempt ${attempt}: expected ${expectedTarget}, got ${format(result.values)}`);
+			continue;
+		}
+
+		lastGood = result.values;
+	}
+
+	return {
+		name,
+		ok: failures.length === 0,
+		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
 	};
 }
 
@@ -189,13 +242,12 @@ async function authoritativeDnsChecks(): Promise<Check[]> {
 		const apexA = await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4);
 		checks.push(apexA);
 		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA resolves`, server, apex, 6));
-		const wwwA = await authoritativeRecordCheck(`authoritative ${nsName} www A resolves`, server, www, 4);
-		checks.push(wwwA);
-		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} www AAAA resolves`, server, www, 6));
+		checks.push(
+			await authoritativeCnameCheck(`authoritative ${nsName} www CNAME resolves`, server, www, wwwCnameTarget),
+		);
 		checks.push(await authoritativeSoaCheck(`authoritative ${nsName} apex SOA resolves`, server));
 		checks.push(await tcpDnsCheck(`authoritative ${nsName} answers over TCP/53`, server));
 		queueDirectTargets(targets, seenTargets, apex, apexA.values);
-		queueDirectTargets(targets, seenTargets, www, wwwA.values);
 	}
 
 	checks.push(...(await runDirectTargetChecks(targets)));

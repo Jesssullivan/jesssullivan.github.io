@@ -126,10 +126,11 @@ Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift
 nameserver cutover, both the currently delegated DreamHost zone and the prepared
 Cloudflare zone must resolve the apex and `www` to working HTTPS targets.
 
-`npm run test:production-health` checks delegated and cutover authoritative DNS,
-major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
-redirects, live HTTPS responses for the homepage plus slashless and trailing-slash
-blog routes, the Tinyland blog broker contract, and browser hydration on `/blog`.
+`npm run test:production-health` checks delegated and cutover authoritative DNS
+(apex `A`/`AAAA` plus `www` CNAME), major public resolvers, direct HTTPS against
+resolved IPv4 targets, apex/`www` redirects, live HTTPS responses for the homepage
+plus slashless and trailing-slash blog routes, the Tinyland blog broker contract,
+and browser hydration on `/blog`.
 The static build keeps slashless canonical URLs but emits directory-index aliases
 so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
