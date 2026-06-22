@@ -2,24 +2,27 @@
 
 Edge monitor for **https://transscendsurvival.org**. Asserts, from Cloudflare's
 edge across several independent public resolvers, that the **apex and www resolve
-the full GitHub Pages `A` *and* `AAAA` sets**, then checks HTTPS + the canonical
-redirects plus slashless and trailing-slash blog routes, and validates the
+both `A` and `AAAA`**, then checks HTTPS + the canonical redirects plus
+slashless and trailing-slash blog routes, and validates the
 Tinyland blog broker display-stream contract.
 
 ## Why
 
-The apex `A`/`AAAA` live **out of band in the DreamHost zone** (this repo only
-ships `static/CNAME`). On 2026-06-22 the apex lost all four `AAAA` while `A` and
-`www` stayed healthy → IPv6 visitors got `ERR_NAME_NOT_RESOLVED` while IPv4
-clients saw a working site. **A normal IPv4 HTTP uptime check stays green through
-that.** This guard fails on the missing record class instead. (Incident: TIN-2146.)
+The apex `A`/`AAAA` live **out of band from the static site artifact**. On
+2026-06-22 the apex lost all four `AAAA` while `A` and `www` stayed healthy, then
+a Cloudflare nameserver cutover briefly exposed stale proxied targets before the
+production hostnames were ready. Visitors saw `ERR_NAME_NOT_RESOLVED`,
+connection failures, or closed TLS connections depending on which resolver path
+they hit. **A normal IPv4 HTTP uptime check stays green through parts of that.**
+This guard fails on missing record classes and public HTTPS/redirect breakage
+instead. (Incidents: TIN-2146, TIN-1110 follow-up.)
 
 ## Layered design (belt-and-suspenders, all free)
 
 | Layer | Vantage | Catches |
 |---|---|---|
 | **this Worker** (cron 15m) | CF edge, ~4 DoH resolvers | apex/www `A`+`AAAA` missing at public resolvers; HTTPS/redirects; broker contract drift |
-| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | **authoritative** DreamHost NS records + **stale-deploy self-heal** + browser hydration |
+| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | delegated + cutover authoritative records, direct IPv4 HTTPS target checks, stale-deploy self-heal, browser hydration |
 | UptimeRobot | external, **IPv6 transport** | apex unreachable over a real v6 socket |
 | StatusCake | external | apex `AAAA` record-value drift + HTTPS |
 | Healthchecks.io | — | alert routing (email) + dead-man's-switch |
@@ -45,9 +48,10 @@ runs the checks on demand and returns **200** (all checks passed) or **503** (a
 check failed or was skipped) with a JSON breakdown — usable directly as a
 StatusCake/UptimeRobot monitor target.
 
-This catches DreamHost authoritative drift and public route failures, but it
-does not remove the DreamHost dependency. The service-level fix is the
-Cloudflare Pages / Cloudflare DNS canonical cutover tracked in TIN-1110.
+This catches public resolver drift and public route failures. The GH production
+health workflow catches authority-level split brain and stale Cloudflare proxy
+targets. The service-level fix is the Cloudflare Pages / Cloudflare DNS canonical
+cutover tracked in TIN-1110.
 
 ## External monitors (email alerting)
 

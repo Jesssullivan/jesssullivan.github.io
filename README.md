@@ -122,23 +122,23 @@ Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift
 
 ## Production DNS And Health
 
-`transscendsurvival.org` is served by GitHub Pages behind DreamHost DNS. The
-apex must carry GitHub Pages' four `A` records and four `AAAA` records; `www`
-is a CNAME to `Jesssullivan.github.io.` and must redirect to the HTTPS apex.
+`transscendsurvival.org` is served by GitHub Pages. During the Cloudflare
+nameserver cutover, both the currently delegated DreamHost zone and the prepared
+Cloudflare zone must resolve the apex and `www` to working HTTPS targets.
 
-`npm run test:production-health` checks authoritative DreamHost DNS, major
-public resolvers, apex/`www` redirects, live HTTPS responses for the homepage
-plus slashless and trailing-slash blog routes, the Tinyland blog broker contract,
-and browser hydration on `/blog`. The static build keeps slashless canonical URLs
-but emits directory-index aliases so copied, normalized, or legacy trailing-slash
-links do not 404. The
+`npm run test:production-health` checks delegated and cutover authoritative DNS,
+major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
+redirects, live HTTPS responses for the homepage plus slashless and trailing-slash
+blog routes, the Tinyland blog broker contract, and browser hydration on `/blog`.
+The static build keeps slashless canonical URLs but emits directory-index aliases
+so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
 `github-pages` deployment SHA matches `main`.
 
-This monitoring catches DreamHost authoritative drift and GitHub Pages route
-failures. It does not remove the service-level DreamHost dependency; the durable
-DNS fix is the Cloudflare Pages / Cloudflare DNS canonical cutover tracked in
-TIN-1110.
+This monitoring catches missing A/AAAA records, split-brain authority during the
+Cloudflare cutover, stale Cloudflare proxy targets that fail TLS, and GitHub
+Pages route failures. It does not replace the service-level Cloudflare Pages /
+Cloudflare DNS canonical cutover tracked in TIN-1110.
 
 Bot-generated stats commits do not naturally trigger recursive GitHub Actions
 deploys, so `content-stats.yml` explicitly dispatches `deploy-pages.yml` after
