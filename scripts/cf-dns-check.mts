@@ -1,0 +1,298 @@
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+// READ-ONLY Cloudflare DNS drift detector for transscendsurvival.org.
+//
+// This script ONLY reads. It GETs the live zone records from the Cloudflare API
+// and compares them to the declared desired state in infra/cloudflare/zone.json.
+// It NEVER creates, updates, or deletes anything: the only Cloudflare HTTP verb it
+// issues is GET. There is intentionally no apply path here — mutation stays manual.
+//
+// It fails loudly (non-zero exit) on ANY of:
+//   - an apex record that is PROXIED (proxied=true) — the exact 2026-06-22 outage cause:
+//     an apex re-proxy to the orange-cloud edge served requests before Pages was active
+//     and produced connection refused / timeout for real visitors.
+//   - the apex drifting away from A/AAAA, or www drifting away from CNAME.
+//   - any declared record missing live, or any undeclared record present live.
+//   - DNSSEC not active.
+//
+// Auth: reads CLOUDFLARE_API_TOKEN from the environment (never printed). A read-only
+// token is sufficient and preferred. Optionally honors CLOUDFLARE_ZONE_ID to override
+// the zone id from zone.json (the API is still queried read-only).
+
+type Check = {
+	name: string;
+	ok: boolean;
+	detail: string;
+	warn?: boolean;
+};
+
+type DesiredRecord = {
+	type: string;
+	name: string;
+	content: string;
+	proxied: boolean;
+	ttl: number;
+};
+
+type DesiredZone = {
+	zone: string;
+	zone_id: string;
+	dnssec: string;
+	invariants?: {
+		apex_must_be_dns_only?: boolean;
+		apex_record_types?: string[];
+		www_record_type?: string;
+	};
+	records: DesiredRecord[];
+};
+
+type LiveRecord = {
+	id: string;
+	type: string;
+	name: string;
+	content: string;
+	proxied: boolean;
+	ttl: number;
+};
+
+const API_BASE = 'https://api.cloudflare.com/client/v4';
+const ZONE_FILE = fileURLToPath(new URL('../infra/cloudflare/zone.json', import.meta.url));
+
+// Record types that can carry Cloudflare's proxied (orange-cloud) flag at all.
+const PROXYABLE_TYPES = new Set(['A', 'AAAA', 'CNAME']);
+// The record types we manage in zone.json and therefore reconcile. Other live types
+// (e.g. operator-managed TXT/MX/CAA) are reported as informational, never as drift.
+const MANAGED_TYPES = new Set(['A', 'AAAA', 'CNAME']);
+
+function fail(message: string): never {
+	console.error(`cf-dns-check: ${message}`);
+	process.exit(1);
+}
+
+async function loadDesiredZone(): Promise<DesiredZone> {
+	let raw: string;
+	try {
+		raw = await readFile(ZONE_FILE, 'utf8');
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		fail(`could not read ${ZONE_FILE}: ${message}`);
+	}
+	try {
+		return JSON.parse(raw) as DesiredZone;
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		fail(`could not parse ${ZONE_FILE}: ${message}`);
+	}
+}
+
+async function cfGet(path: string, token: string): Promise<unknown> {
+	const response = await fetch(`${API_BASE}${path}`, {
+		method: 'GET',
+		headers: {
+			authorization: `Bearer ${token}`,
+			'content-type': 'application/json',
+			'user-agent': 'transscendsurvival-cf-dns-check/1.0',
+		},
+		signal: AbortSignal.timeout(20_000),
+	});
+
+	const body = (await response.json().catch(() => null)) as
+		| { success?: boolean; errors?: Array<{ message?: string }>; result?: unknown }
+		| null;
+
+	if (!response.ok || !body || body.success !== true) {
+		const apiErrors = body?.errors?.map((entry) => entry?.message).filter(Boolean) ?? [];
+		const detail = apiErrors.length > 0 ? apiErrors.join('; ') : `HTTP ${response.status}`;
+		fail(`Cloudflare API GET ${path} failed: ${detail}`);
+	}
+
+	return body.result;
+}
+
+async function listLiveRecords(zoneId: string, token: string): Promise<LiveRecord[]> {
+	const records: LiveRecord[] = [];
+	let page = 1;
+	// Paginate defensively; the zone is small but we never assume one page.
+	for (;;) {
+		const result = await cfGet(`/zones/${zoneId}/dns_records?per_page=100&page=${page}`, token);
+		if (!Array.isArray(result)) fail(`unexpected dns_records payload on page ${page}`);
+		for (const entry of result as Array<Record<string, unknown>>) {
+			records.push({
+				id: String(entry.id ?? ''),
+				type: String(entry.type ?? ''),
+				name: String(entry.name ?? ''),
+				content: String(entry.content ?? ''),
+				proxied: entry.proxied === true,
+				ttl: typeof entry.ttl === 'number' ? entry.ttl : Number(entry.ttl ?? 0),
+			});
+		}
+		if (result.length < 100) break;
+		page += 1;
+	}
+	return records;
+}
+
+async function getDnssecStatus(zoneId: string, token: string): Promise<string> {
+	const result = (await cfGet(`/zones/${zoneId}/dnssec`, token)) as { status?: unknown } | null;
+	return result && typeof result.status === 'string' ? result.status : 'unknown';
+}
+
+function recordKey(record: { type: string; name: string; content: string }): string {
+	// Cloudflare lowercases names; content for CNAME/AAAA is also case-insensitive.
+	return `${record.type.toUpperCase()}|${record.name.toLowerCase()}|${record.content.toLowerCase()}`;
+}
+
+function isApex(apex: string, name: string): boolean {
+	return name.toLowerCase() === apex.toLowerCase();
+}
+
+function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: string): Check[] {
+	const checks: Check[] = [];
+	const apex = desired.zone;
+	const apexTypes = new Set((desired.invariants?.apex_record_types ?? ['A', 'AAAA']).map((t) => t.toUpperCase()));
+	const wwwType = (desired.invariants?.www_record_type ?? 'CNAME').toUpperCase();
+	const wwwName = `www.${apex}`.toLowerCase();
+
+	const managedLive = live.filter((record) => MANAGED_TYPES.has(record.type.toUpperCase()));
+
+	// --- Invariant 1: NO apex record may be proxied. This is the outage guard. ---
+	const proxiedApex = managedLive.filter((record) => isApex(apex, record.name) && record.proxied);
+	checks.push({
+		name: 'apex is DNS-only (no proxied apex record)',
+		ok: proxiedApex.length === 0,
+		detail:
+			proxiedApex.length === 0
+				? 'all apex records grey-cloud (proxied=false)'
+				: `PROXIED apex record(s): ${proxiedApex.map((r) => `${r.type} ${r.content}`).join(', ')} — re-proxy was the 2026-06-22 outage cause`,
+	});
+
+	// Defense in depth: nothing managed should be proxied at all in this GitHub Pages zone.
+	const proxiedAny = managedLive.filter((record) => record.proxied);
+	checks.push({
+		name: 'no managed record is proxied (grey-cloud only)',
+		ok: proxiedAny.length === 0,
+		detail:
+			proxiedAny.length === 0
+				? 'A/AAAA/CNAME all proxied=false'
+				: `proxied=true on: ${proxiedAny.map((r) => `${r.type} ${r.name}`).join(', ')}`,
+	});
+
+	// --- Invariant 2: apex stays A/AAAA. ---
+	const apexLive = managedLive.filter((record) => isApex(apex, record.name));
+	const apexTypeViolations = apexLive.filter((record) => !apexTypes.has(record.type.toUpperCase()));
+	checks.push({
+		name: `apex is ${[...apexTypes].sort().join('/')} only`,
+		ok: apexLive.length > 0 && apexTypeViolations.length === 0,
+		detail:
+			apexLive.length === 0
+				? 'no apex A/AAAA records found live'
+				: apexTypeViolations.length === 0
+					? `${apexLive.length} apex record(s), all ${[...apexTypes].sort().join('/')}`
+					: `unexpected apex type(s): ${apexTypeViolations.map((r) => r.type).join(', ')}`,
+	});
+
+	// --- Invariant 3: www stays a CNAME (www as A/AAAA breaks the TLS cert handshake). ---
+	const wwwLive = managedLive.filter((record) => record.name.toLowerCase() === wwwName);
+	const wwwTypeOk = wwwLive.length > 0 && wwwLive.every((record) => record.type.toUpperCase() === wwwType);
+	checks.push({
+		name: `www is a ${wwwType}`,
+		ok: wwwTypeOk,
+		detail:
+			wwwLive.length === 0
+				? 'no www record found live'
+				: wwwTypeOk
+					? `www ${wwwType} -> ${wwwLive.map((r) => r.content).join(', ')}`
+					: `www has non-${wwwType} type(s): ${wwwLive.map((r) => r.type).join(', ')} (www as A/AAAA breaks TLS)`,
+	});
+
+	// --- Record-by-record reconciliation (declared vs live, managed types only). ---
+	const desiredByKey = new Map(desired.records.map((record) => [recordKey(record), record]));
+	const liveByKey = new Map(managedLive.map((record) => [recordKey(record), record]));
+
+	for (const [key, want] of desiredByKey) {
+		const got = liveByKey.get(key);
+		if (!got) {
+			checks.push({
+				name: `declared ${want.type} ${want.name} -> ${want.content}`,
+				ok: false,
+				detail: 'MISSING live (declared in zone.json but not present in Cloudflare)',
+			});
+			continue;
+		}
+		const proxiedOk = got.proxied === want.proxied;
+		checks.push({
+			name: `declared ${want.type} ${want.name} -> ${want.content}`,
+			ok: proxiedOk,
+			detail: proxiedOk
+				? `present; proxied=${got.proxied}`
+				: `proxied drift: want ${want.proxied}, live ${got.proxied}`,
+		});
+	}
+
+	for (const [key, got] of liveByKey) {
+		if (desiredByKey.has(key)) continue;
+		checks.push({
+			name: `undeclared ${got.type} ${got.name} -> ${got.content}`,
+			ok: false,
+			detail: 'PRESENT live but not declared in zone.json (unexpected record)',
+		});
+	}
+
+	// --- Informational: unmanaged live record types (never counted as drift). ---
+	const unmanaged = live.filter((record) => !MANAGED_TYPES.has(record.type.toUpperCase()));
+	if (unmanaged.length > 0) {
+		const summary = unmanaged.map((r) => `${r.type} ${r.name}`).join(', ');
+		checks.push({
+			name: 'unmanaged record types present (informational)',
+			ok: true,
+			warn: true,
+			detail: `not reconciled by zone.json: ${summary}`,
+		});
+	}
+
+	// --- DNSSEC: active = PASS, pending = WARN (CF zone signed, awaiting registrar DS),
+	//     anything else (e.g. disabled) = FAIL (a real regression). ---
+	const dnssecLive = dnssecStatus.toLowerCase();
+	const dnssecWant = desired.dnssec.toLowerCase();
+	const dnssecPending = dnssecWant === 'active' && dnssecLive === 'pending';
+	checks.push({
+		name: `dnssec is ${desired.dnssec}`,
+		ok: dnssecLive === dnssecWant || dnssecPending,
+		warn: dnssecPending,
+		detail: dnssecPending
+			? 'live status=pending — CF zone signed; awaiting DS at the DreamHost registrar (TIN-2160)'
+			: `live status=${dnssecStatus}`,
+	});
+
+	return checks;
+}
+
+async function main(): Promise<void> {
+	const token = process.env.CLOUDFLARE_API_TOKEN;
+	if (!token) fail('CLOUDFLARE_API_TOKEN is not set (a read-only DNS token is sufficient)');
+
+	const desired = await loadDesiredZone();
+	const zoneId = process.env.CLOUDFLARE_ZONE_ID || desired.zone_id;
+	if (!zoneId) fail('no zone id (set CLOUDFLARE_ZONE_ID or zone_id in zone.json)');
+
+	const live = await listLiveRecords(zoneId, token);
+	const dnssecStatus = await getDnssecStatus(zoneId, token);
+	const checks = buildChecks(desired, live, dnssecStatus);
+
+	console.log(`Cloudflare DNS drift check for ${desired.zone} (zone ${zoneId})`);
+	let failures = 0;
+	for (const check of checks) {
+		const marker = check.ok ? (check.warn ? 'WARN' : 'PASS') : 'FAIL';
+		console.log(`${marker} ${check.name}: ${check.detail}`);
+		if (!check.ok) failures++;
+	}
+
+	if (failures > 0) {
+		console.error(`Cloudflare DNS drift detected: ${failures} failing check(s). This script does not mutate; reconcile manually.`);
+		process.exit(1);
+	}
+	console.log('No Cloudflare DNS drift: live zone matches infra/cloudflare/zone.json.');
+}
+
+await main();
