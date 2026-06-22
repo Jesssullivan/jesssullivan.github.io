@@ -112,6 +112,21 @@ This repo still uses the npm/SvelteKit workflow for normal local development and
 
 Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift under GloriousFlywheel. Deployment still publishes the SvelteKit static artifact through the existing Pages workflows.
 
+## Production DNS And Health
+
+`transscendsurvival.org` is served by GitHub Pages behind DreamHost DNS. The
+apex must carry GitHub Pages' four `A` records and four `AAAA` records; `www`
+is a CNAME to `Jesssullivan.github.io.` and must redirect to the HTTPS apex.
+
+`npm run test:production-health` checks authoritative DreamHost DNS, major
+public resolvers, apex/`www` redirects, and the live HTTPS response. The
+`Production Health` workflow runs every 30 minutes and also verifies the latest
+`github-pages` deployment SHA matches `main`.
+
+Bot-generated stats commits do not naturally trigger recursive GitHub Actions
+deploys, so `content-stats.yml` explicitly dispatches `deploy-pages.yml` after
+it pushes refreshed generated artifacts.
+
 
 ## Content Authority And Fallback Automation
 
