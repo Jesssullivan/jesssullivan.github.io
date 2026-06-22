@@ -1,0 +1,14 @@
+{
+	// Deploy: cd workers/dns-guard && npm install && npx wrangler deploy
+	// Secret:  npx wrangler secret put HEALTHCHECK_URL   (Healthchecks.io ping URL)
+	"name": "transscend-dns-guard",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-06-01",
+	// Every 15 min: assert apex+www A/AAAA across public resolvers + HTTPS/redirects.
+	"triggers": {
+		"crons": ["*/15 * * * *"]
+	},
+	"observability": {
+		"enabled": true
+	}
+}

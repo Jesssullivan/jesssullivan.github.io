@@ -1,0 +1,15 @@
+{
+	"name": "transscend-dns-guard",
+	"private": true,
+	"type": "module",
+	"description": "Edge DNS/HTTP guard for transscendsurvival.org (multi-resolver A/AAAA assertion).",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"tail": "wrangler tail"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20260601.0",
+		"wrangler": "^4.0.0"
+	}
+}
