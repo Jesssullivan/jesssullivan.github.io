@@ -52,13 +52,39 @@ const BLOG_BROKER_STREAM_URL = 'https://hub.tinyland.dev/projections/jesssulliva
 const EXPECTED_A = ['185.199.108.153', '185.199.109.153', '185.199.110.153', '185.199.111.153'];
 const EXPECTED_AAAA = ['2606:50c0:8000::153', '2606:50c0:8001::153', '2606:50c0:8002::153', '2606:50c0:8003::153'];
 
-// Independent public resolvers exposing JSON DoH. Each is a distinct recursive
-// view of the zone — "all resolver permutations". Trivially extensible.
-const DOH_RESOLVERS: { label: string; url: (name: string, type: RecordType) => string }[] = [
-	{ label: 'Cloudflare', url: (n, t) => `https://cloudflare-dns.com/dns-query?name=${n}&type=${t}` },
-	{ label: 'Google', url: (n, t) => `https://dns.google/resolve?name=${n}&type=${t}` },
-	{ label: 'Quad9', url: (n, t) => `https://dns.quad9.net:5053/dns-query?name=${n}&type=${t}` },
-	{ label: 'AdGuard', url: (n, t) => `https://dns.adguard-dns.com/resolve?name=${n}&type=${t}` },
+// Independent public resolvers. Cloudflare/Google/AdGuard expose JSON APIs.
+// OpenDNS uses standards-based RFC 8484 DoH on 443. Quad9 remains covered by
+// the GitHub production-health workflow via direct resolver queries; its retired
+// JSON endpoint on port 5053 must not be used from this Worker.
+type JsonDohResolver = {
+	label: string;
+	transport: 'json';
+	url: (name: string, type: RecordType) => string;
+};
+type WireDohResolver = {
+	label: string;
+	transport: 'wire';
+	url: string;
+};
+type DohResolver = JsonDohResolver | WireDohResolver;
+
+const DOH_RESOLVERS: DohResolver[] = [
+	{
+		label: 'Cloudflare',
+		transport: 'json',
+		url: (n, t) => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=${t}`,
+	},
+	{
+		label: 'Google',
+		transport: 'json',
+		url: (n, t) => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=${t}`,
+	},
+	{ label: 'OpenDNS', transport: 'wire', url: 'https://doh.opendns.com/dns-query' },
+	{
+		label: 'AdGuard',
+		transport: 'json',
+		url: (n, t) => `https://dns.adguard-dns.com/resolve?name=${encodeURIComponent(n)}&type=${t}`,
+	},
 ];
 
 type RecordType = 'A' | 'AAAA';
@@ -119,7 +145,88 @@ interface DohResponse {
 	Answer?: DohAnswer[];
 }
 
-async function dohQuery(url: string, type: RecordType): Promise<{ ok: boolean; addrs: string[]; note: string }> {
+function buildDnsQuery(name: string, type: RecordType): Uint8Array {
+	const labels = name.replace(/\.$/, '').split('.');
+	const qnameLength = labels.reduce((sum, label) => sum + 1 + label.length, 1);
+	const bytes = new Uint8Array(12 + qnameLength + 4);
+	const view = new DataView(bytes.buffer);
+	view.setUint16(0, 0x5153); // arbitrary query id
+	view.setUint16(2, 0x0100); // recursion desired
+	view.setUint16(4, 1); // one question
+
+	let offset = 12;
+	for (const label of labels) {
+		bytes[offset++] = label.length;
+		for (let i = 0; i < label.length; i += 1) bytes[offset++] = label.charCodeAt(i);
+	}
+	bytes[offset++] = 0;
+	view.setUint16(offset, DNS_TYPE_CODE[type]);
+	offset += 2;
+	view.setUint16(offset, 1); // IN
+	return bytes;
+}
+
+function bytesToBase64Url(bytes: Uint8Array): string {
+	let binary = '';
+	for (const byte of bytes) binary += String.fromCharCode(byte);
+	return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function skipName(view: DataView, offset: number): number {
+	let cursor = offset;
+	for (let guard = 0; guard < 128; guard += 1) {
+		const len = view.getUint8(cursor);
+		if ((len & 0xc0) === 0xc0) return cursor + 2;
+		if (len === 0) return cursor + 1;
+		cursor += len + 1;
+	}
+	throw new Error('DNS name pointer loop');
+}
+
+function formatIpv4(view: DataView, offset: number): string {
+	return [0, 1, 2, 3].map((i) => view.getUint8(offset + i)).join('.');
+}
+
+function formatIpv6(view: DataView, offset: number): string {
+	const groups: string[] = [];
+	for (let i = 0; i < 16; i += 2) groups.push(view.getUint16(offset + i).toString(16));
+	return groups.join(':');
+}
+
+function parseDnsWireResponse(buffer: ArrayBuffer, type: RecordType): string[] {
+	const view = new DataView(buffer);
+	if (view.byteLength < 12) throw new Error('short DNS response');
+	const rcode = view.getUint16(2) & 0x000f;
+	if (rcode !== 0) throw new Error(`DNS status ${rcode}`);
+
+	let offset = 12;
+	const questionCount = view.getUint16(4);
+	const answerCount = view.getUint16(6);
+	for (let i = 0; i < questionCount; i += 1) offset = skipName(view, offset) + 4;
+
+	const wanted = DNS_TYPE_CODE[type];
+	const addrs: string[] = [];
+	for (let i = 0; i < answerCount; i += 1) {
+		offset = skipName(view, offset);
+		if (offset + 10 > view.byteLength) throw new Error('truncated DNS answer');
+		const answerType = view.getUint16(offset);
+		offset += 2;
+		const answerClass = view.getUint16(offset);
+		offset += 2;
+		offset += 4; // TTL
+		const dataLength = view.getUint16(offset);
+		offset += 2;
+		if (offset + dataLength > view.byteLength) throw new Error('truncated DNS rdata');
+		if (answerClass === 1 && answerType === wanted) {
+			if (type === 'A' && dataLength === 4) addrs.push(formatIpv4(view, offset));
+			if (type === 'AAAA' && dataLength === 16) addrs.push(formatIpv6(view, offset));
+		}
+		offset += dataLength;
+	}
+	return addrs;
+}
+
+async function jsonDohQuery(url: string, type: RecordType): Promise<{ ok: boolean; addrs: string[]; note: string }> {
 	const controller = new AbortController();
 	const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
 	try {
@@ -137,8 +244,46 @@ async function dohQuery(url: string, type: RecordType): Promise<{ ok: boolean; a
 	}
 }
 
-async function recordCheck(label: string, url: string, type: RecordType, expected: string[]): Promise<CheckResult> {
-	const { ok, addrs, note } = await dohQuery(url, type);
+async function wireDohQuery(
+	resolver: WireDohResolver,
+	name: string,
+	type: RecordType,
+): Promise<{ ok: boolean; addrs: string[]; note: string }> {
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), QUERY_TIMEOUT_MS);
+	const dns = bytesToBase64Url(buildDnsQuery(name, type));
+	try {
+		const res = await fetch(`${resolver.url}?dns=${dns}`, {
+			headers: { accept: 'application/dns-message' },
+			signal: controller.signal,
+		});
+		if (!res.ok) return { ok: false, addrs: [], note: `HTTP ${res.status}` };
+		return { ok: true, addrs: parseDnsWireResponse(await res.arrayBuffer(), type), note: 'ok' };
+	} catch (err) {
+		return { ok: false, addrs: [], note: err instanceof Error ? err.message || err.name : String(err) };
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
+async function dohQuery(
+	resolver: DohResolver,
+	name: string,
+	type: RecordType,
+): Promise<{ ok: boolean; addrs: string[]; note: string }> {
+	return resolver.transport === 'json'
+		? jsonDohQuery(resolver.url(name, type), type)
+		: wireDohQuery(resolver, name, type);
+}
+
+async function recordCheck(
+	resolver: DohResolver,
+	name: string,
+	label: string,
+	type: RecordType,
+	expected: string[],
+): Promise<CheckResult> {
+	const { ok, addrs, note } = await dohQuery(resolver, name, type);
 	// A transport/timeout/non-NOERROR hiccup is resolver noise, not a record defect:
 	// skip it so a single flaky resolver never pages. A clean NOERROR answer that is
 	// MISSING expected records (exactly the 2026-06-22 AAAA outage) is a hard fail.
@@ -154,9 +299,9 @@ async function recordCheck(label: string, url: string, type: RecordType, expecte
 async function dnsChecks(): Promise<CheckResult[]> {
 	const jobs: Promise<CheckResult>[] = [];
 	for (const r of DOH_RESOLVERS) {
-		jobs.push(recordCheck(`${r.label} apex A`, r.url(APEX, 'A'), 'A', EXPECTED_A));
-		jobs.push(recordCheck(`${r.label} apex AAAA`, r.url(APEX, 'AAAA'), 'AAAA', EXPECTED_AAAA));
-		jobs.push(recordCheck(`${r.label} www AAAA`, r.url(WWW, 'AAAA'), 'AAAA', EXPECTED_AAAA));
+		jobs.push(recordCheck(r, APEX, `${r.label} apex A`, 'A', EXPECTED_A));
+		jobs.push(recordCheck(r, APEX, `${r.label} apex AAAA`, 'AAAA', EXPECTED_AAAA));
+		jobs.push(recordCheck(r, WWW, `${r.label} www AAAA`, 'AAAA', EXPECTED_AAAA));
 	}
 	return Promise.all(jobs);
 }
