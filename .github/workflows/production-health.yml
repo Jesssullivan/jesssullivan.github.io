@@ -32,6 +32,11 @@ jobs:
              ! command -v google-chrome-stable >/dev/null 2>&1; then
             npx playwright install --with-deps chromium
           fi
+      - name: Ensure dig for the TCP/53 DNS health check
+        run: |
+          if ! command -v dig >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq bind9-dnsutils
+          fi
       - run: npm run test:production-health
       - name: Verify Pages deployment is current main
         run: |
