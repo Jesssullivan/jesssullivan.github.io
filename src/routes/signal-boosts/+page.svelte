@@ -30,7 +30,8 @@
 			name: 'Nabeel Valley',
 			url: 'https://nabeelvalley.co.za/blog/',
 			image: null,
-			description: 'Software engineer and photographer. Wide-ranging technical blog covering web, cloud, and functional programming.',
+			description:
+				'Software engineer and photographer. Wide-ranging technical blog covering web, cloud, and functional programming.',
 		},
 		{
 			name: 'Michael Schnerring',
@@ -47,7 +48,7 @@
 		{
 			name: 'chorl',
 			url: 'https://www.etotheipiplusone.net/',
-			image: '/images/signal-boosts/etotheipiplusone.jpg',
+			image: null,
 			description: 'Equals Zero. Combat robots, electric vehicles, and deeply detailed mechanical build logs.',
 		},
 	];
@@ -77,13 +78,20 @@
 				class="card p-5 flex items-center gap-5 hover:ring-2 ring-primary-500 transition-all"
 				aria-label={`Visit ${person.name}`}
 			>
-				<Avatar class="size-12">
+				<Avatar class="size-12 shrink-0">
 					{#if person.image}
-						<Avatar.Image src={person.image} alt={person.name} />
+						<Avatar.Image class="size-full object-cover" src={person.image} alt={person.name} />
 					{/if}
-					<Avatar.Fallback>{person.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}</Avatar.Fallback>
+					<Avatar.Fallback
+						>{person.name
+							.split(' ')
+							.map((w: string) => w[0])
+							.join('')
+							.slice(0, 2)
+							.toUpperCase()}</Avatar.Fallback
+					>
 				</Avatar>
-				<div class="min-w-0">
+				<div class="min-w-0 flex-1">
 					<h2 class="font-semibold text-lg">{person.name}</h2>
 					<p class="text-sm text-surface-500 mt-1">{person.description}</p>
 					<p class="text-xs text-primary-500 mt-1 truncate">{person.url}</p>
