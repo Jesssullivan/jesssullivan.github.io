@@ -121,9 +121,18 @@ apex must carry GitHub Pages' four `A` records and four `AAAA` records; `www`
 is a CNAME to `Jesssullivan.github.io.` and must redirect to the HTTPS apex.
 
 `npm run test:production-health` checks authoritative DreamHost DNS, major
-public resolvers, apex/`www` redirects, and the live HTTPS response. The
+public resolvers, apex/`www` redirects, live HTTPS responses for the homepage
+plus slashless and trailing-slash blog routes, the Tinyland blog broker contract,
+and browser hydration on `/blog`. The static build keeps slashless canonical URLs
+but emits directory-index aliases so copied, normalized, or legacy trailing-slash
+links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
 `github-pages` deployment SHA matches `main`.
+
+This monitoring catches DreamHost authoritative drift and GitHub Pages route
+failures. It does not remove the service-level DreamHost dependency; the durable
+DNS fix is the Cloudflare Pages / Cloudflare DNS canonical cutover tracked in
+TIN-1110.
 
 Bot-generated stats commits do not naturally trigger recursive GitHub Actions
 deploys, so `content-stats.yml` explicitly dispatches `deploy-pages.yml` after

@@ -46,6 +46,10 @@ function candidatePaths(pathname) {
 		return [];
 	}
 
+	if (decoded.endsWith('/')) {
+		return [join(base, 'index.html')];
+	}
+
 	const candidates = [base];
 	if (!extname(base)) {
 		candidates.push(`${base}.html`);

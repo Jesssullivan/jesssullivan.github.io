@@ -70,6 +70,37 @@ const validStream: TinylandBlogBrokerStream = {
 	projectionTombstones: [],
 };
 
+const liveDisplayStream: TinylandBlogBrokerStream = {
+	...validStream,
+	counts: {
+		totalManagedPosts: 1,
+		publicPublishedManagedPosts: 1,
+		publicPublishedDisplayPosts: 1,
+		displayHeldBackPosts: 0,
+		draftOrUnpublishedManagedPosts: 0,
+		projectionTombstones: 0,
+	},
+	policy: {
+		projectionPolicy: 'publicPublishedManagedPosts-display-stream',
+		displayMembershipPolicy: 'public-published-display-membership',
+		contentTransport: 'dynamic-broker-stream',
+		contentMarkdownIncluded: true,
+		draftContentIncluded: false,
+		displayMembershipGate: 'frontmatter-published-status-visibility',
+		publicFediverseDelivery: false,
+	},
+	posts: validStream.posts.map(({ reviewStatus: _reviewStatus, ...post }) => ({
+		...post,
+		displayStatus: 'public-published-display-source',
+		frontmatter: {
+			...post.frontmatter,
+			published: true,
+			status: 'published',
+			visibility: 'public',
+		},
+	})),
+};
+
 const jsonResponse = (body: unknown, init: ResponseInit = {}) =>
 	new Response(JSON.stringify(body), {
 		status: init.status ?? 200,
@@ -92,6 +123,12 @@ describe('loadTinylandBlogBrokerStream', () => {
 		expect(fetchMock.mock.calls.flat().join(' ')).not.toContain('/data/tinyland/posts/public-snapshot.v1.json');
 	});
 
+	it('accepts the current live public display-membership broker contract', async () => {
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(liveDisplayStream));
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(liveDisplayStream);
+	});
+
 	it('rejects streams that try to behave like checked-in materialization', async () => {
 		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
 			jsonResponse({
@@ -103,9 +140,7 @@ describe('loadTinylandBlogBrokerStream', () => {
 			}),
 		);
 
-		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(
-			'checkedInPostPayloads must be false',
-		);
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow('checkedInPostPayloads must be false');
 	});
 
 	it('rejects public Fediverse delivery claims on the display stream', async () => {
@@ -116,9 +151,7 @@ describe('loadTinylandBlogBrokerStream', () => {
 			}),
 		);
 
-		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(
-			'publicFediverseDelivery must be false',
-		);
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow('publicFediverseDelivery must be false');
 	});
 
 	it('rejects unreviewed broker posts', async () => {
@@ -135,6 +168,39 @@ describe('loadTinylandBlogBrokerStream', () => {
 		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(
 			'reviewStatus must be operator-reviewed-source-public',
 		);
+	});
+
+	it('rejects display streams without the public display-membership policy', async () => {
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
+			jsonResponse({
+				...liveDisplayStream,
+				policy: {
+					...liveDisplayStream.policy,
+					displayMembershipPolicy: undefined,
+				},
+			}),
+		);
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(
+			'policy must declare a public display membership gate',
+		);
+	});
+
+	it('rejects display posts that are not public published frontmatter', async () => {
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
+			jsonResponse({
+				...liveDisplayStream,
+				posts: liveDisplayStream.posts.map((post) => ({
+					...post,
+					frontmatter: {
+						...post.frontmatter,
+						visibility: 'private',
+					},
+				})),
+			}),
+		);
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow('must be public-published display content');
 	});
 
 	it('maps broker posts into existing BlogCard post shape', () => {
