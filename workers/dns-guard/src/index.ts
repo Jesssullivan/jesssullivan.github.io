@@ -260,12 +260,7 @@ async function dohQuery(
 		: wireDohQuery(resolver, name, type);
 }
 
-async function recordCheck(
-	resolver: DohResolver,
-	name: string,
-	label: string,
-	type: RecordType,
-): Promise<CheckResult> {
+async function recordCheck(resolver: DohResolver, name: string, label: string, type: RecordType): Promise<CheckResult> {
 	const { ok, addrs, note } = await dohQuery(resolver, name, type);
 	// A transport/timeout/non-NOERROR hiccup is resolver noise, not a record defect:
 	// skip it so a single flaky resolver never pages. A clean NOERROR answer with NO
@@ -284,6 +279,7 @@ async function dnsChecks(): Promise<CheckResult[]> {
 	for (const r of DOH_RESOLVERS) {
 		jobs.push(recordCheck(r, APEX, `${r.label} apex A resolves`, 'A'));
 		jobs.push(recordCheck(r, APEX, `${r.label} apex AAAA resolves`, 'AAAA'));
+		jobs.push(recordCheck(r, WWW, `${r.label} www A resolves`, 'A'));
 		jobs.push(recordCheck(r, WWW, `${r.label} www AAAA resolves`, 'AAAA'));
 	}
 	return Promise.all(jobs);

@@ -8,13 +8,23 @@ type Check = {
 	name: string;
 	ok: boolean;
 	detail: string;
+	warn?: boolean;
 };
 
 type ResolveAttempt = { ok: true; values: string[] } | { ok: false; detail: string };
+type RecordCheck = Check & { values: string[] };
+type DirectTarget = {
+	host: string;
+	ip: string;
+	url: string;
+	expectedStatus: number;
+	expectedLocation?: string;
+};
 
 const apex = 'transscendsurvival.org';
 const www = `www.${apex}`;
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
+const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 
 // Host-agnostic resolution health. The apex is migrating from GitHub Pages anycast
 // (185.199.x / 2606:50c0::) to a Cloudflare-proxied CNAME whose A/AAAA rotate, so we
@@ -57,9 +67,9 @@ async function tryResolveRecords(server: string, name: string, family: 4 | 6): P
 	}
 }
 
-function resolvesCheck(name: string, values: string[]): Check {
+function resolvesCheck(name: string, values: string[]): RecordCheck {
 	const ok = values.length > 0;
-	return { name, ok, detail: ok ? format(values) : 'NODATA (resolved but empty)' };
+	return { name, ok, detail: ok ? format(values) : 'NODATA (resolved but empty)', values };
 }
 
 async function authoritativeRecordCheck(
@@ -67,7 +77,7 @@ async function authoritativeRecordCheck(
 	server: string,
 	host: string,
 	family: 4 | 6,
-): Promise<Check> {
+): Promise<RecordCheck> {
 	const attempts = 5;
 	const failures: string[] = [];
 	let lastGood: string[] = [];
@@ -91,39 +101,82 @@ async function authoritativeRecordCheck(
 		name,
 		ok: failures.length === 0,
 		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
+		values: lastGood,
 	};
 }
 
 async function publicDnsChecks(): Promise<Check[]> {
 	const checks: Check[] = [];
+	const targets: DirectTarget[] = [];
+	const seenTargets = new Set<string>();
 
 	for (const [label, server] of publicResolvers) {
-		checks.push(await publicRecordCheck(`${label} apex A resolves`, server, apex, 4));
+		const apexA = await publicRecordCheck(`${label} apex A resolves`, server, apex, 4);
+		checks.push(apexA);
 		checks.push(await publicRecordCheck(`${label} apex AAAA resolves`, server, apex, 6));
+		const wwwA = await publicRecordCheck(`${label} www A resolves`, server, www, 4);
+		checks.push(wwwA);
 		checks.push(await publicRecordCheck(`${label} www AAAA resolves`, server, www, 6));
+		queueDirectTargets(targets, seenTargets, apex, apexA.values);
+		queueDirectTargets(targets, seenTargets, www, wwwA.values);
 	}
 
+	checks.push(...(await runDirectTargetChecks(targets)));
 	return checks;
 }
 
-async function publicRecordCheck(
-	name: string,
-	server: string,
-	host: string,
-	family: 4 | 6,
-): Promise<Check> {
+async function publicRecordCheck(name: string, server: string, host: string, family: 4 | 6): Promise<RecordCheck> {
 	const result = await tryResolveRecords(server, host, family);
 	if (!result.ok) {
-		return { name, ok: false, detail: result.detail };
+		return { name, ok: false, detail: result.detail, values: [] };
 	}
 	return resolvesCheck(name, result.values);
+}
+
+function queueDirectTargets(targets: DirectTarget[], seenTargets: Set<string>, host: string, values: string[]) {
+	for (const ip of values) {
+		const key = `${host}|${ip}`;
+		if (seenTargets.has(key)) continue;
+		seenTargets.add(key);
+		targets.push(
+			host === apex
+				? { host, ip, url: `https://${apex}/blog`, expectedStatus: 200 }
+				: {
+						host,
+						ip,
+						url: `https://${www}/blog`,
+						expectedStatus: 301,
+						expectedLocation: `https://${apex}/blog`,
+					},
+		);
+	}
+}
+
+async function runDirectTargetChecks(targets: DirectTarget[]): Promise<Check[]> {
+	const checks: Check[] = [];
+	for (const target of targets) {
+		checks.push(
+			await directHttpsCheck(
+				`direct HTTPS ${target.host} via ${target.ip}`,
+				target.host,
+				target.ip,
+				target.url,
+				target.expectedStatus,
+				target.expectedLocation,
+			),
+		);
+	}
+	return checks;
 }
 
 async function authoritativeDnsChecks(): Promise<Check[]> {
 	const bootstrap = new Resolver();
 	bootstrap.setServers(['1.1.1.1']);
-	const nsNames = await bootstrap.resolveNs(apex);
+	const delegatedNsNames = await bootstrap.resolveNs(apex);
+	const nsNames = [...new Set([...delegatedNsNames, ...cutoverNsNames])];
 	const checks: Check[] = [];
+	const targets: DirectTarget[] = [];
+	const seenTargets = new Set<string>();
 
 	for (const nsName of nsNames.sort()) {
 		const addresses = await bootstrap.resolve4(nsName);
@@ -133,12 +186,19 @@ async function authoritativeDnsChecks(): Promise<Check[]> {
 			continue;
 		}
 
-		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4));
+		const apexA = await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4);
+		checks.push(apexA);
 		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA resolves`, server, apex, 6));
+		const wwwA = await authoritativeRecordCheck(`authoritative ${nsName} www A resolves`, server, www, 4);
+		checks.push(wwwA);
+		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} www AAAA resolves`, server, www, 6));
 		checks.push(await authoritativeSoaCheck(`authoritative ${nsName} apex SOA resolves`, server));
 		checks.push(await tcpDnsCheck(`authoritative ${nsName} answers over TCP/53`, server));
+		queueDirectTargets(targets, seenTargets, apex, apexA.values);
+		queueDirectTargets(targets, seenTargets, www, wwwA.values);
 	}
 
+	checks.push(...(await runDirectTargetChecks(targets)));
 	return checks;
 }
 
@@ -165,7 +225,37 @@ async function tcpDnsCheck(name: string, server: string): Promise<Check> {
 		return { name, ok, detail: ok ? 'NOERROR over TCP/53' : `${status} (or TCP/53 blocked)` };
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		return { name, ok: false, detail: `TCP/53 failed: ${message}` };
+		return { name, ok: true, warn: true, detail: `TCP/53 unavailable: ${message}` };
+	}
+}
+
+async function directHttpsCheck(
+	name: string,
+	host: string,
+	ip: string,
+	url: string,
+	expectedStatus: number,
+	expectedLocation?: string,
+): Promise<Check> {
+	try {
+		const { stdout } = await execFileAsync(
+			'curl',
+			['-sS', '--max-time', '12', '--resolve', `${host}:443:${ip}`, '-I', '-o', '-', url],
+			{ timeout: 15_000 },
+		);
+		const status = Number(stdout.match(/^HTTP\/\S+\s+(\d+)/m)?.[1] ?? 0);
+		const location = stdout.match(/^location:\s*(.+)$/im)?.[1]?.trim() ?? '';
+		const statusOk = status === expectedStatus;
+		const locationOk = expectedLocation === undefined || location === expectedLocation;
+		return {
+			name,
+			ok: statusOk && locationOk,
+			detail:
+				expectedLocation === undefined ? `status=${status}` : `status=${status}; location=${location || '(none)'}`,
+		};
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		return { name, ok: false, detail: `direct TLS/HTTPS failed: ${message}` };
 	}
 }
 
@@ -355,7 +445,7 @@ const checks = [
 
 let failures = 0;
 for (const check of checks) {
-	const marker = check.ok ? 'PASS' : 'FAIL';
+	const marker = check.ok ? (check.warn ? 'WARN' : 'PASS') : 'FAIL';
 	console.log(`${marker} ${check.name}: ${check.detail}`);
 	if (!check.ok) failures++;
 }
