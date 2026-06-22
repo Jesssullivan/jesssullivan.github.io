@@ -1,5 +1,7 @@
 Hi! This is just my boring personal static blog ^w^ 
 
+[![dns guard](https://img.shields.io/endpoint?url=https%3A%2F%2Ftransscend-dns-guard.jess-fdc.workers.dev%2Fbadge)](https://transscendsurvival.org) [![production health](https://github.com/Jesssullivan/jesssullivan.github.io/actions/workflows/production-health.yml/badge.svg)](https://github.com/Jesssullivan/jesssullivan.github.io/actions/workflows/production-health.yml)
+
 
 | Surface | Route |
 | --- | --- |
