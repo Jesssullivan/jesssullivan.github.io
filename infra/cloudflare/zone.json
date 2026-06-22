@@ -1,0 +1,23 @@
+{
+	"$comment": "Declarative DESIRED Cloudflare DNS state for transscendsurvival.org. Source of truth for drift detection only (scripts/cf-dns-check.mts). This file does NOT apply anything: no agent or workflow mutates Cloudflare from it. Editing it changes what 'no drift' means, not the live zone. CONTAINS NO SECRETS.",
+	"zone": "transscendsurvival.org",
+	"zone_id": "602400322c1ecac4983542c76af90115",
+	"invariants": {
+		"$comment": "Hard rules the drift detector enforces beyond record-by-record equality. An apex re-proxy (proxied=true on the apex A/AAAA) caused the 2026-06-22 outage and must fail loudly.",
+		"apex_must_be_dns_only": true,
+		"apex_record_types": ["A", "AAAA"],
+		"www_record_type": "CNAME"
+	},
+	"records": [
+		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.108.153", "proxied": false, "ttl": 1 },
+		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.109.153", "proxied": false, "ttl": 1 },
+		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.110.153", "proxied": false, "ttl": 1 },
+		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.111.153", "proxied": false, "ttl": 1 },
+		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8000::153", "proxied": false, "ttl": 1 },
+		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8001::153", "proxied": false, "ttl": 1 },
+		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8002::153", "proxied": false, "ttl": 1 },
+		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8003::153", "proxied": false, "ttl": 1 },
+		{ "type": "CNAME", "name": "www.transscendsurvival.org", "content": "jesssullivan.github.io", "proxied": false, "ttl": 1 }
+	],
+	"dnssec": "active"
+}

@@ -1,0 +1,83 @@
+name: Cloudflare DNS Drift
+
+# READ-ONLY drift detection for the transscendsurvival.org Cloudflare zone.
+# Runs scripts/cf-dns-check.mts, which only GETs live DNS records and compares them
+# to infra/cloudflare/zone.json. It never mutates Cloudflare. It fails the job if the
+# apex is proxied, if apex/www record types drift, if records are missing/undeclared,
+# or if DNSSEC is not active.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/cloudflare-dns-drift.yml"
+      - "infra/cloudflare/**"
+      - "scripts/cf-dns-check.mts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-dns-drift-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  dns-drift:
+    name: Detect Cloudflare DNS drift (read-only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run Cloudflare DNS drift check
+        id: drift
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ]; then
+            # Fork PRs and unconfigured environments have no secret. Skip rather than
+            # fail: this is read-only drift detection, not a required build gate.
+            echo "::notice title=Cloudflare DNS drift skipped::CLOUDFLARE_API_TOKEN is not available (likely a fork PR)."
+            {
+              echo "## Cloudflare DNS Drift"
+              echo ""
+              echo "- Result: \`skipped\` (no CLOUDFLARE_API_TOKEN)"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          status=0
+          npx tsx scripts/cf-dns-check.mts | tee drift-output.txt || status=$?
+
+          {
+            echo "## Cloudflare DNS Drift"
+            echo ""
+            if [ "${status}" -eq 0 ]; then
+              echo "- Result: \`no drift\` — live zone matches infra/cloudflare/zone.json"
+            else
+              echo "- Result: \`DRIFT DETECTED\` — see log below (this check is read-only; reconcile manually)"
+            fi
+            echo ""
+            echo '```'
+            cat drift-output.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${status}" -ne 0 ]; then
+            echo "::error title=Cloudflare DNS drift detected::Live DNS for transscendsurvival.org diverges from infra/cloudflare/zone.json."
+          fi
+          exit "${status}"
