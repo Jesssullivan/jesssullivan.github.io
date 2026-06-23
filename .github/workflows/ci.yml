@@ -46,7 +46,6 @@ jobs:
 
           echo "GF_BAZEL_SUBSTRATE_MODE=executor-backed" >> "$GITHUB_ENV"
           echo "GF_BAZEL_REMOTE_EXECUTION_PLATFORM=${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}" >> "$GITHUB_ENV"
-          echo "BAZEL_REMOTE_INSTANCE_NAME=${BAZEL_REMOTE_INSTANCE_NAME:-default}" >> "$GITHUB_ENV"
 
       - name: Mint GloriousFlywheel REAPI token
         env:

@@ -121,6 +121,6 @@ fi
 if [[ -n ${GITHUB_ENV:-} ]]; then
   {
     echo "GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE=${token_file}"
-    echo "BAZEL_REMOTE_INSTANCE_NAME=${BAZEL_REMOTE_INSTANCE_NAME:-${instance_name}}"
+    echo "BAZEL_REMOTE_INSTANCE_NAME=${instance_name}"
   } >>"${GITHUB_ENV}"
 fi
