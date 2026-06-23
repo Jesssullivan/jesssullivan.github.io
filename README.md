@@ -125,20 +125,20 @@ Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift
 
 ## Production DNS And Health
 
-`transscendsurvival.org` is served by Cloudflare Pages at the apex. DNS authority
-is Cloudflare as of 2026-06-23; DreamHost remains the registrar. The declared
-Cloudflare zone keeps the apex as a proxied CNAME to
-`transscendsurvival-org.pages.dev`; `www` remains a DNS-only CNAME to
-`jesssullivan.github.io` and redirects to the apex.
+`transscendsurvival.org` is served by Cloudflare Pages at the apex and `www`,
+with Cloudflare as the registrar, DNS authority, and DNSSEC signer as of
+2026-06-23 (the registration moved off DreamHost). The declared Cloudflare zone
+keeps both the apex and `www` as proxied CNAMEs to
+`transscendsurvival-org.pages.dev`; `www` serves the blog with a canonical link
+to the apex. DNSSEC is active — Cloudflare Registrar publishes the parent DS.
 
-`npm run test:production-health` checks delegated and cutover authoritative DNS,
-major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
-redirects, live HTTPS responses for the homepage plus slashless and trailing-slash
+`npm run test:production-health` checks delegated authoritative DNS, major public
+resolvers, direct HTTPS against resolved IPv4 targets, apex/`www` HTTPS responses
+and redirects, live responses for the homepage plus slashless and trailing-slash
 blog routes, the Tinyland blog broker contract, and browser hydration on `/blog`.
 At the authoritative layer, apex and `www` must both expand to public A/AAAA
-answers for visitors, while `www` must retain the canonical
-`jesssullivan.github.io` CNAME. The Cloudflare DNS drift workflow separately
-asserts the exact apex CNAME target and proxy posture.
+answers (Cloudflare anycast) for visitors. The Cloudflare DNS drift workflow
+separately asserts the exact apex and `www` CNAME targets and proxy posture.
 The static build keeps slashless canonical URLs but emits directory-index aliases
 so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
