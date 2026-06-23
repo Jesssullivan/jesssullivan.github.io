@@ -23,17 +23,14 @@ type DirectTarget = {
 
 const apex = 'transscendsurvival.org';
 const www = `www.${apex}`;
-const wwwCanonicalTarget = 'jesssullivan.github.io';
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
+const transientNetworkAttempts = 3;
 
 // Host-agnostic resolution health. The apex currently resolves through Cloudflare
-// Pages edge addresses via a proxied apex CNAME, and www remains the canonical
-// GitHub Pages CNAME redirect path. Public resolvers must expand both apex and www
-// to A + AAAA. Authoritative nameservers may return only CNAMEs, so the authority
-// layer checks www's CNAME directly and proves the right site with HTTPS +
-// broker-stream checks below. A SERVFAIL or empty AAAA is the exact DNS failure
-// that broke IPv6 visitors.
+// Pages edge addresses via a proxied apex CNAME. www is also a proxied Pages CNAME,
+// so both hostnames must resolve to A + AAAA and serve the static app directly.
+// A SERVFAIL or empty AAAA is the exact DNS failure that broke IPv6 visitors.
 
 const publicResolvers = [
 	['Cloudflare', '1.1.1.1'],
@@ -143,13 +140,7 @@ function queueDirectTargets(targets: DirectTarget[], seenTargets: Set<string>, h
 		targets.push(
 			host === apex
 				? { host, ip, url: `https://${apex}/blog`, expectedStatus: 200 }
-				: {
-						host,
-						ip,
-						url: `https://${www}/blog`,
-						expectedStatus: 301,
-						expectedLocation: `https://${apex}/blog`,
-					},
+				: { host, ip, url: `https://${www}/blog`, expectedStatus: 200 },
 		);
 	}
 }
@@ -191,61 +182,17 @@ async function authoritativeDnsChecks(): Promise<Check[]> {
 		const apexA = await authoritativeRecordCheck(`authoritative ${nsName} apex A resolves`, server, apex, 4);
 		checks.push(apexA);
 		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} apex AAAA resolves`, server, apex, 6));
-		checks.push(await authoritativeCnameCheck(`authoritative ${nsName} www CNAME`, server, www, wwwCanonicalTarget));
+		const wwwA = await authoritativeRecordCheck(`authoritative ${nsName} www A resolves`, server, www, 4);
+		checks.push(wwwA);
+		checks.push(await authoritativeRecordCheck(`authoritative ${nsName} www AAAA resolves`, server, www, 6));
 		checks.push(await authoritativeSoaCheck(`authoritative ${nsName} apex SOA resolves`, server));
 		checks.push(await tcpDnsCheck(`authoritative ${nsName} answers over TCP/53`, server));
 		queueDirectTargets(targets, seenTargets, apex, apexA.values);
+		queueDirectTargets(targets, seenTargets, www, wwwA.values);
 	}
 
 	checks.push(...(await runDirectTargetChecks(targets)));
 	return checks;
-}
-
-async function authoritativeCnameCheck(
-	name: string,
-	server: string,
-	host: string,
-	expectedTarget: string,
-): Promise<Check> {
-	const attempts = 5;
-	const failures: string[] = [];
-	let lastGood: string[] = [];
-	const expected = normalizeDnsName(expectedTarget);
-
-	for (let attempt = 1; attempt <= attempts; attempt++) {
-		try {
-			const values = await resolveCnameChainFromAAnswer(server, host);
-			lastGood = values;
-			if (!values.includes(expected)) failures.push(`attempt ${attempt}: got ${format(values)}, want ${expected}`);
-		} catch (error) {
-			const code = error instanceof Error && 'code' in error ? String(error.code) : 'UNKNOWN';
-			const message = error instanceof Error ? error.message : String(error);
-			failures.push(`attempt ${attempt}: ${code}: ${message}`);
-		}
-	}
-
-	return {
-		name,
-		ok: failures.length === 0,
-		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
-	};
-}
-
-async function resolveCnameChainFromAAnswer(server: string, host: string): Promise<string[]> {
-	const { stdout } = await execFileAsync('dig', ['+time=3', '+tries=1', `@${server}`, host, 'A', '+noall', '+answer'], {
-		timeout: 8000,
-	});
-	const values = stdout
-		.split('\n')
-		.map((line) => line.trim().split(/\s+/))
-		.filter((parts) => parts.length >= 5 && parts[3]?.toUpperCase() === 'CNAME')
-		.map((parts) => normalizeDnsName(parts[4] ?? ''))
-		.filter(Boolean);
-	return [...new Set(values)];
-}
-
-function normalizeDnsName(name: string): string {
-	return name.toLowerCase().replace(/\.$/, '');
 }
 
 async function authoritativeSoaCheck(name: string, server: string): Promise<Check> {
@@ -283,37 +230,71 @@ async function directHttpsCheck(
 	expectedStatus: number,
 	expectedLocation?: string,
 ): Promise<Check> {
-	try {
-		const { stdout } = await execFileAsync(
-			'curl',
-			['-sS', '--max-time', '12', '--resolve', `${host}:443:${ip}`, '-I', '-o', '-', url],
-			{ timeout: 15_000 },
-		);
-		const status = Number(stdout.match(/^HTTP\/\S+\s+(\d+)/m)?.[1] ?? 0);
-		const location = stdout.match(/^location:\s*(.+)$/im)?.[1]?.trim() ?? '';
-		const statusOk = status === expectedStatus;
-		const locationOk = expectedLocation === undefined || location === expectedLocation;
-		return {
-			name,
-			ok: statusOk && locationOk,
-			detail:
-				expectedLocation === undefined ? `status=${status}` : `status=${status}; location=${location || '(none)'}`,
-		};
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
-		return { name, ok: false, detail: `direct TLS/HTTPS failed: ${message}` };
+	const failures: string[] = [];
+
+	for (let attempt = 1; attempt <= transientNetworkAttempts; attempt++) {
+		try {
+			const { stdout } = await execFileAsync(
+				'curl',
+				['-sS', '--max-time', '12', '--resolve', `${host}:443:${ip}`, '-I', '-o', '-', url],
+				{ timeout: 15_000 },
+			);
+			const status = Number(stdout.match(/^HTTP\/\S+\s+(\d+)/m)?.[1] ?? 0);
+			const location = stdout.match(/^location:\s*(.+)$/im)?.[1]?.trim() ?? '';
+			const statusOk = status === expectedStatus;
+			const locationOk = expectedLocation === undefined || location === expectedLocation;
+			if (statusOk && locationOk) {
+				const detail =
+					expectedLocation === undefined ? `status=${status}` : `status=${status}; location=${location || '(none)'}`;
+				return {
+					name,
+					ok: true,
+					detail: attempt === 1 ? detail : `${detail}; attempt=${attempt}/${transientNetworkAttempts}`,
+				};
+			}
+
+			failures.push(
+				expectedLocation === undefined
+					? `attempt ${attempt}: status=${status}`
+					: `attempt ${attempt}: status=${status}; location=${location || '(none)'}`,
+			);
+		} catch (error) {
+			failures.push(`attempt ${attempt}: ${formatCommandError(error)}`);
+		}
 	}
+
+	return { name, ok: false, detail: `direct TLS/HTTPS failed: ${failures.join(' | ')}` };
+}
+
+function formatCommandError(error: unknown): string {
+	if (typeof error !== 'object' || error === null) return String(error);
+	const record = error as Record<string, unknown>;
+	const parts: string[] = [];
+	if (record.code !== undefined) parts.push(`code=${String(record.code)}`);
+	if (typeof record.message === 'string' && record.message.length > 0) parts.push(record.message);
+	if (typeof record.stderr === 'string' && record.stderr.trim().length > 0) parts.push(record.stderr.trim());
+	return parts.length > 0 ? parts.join('; ') : String(error);
 }
 
 async function head(url: string) {
-	return fetch(url, {
-		method: 'HEAD',
-		redirect: 'manual',
-		signal: AbortSignal.timeout(15_000),
-		headers: {
-			'user-agent': 'transscendsurvival-production-health/1.0',
-		},
-	});
+	const failures: string[] = [];
+	for (let attempt = 1; attempt <= transientNetworkAttempts; attempt++) {
+		try {
+			return await fetch(url, {
+				method: 'HEAD',
+				redirect: 'manual',
+				signal: AbortSignal.timeout(15_000),
+				headers: {
+					'user-agent': 'transscendsurvival-production-health/1.0',
+				},
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			failures.push(`attempt ${attempt}: ${message}`);
+		}
+	}
+
+	throw new Error(failures.join(' | '));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -422,10 +403,15 @@ async function httpChecks(): Promise<Check[]> {
 
 	const livePaths = [
 		['HTTPS apex returns 200', `https://${apex}/`],
+		['HTTPS www returns 200', `https://${www}/`],
 		['HTTPS /blog returns 200', `https://${apex}/blog`],
 		['HTTPS /blog/ returns 200', `https://${apex}/blog/`],
+		['HTTPS www /blog returns 200', `https://${www}/blog`],
+		['HTTPS www /blog/ returns 200', `https://${www}/blog/`],
 		['HTTPS representative post returns 200', `https://${apex}/blog/tmpui-the-merlin-sound-id-project`],
 		['HTTPS representative post slash returns 200', `https://${apex}/blog/tmpui-the-merlin-sound-id-project/`],
+		['HTTPS www representative post returns 200', `https://${www}/blog/tmpui-the-merlin-sound-id-project`],
+		['HTTPS www representative post slash returns 200', `https://${www}/blog/tmpui-the-merlin-sound-id-project/`],
 	] as const;
 
 	for (const [name, url] of livePaths) {
@@ -434,12 +420,11 @@ async function httpChecks(): Promise<Check[]> {
 
 	const redirectCases = [
 		[`http://${apex}/`, `https://${apex}/`],
-		[`http://${www}/`, `https://${apex}/`],
-		[`https://${www}/`, `https://${apex}/`],
+		[`http://${www}/`, `https://${www}/`],
 	] as const;
 
 	for (const [from, to] of redirectCases) {
-		checks.push(await redirectCheck(`${from} redirects to apex HTTPS`, from, to));
+		checks.push(await redirectCheck(`${from} redirects to expected HTTPS`, from, to));
 	}
 
 	return checks;

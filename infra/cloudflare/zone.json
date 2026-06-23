@@ -3,11 +3,13 @@
 	"zone": "transscendsurvival.org",
 	"zone_id": "602400322c1ecac4983542c76af90115",
 	"invariants": {
-		"$comment": "Apex CUT to Cloudflare Pages on 2026-06-23 (was grey A/AAAA -> GitHub Pages). The 2026-06-22 outage was an apex re-proxy BEFORE the Pages custom domain was active; here the Pages domain (transscendsurvival.org on project transscendsurvival-org) was validated ACTIVE first, so the guard is INVERTED: the apex must stay a PROXIED CNAME to the Pages project. www stays a grey CNAME (still GitHub Pages, 301 -> apex) until separately cut.",
+		"$comment": "Apex and www are both cut to Cloudflare Pages. The 2026-06-22 outage was a proxied hostname BEFORE the Pages custom domain was active; this posture is valid only after each Pages custom domain is ACTIVE. The guard is inverted for both names: they must stay PROXIED CNAMEs to the Pages project.",
 		"apex_must_be_proxied": true,
 		"apex_record_types": ["CNAME"],
 		"apex_cname_target": "transscendsurvival-org.pages.dev",
-		"www_record_type": "CNAME"
+		"www_must_be_proxied": true,
+		"www_record_type": "CNAME",
+		"www_cname_target": "transscendsurvival-org.pages.dev"
 	},
 	"records": [
 		{
@@ -20,8 +22,8 @@
 		{
 			"type": "CNAME",
 			"name": "www.transscendsurvival.org",
-			"content": "jesssullivan.github.io",
-			"proxied": false,
+			"content": "transscendsurvival-org.pages.dev",
+			"proxied": true,
 			"ttl": 1
 		}
 	],

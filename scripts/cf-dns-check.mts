@@ -9,14 +9,15 @@ import { fileURLToPath } from 'node:url';
 // issues is GET. There is intentionally no apply path here — mutation stays manual.
 //
 // It fails loudly (non-zero exit) on ANY of:
-//   - apex proxy posture drift. The posture is set by invariants in zone.json:
+//   - apex/www proxy posture drift. The posture is set by invariants in zone.json:
 //       * apex_must_be_proxied=true (CURRENT, post-2026-06-23 CF Pages cut): the apex MUST be a
 //         proxied CNAME to apex_cname_target. A grey/un-proxied apex means the cut regressed.
 //       * apex_must_be_proxied=false (legacy GitHub Pages posture): NO apex record may be proxied
 //         — an apex re-proxy before Pages was active was the exact 2026-06-22 outage cause.
-//   - the apex drifting away from its declared type(s), or www drifting away from CNAME.
+//       * www_must_be_proxied=true means www is also a Pages hostname and MUST be a proxied CNAME.
+//   - the apex drifting away from its declared type(s), or www drifting away from CNAME/target.
 //   - any declared record missing live, or any undeclared record present live.
-//   - DNSSEC not active (pending — CF signed, awaiting registrar DS — is a WARN, not a failure).
+//   - DNSSEC not active (pending while a registrar DS transition is underway is a WARN, not a failure).
 //
 // Auth: reads CLOUDFLARE_API_TOKEN from the environment (never printed). A read-only
 // token is sufficient and preferred. Optionally honors CLOUDFLARE_ZONE_ID to override
@@ -46,7 +47,9 @@ type DesiredZone = {
 		apex_must_be_proxied?: boolean;
 		apex_record_types?: string[];
 		apex_cname_target?: string;
+		www_must_be_proxied?: boolean;
 		www_record_type?: string;
+		www_cname_target?: string;
 	};
 	records: DesiredRecord[];
 };
@@ -165,6 +168,8 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 	// --- Invariant 1: apex proxy posture (the outage guard, posture-aware). ---
 	const apexMustBeProxied = desired.invariants?.apex_must_be_proxied === true;
 	const apexCnameTarget = desired.invariants?.apex_cname_target;
+	const wwwMustBeProxied = desired.invariants?.www_must_be_proxied === true;
+	const wwwCnameTarget = desired.invariants?.www_cname_target;
 	const apexProxyRecs = managedLive.filter((record) => isApex(apex, record.name));
 	const proxiedApex = apexProxyRecs.filter((record) => record.proxied);
 	if (apexMustBeProxied) {
@@ -212,19 +217,23 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 		});
 	}
 
-	// --- Invariant 2: no UNEXPECTED proxied record. In the Pages posture only the apex may be
-	//     proxied; in the GitHub posture nothing managed may be. ---
+	// --- Invariant 2: no UNEXPECTED proxied record. In the Pages posture apex and
+	//     optionally www may be proxied; in the GitHub posture nothing managed may be. ---
 	const proxiedAny = managedLive.filter((record) => record.proxied);
-	const unexpectedProxied = apexMustBeProxied ? proxiedAny.filter((record) => !isApex(apex, record.name)) : proxiedAny;
+	const allowedProxiedNames = new Set<string>();
+	if (apexMustBeProxied) allowedProxiedNames.add(apex.toLowerCase());
+	if (wwwMustBeProxied) allowedProxiedNames.add(wwwName);
+	const unexpectedProxied = proxiedAny.filter((record) => !allowedProxiedNames.has(record.name.toLowerCase()));
 	checks.push({
-		name: apexMustBeProxied
-			? 'only the apex is proxied (www stays grey)'
-			: 'no managed record is proxied (grey-cloud only)',
+		name:
+			allowedProxiedNames.size > 0
+				? `only declared Pages hostnames are proxied (${[...allowedProxiedNames].sort().join(', ')})`
+				: 'no managed record is proxied (grey-cloud only)',
 		ok: unexpectedProxied.length === 0,
 		detail:
 			unexpectedProxied.length === 0
-				? apexMustBeProxied
-					? 'only apex orange-cloud; other managed records grey'
+				? allowedProxiedNames.size > 0
+					? `proxied records are limited to ${[...allowedProxiedNames].sort().join(', ')}`
 					: 'A/AAAA/CNAME all proxied=false'
 				: `unexpected proxied=true on: ${unexpectedProxied.map((record) => `${record.type} ${record.name}`).join(', ')}`,
 	});
@@ -256,6 +265,35 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 					? `www ${wwwType} -> ${wwwLive.map((r) => r.content).join(', ')}`
 					: `www has non-${wwwType} type(s): ${wwwLive.map((r) => r.type).join(', ')} (www as A/AAAA breaks TLS)`,
 	});
+	if (wwwMustBeProxied) {
+		const unproxiedWww = wwwLive.filter((record) => !record.proxied);
+		checks.push({
+			name: 'www is proxied to CF Pages (orange-cloud)',
+			ok: wwwLive.length > 0 && unproxiedWww.length === 0,
+			detail:
+				wwwLive.length === 0
+					? 'no www record found live'
+					: unproxiedWww.length === 0
+						? `www proxied -> ${wwwLive.map((r) => r.content).join(', ')}`
+						: `www NOT proxied: ${unproxiedWww.map((r) => `${r.type} ${r.content}`).join(', ')}`,
+		});
+	}
+	if (wwwCnameTarget) {
+		const wwwCnames = wwwLive.filter((record) => record.type.toUpperCase() === 'CNAME');
+		const targetOk =
+			wwwCnames.length > 0 &&
+			wwwCnames.every((record) => record.content.toLowerCase() === wwwCnameTarget.toLowerCase());
+		checks.push({
+			name: `www CNAME -> ${wwwCnameTarget}`,
+			ok: targetOk,
+			detail:
+				wwwCnames.length === 0
+					? 'no www CNAME found live'
+					: targetOk
+						? `www -> ${wwwCnameTarget}`
+						: `www CNAME target drift: live ${wwwCnames.map((r) => r.content).join(', ')}`,
+		});
+	}
 
 	// --- Record-by-record reconciliation (declared vs live, managed types only). ---
 	const desiredByKey = new Map(desired.records.map((record) => [recordKey(record), record]));
@@ -302,7 +340,7 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 		});
 	}
 
-	// --- DNSSEC: active = PASS, pending = WARN (CF zone signed, awaiting registrar DS),
+	// --- DNSSEC: active = PASS, pending = WARN (zone signed, awaiting registrar DS),
 	//     anything else (e.g. disabled) = FAIL (a real regression). ---
 	const dnssecLive = dnssecStatus.toLowerCase();
 	const dnssecWant = desired.dnssec.toLowerCase();
@@ -312,7 +350,7 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 		ok: dnssecLive === dnssecWant || dnssecPending,
 		warn: dnssecPending,
 		detail: dnssecPending
-			? 'live status=pending — CF zone signed; awaiting DS at the DreamHost registrar (TIN-2160)'
+			? 'live status=pending — zone signed; awaiting parent DS publication'
 			: `live status=${dnssecStatus}`,
 	});
 

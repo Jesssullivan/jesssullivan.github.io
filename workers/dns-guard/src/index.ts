@@ -5,7 +5,7 @@
  * from Cloudflare's edge across many independent public resolvers.
  *
  * WHY THIS EXISTS
- * The apex now resolves via a proxied CNAME to the Pages project in the Cloudflare
+ * The apex and www now resolve via proxied CNAMEs to the Pages project in the Cloudflare
  * zone (this repo only ships static/CNAME for the GitHub Pages rollback). Before the
  * 2026-06-22 authority cutover the apex A/AAAA lived out of band in DreamHost; that
  * day the apex lost ALL FOUR AAAA records while
@@ -14,10 +14,8 @@
  * healthy site. A plain IPv4 HTTP uptime check stays GREEN through that outage.
  *
  * This Worker asserts, across MANY public resolvers via DoH, that the apex AND
- * www resolve A and AAAA (apex via the Cloudflare Pages edge, www via GitHub
- * Pages) — the exact failure a normal
- * monitor misses — then fetches the apex over HTTPS and verifies the canonical
- * redirects. The expected sets are kept byte-identical to
+ * www resolve A and AAAA via Cloudflare Pages, then fetches both hostnames over
+ * HTTPS and verifies slash parity. The expected sets are kept byte-identical to
  * scripts/check-production-health.mts.
  *
  * COMPLEMENTS (see ../README.md):
@@ -52,8 +50,8 @@ const WWW = `www.${APEX}`;
 const BLOG_BROKER_STREAM_URL = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 
 // Host-agnostic: assert the apex/www RESOLVE (non-empty answer, no SERVFAIL) — not
-// fixed IPs. The apex has migrated from GitHub Pages anycast to a Cloudflare-proxied CNAME
-// whose A/AAAA rotate; "right site" is proven by the HTTPS + broker-stream checks.
+// fixed IPs. The hostnames have migrated from GitHub Pages anycast to Cloudflare-proxied
+// CNAMEs whose A/AAAA rotate; "right site" is proven by the HTTPS + broker-stream checks.
 
 // Independent public resolvers. Cloudflare/Google/AdGuard expose JSON APIs.
 // OpenDNS uses standards-based RFC 8484 DoH on 443. Quad9 remains covered by
@@ -296,10 +294,15 @@ async function httpChecks(): Promise<CheckResult[]> {
 	const out: CheckResult[] = [];
 	const livePaths: [string, string][] = [
 		['HTTPS apex 200', `https://${APEX}/`],
+		['HTTPS www 200', `https://${WWW}/`],
 		['HTTPS /blog 200', `https://${APEX}/blog`],
 		['HTTPS /blog/ 200', `https://${APEX}/blog/`],
+		['HTTPS www /blog 200', `https://${WWW}/blog`],
+		['HTTPS www /blog/ 200', `https://${WWW}/blog/`],
 		['HTTPS representative post 200', `https://${APEX}/blog/tmpui-the-merlin-sound-id-project`],
 		['HTTPS representative post slash 200', `https://${APEX}/blog/tmpui-the-merlin-sound-id-project/`],
+		['HTTPS www representative post 200', `https://${WWW}/blog/tmpui-the-merlin-sound-id-project`],
+		['HTTPS www representative post slash 200', `https://${WWW}/blog/tmpui-the-merlin-sound-id-project/`],
 	];
 
 	for (const [name, url] of livePaths) {
@@ -313,8 +316,7 @@ async function httpChecks(): Promise<CheckResult[]> {
 
 	const redirects: [string, string][] = [
 		[`http://${APEX}/`, `https://${APEX}/`],
-		[`http://${WWW}/`, `https://${APEX}/`],
-		[`https://${WWW}/`, `https://${APEX}/`],
+		[`http://${WWW}/`, `https://${WWW}/`],
 	];
 	for (const [from, to] of redirects) {
 		try {
@@ -322,13 +324,13 @@ async function httpChecks(): Promise<CheckResult[]> {
 			const loc = res.headers.get('location') ?? '';
 			const pass = res.status >= 300 && res.status < 400 && loc === to;
 			out.push({
-				name: `${from} -> apex`,
+				name: `${from} -> HTTPS`,
 				status: pass ? 'pass' : 'fail',
 				detail: `status=${res.status}; location=${loc || '(none)'}`,
 			});
 		} catch (err) {
 			out.push({
-				name: `${from} -> apex`,
+				name: `${from} -> HTTPS`,
 				status: 'skip',
 				detail: `fetch failed (${err instanceof Error ? err.name : String(err)})`,
 			});
@@ -434,7 +436,7 @@ function summarize(failures: CheckResult[], skipped: CheckResult[], total: numbe
 	const lines = failures.map((f) => `  FAIL ${f.name}: ${f.detail}`);
 	return (
 		`DNS GUARD FAILED for ${APEX} — ${failures.length} problem(s):\n${lines.join('\n')}\n\n` +
-		`Apex is a proxied CNAME to transscendsurvival-org.pages.dev in the Cloudflare zone; if it regressed, restore the proxied apex CNAME (or follow docs/runbooks/dns-cutover-and-rollback.md).`
+		`Apex and www are proxied CNAMEs to transscendsurvival-org.pages.dev in the Cloudflare zone; if either regressed, restore the proxied CNAMEs (or follow docs/runbooks/dns-cutover-and-rollback.md).`
 	);
 }
 
