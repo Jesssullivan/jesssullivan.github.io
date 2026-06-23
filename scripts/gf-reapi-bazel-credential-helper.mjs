@@ -51,7 +51,7 @@ export async function runCredentialHelper({
 			headers: {
 				Authorization: [`Bearer ${token}`],
 			},
-			expires: expires.toISOString(),
+			expires: formatBazelExpiry(expires),
 		})}\n`,
 	);
 	return 0;
@@ -135,6 +135,10 @@ function tokenCacheExpiry(token, now) {
 		throw new Error('JWT expires before the credential-helper safety window');
 	}
 	return cacheUntil;
+}
+
+function formatBazelExpiry(date) {
+	return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

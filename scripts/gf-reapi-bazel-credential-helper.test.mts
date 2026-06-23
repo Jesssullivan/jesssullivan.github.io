@@ -64,7 +64,7 @@ describe('gf-reapi Bazel credential helper', () => {
 			headers: {
 				Authorization: [`Bearer ${token}`],
 			},
-			expires: '2026-06-23T08:09:00.000Z',
+			expires: '2026-06-23T08:09:00Z',
 		});
 	});
 
