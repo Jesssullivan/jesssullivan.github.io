@@ -5,7 +5,8 @@ Hi! This is just my boring personal static blog ^w^
 
 | Surface | Route |
 | --- | --- |
-| Production | `https://transscendsurvival.org` (current production, GitHub Pages) |
+| Production | `https://transscendsurvival.org` (Cloudflare Pages via proxied apex CNAME) |
+| GitHub Pages rollback | `https://jesssullivan.github.io` / `static/CNAME` |
 | Cloudflare Pages shadow | `https://tss.tinyland.dev` (development shadow) |
 | Alternate Cloudflare shadow | `https://tss.ephemera.tinyland.dev` |
 | Tailnet-only shadow | `https://jesssullivan-blog-shadow.taila4c78d.ts.net` |
@@ -17,9 +18,9 @@ Hi! This is just my boring personal static blog ^w^
 The build produces a static SvelteKit artifact. Tinyland snapshots and local
 Markdown remain first-paint, no-JS, and regression fixtures; canonical blog and
 Pulse display hydrates in the browser from the public Tinyland broker when it is
-available. `transscendsurvival.org` is the production consumer today even while
-it is still served by GitHub Pages; `tss.tinyland.dev` is the Cloudflare Pages
-development shadow until the production cutover is explicitly proven.
+available. `transscendsurvival.org` is the production consumer today and is served
+by Cloudflare Pages through the proxied apex CNAME. GitHub Pages stays available
+as the rollback publisher.
 
 ```mermaid
 flowchart LR
@@ -122,28 +123,29 @@ Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift
 
 ## Production DNS And Health
 
-`transscendsurvival.org` is served by GitHub Pages at the apex. DNS authority is
-Cloudflare as of 2026-06-23; DreamHost remains the registrar. The declared
-Cloudflare zone should keep the apex on GitHub Pages A/AAAA records and `www` as
-the canonical GitHub Pages CNAME unless the Cloudflare Pages serving cut is
-explicitly completed in the DNS runbook.
+`transscendsurvival.org` is served by Cloudflare Pages at the apex. DNS authority
+is Cloudflare as of 2026-06-23; DreamHost remains the registrar. The declared
+Cloudflare zone keeps the apex as a proxied CNAME to
+`transscendsurvival-org.pages.dev`; `www` remains a DNS-only CNAME to
+`jesssullivan.github.io` and redirects to the apex.
 
 `npm run test:production-health` checks delegated and cutover authoritative DNS,
 major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
 redirects, live HTTPS responses for the homepage plus slashless and trailing-slash
 blog routes, the Tinyland blog broker contract, and browser hydration on `/blog`.
-At the authoritative layer, apex must answer A/AAAA and `www` must answer the
-canonical `jesssullivan.github.io` CNAME; public resolver checks verify that
-`www` expands to A/AAAA.
+At the authoritative layer, apex and `www` must both expand to public A/AAAA
+answers for visitors, while `www` must retain the canonical
+`jesssullivan.github.io` CNAME. The Cloudflare DNS drift workflow separately
+asserts the exact apex CNAME target and proxy posture.
 The static build keeps slashless canonical URLs but emits directory-index aliases
 so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
 `github-pages` deployment SHA matches `main`.
 
-This monitoring catches missing A/AAAA records, split-brain authority during the
-Cloudflare cutover, stale Cloudflare proxy targets that fail TLS, and GitHub
-Pages route failures. It does not replace the service-level Cloudflare Pages /
-Cloudflare DNS canonical cutover tracked in TIN-1110.
+This monitoring catches missing A/AAAA records, split-brain authority during
+DNS changes, stale Cloudflare proxy targets that fail TLS, broken redirects, and
+blog hydration regressions. The DNS drift workflow catches record-level drift
+against `infra/cloudflare/zone.json`.
 
 If production-health is red while apex routes and broker hydration pass, do not
 weaken the checks. Reconcile live DNS/serving against

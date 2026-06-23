@@ -12,44 +12,66 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
   `dns-list_records` / `dns-remove_record`.
 - **Current DNS authority:** Cloudflare zone
   `602400322c1ecac4983542c76af90115`.
-- **Desired serving posture:** GitHub Pages for the apex until the Cloudflare
-  Pages custom-domain cutover is deliberately completed. `static/CNAME` =
-  `transscendsurvival.org`.
-- **Desired DNS records in Cloudflare — DNS-only (NOT proxied):**
+- **Desired serving posture:** Cloudflare Pages serves the apex. GitHub Pages
+  remains the rollback publisher (`static/CNAME` = `transscendsurvival.org`) and
+  `www` remains the DNS-only GitHub Pages CNAME redirect path.
+- **Desired DNS records in Cloudflare:**
 
   | Name  | Type  | Value                                                                              |
   | ----- | ----- | ---------------------------------------------------------------------------------- |
-  | apex  | A     | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`         |
-  | apex  | AAAA  | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153` |
-  | `www` | CNAME | `jesssullivan.github.io`                                                            |
+  | apex  | CNAME | `transscendsurvival-org.pages.dev` (proxied / orange-cloud)                        |
+  | `www` | CNAME | `jesssullivan.github.io` (DNS-only / grey-cloud)                                   |
 
-  The apex = A/AAAA, `www` = CNAME split is the GitHub Pages canonical shape.
-  **`www` MUST be a CNAME.** `www` as A/AAAA breaks the `www` TLS handshake
-  (cert presentation failure).
+  The apex CNAME is intentionally proxied because the Cloudflare Pages custom
+  domain is active and serving. **`www` MUST remain a DNS-only CNAME.** `www` as
+  A/AAAA breaks the `www` TLS handshake (cert presentation failure), and proxied
+  `www` would make the secondary surface independent instead of a simple
+  canonical redirect.
 
 - **Resolved drift on 2026-06-23:** `www.transscendsurvival.org` had been left
   attached to the Cloudflare Pages project and was resolving through Cloudflare
   edge A/AAAA instead of the declared `jesssullivan.github.io` CNAME. The live
-  fix restored `www` to a DNS-only CNAME and removed the production apex/`www`
-  custom domains from the Pages project. `/blog` browser hydration passes
-  against the public Tinyland broker.
+  fix restored `www` to a DNS-only CNAME. The apex was then cut to the validated
+  Cloudflare Pages custom domain and is declared in
+  `infra/cloudflare/zone.json`. `/blog` browser hydration passes against the
+  public Tinyland broker.
 - **DNSSEC:** no DS is present at the `.org` parent right now. Do not add a
   Cloudflare DS until Cloudflare signing is stable and the chain is verified.
 - **CF Pages (`transscendsurvival-org`):** builds via
-  `.github/workflows/cloudflare-pages-shadow.yml`. The production apex and
-  `www` hostnames should **not** be attached as Pages custom domains while this
-  GitHub Pages posture is active. Shadow domains `tss.tinyland.dev` and
+  `.github/workflows/cloudflare-pages-shadow.yml`. The production apex hostname
+  is attached and active. `www` is intentionally not the production serving
+  surface; keep it on the GitHub Pages CNAME redirect path unless a separate
+  reviewed cut changes that posture. Shadow domains `tss.tinyland.dev` and
   `tss.ephemera.tinyland.dev` may stay attached.
 
 ```text
-DreamHost (registrar)          Cloudflare DNS (current)          GitHub Pages (apex serving)
-  NS -> Cloudflare pair    -->  apex A/AAAA desired shape   -->   static/CNAME
+DreamHost (registrar)          Cloudflare DNS (current)          Cloudflare Pages
+  NS -> Cloudflare pair    -->  proxied apex CNAME          -->   transscendsurvival-org
 
-Current drift:
-  www is resolving through Cloudflare edge instead of the declared GitHub Pages CNAME.
+www remains DNS-only:
+  www CNAME -> jesssullivan.github.io -> 301 to https://transscendsurvival.org/
 ```
 
-## ROLLBACK: revert NS to DreamHost
+## ROLLBACK: revert apex serving to GitHub Pages
+
+This is the normal application-level rollback if Cloudflare Pages serving
+regresses but Cloudflare DNS authority is healthy. Do **not** revert NS for an
+application-level Pages issue.
+
+Replace the proxied apex CNAME with the GitHub Pages A/AAAA set, keeping `www`
+unchanged:
+
+| Name | Type | Value | Proxy |
+| ---- | ---- | ----- | ----- |
+| apex | A | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` | DNS-only |
+| apex | AAAA | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153` | DNS-only |
+| `www` | CNAME | `jesssullivan.github.io` | DNS-only |
+
+After the live change, update `infra/cloudflare/zone.json` back to the GitHub
+Pages posture in review, run `scripts/cf-dns-check.mts`, then run
+`npm run test:production-health`.
+
+## ROLLBACK: revert authority to DreamHost
 
 The GitHub Pages records are still **staged in the DreamHost zone**, so a
 rollback from the current Cloudflare NS delegation is a registrar-side NS revert
@@ -121,7 +143,7 @@ Only after the `.org` parent shows Cloudflare NS and Cloudflare signing is
    (`https://dnsviz.net/d/transscendsurvival.org/dnssec/`) — no SERVFAIL, no
    bogus, secure all the way to the `.org` anchor.
 
-## HARD RULE: never flip apex to the proxied `pages.dev` CNAME live
+## HARD RULE: never proxy apex before the Pages custom domain is active
 
 Pointing apex at the **proxied** `transscendsurvival-org.pages.dev` CNAME caused
 **two transient outages on 2026-06-22**. Root cause: the Pages custom domain
@@ -129,20 +151,24 @@ validates via **public DNS** (which lagged the NS flip), so Cloudflare's anycast
 edge received apex traffic **before** the Pages custom domain was active →
 connection refused / timeout.
 
-**Do not do the live flip.** Safe future sequence for a CF Pages serving-cut:
+That does **not** mean "proxied apex is always wrong." It means the order
+matters. The safe sequence for any future CF Pages serving-cut is:
 
 1. Add apex + `www` as **custom domains** on the `transscendsurvival-org` Pages
    project. Let them **validate to ACTIVE** with a **cert issued** — while apex
    DNS still points at GitHub Pages anycast. (Validation rides the existing
    public DNS; serving is unaffected.)
-2. Only **after** both custom domains read ACTIVE / cert-issued, change the apex
-   record in Cloudflare to the Pages target, `www` staying a CNAME.
+2. Only **after** the custom domain reads ACTIVE / cert-issued, change the apex
+   record in Cloudflare to the Pages target. Keep `www` a DNS-only CNAME unless
+   a separate reviewed cut changes it.
 3. Have this rollback ready: point apex back to the GitHub Pages
    A/AAAA set above (still the documented values), `www` CNAME unchanged.
 4. Verify both families + TLS on apex and `www` before declaring the cut done.
 
-Never let apex resolve to `pages.dev` until the Pages domain is pre-validated
-and serving.
+Never let apex resolve to proxied `pages.dev` until the Pages domain is
+pre-validated and serving. Once that is true and `zone.json` declares the Pages
+posture, the drift guard is inverted: apex **must** remain the proxied Pages
+CNAME, and a grey apex is a regression.
 
 ## Going forward: change DNS via IaC, not the dashboard
 
@@ -161,15 +187,17 @@ The IaC-first loop for any DNS change:
    new desired state. Keep the live edit minimal and identical to the PR.
 3. **Verify zero drift:** run `scripts/cf-dns-check.mts`
    (`CLOUDFLARE_API_TOKEN` in env, read-only token preferred). It fails loudly
-   on a proxied apex (the 2026-06-22 cause), apex drifting off A/AAAA, `www` off
-   CNAME, any declared-vs-live mismatch, or DNSSEC not active.
+   on apex proxy-posture drift, apex drifting off its declared type/target, `www`
+   off CNAME, any declared-vs-live mismatch, or DNSSEC disabled. DNSSEC pending
+   is a warning while the registrar DS is not yet installed.
 4. The host-agnostic checks (`scripts/check-production-health.mts`,
    `.github/workflows/production-health.yml`, the `workers/dns-guard/` Worker)
    then assert resolution health (non-empty A/AAAA/SOA over UDP + TCP).
 
 Keep `zone.json` and the live zone in lockstep: never change one without the
-other in the same change window. The declared invariant `apex_must_be_dns_only`
-is what makes a live `pages.dev` re-proxy fail the drift check loudly.
+other in the same change window. The declared apex posture controls the guard:
+GitHub Pages rollback mode forbids a proxied apex; Cloudflare Pages mode
+requires the proxied apex CNAME target.
 
 ## Cloudflare API auth rule
 
@@ -202,7 +230,7 @@ log token values or authorization headers.
 dig NS transscendsurvival.org @a0.org.afilias-nst.info +short
 dig DS transscendsurvival.org @a0.org.afilias-nst.info +short
 
-# Prepared Cloudflare NS — both families + SOA must answer non-empty before cutover.
+# Current Cloudflare authority — both families + SOA must answer non-empty.
 dig @izabella.ns.cloudflare.com AAAA transscendsurvival.org +short
 dig @izabella.ns.cloudflare.com A    transscendsurvival.org +short
 dig @izabella.ns.cloudflare.com SOA  transscendsurvival.org +short

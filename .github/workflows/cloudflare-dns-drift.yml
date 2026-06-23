@@ -3,19 +3,20 @@ name: Cloudflare DNS Drift
 # READ-ONLY drift detection for the transscendsurvival.org Cloudflare zone.
 # Runs scripts/cf-dns-check.mts, which only GETs live DNS records and compares them
 # to infra/cloudflare/zone.json. It never mutates Cloudflare. It fails the job if the
-# apex is proxied, if apex/www record types drift, if records are missing/undeclared,
-# or if DNSSEC is not active.
+# apex proxy posture drifts from zone.json, if apex/www record types drift, if records
+# are missing/undeclared, or if DNSSEC is disabled. Pending DNSSEC is a warning while
+# the registrar DS record is not yet installed.
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: '0 */6 * * *'
   workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
-      - ".github/workflows/cloudflare-dns-drift.yml"
-      - "infra/cloudflare/**"
-      - "scripts/cf-dns-check.mts"
+      - '.github/workflows/cloudflare-dns-drift.yml'
+      - 'infra/cloudflare/**'
+      - 'scripts/cf-dns-check.mts'
 
 permissions:
   contents: read
@@ -25,7 +26,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   dns-drift:
@@ -37,7 +38,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
           cache: npm
 
       - run: npm ci

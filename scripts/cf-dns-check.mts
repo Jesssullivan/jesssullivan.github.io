@@ -101,9 +101,11 @@ async function cfGet(path: string, token: string): Promise<unknown> {
 		signal: AbortSignal.timeout(20_000),
 	});
 
-	const body = (await response.json().catch(() => null)) as
-		| { success?: boolean; errors?: Array<{ message?: string }>; result?: unknown }
-		| null;
+	const body = (await response.json().catch(() => null)) as {
+		success?: boolean;
+		errors?: Array<{ message?: string }>;
+		result?: unknown;
+	} | null;
 
 	if (!response.ok || !body || body.success !== true) {
 		const apiErrors = body?.errors?.map((entry) => entry?.message).filter(Boolean) ?? [];
@@ -213,11 +215,11 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 	// --- Invariant 2: no UNEXPECTED proxied record. In the Pages posture only the apex may be
 	//     proxied; in the GitHub posture nothing managed may be. ---
 	const proxiedAny = managedLive.filter((record) => record.proxied);
-	const unexpectedProxied = apexMustBeProxied
-		? proxiedAny.filter((record) => !isApex(apex, record.name))
-		: proxiedAny;
+	const unexpectedProxied = apexMustBeProxied ? proxiedAny.filter((record) => !isApex(apex, record.name)) : proxiedAny;
 	checks.push({
-		name: apexMustBeProxied ? 'only the apex is proxied (www stays grey)' : 'no managed record is proxied (grey-cloud only)',
+		name: apexMustBeProxied
+			? 'only the apex is proxied (www stays grey)'
+			: 'no managed record is proxied (grey-cloud only)',
 		ok: unexpectedProxied.length === 0,
 		detail:
 			unexpectedProxied.length === 0
@@ -338,7 +340,9 @@ async function main(): Promise<void> {
 	}
 
 	if (failures > 0) {
-		console.error(`Cloudflare DNS drift detected: ${failures} failing check(s). This script does not mutate; reconcile manually.`);
+		console.error(
+			`Cloudflare DNS drift detected: ${failures} failing check(s). This script does not mutate; reconcile manually.`,
+		);
 		process.exit(1);
 	}
 	console.log('No Cloudflare DNS drift: live zone matches infra/cloudflare/zone.json.');
