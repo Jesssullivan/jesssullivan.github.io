@@ -1,0 +1,12 @@
+.claude
+.gstack
+node_modules
+.svelte-kit
+build
+.direnv
+.mermaid-cache
+test-results
+playwright-report
+coverage
+.lighthouseci
+workers/dns-guard/.wrangler
