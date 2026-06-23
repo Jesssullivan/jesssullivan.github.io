@@ -48,6 +48,17 @@ github_oidc_token="$(
     node -e 'const body = JSON.parse(process.env.GITHUB_OIDC_RESPONSE); if (typeof body.value !== "string" || body.value.length === 0) { throw new Error("GitHub OIDC response did not include value"); } process.stdout.write(body.value);'
 )"
 
+GITHUB_OIDC_TOKEN="${github_oidc_token}" node -e '
+const token = process.env.GITHUB_OIDC_TOKEN || "";
+const parts = token.split(".");
+if (parts.length < 2) {
+  throw new Error("GitHub OIDC token did not look like a JWT");
+}
+const claims = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+const show = (key) => typeof claims[key] === "string" && claims[key].length > 0 ? claims[key] : "unset";
+console.log(`GF REAPI OIDC claims: repository=${show("repository")} owner=${show("repository_owner")} ref=${show("ref")} event=${show("event_name")} sub=${show("sub")}`);
+'
+
 REQUEST_MODE="${request_mode}" TOKEN_TTL="${ttl}" node -e '
 const fs = require("node:fs");
 fs.writeFileSync(process.argv[1], JSON.stringify({
@@ -58,13 +69,31 @@ fs.writeFileSync(process.argv[1], JSON.stringify({
 }) + "\n", { mode: 0o600 });
 ' "${request_body}"
 
-curl --retry 3 --retry-all-errors --connect-timeout 10 -fsS \
-  -X POST \
-  -H "Authorization: Bearer ${github_oidc_token}" \
-  -H "Content-Type: application/json" \
-  --data-binary @"${request_body}" \
-  "${exchange_url}" \
-  >"${response_body}"
+http_status="$(
+  curl --retry 3 --retry-all-errors --connect-timeout 10 -sS \
+    -o "${response_body}" \
+    -w "%{http_code}" \
+    -X POST \
+    -H "Authorization: Bearer ${github_oidc_token}" \
+    -H "Content-Type: application/json" \
+    --data-binary @"${request_body}" \
+    "${exchange_url}"
+)"
+
+if [[ ! ${http_status} =~ ^2[0-9][0-9]$ ]]; then
+  HTTP_STATUS="${http_status}" RESPONSE_BODY="${response_body}" node -e '
+const fs = require("node:fs");
+let message = "unavailable";
+try {
+  const body = JSON.parse(fs.readFileSync(process.env.RESPONSE_BODY, "utf8"));
+  if (typeof body.error === "string" && body.error.length > 0) {
+    message = body.error;
+  }
+} catch {}
+console.error(`ERROR: GF REAPI token exchange failed: status=${process.env.HTTP_STATUS} error=${message}`);
+'
+  exit 22
+fi
 
 mkdir -p "$(dirname "${token_file}")"
 
