@@ -37,8 +37,57 @@ jobs:
           if ! command -v dig >/dev/null 2>&1; then
             sudo apt-get update -qq && sudo apt-get install -y -qq bind9-dnsutils
           fi
-      - run: npm run test:production-health
+      - name: Run production health checks
+        id: production_health
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run test:production-health 2>&1 | tee production-health-output.txt
+
+      - name: Notify ntfy on production health failure
+        if: steps.production_health.outcome == 'failure'
+        env:
+          NTFY_TOPIC_URL: ${{ secrets.NTFY_TOPIC_URL }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NTFY_TOPIC_URL:-}" ]; then
+            echo "::notice title=ntfy alert skipped::NTFY_TOPIC_URL is not configured."
+            exit 0
+          fi
+
+          body="$(mktemp)"
+          {
+            echo "production-health FAILED for transscendsurvival.org"
+            echo ""
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Ref: ${GITHUB_REF_NAME}"
+            echo "SHA: ${GITHUB_SHA}"
+            echo ""
+            echo "Last 120 log lines:"
+            tail -n 120 production-health-output.txt
+          } >"${body}"
+
+          auth_args=()
+          if [ -n "${NTFY_TOKEN:-}" ]; then
+            auth_args=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+          fi
+
+          curl -fsS \
+            -H "Title: production-health FAILED - transscendsurvival.org" \
+            -H "Priority: 5" \
+            -H "Tags: rotating_light,dns" \
+            "${auth_args[@]}" \
+            --data-binary "@${body}" \
+            "${NTFY_TOPIC_URL}"
+
+      - name: Fail after production health notification
+        if: steps.production_health.outcome == 'failure'
+        run: exit 1
+
       - name: Verify Pages deployment is current main
+        id: pages_deployment
+        continue-on-error: true
         run: |
           set -euo pipefail
           latest_main="$(gh api repos/${GITHUB_REPOSITORY}/commits/main --jq .sha)"
@@ -51,3 +100,42 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Notify ntfy on stale Pages deployment
+        if: steps.pages_deployment.outcome == 'failure'
+        env:
+          NTFY_TOPIC_URL: ${{ secrets.NTFY_TOPIC_URL }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NTFY_TOPIC_URL:-}" ]; then
+            echo "::notice title=ntfy alert skipped::NTFY_TOPIC_URL is not configured."
+            exit 0
+          fi
+
+          body="$(mktemp)"
+          {
+            echo "production-health detected a stale GitHub Pages deployment."
+            echo ""
+            echo "The workflow dispatched deploy-pages.yml, but this monitor is failing until Pages catches up."
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Ref: ${GITHUB_REF_NAME}"
+            echo "SHA: ${GITHUB_SHA}"
+          } >"${body}"
+
+          auth_args=()
+          if [ -n "${NTFY_TOKEN:-}" ]; then
+            auth_args=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+          fi
+
+          curl -fsS \
+            -H "Title: production-health STALE PAGES - transscendsurvival.org" \
+            -H "Priority: 4" \
+            -H "Tags: warning,dns" \
+            "${auth_args[@]}" \
+            --data-binary "@${body}" \
+            "${NTFY_TOPIC_URL}"
+
+      - name: Fail after stale Pages notification
+        if: steps.pages_deployment.outcome == 'failure'
+        run: exit 1

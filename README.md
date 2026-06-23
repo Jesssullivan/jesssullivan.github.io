@@ -142,7 +142,10 @@ separately asserts the exact apex and `www` CNAME targets and proxy posture.
 The static build keeps slashless canonical URLs but emits directory-index aliases
 so copied, normalized, or legacy trailing-slash links do not 404. The
 `Production Health` workflow runs every 30 minutes and also verifies the latest
-`github-pages` deployment SHA matches `main`.
+`github-pages` deployment SHA matches `main`. When `NTFY_TOPIC_URL` and optional
+`NTFY_TOKEN` repository secrets are configured, it mirrors production-health and
+stale-deploy failures to the same ntfy topic used by the DNS guard Worker before
+failing the job.
 
 This monitoring catches missing A/AAAA records, split-brain authority during
 DNS changes, stale Cloudflare proxy targets that fail TLS, broken redirects, and

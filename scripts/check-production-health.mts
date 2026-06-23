@@ -38,6 +38,10 @@ const publicResolvers = [
 	['Quad9', '9.9.9.9'],
 	['OpenDNS', '208.67.222.222'],
 ] as const;
+const bootstrapResolvers =
+	process.env.PRODUCTION_HEALTH_BOOTSTRAP_RESOLVERS?.split(',')
+		.map((server, index) => [`override-${index + 1}`, server.trim()] as const)
+		.filter((entry) => entry[1].length > 0) ?? publicResolvers;
 
 function format(values: string[]) {
 	return values.length > 0 ? values.sort().join(', ') : '(none)';
@@ -64,6 +68,32 @@ async function tryResolveRecords(server: string, name: string, family: 4 | 6): P
 		const message = error instanceof Error ? error.message : String(error);
 		return { ok: false, detail: `${code}: ${message}` };
 	}
+}
+
+async function tryResolveNames(server: string, name: string, recordType: 'A' | 'NS'): Promise<ResolveAttempt> {
+	const resolver = new Resolver();
+	resolver.setServers([server]);
+	try {
+		return { ok: true, values: recordType === 'A' ? await resolver.resolve4(name) : await resolver.resolveNs(name) };
+	} catch (error) {
+		const code = error instanceof Error && 'code' in error ? String(error.code) : 'UNKNOWN';
+		const message = error instanceof Error ? error.message : String(error);
+		return { ok: false, detail: `${code}: ${message}` };
+	}
+}
+
+async function resolveFromBootstrap(name: string, recordType: 'A' | 'NS') {
+	const failures: string[] = [];
+	for (const [label, server] of bootstrapResolvers) {
+		const result = await tryResolveNames(server, name, recordType);
+		if (result.ok && result.values.length > 0) {
+			return { ok: true as const, label, server, values: result.values };
+		}
+		failures.push(
+			result.ok ? `${label} ${server}: NODATA (empty ${recordType})` : `${label} ${server}: ${result.detail}`,
+		);
+	}
+	return { ok: false as const, failures };
 }
 
 function resolvesCheck(name: string, values: string[]): RecordCheck {
@@ -163,19 +193,50 @@ async function runDirectTargetChecks(targets: DirectTarget[]): Promise<Check[]> 
 }
 
 async function authoritativeDnsChecks(): Promise<Check[]> {
-	const bootstrap = new Resolver();
-	bootstrap.setServers(['1.1.1.1']);
-	const delegatedNsNames = await bootstrap.resolveNs(apex);
-	const nsNames = [...new Set([...delegatedNsNames, ...cutoverNsNames])];
 	const checks: Check[] = [];
 	const targets: DirectTarget[] = [];
 	const seenTargets = new Set<string>();
+	const delegated = await resolveFromBootstrap(apex, 'NS');
+	const delegatedNsNames = delegated.ok ? delegated.values : [];
+
+	if (delegated.ok) {
+		const delegatedSet = new Set(delegatedNsNames.map((name) => name.replace(/\.$/, '').toLowerCase()));
+		const missingCutoverNs = cutoverNsNames.filter((name) => !delegatedSet.has(name.toLowerCase()));
+		checks.push({
+			name: 'delegated NS bootstrap resolves',
+			ok: true,
+			detail: `${delegated.label} ${delegated.server}: ${format(delegatedNsNames)}`,
+		});
+		checks.push({
+			name: 'delegation includes expected Cloudflare nameservers',
+			ok: missingCutoverNs.length === 0,
+			detail:
+				missingCutoverNs.length === 0
+					? format(delegatedNsNames)
+					: `missing expected NS: ${missingCutoverNs.join(', ')}; delegated=${format(delegatedNsNames)}`,
+		});
+	} else {
+		checks.push({
+			name: 'delegated NS bootstrap resolves',
+			ok: true,
+			warn: true,
+			detail: `bootstrap unavailable via ${bootstrapResolvers.length} resolver(s); using declared Cloudflare nameservers (${delegated.failures.join(' | ')})`,
+		});
+	}
+
+	const nsNames = [...new Set([...delegatedNsNames, ...cutoverNsNames])];
 
 	for (const nsName of nsNames.sort()) {
-		const addresses = await bootstrap.resolve4(nsName);
-		const server = addresses[0];
+		const addressResult = await resolveFromBootstrap(nsName, 'A');
+		const server = addressResult.ok ? addressResult.values[0] : '';
 		if (!server) {
-			checks.push({ name: `authoritative ${nsName}`, ok: false, detail: 'no A record for nameserver' });
+			checks.push({
+				name: `authoritative ${nsName}`,
+				ok: false,
+				detail: addressResult.ok
+					? 'no A record for nameserver'
+					: `nameserver A bootstrap failed: ${addressResult.failures.join(' | ')}`,
+			});
 			continue;
 		}
 

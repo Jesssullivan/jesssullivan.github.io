@@ -22,13 +22,15 @@ instead. (Incidents: TIN-2146, TIN-1110 follow-up.)
 | Layer | Vantage | Catches |
 |---|---|---|
 | **this Worker** (cron 15m) | CF edge, ~4 DoH resolvers | apex/www `A`+`AAAA` missing at public resolvers; HTTPS/redirects; broker contract drift |
-| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | delegated + cutover authoritative apex/www records, direct IPv4 HTTPS target checks, stale-deploy self-heal, browser hydration |
+| `scripts/check-production-health.mts` (GH Actions 30m) | GH runner | delegated Cloudflare authority, public resolver A/AAAA checks, direct IPv4 HTTPS target checks, stale-deploy self-heal, browser hydration |
 | UptimeRobot | external, **IPv6 transport** | apex unreachable over a real v6 socket |
 | StatusCake | external | apex `AAAA` record-value drift + HTTPS |
 | Healthchecks.io | — | alert routing (email) + dead-man's-switch |
 
-> The GH layer + stale-deploy self-heal already exist on branch
-> `fix/content-stats-dispatch-pages` — merging it to `main` is TIN-2147.
+> The GH layer + stale-deploy self-heal are on `main`. When configured with
+> `NTFY_TOPIC_URL` and optional `NTFY_TOKEN` repository secrets, the workflow
+> mirrors production-health and stale-deploy failures to the same ntfy topic as
+> this Worker before failing the job.
 
 ## Deploy
 
@@ -63,8 +65,9 @@ cutover tracked in TIN-1110.
   with **IPv6 forced** (the one layer that exercises a real v6 socket); email contact.
   Optionally a second monitor on the Worker `/` endpoint.
 - **StatusCake** (free, 10 monitors) — **DNS** test: host `transscendsurvival.org`,
-  record `AAAA`, expected `2606:50c0:8000::153 / 8001::153 / 8002::153 / 8003::153`;
-  plus an HTTPS uptime test; email contact group.
+  record `AAAA`, expected non-empty / NOERROR rather than a fixed address set
+  (Cloudflare-proxied Pages A/AAAA rotate); plus an HTTPS uptime test; email
+  contact group.
 
 ## Status badges
 
@@ -87,6 +90,8 @@ The canonical tinyland sink is a **Prometheus + Alertmanager** stack in `~/git/b
 (honey cluster) that fans out to **ntfy + Postfix email** (`alerts@tinyland.dev` →
 jess@sulliwood.org). Its Alertmanager is **ClusterIP-only**, so an edge Worker can't
 reach `POST /api/v2/alerts` yet. The one internet-reachable seam is the **ntfy topic** —
-so this Worker posts failures there via `NTFY_TOPIC_URL` (device push), in parallel with
-Healthchecks.io (email). Full Alertmanager integration once it's exposed off-cluster is
-tracked in **TIN-2148** (create topic `blahaj-blog-alerts`, or reuse `blahaj-mail-alerts`).
+so this Worker posts failures there via `NTFY_TOPIC_URL` (device push), in
+parallel with Healthchecks.io (email). The GitHub `production-health` workflow
+can mirror failures to that same topic through repository secrets. Full
+Alertmanager integration once it's exposed off-cluster is tracked in
+**TIN-2148**.

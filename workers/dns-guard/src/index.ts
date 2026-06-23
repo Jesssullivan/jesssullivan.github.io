@@ -19,8 +19,8 @@
  * scripts/check-production-health.mts.
  *
  * COMPLEMENTS (see ../README.md):
- *   - GH Actions  scripts/check-production-health.mts — authoritative DreamHost NS
- *                 + stale-deploy self-heal (branch fix/content-stats-dispatch-pages)
+ *   - GH Actions  scripts/check-production-health.mts — delegated Cloudflare authority,
+ *                 public resolver, direct HTTPS, broker, hydration, and stale-deploy checks
  *   - UptimeRobot true IPv6-transport HTTP monitor (the v6 socket this can't force)
  *   - StatusCake  DNS record-value monitor + HTTPS
  *   - Healthchecks.io  alert routing (email) + dead-man's-switch
