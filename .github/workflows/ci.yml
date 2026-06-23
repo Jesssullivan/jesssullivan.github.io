@@ -14,6 +14,9 @@ env:
 
 jobs:
   bazel-remote-gates:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: tinyland-dind
     timeout-minutes: 60
     env:
@@ -43,6 +46,11 @@ jobs:
           echo "GF_BAZEL_SUBSTRATE_MODE=executor-backed" >> "$GITHUB_ENV"
           echo "GF_BAZEL_REMOTE_EXECUTION_PLATFORM=${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}" >> "$GITHUB_ENV"
           echo "BAZEL_REMOTE_INSTANCE_NAME=${BAZEL_REMOTE_INSTANCE_NAME:-default}" >> "$GITHUB_ENV"
+
+      - name: Mint GloriousFlywheel REAPI token
+        env:
+          GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
 
       - name: Validate GloriousFlywheel RBE attachment
         run: bash scripts/cache-attachment-contract.sh --strict
