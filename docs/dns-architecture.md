@@ -111,7 +111,7 @@ that `dreamhost.com` itself SERVFAILed `AAAA`. IPv6 / Happy-Eyeballs visitors go
 code, not GitHub Pages transport — it was the DNS authority. The durable service
 fix was the registrar NS cutover to Cloudflare authority. Production
 health checks now prove the delegated Cloudflare authority, public resolver
-answers, direct GitHub Pages serving, slash parity, and broker hydration.
+answers, apex and `www` serving, slash parity, and broker hydration.
 
 ```mermaid
 flowchart TB
@@ -158,44 +158,40 @@ The root cause lived purely in the DNS-authority plane: GitHub Pages transport a
 the application code were never implicated. Cloudflare authority removes the
 failing DreamHost DNS platform from the target resolution path.
 
-## 4. Cloudflare Pages Shadow And Future Serving Cut
+## 4. Cloudflare Pages Serving (cut 2026-06-23) And Safe-Cut Procedure
 
-A separate Cloudflare Pages project, `transscendsurvival-org`, builds via
-`.github/workflows/cloudflare-pages-shadow.yml`. It is intentionally shadow-only:
-`tss.tinyland.dev` and `tss.ephemera.tinyland.dev` are allowed, but production
-apex + `www` are not attached to the Pages project.
+The Cloudflare Pages project `transscendsurvival-org` serves the production apex
+as of 2026-06-23. It builds via `.github/workflows/cloudflare-pages-shadow.yml`;
+the shadow domains `tss.tinyland.dev` and `tss.ephemera.tinyland.dev` continue to
+build, and `www` stays on GitHub Pages as a DNS-only redirect.
 
-The hard rule: **NEVER flip apex to the proxied `transscendsurvival-org.pages.dev`
-CNAME unless the Pages custom domain is active and the operator has explicitly
-chosen a new serving cutover.** Flipping apex while the Pages domain was pending
-caused TWO transient outages on 2026-06-22: Cloudflare's anycast edge served
-requests before the Pages domain was active, returning connection refused /
-timeout. A safe future cut must pre-validate the Pages custom domain to active
-(cert issued) BEFORE pointing apex DNS at `pages.dev`.
+The cut followed the safe order below, which stays load-bearing for any future
+rollback-and-recut. The hard rule: **NEVER flip apex to the proxied
+`transscendsurvival-org.pages.dev` CNAME unless the Pages custom domain is
+active.** Flipping apex while the Pages domain was pending caused TWO transient
+outages on 2026-06-22: Cloudflare's anycast edge served requests before the Pages
+domain was active, returning connection refused / timeout. The 2026-06-23 cut
+pre-validated the Pages custom domain to active (in-account verification — the
+only apex-capable path, since the apex CNAME is flattened and the Pages API
+cannot activate an apex) BEFORE pointing apex DNS at `pages.dev`, so no outage
+occurred.
 
-State machine for a *safe* cut:
+State machine (current = Pages serving; GitHub Pages is the rollback target):
 
 ```mermaid
 stateDiagram-v2
-    [*] --> GHPServing: current — GitHub Pages serving, grey records
-    GHPServing --> PagesBuilding: cloudflare-pages-shadow.yml builds project
-
-    PagesBuilding --> DomainPending: add apex + www custom domains to Pages
+    [*] --> PagesServing: current — Cloudflare Pages serving, proxied apex CNAME
+    PagesServing --> GHPServing: ROLLBACK — restore grey apex records → GitHub Pages
+    GHPServing --> DomainPending: re-cut — add apex custom domain to Pages
     note right of DomainPending
         DANGER ZONE
-        Pages custom domain validates via PUBLIC DNS,
-        Do NOT point apex at
-        pages.dev yet — anycast edge will serve before
-        the Pages domain is active → connection refused.
+        Pages custom domain validates in-account.
+        Do NOT point apex at pages.dev until ACTIVE —
+        the anycast edge serves before the domain is active → connection refused.
         (This is what bit us twice on 2026-06-22.)
     end note
-
     DomainPending --> DomainActive: domain validated + cert issued
-    DomainActive --> CutApex: only now flip apex → transscendsurvival-org.pages.dev (proxied)
-    CutApex --> PagesServing: Cloudflare Pages serving
-    PagesServing --> [*]
-
-    DomainPending --> GHPServing: remove prod domains, stay on GitHub Pages (current posture)
+    DomainActive --> PagesServing: only now flip apex → transscendsurvival-org.pages.dev (proxied)
 ```
 
 The same precondition as a sequence — validate first, cut second:
@@ -234,5 +230,6 @@ Monitoring is host-agnostic and already shipped. It lives in
 `.github/workflows/production-health.yml`, and the `workers/dns-guard/` Worker.
 It asserts non-empty resolution plus `AAAA`/`SOA`/`TCP` across the current
 delegated Cloudflare nameservers and public resolvers, with no hardcoded
-public-resolver IP expectations. It also checks direct GitHub Pages serving,
-canonical redirects, slash parity, and public blog hydration.
+public-resolver IP expectations. It also checks apex serving (Cloudflare Pages)
+and the `www` GitHub Pages redirect, canonical redirects, slash parity, and
+public blog hydration.

@@ -5,14 +5,17 @@
  * from Cloudflare's edge across many independent public resolvers.
  *
  * WHY THIS EXISTS
- * The apex A/AAAA records live OUT OF BAND in the DreamHost zone (this repo only
- * ships static/CNAME). On 2026-06-22 the apex lost ALL FOUR AAAA records while
+ * The apex now resolves via a proxied CNAME to the Pages project in the Cloudflare
+ * zone (this repo only ships static/CNAME for the GitHub Pages rollback). Before the
+ * 2026-06-22 authority cutover the apex A/AAAA lived out of band in DreamHost; that
+ * day the apex lost ALL FOUR AAAA records while
  * keeping A, and while www kept AAAA via its github.io CNAME — so IPv6-preferring
  * visitors got ERR_NAME_NOT_RESOLVED while IPv4 clients (and the owner) saw a
  * healthy site. A plain IPv4 HTTP uptime check stays GREEN through that outage.
  *
  * This Worker asserts, across MANY public resolvers via DoH, that the apex AND
- * www resolve the full GitHub Pages A and AAAA sets — the exact failure a normal
+ * www resolve A and AAAA (apex via the Cloudflare Pages edge, www via GitHub
+ * Pages) — the exact failure a normal
  * monitor misses — then fetches the apex over HTTPS and verifies the canonical
  * redirects. The expected sets are kept byte-identical to
  * scripts/check-production-health.mts.
@@ -49,7 +52,7 @@ const WWW = `www.${APEX}`;
 const BLOG_BROKER_STREAM_URL = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 
 // Host-agnostic: assert the apex/www RESOLVE (non-empty answer, no SERVFAIL) — not
-// fixed IPs. The apex is migrating GitHub Pages anycast → a Cloudflare-proxied CNAME
+// fixed IPs. The apex has migrated from GitHub Pages anycast to a Cloudflare-proxied CNAME
 // whose A/AAAA rotate; "right site" is proven by the HTTPS + broker-stream checks.
 
 // Independent public resolvers. Cloudflare/Google/AdGuard expose JSON APIs.
@@ -431,7 +434,7 @@ function summarize(failures: CheckResult[], skipped: CheckResult[], total: numbe
 	const lines = failures.map((f) => `  FAIL ${f.name}: ${f.detail}`);
 	return (
 		`DNS GUARD FAILED for ${APEX} — ${failures.length} problem(s):\n${lines.join('\n')}\n\n` +
-		`Apex A/AAAA live out of band in the DreamHost zone; add the missing records under the BARE apex owner.`
+		`Apex is a proxied CNAME to transscendsurvival-org.pages.dev in the Cloudflare zone; if it regressed, restore the proxied apex CNAME (or follow docs/runbooks/dns-cutover-and-rollback.md).`
 	);
 }
 
