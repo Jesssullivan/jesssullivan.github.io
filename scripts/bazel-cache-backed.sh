@@ -29,6 +29,11 @@ Environment:
     action/input digests from the same REAPI service.
   GF_BAZEL_REMOTE_EXECUTION_PLATFORM optionally overrides the executor platform
     property; defaults to gloriousflywheel-rbe-linux-x86_64.
+  GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN
+    must be set when a gf-reapi-cell endpoint requires JWT auth. The helper
+    also uses /var/run/secrets/tokens/gf-reapi-cell-token when present.
+  GF_REAPI_BAZEL_CREDENTIAL_HELPER optionally overrides the repo-local Bazel
+    credential helper path.
   BAZEL_REPOSITORY_CACHE optionally points at a Bazel repository cache directory.
   BAZEL_DISTDIR optionally contains one or more colon-separated Bazel distdir paths.
 EOF
@@ -60,8 +65,54 @@ remote_cache="${BAZEL_REMOTE_CACHE:-}"
 remote_executor="${BAZEL_REMOTE_EXECUTOR:-}"
 remote_executor_cache="${BAZEL_REMOTE_EXECUTOR_CACHE:-}"
 remote_execution_platform="${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}"
+gf_reapi_token_file="${GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE:-}"
+gf_reapi_inline_token="${GF_REAPI_CREDENTIAL_HELPER_TOKEN:-}"
+gf_reapi_default_token_file="/var/run/secrets/tokens/gf-reapi-cell-token"
+gf_reapi_credential_helper="${GF_REAPI_BAZEL_CREDENTIAL_HELPER:-%workspace%/scripts/gf-reapi-bazel-credential-helper.mjs}"
 external_fetch_args=()
 executor_args=()
+credential_args=()
+
+endpoint_host() {
+  local endpoint="$1"
+  local without_scheme="${endpoint#*://}"
+  local authority="${without_scheme%%/*}"
+
+  echo "${authority%%:*}"
+}
+
+is_gf_reapi_host() {
+  local host="$1"
+
+  [[ ${host} == gf-reapi-cell* || ${host} == *.gf-rbe.svc || ${host} == *.gf-rbe.svc.* ]]
+}
+
+configure_gf_reapi_credentials() {
+  local endpoint="$1"
+  local host=""
+
+  if [[ -z ${endpoint} ]]; then
+    return 0
+  fi
+
+  host="$(endpoint_host "${endpoint}")"
+  if ! is_gf_reapi_host "${host}"; then
+    return 0
+  fi
+
+  if [[ -n ${gf_reapi_token_file} && -n ${gf_reapi_inline_token} ]]; then
+    echo "ERROR: set either GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN, not both." >&2
+    exit 1
+  fi
+
+  if [[ -z ${gf_reapi_token_file} && -z ${gf_reapi_inline_token} && ! -f ${gf_reapi_default_token_file} ]]; then
+    echo "ERROR: ${host} requires GF REAPI credentials, but no token source is attached." >&2
+    echo "Set GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE, GF_REAPI_CREDENTIAL_HELPER_TOKEN, or mount ${gf_reapi_default_token_file}." >&2
+    exit 1
+  fi
+
+  credential_args+=(--credential_helper="${host}=${gf_reapi_credential_helper}")
+}
 
 if [[ -n ${BAZEL_REPOSITORY_CACHE:-} ]]; then
   external_fetch_args+=(--repository_cache="${BAZEL_REPOSITORY_CACHE}")
@@ -98,11 +149,13 @@ info)
       --remote_default_exec_properties="gf.platform=${remote_execution_platform}"
     )
   fi
+  configure_gf_reapi_credentials "${remote_executor:-${effective_remote_cache}}"
 
   exec "${bazel_bin}" "${command}" \
     --config="${bazel_config}" \
     --remote_cache="${effective_remote_cache}" \
     "${executor_args[@]}" \
+    "${credential_args[@]}" \
     "${external_fetch_args[@]}" \
     "$@"
   ;;

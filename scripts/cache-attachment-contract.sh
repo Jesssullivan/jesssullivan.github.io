@@ -53,6 +53,9 @@ done
 BAZEL_REMOTE_CACHE_VALUE="${BAZEL_REMOTE_CACHE:-}"
 BAZEL_REMOTE_EXECUTOR_VALUE="${BAZEL_REMOTE_EXECUTOR:-}"
 GF_BAZEL_MODE_VALUE="${GF_BAZEL_SUBSTRATE_MODE:-}"
+GF_REAPI_TOKEN_FILE_VALUE="${GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE:-}"
+GF_REAPI_INLINE_TOKEN_VALUE="${GF_REAPI_CREDENTIAL_HELPER_TOKEN:-}"
+GF_REAPI_DEFAULT_TOKEN_FILE="/var/run/secrets/tokens/gf-reapi-cell-token"
 ATTIC_SERVER_VALUE="${ATTIC_SERVER:-}"
 ATTIC_CACHE_RAW_VALUE="${ATTIC_CACHE:-}"
 ATTIC_CACHE_VALUE="${ATTIC_CACHE_RAW_VALUE:-main}"
@@ -187,6 +190,42 @@ display_value() {
   fi
 }
 
+endpoint_host() {
+  local endpoint="$1"
+  local without_scheme="${endpoint#*://}"
+  local authority="${without_scheme%%/*}"
+
+  echo "${authority%%:*}"
+}
+
+is_gf_reapi_host() {
+  local host="$1"
+
+  [[ ${host} == gf-reapi-cell* || ${host} == *.gf-rbe.svc || ${host} == *.gf-rbe.svc.* ]]
+}
+
+BAZEL_REQUIRES_GF_REAPI_CREDENTIALS=false
+if [[ -n ${BAZEL_REMOTE_EXECUTOR_VALUE} ]] && is_gf_reapi_host "$(endpoint_host "${BAZEL_REMOTE_EXECUTOR_VALUE}")"; then
+  BAZEL_REQUIRES_GF_REAPI_CREDENTIALS=true
+elif [[ -n ${BAZEL_REMOTE_CACHE_VALUE} ]] && is_gf_reapi_host "$(endpoint_host "${BAZEL_REMOTE_CACHE_VALUE}")"; then
+  BAZEL_REQUIRES_GF_REAPI_CREDENTIALS=true
+fi
+
+GF_REAPI_CREDENTIAL_STATE="not-required"
+if [[ ${BAZEL_REQUIRES_GF_REAPI_CREDENTIALS} == "true" ]]; then
+  if [[ -n ${GF_REAPI_TOKEN_FILE_VALUE} && -n ${GF_REAPI_INLINE_TOKEN_VALUE} ]]; then
+    GF_REAPI_CREDENTIAL_STATE="ambiguous"
+  elif [[ -n ${GF_REAPI_TOKEN_FILE_VALUE} ]]; then
+    GF_REAPI_CREDENTIAL_STATE="token-file"
+  elif [[ -n ${GF_REAPI_INLINE_TOKEN_VALUE} ]]; then
+    GF_REAPI_CREDENTIAL_STATE="inline-token"
+  elif [[ -f ${GF_REAPI_DEFAULT_TOKEN_FILE} ]]; then
+    GF_REAPI_CREDENTIAL_STATE="projected-token-file"
+  else
+    GF_REAPI_CREDENTIAL_STATE="missing"
+  fi
+fi
+
 cat <<EOF
 Cache Attachment Contract
 =========================
@@ -199,6 +238,7 @@ Nix substituter:    $(display_value "${EXPECTED_ATTIC_SUBSTITUTER}")
 Bazel mode:         ${EFFECTIVE_BAZEL_MODE}
 Bazel remote cache: $(display_value "${BAZEL_REMOTE_CACHE_VALUE}")
 Bazel executor:     $(display_value "${BAZEL_REMOTE_EXECUTOR_VALUE}")
+GF REAPI auth:      ${GF_REAPI_CREDENTIAL_STATE}
 Expected mode:      ${EXPECTED_BAZEL_MODE}
 Strict Bazel:       ${STRICT}
 Strict Nix:         ${STRICT_NIX}
@@ -208,6 +248,7 @@ Contract:
 - developer machines only prove Bazel shared-cache dogfood when BAZEL_REMOTE_CACHE is explicitly set
 - executor-backed Bazel work requires BAZEL_REMOTE_EXECUTOR and BAZEL_REMOTE_CACHE to be set explicitly
 - BAZEL_REMOTE_EXECUTOR and BAZEL_REMOTE_CACHE are separately declared runner attachments; executor-backed Bazel may use a unified executor CAS/cache
+- gf-reapi-cell endpoints require a scoped Bazel credential helper with a short-lived JWT source
 - developer machines prove Attic/Nix cache attachment when NIX_CONFIG carries the Attic substituter and public key
 - empty BAZEL_REMOTE_CACHE means compatibility-local-only unless an invalid executor-only configuration is present
 - literal shell placeholders are invalid; Bazel rc files do not expand environment variables
@@ -259,6 +300,19 @@ fi
 if [[ -n ${BAZEL_REMOTE_EXECUTOR_VALUE} && -z ${BAZEL_REMOTE_CACHE_VALUE} ]]; then
   echo
   echo "ERROR: executor-backed mode requires BAZEL_REMOTE_CACHE to prove runner cache wiring."
+  exit 1
+fi
+
+if [[ ${GF_REAPI_CREDENTIAL_STATE} == "ambiguous" ]]; then
+  echo
+  echo "ERROR: set either GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN, not both."
+  exit 1
+fi
+
+if [[ ${STRICT} == "true" && ${GF_REAPI_CREDENTIAL_STATE} == "missing" ]]; then
+  echo
+  echo "ERROR: gf-reapi-cell endpoint requires a JWT source for the Bazel credential helper."
+  echo "Set GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE, GF_REAPI_CREDENTIAL_HELPER_TOKEN, or mount ${GF_REAPI_DEFAULT_TOKEN_FILE}."
   exit 1
 fi
 
