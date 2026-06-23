@@ -1,3 +1,18 @@
+# Repository Operator Notes
+
+These rules apply before the writing-style guidance below.
+
+## Production DNS, Cloudflare, And Secrets
+
+- Read [docs/runbooks/dns-cutover-and-rollback.md](docs/runbooks/dns-cutover-and-rollback.md) before changing DNS, Cloudflare Pages custom domains, redirects, or production-health checks.
+- Do not mutate production DNS from ad hoc shell snippets. The repo uses a declare-then-verify loop: edit `infra/cloudflare/zone.json` in review, apply the matching live change deliberately, then run the read-only drift and production-health checks.
+- Never request or use a Cloudflare Global API Key for this repo. Cloudflare documents Global API Keys as legacy, full-permission user credentials. Use least-privilege API tokens with `Authorization: Bearer ...`.
+- Never run broad secret decrypts such as `sops -d`, `sops --decrypt`, or `sops ... | grep`. Extract exactly one secret by path with `sops --extract`, assign it to an environment variable without echoing it, and unset it after use.
+- Never print token values, API keys, certificates, cookies, or full authorization headers. Logs may include key names, API endpoint paths, status codes, object IDs, and Cloudflare Ray IDs only.
+- If a secret value is exposed in a transcript, stop production changes and rotate that credential before continuing. Update SOPS and CI secrets only after rotation.
+- Do not change tests to match a broken live state. If `npm run test:production-health` is red, either fix live DNS/serving to match the declared posture or update the declared posture in review before changing assertions.
+- Current repo contract is intentionally conservative unless the runbook says otherwise: apex is allowed to serve GitHub Pages A/AAAA, and `www` should be a canonical redirect path rather than an independent production surface.
+
 # Writing Style Guide: Jess Sullivan
 
 This guide captures the voice and lexical patterns of jesssullivan.github.io blog posts. Use it when writing, editing, or reviewing blog content to match the author's established style.

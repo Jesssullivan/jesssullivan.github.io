@@ -3,26 +3,19 @@
 Operational runbook for the apex/`www` domain of this site. Spelling is
 **tranSScend** (double-s) — not a typo.
 
-## Current verified state (2026-06-22)
+## Current verified state (2026-06-23)
 
 - **Registrar:** DreamHost. The `.org` parent currently delegates to
-  `ns1.dreamhost.com`, `ns2.dreamhost.com`, and `ns3.dreamhost.com`.
+  `izabella.ns.cloudflare.com` and `sullivan.ns.cloudflare.com`.
   DreamHost's API **cannot** change NS or DS — those are manual in the
   DreamHost registrar panel. The DreamHost API only exposes `dns-add_record` /
   `dns-list_records` / `dns-remove_record`.
-- **Current DNS authority:** DreamHost. The DreamHost zone must continue serving
-  the GitHub Pages A/AAAA apex records and the `www` CNAME until the registrar
-  NS change is complete.
-- **Prepared cutover DNS authority:** Cloudflare. Zone id
-  `602400322c1ecac4983542c76af90115`. Nameservers
-  `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. The prepared
-  Cloudflare zone mirrors the safe GitHub Pages records and is drift-checked,
-  but it is not the parent-delegated authority until the registrar NS changes.
-- **Serving:** GitHub Pages, **unchanged**. `static/CNAME` =
-  `transscendsurvival.org`. Let's Encrypt cert (state `approved`) covers both
-  apex and `www`, expires 2026-09-09.
-- **DNS records in DreamHost and in the prepared Cloudflare zone — DNS-only
-  (NOT proxied):**
+- **Current DNS authority:** Cloudflare zone
+  `602400322c1ecac4983542c76af90115`.
+- **Desired serving posture:** GitHub Pages for the apex until the Cloudflare
+  Pages custom-domain cutover is deliberately completed. `static/CNAME` =
+  `transscendsurvival.org`.
+- **Desired DNS records in Cloudflare — DNS-only (NOT proxied):**
 
   | Name  | Type  | Value                                                                              |
   | ----- | ----- | ---------------------------------------------------------------------------------- |
@@ -34,33 +27,43 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
   **`www` MUST be a CNAME.** `www` as A/AAAA breaks the `www` TLS handshake
   (cert presentation failure).
 
+- **Observed drift on 2026-06-23:** apex A/AAAA resolves to GitHub Pages and
+  returns 200. `/blog` browser hydration passes against the public Tinyland
+  broker. `www.transscendsurvival.org` currently resolves through Cloudflare
+  edge A/AAAA, does not expose the desired `jesssullivan.github.io` CNAME, and
+  does not redirect to the apex. Keep production-health red until `www` is
+  either restored to the declared GitHub Pages CNAME/canonical redirect posture
+  or the desired posture is changed in review.
 - **DNSSEC:** no DS is present at the `.org` parent right now. Do not add a
-  Cloudflare DS until the parent NS delegation has actually moved to Cloudflare
-  and Cloudflare signing is stable.
+  Cloudflare DS until Cloudflare signing is stable and the chain is verified.
 - **CF Pages (`transscendsurvival-org`):** builds via
-  `.github/workflows/cloudflare-pages-shadow.yml`. apex + `www` custom domains
-  are **PENDING**. The Pages serving cut is **DEFERRED** — see the hard rule.
+  `.github/workflows/cloudflare-pages-shadow.yml`. The Pages serving cut remains
+  **DEFERRED** unless both custom domains are ACTIVE with certificates issued
+  and the IaC/monitoring posture is updated in the same change window.
 
 ```text
-DreamHost (registrar)          DreamHost DNS (current)          GitHub Pages (serving)
-  NS -> ns*.dreamhost.com  -->  apex A/AAAA + www CNAME  -->  static/CNAME
+DreamHost (registrar)          Cloudflare DNS (current)          GitHub Pages (apex serving)
+  NS -> Cloudflare pair    -->  apex A/AAAA desired shape   -->   static/CNAME
 
-Prepared, not delegated yet:
-  Cloudflare DNS zone mirrors the same safe GitHub Pages records.
+Current drift:
+  www is resolving through Cloudflare edge instead of the declared GitHub Pages CNAME.
 ```
 
-## ROLLBACK: keep or revert NS to DreamHost
+## ROLLBACK: revert NS to DreamHost
 
 The GitHub Pages records are still **staged in the DreamHost zone**, so a
-rollback from a future Cloudflare NS cutover is just a registrar-side NS revert
-— no record re-entry needed. If the parent still shows DreamHost, there is
-nothing to roll back at the delegation layer.
+rollback from the current Cloudflare NS delegation is a registrar-side NS revert
+— no record re-entry needed if the staged DreamHost zone still matches the table
+above. If the parent already shows DreamHost, there is nothing to roll back at
+the delegation layer.
 
 **When to roll back:** Cloudflare is the DNS failure mode (zone-wide SERVFAIL,
 signing breakage you can't fix forward, account/billing lockout) AND DreamHost
-authoritative DNS is healthy again. Do **not** roll back to escape the original
-P0 — that P0 was DreamHost's authoritative platform SERVFAILing apex AAAA/SOA
-with dead TCP/53; reverting NS to DreamHost reintroduces exactly that.
+authoritative DNS is healthy again. Do **not** roll back casually to escape
+application-level, Pages-custom-domain, or `www` canonical drift; those are
+record/serving bugs. Also do **not** roll back to escape the original P0 unless
+DreamHost has been re-verified healthy, because that P0 was DreamHost's
+authoritative platform SERVFAILing apex AAAA/SOA with dead TCP/53.
 
 **DNSSEC interaction — do this FIRST:**
 
@@ -168,6 +171,30 @@ Keep `zone.json` and the live zone in lockstep: never change one without the
 other in the same change window. The declared invariant `apex_must_be_dns_only`
 is what makes a live `pages.dev` re-proxy fail the drift check loudly.
 
+## Cloudflare API auth rule
+
+Use least-privilege API tokens. Do **not** ask for, store, or use a Cloudflare
+Global API Key for this repo.
+
+Cloudflare documents the Pages REST API with `Authorization: Bearer
+$CLOUDFLARE_API_TOKEN` and `Pages Read` / `Pages Write` permissions. Cloudflare
+also documents Global API Keys as a legacy auth scheme with the same full
+permissions as the user and recommends API tokens when possible.
+
+If a production Pages/DNS change must be made by API rather than the dashboard,
+use a short-lived token scoped only to the target account/zone. Start with:
+
+- Account: Cloudflare Pages Write/Edit for the `transscendsurvival-org` Pages
+  project.
+- Zone: DNS Write/Edit for `transscendsurvival.org`.
+- Zone: Zone Read for `transscendsurvival.org`.
+- Add SSL/TLS certificate permissions only if the specific endpoint returns a
+  permission error that names that permission.
+
+Before any mutation, verify the token with read-only calls. During mutation,
+log only endpoint paths, status codes, object IDs, and Cloudflare Ray IDs. Never
+log token values or authorization headers.
+
 ## Verification one-liners
 
 ```sh
@@ -211,3 +238,9 @@ CLOUDFLARE_API_TOKEN=… npx tsx scripts/cf-dns-check.mts
 
 - Lab SOPS: `["infrastructure"]["cloudflare_api_token" | "cloudflare_account_id" | "dreamhost_api_key"]`.
 - CI: GitHub Actions secrets (e.g. `CLOUDFLARE_API_TOKEN`).
+- Never use broad SOPS decrypts for debugging, including `sops -d`, `sops --decrypt`,
+  or `sops ... | grep`. Extract one key by path with `sops --extract`, put it in
+  an environment variable without echoing it, and unset it after use.
+- If a credential value is exposed in a terminal transcript, chat transcript, CI
+  log, or PR comment, treat it as compromised. Revoke or rotate the credential,
+  then update SOPS and CI secrets with the replacement.
