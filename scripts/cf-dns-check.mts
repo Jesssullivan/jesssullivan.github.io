@@ -9,12 +9,14 @@ import { fileURLToPath } from 'node:url';
 // issues is GET. There is intentionally no apply path here — mutation stays manual.
 //
 // It fails loudly (non-zero exit) on ANY of:
-//   - an apex record that is PROXIED (proxied=true) — the exact 2026-06-22 outage cause:
-//     an apex re-proxy to the orange-cloud edge served requests before Pages was active
-//     and produced connection refused / timeout for real visitors.
-//   - the apex drifting away from A/AAAA, or www drifting away from CNAME.
+//   - apex proxy posture drift. The posture is set by invariants in zone.json:
+//       * apex_must_be_proxied=true (CURRENT, post-2026-06-23 CF Pages cut): the apex MUST be a
+//         proxied CNAME to apex_cname_target. A grey/un-proxied apex means the cut regressed.
+//       * apex_must_be_proxied=false (legacy GitHub Pages posture): NO apex record may be proxied
+//         — an apex re-proxy before Pages was active was the exact 2026-06-22 outage cause.
+//   - the apex drifting away from its declared type(s), or www drifting away from CNAME.
 //   - any declared record missing live, or any undeclared record present live.
-//   - DNSSEC not active.
+//   - DNSSEC not active (pending — CF signed, awaiting registrar DS — is a WARN, not a failure).
 //
 // Auth: reads CLOUDFLARE_API_TOKEN from the environment (never printed). A read-only
 // token is sufficient and preferred. Optionally honors CLOUDFLARE_ZONE_ID to override
@@ -41,7 +43,9 @@ type DesiredZone = {
 	dnssec: string;
 	invariants?: {
 		apex_must_be_dns_only?: boolean;
+		apex_must_be_proxied?: boolean;
 		apex_record_types?: string[];
+		apex_cname_target?: string;
 		www_record_type?: string;
 	};
 	records: DesiredRecord[];
@@ -156,29 +160,74 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 
 	const managedLive = live.filter((record) => MANAGED_TYPES.has(record.type.toUpperCase()));
 
-	// --- Invariant 1: NO apex record may be proxied. This is the outage guard. ---
-	const proxiedApex = managedLive.filter((record) => isApex(apex, record.name) && record.proxied);
-	checks.push({
-		name: 'apex is DNS-only (no proxied apex record)',
-		ok: proxiedApex.length === 0,
-		detail:
-			proxiedApex.length === 0
-				? 'all apex records grey-cloud (proxied=false)'
-				: `PROXIED apex record(s): ${proxiedApex.map((r) => `${r.type} ${r.content}`).join(', ')} — re-proxy was the 2026-06-22 outage cause`,
-	});
+	// --- Invariant 1: apex proxy posture (the outage guard, posture-aware). ---
+	const apexMustBeProxied = desired.invariants?.apex_must_be_proxied === true;
+	const apexCnameTarget = desired.invariants?.apex_cname_target;
+	const apexProxyRecs = managedLive.filter((record) => isApex(apex, record.name));
+	const proxiedApex = apexProxyRecs.filter((record) => record.proxied);
+	if (apexMustBeProxied) {
+		// Post-cut posture (Cloudflare Pages): the apex MUST be proxied (orange-cloud) so the CF
+		// Pages edge serves it. A grey/un-proxied apex here means the cut regressed. The
+		// 2026-06-22 outage was proxying BEFORE Pages was active; this posture is declared only
+		// once the Pages custom domain is ACTIVE, so proxied is the safe, required state.
+		const unproxiedApex = apexProxyRecs.filter((record) => !record.proxied);
+		checks.push({
+			name: 'apex is proxied to CF Pages (orange-cloud)',
+			ok: apexProxyRecs.length > 0 && unproxiedApex.length === 0,
+			detail:
+				apexProxyRecs.length === 0
+					? 'no apex record found live'
+					: unproxiedApex.length === 0
+						? `apex proxied -> ${apexProxyRecs.map((r) => r.content).join(', ')}`
+						: `apex NOT proxied: ${unproxiedApex.map((r) => `${r.type} ${r.content}`).join(', ')} — CF Pages cut regressed to grey-cloud`,
+		});
+		if (apexCnameTarget) {
+			const apexCnames = apexProxyRecs.filter((record) => record.type.toUpperCase() === 'CNAME');
+			const targetOk =
+				apexCnames.length > 0 &&
+				apexCnames.every((record) => record.content.toLowerCase() === apexCnameTarget.toLowerCase());
+			checks.push({
+				name: `apex CNAME -> ${apexCnameTarget}`,
+				ok: targetOk,
+				detail:
+					apexCnames.length === 0
+						? 'no apex CNAME found live'
+						: targetOk
+							? `apex -> ${apexCnameTarget}`
+							: `apex CNAME target drift: live ${apexCnames.map((r) => r.content).join(', ')}`,
+			});
+		}
+	} else {
+		// Pre-cut posture (GitHub Pages): NO apex record may be proxied. An apex re-proxy to the
+		// orange-cloud edge before an origin was ready was the 2026-06-22 outage cause.
+		checks.push({
+			name: 'apex is DNS-only (no proxied apex record)',
+			ok: proxiedApex.length === 0,
+			detail:
+				proxiedApex.length === 0
+					? 'all apex records grey-cloud (proxied=false)'
+					: `PROXIED apex record(s): ${proxiedApex.map((r) => `${r.type} ${r.content}`).join(', ')} — re-proxy was the 2026-06-22 outage cause`,
+		});
+	}
 
-	// Defense in depth: nothing managed should be proxied at all in this GitHub Pages zone.
+	// --- Invariant 2: no UNEXPECTED proxied record. In the Pages posture only the apex may be
+	//     proxied; in the GitHub posture nothing managed may be. ---
 	const proxiedAny = managedLive.filter((record) => record.proxied);
+	const unexpectedProxied = apexMustBeProxied
+		? proxiedAny.filter((record) => !isApex(apex, record.name))
+		: proxiedAny;
 	checks.push({
-		name: 'no managed record is proxied (grey-cloud only)',
-		ok: proxiedAny.length === 0,
+		name: apexMustBeProxied ? 'only the apex is proxied (www stays grey)' : 'no managed record is proxied (grey-cloud only)',
+		ok: unexpectedProxied.length === 0,
 		detail:
-			proxiedAny.length === 0
-				? 'A/AAAA/CNAME all proxied=false'
-				: `proxied=true on: ${proxiedAny.map((r) => `${r.type} ${r.name}`).join(', ')}`,
+			unexpectedProxied.length === 0
+				? apexMustBeProxied
+					? 'only apex orange-cloud; other managed records grey'
+					: 'A/AAAA/CNAME all proxied=false'
+				: `unexpected proxied=true on: ${unexpectedProxied.map((record) => `${record.type} ${record.name}`).join(', ')}`,
 	});
 
-	// --- Invariant 2: apex stays A/AAAA. ---
+	// --- Invariant 3: apex stays on its declared type set. ---
 	const apexLive = managedLive.filter((record) => isApex(apex, record.name));
 	const apexTypeViolations = apexLive.filter((record) => !apexTypes.has(record.type.toUpperCase()));
 	checks.push({
@@ -186,13 +235,13 @@ function buildChecks(desired: DesiredZone, live: LiveRecord[], dnssecStatus: str
 		ok: apexLive.length > 0 && apexTypeViolations.length === 0,
 		detail:
 			apexLive.length === 0
-				? 'no apex A/AAAA records found live'
+				? `no apex ${[...apexTypes].sort().join('/')} records found live`
 				: apexTypeViolations.length === 0
 					? `${apexLive.length} apex record(s), all ${[...apexTypes].sort().join('/')}`
 					: `unexpected apex type(s): ${apexTypeViolations.map((r) => r.type).join(', ')}`,
 	});
 
-	// --- Invariant 3: www stays a CNAME (www as A/AAAA breaks the TLS cert handshake). ---
+	// --- Invariant 4: www stays a CNAME (www as A/AAAA breaks the TLS cert handshake). ---
 	const wwwLive = managedLive.filter((record) => record.name.toLowerCase() === wwwName);
 	const wwwTypeOk = wwwLive.length > 0 && wwwLive.every((record) => record.type.toUpperCase() === wwwType);
 	checks.push({
