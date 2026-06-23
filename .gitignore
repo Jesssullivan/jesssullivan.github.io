@@ -48,4 +48,5 @@ coverage/
 .lighthouseci/
 bundle-report.json
 packages/blog-agent/.agentuity/app.js.map
+workers/dns-guard/.wrangler/
 .gstack/
