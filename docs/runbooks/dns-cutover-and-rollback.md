@@ -27,19 +27,19 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
   **`www` MUST be a CNAME.** `www` as A/AAAA breaks the `www` TLS handshake
   (cert presentation failure).
 
-- **Observed drift on 2026-06-23:** apex A/AAAA resolves to GitHub Pages and
-  returns 200. `/blog` browser hydration passes against the public Tinyland
-  broker. `www.transscendsurvival.org` currently resolves through Cloudflare
-  edge A/AAAA, does not expose the desired `jesssullivan.github.io` CNAME, and
-  does not redirect to the apex. Keep production-health red until `www` is
-  either restored to the declared GitHub Pages CNAME/canonical redirect posture
-  or the desired posture is changed in review.
+- **Resolved drift on 2026-06-23:** `www.transscendsurvival.org` had been left
+  attached to the Cloudflare Pages project and was resolving through Cloudflare
+  edge A/AAAA instead of the declared `jesssullivan.github.io` CNAME. The live
+  fix restored `www` to a DNS-only CNAME and removed the production apex/`www`
+  custom domains from the Pages project. `/blog` browser hydration passes
+  against the public Tinyland broker.
 - **DNSSEC:** no DS is present at the `.org` parent right now. Do not add a
   Cloudflare DS until Cloudflare signing is stable and the chain is verified.
 - **CF Pages (`transscendsurvival-org`):** builds via
-  `.github/workflows/cloudflare-pages-shadow.yml`. The Pages serving cut remains
-  **DEFERRED** unless both custom domains are ACTIVE with certificates issued
-  and the IaC/monitoring posture is updated in the same change window.
+  `.github/workflows/cloudflare-pages-shadow.yml`. The production apex and
+  `www` hostnames should **not** be attached as Pages custom domains while this
+  GitHub Pages posture is active. Shadow domains `tss.tinyland.dev` and
+  `tss.ephemera.tinyland.dev` may stay attached.
 
 ```text
 DreamHost (registrar)          Cloudflare DNS (current)          GitHub Pages (apex serving)

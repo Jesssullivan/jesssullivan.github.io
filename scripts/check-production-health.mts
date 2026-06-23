@@ -212,10 +212,8 @@ async function authoritativeCnameCheck(
 	const expected = normalizeDnsName(expectedTarget);
 
 	for (let attempt = 1; attempt <= attempts; attempt++) {
-		const resolver = new Resolver();
-		resolver.setServers([server]);
 		try {
-			const values = (await resolver.resolveCname(host)).map(normalizeDnsName);
+			const values = await resolveCnameChainFromAAnswer(server, host);
 			lastGood = values;
 			if (!values.includes(expected)) failures.push(`attempt ${attempt}: got ${format(values)}, want ${expected}`);
 		} catch (error) {
@@ -230,6 +228,19 @@ async function authoritativeCnameCheck(
 		ok: failures.length === 0,
 		detail: failures.length === 0 ? `${attempts}/${attempts} ${format(lastGood)}` : failures.join(' | '),
 	};
+}
+
+async function resolveCnameChainFromAAnswer(server: string, host: string): Promise<string[]> {
+	const { stdout } = await execFileAsync('dig', ['+time=3', '+tries=1', `@${server}`, host, 'A', '+noall', '+answer'], {
+		timeout: 8000,
+	});
+	const values = stdout
+		.split('\n')
+		.map((line) => line.trim().split(/\s+/))
+		.filter((parts) => parts.length >= 5 && parts[3]?.toUpperCase() === 'CNAME')
+		.map((parts) => normalizeDnsName(parts[4] ?? ''))
+		.filter(Boolean);
+	return [...new Set(values)];
 }
 
 function normalizeDnsName(name: string): string {
