@@ -4,7 +4,9 @@ import { join } from 'node:path';
 import { chromium, type Browser, type Page } from '@playwright/test';
 import { configureChromiumFontconfig } from './chromium-fontconfig.mjs';
 
-const targets = (process.env.PUBLIC_BLOG_HEALTH_URLS ?? 'https://transscendsurvival.org/blog')
+const targets = (
+	process.env.PUBLIC_BLOG_HEALTH_URLS ?? 'https://transscendsurvival.org/blog,https://www.transscendsurvival.org/blog'
+)
 	.split(',')
 	.map((value) => value.trim())
 	.filter(Boolean);
