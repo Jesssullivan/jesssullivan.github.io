@@ -122,9 +122,11 @@ Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift
 
 ## Production DNS And Health
 
-`transscendsurvival.org` is served by GitHub Pages. During the Cloudflare
-nameserver cutover, both the currently delegated DreamHost zone and the prepared
-Cloudflare zone must resolve the apex and `www` to working HTTPS targets.
+`transscendsurvival.org` is served by GitHub Pages at the apex. DNS authority is
+Cloudflare as of 2026-06-23; DreamHost remains the registrar. The declared
+Cloudflare zone should keep the apex on GitHub Pages A/AAAA records and `www` as
+the canonical GitHub Pages CNAME unless the Cloudflare Pages serving cut is
+explicitly completed in the DNS runbook.
 
 `npm run test:production-health` checks delegated and cutover authoritative DNS,
 major public resolvers, direct HTTPS against resolved IPv4 targets, apex/`www`
@@ -142,6 +144,11 @@ This monitoring catches missing A/AAAA records, split-brain authority during the
 Cloudflare cutover, stale Cloudflare proxy targets that fail TLS, and GitHub
 Pages route failures. It does not replace the service-level Cloudflare Pages /
 Cloudflare DNS canonical cutover tracked in TIN-1110.
+
+If production-health is red while apex routes and broker hydration pass, do not
+weaken the checks. Reconcile live DNS/serving against
+[docs/runbooks/dns-cutover-and-rollback.md](docs/runbooks/dns-cutover-and-rollback.md)
+or change the desired posture in review first.
 
 Bot-generated stats commits do not naturally trigger recursive GitHub Actions
 deploys, so `content-stats.yml` explicitly dispatches `deploy-pages.yml` after
