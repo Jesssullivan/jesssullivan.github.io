@@ -34,6 +34,8 @@ Environment:
     also uses /var/run/secrets/tokens/gf-reapi-cell-token when present.
   GF_REAPI_BAZEL_CREDENTIAL_HELPER optionally overrides the repo-local Bazel
     credential helper path.
+  BAZEL_REMOTE_INSTANCE_NAME optionally routes requests to a named REAPI
+    instance/tenant.
   BAZEL_REPOSITORY_CACHE optionally points at a Bazel repository cache directory.
   BAZEL_DISTDIR optionally contains one or more colon-separated Bazel distdir paths.
 EOF
@@ -72,6 +74,7 @@ gf_reapi_credential_helper="${GF_REAPI_BAZEL_CREDENTIAL_HELPER:-%workspace%/scri
 external_fetch_args=()
 executor_args=()
 credential_args=()
+routing_args=()
 
 endpoint_host() {
   local endpoint="$1"
@@ -114,6 +117,16 @@ configure_gf_reapi_credentials() {
   credential_args+=(--credential_helper="${host}=${gf_reapi_credential_helper}")
 }
 
+validate_runtime_value() {
+  local name="$1"
+  local value="$2"
+
+  if [[ ${value} == *'${'* ]] || [[ ${value} == *'}'* ]]; then
+    echo "ERROR: ${name} contains a literal shell placeholder, not a real value." >&2
+    exit 1
+  fi
+}
+
 if [[ -n ${BAZEL_REPOSITORY_CACHE:-} ]]; then
   external_fetch_args+=(--repository_cache="${BAZEL_REPOSITORY_CACHE}")
 fi
@@ -150,12 +163,17 @@ info)
     )
   fi
   configure_gf_reapi_credentials "${remote_executor:-${effective_remote_cache}}"
+  if [[ -n ${BAZEL_REMOTE_INSTANCE_NAME:-} ]]; then
+    validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
+    routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
+  fi
 
   exec "${bazel_bin}" "${command}" \
     --config="${bazel_config}" \
     --remote_cache="${effective_remote_cache}" \
     "${executor_args[@]}" \
     "${credential_args[@]}" \
+    "${routing_args[@]}" \
     "${external_fetch_args[@]}" \
     "$@"
   ;;
