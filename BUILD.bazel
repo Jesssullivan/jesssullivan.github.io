@@ -260,7 +260,7 @@ js_test(
         "vite",
         "web-browser-runtime-authority",
     ],
-    timeout = "eternal",
+    timeout = "long",
     visibility = ["//visibility:public"],
 )
 
