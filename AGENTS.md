@@ -11,7 +11,7 @@ These rules apply before the writing-style guidance below.
 - Never print token values, API keys, certificates, cookies, or full authorization headers. Logs may include key names, API endpoint paths, status codes, object IDs, and Cloudflare Ray IDs only.
 - If a secret value is exposed in a transcript, stop production changes and rotate that credential before continuing. Update SOPS and CI secrets only after rotation.
 - Do not change tests to match a broken live state. If `npm run test:production-health` is red, either fix live DNS/serving to match the declared posture or update the declared posture in review before changing assertions.
-- Current repo contract is intentionally conservative unless the runbook says otherwise: apex is allowed to serve GitHub Pages A/AAAA, and `www` should be a canonical redirect path rather than an independent production surface.
+- Current repo contract (post-2026-06-23 cut): apex serves Cloudflare Pages via a proxied `CNAME` to `transscendsurvival-org.pages.dev` (production); `www` stays a DNS-only GitHub Pages `CNAME` redirect (rollback). GitHub Pages remains the rollback publisher.
 
 # Writing Style Guide: Jess Sullivan
 

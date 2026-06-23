@@ -27,12 +27,13 @@ const wwwCanonicalTarget = 'jesssullivan.github.io';
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 
-// Host-agnostic resolution health. The apex is served by GitHub Pages anycast
-// (185.199.x / 2606:50c0::), and www is the canonical GitHub Pages CNAME. Public
-// resolvers must expand both apex and www to A + AAAA. Authoritative nameservers may
-// return only the CNAME for www, so the authority layer checks that CNAME directly.
-// "Right site" is proven by the HTTP + broker-stream checks below. A SERVFAIL or empty
-// AAAA is the exact DNS failure that broke IPv6 visitors.
+// Host-agnostic resolution health. The apex currently resolves through Cloudflare
+// Pages edge addresses via a proxied apex CNAME, and www remains the canonical
+// GitHub Pages CNAME redirect path. Public resolvers must expand both apex and www
+// to A + AAAA. Authoritative nameservers may return only CNAMEs, so the authority
+// layer checks www's CNAME directly and proves the right site with HTTPS +
+// broker-stream checks below. A SERVFAIL or empty AAAA is the exact DNS failure
+// that broke IPv6 visitors.
 
 const publicResolvers = [
 	['Cloudflare', '1.1.1.1'],

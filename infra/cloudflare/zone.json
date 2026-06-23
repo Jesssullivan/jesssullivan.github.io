@@ -3,21 +3,27 @@
 	"zone": "transscendsurvival.org",
 	"zone_id": "602400322c1ecac4983542c76af90115",
 	"invariants": {
-		"$comment": "Hard rules the drift detector enforces beyond record-by-record equality. An apex re-proxy (proxied=true on the apex A/AAAA) caused the 2026-06-22 outage and must fail loudly.",
-		"apex_must_be_dns_only": true,
-		"apex_record_types": ["A", "AAAA"],
+		"$comment": "Apex CUT to Cloudflare Pages on 2026-06-23 (was grey A/AAAA -> GitHub Pages). The 2026-06-22 outage was an apex re-proxy BEFORE the Pages custom domain was active; here the Pages domain (transscendsurvival.org on project transscendsurvival-org) was validated ACTIVE first, so the guard is INVERTED: the apex must stay a PROXIED CNAME to the Pages project. www stays a grey CNAME (still GitHub Pages, 301 -> apex) until separately cut.",
+		"apex_must_be_proxied": true,
+		"apex_record_types": ["CNAME"],
+		"apex_cname_target": "transscendsurvival-org.pages.dev",
 		"www_record_type": "CNAME"
 	},
 	"records": [
-		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.108.153", "proxied": false, "ttl": 1 },
-		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.109.153", "proxied": false, "ttl": 1 },
-		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.110.153", "proxied": false, "ttl": 1 },
-		{ "type": "A", "name": "transscendsurvival.org", "content": "185.199.111.153", "proxied": false, "ttl": 1 },
-		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8000::153", "proxied": false, "ttl": 1 },
-		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8001::153", "proxied": false, "ttl": 1 },
-		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8002::153", "proxied": false, "ttl": 1 },
-		{ "type": "AAAA", "name": "transscendsurvival.org", "content": "2606:50c0:8003::153", "proxied": false, "ttl": 1 },
-		{ "type": "CNAME", "name": "www.transscendsurvival.org", "content": "jesssullivan.github.io", "proxied": false, "ttl": 1 }
+		{
+			"type": "CNAME",
+			"name": "transscendsurvival.org",
+			"content": "transscendsurvival-org.pages.dev",
+			"proxied": true,
+			"ttl": 1
+		},
+		{
+			"type": "CNAME",
+			"name": "www.transscendsurvival.org",
+			"content": "jesssullivan.github.io",
+			"proxied": false,
+			"ttl": 1
+		}
 	],
 	"dnssec": "active"
 }

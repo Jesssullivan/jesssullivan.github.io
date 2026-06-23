@@ -3,8 +3,9 @@
 Current DNS state as of 2026-06-23. The domain (double-s
 "tranSScend" — this is the correct spelling, not a typo) is registered at
 DreamHost, delegated to Cloudflare nameservers at the `.org` parent, and served
-by GitHub Pages. Cloudflare Pages exists as a shadow build only; production apex
-and `www` are not attached to the Pages project.
+by Cloudflare Pages at the apex. The apex was cut from GitHub Pages to Cloudflare
+Pages on 2026-06-23 (proxied `CNAME` → `transscendsurvival-org.pages.dev`);
+GitHub Pages remains the rollback publisher and still serves `www`.
 
 ## Current State
 
@@ -12,22 +13,24 @@ and `www` are not attached to the Pages project.
 | --- | --- |
 | Registrar | DreamHost. Current parent NS = `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. The DreamHost API cannot change NS or DS and exposes only `dns-add_record` / `dns-list_records` / `dns-remove_record`; NS and DS changes are manual in the DreamHost registrar panel. |
 | Current DNS authority | Cloudflare zone `602400322c1ecac4983542c76af90115`, nameservers `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. This is the public authority. |
-| Records | apex `A` = `185.199.108.153` / `.109.153` / `.110.153` / `.111.153`; apex `AAAA` = `2606:50c0:8000::153` / `8001::153` / `8002::153` / `8003::153`; `www` = `CNAME` → `jesssullivan.github.io`. All records are DNS-only (NOT proxied). |
-| Serving | GitHub Pages, unchanged. `static/CNAME` = `transscendsurvival.org`. |
-| Cloudflare Pages | Shadow only: `tss.tinyland.dev` / `tss.ephemera.tinyland.dev`. Production apex and `www` custom domains were removed from the Pages project after the failed cutover attempts. |
+| Records | apex `CNAME` → `transscendsurvival-org.pages.dev` (proxied / orange-cloud); `www` `CNAME` → `jesssullivan.github.io` (DNS-only / grey-cloud). |
+| Serving | Cloudflare Pages at the apex. GitHub Pages remains the rollback publisher and serves the `www` 301; `static/CNAME` = `transscendsurvival.org` stays in place for fallback. |
+| Cloudflare Pages | Production: the `transscendsurvival.org` apex custom domain on project `transscendsurvival-org` is ACTIVE + serving since 2026-06-23 (validated in-account before apex DNS was pointed at it). Shadow: `tss.tinyland.dev` / `tss.ephemera.tinyland.dev`. `www` stays on GitHub Pages. |
 | DNSSEC | Cloudflare zone signing is enabled but parent DS is still pending at DreamHost (TIN-2160). Until the DS is visible at the `.org` parent, production is unsigned from the public chain's point of view. |
-| Cert | GitHub Pages-managed Let's Encrypt cert for BOTH apex + `www`. |
+| Cert | Cloudflare Pages-managed cert for the apex (issued 2026-06-23). GitHub Pages-managed cert remains for the `www` redirect and rollback. |
 
-The GitHub Pages canonical split is load-bearing: **apex = `A`/`AAAA`, `www` =
-`CNAME`**. Modeling `www` as `A`/`AAAA` records breaks the `www` TLS cert
-presentation (handshake failure); `www` MUST stay a `CNAME`.
+The canonical split is load-bearing: **apex = proxied `CNAME` (Cloudflare Pages),
+`www` = DNS-only `CNAME` (GitHub Pages redirect)**. Modeling `www` as `A`/`AAAA`
+records breaks the `www` TLS cert presentation (handshake failure); `www` MUST
+stay a `CNAME`.
 
 ## 1. Topology
 
 DreamHost holds the registration and delegates the zone to Cloudflare
-nameservers. Cloudflare answers with DNS-only records that point straight at
-GitHub Pages. The Cloudflare proxy edge is intentionally NOT in the request path
-for production.
+nameservers. Cloudflare answers with the apex as a proxied `CNAME` to Cloudflare
+Pages — the production serving surface, validated and active as of 2026-06-23 —
+and `www` as a DNS-only `CNAME` to GitHub Pages. The Cloudflare proxy edge IS in
+the request path for apex production traffic; `www` stays off the proxy.
 
 ```mermaid
 flowchart LR
@@ -38,13 +41,17 @@ flowchart LR
     end
 
     subgraph CF["Cloudflare DNS — current authority"]
-        Zone["zone 602400322c1ecac4983542c76af90115<br/>izabella + sullivan .ns.cloudflare.com<br/>mirrors GitHub Pages records"]
-        Apex["apex A/AAAA (grey, DNS-only)<br/>185.199.108/109/110/111.153<br/>2606:50c0:8000-8003::153"]
-        WWW["www CNAME (grey, DNS-only)<br/>jesssullivan.github.io"]
+        Zone["zone 602400322c1ecac4983542c76af90115<br/>izabella + sullivan .ns.cloudflare.com"]
+        Apex["apex CNAME (proxied, orange-cloud)<br/>→ transscendsurvival-org.pages.dev"]
+        WWW["www CNAME (grey, DNS-only)<br/>→ jesssullivan.github.io"]
     end
 
-    subgraph GHP["GitHub Pages — serving (unchanged)"]
-        Pages["static/CNAME = transscendsurvival.org<br/>Let's Encrypt cert (apex + www)<br/>expires 2026-09-09"]
+    subgraph CFP["Cloudflare Pages — serving (production)"]
+        Pages["project transscendsurvival-org<br/>apex custom domain active 2026-06-23<br/>CF-managed cert"]
+    end
+
+    subgraph GHP["GitHub Pages — rollback + www redirect"]
+        GH["static/CNAME = transscendsurvival.org<br/>serves www 301 → apex"]
     end
 
     Reg --> NSdeleg
@@ -52,31 +59,36 @@ flowchart LR
     DS -. "awaiting DreamHost registrar DS" .-> Zone
     Zone --> Apex
     Zone --> WWW
-    Apex -- "grey record → origin" --> Pages
-    WWW -- "grey record → origin" --> Pages
+    Apex -- "proxied → Cloudflare edge" --> Pages
+    WWW -- "grey record → origin" --> GH
 ```
 
 ## 2. Request Flow
 
 A client resolves the name through a recursive resolver, which follows the
-current `.org` parent delegation to Cloudflare and gets `A`/`AAAA` from the
-Cloudflare zone. The client then connects directly to GitHub Pages. The apex
-serves `200`; `www` redirects `301` to the apex.
+current `.org` parent delegation to Cloudflare. For the apex, Cloudflare returns a
+proxied `CNAME` to `transscendsurvival-org.pages.dev` and answers with its own
+anycast addresses; the client connects through the Cloudflare edge to Cloudflare
+Pages. For `www`, Cloudflare returns a DNS-only `CNAME` to `jesssullivan.github.io`
+(GitHub Pages), which redirects `301` to the apex.
 
 ```mermaid
 sequenceDiagram
     participant C as Client (browser)
     participant R as Recursive resolver
     participant CF as Cloudflare NS (current authority)
+    participant Edge as Cloudflare edge
+    participant CFP as Cloudflare Pages
     participant GHP as GitHub Pages
 
-    Note over C,GHP: apex request — transscendsurvival.org
+    Note over C,CFP: apex request — transscendsurvival.org
     C->>R: A/AAAA? transscendsurvival.org
     R->>CF: query (follows current .org delegation)
-    CF-->>R: A 185.199.10x.153 / AAAA 2606:50c0:800x::153 (NOERROR)
-    R-->>C: resolved A/AAAA
-    C->>GHP: HTTPS GET / (direct, not proxied)
-    GHP-->>C: 200 OK (Let's Encrypt cert)
+    CF-->>R: CNAME → transscendsurvival-org.pages.dev + Cloudflare anycast A/AAAA (NOERROR)
+    R-->>C: resolved (proxied)
+    C->>Edge: HTTPS GET / (via Cloudflare edge)
+    Edge->>CFP: forward to Cloudflare Pages
+    CFP-->>C: 200 OK (CF Pages cert)
 
     Note over C,GHP: www request — www.transscendsurvival.org
     C->>R: A/AAAA? www.transscendsurvival.org
@@ -85,8 +97,9 @@ sequenceDiagram
     R-->>C: resolved
     C->>GHP: HTTPS GET / (Host: www)
     GHP-->>C: 301 → https://transscendsurvival.org/
-    C->>GHP: HTTPS GET / (apex)
-    GHP-->>C: 200 OK
+    C->>Edge: HTTPS GET / (apex)
+    Edge->>CFP: forward to Cloudflare Pages
+    CFP-->>C: 200 OK
 ```
 
 ## 3. RCA — Before / After
@@ -98,7 +111,7 @@ that `dreamhost.com` itself SERVFAILed `AAAA`. IPv6 / Happy-Eyeballs visitors go
 code, not GitHub Pages transport — it was the DNS authority. The durable service
 fix was the registrar NS cutover to Cloudflare authority. Production
 health checks now prove the delegated Cloudflare authority, public resolver
-answers, direct GitHub Pages serving, slash parity, and broker hydration.
+answers, apex and `www` serving, slash parity, and broker hydration.
 
 ```mermaid
 flowchart TB
@@ -145,44 +158,40 @@ The root cause lived purely in the DNS-authority plane: GitHub Pages transport a
 the application code were never implicated. Cloudflare authority removes the
 failing DreamHost DNS platform from the target resolution path.
 
-## 4. Cloudflare Pages Shadow And Future Serving Cut
+## 4. Cloudflare Pages Serving (cut 2026-06-23) And Safe-Cut Procedure
 
-A separate Cloudflare Pages project, `transscendsurvival-org`, builds via
-`.github/workflows/cloudflare-pages-shadow.yml`. It is intentionally shadow-only:
-`tss.tinyland.dev` and `tss.ephemera.tinyland.dev` are allowed, but production
-apex + `www` are not attached to the Pages project.
+The Cloudflare Pages project `transscendsurvival-org` serves the production apex
+as of 2026-06-23. It builds via `.github/workflows/cloudflare-pages-shadow.yml`;
+the shadow domains `tss.tinyland.dev` and `tss.ephemera.tinyland.dev` continue to
+build, and `www` stays on GitHub Pages as a DNS-only redirect.
 
-The hard rule: **NEVER flip apex to the proxied `transscendsurvival-org.pages.dev`
-CNAME unless the Pages custom domain is active and the operator has explicitly
-chosen a new serving cutover.** Flipping apex while the Pages domain was pending
-caused TWO transient outages on 2026-06-22: Cloudflare's anycast edge served
-requests before the Pages domain was active, returning connection refused /
-timeout. A safe future cut must pre-validate the Pages custom domain to active
-(cert issued) BEFORE pointing apex DNS at `pages.dev`.
+The cut followed the safe order below, which stays load-bearing for any future
+rollback-and-recut. The hard rule: **NEVER flip apex to the proxied
+`transscendsurvival-org.pages.dev` CNAME unless the Pages custom domain is
+active.** Flipping apex while the Pages domain was pending caused TWO transient
+outages on 2026-06-22: Cloudflare's anycast edge served requests before the Pages
+domain was active, returning connection refused / timeout. The 2026-06-23 cut
+pre-validated the Pages custom domain to active (in-account verification — the
+only apex-capable path, since the apex CNAME is flattened and the Pages API
+cannot activate an apex) BEFORE pointing apex DNS at `pages.dev`, so no outage
+occurred.
 
-State machine for a *safe* cut:
+State machine (current = Pages serving; GitHub Pages is the rollback target):
 
 ```mermaid
 stateDiagram-v2
-    [*] --> GHPServing: current — GitHub Pages serving, grey records
-    GHPServing --> PagesBuilding: cloudflare-pages-shadow.yml builds project
-
-    PagesBuilding --> DomainPending: add apex + www custom domains to Pages
+    [*] --> PagesServing: current — Cloudflare Pages serving, proxied apex CNAME
+    PagesServing --> GHPServing: ROLLBACK — restore grey apex records → GitHub Pages
+    GHPServing --> DomainPending: re-cut — add apex custom domain to Pages
     note right of DomainPending
         DANGER ZONE
-        Pages custom domain validates via PUBLIC DNS,
-        Do NOT point apex at
-        pages.dev yet — anycast edge will serve before
-        the Pages domain is active → connection refused.
+        Pages custom domain validates in-account.
+        Do NOT point apex at pages.dev until ACTIVE —
+        the anycast edge serves before the domain is active → connection refused.
         (This is what bit us twice on 2026-06-22.)
     end note
-
     DomainPending --> DomainActive: domain validated + cert issued
-    DomainActive --> CutApex: only now flip apex → transscendsurvival-org.pages.dev (proxied)
-    CutApex --> PagesServing: Cloudflare Pages serving
-    PagesServing --> [*]
-
-    DomainPending --> GHPServing: remove prod domains, stay on GitHub Pages (current posture)
+    DomainActive --> PagesServing: only now flip apex → transscendsurvival-org.pages.dev (proxied)
 ```
 
 The same precondition as a sequence — validate first, cut second:
@@ -221,5 +230,6 @@ Monitoring is host-agnostic and already shipped. It lives in
 `.github/workflows/production-health.yml`, and the `workers/dns-guard/` Worker.
 It asserts non-empty resolution plus `AAAA`/`SOA`/`TCP` across the current
 delegated Cloudflare nameservers and public resolvers, with no hardcoded
-public-resolver IP expectations. It also checks direct GitHub Pages serving,
-canonical redirects, slash parity, and public blog hydration.
+public-resolver IP expectations. It also checks apex serving (Cloudflare Pages)
+and the `www` GitHub Pages redirect, canonical redirects, slash parity, and
+public blog hydration.
