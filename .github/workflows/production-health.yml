@@ -58,6 +58,7 @@ jobs:
           fi
 
           curl -fsS \
+            -o /dev/null \
             -H "Title: production-health ntfy SMOKE - transscendsurvival.org" \
             -H "Priority: 3" \
             -H "Tags: test_tube,dns" \
@@ -114,6 +115,7 @@ jobs:
           fi
 
           curl -fsS \
+            -o /dev/null \
             -H "Title: production-health FAILED - transscendsurvival.org" \
             -H "Priority: 5" \
             -H "Tags: rotating_light,dns" \
@@ -169,6 +171,7 @@ jobs:
           fi
 
           curl -fsS \
+            -o /dev/null \
             -H "Title: production-health STALE PAGES - transscendsurvival.org" \
             -H "Priority: 4" \
             -H "Tags: warning,dns" \
