@@ -286,6 +286,13 @@ js_test(
     visibility = ["//visibility:public"],
 )
 
+sh_test(
+    name = "bazel_graph_hygiene",
+    srcs = ["scripts/check-bazel-graph-hygiene.sh"],
+    data = [".bazelignore"],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -294,6 +301,7 @@ exports_files(
         "pnpm-lock.yaml",
         "scripts/bazel-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
+        "scripts/check-bazel-graph-hygiene.sh",
         "scripts/chromium-fontconfig.mjs",
         "scripts/gf-reapi-bazel-credential-helper.mjs",
         "scripts/run-package-checks-bazel.mjs",
