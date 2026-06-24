@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '*/30 * * * *'
   workflow_dispatch:
+    inputs:
+      send_ntfy_smoke:
+        description: 'Send a harmless ntfy smoke notification before health checks'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -24,6 +30,40 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
+      - name: Send ntfy smoke notification
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_ntfy_smoke }}
+        env:
+          NTFY_TOPIC_URL: ${{ secrets.NTFY_TOPIC_URL }}
+          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NTFY_TOPIC_URL:-}" ]; then
+            echo "::error title=ntfy smoke failed::NTFY_TOPIC_URL is not configured."
+            exit 1
+          fi
+
+          body="$(mktemp)"
+          {
+            echo "production-health ntfy smoke test for transscendsurvival.org"
+            echo ""
+            echo "This is a harmless manual alert-routing test. DNS, Pages, and site serving were not mutated."
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Ref: ${GITHUB_REF_NAME}"
+            echo "SHA: ${GITHUB_SHA}"
+          } >"${body}"
+
+          auth_args=()
+          if [ -n "${NTFY_TOKEN:-}" ]; then
+            auth_args=(-H "Authorization: Bearer ${NTFY_TOKEN}")
+          fi
+
+          curl -fsS \
+            -H "Title: production-health ntfy SMOKE - transscendsurvival.org" \
+            -H "Priority: 3" \
+            -H "Tags: test_tube,dns" \
+            "${auth_args[@]}" \
+            --data-binary "@${body}" \
+            "${NTFY_TOPIC_URL}"
       - name: Ensure Chromium for hydration check
         run: |
           if ! command -v chromium >/dev/null 2>&1 && \
