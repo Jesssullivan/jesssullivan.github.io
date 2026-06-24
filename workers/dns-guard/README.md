@@ -30,7 +30,9 @@ instead. (Incidents: TIN-2146, TIN-1110 follow-up.)
 > The GH layer + stale-deploy self-heal are on `main`. When configured with
 > `NTFY_TOPIC_URL` and optional `NTFY_TOKEN` repository secrets, the workflow
 > mirrors production-health and stale-deploy failures to the same ntfy topic as
-> this Worker before failing the job.
+> this Worker before failing the job. For a safe end-to-end alert check, manually
+> dispatch `Production Health` with `send_ntfy_smoke=true`; it posts a harmless
+> ntfy smoke notification and then runs the normal health checks.
 
 ## Deploy
 

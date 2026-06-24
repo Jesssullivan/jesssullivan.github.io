@@ -145,7 +145,9 @@ so copied, normalized, or legacy trailing-slash links do not 404. The
 `github-pages` deployment SHA matches `main`. When `NTFY_TOPIC_URL` and optional
 `NTFY_TOKEN` repository secrets are configured, it mirrors production-health and
 stale-deploy failures to the same ntfy topic used by the DNS guard Worker before
-failing the job.
+failing the job. To prove alert delivery without breaking the site, manually run
+`Production Health` with `send_ntfy_smoke=true`; that sends a harmless ntfy smoke
+notification and then runs the normal health checks.
 
 This monitoring catches missing A/AAAA records, split-brain authority during
 DNS changes, stale Cloudflare proxy targets that fail TLS, broken redirects, and
