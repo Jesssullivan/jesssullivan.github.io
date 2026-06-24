@@ -302,7 +302,7 @@
 		</div>
 	{/if}
 
-	<footer class="bg-surface-100-900 border-t border-surface-300-700 py-6 text-center text-sm text-surface-500">
+	<footer class="bg-surface-100-900 border-t border-surface-300-700 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-16 text-center text-sm text-surface-500">
 		<div class="container mx-auto px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
 			<p>
 				Dedicated to the <a
