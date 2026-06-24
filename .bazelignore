@@ -1,5 +1,6 @@
 .claude
 .gstack
+.worktrees
 node_modules
 .svelte-kit
 build
