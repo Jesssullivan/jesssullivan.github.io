@@ -13,6 +13,37 @@ These rules apply before the writing-style guidance below.
 - Do not change tests to match a broken live state. If `npm run test:production-health` is red, either fix live DNS/serving to match the declared posture or update the declared posture in review before changing assertions.
 - Current repo contract (post-2026-06-23 cut): apex and `www` serve Cloudflare Pages via proxied `CNAME` records to `transscendsurvival-org.pages.dev` (production). GitHub Pages remains the rollback publisher through `static/CNAME`, but not the normal `www` path.
 
+## Repo Shape And Authority
+
+- This repo builds `transscendsurvival.org`, a static SvelteKit blog with mdsvex, Shiki, Mermaid rendering, image optimization, Pagefind, Tinyland snapshots, and public Tinyland broker hydration.
+- Production serving authority is Cloudflare Pages for `https://transscendsurvival.org` and `https://www.transscendsurvival.org`. GitHub Pages remains the rollback publisher and legacy mirror path, not the normal production route.
+- Content authority is split deliberately. Canonical authoring and reviewed display data live in Tinyland; checked-in `src/posts`, snapshots, and generated data are first-paint, no-JS, rollback, and regression fixtures.
+- Blog and Pulse broker streams are display/projection contracts only. Do not treat them as public Fediverse delivery, and do not weaken broker hydration tests just because prerendered fallback still paints.
+- `static/cv` is synced from the private `spear_resumes` repository. Preserve that boundary and use the existing sync/test path instead of hand-editing generated resume artifacts.
+
+## Build, Test, And Deploy
+
+- Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
+- Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
+- CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
+- Cloudflare Pages shadow builds come from `.github/workflows/cloudflare-pages-shadow.yml`; PRs are build-only unless the workflow is explicitly eligible to deploy. GitHub Pages deploys come from `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
+- `.github/workflows/production-health.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
+
+## Bazel And GloriousFlywheel
+
+- GloriousFlywheel-backed validation runs through `scripts/bazel-cache-backed.sh`. The remote scripts must fail closed when `BAZEL_REMOTE_CACHE`, `BAZEL_REMOTE_EXECUTOR`, or the expected executor-backed substrate is missing.
+- `npm run remote:check`, `npm run remote:test`, and `npm run remote:e2e` are the authoritative Bazel entrypoints. They cover SvelteKit check/build smoke, package checks, CV PDF sync, Vitest, blog-agent tests, browser smoke, Playwright e2e, and graph hygiene.
+- `package-lock.json` is the npm authority. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel; do not casually hand-edit it.
+- Browser-backed Bazel tests use the pinned worker Chromium path. Do not add lifecycle downloads or host-local browser assumptions to the RBE path.
+- Broad `bazel query //...` and `bazel test //...` must not traverse agent scratch trees. `.bazelignore` intentionally excludes `.claude`, `.gstack`, `.worktrees`, build outputs, caches, and `workers/dns-guard/.wrangler`.
+- If you touch Bazel structure, scratch-tree ignores, or broad query behavior, run `npm run test:bazel-graph-hygiene` and, when possible, `bazelisk --output_user_root=/tmp/jess-ghio-bazel-codex test //:bazel_graph_hygiene`.
+
+## Agent Scratch And Worktrees
+
+- Do not inspect, index, or modify `.claude/`, `.gstack/`, or `.worktrees/` unless the user explicitly asks. They may contain nested checkouts, generated plans, local MCP state, or other agent artifacts that are not part of this repo's source graph.
+- Keep scratch outputs out of commits. If a tool creates local state, either leave it ignored or clean only the files you created and understand.
+- Before committing, check `git status --short` and stage only the files for the current task. This repo often has user-authored draft posts or worker artifacts in flight.
+
 # Writing Style Guide: Jess Sullivan
 
 This guide captures the voice and lexical patterns of jesssullivan.github.io blog posts. Use it when writing, editing, or reviewing blog content to match the author's established style.
