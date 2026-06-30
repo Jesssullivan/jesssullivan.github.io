@@ -24,8 +24,19 @@
 
 const CHILD_ORIGIN = "https://jesssullivan.github.io";
 
-// Seed allowlist: one zero-hydration static child. Widen via pages-manifest.json (B9/B11).
-const ALLOW = new Set<string>(["zig-crypto"]);
+// SSOT allowlist (B9/TIN-2273): derived from the committed pages manifest, NOT a
+// hand-maintained Set. A slug is served at the apex iff its manifest entry is
+// `served && !exclude`. Adding/lighting a slug = edit the manifest (one place),
+// never this file or the canary's SEED_APEX_SLUGS — they derive from the same JSON.
+// esbuild bundles this JSON import into the Function at `wrangler pages deploy`.
+import pagesManifest from "../static/pages-manifest.json";
+
+interface ManifestEntry { slug: string; served: boolean; exclude: boolean; }
+const ALLOW = new Set<string>(
+  (pagesManifest.pages as ManifestEntry[])
+    .filter((p) => p.served && !p.exclude)
+    .map((p) => p.slug),
+);
 
 interface Env {
   ASSETS: { fetch: (request: Request) => Promise<Response> };

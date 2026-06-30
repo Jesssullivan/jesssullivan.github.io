@@ -1,6 +1,8 @@
 import { Resolver } from 'node:dns/promises';
 import { execFile } from 'node:child_process';
 import { appendFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -36,12 +38,21 @@ const transientNetworkAttempts = 3;
 // Mirrors CHILD_ORIGIN in functions/[[path]].ts — the github.io origin the apex
 // Function proxies aggregated children from.
 const apexChildOrigin = 'https://jesssullivan.github.io';
-// Seeded apex child slugs. This list MUST stay in sync with the ALLOW set in
-// functions/[[path]].ts (single seed today: 'zig-crypto'). Once B9/B11 generate
-// pages-manifest.json, that manifest becomes the authoritative slug source and
-// supersedes this hand-maintained list; B21 folds this canary into the unified
-// drift alarm.
-const SEED_APEX_SLUGS = ['zig-crypto'] as const;
+// Seeded apex child slugs — SSOT (B9/TIN-2273): derived from the committed
+// static/pages-manifest.json (entries where `served && !exclude`), the SAME
+// derivation functions/[[path]].ts uses for ALLOW. The two can no longer drift:
+// adding/lighting a slug means editing the manifest (one place), never this list.
+// B21 folds this canary into the unified manifest-vs-Function-vs-live drift alarm.
+const SEED_APEX_SLUGS: readonly string[] = (() => {
+	const manifestPath = fileURLToPath(new URL('../static/pages-manifest.json', import.meta.url));
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8')) as {
+		pages: { slug: string; served: boolean; exclude: boolean }[];
+	};
+	return manifest.pages
+		.filter((p) => p.served && !p.exclude)
+		.map((p) => p.slug)
+		.sort((a, b) => a.localeCompare(b, 'en'));
+})();
 // Per-slug content sentinel: a stable substring of the proxied child's real HTML
 // that proves we served the actual child page (not a hub 404 or static fallback).
 // Optional — a slug without an entry still gets the structural <base href> check.

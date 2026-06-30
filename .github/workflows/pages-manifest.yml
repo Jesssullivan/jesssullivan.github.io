@@ -1,0 +1,64 @@
+name: Build Pages Manifest
+
+# B9 / TIN-2273 — regenerate the authoritative static/pages-manifest.json by
+# enumerating Jesssullivan repos with has_pages==true (+ known CF Pages projects)
+# via the read-only GitHub API. The committed manifest is the single slug source
+# for functions/[[path]].ts (ALLOW) and scripts/check-production-health.mts
+# (SEED_APEX_SLUGS).
+#
+# Graph accuracy (TIN-2252): the gh-API enumeration is NON-HERMETIC, so it lives
+# ONLY here (a workflow that commits the artifact), NEVER inside a Bazel target /
+# the RBE cache path — mirroring how collect-posts.yml produces external-posts.json.
+
+on:
+  repository_dispatch:
+    types: [pages-changed]
+  schedule:
+    - cron: '0 9 * * 1' # Weekly Monday 09:00 UTC (matches the blog collector)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pages-manifest
+  cancel-in-progress: false
+
+jobs:
+  build-manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Regenerate pages-manifest.json
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/build-pages-manifest.mts
+
+      - name: Open PR if the manifest changed
+        env:
+          GH_TOKEN: ${{ secrets.BLOG_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- static/pages-manifest.json; then
+            echo "pages-manifest.json unchanged — nothing to commit."
+            exit 0
+          fi
+          branch="chore/pages-manifest-$(git rev-parse --short HEAD)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add static/pages-manifest.json
+          git commit -m "chore(pages): regenerate pages-manifest.json (TIN-2273)"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "chore(pages): refresh pages-manifest.json" \
+            --body "Automated regeneration of the authoritative pages manifest (B9/TIN-2273). Review the slug diff; lighting a slug requires adding it to .github/pages-manifest-exclude.json \`served\`."

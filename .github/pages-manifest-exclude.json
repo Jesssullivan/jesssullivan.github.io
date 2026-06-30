@@ -1,0 +1,7 @@
+{
+  "$comment": "B9 / TIN-2273 control surface for static/pages-manifest.json. SEMANTICS: discovery (which children get LISTED) is automatic via the gh has_pages enumeration in scripts/build-pages-manifest.mts; this file only governs which listed children are EXCLUDED (TIN-1692 hard-block, removed from every derived surface) and which are SERVED (added to the apex ALLOW + canary SEED). A child is present-but-dark (served:false) until its slug is added to `served` here. Derived ALLOW == derived SEED == { slug : served && !exclude }. Adding a slug to `served` is the ONE place that lights a child up at the apex.",
+  "exclude": [],
+  "served": ["zig-crypto"],
+  "skip": [],
+  "cfPages": []
+}
