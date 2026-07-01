@@ -1,6 +1,5 @@
 import { Resolver } from 'node:dns/promises';
 import { execFile } from 'node:child_process';
-import { appendFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -27,27 +26,6 @@ const www = `www.${apex}`;
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 const transientNetworkAttempts = 3;
-
-// --- B5 apex aggregation canary (TIN-2269) ----------------------------------
-// The apex CF Pages Function (functions/[[path]].ts) proxies an allowlisted
-// github.io child slug and injects one <base href> at the child origin. This
-// canary asserts, per seeded slug, that the LIVE apex still serves that child
-// (200 + x-apex-proxy header + injected base href + a child content sentinel).
-// Mirrors CHILD_ORIGIN in functions/[[path]].ts — the github.io origin the apex
-// Function proxies aggregated children from.
-const apexChildOrigin = 'https://jesssullivan.github.io';
-// Seeded apex child slugs. This list MUST stay in sync with the ALLOW set in
-// functions/[[path]].ts (single seed today: 'zig-crypto'). Once B9/B11 generate
-// pages-manifest.json, that manifest becomes the authoritative slug source and
-// supersedes this hand-maintained list; B21 folds this canary into the unified
-// drift alarm.
-const SEED_APEX_SLUGS = ['zig-crypto'] as const;
-// Per-slug content sentinel: a stable substring of the proxied child's real HTML
-// that proves we served the actual child page (not a hub 404 or static fallback).
-// Optional — a slug without an entry still gets the structural <base href> check.
-const APEX_CONTENT_SENTINELS: Record<string, string> = {
-	'zig-crypto': '<title>zig-crypto</title>',
-};
 
 // Host-agnostic resolution health. The apex currently resolves through Cloudflare
 // Pages edge addresses via a proxied apex CNAME. www is also a proxied Pages CNAME,
@@ -550,128 +528,12 @@ async function redirectCheck(name: string, from: string, to: string): Promise<Ch
 	}
 }
 
-// GET-only fetch with the same transient-retry budget as head(), but returning the
-// body so we can assert a content sentinel. NO mutation: GET only, redirect manual
-// (an unexpected redirect surfaces as a non-200 instead of being silently followed).
-async function getWithBody(url: string): Promise<{ status: number; headers: Headers; body: string }> {
-	const failures: string[] = [];
-	for (let attempt = 1; attempt <= transientNetworkAttempts; attempt++) {
-		try {
-			const response = await fetch(url, {
-				method: 'GET',
-				redirect: 'manual',
-				signal: AbortSignal.timeout(15_000),
-				headers: {
-					'user-agent': 'transscendsurvival-production-health/1.0',
-				},
-			});
-			const body = await response.text();
-			return { status: response.status, headers: response.headers, body };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			failures.push(`attempt ${attempt}: ${message}`);
-		}
-	}
-
-	throw new Error(failures.join(' | '));
-}
-
-async function apexAggregationChecks(): Promise<Check[]> {
-	const checks: Check[] = [];
-	for (const slug of SEED_APEX_SLUGS) {
-		checks.push(await apexSlugCheck(slug));
-	}
-	return checks;
-}
-
-async function apexSlugCheck(slug: string): Promise<Check> {
-	const name = `apex aggregation /${slug}/ proxied`;
-	const url = `https://${apex}/${slug}/`;
-
-	let result: { status: number; headers: Headers; body: string };
-	try {
-		result = await getWithBody(url);
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
-		return { name, ok: false, detail: `fetch failed: ${message}` };
-	}
-
-	const problems: string[] = [];
-
-	// (a) status 200 — the Function proxies the trailing-slash child directly, so the
-	//     apex answers 200 with no redirect bounce for /<slug>/.
-	if (result.status !== 200) problems.push(`status=${result.status} (want 200)`);
-
-	// (b) x-apex-proxy === slug — proves the apex Function (not the hub static
-	//     fallback) handled this path, and for THIS slug specifically.
-	const proxyHeader = result.headers.get('x-apex-proxy') ?? '';
-	if (proxyHeader !== slug) problems.push(`x-apex-proxy=${proxyHeader || '(none)'} (want ${slug})`);
-
-	// (c) structural sentinel: the Function injects exactly one <base href> at the
-	//     child origin. Deterministic from the slug, so it doubles as proof the
-	//     HTMLRewriter ran end-to-end (HTML actually rewritten, not passed through).
-	const baseHref = `<base href="${apexChildOrigin}/${slug}/">`;
-	if (!result.body.includes(baseHref)) problems.push(`missing injected base href ${baseHref}`);
-
-	// (c') content sentinel: a known substring of the real child page, when declared.
-	const sentinel = APEX_CONTENT_SENTINELS[slug];
-	if (sentinel && !result.body.includes(sentinel)) {
-		problems.push(`missing content sentinel ${JSON.stringify(sentinel)}`);
-	}
-
-	const ok = problems.length === 0;
-	return {
-		name,
-		ok,
-		detail: ok ? `status=200; x-apex-proxy=${slug}; base href + content sentinel present` : problems.join('; '),
-	};
-}
-
-// Apex aggregation gets its own GITHUB_STEP_SUMMARY table (best-effort telemetry;
-// the PASS/FAIL console lines below stay the source of truth for the exit code and
-// the ntfy alarm wired in .github/workflows/production-health.yml).
-async function writeApexStepSummary(apexChecks: Check[]): Promise<void> {
-	const summaryPath = process.env.GITHUB_STEP_SUMMARY;
-	if (!summaryPath) return;
-
-	const failed = apexChecks.filter((check) => !check.ok).length;
-	const rows = apexChecks
-		.map((check) => `| ${check.ok ? 'PASS' : 'FAIL'} | ${check.name} | ${check.detail.replace(/\|/g, '\\|')} |`)
-		.join('\n');
-	const markdown =
-		`\n### Apex aggregation canary (B5 · TIN-2269)\n\n` +
-		`Seeded slugs: ${SEED_APEX_SLUGS.map((slug) => `\`${slug}\``).join(', ')} ` +
-		`(MUST match ALLOW in functions/[[path]].ts; B9/B11 pages-manifest.json supersedes).\n\n` +
-		`| Result | Check | Detail |\n| --- | --- | --- |\n${rows}\n\n` +
-		(failed === 0
-			? `All ${apexChecks.length} apex slug check(s) passed.\n`
-			: `**${failed} of ${apexChecks.length} apex slug check(s) FAILED.**\n`);
-
-	try {
-		await appendFile(summaryPath, markdown, 'utf8');
-	} catch {
-		// Step summary is best-effort; never let a summary write mask the real exit code.
-	}
-}
-
-// APEX_ONLY=1 narrows this run to just the B5 apex aggregation canary — a fast,
-// dependency-free standalone verification (no dig / authoritative DNS / broker).
-// The scheduled production-health run leaves it unset, so the full battery runs.
-const apexOnly = process.env.APEX_ONLY === '1' || process.env.APEX_ONLY === 'true';
-
-const checks = apexOnly
-	? []
-	: [
-			...(await authoritativeDnsChecks()),
-			...(await publicDnsChecks()),
-			...(await httpChecks()),
-			await brokerCheck(),
-		];
-
-// B5 apex aggregation canary — runs last, then surfaces its own step-summary table.
-const apexChecks = await apexAggregationChecks();
-checks.push(...apexChecks);
-await writeApexStepSummary(apexChecks);
+const checks = [
+	...(await authoritativeDnsChecks()),
+	...(await publicDnsChecks()),
+	...(await httpChecks()),
+	await brokerCheck(),
+];
 
 let failures = 0;
 for (const check of checks) {
