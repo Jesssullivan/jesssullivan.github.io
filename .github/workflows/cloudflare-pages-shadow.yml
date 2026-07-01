@@ -19,7 +19,6 @@ on:
       - "scripts/**"
       - "src/**"
       - "static/**"
-      - "functions/**"
   push:
     branches: [main]
     paths:
@@ -31,7 +30,6 @@ on:
       - "scripts/**"
       - "src/**"
       - "static/**"
-      - "functions/**"
 
 permissions:
   contents: read
