@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+SELF = Path(__file__).resolve().relative_to(REPO)
 ALLOWLIST = REPO / "config" / "substrate-boundary-allowlist.json"
 
 # Code surfaces (git-tracked). Markdown is exempt everywhere.
@@ -50,7 +51,11 @@ def tracked_code_files() -> list[Path]:
         ["git", "ls-files", "--"] + CODE_GLOBS,
         cwd=REPO, capture_output=True, text=True, check=True,
     ).stdout.splitlines()
-    return [Path(p) for p in sorted(set(out)) if not p.endswith(".md")]
+    return [
+        Path(p)
+        for p in sorted(set(out))
+        if not p.endswith(".md") and Path(p) != SELF
+    ]
 
 
 def load_allowlist() -> list[dict]:
