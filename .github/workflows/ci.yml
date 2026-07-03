@@ -13,6 +13,23 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
+  # Substrate-boundary conformance (TIN-2423 / ledger item 30), ported from
+  # the GloriousFlywheel reference implementation (GF PR #1016). Stdlib-only
+  # Python — no Node/Bazel setup needed. Asserts this repo's CODE surfaces
+  # reach the blahaj substrate only through the named, provenance-carrying
+  # interfaces recorded in config/substrate-boundary-allowlist.json.
+  substrate-boundary:
+    name: substrate-boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate substrate boundary
+        run: |
+          python3 scripts/validate-substrate-boundary.py --self-test
+          python3 scripts/validate-substrate-boundary.py
+
   bazel-remote-gates:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:

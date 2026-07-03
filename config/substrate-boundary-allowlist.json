@@ -1,0 +1,14 @@
+{
+  "$comment": "TIN-2423 / ledger item 30: named-interface allowlist for the substrate-boundary validator. Every entry carries provenance (TIN-2398 guardrail #2). A blahaj-reach hit under an allowlisted path_prefix is a NAMED INTERFACE, not a bleed.",
+  "schema_version": 1,
+  "allowed": [
+    {
+      "path_prefix": "workers/dns-guard/src/index.ts",
+      "interface": "design-rationale comment only, no actual reach: this Worker's failure alerting POSTs exclusively to env.NTFY_TOPIC_URL (a public ntfy.sh topic); the comment explains that ntfy is used because it is the only internet-reachable seam of the ClusterIP-only tinyland Alertmanager (which lives in blahaj's cluster) — a decoupled pub/sub relationship, not a direct dependency on the blahaj repo, filesystem, or state",
+      "provenance": {
+        "decision": "TIN-2148 (cited in-line as the long-term path for a full Alertmanager POST /api/v2/alerts integration); current state is ntfy-only pub/sub, verified by reading the fetch() call sites (only env.NTFY_TOPIC_URL / env.HEALTHCHECK_URL are ever POSTed to)",
+        "date": "2026-07-03"
+      }
+    }
+  ]
+}
