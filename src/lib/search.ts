@@ -6,6 +6,8 @@ export interface SearchResult {
 	description: string;
 	tags: string;
 	category: string;
+	editorial_tier: string;
+	content_stratum: string;
 	date: string;
 }
 
@@ -16,6 +18,8 @@ interface IndexEntry {
 	description: string;
 	tags: string;
 	category: string;
+	editorial_tier: string;
+	content_stratum: string;
 	slug: string;
 	date: string;
 }
@@ -29,12 +33,23 @@ export async function loadFlexSearch(): Promise<boolean> {
 	try {
 		const res = await fetch('/search-index.json');
 		if (!res.ok) return false;
-		entries = await res.json();
+		const rawEntries = (await res.json()) as Array<Partial<IndexEntry>>;
+		entries = rawEntries.map((entry) => ({
+			id: entry.id ?? entry.slug ?? '',
+			title: entry.title ?? '',
+			description: entry.description ?? '',
+			tags: entry.tags ?? '',
+			category: entry.category ?? '',
+			editorial_tier: entry.editorial_tier ?? '',
+			content_stratum: entry.content_stratum ?? '',
+			slug: entry.slug ?? '',
+			date: entry.date ?? '',
+		}));
 
 		index = new Document({
 			document: {
 				id: 'id',
-				index: ['title', 'description', 'tags', 'category'],
+				index: ['title', 'description', 'tags', 'category', 'editorial_tier', 'content_stratum'],
 				store: true
 			},
 			tokenize: 'forward',
@@ -70,6 +85,8 @@ export function searchFlexSearch(query: string, limit = 8): SearchResult[] {
 				description: doc.description,
 				tags: doc.tags,
 				category: doc.category,
+				editorial_tier: doc.editorial_tier,
+				content_stratum: doc.content_stratum,
 				date: doc.date
 			});
 		}

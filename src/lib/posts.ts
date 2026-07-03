@@ -11,6 +11,8 @@ export interface SearchIndexEntry {
 	tags?: string;
 	tag_list?: string[];
 	category?: string;
+	editorial_tier?: string;
+	content_stratum?: string;
 	slug: string;
 	date: string;
 	source_file?: string;
@@ -77,6 +79,16 @@ export function searchIndexEntriesToPosts(entries: SearchIndexEntry[]): Post[] {
 				original_url: entry.original_url ?? undefined,
 				excerpt: entry.excerpt ?? undefined,
 				category,
+				editorial_tier:
+					entry.editorial_tier === 'less-noteworthy' || entry.editorial_tier === 'noteworthy'
+						? entry.editorial_tier
+						: undefined,
+				content_stratum:
+					entry.content_stratum === 'pulse' ||
+					entry.content_stratum === 'less-noteworthy' ||
+					entry.content_stratum === 'noteworthy'
+						? entry.content_stratum
+						: undefined,
 				categories: undefined,
 				reading_time: entry.reading_time ?? undefined,
 				feature_image: entry.feature_image ?? undefined,

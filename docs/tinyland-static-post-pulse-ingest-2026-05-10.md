@@ -102,6 +102,9 @@ Allowed:
 - runtime display fetches from public `hub.tinyland.dev` broker endpoints;
 - the existing `PublicPulseSnapshot` validator and `/pulse` first-paint
   renderer.
+- optional blog `editorial_tier` values (`less-noteworthy` or `noteworthy`) as
+  reader/search treatment metadata. Pulse remains the public snapshot stream,
+  not a blog frontmatter tier.
 
 Blocked:
 
