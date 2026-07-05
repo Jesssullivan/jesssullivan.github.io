@@ -56,6 +56,7 @@ const validStream: TinylandBlogBrokerStream = {
 			description: 'Brokered example',
 			category: 'software',
 			tags: ['tinyland', 'broker'],
+			editorialTier: 'less-noteworthy',
 			url: 'https://transscendsurvival.org/blog/example',
 			sourceRecord: 'content/users/jesssullivan/blog/example.md',
 			sourceHash: 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
@@ -212,11 +213,29 @@ describe('loadTinylandBlogBrokerStream', () => {
 				slug: 'example',
 				category: 'software',
 				tags: ['tinyland', 'broker'],
+				editorial_tier: 'less-noteworthy',
+				content_stratum: 'less-noteworthy',
 				content: '## Hello\n\nBrokered post body.',
 				published: true,
 			}),
 		]);
 		expect(posts[0].reading_time).toBeGreaterThanOrEqual(1);
+	});
+
+	it('rejects broker posts that try to use Pulse as a blog editorial tier', async () => {
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
+			jsonResponse({
+				...validStream,
+				posts: validStream.posts.map((post) => ({
+					...post,
+					editorialTier: 'pulse',
+				})),
+			}),
+		);
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(
+			'editorial tier must be one of less-noteworthy, noteworthy',
+		);
 	});
 
 	it('finds a stream post by slug for canonical route hydration', () => {

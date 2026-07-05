@@ -1,4 +1,10 @@
-import { POST_CATEGORIES, type Post, type PostCategory } from '$lib/types';
+import {
+	POST_CATEGORIES,
+	POST_EDITORIAL_TIERS,
+	type Post,
+	type PostCategory,
+	type PostEditorialTier,
+} from '$lib/types';
 
 export const TINYLAND_BLOG_BROKER_STREAM_URL =
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
@@ -22,6 +28,7 @@ export interface TinylandBlogBrokerPost {
 	readonly description: string;
 	readonly category: string;
 	readonly tags: readonly unknown[];
+	readonly editorialTier?: PostEditorialTier;
 	readonly featureImage?: string;
 	readonly url: string;
 	readonly sourceRecord: string;
@@ -174,6 +181,16 @@ function normalizeCategory(value: string): PostCategory | undefined {
 	return POST_CATEGORIES.includes(value as PostCategory) ? (value as PostCategory) : undefined;
 }
 
+function normalizeEditorialTier(value: unknown, label: string): PostEditorialTier | undefined {
+	if (value === undefined || value === null || value === '') return undefined;
+	if (typeof value !== 'string' || !POST_EDITORIAL_TIERS.includes(value as PostEditorialTier)) {
+		throw new Error(
+			`blog broker stream ${label} editorial tier must be one of ${POST_EDITORIAL_TIERS.join(', ')}`,
+		);
+	}
+	return value as PostEditorialTier;
+}
+
 function estimateReadingTime(markdown: string): number {
 	const text = markdown
 		.replace(/```[\s\S]*?```/g, ' ')
@@ -254,6 +271,11 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			throw new Error(`blog broker stream post ${index} tags must be an array`);
 		}
 		const displayGateFields = requireDisplayEligiblePost(post, index, post.frontmatter);
+		const editorialTier = normalizeEditorialTier(post.editorialTier, `post ${index}`);
+		const frontmatterEditorialTier = normalizeEditorialTier(
+			post.frontmatter.editorial_tier,
+			`post ${index} frontmatter`,
+		);
 
 		return {
 			type: 'Article',
@@ -266,6 +288,9 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			description: typeof post.description === 'string' ? post.description : '',
 			category: typeof post.category === 'string' ? post.category : 'personal',
 			tags: post.tags,
+			...(editorialTier || frontmatterEditorialTier
+				? { editorialTier: editorialTier ?? frontmatterEditorialTier }
+				: {}),
 			...(typeof post.featureImage === 'string' && post.featureImage ? { featureImage: post.featureImage } : {}),
 			url: requireString(post, 'url'),
 			sourceRecord: requireString(post, 'sourceRecord'),
@@ -324,6 +349,8 @@ export function tinylandBlogBrokerPostToPost(post: TinylandBlogBrokerPost): Post
 		tags: stringTags(post.tags),
 		published: true,
 		category: normalizeCategory(post.category),
+		editorial_tier: post.editorialTier,
+		content_stratum: post.editorialTier,
 		feature_image: post.featureImage,
 		reading_time: estimateReadingTime(post.contentMarkdown),
 		author_slug: 'jesssullivan',

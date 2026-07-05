@@ -9,6 +9,10 @@ export const POST_CATEGORIES = [
 	"photography", "personal", "tutorial", "devops",
 ] as const;
 
+export const POST_EDITORIAL_TIERS = [
+	"less-noteworthy", "noteworthy",
+] as const;
+
 export function stripQuotes(s: string): string {
 	if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
 		return s.slice(1, -1);

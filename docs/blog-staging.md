@@ -205,6 +205,7 @@ To publish a post on a future date:
 | `published`       | yes      | boolean    | `true`                           |
 | `slug`            | no       | string     | `"bootstrapping-aperture"`       |
 | `category`        | no       | string     | `"software"`                     |
+| `editorial_tier`  | no       | string     | `"less-noteworthy"`              |
 | `feature_image`   | no       | string     | `"images/hero.png"`              |
 | `publish_to`      | no       | string     | `"blog"`                         |
 | `linear_issue`    | no       | string     | `"TIN-171"`                      |
@@ -218,6 +219,11 @@ To publish a post on a future date:
 | `original_url`    | no       | string     | WordPress source URL             |
 | `source_repo`     | no       | string     | Set by collector                 |
 | `source_path`     | no       | string     | Set by collector                 |
+
+`editorial_tier` is the reader-weight contract from
+[`blog-editorial-taxonomy-2026-07-03.md`](./blog-editorial-taxonomy-2026-07-03.md).
+Allowed blog values are `less-noteworthy` and `noteworthy`; Pulse stays in the
+Pulse snapshot/broker stream and must not be written as blog frontmatter.
 
 `slug` defaults to a slugified version of the title if omitted. `source_repo`
 and `source_path` are set automatically by the collector -- do not set these

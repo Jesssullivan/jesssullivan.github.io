@@ -43,6 +43,8 @@ async function main(): Promise<void> {
 		}
 
 		const tagList = Array.isArray(meta.tags) ? (meta.tags as string[]) : [];
+		const editorialTier =
+			typeof meta.editorial_tier === 'string' ? meta.editorial_tier : undefined;
 
 		index.push({
 			id: slug,
@@ -51,6 +53,12 @@ async function main(): Promise<void> {
 			tags: tagList.join(' '),
 			tag_list: tagList,
 			category: String(meta.category ?? ''),
+			...(editorialTier
+				? {
+						editorial_tier: editorialTier,
+						content_stratum: editorialTier,
+					}
+				: {}),
 			slug,
 			date: String(meta.date ?? ''),
 			source_file: `/src/posts/${file}`,

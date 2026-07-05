@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import type { Post, PostFrontmatter, PostCategory } from './types';
-import { POST_CATEGORIES } from './types';
+import type {
+	ContentStratum,
+	Post,
+	PostFrontmatter,
+	PostCategory,
+	PostEditorialTier,
+} from './types';
+import { CONTENT_STRATA, POST_CATEGORIES, POST_EDITORIAL_TIERS } from './types';
 
 // Type-level tests: these verify that the interfaces enforce the expected shape
 // at compile time. If the types change, these tests will fail to compile.
@@ -29,6 +35,8 @@ describe('PostFrontmatter type', () => {
 			original_url: 'https://example.com/full-post',
 			excerpt: 'Short excerpt',
 			category: 'software',
+			editorial_tier: 'noteworthy',
+			content_stratum: 'noteworthy',
 			categories: ['cat1'],
 			reading_time: 5,
 			feature_image: '/images/hero.jpg',
@@ -38,6 +46,8 @@ describe('PostFrontmatter type', () => {
 		};
 		expect(fm.slug).toBe('full-post');
 		expect(fm.category).toBe('software');
+		expect(fm.editorial_tier).toBe('noteworthy');
+		expect(fm.content_stratum).toBe('noteworthy');
 		expect(fm.reading_time).toBe(5);
 		expect(fm.featured).toBe(true);
 		expect(fm.author_slug).toBe('jess');
@@ -55,12 +65,27 @@ describe('PostFrontmatter type', () => {
 		expect(fm.original_url).toBeUndefined();
 		expect(fm.excerpt).toBeUndefined();
 		expect(fm.category).toBeUndefined();
+		expect(fm.editorial_tier).toBeUndefined();
+		expect(fm.content_stratum).toBeUndefined();
 		expect(fm.categories).toBeUndefined();
 		expect(fm.reading_time).toBeUndefined();
 		expect(fm.feature_image).toBeUndefined();
 		expect(fm.thumbnail_image).toBeUndefined();
 		expect(fm.featured).toBeUndefined();
 		expect(fm.author_slug).toBeUndefined();
+	});
+});
+
+describe('editorial taxonomy types', () => {
+	it('keeps Pulse separate from blog post editorial tiers', () => {
+		expect(POST_EDITORIAL_TIERS).toEqual(['less-noteworthy', 'noteworthy']);
+		expect(CONTENT_STRATA).toEqual(['pulse', 'less-noteworthy', 'noteworthy']);
+
+		const lessNoteworthy: PostEditorialTier = 'less-noteworthy';
+		const pulse: ContentStratum = 'pulse';
+
+		expect(lessNoteworthy).toBe('less-noteworthy');
+		expect(pulse).toBe('pulse');
 	});
 });
 

@@ -5,6 +5,8 @@ export interface PostFrontmatter {
 	description?: string;
 	tags?: string[];
 	category?: string;
+	editorial_tier?: string;
+	content_stratum?: string;
 	published?: boolean;
 	featured?: boolean;
 	feature_image?: string;
@@ -39,6 +41,8 @@ export interface SearchIndexEntry {
 	tags: string;
 	tag_list: string[];
 	category: string;
+	editorial_tier?: string;
+	content_stratum?: string;
 	slug: string;
 	date: string;
 	source_file: string;

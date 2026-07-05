@@ -9,7 +9,7 @@
 import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { parseFrontmatter, POST_CATEGORIES } from './lib/frontmatter.mts';
+import { parseFrontmatter, POST_CATEGORIES, POST_EDITORIAL_TIERS } from './lib/frontmatter.mts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const postsDir = join(__dirname, '..', 'src', 'posts');
@@ -98,6 +98,18 @@ for (const file of files) {
 	}
 	if (fm.categories != null && !Array.isArray(fm.categories)) {
 		fileWarns.push(`"categories" should be an array, got ${typeof fm.categories}`);
+	}
+	if (fm.editorial_tier != null) {
+		if (typeof fm.editorial_tier !== 'string') {
+			fileErrors.push(`"editorial_tier" must be a string, got ${typeof fm.editorial_tier}`);
+		} else if (!POST_EDITORIAL_TIERS.includes(fm.editorial_tier as typeof POST_EDITORIAL_TIERS[number])) {
+			fileErrors.push(
+				`"editorial_tier" must be one of [${POST_EDITORIAL_TIERS.join(', ')}], got "${fm.editorial_tier}"; Pulse items remain in /pulse snapshots, not blog frontmatter`
+			);
+		}
+	}
+	if (fm.content_stratum != null) {
+		fileErrors.push('"content_stratum" is generated/search metadata; use "editorial_tier" for blog frontmatter');
 	}
 	if (fm.reading_time != null && typeof fm.reading_time !== 'number') {
 		fileWarns.push(`"reading_time" should be a number, got ${typeof fm.reading_time}`);

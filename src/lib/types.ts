@@ -12,6 +12,15 @@ export const POST_CATEGORIES = [
 
 export type PostCategory = (typeof POST_CATEGORIES)[number];
 
+/** Blog-post editorial tier; Pulse remains a separate snapshot/broker stratum. */
+export const POST_EDITORIAL_TIERS = ['less-noteworthy', 'noteworthy'] as const;
+
+export type PostEditorialTier = (typeof POST_EDITORIAL_TIERS)[number];
+
+export const CONTENT_STRATA = ['pulse', ...POST_EDITORIAL_TIERS] as const;
+
+export type ContentStratum = (typeof CONTENT_STRATA)[number];
+
 /** Canonical frontmatter schema for blog posts (tinyland.dev compat) */
 export interface PostFrontmatter {
 	title: string;
@@ -24,6 +33,8 @@ export interface PostFrontmatter {
 	excerpt?: string; // Alias for description (tinyland compat)
 	category?: PostCategory; // Typed singular category (tinyland compat)
 	categories?: string[]; // Legacy free-form categories
+	editorial_tier?: PostEditorialTier; // Reader treatment: less-noteworthy or noteworthy
+	content_stratum?: ContentStratum; // Derived/search field; "pulse" is not blog frontmatter
 	reading_time?: number; // Minutes, computed at build time
 	feature_image?: string; // Hero/feature image URL
 	thumbnail_image?: string;
