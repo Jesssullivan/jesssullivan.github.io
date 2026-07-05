@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { IsoTimestampSchema } from './event.js';
+import { IsoTimestampSchema, SalienceSchema } from './event.js';
 
 export const PUBLIC_SNAPSHOT_SCHEMA_VERSION = 'tinyland.pulse.v1.PublicPulseSnapshot';
 export const PUBLIC_SNAPSHOT_POLICY_VERSION = 'm1-2026-04-27';
@@ -23,6 +23,9 @@ export const PublicPulseItemSchema = z
 		summary: z.string(),
 		content: z.string(),
 		tags: z.array(z.string().min(1)),
+		// Display/ranking tier carried through from the source event. Absent =
+		// untiered. Never authorization or delivery state.
+		salience: SalienceSchema.optional(),
 		birdSighting: PublicBirdSightingSchema.optional(),
 	})
 	.strict()
