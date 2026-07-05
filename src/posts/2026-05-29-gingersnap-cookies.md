@@ -6,6 +6,7 @@ tags: ["recipe", "baking", "baking-science", "cookies", "gingersnap", "allergen-
 category: "tutorial"
 published: true
 slug: "gingersnap-cookies"
+editorial_tier: "less-noteworthy"
 excerpt: "A milk-free, soy-free gingersnap recipe card, transcribed from a photo with Apple Vision OCR, metric equivalents, a scaler, and notes on the baking soda reaction."
 feature_image: "/images/posts/gingersnap-cookies.webp"
 thumbnail_image: "/images/posts/gingersnap-cookies.webp"
