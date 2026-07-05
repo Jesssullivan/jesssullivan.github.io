@@ -1,13 +1,22 @@
 export const prerender = true;
 
-const WEBFINGER_RESPONSE = {
+// The blog (transscendsurvival.org) is NOT an ActivityPub authority. The apex
+// must never present itself as one (TIN-1456 / TIN-1537). The canonical actor
+// lives on the hub projection broker (hub.tinyland.dev), which owns the AP
+// identity, inbox/outbox, and follower ledger. This JRD therefore delegates
+// every AP-authority link to the hub actor; only the human-facing profile page
+// stays on the blog domain.
+const HUB_ACTOR = 'https://hub.tinyland.dev/@jesssullivan';
+const HUB_AUTHORIZE_INTERACTION = 'https://hub.tinyland.dev/authorize_interaction?uri={uri}';
+
+export const WEBFINGER_RESPONSE = {
 	subject: 'acct:jess@transscendsurvival.org',
-	aliases: ['https://tinyland.dev/@jesssullivan'],
+	aliases: [HUB_ACTOR],
 	links: [
 		{
 			rel: 'self',
 			type: 'application/activity+json',
-			href: 'https://tinyland.dev/@jesssullivan'
+			href: HUB_ACTOR
 		},
 		{
 			rel: 'http://webfinger.net/rel/profile-page',
@@ -16,7 +25,7 @@ const WEBFINGER_RESPONSE = {
 		},
 		{
 			rel: 'http://ostatus.org/schema/1.0/subscribe',
-			template: 'https://tinyland.dev/authorize_interaction?uri={uri}'
+			template: HUB_AUTHORIZE_INTERACTION
 		}
 	]
 };
