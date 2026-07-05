@@ -60,6 +60,12 @@ export const applyPolicyToEvent = (
 		}
 	}
 
+	// Salience is a display/ranking hint only. It is carried through unchanged
+	// and NEVER affects the allow/deny decision above. The key is omitted when
+	// absent so canonical serialization (and the content hash) stays byte-stable
+	// for events that predate the field.
+	const salienceField = event.salience === undefined ? {} : { salience: event.salience };
+
 	switch (payload.kind) {
 		case 'note':
 			return {
@@ -71,6 +77,7 @@ export const applyPolicyToEvent = (
 					summary: truncate(payload.text, 140),
 					content: payload.text,
 					tags: [...event.tags],
+					...salienceField,
 				},
 			};
 		case 'bird_sighting': {
@@ -97,6 +104,7 @@ export const applyPolicyToEvent = (
 					summary,
 					content: '',
 					tags: [...event.tags],
+					...salienceField,
 					birdSighting: {
 						commonName: payload.commonName,
 						scientificName: payload.scientificName,
