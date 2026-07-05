@@ -1,4 +1,5 @@
-import adapter from '@sveltejs/adapter-static';
+import adapterStatic from '@sveltejs/adapter-static';
+import adapterNode from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { mdsvex, escapeSvelte } from 'mdsvex';
 import { createHighlighter } from 'shiki';
@@ -321,6 +322,25 @@ const mdsvexSvelte5Preprocessor = {
 	}
 };
 
+// Adapter is env-selectable so the same source can produce the frozen static
+// production artifact (default) or the tailnet-only node-backend shadow image.
+// Production (transscendsurvival.org / GitHub Pages / Cloudflare Pages) always
+// runs the default path -> adapter-static. Only BLOG_ADAPTER=node opts into the
+// adapter-node server bundle (build/index.js) consumed by Containerfile.node.
+const useNodeAdapter = process.env.BLOG_ADAPTER === 'node';
+const adapter = useNodeAdapter
+	? adapterNode({
+			out: 'build',
+			precompress: true
+		})
+	: adapterStatic({
+			pages: 'build',
+			assets: 'build',
+			fallback: '404.html',
+			precompress: true,
+			strict: false
+		});
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	extensions: ['.svelte', '.md', '.svx'],
@@ -329,13 +349,7 @@ const config = {
 		runes: true
 	},
 	kit: {
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: '404.html',
-			precompress: true,
-			strict: false
-		}),
+		adapter,
 		paths: {
 			base: ''
 		},
