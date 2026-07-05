@@ -35,6 +35,9 @@ message PulseEvent {
   repeated string tags = 6;
   repeated MediaAttachment media = 7;
   uint32 revision = 8;
+  // Display/ranking salience only. NEVER an authorization gate and NEVER an
+  // ActivityPub-delivery signal. Absent (SALIENCE_UNSPECIFIED) = untiered.
+  Salience salience = 9;
 
   oneof payload {
     NotePayload note = 20;
@@ -50,6 +53,15 @@ enum Visibility {
   VISIBILITY_PRIVATE = 1;
   VISIBILITY_UNLISTED = 2;
   VISIBILITY_PUBLIC = 3;
+}
+
+// Editorial salience tier. Display/ranking only; mirrors the blog editorial
+// taxonomy. It is never an authorization gate and never gates ActivityPub
+// delivery. SALIENCE_UNSPECIFIED means "untiered" (least prominent).
+enum Salience {
+  SALIENCE_UNSPECIFIED = 0;
+  SALIENCE_LESS_NOTEWORTHY = 1;
+  SALIENCE_NOTEWORTHY = 2;
 }
 
 message Source {
@@ -128,6 +140,9 @@ message PublicPulseItem {
   string summary = 4;
   string content = 5;
   repeated string tags = 6;
+  // Display/ranking tier carried through from the source event. Never
+  // authorization or delivery state.
+  Salience salience = 7;
 
   PublicBirdSighting bird_sighting = 20;
 }
