@@ -9,7 +9,9 @@ export const prerender = true;
 const HUB_ACTOR = 'https://hub.tinyland.dev/@jesssullivan';
 const HUB_AUTHORIZE_INTERACTION = 'https://hub.tinyland.dev/authorize_interaction?uri={uri}';
 
-export const WEBFINGER_RESPONSE = {
+// `_`-prefixed so SvelteKit's endpoint export validator allows it (only
+// GET/POST/... or `_`-prefixed exports are permitted from a +server module).
+export const _WEBFINGER_RESPONSE = {
 	subject: 'acct:jess@transscendsurvival.org',
 	aliases: [HUB_ACTOR],
 	links: [

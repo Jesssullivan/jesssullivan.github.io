@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GET, WEBFINGER_RESPONSE } from './+server';
+import { GET, _WEBFINGER_RESPONSE as WEBFINGER_RESPONSE } from './+server';
 
 /**
  * TIN-1456 / TIN-1537 doctrine: the blog apex is not an ActivityPub authority.
