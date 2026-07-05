@@ -33,7 +33,7 @@ export const _WEBFINGER_RESPONSE = {
 };
 
 export function GET() {
-	return new Response(JSON.stringify(WEBFINGER_RESPONSE), {
+	return new Response(JSON.stringify(_WEBFINGER_RESPONSE), {
 		headers: {
 			'Content-Type': 'application/jrd+json',
 			'Access-Control-Allow-Origin': '*',
