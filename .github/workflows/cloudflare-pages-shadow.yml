@@ -20,7 +20,10 @@ on:
       - "src/**"
       - "static/**"
   push:
-    branches: [main]
+    # feat/blog-tiered-reader-ui: pushes to the held shadow branch auto-deploy
+    # the tss-shadow Pages project (tss.tinyland.dev) so the shadow host never
+    # goes stale. Prod (main -> transscendsurvival-org) is untouched.
+    branches: [main, feat/blog-tiered-reader-ui]
     paths:
       - ".github/workflows/cloudflare-pages-shadow.yml"
       - "package.json"
@@ -98,16 +101,28 @@ jobs:
             echo "::notice title=Cloudflare shadow deploy skipped::${message}"
           fi
 
+          # Route: main -> transscendsurvival-org production (prod apex, unchanged);
+          # any other pushed branch -> the tss-shadow project's production
+          # deployment, which serves tss.tinyland.dev (the shadow host).
+          project="${CLOUDFLARE_PAGES_PROJECT_NAME}"
+          pages_branch="${deploy_branch}"
+          if [ "${deploy_branch}" != "main" ]; then
+            project="tss-shadow"
+            pages_branch="main"
+          fi
+
           {
             echo "can_deploy=${can_deploy}"
             echo "branch=${deploy_branch}"
+            echo "project=${project}"
+            echo "pages_branch=${pages_branch}"
           } >> "$GITHUB_OUTPUT"
 
           {
             echo "## Cloudflare Pages Shadow"
             echo ""
-            echo "- Project: \`${CLOUDFLARE_PAGES_PROJECT_NAME}\`"
-            echo "- Branch: \`${deploy_branch}\`"
+            echo "- Project: \`${project}\`"
+            echo "- Branch: \`${deploy_branch}\` -> pages branch \`${pages_branch}\`"
             echo "- Deploy enabled: \`${can_deploy}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -118,5 +133,5 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4.95.0"
-          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=${{ steps.cloudflare.outputs.branch }} --commit-dirty=true
+          command: pages deploy build --project-name=${{ steps.cloudflare.outputs.project }} --branch=${{ steps.cloudflare.outputs.pages_branch }} --commit-dirty=true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
