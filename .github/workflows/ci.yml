@@ -32,6 +32,13 @@ jobs:
 
   bazel-remote-gates:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # The gf-reapi-cell tenant (consumer-jesssullivan-jesssullivan-github-io)
+    # has maxConcurrentExecutions=4; parallel gates jobs across PRs trip
+    # RESOURCE_EXHAUSTED (observed runs 28732755094, 28847693875). Serialize
+    # the tenant's bazel gates repo-wide; queue instead of cancel.
+    concurrency:
+      group: gf-reapi-tenant-gates
+      cancel-in-progress: false
     permissions:
       contents: read
       id-token: write
