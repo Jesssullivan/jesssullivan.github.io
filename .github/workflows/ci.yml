@@ -32,13 +32,16 @@ jobs:
 
   bazel-remote-gates:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    # The gf-reapi-cell tenant (consumer-jesssullivan-jesssullivan-github-io)
-    # has maxConcurrentExecutions=4; parallel gates jobs across PRs trip
-    # RESOURCE_EXHAUSTED (observed runs 28732755094, 28847693875). Serialize
-    # the tenant's bazel gates repo-wide; queue instead of cancel.
+    # Per-ref dedupe only: a newer push to the same ref supersedes its own
+    # stale gates run. Cross-PR quota pressure on the gf-reapi-cell tenant
+    # (maxConcurrentExecutions=4; runs 28732755094, 28847693875) is handled
+    # by the exit-34 retry loop in scripts/bazel-cache-backed.sh — a shared
+    # repo-wide group was tried first, but GitHub evicts (cancels) middle
+    # pending jobs in a group, which breaks required checks (run
+    # 28849318814 + main 09c1dd0 were cancelled, not queued).
     concurrency:
-      group: gf-reapi-tenant-gates
-      cancel-in-progress: false
+      group: gf-reapi-tenant-gates-${{ github.ref }}
+      cancel-in-progress: true
     permissions:
       contents: read
       id-token: write
