@@ -179,3 +179,5 @@ info:
     @echo "Node:  $$(node --version)"
     @echo "npm:   $$(npm --version)"
     @echo "Root:  {{root}}"
+
+import? "justfile.flywheel"
