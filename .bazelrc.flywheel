@@ -23,6 +23,8 @@ build:executor-backed --spawn_strategy=remote
 build:executor-backed --remote_download_minimal
 build:executor-backed --noremote_cache_compression
 build:executor-backed --jobs=4
-test:executor-backed --config=executor-backed
+# NOTE: no `test:executor-backed --config=executor-backed` here — that is a
+# self-referential rc cycle (Bazel: "Config expansion has a cycle"); `test`
+# already inherits every `build:executor-backed` line above.
 test:executor-backed --noremote_cache_compression
 test:executor-backed --jobs=4
