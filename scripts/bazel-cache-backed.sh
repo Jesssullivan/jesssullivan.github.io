@@ -175,13 +175,31 @@ info)
     routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
   fi
 
-  exec "${bazel_bin}" "${command}" \
-    --config="${bazel_config}" \
-    --remote_cache="${effective_remote_cache}" \
-    "${executor_args[@]}" \
-    "${credential_args[@]}" \
-    "${routing_args[@]}" \
-    "${external_fetch_args[@]}" \
-    "$@"
+  # Bounded retry on the gf-reapi-cell per-tenant quota (Bazel exit 34,
+  # RESOURCE_EXHAUSTED: concurrent-execution limit). Mirrors the
+  # tinyland.dev lane's 3-attempt pattern. Any other exit code propagates
+  # immediately. Concurrency-group serialization was tried first but GitHub
+  # evicts (cancels) middle pending jobs in a shared group, which breaks
+  # required checks.
+  quota_attempts="${GF_BAZEL_QUOTA_RETRIES:-3}"
+  attempt=1
+  while :; do
+    rc=0
+    "${bazel_bin}" "${command}" \
+      --config="${bazel_config}" \
+      --remote_cache="${effective_remote_cache}" \
+      "${executor_args[@]}" \
+      "${credential_args[@]}" \
+      "${routing_args[@]}" \
+      "${external_fetch_args[@]}" \
+      "$@" || rc=$?
+    if [[ ${rc} -ne 34 || ${attempt} -ge ${quota_attempts} ]]; then
+      exit "${rc}"
+    fi
+    backoff=$((75 * attempt + RANDOM % 30))
+    echo "bazel-cache-backed: tenant quota exhausted (exit 34); retry ${attempt}/${quota_attempts} in ${backoff}s" >&2
+    sleep "${backoff}"
+    attempt=$((attempt + 1))
+  done
   ;;
 esac
