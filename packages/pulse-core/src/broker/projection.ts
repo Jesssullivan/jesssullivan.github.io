@@ -5,6 +5,7 @@ import {
 	type PublicPulseItem,
 } from '../schema/snapshot.js';
 import type { PulseEvent } from '../schema/event.js';
+import { salienceRank } from '../schema/event.js';
 import { applyPolicyToEvent, type PolicyDecision, type PolicyOptions } from '../policy/index.js';
 import { sha256Digest } from './sha256.js';
 
@@ -53,11 +54,19 @@ export const projectAcceptedEvents = (events: readonly PulseEvent[], options: Pr
 		}
 	}
 
-	// Stable, deterministic ordering: occurredAt descending, then id ascending.
+	// Stable, deterministic ordering: occurredAt descending, then salience tier
+	// descending (noteworthy > less-noteworthy > untiered), then id ascending.
+	// Salience is a pure tie-break: it only reorders items that share an
+	// occurredAt, and the unique id remains the final deterministic key, so a
+	// total order is preserved. Because every shipped fixture carries distinct
+	// timestamps and no salience, this leaves existing projections — and their
+	// content hashes — byte-for-byte unchanged.
 	items.sort((a, b) => {
 		if (a.occurredAt !== b.occurredAt) {
 			return a.occurredAt < b.occurredAt ? 1 : -1;
 		}
+		const bySalience = salienceRank(b.salience) - salienceRank(a.salience);
+		if (bySalience !== 0) return bySalience;
 		return a.id < b.id ? -1 : 1;
 	});
 

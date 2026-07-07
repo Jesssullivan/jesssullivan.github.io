@@ -62,6 +62,13 @@ build | test | run | coverage | info) ;;
   ;;
 esac
 
+if [[ -f .env.flywheel.local ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source ./.env.flywheel.local
+  set +a
+fi
+
 bazel_bin="${BAZEL_BIN:-bazel}"
 remote_cache="${BAZEL_REMOTE_CACHE:-}"
 remote_executor="${BAZEL_REMOTE_EXECUTOR:-}"
