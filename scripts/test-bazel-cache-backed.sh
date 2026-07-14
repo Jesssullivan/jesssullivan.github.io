@@ -10,6 +10,9 @@ fi
 tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/blog-bazel-cache-contract.XXXXXX")"
 trap 'rm -rf "${tmp_dir}"' EXIT
 
+grep -Fx -- "build:ci-cached --jobs=4" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
+
 fake_bazel="${tmp_dir}/bazel"
 cat >"${fake_bazel}" <<'EOF'
 #!/usr/bin/env bash

@@ -297,6 +297,7 @@ sh_test(
     name = "bazel_cache_backed_contract",
     srcs = ["scripts/test-bazel-cache-backed.sh"],
     data = [
+        ".bazelrc",
         "scripts/bazel-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
     ],

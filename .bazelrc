@@ -43,6 +43,9 @@ build:ci-cached --remote_cache_compression
 # a cold graph cannot launch dozens of compilers and starve its own test
 # processes; executor-backed proofs retain their separately managed capacity.
 build:ci-cached --jobs=4
+# Browser-backed test actions execute inside the 4 GiB ARC pod in this mode.
+# Keep them serial so concurrent Chromium processes cannot OOM the runner.
+test:ci-cached --local_test_jobs=1
 
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home
