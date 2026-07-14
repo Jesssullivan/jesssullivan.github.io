@@ -17,7 +17,11 @@ build --action_env=TZ=UTC
 
 test --test_output=errors
 test --test_timeout=120,600,1800,3600
-test --test_env=GF_RBE_CHROMIUM_EXECUTABLE=/bin/chromium
+# Pass the browser path through from the lane (executor images ship
+# /bin/chromium; the dind runner provisions one in ci.yml and exports
+# GF_RBE_CHROMIUM_EXECUTABLE). No hardcoded value: an absent var lets
+# the run-*-bazel.mjs candidate scan handle system chromium paths.
+test --test_env=GF_RBE_CHROMIUM_EXECUTABLE
 
 build:local --disk_cache=~/.cache/bazel-jesssullivan-github-io
 

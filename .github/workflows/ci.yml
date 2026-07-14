@@ -47,8 +47,6 @@ jobs:
       id-token: write
     runs-on: tinyland-dind
     timeout-minutes: 60
-    env:
-      GF_RBE_CHROMIUM_EXECUTABLE: /bin/chromium
     steps:
       - uses: actions/checkout@v6
         with:
@@ -57,6 +55,31 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Provision Chromium for browser gates
+        run: |
+          set -euo pipefail
+          # Executor images ship /bin/chromium; the dind runner image ships no
+          # browser, so the puppeteer smoke and playwright e2e need one
+          # provisioned here. Playwright's installer also pulls the shared
+          # system libraries the binary links against.
+          for c in /bin/chromium /usr/bin/chromium /usr/bin/chromium-browser /usr/bin/google-chrome; do
+            if [ -x "$c" ]; then
+              echo "System chromium present at $c"
+              exit 0
+            fi
+          done
+          PLAYWRIGHT_VERSION="$(node -p "require('./package.json').devDependencies['@playwright/test'].replace(/^[^0-9]*/, '')")"
+          npx --yes "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium
+          BIN="$(ls -d "${HOME}/.cache/ms-playwright"/chromium-*/chrome-linux/chrome | head -1)"
+          test -x "${BIN}"
+          echo "GF_RBE_CHROMIUM_EXECUTABLE=${BIN}" >> "$GITHUB_ENV"
 
       - name: Resolve GloriousFlywheel substrate lane
         run: |
