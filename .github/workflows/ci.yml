@@ -45,6 +45,7 @@ jobs:
     env:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
+      TECTONIC_CACHE_DIR: /tmp/tectonic-cache-v33
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
       BAZEL_REMOTE_EXECUTOR: ''
@@ -64,6 +65,13 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Cache Tectonic resources
+        uses: actions/cache@v5
+        with:
+          path: /tmp/tectonic-cache-v33
+          key: tectonic-v33-${{ runner.os }}-${{ hashFiles('MODULE.bazel') }}
+          restore-keys: tectonic-v33-${{ runner.os }}-
 
       - name: Provision package-lock-pinned Chromium
         run: |
@@ -141,6 +149,13 @@ jobs:
           else
             sudo mv "${tmp}" /usr/local/bin/bazel
           fi
+
+      - name: Warm Tectonic resources serially
+        run: |
+          bash scripts/bazel-cache-backed.sh build --jobs=1 \
+            @spear_resumes//generic:resume \
+            @spear_resumes//generic:precis \
+            @spear_resumes//generic:cv
 
       - name: Remote check
         run: npm run remote:check

@@ -39,6 +39,10 @@ build:ci-remote-base --remote_timeout=60
 
 build:ci-cached --config=ci-remote-base
 build:ci-cached --remote_cache_compression
+# Shared-cache actions execute inside the ARC pod. Bound local parallelism so
+# a cold graph cannot launch dozens of compilers and starve its own test
+# processes; executor-backed proofs retain their separately managed capacity.
+build:ci-cached --jobs=4
 
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home

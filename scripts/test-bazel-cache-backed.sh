@@ -29,11 +29,14 @@ run_upload_case() {
     GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
     GF_BAZEL_REMOTE_UPLOAD="${value}" \
     GF_RBE_CHROMIUM_EXECUTABLE="/opt/pinned-chromium" \
+    TECTONIC_CACHE_DIR="${tmp_dir}/tectonic-cache" \
     FAKE_BAZEL_ARGS="${args_file}" \
     bash "${repo_root}/scripts/bazel-cache-backed.sh" test //:fake_target >/dev/null
 
   grep -Fx -- "--remote_upload_local_results=${expected}" "${args_file}" >/dev/null
   grep -Fx -- "--test_env=GF_RBE_CHROMIUM_EXECUTABLE=/opt/pinned-chromium" "${args_file}" >/dev/null
+  grep -Fx -- "--action_env=TECTONIC_CACHE_DIR=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
+  grep -Fx -- "--sandbox_writable_path=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
 }
 
 run_upload_case false false
@@ -46,5 +49,26 @@ if BAZEL_BIN="${fake_bazel}" \
   FAKE_BAZEL_ARGS="${tmp_dir}/invalid.args" \
   bash "${repo_root}/scripts/bazel-cache-backed.sh" test //:fake_target >/dev/null 2>&1; then
   echo "ERROR: invalid GF_BAZEL_REMOTE_UPLOAD unexpectedly succeeded" >&2
+  exit 1
+fi
+
+if BAZEL_BIN="${fake_bazel}" \
+  BAZEL_REMOTE_CACHE="grpc://cache.example:9092" \
+  GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
+  TECTONIC_CACHE_DIR="relative/cache" \
+  FAKE_BAZEL_ARGS="${tmp_dir}/relative.args" \
+  bash "${repo_root}/scripts/bazel-cache-backed.sh" build //:fake_target >/dev/null 2>&1; then
+  echo "ERROR: relative TECTONIC_CACHE_DIR unexpectedly succeeded" >&2
+  exit 1
+fi
+
+if BAZEL_BIN="${fake_bazel}" \
+  BAZEL_REMOTE_CACHE="grpc://cache.example:9092" \
+  BAZEL_REMOTE_EXECUTOR="grpc://executor.example:9092" \
+  GF_BAZEL_SUBSTRATE_MODE="executor-backed" \
+  TECTONIC_CACHE_DIR="${tmp_dir}/executor-cache" \
+  FAKE_BAZEL_ARGS="${tmp_dir}/executor.args" \
+  bash "${repo_root}/scripts/bazel-cache-backed.sh" build //:fake_target >/dev/null 2>&1; then
+  echo "ERROR: runner-local TECTONIC_CACHE_DIR unexpectedly reached executor-backed mode" >&2
   exit 1
 fi

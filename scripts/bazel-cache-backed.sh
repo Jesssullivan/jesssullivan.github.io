@@ -31,6 +31,9 @@ Environment:
     property; defaults to gloriousflywheel-rbe-linux-x86_64.
   GF_BAZEL_REMOTE_UPLOAD controls remote result uploads. Set it to false for
     cache-read-only refs and true for trusted cache-write refs; defaults to true.
+  TECTONIC_CACHE_DIR optionally names an absolute, runner-local cache for
+    shared-cache builds. The wrapper makes it writable inside Bazel sandboxes;
+    executor-backed mode rejects this host path.
   GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN
     must be set when a gf-reapi-cell endpoint requires JWT auth. The helper
     also uses /var/run/secrets/tokens/gf-reapi-cell-token when present.
@@ -86,7 +89,9 @@ credential_args=()
 routing_args=()
 upload_args=()
 browser_args=()
+local_action_args=()
 remote_upload="${GF_BAZEL_REMOTE_UPLOAD:-true}"
+tectonic_cache_dir="${TECTONIC_CACHE_DIR:-}"
 
 endpoint_host() {
   local endpoint="$1"
@@ -201,6 +206,22 @@ info)
     validate_runtime_value "GF_RBE_CHROMIUM_EXECUTABLE" "${GF_RBE_CHROMIUM_EXECUTABLE}"
     browser_args+=(--test_env="GF_RBE_CHROMIUM_EXECUTABLE=${GF_RBE_CHROMIUM_EXECUTABLE}")
   fi
+  if [[ -n ${tectonic_cache_dir} ]]; then
+    validate_runtime_value "TECTONIC_CACHE_DIR" "${tectonic_cache_dir}"
+    if [[ ${tectonic_cache_dir} != /* ]]; then
+      echo "ERROR: TECTONIC_CACHE_DIR must be an absolute path; got ${tectonic_cache_dir}." >&2
+      exit 2
+    fi
+    if [[ -n ${remote_executor} ]]; then
+      echo "ERROR: TECTONIC_CACHE_DIR is runner-local and cannot be used in executor-backed mode." >&2
+      exit 2
+    fi
+    mkdir -p "${tectonic_cache_dir}"
+    local_action_args+=(
+      --action_env="TECTONIC_CACHE_DIR=${tectonic_cache_dir}"
+      --sandbox_writable_path="${tectonic_cache_dir}"
+    )
+  fi
 
   # Bounded retry on the gf-reapi-cell per-tenant quota (Bazel exit 34,
   # RESOURCE_EXHAUSTED: concurrent-execution limit). Mirrors the
@@ -221,6 +242,7 @@ info)
       "${routing_args[@]}" \
       "${external_fetch_args[@]}" \
       "${browser_args[@]}" \
+      "${local_action_args[@]}" \
       "$@" || rc=$?
     if [[ ${rc} -ne 34 || ${attempt} -ge ${quota_attempts} ]]; then
       exit "${rc}"
