@@ -54,9 +54,10 @@ no-JavaScript behavior, rollback data, and regression fixtures. The Tinyland
 blog and Pulse broker feeds hydrate or add display data.
 
 It is not the durable Tinyland write authority, the Tinyland auth authority,
-or the public ActivityPub delivery authority. Its WebFinger response delegates
-the ActivityPub actor to `hub.tinyland.dev`; delegation does not make the blog
-the actor host.
+or the public ActivityPub delivery authority. Its current prerendered
+WebFinger file points at `hub.tinyland.dev`, but it ignores the required
+`resource` query parameter. That is not a standards-compliant resolver and
+does not make either the blog or the static file an ActivityPub authority.
 
 The additive merge in `src/routes/blog` means a broker omission does not
 delete a checked-in post. A broker-only post can render through the broker
@@ -201,7 +202,7 @@ The following were not ratified or not completed:
 | Prior claim or shorthand | Current evidence | Disposition |
 | --- | --- | --- |
 | "The blog is federated" | Blog and Pulse feeds are display projections. Blog and AP demo manifests report public delivery disabled; Pulse exposes no delivery-policy field. | Use "broker projection" unless remote signed delivery is proven. |
-| "The blog is the AP authority" | WebFinger delegates the actor to the hub; the blog has no delivery or durable-write authority. | False. |
+| "The blog is the AP authority" | The blog has no delivery or durable-write authority. Its static WebFinger file points at the hub but is not resource-aware. | False. |
 | "Workflow completed" means the product goal completed | Historical workflows include errored, blocked, and plan-only lanes. | Treat workflow status as orchestration status only. |
 | A merged package fix is live | Content and invitation fixes were released, but mothership pins and deployment lagged. | Track release, adoption, deploy, and live proof separately. |
 | TIN-2787 Done means the note route works | Current live requests terminate without the former 307 loop, but still return `Author not found` or `User not found`. | Keep TIN-2787 Done narrowly; route availability remains TIN-2788. |
@@ -215,7 +216,7 @@ The following were not ratified or not completed:
 | GitHub Pages is production | Cloudflare Pages is production; this audit corrects the stale README diagram while preserving GitHub Pages as rollback. | False. Keep the diagram, runbook, and declared DNS posture aligned. |
 | tinyland.dev issue #664 proves current broker drift | The 140 published spoke slugs and 140 live broker slugs now match exactly. | Closed the one-shot alarm as resolved; a new drift needs new evidence. |
 | Runner cancellation proves a code failure | Several heavy jobs ended through ARC pod loss after prior steps passed. | Classify each run from job and step evidence before rerunning or debugging. |
-| The blog WebFinger route resolves arbitrary actors | It ignores the requested resource and returns one fixed Jess delegation. | Describe it as fixed single-identity discovery. |
+| The blog WebFinger route is a valid fixed single-user resolver | It ignores the required `resource` parameter, returns Jess for missing and foreign resources, and cannot vary by query while prerendered. RFC 7033 requires 400 for an absent or malformed resource and 404 for an unknown resource. | False. TIN-2880 tracks a query-aware fail-closed edge handler or removal of the advertised discovery surface. |
 | #217 streams both live broker feeds | Its shadow route uses posts plus the checked Pulse snapshot. | Keep "shadow blended reader" wording; remove "live-streamed ingestion." |
 
 ## Pull Request Disposition
@@ -395,8 +396,11 @@ during this audit. Remote GitHub content was used for the current snapshot.
 ## Shadow And Discovery Caveats
 
 - The blog WebFinger endpoint returns the same Jess JRD without inspecting the
-  requested `resource`. It is a fixed discovery delegate, not a general
-  resource-aware resolver.
+  requested `resource`. This is not merely a single-user limitation: it fails
+  RFC 7033's required 400 response for a missing or malformed resource and 404
+  response for an unknown resource. The static route needs a query-aware edge
+  replacement or removal under TIN-2880 before the blog can claim valid
+  WebFinger discovery.
 - Pull request #217's shadow `/stream` prerenders from posts plus the checked
   Pulse snapshot. It does not fetch both live broker endpoints. "Live-streamed
   ingestion" is therefore too strong.
