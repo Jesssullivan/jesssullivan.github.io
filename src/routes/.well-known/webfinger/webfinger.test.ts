@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { GET, _WEBFINGER_RESPONSE as WEBFINGER_RESPONSE } from './+server';
+import { GET, prerender, _WEBFINGER_RESPONSE as WEBFINGER_RESPONSE } from './+server';
 
 /**
  * TIN-1456 / TIN-1537 doctrine: the blog apex is not an ActivityPub authority.
@@ -8,6 +8,11 @@ import { GET, _WEBFINGER_RESPONSE as WEBFINGER_RESPONSE } from './+server';
  * domain) must never appear as an `application/activity+json` self target.
  */
 describe('blog webfinger JRD', () => {
+	it('is an intentionally prerendered single-identity delegate', () => {
+		expect(prerender).toBe(true);
+		expect(WEBFINGER_RESPONSE.subject).toBe('acct:jess@transscendsurvival.org');
+	});
+
 	it('delegates the AP self link to the hub actor, not the apex', () => {
 		const self = WEBFINGER_RESPONSE.links.find((l) => l.rel === 'self');
 		expect(self?.type).toBe('application/activity+json');
@@ -18,7 +23,7 @@ describe('blog webfinger JRD', () => {
 		const apRefs = [
 			WEBFINGER_RESPONSE.links.find((l) => l.rel === 'self')?.href,
 			...WEBFINGER_RESPONSE.aliases,
-			WEBFINGER_RESPONSE.links.find((l) => l.rel?.endsWith('subscribe'))?.template
+			WEBFINGER_RESPONSE.links.find((l) => l.rel?.endsWith('subscribe'))?.template,
 		].filter(Boolean) as string[];
 		for (const ref of apRefs) {
 			expect(ref).not.toMatch(/https:\/\/tinyland\.dev\b/);
@@ -28,9 +33,7 @@ describe('blog webfinger JRD', () => {
 	});
 
 	it('keeps the human profile page on the blog domain', () => {
-		const profile = WEBFINGER_RESPONSE.links.find(
-			(l) => l.rel === 'http://webfinger.net/rel/profile-page'
-		);
+		const profile = WEBFINGER_RESPONSE.links.find((l) => l.rel === 'http://webfinger.net/rel/profile-page');
 		expect(profile?.href).toBe('https://transscendsurvival.org');
 	});
 
