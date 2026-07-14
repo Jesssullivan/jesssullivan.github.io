@@ -194,7 +194,7 @@ The following were not ratified or not completed:
 | TIN-2786 blog detail is fixed in production | Package source/release exists; the live mothership detail URL is 404. | Live-incomplete. |
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
-| TIN-1119 Done proves public ActivityPub delivery | Its own acceptance and latest substantive comments explicitly leave live peer delivery, follower custody, moderation, and operator proof open. | Status drift. Use urgent TIN-2416 as the active proof gate and do not infer completion from TIN-1119's state. |
+| TIN-1119's former Done state proved public ActivityPub delivery | Its acceptance explicitly leaves live peer delivery, follower custody, moderation, and operator proof open; Linear reopened it to In Progress on 2026-07-14. | The status drift was corrected, not the capability. TIN-2416 remains the urgent proof gate. |
 | Pull request #719 is ready to merge | Its public key fingerprint differs from live; the only recorded matching private artifact is missing. | Unsafe. Generate a new pair under durable custody before updating public material. |
 | Pull request #701 is the package-adoption keystone | Pull request #731 supersedes its package pins; only the shared rate-limit-store slice remains unique. | Extract or re-author the unique slice on the current base. Do not merge stale pins. |
 | Pulse M1 completion means federation shipped | The milestone explicitly excludes real delivery. | False. |
@@ -258,9 +258,9 @@ The following were not ratified or not completed:
   several current-main surfaces. The issue is still reproducible.
 - **tinyland.dev #116:** real interoperability remains open. There is no proof
   packet showing a signed post delivered to an external follower.
-- **TIN-1119:** its Done state contradicts its own still-open acceptance and
-  its latest substantive comments. Treat this as tracker drift, not as either
-  controlled-projection closure or public-delivery proof.
+- **TIN-1119:** Linear reopened it from Done to In Progress at 19:17 UTC on
+  2026-07-14. Its live-delivery acceptance remains open; the state correction
+  is not public-delivery proof.
 - **TIN-2416:** the newer urgent delivery issue correctly keeps public
   delivery disabled pending a live signed-peer proof.
 - **TIN-2644 and TIN-2645:** both remain urgent Backlog. The delivery,
@@ -320,8 +320,9 @@ the concrete release-versus-adoption gap.
 - TIN-2784 proves a source fix, not a live signed-Accept interop result.
 - TIN-2786 remains live-incomplete. TIN-2787 is correctly Done only for the
   redirect loop; TIN-2788 owns the remaining live user/author-resolution 404.
-- TIN-1119 is incorrectly Done relative to its own acceptance record. TIN-2416
-  is the current urgent live-proof issue and remains In Progress.
+- TIN-1119 was reopened to In Progress after its Done-state drift was
+  corrected. TIN-2416 is the current urgent live-proof issue and also remains
+  In Progress.
 - TIN-2644/TIN-2645 and TIN-2680 remain open, so neither multi-author delivery
   nor the ratified role axis is live-complete.
 - TIN-2822 and TIN-2828/TIN-2829 block the current adoption program with
