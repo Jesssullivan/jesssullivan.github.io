@@ -39,6 +39,14 @@ build:ci-remote-base --remote_timeout=60
 
 build:ci-cached --config=ci-remote-base
 build:ci-cached --remote_cache_compression
+# Shared-cache actions execute on the runner. Give tools such as Tectonic
+# stable writable cache/config paths instead of inheriting the ARC image's
+# read-only /root home.
+build:ci-cached --action_env=HOME=/tmp
+build:ci-cached --action_env=TMPDIR=/tmp
+build:ci-cached --action_env=XDG_CACHE_HOME=/tmp/xdg-cache
+build:ci-cached --action_env=XDG_CONFIG_HOME=/tmp/xdg-config
+build:ci-cached --action_env=XDG_DATA_HOME=/tmp/xdg-data
 
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home
