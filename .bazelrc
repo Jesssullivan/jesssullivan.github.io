@@ -39,6 +39,11 @@ build:ci-remote-base --remote_timeout=60
 
 build:ci-cached --config=ci-remote-base
 build:ci-cached --remote_cache_compression
+# The dind runner container is memory-limited (4Gi); with the
+# shared-cache lane executing browser test suites locally, parallel
+# chromium instances OOM the pod (silent runner death). Serialize
+# local test actions on this lane.
+test:ci-cached --local_test_jobs=1
 
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home
