@@ -33,12 +33,7 @@ jobs:
   bazel-remote-gates:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     # Per-ref dedupe only: a newer push to the same ref supersedes its own
-    # stale gates run. Cross-PR quota pressure on the gf-reapi-cell tenant
-    # (maxConcurrentExecutions=4; runs 28732755094, 28847693875) is handled
-    # by the exit-34 retry loop in scripts/bazel-cache-backed.sh — a shared
-    # repo-wide group was tried first, but GitHub evicts (cancels) middle
-    # pending jobs in a group, which breaks required checks (run
-    # 28849318814 + main 09c1dd0 were cancelled, not queued).
+    # stale gates run without canceling unrelated pull requests.
     concurrency:
       group: gf-reapi-tenant-gates-${{ github.ref }}
       cancel-in-progress: true
@@ -47,6 +42,13 @@ jobs:
       id-token: write
     runs-on: tinyland-dind
     timeout-minutes: 60
+    env:
+      GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
+      GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
+      # The GF consumer registry records this repo as shared-cache-backed.
+      # Clear any executor endpoint inherited from the generic ARC pod.
+      BAZEL_REMOTE_EXECUTOR: ''
+      BAZEL_REMOTE_EXECUTOR_CACHE: ''
     steps:
       - uses: actions/checkout@v6
         with:
@@ -55,6 +57,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
+          cache: npm
 
       - name: Cache Playwright browsers
         uses: actions/cache@v5
@@ -62,26 +65,22 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Provision Chromium for browser gates
+      - name: Provision package-lock-pinned Chromium
         run: |
           set -euo pipefail
-          # Executor images ship /bin/chromium; the dind runner image ships no
-          # browser, so the puppeteer smoke and playwright e2e need one
-          # provisioned here. Playwright's installer also pulls the shared
-          # system libraries the binary links against.
-          for c in /bin/chromium /usr/bin/chromium /usr/bin/chromium-browser /usr/bin/google-chrome; do
-            if [ -x "$c" ]; then
-              echo "System chromium present at $c"
-              exit 0
-            fi
-          done
-          PLAYWRIGHT_VERSION="$(node -p "require('./package.json').devDependencies['@playwright/test'].replace(/^[^0-9]*/, '')")"
-          npx --yes "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium
-          BIN="$(ls -d "${HOME}/.cache/ms-playwright"/chromium-*/chrome-linux*/chrome 2>/dev/null | head -1)"
-          test -x "${BIN}"
-          echo "GF_RBE_CHROMIUM_EXECUTABLE=${BIN}" >> "$GITHUB_ENV"
+          # Install the revision pinned by @playwright/test outside Bazel,
+          # before token minting and SSH setup, then pass its absolute path
+          # into browser tests.
+          npm ci --ignore-scripts
+          npx --no-install playwright install --with-deps chromium
+          chromium_path="$(node --input-type=module -e "import { chromium } from '@playwright/test'; process.stdout.write(chromium.executablePath())")"
+          if [[ "${chromium_path}" != /* || ! -x "${chromium_path}" ]]; then
+            echo "::error::Playwright Chromium resolution produced an unusable path"
+            exit 1
+          fi
+          echo "GF_RBE_CHROMIUM_EXECUTABLE=${chromium_path}" >> "${GITHUB_ENV}"
 
-      - name: Resolve GloriousFlywheel substrate lane
+      - name: Require shared-cache-backed GloriousFlywheel lane
         run: |
           set -euo pipefail
           if [ -z "${BAZEL_REMOTE_CACHE:-}" ]; then
@@ -89,28 +88,18 @@ jobs:
             exit 1
           fi
 
-          # This repo's GF consumer-registry entry is substrate_mode=
-          # shared-cache-backed (latch: remote_processes=0), so executor
-          # tokens are not ours to mint — the exchange grants cache-write
-          # only to trusted default-branch pushes and cache-read to any
-          # enrolled ref. Strip the executor attachment so the wrapper and
-          # cache-attachment-contract agree on shared-cache mode.
-          echo "GF_BAZEL_SUBSTRATE_MODE=shared-cache-backed" >> "$GITHUB_ENV"
-          echo "BAZEL_REMOTE_EXECUTOR=" >> "$GITHUB_ENV"
-          echo "BAZEL_REMOTE_EXECUTOR_CACHE=" >> "$GITHUB_ENV"
-          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
-            echo "GF_REAPI_TOKEN_EXCHANGE_REQUEST=cache-write" >> "$GITHUB_ENV"
-          else
-            echo "GF_REAPI_TOKEN_EXCHANGE_REQUEST=cache-read" >> "$GITHUB_ENV"
-            echo "GF_BAZEL_CACHE_ROLE=read-only" >> "$GITHUB_ENV"
+          if [ -n "${BAZEL_REMOTE_EXECUTOR:-}" ]; then
+            echo "::error::BAZEL_REMOTE_EXECUTOR must be empty for this shared-cache-backed consumer."
+            exit 1
           fi
 
       - name: Mint GloriousFlywheel REAPI token
         env:
           GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
+          GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
         run: bash scripts/mint-gf-reapi-token-from-exchange.sh
 
-      - name: Validate GloriousFlywheel RBE attachment
+      - name: Validate GloriousFlywheel cache attachment
         run: bash scripts/cache-attachment-contract.sh --strict
 
       - name: Set up SSH for spear-resumes

@@ -29,6 +29,8 @@ Environment:
     action/input digests from the same REAPI service.
   GF_BAZEL_REMOTE_EXECUTION_PLATFORM optionally overrides the executor platform
     property; defaults to gloriousflywheel-rbe-linux-x86_64.
+  GF_BAZEL_REMOTE_UPLOAD controls remote result uploads. Set it to false for
+    cache-read-only refs and true for trusted cache-write refs; defaults to true.
   GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN
     must be set when a gf-reapi-cell endpoint requires JWT auth. The helper
     also uses /var/run/secrets/tokens/gf-reapi-cell-token when present.
@@ -82,6 +84,8 @@ external_fetch_args=()
 executor_args=()
 credential_args=()
 routing_args=()
+upload_args=()
+remote_upload="${GF_BAZEL_REMOTE_UPLOAD:-true}"
 
 endpoint_host() {
   local endpoint="$1"
@@ -147,6 +151,19 @@ if [[ -n ${BAZEL_DISTDIR:-} ]]; then
   done
 fi
 
+case "${remote_upload}" in
+true | 1)
+  upload_args+=(--remote_upload_local_results=true)
+  ;;
+false | 0)
+  upload_args+=(--remote_upload_local_results=false)
+  ;;
+*)
+  echo "ERROR: GF_BAZEL_REMOTE_UPLOAD must be true, false, 1, or 0; got ${remote_upload}." >&2
+  exit 2
+  ;;
+esac
+
 bash ./scripts/cache-attachment-contract.sh --strict
 
 if ! command -v "${bazel_bin}" >/dev/null 2>&1; then
@@ -193,6 +210,7 @@ info)
     "${bazel_bin}" "${command}" \
       --config="${bazel_config}" \
       --remote_cache="${effective_remote_cache}" \
+      "${upload_args[@]}" \
       "${executor_args[@]}" \
       "${credential_args[@]}" \
       "${routing_args[@]}" \

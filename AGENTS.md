@@ -31,7 +31,7 @@ These rules apply before the writing-style guidance below.
 
 ## Bazel And GloriousFlywheel
 
-- GloriousFlywheel-backed validation runs through `scripts/bazel-cache-backed.sh`. The remote scripts must fail closed when `BAZEL_REMOTE_CACHE`, `BAZEL_REMOTE_EXECUTOR`, or the expected executor-backed substrate is missing.
+- GloriousFlywheel-backed validation runs through `scripts/bazel-cache-backed.sh`. This repository is registered as `shared-cache-backed`; the remote scripts must fail closed when `BAZEL_REMOTE_CACHE` or that expected substrate mode is missing. CI must clear generic-runner executor hints. Executor-backed mode remains an explicit opt-in only after a reviewed GloriousFlywheel consumer-registry promotion.
 - `npm run remote:check`, `npm run remote:test`, and `npm run remote:e2e` are the authoritative Bazel entrypoints. They cover SvelteKit check/build smoke, package checks, CV PDF sync, Vitest, blog-agent tests, browser smoke, Playwright e2e, and graph hygiene.
 - `package-lock.json` is the npm authority. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel; do not casually hand-edit it.
 - Browser-backed Bazel tests use the pinned worker Chromium path. Do not add lifecycle downloads or host-local browser assumptions to the RBE path.
