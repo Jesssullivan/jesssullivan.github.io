@@ -44,7 +44,7 @@ build:ci-cached --remote_cache_compression
 # plus Bazel overhead remains inside that hard memory limit. Executor-backed
 # proofs retain their separately managed capacity.
 build:ci-cached --jobs=1
-build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1536
+build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024
 # Browser-backed test actions execute inside the same 4 GiB ARC pod in this mode.
 # Keep them serial so concurrent Chromium processes cannot OOM the runner.
 test:ci-cached --local_test_jobs=1

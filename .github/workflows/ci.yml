@@ -47,7 +47,7 @@ jobs:
     env:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
-      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '1024'
+      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '1536'
       TECTONIC_CACHE_DIR: /tmp/tectonic-cache-v33
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
