@@ -265,11 +265,12 @@ The following were not ratified or not completed:
 - **tinyland.dev #721:** draft digest-safe staging deploy work. Treat it as
   image/deploy durability, not federation completion.
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
-  TIN-2416. #737 still leaves a current glossary citation and a misleading
-  test title. #738 is not executable as written: the advertised inbox reaches
-  the generic handler rather than the follower-store/moderation proof plane,
-  and its fingerprint command does not compare normalized SPKI DER. Neither
-  draft is merged behavior or a completed live signed-peer proof.
+  TIN-2416. Before #737 merges, current gates must point only at TIN-2416 while
+  TIN-1119 remains solely as dated history or roster provenance. #738 is not
+  executable as written: the advertised inbox reaches the generic handler
+  rather than the follower-store/moderation proof plane, and its fingerprint
+  command does not compare normalized SPKI DER. Neither draft is merged
+  behavior or a completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
 - **tinyland-auth #41 and #42, tinyland-invitation #12 and #14:** draft
