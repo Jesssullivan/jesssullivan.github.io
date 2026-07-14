@@ -298,6 +298,12 @@ other channel:
 - Auth 0.7.1 completed its GitHub publish workflow but was not present on
   npmjs during this audit.
 
+A fresh public npmjs query found these package heads: auth 0.3.3, invitation
+0.2.2, content 0.2.3, content-types 0.2.4, security 0.3.1, and ActivityPub
+0.2.5. None matches the corresponding Bazel-registry head listed above.
+"Released" therefore needs a named channel; a registry promotion is not an
+npm publication.
+
 The available GitHub credential lacks `read:packages`, so direct GitHub
 Packages enumeration was not available. Workflow results and npmjs checks set
 the claim boundary above.
