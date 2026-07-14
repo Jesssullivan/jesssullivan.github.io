@@ -77,7 +77,7 @@ jobs:
           done
           PLAYWRIGHT_VERSION="$(node -p "require('./package.json').devDependencies['@playwright/test'].replace(/^[^0-9]*/, '')")"
           npx --yes "playwright@${PLAYWRIGHT_VERSION}" install --with-deps chromium
-          BIN="$(ls -d "${HOME}/.cache/ms-playwright"/chromium-*/chrome-linux/chrome | head -1)"
+          BIN="$(ls -d "${HOME}/.cache/ms-playwright"/chromium-*/chrome-linux*/chrome 2>/dev/null | head -1)"
           test -x "${BIN}"
           echo "GF_RBE_CHROMIUM_EXECUTABLE=${BIN}" >> "$GITHUB_ENV"
 
