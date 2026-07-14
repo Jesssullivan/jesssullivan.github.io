@@ -142,6 +142,22 @@ jobs:
             sudo mv "${tmp}" /usr/local/bin/bazel
           fi
 
+      - name: Provision package-lock-pinned Chromium
+        run: |
+          set -euo pipefail
+          # Shared-cache actions execute on this ARC runner, not in the GF
+          # executor image where /bin/chromium is part of the worker contract.
+          # Install the browser revision pinned by @playwright/test outside the
+          # Bazel action, then pass its absolute path into browser tests.
+          npm ci --ignore-scripts
+          npx --no-install playwright install --with-deps chromium
+          chromium_path="$(node --input-type=module -e "import { chromium } from '@playwright/test'; process.stdout.write(chromium.executablePath())")"
+          if [[ "${chromium_path}" != /* || ! -x "${chromium_path}" ]]; then
+            echo "::error::Playwright Chromium resolution produced an unusable path"
+            exit 1
+          fi
+          echo "GF_RBE_CHROMIUM_EXECUTABLE=${chromium_path}" >> "${GITHUB_ENV}"
+
       - name: Remote check
         run: npm run remote:check
 

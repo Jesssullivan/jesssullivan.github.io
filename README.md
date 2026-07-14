@@ -116,11 +116,11 @@ This repo still uses the npm/SvelteKit workflow for normal local development and
 - `//:vitest_unit_tests` wraps the root and Pulse Vitest suites through `vitest.bazel.config.ts`.
 - `//:blog_agent_node_tests` wraps the blog-agent `node:test` suite through `tsx --test`.
 - `//:sveltekit_vite_build_smoke` runs a copied-workdir SvelteKit/Vite production build smoke. It proves the build target class, not the full npm prebuild/postbuild publication chain.
-- `//:playwright_chromium_e2e` runs the Chromium Playwright e2e suite through Bazel against the pinned GloriousFlywheel runner Chromium path.
+- `//:playwright_chromium_e2e` runs the Chromium Playwright e2e suite through Bazel. Shared-cache CI provisions the package-lock-pinned Playwright browser before Bazel starts and passes its absolute executable path into the local test action.
 - `//:playwright_chromium_smoke` remains a narrow diagnostic target for browser runtime authority, not the remote e2e gate.
-- `//:puppeteer_chromium_smoke` launches Puppeteer against the same pinned Chromium runtime path. It proves Puppeteer can consume browser runtime authority without lifecycle downloads.
+- `//:puppeteer_chromium_smoke` launches Puppeteer against the same pinned Chromium runtime path. It proves Puppeteer and Playwright consume one explicit browser authority rather than relying on an undeclared host path.
 - `package-lock.json` remains the npm dependency authority for the app. `pnpm-workspace.yaml` makes the package importers explicit for Bazel, and `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.
-- Bazel npm lifecycle hooks skip Playwright and Puppeteer browser downloads. Browser-backed RBE must use the pinned worker Chromium path rather than downloading browsers during proof actions.
+- Bazel npm lifecycle hooks skip Playwright and Puppeteer browser downloads. Shared-cache CI provisions the lockfile-pinned Playwright browser outside Bazel actions; browser-backed RBE continues to use the pinned worker Chromium path and never downloads a browser inside proof actions.
 - GloriousFlywheel proof runs use the external GF REAPI proof harness or the repository `remote:*` scripts against this public repo checkout; remote cache hits, hosted runners, and shared-cache-only execution do not count as RBE.
 
 Current boundary: this gates Bazel check/test/Chromium-e2e and CV PDF sync drift with GloriousFlywheel shared-cache attachment. It does not claim remote action execution. Deployment still publishes the SvelteKit static artifact through the existing Pages workflows.

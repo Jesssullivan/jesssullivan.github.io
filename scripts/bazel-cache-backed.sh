@@ -85,6 +85,7 @@ executor_args=()
 credential_args=()
 routing_args=()
 upload_args=()
+browser_args=()
 remote_upload="${GF_BAZEL_REMOTE_UPLOAD:-true}"
 
 endpoint_host() {
@@ -196,6 +197,10 @@ info)
     validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
     routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
   fi
+  if [[ ${command} == test || ${command} == coverage ]] && [[ -n ${GF_RBE_CHROMIUM_EXECUTABLE:-} ]]; then
+    validate_runtime_value "GF_RBE_CHROMIUM_EXECUTABLE" "${GF_RBE_CHROMIUM_EXECUTABLE}"
+    browser_args+=(--test_env="GF_RBE_CHROMIUM_EXECUTABLE=${GF_RBE_CHROMIUM_EXECUTABLE}")
+  fi
 
   # Bounded retry on the gf-reapi-cell per-tenant quota (Bazel exit 34,
   # RESOURCE_EXHAUSTED: concurrent-execution limit). Mirrors the
@@ -215,6 +220,7 @@ info)
       "${credential_args[@]}" \
       "${routing_args[@]}" \
       "${external_fetch_args[@]}" \
+      "${browser_args[@]}" \
       "$@" || rc=$?
     if [[ ${rc} -ne 34 || ${attempt} -ge ${quota_attempts} ]]; then
       exit "${rc}"

@@ -28,10 +28,12 @@ run_upload_case() {
     BAZEL_REMOTE_CACHE="grpc://cache.example:9092" \
     GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
     GF_BAZEL_REMOTE_UPLOAD="${value}" \
+    GF_RBE_CHROMIUM_EXECUTABLE="/opt/pinned-chromium" \
     FAKE_BAZEL_ARGS="${args_file}" \
     bash "${repo_root}/scripts/bazel-cache-backed.sh" test //:fake_target >/dev/null
 
   grep -Fx -- "--remote_upload_local_results=${expected}" "${args_file}" >/dev/null
+  grep -Fx -- "--test_env=GF_RBE_CHROMIUM_EXECUTABLE=/opt/pinned-chromium" "${args_file}" >/dev/null
 }
 
 run_upload_case false false

@@ -34,7 +34,7 @@ These rules apply before the writing-style guidance below.
 - GloriousFlywheel-backed validation runs through `scripts/bazel-cache-backed.sh`. This repository is registered as `shared-cache-backed`; the remote scripts must fail closed when `BAZEL_REMOTE_CACHE` or that expected substrate mode is missing. CI must clear generic-runner executor hints. Executor-backed mode remains an explicit opt-in only after a reviewed GloriousFlywheel consumer-registry promotion.
 - `npm run remote:check`, `npm run remote:test`, and `npm run remote:e2e` are the authoritative Bazel entrypoints. They cover SvelteKit check/build smoke, package checks, CV PDF sync, Vitest, blog-agent tests, browser smoke, Playwright e2e, and graph hygiene.
 - `package-lock.json` is the npm authority. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel; do not casually hand-edit it.
-- Browser-backed Bazel tests use the pinned worker Chromium path. Do not add lifecycle downloads or host-local browser assumptions to the RBE path.
+- Shared-cache CI provisions the package-lock-pinned Playwright Chromium outside Bazel actions and passes its absolute path explicitly. Browser-backed RBE uses the pinned worker Chromium path; do not add lifecycle downloads or host-local browser assumptions inside the RBE action path.
 - Broad `bazel query //...` and `bazel test //...` must not traverse agent scratch trees. `.bazelignore` intentionally excludes `.claude`, `.gstack`, `.worktrees`, build outputs, caches, and `workers/dns-guard/.wrangler`.
 - If you touch Bazel structure, scratch-tree ignores, or broad query behavior, run `npm run test:bazel-graph-hygiene` and, when possible, `bazelisk --output_user_root=/tmp/jess-ghio-bazel-codex test //:bazel_graph_hygiene`.
 
