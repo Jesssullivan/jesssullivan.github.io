@@ -244,6 +244,9 @@ The following were not ratified or not completed:
   private key in the recorded custody path.
 - **tinyland.dev #721:** draft digest-safe staging deploy work. Treat it as
   image/deploy durability, not federation completion.
+- **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
+  TIN-2416. They correct the tracker path and define a future proof packet;
+  neither is a completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
 - **tinyland-auth #41 and #42, tinyland-invitation #12 and #14:** draft
@@ -278,6 +281,7 @@ The registry contains these newer releases:
 - `tinyland-content` 0.3.2
 - `tinyland-content-types` 0.3.1
 - `tinyland-security` 0.3.2
+- `tinyland-activitypub` 0.3.1
 
 These are versioned, checksum-pinned Bazel-registry entries. They are not yet
 an end-to-end immutability proof: TIN-2485's append-only registry guard remains
@@ -295,9 +299,12 @@ The available GitHub credential lacks `read:packages`, so direct GitHub
 Packages enumeration was not available. Workflow results and npmjs checks set
 the claim boundary above.
 
-At audit time, mothership `main` still pinned older versions: content 0.2.5,
-content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security 0.3.1. This is
-the concrete release-versus-adoption gap.
+At audit time, mothership `main` already pinned `tinyland-activitypub` 0.3.1;
+the registry marks 0.2.2 through 0.2.5 yanked because they defaulted actor and
+object origins to the apex. That is a real source/release/registry/adoption
+chain, but it still does not prove deployment or live delivery. Mothership
+still pinned older versions for the other adoption wave: content 0.2.5,
+content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security 0.3.1.
 
 ## Linear Reconciliation
 
