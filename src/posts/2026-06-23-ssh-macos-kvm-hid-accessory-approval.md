@@ -52,9 +52,9 @@ After that, the NanoKVM showed up as both a USB device and USB HID device.
 
 Huzzah.
 
-Two caveats. First, do not put the sudo password in the SSH command line; process listings and shell history are boring places to leak secrets. Second, if this is a managed Mac, the cleaner durable fix is an MDM/Jamf restrictions payload for `allowUSBRestrictedMode`, scoped only as long as you need it. For a one-off decommissioning session, the local preference was enough.
+Two caveats. First, do not put the sudo password in the SSH command line; process listings and shell history are boring places to leak secrets. Second, Apple documents the durable control as a device-level `com.apple.applicationaccess` restrictions profile, normally delivered by MDM. The local preference was enough for this one-off decommissioning session, but it is an escape hatch rather than a fleet-enforcement mechanism.
 
-The flip side: on a Mac whose USB is load-bearing — external SSD scratch for nix and bazel, YubiKeys, darwin artifact builds that have to keep enumerating even when nobody is at the console — you probably want this off *durably*, declared in your MDM payload or nix-managed defaults rather than poked in ad hoc. Same knob, opposite lifetime.
+The flip side: on a Mac whose USB is load-bearing — external SSD scratch for nix and bazel, YubiKeys, darwin artifact builds that have to keep enumerating even when nobody is at the console — you probably want this off *durably* through that device-level profile rather than poked in ad hoc. Same knob, opposite lifetime.
 
 When done, either wipe the Mac as planned or undo the local override (deleting the key restores the default, so approval prompts come back):
 
