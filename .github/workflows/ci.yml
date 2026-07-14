@@ -58,7 +58,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
-      - name: Require executor-backed GloriousFlywheel lane
+      - name: Resolve GloriousFlywheel substrate lane
         run: |
           set -euo pipefail
           if [ -z "${BAZEL_REMOTE_CACHE:-}" ]; then
@@ -66,13 +66,21 @@ jobs:
             exit 1
           fi
 
-          if [ -z "${BAZEL_REMOTE_EXECUTOR:-}" ]; then
-            echo "::error::BAZEL_REMOTE_EXECUTOR is missing. Refusing to run check/test/e2e as shared-cache local work while this lane is named RBE."
-            exit 1
+          # This repo's GF consumer-registry entry is substrate_mode=
+          # shared-cache-backed (latch: remote_processes=0), so executor
+          # tokens are not ours to mint — the exchange grants cache-write
+          # only to trusted default-branch pushes and cache-read to any
+          # enrolled ref. Strip the executor attachment so the wrapper and
+          # cache-attachment-contract agree on shared-cache mode.
+          echo "GF_BAZEL_SUBSTRATE_MODE=shared-cache-backed" >> "$GITHUB_ENV"
+          echo "BAZEL_REMOTE_EXECUTOR=" >> "$GITHUB_ENV"
+          echo "BAZEL_REMOTE_EXECUTOR_CACHE=" >> "$GITHUB_ENV"
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "GF_REAPI_TOKEN_EXCHANGE_REQUEST=cache-write" >> "$GITHUB_ENV"
+          else
+            echo "GF_REAPI_TOKEN_EXCHANGE_REQUEST=cache-read" >> "$GITHUB_ENV"
+            echo "GF_BAZEL_CACHE_ROLE=read-only" >> "$GITHUB_ENV"
           fi
-
-          echo "GF_BAZEL_SUBSTRATE_MODE=executor-backed" >> "$GITHUB_ENV"
-          echo "GF_BAZEL_REMOTE_EXECUTION_PLATFORM=${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}" >> "$GITHUB_ENV"
 
       - name: Mint GloriousFlywheel REAPI token
         env:
