@@ -48,6 +48,8 @@ jobs:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
       GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
+      GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
+      GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
       TECTONIC_CACHE_DIR: /tmp/tectonic-cache-v33
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
@@ -105,9 +107,6 @@ jobs:
           fi
 
       - name: Mint GloriousFlywheel REAPI token
-        env:
-          GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
-          GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
         run: bash scripts/mint-gf-reapi-token-from-exchange.sh
 
       - name: Validate GloriousFlywheel cache attachment
@@ -153,6 +152,9 @@ jobs:
             sudo mv "${tmp}" /usr/local/bin/bazel
           fi
 
+      - name: Refresh cache token for Tectonic warm
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
+
       - name: Warm Tectonic resources serially
         run: |
           bash scripts/bazel-cache-backed.sh build --jobs=1 \
@@ -161,15 +163,24 @@ jobs:
             @spear_resumes//generic:cv
           bash scripts/bazel-cache-backed.sh shutdown
 
+      - name: Refresh cache token for remote check
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
+
       - name: Remote check
         run: |
           npm run remote:check
           bash scripts/bazel-cache-backed.sh shutdown
 
+      - name: Refresh cache token for remote test
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
+
       - name: Remote test
         run: |
           npm run remote:test
           bash scripts/bazel-cache-backed.sh shutdown
+
+      - name: Refresh cache token for remote e2e
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
 
       - name: Remote e2e
         run: |

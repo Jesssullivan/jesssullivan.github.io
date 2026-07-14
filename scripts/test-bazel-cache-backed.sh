@@ -13,6 +13,12 @@ trap 'rm -rf "${tmp_dir}"' EXIT
 grep -Fx -- "build:ci-cached --jobs=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "      GF_REAPI_TOKEN_EXCHANGE_TTL: 45m" "${repo_root}/.github/workflows/ci.yml" >/dev/null
+mint_count="$(grep -c -F -- "run: bash scripts/mint-gf-reapi-token-from-exchange.sh" "${repo_root}/.github/workflows/ci.yml")"
+if [[ ${mint_count} -ne 5 ]]; then
+  echo "ERROR: CI must mint once for attachment validation and refresh before all four Bazel phases; found ${mint_count}." >&2
+  exit 1
+fi
 
 fake_bazel="${tmp_dir}/bazel"
 cat >"${fake_bazel}" <<'EOF'
@@ -43,6 +49,19 @@ run_upload_case() {
   grep -Fx -- "--test_env=GF_RBE_CHROMIUM_EXECUTABLE=/opt/pinned-chromium" "${args_file}" >/dev/null
   grep -Fx -- "--action_env=TECTONIC_CACHE_DIR=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
   grep -Fx -- "--sandbox_writable_path=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
+
+  host_jvm_line="$(awk '$0 == "--host_jvm_args=-Xmx2560m" { print NR; exit }' "${args_file}")"
+  command_line="$(awk '$0 == "test" { print NR; exit }' "${args_file}")"
+  config_line="$(awk '$0 == "--config=ci-cached" { print NR; exit }' "${args_file}")"
+  upload_line="$(awk -v expected="--remote_upload_local_results=${expected}" '$0 == expected { print NR; exit }' "${args_file}")"
+  if [[ -z ${host_jvm_line} || -z ${command_line} || ${host_jvm_line} -ge ${command_line} ]]; then
+    echo "ERROR: Bazel host JVM startup option must precede the command." >&2
+    exit 1
+  fi
+  if [[ -z ${config_line} || -z ${upload_line} || ${config_line} -ge ${upload_line} ]]; then
+    echo "ERROR: explicit remote-upload policy must follow the selected Bazel config." >&2
+    exit 1
+  fi
 }
 
 run_upload_case false false

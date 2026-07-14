@@ -298,6 +298,7 @@ sh_test(
     srcs = ["scripts/test-bazel-cache-backed.sh"],
     data = [
         ".bazelrc",
+        ".github/workflows/ci.yml",
         "scripts/bazel-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
     ],
