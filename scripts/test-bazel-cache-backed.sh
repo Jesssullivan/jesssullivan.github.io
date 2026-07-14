@@ -10,7 +10,8 @@ fi
 tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/blog-bazel-cache-contract.XXXXXX")"
 trap 'rm -rf "${tmp_dir}"' EXIT
 
-grep -Fx -- "build:ci-cached --jobs=4" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "build:ci-cached --jobs=1" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1536" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
 
 fake_bazel="${tmp_dir}/bazel"

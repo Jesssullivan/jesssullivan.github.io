@@ -41,7 +41,9 @@ jobs:
       contents: read
       id-token: write
     runs-on: tinyland-dind
-    timeout-minutes: 60
+    # Shared-cache actions execute locally inside a 2-CPU, 4 GiB ARC pod.
+    # The serial memory-safe lane trades wall-clock speed for runner survival.
+    timeout-minutes: 90
     env:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
