@@ -18,6 +18,7 @@ Commands:
   run       Run a cache-backed Bazel target
   coverage  Run cache-backed Bazel coverage
   info      Validate cache attachment, then run bazel info
+  shutdown  Validate cache attachment, then stop the matching Bazel server
 
 Environment:
   BAZEL_REMOTE_CACHE must be a real grpc://, grpcs://, http://, or https:// endpoint.
@@ -57,7 +58,7 @@ command="$1"
 shift
 
 case "${command}" in
-build | test | run | coverage | info) ;;
+build | test | run | coverage | info | shutdown) ;;
 -h | --help)
   usage
   exit 0
@@ -193,6 +194,9 @@ fi
 case "${command}" in
 info)
   exec "${bazel_bin}" "${startup_args[@]}" info "${external_fetch_args[@]}" "$@"
+  ;;
+shutdown)
+  exec "${bazel_bin}" "${startup_args[@]}" shutdown "$@"
   ;;
 *)
   bazel_config="ci-cached"

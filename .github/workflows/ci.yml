@@ -41,13 +41,13 @@ jobs:
       contents: read
       id-token: write
     runs-on: tinyland-dind
-    # Shared-cache actions execute locally inside a 2-CPU, 4 GiB ARC pod.
-    # The serial memory-safe lane trades wall-clock speed for runner survival.
+    # Shared-cache actions execute locally inside a fleet-managed ARC pod.
+    # Keep the repo process envelope bounded independently of fleet sizing.
     timeout-minutes: 90
     env:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
-      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '1536'
+      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
       TECTONIC_CACHE_DIR: /tmp/tectonic-cache-v33
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
@@ -159,15 +159,22 @@ jobs:
             @spear_resumes//generic:resume \
             @spear_resumes//generic:precis \
             @spear_resumes//generic:cv
+          bash scripts/bazel-cache-backed.sh shutdown
 
       - name: Remote check
-        run: npm run remote:check
+        run: |
+          npm run remote:check
+          bash scripts/bazel-cache-backed.sh shutdown
 
       - name: Remote test
-        run: npm run remote:test
+        run: |
+          npm run remote:test
+          bash scripts/bazel-cache-backed.sh shutdown
 
       - name: Remote e2e
-        run: npm run remote:e2e
+        run: |
+          npm run remote:e2e
+          bash scripts/bazel-cache-backed.sh shutdown
 
   build-and-test:
     runs-on: ubuntu-latest
