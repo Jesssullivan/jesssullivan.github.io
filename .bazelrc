@@ -39,6 +39,15 @@ build:ci-remote-base --remote_timeout=60
 
 build:ci-cached --config=ci-remote-base
 build:ci-cached --remote_cache_compression
+# Shared-cache actions execute inside a bounded ARC runner container.
+# Bound both action parallelism and per-process Node heap so one local action
+# plus Bazel overhead remains inside that hard memory limit. Executor-backed
+# proofs retain their separately managed capacity.
+build:ci-cached --jobs=1
+build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024
+# Browser-backed test actions execute inside the same ARC pod in this mode.
+# Keep them serial so concurrent Chromium processes cannot OOM the runner.
+test:ci-cached --local_test_jobs=1
 
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home

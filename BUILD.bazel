@@ -293,6 +293,18 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+sh_test(
+    name = "bazel_cache_backed_contract",
+    srcs = ["scripts/test-bazel-cache-backed.sh"],
+    data = [
+        ".bazelrc",
+        ".github/workflows/ci.yml",
+        "scripts/bazel-cache-backed.sh",
+        "scripts/cache-attachment-contract.sh",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -312,6 +324,7 @@ exports_files(
         "scripts/run-sveltekit-check-bazel.mjs",
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
+        "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",
     ],

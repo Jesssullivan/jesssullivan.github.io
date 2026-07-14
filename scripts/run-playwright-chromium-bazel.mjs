@@ -38,7 +38,7 @@ try {
 	const title = await page.locator('main h1').textContent();
 	const target = await page.locator('[data-rbe-target]').textContent();
 	const headingBox = await page.locator('main h1').boundingBox();
-	if (title !== 'GloriousFlywheel browser RBE smoke') {
+	if (title !== 'GloriousFlywheel browser smoke') {
 		throw new Error(`unexpected smoke title: ${title}`);
 	}
 	if (target !== packageJson.name) {
@@ -66,11 +66,11 @@ function renderSmokePage(packageName) {
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Browser RBE smoke</title>
+    <title>Browser smoke</title>
   </head>
   <body>
     <main>
-      <h1>GloriousFlywheel browser RBE smoke</h1>
+      <h1>GloriousFlywheel browser smoke</h1>
       <p data-rbe-target>${escapeHtml(packageName)}</p>
     </main>
   </body>

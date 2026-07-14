@@ -39,7 +39,7 @@ try {
 		const rect = element.getBoundingClientRect();
 		return { width: rect.width, height: rect.height };
 	});
-	if (title !== 'GloriousFlywheel Puppeteer browser RBE smoke') {
+	if (title !== 'GloriousFlywheel Puppeteer browser smoke') {
 		throw new Error(`unexpected smoke title: ${title}`);
 	}
 	if (target !== packageJson.name) {
@@ -67,11 +67,11 @@ function renderSmokePage(packageName) {
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Puppeteer Browser RBE smoke</title>
+    <title>Puppeteer Browser smoke</title>
   </head>
   <body>
     <main>
-      <h1>GloriousFlywheel Puppeteer browser RBE smoke</h1>
+      <h1>GloriousFlywheel Puppeteer browser smoke</h1>
       <p data-rbe-target>${escapeHtml(packageName)}</p>
     </main>
   </body>

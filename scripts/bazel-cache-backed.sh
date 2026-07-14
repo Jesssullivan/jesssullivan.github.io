@@ -18,6 +18,7 @@ Commands:
   run       Run a cache-backed Bazel target
   coverage  Run cache-backed Bazel coverage
   info      Validate cache attachment, then run bazel info
+  shutdown  Validate cache attachment, then stop the matching Bazel server
 
 Environment:
   BAZEL_REMOTE_CACHE must be a real grpc://, grpcs://, http://, or https:// endpoint.
@@ -29,6 +30,13 @@ Environment:
     action/input digests from the same REAPI service.
   GF_BAZEL_REMOTE_EXECUTION_PLATFORM optionally overrides the executor platform
     property; defaults to gloriousflywheel-rbe-linux-x86_64.
+  GF_BAZEL_REMOTE_UPLOAD controls remote result uploads. Set it to false for
+    cache-read-only refs and true for trusted cache-write refs; defaults to true.
+  GF_BAZEL_HOST_JVM_MAX_HEAP_MB optionally caps the Bazel server JVM heap in
+    MiB. CI sets this explicitly to fit the shared-cache runner memory limit.
+  TECTONIC_CACHE_DIR optionally names an absolute, runner-local cache for
+    shared-cache builds. The wrapper makes it writable inside Bazel sandboxes;
+    executor-backed mode rejects this host path.
   GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE or GF_REAPI_CREDENTIAL_HELPER_TOKEN
     must be set when a gf-reapi-cell endpoint requires JWT auth. The helper
     also uses /var/run/secrets/tokens/gf-reapi-cell-token when present.
@@ -50,7 +58,7 @@ command="$1"
 shift
 
 case "${command}" in
-build | test | run | coverage | info) ;;
+build | test | run | coverage | info | shutdown) ;;
 -h | --help)
   usage
   exit 0
@@ -82,6 +90,13 @@ external_fetch_args=()
 executor_args=()
 credential_args=()
 routing_args=()
+upload_args=()
+browser_args=()
+local_action_args=()
+startup_args=()
+remote_upload="${GF_BAZEL_REMOTE_UPLOAD:-true}"
+tectonic_cache_dir="${TECTONIC_CACHE_DIR:-}"
+host_jvm_max_heap_mb="${GF_BAZEL_HOST_JVM_MAX_HEAP_MB:-}"
 
 endpoint_host() {
   local endpoint="$1"
@@ -134,6 +149,15 @@ validate_runtime_value() {
   fi
 }
 
+if [[ -n ${host_jvm_max_heap_mb} ]]; then
+  if [[ ! ${host_jvm_max_heap_mb} =~ ^[0-9]+$ ]] ||
+    ((host_jvm_max_heap_mb < 256 || host_jvm_max_heap_mb > 4096)); then
+    echo "ERROR: GF_BAZEL_HOST_JVM_MAX_HEAP_MB must be an integer from 256 through 4096; got ${host_jvm_max_heap_mb}." >&2
+    exit 2
+  fi
+  startup_args+=(--host_jvm_args="-Xmx${host_jvm_max_heap_mb}m")
+fi
+
 if [[ -n ${BAZEL_REPOSITORY_CACHE:-} ]]; then
   external_fetch_args+=(--repository_cache="${BAZEL_REPOSITORY_CACHE}")
 fi
@@ -147,6 +171,19 @@ if [[ -n ${BAZEL_DISTDIR:-} ]]; then
   done
 fi
 
+case "${remote_upload}" in
+true | 1)
+  upload_args+=(--remote_upload_local_results=true)
+  ;;
+false | 0)
+  upload_args+=(--remote_upload_local_results=false)
+  ;;
+*)
+  echo "ERROR: GF_BAZEL_REMOTE_UPLOAD must be true, false, 1, or 0; got ${remote_upload}." >&2
+  exit 2
+  ;;
+esac
+
 bash ./scripts/cache-attachment-contract.sh --strict
 
 if ! command -v "${bazel_bin}" >/dev/null 2>&1; then
@@ -156,7 +193,10 @@ fi
 
 case "${command}" in
 info)
-  exec "${bazel_bin}" info "${external_fetch_args[@]}" "$@"
+  exec "${bazel_bin}" "${startup_args[@]}" info "${external_fetch_args[@]}" "$@"
+  ;;
+shutdown)
+  exec "${bazel_bin}" "${startup_args[@]}" shutdown "$@"
   ;;
 *)
   bazel_config="ci-cached"
@@ -179,6 +219,26 @@ info)
     validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
     routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
   fi
+  if [[ ${command} == test || ${command} == coverage ]] && [[ -n ${GF_RBE_CHROMIUM_EXECUTABLE:-} ]]; then
+    validate_runtime_value "GF_RBE_CHROMIUM_EXECUTABLE" "${GF_RBE_CHROMIUM_EXECUTABLE}"
+    browser_args+=(--test_env="GF_RBE_CHROMIUM_EXECUTABLE=${GF_RBE_CHROMIUM_EXECUTABLE}")
+  fi
+  if [[ -n ${tectonic_cache_dir} ]]; then
+    validate_runtime_value "TECTONIC_CACHE_DIR" "${tectonic_cache_dir}"
+    if [[ ${tectonic_cache_dir} != /* ]]; then
+      echo "ERROR: TECTONIC_CACHE_DIR must be an absolute path; got ${tectonic_cache_dir}." >&2
+      exit 2
+    fi
+    if [[ -n ${remote_executor} ]]; then
+      echo "ERROR: TECTONIC_CACHE_DIR is runner-local and cannot be used in executor-backed mode." >&2
+      exit 2
+    fi
+    mkdir -p "${tectonic_cache_dir}"
+    local_action_args+=(
+      --action_env="TECTONIC_CACHE_DIR=${tectonic_cache_dir}"
+      --sandbox_writable_path="${tectonic_cache_dir}"
+    )
+  fi
 
   # Bounded retry on the gf-reapi-cell per-tenant quota (Bazel exit 34,
   # RESOURCE_EXHAUSTED: concurrent-execution limit). Mirrors the
@@ -190,13 +250,16 @@ info)
   attempt=1
   while :; do
     rc=0
-    "${bazel_bin}" "${command}" \
+    "${bazel_bin}" "${startup_args[@]}" "${command}" \
       --config="${bazel_config}" \
       --remote_cache="${effective_remote_cache}" \
+      "${upload_args[@]}" \
       "${executor_args[@]}" \
       "${credential_args[@]}" \
       "${routing_args[@]}" \
       "${external_fetch_args[@]}" \
+      "${browser_args[@]}" \
+      "${local_action_args[@]}" \
       "$@" || rc=$?
     if [[ ${rc} -ne 34 || ${attempt} -ge ${quota_attempts} ]]; then
       exit "${rc}"
