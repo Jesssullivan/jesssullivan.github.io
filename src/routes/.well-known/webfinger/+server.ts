@@ -3,10 +3,11 @@ export const prerender = true;
 // This is a prerendered, single-identity discovery document, not a general
 // resource-aware WebFinger resolver. The blog (transscendsurvival.org) is NOT
 // an ActivityPub authority and must never present itself as one (TIN-1456 /
-// TIN-1537). The canonical actor lives on the hub projection broker
-// (hub.tinyland.dev), which owns the AP identity, inbox/outbox, and follower
-// ledger. This JRD therefore delegates every AP-authority link to the hub
-// actor; only the human-facing profile page stays on the blog domain.
+// TIN-1537). The canonical actor is designated on the hub projection broker
+// (hub.tinyland.dev); the presence of inbox/outbox/follower-shaped endpoints
+// is not itself delivery proof. This JRD therefore delegates every
+// AP-authority link to the hub actor; only the human-facing profile page stays
+// on the blog domain.
 const HUB_ACTOR = 'https://hub.tinyland.dev/@jesssullivan';
 const HUB_AUTHORIZE_INTERACTION = 'https://hub.tinyland.dev/authorize_interaction?uri={uri}';
 

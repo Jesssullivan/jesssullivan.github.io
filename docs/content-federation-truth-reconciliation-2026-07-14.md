@@ -105,8 +105,8 @@ Observed on 2026-07-14:
 | --- | --- | --- |
 | `transscendsurvival.org/blog/week-notes-scroll-wheels-and-chasing-the-sun` | 200 | The production blog serves the post. |
 | `tinyland.dev/blog/week-notes-scroll-wheels-and-chasing-the-sun` | 404 | The mothership detail fix is not live. |
-| `tinyland.dev/@jesssullivan/notes/2026-04-26-cardinals-before-dawn` with browser HTML Accept | 404 | Browser route does not resolve the note. |
-| The same note with a generic Accept header | 307 to the identical URL | The deployed route still has the self-redirect bug. |
+| `tinyland.dev/@jesssullivan/notes/2026-04-26-cardinals-before-dawn` with browser HTML Accept | 404 `User not found` | The redirect loop is absent, but user authority still does not resolve. |
+| The same note with ActivityPub Accept | 404 `Author not found` | The redirect loop is absent, but actor/user authority still does not resolve. |
 | `tinyland.dev/@jesssullivan` with ActivityPub Accept | 200 | The mothership exposes an actor-shaped response. |
 | `tinyland.dev/@jesssullivan/outbox` | 404 | The mothership is not the working public outbox authority. |
 | `hub.tinyland.dev/@jesssullivan` with ActivityPub Accept | 200 | This is the delegated actor endpoint. |
@@ -123,10 +123,12 @@ production-health suite passed its DNS, HTTPS, broker, and hydration checks.
 That does not contradict the ActivityPub findings because those checks prove
 display projection, not public Fediverse delivery.
 
-The live `tinyland.dev` deployment was still running a 2026-07-05 image during
-this audit. Current `main` contains the terminal-404 note-route fix from pull
-request #717, but the deployed image predates it. Linear issue TIN-2787 is
-therefore source-complete and live-incomplete.
+A later live check during this audit observed a terminal 404 for both note
+representations, with no `Location` header or 307 loop. That supports TIN-2787
+being Done for its narrow redirect-loop defect. It does not make the note route
+live: `Author not found` and `User not found` are the remaining TIN-2788
+authority failure. The mothership blog-detail URL still returns `Blog post not
+found`, so TIN-2786 remains live-incomplete.
 
 The blog's current `main` CI was also red while production health was green.
 The hosted lane passed, but two Playwright CV-link assertions failed in the
@@ -171,7 +173,7 @@ The following were not ratified or not completed:
 | "The blog is the AP authority" | WebFinger delegates the actor to the hub; the blog has no delivery or durable-write authority. | False. |
 | "Workflow completed" means the product goal completed | Historical workflows include errored, blocked, and plan-only lanes. | Treat workflow status as orchestration status only. |
 | A merged package fix is live | Content and invitation fixes were released, but mothership pins and deployment lagged. | Track release, adoption, deploy, and live proof separately. |
-| TIN-2787 is done | Current source is fixed; current live wildcard request still self-redirects. | Reclassify as deploy-regressed or live-incomplete. |
+| TIN-2787 Done means the note route works | Current live requests terminate without the former 307 loop, but still return `Author not found` or `User not found`. | Keep TIN-2787 Done narrowly; route availability remains TIN-2788. |
 | TIN-2786 blog detail is fixed in production | Package source/release exists; the live mothership detail URL is 404. | Live-incomplete. |
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
@@ -179,7 +181,7 @@ The following were not ratified or not completed:
 | Pull request #701 is the package-adoption keystone | Pull request #731 supersedes its package pins; only the shared rate-limit-store slice remains unique. | Extract or re-author the unique slice on the current base. Do not merge stale pins. |
 | Pulse M1 completion means federation shipped | The milestone explicitly excludes real delivery. | False. |
 | GitHub Pages is production | Cloudflare Pages is production; README prose says this, but one diagram still says GitHub Pages. | Fix the stale diagram. |
-| tinyland.dev issue #664 proves current broker drift | Live production and hub broker slug sets both contain 140 posts. | Re-verify and close or rewrite the stale issue. |
+| tinyland.dev issue #664 proves current broker drift | The 140 published spoke slugs and 140 live broker slugs now match exactly. | Closed the one-shot alarm as resolved; a new drift needs new evidence. |
 | Runner cancellation proves a code failure | Several heavy jobs ended through ARC pod loss after prior steps passed. | Classify each run from job and step evidence before rerunning or debugging. |
 | The blog WebFinger route resolves arbitrary actors | It ignores the requested resource and returns one fixed Jess delegation. | Describe it as fixed single-identity discovery. |
 | #217 streams both live broker feeds | Its shadow route uses posts plus the checked Pulse snapshot. | Keep "shadow blended reader" wording; remove "live-streamed ingestion." |
@@ -193,9 +195,10 @@ The following were not ratified or not completed:
   GitHub readiness does not override that product hold. Do not describe it as
   production federation.
 - **#216:** open, non-draft node-backend shadow spoke. Its description still
-  says draft/operator-gated, and its latest remote gate failed during REAPI
-  token mint while other checks were settling. Restore an accurate hold or
-  draft state before treating GitHub readiness as authorization.
+  says draft/operator-gated. Its latest remote gate passed token minting, then
+  ended during `Remote check` without a retained source diagnostic. Restore an
+  accurate hold or draft state before treating GitHub readiness as
+  authorization; do not attribute that red to token minting.
 - **#140 and #72:** stale drafts. Review for unique value before closing.
 - **#75:** closed, superseded ActivityPub-shaped Pulse viewer. It never had
   inbox processing, signatures, followers, delivery, or live fetch. Do not
@@ -245,12 +248,15 @@ The registry contains these newer releases:
 - `tinyland-content-types` 0.3.1
 - `tinyland-security` 0.3.2
 
-These are immutable Bazel-registry releases. They do not imply successful
-publication through every other channel:
+These are versioned, checksum-pinned Bazel-registry entries. They are not yet
+an end-to-end immutability proof: TIN-2485's append-only registry guard remains
+Backlog and TIN-2783's immutable GitHub Release enforcement remains In
+Progress. The entries also do not imply successful publication through every
+other channel:
 
-- Invitation 0.2.5 failed its npm and GitHub publication jobs.
+- Invitation 0.2.5 failed its npm and GitHub Packages publication jobs.
 - Content 0.3.2 failed clean-tag validation on undeclared first-party imports,
-  so its publication was skipped.
+  so its package publication was skipped.
 - Auth 0.7.1 completed its GitHub publish workflow but was not present on
   npmjs during this audit.
 
@@ -281,8 +287,8 @@ the concrete release-versus-adoption gap.
 - TIN-2780 and TIN-2781 prove package source/release work, not mothership
   adoption.
 - TIN-2784 proves a source fix, not a live signed-Accept interop result.
-- TIN-2786 and TIN-2787 have status language that is stronger than current
-  live behavior.
+- TIN-2786 remains live-incomplete. TIN-2787 is correctly Done only for the
+  redirect loop; TIN-2788 owns the remaining live user/author-resolution 404.
 
 Linear issues in this area do not use release associations. Release and
 deployment truth currently live in prose and attachments, which makes status
@@ -377,7 +383,8 @@ merged work whose branch was never automatically deleted.
    custody and the atomic live/public-key cutover are ready.
 2. Correct TIN-2731 and TIN-2648 language so unratified custody work cannot be
    read as complete.
-3. Reclassify TIN-2787 using the current deployed-image and live-307 evidence.
+3. Keep TIN-2787 narrowly scoped to the resolved redirect loop; track the live
+   user/author-resolution 404 under TIN-2788.
 4. Keep #731 draft until its security prerequisite pull requests and consumer
    containment checks are satisfied.
 5. Extract #701's unique rate-limit-store slice onto the current package base;
@@ -386,7 +393,8 @@ merged work whose branch was never automatically deleted.
 7. Correct the README deployment diagram. The generated, ignored search index
    was regenerated and matched the live 140-post set; it is not a committed
    fixture and needs no source change.
-8. Re-verify GitHub issue #664 against the matching 140-post live sets.
+8. Keep the exact 140-to-140 slug parity proof attached to closed issue #664;
+   require a fresh alarm and delta before reopening drift work.
 9. Add deployed commit/image identity to the relevant health surface so
    source-complete and live-complete cannot be confused.
 10. Add explicit source/release/adopt/deploy/runtime/live fields to the
