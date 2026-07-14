@@ -57,8 +57,7 @@
 	<p class="text-sm text-surface-400 mb-6">
 		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,
 		orchestrated by <a href="https://github.com/Jesssullivan/rules_tectonic" target="_blank" rel="noopener" class="hover:text-primary-500 underline">rules_tectonic</a>.
-		Sources live in <a href="https://github.com/Jesssullivan/spear-resumes" target="_blank" rel="noopener" class="hover:text-primary-500 underline">spear-resumes</a>;
-		PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">synced into this site by CI</a>.
+		The TeX sources are private; the generic PDFs are <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/build-cv.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">synced into this site by CI</a>.
 	</p>
 
 	<!-- Tab switcher -->
@@ -75,12 +74,6 @@
 	<!-- Action bar -->
 	<div class="flex flex-wrap items-center gap-3 mb-6">
 		<a href={docs[activeTab].file} download class="btn preset-filled-primary-500 text-sm">{docs[activeTab].downloadLabel}</a>
-		<a
-			href="https://github.com/Jesssullivan/spear-resumes"
-			target="_blank"
-			rel="noopener"
-			class="btn preset-outlined-surface-500 text-sm"
-		>View TeX Source</a>
 	</div>
 
 	<!-- PDF viewer -->
@@ -98,7 +91,7 @@
 		<div class="card p-4 flex justify-center">
 			<img
 				src="/cv/build-flow.svg"
-				alt="Build flow: private spear-resumes XeLaTeX sources (//generic:resume, //generic:precis, //generic:cv) compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs; bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo, which the /cv page serves as an iframe per tab. The build-cv.yml GitHub Actions workflow fetches the private source with an SSH deploy key, installs bazelisk, runs the sync, and auto-commits the refreshed PDFs."
+				alt="Build flow: private XeLaTeX sources for //generic:resume, //generic:precis, and //generic:cv compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs; bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo, which the /cv page serves as an iframe per tab. The build-cv.yml GitHub Actions workflow fetches the private source with an SSH deploy key, installs bazelisk, runs the sync, and auto-commits the refreshed PDFs."
 				class="max-w-full h-auto"
 				loading="lazy"
 			/>

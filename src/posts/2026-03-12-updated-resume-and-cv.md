@@ -43,4 +43,4 @@ Embedded below, or grab it from the [dedicated CV page](/cv) where you can switc
 
 The full CV is the longer-form document with the cover letter, fun facts, detailed project descriptions, and all the photography/bartending/bagel history. It's the one with the header image. You can view it on the [CV page](/cv) or grab it directly above.
 
-Both documents are compiled from LaTeX source via [Tectonic](https://tectonic-typesetting.github.io/) in CI — the TeX source is [on GitHub](https://github.com/Jesssullivan/jesssullivan.github.io/tree/main/cv) if you're into that sort of thing.
+Both documents are compiled from private LaTeX source via [Tectonic](https://tectonic-typesetting.github.io/) in CI, then synced into this site as PDFs.
