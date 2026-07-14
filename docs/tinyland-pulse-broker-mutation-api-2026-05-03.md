@@ -279,3 +279,26 @@ These choices can remain open until service implementation:
 - whether accepted response includes full stored event or only event summary
 
 They should not change the core semantics above.
+
+## 2026-07-07 Update: Salience Field And Payload Kinds Beyond M1
+
+`@blog/pulse-core` (#215) merged an optional `salience` field on `PulseEvent`
+and `PublicPulseItem`: `'less-noteworthy' | 'noteworthy'`, absent = untiered =
+least prominent. It mirrors the blog editorial-taxonomy doctrine
+(`docs/blog-editorial-taxonomy-2026-07-03.md`) and the 2026-07-05 ruling that
+salience is **display/ranking-only** -- it is a stable secondary sort key
+(after `occurredAt` desc, before `id` asc) and must never gate policy
+allow/deny and must never act as an ActivityPub-delivery signal. New proto
+field numbers (`PulseEvent.salience=9`, `PublicPulseItem.salience=7`) keep
+canonical JSON and content hashes byte-stable for pre-field inputs.
+
+The payload `kind` union has also grown past the original `note` /
+`bird_sighting` pair. `PAYLOAD_KINDS` in `packages/pulse-core/src/schema/payload.ts`
+now enumerates `note`, `bird_sighting`, `photo`, `git_summary`, and `listening`.
+`M1_PUBLIC_PAYLOAD_KINDS` still scopes the *publicly projected* subset to
+`note` and `bird_sighting` only -- the newer kinds are schema-valid mutation
+intents today, but the projection boundary above (`payload_kind_unsupported`,
+"a public snapshot may omit an accepted event because of ... unsupported
+payload type") still applies to them until their own public-projection
+contracts land. Treat this section, not the original endpoint examples above,
+as the current source of truth for kind and salience shape.
