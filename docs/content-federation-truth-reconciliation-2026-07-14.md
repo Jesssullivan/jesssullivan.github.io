@@ -293,8 +293,9 @@ The following were not ratified or not completed:
 - **TIN-2416:** the newer urgent delivery issue correctly keeps public
   delivery disabled pending a live signed-peer proof.
 - **AP Federation Phase 1:** off track for its 2026-07-15 target. The project
-  still has six Backlog issues and no replacement date was invented during
-  this audit.
+  has seven Backlog issues, including TIN-2883 for the newly confirmed stale
+  worker manifest/test contract. No replacement date was invented during this
+  audit.
 - **TIN-2644 and TIN-2645:** both remain urgent Backlog. The delivery,
   moderation, and follower-Accept plane is still hardcoded to `jesssullivan`;
   a second author cannot complete a live Follow/Accept/delivery round trip.
