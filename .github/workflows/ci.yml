@@ -199,7 +199,7 @@ jobs:
       - name: Test authority
         run: |
           echo "check/test/e2e are intentionally owned by bazel-remote-gates."
-          echo "The GloriousFlywheel RBE lane runs remote:check, remote:test, and remote:e2e."
+          echo "The GloriousFlywheel shared-cache lane runs remote:check, remote:test, and remote:e2e."
 
       - name: Blog agent production dependency audit (report-only)
         run: |

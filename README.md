@@ -112,7 +112,7 @@ This repo still uses the npm/SvelteKit workflow for normal local development and
 - `gf-reapi-cell` endpoints also require scoped Bazel credential-helper auth. `scripts/bazel-cache-backed.sh` attaches `scripts/gf-reapi-bazel-credential-helper.mjs` only for the GF REAPI host, and the helper reads a short-lived JWT from `GF_REAPI_CREDENTIAL_HELPER_TOKEN_FILE`, `GF_REAPI_CREDENTIAL_HELPER_TOKEN`, or the projected-token file at `/var/run/secrets/tokens/gf-reapi-cell-token`.
 - The token exchange supplies the repository-scoped `BAZEL_REMOTE_INSTANCE_NAME`. Literal shell placeholders are rejected before Bazel starts.
 - `//:sveltekit_check` runs the SvelteKit check path under Bazel.
-- `//static/cv:pdfs_synced_test` byte-compares the checked-in resume/CV PDFs against the Bazel-built `spear_resumes` outputs; `.bazelrc` pins `SOURCE_DATE_EPOCH` and `TZ` so Tectonic output stays reproducible across local sync, CI, and GF RBE.
+- `//static/cv:pdfs_synced_test` byte-compares the checked-in resume/CV PDFs against the Bazel-built `spear_resumes` outputs; `.bazelrc` pins `SOURCE_DATE_EPOCH` and `TZ` so Tectonic output stays reproducible across local sync, shared-cache CI, and explicit executor proofs.
 - `//:vitest_unit_tests` wraps the root and Pulse Vitest suites through `vitest.bazel.config.ts`.
 - `//:blog_agent_node_tests` wraps the blog-agent `node:test` suite through `tsx --test`.
 - `//:sveltekit_vite_build_smoke` runs a copied-workdir SvelteKit/Vite production build smoke. It proves the build target class, not the full npm prebuild/postbuild publication chain.
