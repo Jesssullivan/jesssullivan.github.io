@@ -18,7 +18,7 @@ bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 # repo (sensitive STR-variant content) so it is pinned via git_override; CI
 # uses an SSH deploy key (secret SPEAR_RESUMES_DEPLOY_KEY) to fetch it.
 bazel_dep(name = "spear_resumes", version = "0.2.0")
-bazel_dep(name = "rules_tectonic", version = "0.1.0")
+bazel_dep(name = "rules_tectonic", version = "0.2.1")
 
 git_override(
     module_name = "spear_resumes",

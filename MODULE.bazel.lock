@@ -295,7 +295,8 @@
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_shell/0.2.0/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_shell/0.4.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.1.0/MODULE.bazel": "fd7541eb2e5ee8bf67c2d3d488bee1d704780908be59a74ea66c08a553db978e",
-    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.1.0/source.json": "fdf07b1d311f2e1604cb0419f1abfb8e946b68ed4fe4475deabac654c63cfdd0",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.1/MODULE.bazel": "d27cedc62fd965088b28d3652ea5f958854e663a86627ca4b75fdaa28cf5c300",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.1/source.json": "086584fbd4abfa31ddacd93d1de866c26a5bde3b141a6d3cfea570a9a168c9eb",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.3/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.6/MODULE.bazel": "not found",
@@ -3332,8 +3333,8 @@
     },
     "@@rules_tectonic+//tectonic:extensions.bzl%tectonic_toolchains_ext": {
       "general": {
-        "bzlTransitiveDigest": "66LRKHXKUH+q8uH6+6d+KnjoTNcZ4yYrBudzp5UEvuc=",
-        "usagesDigest": "y+yWafrxKIeof9aN3VxOg9k1k2TkRHUhgSBGsEYFE30=",
+        "bzlTransitiveDigest": "oErt/QW0CGr7iHs7iHFvCfmEYKHePePOt9fELKtfNhI=",
+        "usagesDigest": "09kIi0Ua3jNyEspxL1v1+Q9qbXHU8LURsUAMOnqb4h4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -3342,32 +3343,32 @@
             "repoRuleId": "@@rules_tectonic+//tectonic/private:tectonic_repository.bzl%tectonic_repository",
             "attributes": {
               "platform": "linux_amd64",
-              "version": "0.16.0",
-              "integrity": "sha256-u7dymLnRorkR5yXLBExdkkncZ0PwzUifTQzzSKShhJE="
+              "version": "0.16.9",
+              "integrity": "sha256-YLE6CCauetnONLSi3wa/8s/Ppt2oqRVHfAy7hOGkqQI="
             }
           },
           "tectonic_linux_arm64": {
             "repoRuleId": "@@rules_tectonic+//tectonic/private:tectonic_repository.bzl%tectonic_repository",
             "attributes": {
               "platform": "linux_arm64",
-              "version": "0.16.0",
-              "integrity": "sha256-YPhCHB2jBQzHZuJasHAVMelYPM+gbWoYT9TtkCHGtCc="
+              "version": "0.16.9",
+              "integrity": "sha256-+ao5AX29UfER/bk92iIheMvlHIGTUI/FZ7UjzHT/+cE="
             }
           },
           "tectonic_darwin_amd64": {
             "repoRuleId": "@@rules_tectonic+//tectonic/private:tectonic_repository.bzl%tectonic_repository",
             "attributes": {
               "platform": "darwin_amd64",
-              "version": "0.16.0",
-              "integrity": "sha256-BzG/VFkduy3LBuskzEImzzNWzGntO9+vul97sq9+wSY="
+              "version": "0.16.9",
+              "integrity": "sha256-ediDn6NZS/6psr8qwKBFW8xNDelWpeXEAxB+mnL3noY="
             }
           },
           "tectonic_darwin_arm64": {
             "repoRuleId": "@@rules_tectonic+//tectonic/private:tectonic_repository.bzl%tectonic_repository",
             "attributes": {
               "platform": "darwin_arm64",
-              "version": "0.16.0",
-              "integrity": "sha256-VnjinNE+srbZhWatmkKOnj/6fVxos5KOlEy9Nj0zrDY="
+              "version": "0.16.9",
+              "integrity": "sha256-7bZ8YaunaCifbaRByeb1I8+v9PiypXCFI+8pxUP46I4="
             }
           }
         },
