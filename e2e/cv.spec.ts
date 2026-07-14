@@ -28,15 +28,17 @@ test.describe('CV page', () => {
 		await expect(page.getByRole('link', { name: 'Download Précis PDF' })).toBeVisible();
 	});
 
-	test('Resume download and source links visible by default', async ({ page }) => {
+	test('Resume download link visible by default, TeX source stays scrubbed', async ({ page }) => {
 		await expect(page.getByRole('link', { name: 'Download Resume PDF' })).toBeVisible();
-		await expect(page.getByRole('link', { name: 'View TeX Source' })).toBeVisible();
+		// spear-resumes TeX sources went private (81655ce); the source link
+		// must stay off the public /cv surface.
+		await expect(page.getByRole('link', { name: 'View TeX Source' })).toHaveCount(0);
 	});
 
 	test('switching to Full CV tab updates links', async ({ page }) => {
 		await page.getByRole('button', { name: 'Full CV' }).click();
 		await expect(page.getByRole('link', { name: 'Download Full CV PDF' })).toBeVisible();
-		await expect(page.getByRole('link', { name: 'View TeX Source' })).toBeVisible();
+		await expect(page.getByRole('link', { name: 'View TeX Source' })).toHaveCount(0);
 	});
 
 	test('PDF iframe is present', async ({ page }) => {
