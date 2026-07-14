@@ -316,6 +316,11 @@ content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security 0.3.1.
 - The ActivityPub federation and RBE initiative combines two independent
   axes. Streaming/display progress must not be used as outbound-delivery
   progress.
+- Each of those initiatives has a completed duplicate parking record with a
+  near-identical name. The canonical Mothership initiative is
+  `d3995f72-f1a4-415d-818c-cde93df767d3`; the canonical AP/RBE initiative is
+  `28bd82da-48b0-41a4-bfcb-73e7d668a077`. Do not attach work to the completed
+  duplicates or read their completion as program completion.
 - Presence and Narrative is an umbrella. Current execution has moved to the
   Mothership project.
 - Pulse Lifecycle MVP is completed only at the M1/M1.5 projection and shadow
