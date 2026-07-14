@@ -84,8 +84,8 @@ lifecycle, or moderation behavior.
 ### Package Repositories And Registry
 
 `tinyland-auth`, `tinyland-invitation`, `tinyland-content`,
-`tinyland-content-types`, and `tinyland-security` are reusable source and
-release authorities. The registry repository is
+`tinyland-content-types`, `tinyland-security`, and `tinyland-activitypub` are
+reusable source and release authorities. The registry repository is
 `tinyland-inc/bazel-registry`.
 
 A package release is not mothership adoption. A mothership pin is not a
@@ -147,9 +147,17 @@ Run `29357986080` reproduced the Bazel-heap failure at 1536 MiB while the live
 runner remained below 3.6 GiB RSS. The corrected head assigns 2560 MiB to Bazel
 and 1024 MiB to its one serialized Node action, and restarts the Bazel server
 between workflow phases so retained analysis state cannot accumulate across
-the entire job. The scheduled production-health workflow remained green on
-the same base commit, including run `29347653781`. Merge, deployment,
-production health, and whole-repository CI remain independent signals.
+the entire job. Capacity run `29359644809` then passed every phase in 45m22s;
+the complete runner pod peaked at 6,640 MiB and fell below 1 GiB after Bazel
+shutdown. Exact-head run `29362660354` passed every required check on commit
+`7a4cfcd`, including the initial substrate attachment, four phase-local
+credential refreshes, and all 330 Playwright cases. Pull request #228 merged
+that head as commit `a97ce361`. Its trusted-`main` run `29364671782` then
+passed hosted build, substrate-boundary, and the complete remote gate on the
+merge commit, exercising the separate cache-write path through check, test,
+and e2e. The scheduled production-health workflow remained green on the prior
+base commit, including run `29347653781`. Merge, deployment, production
+health, and whole-repository CI remain independent signals.
 
 ## Ratified Decisions
 
@@ -179,8 +187,14 @@ The following were not ratified or not completed:
   a draft decision packet, not an implemented custody system.
 - **Public Fediverse delivery:** no live evidence demonstrates a signed post
   reaching a real remote follower.
-- **TIN-2731 key rotation:** the advertised pull-request key was not installed.
-  Its recorded private-key scratch artifact no longer exists.
+- **TIN-2731 key rotation:** normalized SPKI SHA-256 comparison found pull
+  request #719's proposed public key
+  (`5f9279a949939b0e7b53bf28f1520191875258714deffd0a71523b58d84d48ac`)
+  differs from the live actor key
+  (`cd4a49fe889ffa997ec0100a8bfa3cbeebefd815c131c4c1550af25fb5b53737`).
+  The audit did not inspect private material, and the recorded session-only
+  scratch custody could not be verified. Hold the rotation until matching
+  private custody and an atomic cutover are established.
 
 ## Critical Contradiction Ledger
 
@@ -195,10 +209,10 @@ The following were not ratified or not completed:
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
 | TIN-1119's former Done state proved public ActivityPub delivery | Its acceptance explicitly leaves live peer delivery, follower custody, moderation, and operator proof open; Linear reopened it to In Progress on 2026-07-14. | The status drift was corrected, not the capability. TIN-2416 remains the urgent proof gate. |
-| Pull request #719 is ready to merge | Its public key fingerprint differs from live; the only recorded matching private artifact is missing. | Unsafe. Generate a new pair under durable custody before updating public material. |
+| Pull request #719 is ready to merge | Its normalized public-key fingerprint differs from live, and matching private custody was not verifiable from the recorded session-only handoff. | Unsafe. Prove durable matching custody and an atomic cutover; generate a new pair if that proof cannot be recovered. |
 | Pull request #701 is the package-adoption keystone | Pull request #731 supersedes its package pins; only the shared rate-limit-store slice remains unique. | Extract or re-author the unique slice on the current base. Do not merge stale pins. |
 | Pulse M1 completion means federation shipped | The milestone explicitly excludes real delivery. | False. |
-| GitHub Pages is production | Cloudflare Pages is production; README prose says this, but one diagram still says GitHub Pages. | Fix the stale diagram. |
+| GitHub Pages is production | Cloudflare Pages is production; this audit corrects the stale README diagram while preserving GitHub Pages as rollback. | False. Keep the diagram, runbook, and declared DNS posture aligned. |
 | tinyland.dev issue #664 proves current broker drift | The 140 published spoke slugs and 140 live broker slugs now match exactly. | Closed the one-shot alarm as resolved; a new drift needs new evidence. |
 | Runner cancellation proves a code failure | Several heavy jobs ended through ARC pod loss after prior steps passed. | Classify each run from job and step evidence before rerunning or debugging. |
 | The blog WebFinger route resolves arbitrary actors | It ignores the requested resource and returns one fixed Jess delegation. | Describe it as fixed single-identity discovery. |
@@ -208,6 +222,9 @@ The following were not ratified or not completed:
 
 ### Blog
 
+- **#228:** merged after exact-head CI proved the bounded shared-cache contract
+  and all browser tests. Its separate trusted-`main` run passed and is the
+  cache-write proof; the pull-request run alone did not exercise that path.
 - **#217:** remains a shadow-only tiered reader and blended stream experiment.
   Its latest hosted/build checks passed, but the Bazel gate ended during
   `Remote check` with no completed-step diagnostic; it is not currently green.
@@ -240,8 +257,9 @@ The following were not ratified or not completed:
   sufficient.
 - **tinyland.dev #701:** package adoption is superseded by #731. Preserve only
   the unique shared rate-limit-store work and rebase it independently.
-- **tinyland.dev #719:** hold. The proposed public key has no retained matching
-  private key in the recorded custody path.
+- **tinyland.dev #719:** hold. The proposed public-key fingerprint differs from
+  live, and the audit could not verify matching private custody from the
+  session-only handoff. No private key was read during this comparison.
 - **tinyland.dev #721:** draft digest-safe staging deploy work. Treat it as
   image/deploy durability, not federation completion.
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
@@ -277,7 +295,7 @@ The following were not ratified or not completed:
 
 ## Package Snapshot
 
-The registry contains these newer releases:
+The Bazel registry contains these newer entries:
 
 - `tinyland-auth` 0.7.1
 - `tinyland-invitation` 0.2.5
@@ -308,12 +326,14 @@ The available GitHub credential lacks `read:packages`, so direct GitHub
 Packages enumeration was not available. Workflow results and npmjs checks set
 the claim boundary above.
 
-At audit time, mothership `main` already pinned `tinyland-activitypub` 0.3.1;
-the registry marks 0.2.2 through 0.2.5 yanked because they defaulted actor and
-object origins to the apex. That is a real source/release/registry/adoption
-chain, but it still does not prove deployment or live delivery. Mothership
-still pinned older versions for the other adoption wave: content 0.2.5,
-content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security 0.3.1.
+At audit time, `tinyland-activitypub` had source on its default branch, a
+published GitHub Release `v0.3.1`, a Bazel-registry 0.3.1 entry, and a 0.3.1
+pin on mothership `main`. The registry marks 0.2.2 through 0.2.5 yanked because
+they defaulted actor and object origins to the apex. That named-channel chain
+still does not prove deployment or live delivery; public npm remained at
+0.2.5. Mothership still pinned older versions for the other adoption wave:
+content 0.2.5, content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security
+0.3.1.
 
 ## Linear Reconciliation
 
@@ -388,29 +408,33 @@ during this audit. Remote GitHub content was used for the current snapshot.
 
 ## Worktree And Branch Disposition
 
-No worktrees or branches were removed during this audit.
+The audit-owned `/private/tmp/blog-gf-cache-reconcile` worktree was removed
+after #228 merged, its checkout was clean, and its exact HEAD matched the
+merged pull-request head. No branch was deleted. No operator-owned or unrelated
+agent worktree was modified.
 
 Active and meaningful:
 
 - `docs/content-federation-truth-20260714` for this audit (#226).
-- `fix/gf-shared-cache-contract` for the bounded shared-cache correction
-  (#228).
 - `shadow-ui` for blog #217.
 - `ws5-node-shadow` for open, operator-gated blog #216.
 - `footer-fix` for draft blog #140.
 - `blog-chore` for open blog #225 and `kvm-post` for open blog #224. These
   are independently owned content/ops lanes, not federation cleanup residue.
 
+Worktree presence is not pull-request authority. The `blog-chore` and
+`kvm-post` checkouts track `origin/main` instead of their actual remote
+branches; both actual branches are two commits ahead of the local checkout.
+`ws5-node-shadow` correctly tracks its remote branch but is also two commits
+behind. Those independently owned lanes were reported, not rewritten.
+
 Retired or prunable after one final unique-commit check:
 
 - Missing `/private/tmp/blog-frontdoor`, whose pull request #218 merged.
 - `gates-retry` and `gates-serial`, whose pull requests #221 and #219 merged.
 - `gates-fix`, whose pull request #227 merged, and `gates-mem`, whose pull
-  request #229 closed after its unique safeguard was folded into #228. Remove
-  neither until #228 lands and one final unique-commit check passes.
-- Locked `.claude/worktrees/agent-a20e1e149a90f570d`, whose recorded PID is
-  gone and whose branch tip is an ancestor of current `main` with no unique
-  commit.
+  request #229 closed after its unique safeguard was folded into #228. They
+  remain untouched pending an owner-side final unique-commit check.
 - Historical `worktree-wf_*` branches that are already ancestors of `main`
   and have no remote pull request.
 - Merged-PR residue under several `codex/*`, `docs/*`, `feat/*`, `fix/*`,
@@ -418,6 +442,9 @@ Retired or prunable after one final unique-commit check:
 
 Operator classification required before cleanup:
 
+- `.claude/worktrees/agent-a20e1e149a90f570d` was inspected only because the
+  user explicitly requested a worktree audit. It remains agent-owned and is
+  neither classified nor authorized for cleanup here.
 - `docs/apex-cf-pages-cutover-runbook`, `jess/activitypub-pulse-draft`,
   `jess/vite8-native`, and `week-notes-indeterminism-spring`, which retain
   unique commits despite supersession or retirement.
@@ -435,11 +462,14 @@ disposition rather than branch age alone.
 
 | Repository | Open PRs | Open issues | Branches |
 | --- | ---: | ---: | ---: |
-| `jesssullivan.github.io` | 8 | 1 | 30 |
-| `tinyland.dev` | 23 | 39 | 120 |
+| `jesssullivan.github.io` | 7 | 1 | 30 |
+| `tinyland.dev` | 25 | 37 | 122 |
 | `tinyland-auth` | 3 | 0 | 14 |
 | `tinyland-invitation` | 6 | 0 | 9 |
 | `tinyland-content` | 0 | 1 | 6 |
+| `tinyland-content-types` | 0 | 0 | 5 |
+| `tinyland-security` | 4 | 0 | 8 |
+| `tinyland-activitypub` | 0 | 0 | 4 |
 | `bazel-registry` | 4 | 1 | 30 |
 
 These counts are a point-in-time inventory, not progress metrics. Open and
@@ -448,8 +478,9 @@ merged work whose branch was never automatically deleted.
 
 ## Immediate Corrections
 
-1. Hold #719. Generate a new ActivityPub keypair only when durable private-key
-   custody and the atomic live/public-key cutover are ready.
+1. Hold #719. Prove durable private custody matching the proposed public key
+   and prepare an atomic live/public-key cutover. Generate a new pair only if
+   that matching custody cannot be recovered.
 2. Correct TIN-2731 and TIN-2648 language so unratified custody work cannot be
    read as complete.
 3. Keep TIN-2787 narrowly scoped to the resolved redirect loop; track the live
@@ -459,7 +490,8 @@ merged work whose branch was never automatically deleted.
 5. Extract #701's unique rate-limit-store slice onto the current package base;
    do not land its stale package-adoption diff.
 6. Rebaseline prompts 02, 13, and 67 before another orchestration wave.
-7. Correct the README deployment diagram. The generated, ignored search index
+7. Keep the corrected README deployment diagram aligned with Cloudflare Pages
+   production and GitHub Pages rollback. The generated, ignored search index
    was regenerated and matched the live 140-post set; it is not a committed
    fixture and needs no source change.
 8. Keep the exact 140-to-140 slug parity proof attached to closed issue #664;

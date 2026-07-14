@@ -4,8 +4,9 @@ import { GET, prerender, _WEBFINGER_RESPONSE as WEBFINGER_RESPONSE } from './+se
 /**
  * TIN-1456 / TIN-1537 doctrine: the blog apex is not an ActivityPub authority.
  * Every AP-authority link (self, aliases, subscribe) must delegate to the hub
- * projection broker (hub.tinyland.dev); the apex (tinyland.dev / the blog
- * domain) must never appear as an `application/activity+json` self target.
+ * projection broker (hub.tinyland.dev). Neither the mothership apex
+ * (tinyland.dev) nor the blog apex (transscendsurvival.org) may appear as an
+ * `application/activity+json` self target.
  */
 describe('blog webfinger JRD', () => {
 	it('is an intentionally prerendered single-identity delegate', () => {
