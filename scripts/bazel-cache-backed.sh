@@ -31,6 +31,8 @@ Environment:
     property; defaults to gloriousflywheel-rbe-linux-x86_64.
   GF_BAZEL_REMOTE_UPLOAD controls remote result uploads. Set it to false for
     cache-read-only refs and true for trusted cache-write refs; defaults to true.
+  GF_BAZEL_HOST_JVM_MAX_HEAP_MB optionally caps the Bazel server JVM heap in
+    MiB. CI sets this explicitly to fit the shared-cache runner memory limit.
   TECTONIC_CACHE_DIR optionally names an absolute, runner-local cache for
     shared-cache builds. The wrapper makes it writable inside Bazel sandboxes;
     executor-backed mode rejects this host path.
@@ -90,8 +92,10 @@ routing_args=()
 upload_args=()
 browser_args=()
 local_action_args=()
+startup_args=()
 remote_upload="${GF_BAZEL_REMOTE_UPLOAD:-true}"
 tectonic_cache_dir="${TECTONIC_CACHE_DIR:-}"
+host_jvm_max_heap_mb="${GF_BAZEL_HOST_JVM_MAX_HEAP_MB:-}"
 
 endpoint_host() {
   local endpoint="$1"
@@ -144,6 +148,15 @@ validate_runtime_value() {
   fi
 }
 
+if [[ -n ${host_jvm_max_heap_mb} ]]; then
+  if [[ ! ${host_jvm_max_heap_mb} =~ ^[0-9]+$ ]] ||
+    ((host_jvm_max_heap_mb < 256 || host_jvm_max_heap_mb > 4096)); then
+    echo "ERROR: GF_BAZEL_HOST_JVM_MAX_HEAP_MB must be an integer from 256 through 4096; got ${host_jvm_max_heap_mb}." >&2
+    exit 2
+  fi
+  startup_args+=(--host_jvm_args="-Xmx${host_jvm_max_heap_mb}m")
+fi
+
 if [[ -n ${BAZEL_REPOSITORY_CACHE:-} ]]; then
   external_fetch_args+=(--repository_cache="${BAZEL_REPOSITORY_CACHE}")
 fi
@@ -179,7 +192,7 @@ fi
 
 case "${command}" in
 info)
-  exec "${bazel_bin}" info "${external_fetch_args[@]}" "$@"
+  exec "${bazel_bin}" "${startup_args[@]}" info "${external_fetch_args[@]}" "$@"
   ;;
 *)
   bazel_config="ci-cached"
@@ -233,7 +246,7 @@ info)
   attempt=1
   while :; do
     rc=0
-    "${bazel_bin}" "${command}" \
+    "${bazel_bin}" "${startup_args[@]}" "${command}" \
       --config="${bazel_config}" \
       --remote_cache="${effective_remote_cache}" \
       "${upload_args[@]}" \
