@@ -209,7 +209,8 @@ The following were not ratified or not completed:
 | TIN-2786 blog detail is fixed in production | Package source/release exists; the live mothership detail URL is 404. | Live-incomplete. |
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
-| TIN-1119's former Done state proved public ActivityPub delivery | Its acceptance explicitly leaves live peer delivery, follower custody, moderation, and operator proof open; Linear reopened it to In Progress on 2026-07-14. | The status drift was corrected, not the capability. TIN-2416 remains the urgent proof gate. |
+| TIN-1119's Done state proves public ActivityPub delivery | Its acceptance explicitly leaves live peer delivery, follower custody, moderation, and operator proof open. On 2026-07-14 it was returned to Done only as a superseded planning record, with a banner stating that its acceptance was not met. | False. TIN-2416 is the sole urgent proof gate. |
+| Tailnet-valued `ORIGIN` / `PUBLIC_BASE_URL` prove AP identity drift | AP builders use the separate `TINYLAND_FEDERATION_ORIGIN` contract, and the live actor advertises hub-only IDs. The confirmed public defect is stale `stonewallunderground.com` output from `tinyland.dev`'s static sitemap and robots files. | Narrowed under TIN-2874; do not block the AP proof on an unobserved identity failure. |
 | Pull request #719 is ready to merge | Its normalized public-key fingerprint differs from live, and matching private custody was not verifiable from the recorded session-only handoff. | Unsafe. Prove durable matching custody and an atomic cutover; generate a new pair if that proof cannot be recovered. |
 | Pull request #701 is the package-adoption keystone | Pull request #731 supersedes its package pins; only the shared rate-limit-store slice remains unique. | Extract or re-author the unique slice on the current base. Do not merge stale pins. |
 | Pulse M1 completion means federation shipped | The milestone explicitly excludes real delivery. | False. |
@@ -264,8 +265,11 @@ The following were not ratified or not completed:
 - **tinyland.dev #721:** draft digest-safe staging deploy work. Treat it as
   image/deploy durability, not federation completion.
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
-  TIN-2416. They correct the tracker path and define a future proof packet;
-  neither is a completed live signed-peer proof.
+  TIN-2416. #737 still leaves a current glossary citation and a misleading
+  test title. #738 is not executable as written: the advertised inbox reaches
+  the generic handler rather than the follower-store/moderation proof plane,
+  and its fingerprint command does not compare normalized SPKI DER. Neither
+  draft is merged behavior or a completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
 - **tinyland-auth #41 and #42, tinyland-invitation #12 and #14:** draft
@@ -276,18 +280,21 @@ The following were not ratified or not completed:
 
 - **tinyland.dev #93:** closed as not planned on 2026-07-14 because Linear now
   owns the program. This is tracker supersession, not product completion; its
-  closing comment's TIN-1119 Done wording was superseded when Linear reopened
-  TIN-1119 thirteen minutes later.
+  closing comment's TIN-1119 Done wording is true only for tracker disposition,
+  not for the issue's unmet acceptance criteria.
 - **tinyland.dev #100:** Reply, Like, and Boost controls remain disabled across
   several current-main surfaces. The issue is still reproducible.
 - **tinyland.dev #116:** also closed as not planned in favor of Linear
   TIN-1429/TIN-2416. Its own closing record says the external Mastodon follow,
   moderation/Accept decision, follower state, and proof packet remain open.
-- **TIN-1119:** Linear reopened it from Done to In Progress at 19:17 UTC on
-  2026-07-14. Its live-delivery acceptance remains open; the state correction
-  is not public-delivery proof.
+- **TIN-1119:** Done only as a superseded planning record. Its description now
+  explicitly says the live-delivery acceptance was not met and points at
+  TIN-2416 as the sole execution gate.
 - **TIN-2416:** the newer urgent delivery issue correctly keeps public
   delivery disabled pending a live signed-peer proof.
+- **AP Federation Phase 1:** off track for its 2026-07-15 target. The project
+  still has six Backlog issues and no replacement date was invented during
+  this audit.
 - **TIN-2644 and TIN-2645:** both remain urgent Backlog. The delivery,
   moderation, and follower-Accept plane is still hardcoded to `jesssullivan`;
   a second author cannot complete a live Follow/Accept/delivery round trip.
@@ -362,9 +369,8 @@ content 0.2.5, content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security
 - TIN-2784 proves a source fix, not a live signed-Accept interop result.
 - TIN-2786 remains live-incomplete. TIN-2787 is correctly Done only for the
   redirect loop; TIN-2788 owns the remaining live user/author-resolution 404.
-- TIN-1119 was reopened to In Progress after its Done-state drift was
-  corrected. TIN-2416 is the current urgent live-proof issue and also remains
-  In Progress.
+- TIN-1119 is Done only as a superseded tracker with unmet acceptance.
+  TIN-2416 is the current urgent live-proof issue and remains In Progress.
 - TIN-2644/TIN-2645 and TIN-2680 remain open, so neither multi-author delivery
   nor the ratified role axis is live-complete.
 - TIN-2822 and TIN-2828/TIN-2829 block the current adoption program with
