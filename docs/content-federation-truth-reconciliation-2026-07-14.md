@@ -72,9 +72,10 @@ built and deployed and any required runtime state is installed.
 ### Hub: `hub.tinyland.dev`
 
 The hub currently serves dynamic blog and Pulse projection data and hosts the
-delegated ActivityPub actor document. Its public metadata explicitly says
-public Fediverse delivery is disabled. The actor outbox, followers, and
-following collections are currently empty.
+delegated ActivityPub actor document. The blog and AP demo manifests explicitly
+say public Fediverse delivery is disabled; the Pulse snapshot exposes no
+delivery-policy field. The actor outbox, followers, and following collections
+are currently empty.
 
 An inbox accepting POST-shaped traffic and a valid actor document prove
 endpoint shape. They do not prove signed delivery, remote receipt, follower
@@ -118,10 +119,12 @@ Observed on 2026-07-14:
 | `transscendsurvival.org/stream` | 404 | No production stream route. |
 | `tss.tinyland.dev/stream` | 200, `noindex,nofollow` | Shadow surface only. |
 
-The hub manifests also report `publicFediverseDelivery:false`. The blog's
-production-health suite passed its DNS, HTTPS, broker, and hydration checks.
-That does not contradict the ActivityPub findings because those checks prove
-display projection, not public Fediverse delivery.
+The blog broker and AP demo manifests report
+`publicFediverseDelivery:false`. The Pulse public snapshot carries no outbound
+delivery-policy field; that absence is not evidence of enabled or disabled
+delivery. The blog's production-health suite passed its DNS, HTTPS, broker,
+and hydration checks. That does not contradict the ActivityPub findings
+because those checks prove display projection, not public Fediverse delivery.
 
 A later live check during this audit observed a terminal 404 for both note
 representations, with no `Location` header or 307 loop. That supports TIN-2787
@@ -130,19 +133,33 @@ live: `Author not found` and `User not found` are the remaining TIN-2788
 authority failure. The mothership blog-detail URL still returns `Blog post not
 found`, so TIN-2786 remains live-incomplete.
 
-The blog's current `main` CI was also red while production health was green.
-The hosted lane passed, but two Playwright CV-link assertions failed in the
-Bazel remote lane. This is a real test failure rather than a runner-death
-signature, but it is unrelated to the healthy broker projection. Merge,
-deployment, production health, and whole-repository CI are independent signals.
+The trusted `main` run after pull request #227 (run `29326131530`, commit
+`6deec66`) was red while production health was green. Its hosted lane passed,
+but `Remote check` launched six Tectonic actions into one cold resource cache;
+relay fetches stalled while three otherwise unrelated test targets timed out.
+This was a workflow-capacity defect, not a Playwright assertion failure or a
+broker outage. Pull request #228 is the bounded shared-cache correction:
+serial Tectonic warmup, one local Bazel action at a time, and one local test
+action at a time inside the ARC runner container. Run `29352692909`
+proved the first memory split too restrictive: the pod survived, but Bazel's
+1024 MiB heap reached 5,854 of 5,858 actions and then threw a Java heap OOM.
+Run `29357986080` reproduced the Bazel-heap failure at 1536 MiB while the live
+runner remained below 3.6 GiB RSS. The corrected head assigns 2560 MiB to Bazel
+and 1024 MiB to its one serialized Node action, and restarts the Bazel server
+between workflow phases so retained analysis state cannot accumulate across
+the entire job. The scheduled production-health workflow remained green on
+the same base commit, including run `29347653781`. Merge, deployment,
+production health, and whole-repository CI remain independent signals.
 
 ## Ratified Decisions
 
 The following decisions have durable evidence:
 
 - **Hybrid ActivityPub gate (TIN-2511):** `admin.federation.deliver` is the
-  intended product authorization gate. Token and allowlist checks remain a
-  safety rail.
+  ratified product authorization gate. Token and allowlist checks remain a
+  safety rail. This is policy truth, not current runtime wiring: TIN-2680
+  records that `canDeliverPulseFederation` still has no production call site,
+  so the live worker remains handle-allowlist-gated.
 - **Tinyland user authority (TIN-2788):** Option A, the sanctioned admin-user
   record/bootstrap path, was selected. Merging the bootstrap source did not
   execute the attended runtime bootstrap.
@@ -169,7 +186,7 @@ The following were not ratified or not completed:
 
 | Prior claim or shorthand | Current evidence | Disposition |
 | --- | --- | --- |
-| "The blog is federated" | Blog and Pulse feeds are display projections; hub reports public delivery disabled. | Use "broker projection" unless remote signed delivery is proven. |
+| "The blog is federated" | Blog and Pulse feeds are display projections. Blog and AP demo manifests report public delivery disabled; Pulse exposes no delivery-policy field. | Use "broker projection" unless remote signed delivery is proven. |
 | "The blog is the AP authority" | WebFinger delegates the actor to the hub; the blog has no delivery or durable-write authority. | False. |
 | "Workflow completed" means the product goal completed | Historical workflows include errored, blocked, and plan-only lanes. | Treat workflow status as orchestration status only. |
 | A merged package fix is live | Content and invitation fixes were released, but mothership pins and deployment lagged. | Track release, adoption, deploy, and live proof separately. |
@@ -177,6 +194,7 @@ The following were not ratified or not completed:
 | TIN-2786 blog detail is fixed in production | Package source/release exists; the live mothership detail URL is 404. | Live-incomplete. |
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
+| TIN-1119 Done proves public ActivityPub delivery | Its own acceptance and latest substantive comments explicitly leave live peer delivery, follower custody, moderation, and operator proof open. | Status drift. Use urgent TIN-2416 as the active proof gate and do not infer completion from TIN-1119's state. |
 | Pull request #719 is ready to merge | Its public key fingerprint differs from live; the only recorded matching private artifact is missing. | Unsafe. Generate a new pair under durable custody before updating public material. |
 | Pull request #701 is the package-adoption keystone | Pull request #731 supersedes its package pins; only the shared rate-limit-store slice remains unique. | Extract or re-author the unique slice on the current base. Do not merge stale pins. |
 | Pulse M1 completion means federation shipped | The milestone explicitly excludes real delivery. | False. |
@@ -190,15 +208,20 @@ The following were not ratified or not completed:
 
 ### Blog
 
-- **#217:** clean and green, but remains a shadow-only tiered reader and
-  blended stream experiment. Its pull-request body still says not to merge.
-  GitHub readiness does not override that product hold. Do not describe it as
-  production federation.
+- **#217:** remains a shadow-only tiered reader and blended stream experiment.
+  Its latest hosted/build checks passed, but the Bazel gate ended during
+  `Remote check` with no completed-step diagnostic; it is not currently green.
+  Its pull-request body also says not to merge. Neither a future green rerun
+  nor GitHub mergeability would override that product hold. Do not describe it
+  as production federation.
 - **#216:** open, non-draft node-backend shadow spoke. Its description still
   says draft/operator-gated. Its latest remote gate passed token minting, then
   ended during `Remote check` without a retained source diagnostic. Restore an
   accurate hold or draft state before treating GitHub readiness as
   authorization; do not attribute that red to token minting.
+- **#224 and #225:** separate content/ops lanes, not federation completion
+  evidence. Their latest Bazel gates also ended mid-`Remote check` without a
+  completed-step diagnostic.
 - **#140 and #72:** stale drafts. Review for unique value before closing.
 - **#75:** closed, superseded ActivityPub-shaped Pulse viewer. It never had
   inbox processing, signatures, followers, delivery, or live fetch. Do not
@@ -210,9 +233,11 @@ The following were not ratified or not completed:
 ### Mothership And Packages
 
 - **tinyland.dev #731:** current adoption candidate, but security-held by
-  atomic bootstrap, fail-closed RBAC, invitation principal binding, and
-  consumer-containment work. It must also be rebuilt for the planned auth 0.8
-  and invitation 0.3 contracts. Its green CI is necessary but not sufficient.
+  atomic bootstrap (TIN-2821/TIN-2828/TIN-2829), fail-closed RBAC (TIN-2822),
+  invitation principal binding, visibility fail-close (TIN-2651/TIN-2656),
+  and consumer-containment work. It must also be rebuilt for the planned auth
+  0.8 and invitation 0.3 contracts. Its green CI is necessary but not
+  sufficient.
 - **tinyland.dev #701:** package adoption is superseded by #731. Preserve only
   the unique shared rate-limit-store work and rebase it independently.
 - **tinyland.dev #719:** hold. The proposed public key has no retained matching
@@ -233,10 +258,16 @@ The following were not ratified or not completed:
   several current-main surfaces. The issue is still reproducible.
 - **tinyland.dev #116:** real interoperability remains open. There is no proof
   packet showing a signed post delivered to an external follower.
-- **TIN-1119:** its Done state covers a controlled projection boundary, not
-  public delivery.
+- **TIN-1119:** its Done state contradicts its own still-open acceptance and
+  its latest substantive comments. Treat this as tracker drift, not as either
+  controlled-projection closure or public-delivery proof.
 - **TIN-2416:** the newer urgent delivery issue correctly keeps public
   delivery disabled pending a live signed-peer proof.
+- **TIN-2644 and TIN-2645:** both remain urgent Backlog. The delivery,
+  moderation, and follower-Accept plane is still hardcoded to `jesssullivan`;
+  a second author cannot complete a live Follow/Accept/delivery round trip.
+- **TIN-2680:** remains Backlog. The ratified role axis exists as a predicate
+  but is not called by the production worker path.
 
 ## Package Snapshot
 
@@ -289,6 +320,13 @@ the concrete release-versus-adoption gap.
 - TIN-2784 proves a source fix, not a live signed-Accept interop result.
 - TIN-2786 remains live-incomplete. TIN-2787 is correctly Done only for the
   redirect loop; TIN-2788 owns the remaining live user/author-resolution 404.
+- TIN-1119 is incorrectly Done relative to its own acceptance record. TIN-2416
+  is the current urgent live-proof issue and remains In Progress.
+- TIN-2644/TIN-2645 and TIN-2680 remain open, so neither multi-author delivery
+  nor the ratified role axis is live-complete.
+- TIN-2822 and TIN-2828/TIN-2829 block the current adoption program with
+  fail-closed role translation and tenant-atomic bootstrap work. TIN-2651
+  separately keeps second-author visibility behind a fail-closed content gate.
 
 Linear issues in this area do not use release associations. Release and
 deployment truth currently live in prose and attachments, which makes status
@@ -332,16 +370,25 @@ No worktrees or branches were removed during this audit.
 
 Active and meaningful:
 
+- `docs/content-federation-truth-20260714` for this audit (#226).
+- `fix/gf-shared-cache-contract` for the bounded shared-cache correction
+  (#228).
 - `shadow-ui` for blog #217.
 - `ws5-node-shadow` for open, operator-gated blog #216.
 - `footer-fix` for draft blog #140.
+- `blog-chore` for open blog #225 and `kvm-post` for open blog #224. These
+  are independently owned content/ops lanes, not federation cleanup residue.
 
 Retired or prunable after one final unique-commit check:
 
 - Missing `/private/tmp/blog-frontdoor`, whose pull request #218 merged.
 - `gates-retry` and `gates-serial`, whose pull requests #221 and #219 merged.
-- Locked `.claude/worktrees/agent-a20e1e149a90f570d`, whose PID is gone and
-  branch equals current `main`.
+- `gates-fix`, whose pull request #227 merged, and `gates-mem`, whose pull
+  request #229 closed after its unique safeguard was folded into #228. Remove
+  neither until #228 lands and one final unique-commit check passes.
+- Locked `.claude/worktrees/agent-a20e1e149a90f570d`, whose recorded PID is
+  gone and whose branch tip is an ancestor of current `main` with no unique
+  commit.
 - Historical `worktree-wf_*` branches that are already ancestors of `main`
   and have no remote pull request.
 - Merged-PR residue under several `codex/*`, `docs/*`, `feat/*`, `fix/*`,
@@ -366,8 +413,8 @@ disposition rather than branch age alone.
 
 | Repository | Open PRs | Open issues | Branches |
 | --- | ---: | ---: | ---: |
-| `jesssullivan.github.io` | 4 | 1 | 26 |
-| `tinyland.dev` | 23 | 40 | 119 |
+| `jesssullivan.github.io` | 8 | 1 | 30 |
+| `tinyland.dev` | 23 | 39 | 120 |
 | `tinyland-auth` | 3 | 0 | 14 |
 | `tinyland-invitation` | 6 | 0 | 9 |
 | `tinyland-content` | 0 | 1 | 6 |
