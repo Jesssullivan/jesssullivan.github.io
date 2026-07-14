@@ -169,6 +169,11 @@ info)
       --remote_default_exec_properties="gf.platform=${remote_execution_platform}"
     )
   fi
+  # GF cache-read tokens (PR refs) cannot upload; skip the writes rather
+  # than spraying per-action upload warnings against the denied scope.
+  if [[ ${GF_BAZEL_CACHE_ROLE:-} == "read-only" ]]; then
+    executor_args+=(--remote_upload_local_results=false)
+  fi
   configure_gf_reapi_credentials "${remote_executor:-${effective_remote_cache}}"
   if [[ -n ${BAZEL_REMOTE_INSTANCE_NAME:-} ]]; then
     validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
