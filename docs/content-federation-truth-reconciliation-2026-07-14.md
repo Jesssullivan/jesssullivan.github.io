@@ -255,12 +255,15 @@ The following were not ratified or not completed:
 
 ## Federation Tracker Disposition
 
-- **tinyland.dev #93:** the ActivityPub epic remains open. Its checklist is
-  stale, but the remaining product goal is valid.
+- **tinyland.dev #93:** closed as not planned on 2026-07-14 because Linear now
+  owns the program. This is tracker supersession, not product completion; its
+  closing comment's TIN-1119 Done wording was superseded when Linear reopened
+  TIN-1119 thirteen minutes later.
 - **tinyland.dev #100:** Reply, Like, and Boost controls remain disabled across
   several current-main surfaces. The issue is still reproducible.
-- **tinyland.dev #116:** real interoperability remains open. There is no proof
-  packet showing a signed post delivered to an external follower.
+- **tinyland.dev #116:** also closed as not planned in favor of Linear
+  TIN-1429/TIN-2416. Its own closing record says the external Mastodon follow,
+  moderation/Accept decision, follower state, and proof packet remain open.
 - **TIN-1119:** Linear reopened it from Done to In Progress at 19:17 UTC on
   2026-07-14. Its live-delivery acceptance remains open; the state correction
   is not public-delivery proof.
