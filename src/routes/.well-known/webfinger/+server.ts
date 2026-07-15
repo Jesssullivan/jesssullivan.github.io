@@ -1,11 +1,9 @@
 export const prerender = true;
 
-// The blog (transscendsurvival.org) is NOT an ActivityPub authority. The apex
-// must never present itself as one (TIN-1456 / TIN-1537). The canonical actor
-// lives on the hub projection broker (hub.tinyland.dev), which owns the AP
-// identity, inbox/outbox, and follower ledger. This JRD therefore delegates
-// every AP-authority link to the hub actor; only the human-facing profile page
-// stays on the blog domain.
+// This prerendered fallback cannot inspect WebFinger's required `resource`
+// query parameter and is not a standards-compliant resolver (TIN-2880). The
+// blog is not an ActivityPub authority (TIN-1456 / TIN-1537). The JRD points
+// at the hub actor projection; endpoint shape is not delivery proof.
 const HUB_ACTOR = 'https://hub.tinyland.dev/@jesssullivan';
 const HUB_AUTHORIZE_INTERACTION = 'https://hub.tinyland.dev/authorize_interaction?uri={uri}';
 

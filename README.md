@@ -86,13 +86,16 @@ flowchart LR
     StaticChecks --> Browser["Playwright smoke or regression"]
     Browser --> Lighthouse["Lighthouse report-only"]
 
-    Main --> Pages["GitHub Pages deploy"]
-    Pages --> Prod["transscendsurvival.org"]
+    Main --> CfProd["Cloudflare Pages production deploy"]
+    CfProd --> Prod["transscendsurvival.org"]
+
+    Main --> Pages["GitHub Pages rollback deploy"]
+    Pages --> Rollback["jesssullivan.github.io"]
     Pages --> Profile["profile refresh dispatch"]
 
-    Main --> CfShadow["Cloudflare Pages shadow"]
-    CfShadow --> Tss["tss.tinyland.dev"]
-    CfShadow --> Ephemera["tss.ephemera.tinyland.dev"]
+    PR --> CfBuild["Cloudflare Pages build-only check"]
+    Manual["manual branch dispatch"] --> CfShadow["Cloudflare Pages branch deploy"]
+    CfShadow --> Shadow["branch-specific shadow URL"]
 
     PR --> Preview["shadow preview"]
     Preview --> SourceImage["public source image"]
