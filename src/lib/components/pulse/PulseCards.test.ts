@@ -78,6 +78,30 @@ describe('Pulse cards', () => {
 	});
 });
 
+describe('Pulse card editorial salience surface', () => {
+	it('shows a TierBadge on a note card only when salience is present', () => {
+		const withSalience = render(PulseNoteCard, {
+			props: { item: { ...noteItem, salience: 'noteworthy' } },
+		});
+		expect(withSalience.html).toContain('data-testid="tier-badge"');
+		expect(withSalience.html).toContain('aria-label="Editorial tier: Noteworthy"');
+
+		const withoutSalience = render(PulseNoteCard, { props: { item: noteItem } });
+		expect(withoutSalience.html).not.toContain('tier-badge');
+	});
+
+	it('shows a TierBadge on a bird card only when salience is present', () => {
+		const withSalience = render(PulseBirdCard, {
+			props: { item: { ...birdItem, salience: 'less-noteworthy' } },
+		});
+		expect(withSalience.html).toContain('data-testid="tier-badge"');
+		expect(withSalience.html).toContain('data-tier="less-noteworthy"');
+
+		const withoutSalience = render(PulseBirdCard, { props: { item: birdItem } });
+		expect(withoutSalience.html).not.toContain('tier-badge');
+	});
+});
+
 describe('Pulse lab policy result rendering', () => {
 	it('renders allowed projection decisions', () => {
 		const decision: PolicyDecision = { allowed: true, item: noteItem };
