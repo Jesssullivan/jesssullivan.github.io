@@ -109,6 +109,7 @@ Observed on 2026-07-14:
 | `tinyland.dev/blog/week-notes-scroll-wheels-and-chasing-the-sun` | 404 | The mothership detail fix is not live. |
 | `tinyland.dev/@jesssullivan/notes/2026-04-26-cardinals-before-dawn` with browser HTML Accept | 404 `User not found` | The redirect loop is absent, but user authority still does not resolve. |
 | The same note with ActivityPub Accept | 404 `Author not found` | The redirect loop is absent, but actor/user authority still does not resolve. |
+| The same note with wildcard/default Accept | 307 to the identical request path | PR #717's terminal-response source fix is not deployed; generic clients still loop. |
 | `tinyland.dev/@jesssullivan` with ActivityPub Accept | 200 | The mothership exposes an actor-shaped response. |
 | `tinyland.dev/@jesssullivan/outbox` | 404 | The mothership is not the working public outbox authority. |
 | `hub.tinyland.dev/@jesssullivan` with ActivityPub Accept | 200 | This is the delegated actor endpoint. |
@@ -127,12 +128,14 @@ delivery. The blog's production-health suite passed its DNS, HTTPS, broker,
 and hydration checks. That does not contradict the ActivityPub findings
 because those checks prove display projection, not public Fediverse delivery.
 
-A later live check during this audit observed a terminal 404 for both note
-representations, with no `Location` header or 307 loop. That supports TIN-2787
-being Done for its narrow redirect-loop defect. It does not make the note route
-live: `Author not found` and `User not found` are the remaining TIN-2788
-authority failure. The mothership blog-detail URL still returns `Blog post not
-found`, so TIN-2786 remains live-incomplete.
+A later live check during this audit observed terminal 404 responses for
+explicit browser and ActivityPub Accept values, but wildcard/default Accept
+still returned 307 with a `Location` identical to the request path. PR #717
+merged the correct terminal-response source fix, but production has not adopted
+it. TIN-2787 is therefore source-fixed and deployment-incomplete; TIN-2788
+separately owns the `Author not found` and `User not found` authority failure.
+The mothership blog-detail URL still returns `Blog post not found`, so TIN-2786
+remains live-incomplete.
 
 The trusted `main` run after pull request #227 (run `29326131530`, commit
 `6deec66`) was red while production health was green. Its hosted lane passed,
@@ -205,7 +208,7 @@ The following were not ratified or not completed:
 | "The blog is the AP authority" | The blog has no delivery or durable-write authority. Its static WebFinger file points at the hub but is not resource-aware. | False. |
 | "Workflow completed" means the product goal completed | Historical workflows include errored, blocked, and plan-only lanes. | Treat workflow status as orchestration status only. |
 | A merged package fix is live | Content and invitation fixes were released, but mothership pins and deployment lagged. | Track release, adoption, deploy, and live proof separately. |
-| TIN-2787 Done means the note route works | Current live requests terminate without the former 307 loop, but still return `Author not found` or `User not found`. | Keep TIN-2787 Done narrowly; route availability remains TIN-2788. |
+| TIN-2787 Done means the redirect fix is live | PR #717 merged the source fix, but wildcard/default live requests still 307 to the identical URL. | False. TIN-2787 is back In Progress until a deployed-image canary passes; user/author resolution remains TIN-2788. |
 | TIN-2786 blog detail is fixed in production | Package source/release exists; the live mothership detail URL is 404. | Live-incomplete. |
 | TIN-2788 bootstrap merged means the user exists | Pull request #720 merged; the attended bootstrap was not run. | Runtime-incomplete. |
 | TIN-2648 Option B is ratified | Linear is in progress; #702 says merge would be the ratification event. | False. |
@@ -370,8 +373,9 @@ content 0.2.5, content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security
 - TIN-2780 and TIN-2781 prove package source/release work, not mothership
   adoption.
 - TIN-2784 proves a source fix, not a live signed-Accept interop result.
-- TIN-2786 remains live-incomplete. TIN-2787 is correctly Done only for the
-  redirect loop; TIN-2788 owns the remaining live user/author-resolution 404.
+- TIN-2786 remains live-incomplete. TIN-2787 is source-fixed by merged #717
+  but is back In Progress because the wildcard/default production request still
+  self-redirects. TIN-2788 owns the separate live user/author-resolution 404.
 - TIN-1119 is Done only as a superseded tracker with unmet acceptance.
   TIN-2416 is the current urgent live-proof issue and remains In Progress.
 - TIN-2644/TIN-2645 and TIN-2680 remain open, so neither multi-author delivery
@@ -484,8 +488,9 @@ merged work whose branch was never automatically deleted.
    that matching custody cannot be recovered.
 2. Correct TIN-2731 and TIN-2648 language so unratified custody work cannot be
    read as complete.
-3. Keep TIN-2787 narrowly scoped to the resolved redirect loop; track the live
-   user/author-resolution 404 under TIN-2788.
+3. Deploy and canary PR #717's TIN-2787 terminal-response fix after the
+   TIN-2801 freeze permits it; keep the separate user/author-resolution 404
+   under TIN-2788.
 4. Keep #731 draft until its security prerequisite pull requests and consumer
    containment checks are satisfied.
 5. Extract #701's unique rate-limit-store slice onto the current package base;
