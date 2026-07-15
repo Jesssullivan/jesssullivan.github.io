@@ -21,30 +21,24 @@ on:
       - ready_for_review
   workflow_dispatch:
     inputs:
-      ref:
-        description: "Branch, tag, or SHA to publish to the shadow route"
-        required: false
       source_runner:
         description: "Runner for the public source image build"
         required: false
         default: "tinyland-dind"
 
-permissions:
-  contents: read
-  packages: write
-  pull-requests: read
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
   DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
-  REQUESTED_REF: ${{ inputs.ref || '' }}
   SOURCE_RUNNER: ${{ inputs.source_runner || vars.BLOG_SHADOW_SOURCE_RUNNER || 'tinyland-dind' }}
 
 jobs:
   resolve:
     name: Resolve preview target
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       deploy: ${{ steps.target.outputs.deploy }}
       ref: ${{ steps.target.outputs.ref }}
@@ -89,16 +83,10 @@ jobs:
                 prNumber = String(pr.number);
               }
             } else if (eventName === "workflow_dispatch") {
-              const requestedRef = process.env.REQUESTED_REF || context.ref.replace(/^refs\/heads\//, "");
-              const commit = await github.rest.repos.getCommit({
-                owner,
-                repo,
-                ref: requestedRef,
-              });
               deploy = true;
-              ref = commit.data.sha;
-              sha = commit.data.sha;
-              branch = requestedRef;
+              ref = context.sha;
+              sha = context.sha;
+              branch = context.ref.replace(/^refs\/(heads|tags)\//, "");
             } else {
               core.notice(`Skipping unsupported event ${eventName}.`);
             }
@@ -124,6 +112,9 @@ jobs:
     needs: resolve
     if: needs.resolve.outputs.deploy == 'true'
     runs-on: ${{ needs.resolve.outputs.source_runner }}
+    permissions:
+      contents: read
+      packages: write
     concurrency:
       group: blog-shadow-preview
       cancel-in-progress: true
@@ -154,6 +145,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push source image
+        id: source_image
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -164,6 +156,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
+
+      - name: Require immutable source digest
+        env:
+          SOURCE_DIGEST: ${{ steps.source_image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${SOURCE_DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Build did not return a valid OCI digest."
+            exit 1
+          fi
 
       - name: Trivy scan (report-only for shadow preview)
         # v0.36.0; keep this action pinned because the shadow lane has deploy credentials nearby.
@@ -183,6 +185,7 @@ jobs:
           IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
           SOURCE_BRANCH: ${{ needs.resolve.outputs.branch }}
           SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
+          SOURCE_DIGEST: ${{ steps.source_image.outputs.digest }}
           PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
         with:
           github-token: ${{ secrets.BLOG_SHADOW_DISPATCH_TOKEN }}
@@ -198,6 +201,7 @@ jobs:
                 image_tag: process.env.IMAGE_TAG,
                 source_branch: process.env.SOURCE_BRANCH,
                 source_sha: process.env.SOURCE_SHA,
+                source_digest: process.env.SOURCE_DIGEST,
                 pr_number: process.env.PR_NUMBER,
                 source_workflow_run_id: String(context.runId),
               },
@@ -211,6 +215,7 @@ jobs:
             echo "- Source image: \`${SOURCE_IMAGE}:${{ needs.resolve.outputs.image_tag }}\`"
             echo "- Branch: \`${{ needs.resolve.outputs.branch }}\`"
             echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
+            echo "- Source digest: \`${{ steps.source_image.outputs.digest }}\`"
             echo "- PR: \`${{ needs.resolve.outputs.pr_number || 'manual' }}\`"
             echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo "- Deploy repo: \`${DEPLOY_REPOSITORY}\`"

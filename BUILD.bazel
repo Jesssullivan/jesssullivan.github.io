@@ -305,6 +305,13 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+sh_test(
+    name = "shadow_preview_digest_contract",
+    srcs = ["scripts/test-shadow-preview-digest-contract.sh"],
+    data = [".github/workflows/shadow-preview.yml"],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -324,6 +331,7 @@ exports_files(
         "scripts/run-sveltekit-check-bazel.mjs",
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
+        "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",
