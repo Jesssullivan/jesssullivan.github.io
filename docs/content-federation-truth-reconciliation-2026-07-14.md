@@ -191,14 +191,16 @@ The following were not ratified or not completed:
   a draft decision packet, not an implemented custody system.
 - **Public Fediverse delivery:** no live evidence demonstrates a signed post
   reaching a real remote follower.
-- **TIN-2731 key rotation:** normalized SPKI SHA-256 comparison found pull
-  request #719's proposed public key
+- **TIN-2731 key lineage and custody:** normalized SPKI SHA-256 comparison
+  found pull request #719's proposed public key
   (`5f9279a949939b0e7b53bf28f1520191875258714deffd0a71523b58d84d48ac`)
   differs from the live actor key
   (`cd4a49fe889ffa997ec0100a8bfa3cbeebefd815c131c4c1550af25fb5b53737`).
-  The audit did not inspect private material, and the recorded session-only
-  scratch custody could not be verified. Hold the rotation until matching
-  private custody and an atomic cutover are established.
+  Current evidence does not show that the installed `cd4a...` pair was
+  exposed. The audit did not inspect private material, and durable custody
+  could not be verified. Hold #719 until the operator ratifies either retaining
+  `cd4a...` with proven escrow or rotating atomically to a proven replacement;
+  require four-surface fingerprint convergence for the selected pair.
 
 ## Critical Contradiction Ledger
 
@@ -267,11 +269,12 @@ The following were not ratified or not completed:
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
   TIN-2416. #737 head `c251074f1` now emits TIN-2416 as the sole current gate,
   while TIN-1119 remains solely as dated history or roster provenance. #738
-  head `6dc94a6` now hashes normalized SPKI DER, closing that earlier review
-  finding, but the runbook is still not executable: the advertised inbox
-  reaches the generic handler rather than the follower-store/moderation proof
-  plane, its routing decision is unimplemented, TIN-2801 remains frozen, and
-  key convergence is still gated. Neither draft is merged behavior or a
+  head `237adba90` preserves normalized SPKI DER hashing and now explicitly
+  labels itself a non-executable proof specification. It corrects the ConfigMap
+  apply and rollback surface, makes the advertised-inbox/proof-plane seam a hard
+  gate, requires bounded retry/drain evidence, and adds final NodeInfo/public-copy
+  reconciliation. TIN-2801, TIN-2731, TIN-2883, the route convergence, and every
+  live peer proof still remain open. Neither draft is merged behavior or a
   completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
@@ -483,9 +486,11 @@ merged work whose branch was never automatically deleted.
 
 ## Immediate Corrections
 
-1. Hold #719. Prove durable private custody matching the proposed public key
-   and prepare an atomic live/public-key cutover. Generate a new pair only if
-   that matching custody cannot be recovered.
+1. Hold #719. Ratify either durable custody for the installed `cd4a...` pair or
+   an atomic cutover to a proven replacement, then converge the checked-in,
+   runtime public, runtime private-derived, and served actor fingerprints. An
+   `Update{Person}` broadcast is required only when the selected public key
+   changes.
 2. Correct TIN-2731 and TIN-2648 language so unratified custody work cannot be
    read as complete.
 3. Deploy and canary PR #717's TIN-2787 terminal-response fix after the
