@@ -230,7 +230,8 @@ The following were not ratified or not completed:
 - **#217:** remains a shadow-only tiered reader and blended stream experiment.
   All required checks on head `bc08910b1` are green, but its pull-request body
   still says not to merge and its live inputs still lack reviewed tier/salience
-  values. Green CI is not product promotion. Keep it shadow-only and do not
+  values. TIN-2891 now owns that missing producer-data contract and blocks
+  TIN-2641. Green CI is not product promotion. Keep it shadow-only and do not
   describe it as production federation.
 - **#216:** merged at `0907bb6e` on 2026-07-14. Main now carries the
   node-backend shadow-spoke scaffold, but merge is not runtime promotion and
@@ -290,7 +291,9 @@ The following were not ratified or not completed:
   explicitly says the live-delivery acceptance was not met and points at
   TIN-2416 as the sole execution gate.
 - **TIN-2416:** the newer urgent delivery issue correctly keeps public
-  delivery disabled pending a live signed-peer proof.
+  delivery disabled pending a live signed-peer proof. Its blocker graph now
+  includes TIN-1427 for the still-unmet advertised-inbox to follower-store,
+  moderation, and durable Follow/Accept/Undo seam.
 - **AP Federation Phase 1:** off track for its 2026-07-15 target. The project
   has seven Backlog issues, including TIN-2883 for the newly confirmed stale
   worker manifest/test contract. No replacement date was invented during this
