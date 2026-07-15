@@ -325,10 +325,20 @@
 	aria-label="Trans Scend Survival"
 >
 	<div class="mast-ctl">
-		<button type="button" aria-pressed={showB} onclick={toggleState}>
+		<button
+			type="button"
+			aria-pressed={showB}
+			aria-label={showB ? 'Show heron header' : 'Show constellation'}
+			onclick={toggleState}
+		>
 			{showB ? '◐ heron' : '◑ constellation'}
 		</button>
-		<button type="button" aria-pressed={paused} onclick={togglePause}>
+		<button
+			type="button"
+			aria-pressed={paused}
+			aria-label={paused ? 'Resume masthead oscillation' : 'Pause masthead oscillation'}
+			onclick={togglePause}
+		>
 			{reduced ? '▶ motion off' : paused ? '▶ play' : '⏸ pause'}
 		</button>
 	</div>
