@@ -228,19 +228,15 @@ The following were not ratified or not completed:
   and all browser tests. Its separate trusted-`main` run passed and is the
   cache-write proof; the pull-request run alone did not exercise that path.
 - **#217:** remains a shadow-only tiered reader and blended stream experiment.
-  Its latest hosted/build checks passed, but the Bazel gate ended during
-  `Remote check` with no completed-step diagnostic; it is not currently green.
-  Its pull-request body also says not to merge. Neither a future green rerun
-  nor GitHub mergeability would override that product hold. Do not describe it
-  as production federation.
-- **#216:** open, non-draft node-backend shadow spoke. Its description still
-  says draft/operator-gated. Its latest remote gate passed token minting, then
-  ended during `Remote check` without a retained source diagnostic. Restore an
-  accurate hold or draft state before treating GitHub readiness as
-  authorization; do not attribute that red to token minting.
+  All required checks on head `bc08910b1` are green, but its pull-request body
+  still says not to merge and its live inputs still lack reviewed tier/salience
+  values. Green CI is not product promotion. Keep it shadow-only and do not
+  describe it as production federation.
+- **#216:** merged at `0907bb6e` on 2026-07-14. Main now carries the
+  node-backend shadow-spoke scaffold, but merge is not runtime promotion and
+  does not make the blog an ActivityPub or Tinyland write authority.
 - **#224 and #225:** separate content/ops lanes, not federation completion
-  evidence. Their latest Bazel gates also ended mid-`Remote check` without a
-  completed-step diagnostic.
+  evidence. #224 remains open; #225 merged at `084ca03b` on 2026-07-14.
 - **#140 and #72:** stale drafts. Review for unique value before closing.
 - **#75:** closed, superseded ActivityPub-shaped Pulse viewer. It never had
   inbox processing, signatures, followers, delivery, or live fetch. Do not
@@ -265,14 +261,14 @@ The following were not ratified or not completed:
 - **tinyland.dev #721:** draft digest-safe staging deploy work. Treat it as
   image/deploy durability, not federation completion.
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
-  TIN-2416. #737 head `98c2f8be6` still emits TIN-1429 as a live gate; before
-  it merges, current gates must point only at TIN-2416 while TIN-1119 remains
-  solely as dated history or roster provenance. #738 head `6dc94a6` now hashes
-  normalized SPKI DER, closing that earlier review finding, but the runbook is
-  still not executable: the advertised inbox reaches the generic handler
-  rather than the follower-store/moderation proof plane, its routing decision
-  is unimplemented, TIN-2801 remains frozen, and key convergence is still
-  gated. Neither draft is merged behavior or a completed live signed-peer proof.
+  TIN-2416. #737 head `c251074f1` now emits TIN-2416 as the sole current gate,
+  while TIN-1119 remains solely as dated history or roster provenance. #738
+  head `6dc94a6` now hashes normalized SPKI DER, closing that earlier review
+  finding, but the runbook is still not executable: the advertised inbox
+  reaches the generic handler rather than the follower-store/moderation proof
+  plane, its routing decision is unimplemented, TIN-2801 remains frozen, and
+  key convergence is still gated. Neither draft is merged behavior or a
+  completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
 - **tinyland-auth #41 and #42, tinyland-invitation #12 and #14:** draft
@@ -351,9 +347,9 @@ content 0.2.5, content-types 0.2.4, auth 0.6.0, invitation 0.2.3, and security
 
 - The Mothership Beta/Prod initiative is the active implementation umbrella
   and remains at risk.
-- The ActivityPub federation and RBE initiative combines two independent
-  axes. Streaming/display progress must not be used as outbound-delivery
-  progress.
+- The ActivityPub federation and RBE initiative combines three independent
+  axes: outbound delivery, streaming/display product, and RBE/spoke CI.
+  Progress on any one must not be used as completion evidence for another.
 - Each of those initiatives has a completed duplicate parking record with a
   near-identical name. The canonical Mothership initiative is
   `d3995f72-f1a4-415d-818c-cde93df767d3`; the canonical AP/RBE initiative is
