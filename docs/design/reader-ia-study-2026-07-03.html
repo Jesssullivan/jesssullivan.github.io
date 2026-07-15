@@ -1,0 +1,1236 @@
+<style>
+  /* ================================================================
+     tinyland.dev — /posts + /pulse design study
+     Self-contained: system fonts only, no CDN, no external assets.
+     ONE system, TWO registers:
+       · PRINTED / PERMANENT — warm parchment + field-ink serif
+         (noteworthy + less-noteworthy: the blog tiers)
+       · LIVE / OBSERVED — deep ink-teal night + mono
+         (pulse rail, ticker, planetarium)
+     Plumage accents carry meaning:
+       cardinal  = noteworthy / promoted
+       heron     = less-noteworthy / everyday  (and the night-surface tone)
+       goldfinch = pulse / live / liveness highlight
+     ================================================================ */
+
+  :root {
+    /* ---- LIVE / night register (page ground + pulse + planetarium) ---- */
+    --night:      #141A1E;   /* deep ink-teal — NOT black */
+    --night-2:    #0E1316;   /* deeper, planetarium canvas */
+    --night-3:    #1A2228;   /* raised night panel */
+    --night-line: #2A353C;
+    --night-line2:#39474F;
+    --night-text: #E7E1D2;   /* moonlit-parchment light */
+    --night-mut:  #A6ADA2;
+    --night-faint:#727C77;
+
+    /* ---- PRINTED / paper register (reading surfaces) ---- */
+    --paper:   #F1EAD9;      /* parchment */
+    --paper-2: #E8DFC8;      /* deeper parchment inset */
+    --paper-3: #DFD4B8;
+    --ink:     #20241F;      /* warm near-black, faint green bias */
+    --ink-2:   #40423A;      /* secondary ink */
+    --ink-3:   #55584C;      /* readable tertiary on paper */
+    --paper-line: #D6CBB0;   /* hairline on paper */
+    --taupe:   #8A8676;      /* warm neutral */
+
+    /* ---- plumage ---- */
+    --cardinal:  #B23A2E;    /* noteworthy / promoted */
+    --cardinal-2:#8F2C22;
+    --heron:     #3E5C6B;    /* less-noteworthy / everyday */
+    --heron-lt:  #7CA0B0;    /* lightened heron for night surfaces */
+    --goldfinch: #C9A227;    /* pulse / live / highlight */
+    --goldfinch-lt:#E3C24E;
+
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+    --mono:  ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Code", Consolas, monospace;
+
+    --shadow-paper: 0 14px 34px -20px rgba(0,0,0,.65), 0 1px 0 rgba(255,255,255,.35) inset;
+    --shadow-night: 0 18px 44px -22px rgba(0,0,0,.85);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--night);
+    color: var(--night-text);
+    font-family: var(--serif);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+
+  .page {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background:
+      radial-gradient(1100px 640px at 84% -10%, rgba(201,162,39,.08), transparent 58%),
+      radial-gradient(900px 620px at 4% 2%, rgba(62,92,107,.14), transparent 55%),
+      var(--night);
+  }
+  /* faint night starfield — only shows on the dark ground between paper sheets */
+  .page::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(231,225,210,.30), transparent),
+      radial-gradient(1px 1px at 70% 62%, rgba(231,225,210,.20), transparent),
+      radial-gradient(1px 1px at 40% 82%, rgba(231,225,210,.16), transparent),
+      radial-gradient(1px 1px at 88% 22%, rgba(201,162,39,.22), transparent),
+      radial-gradient(1px 1px at 55% 12%, rgba(231,225,210,.16), transparent),
+      radial-gradient(1px 1px at 12% 72%, rgba(124,160,176,.20), transparent);
+    opacity: .55;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 30px clamp(14px, 3vw, 34px) 66px;
+  }
+
+  /* ---------- header (lives in the night register) ---------- */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--goldfinch);
+    margin: 0 0 12px;
+  }
+  h1.title {
+    font-family: var(--serif);
+    font-size: clamp(27px, 4.6vw, 43px);
+    line-height: 1.08;
+    letter-spacing: -.012em;
+    margin: 0 0 14px;
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--night-text);
+  }
+  .lede {
+    max-width: 65ch;
+    color: var(--night-mut);
+    font-size: clamp(15px, 1.4vw, 17px);
+    margin: 0 0 20px;
+  }
+  .lede strong { color: var(--night-text); font-weight: 600; }
+  .lede em { font-style: italic; color: var(--night-text); }
+
+  /* two-register swatch explainer */
+  .registers { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 24px; }
+  .reg {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 8px 13px; border-radius: 3px;
+    font-size: 12.5px;
+  }
+  .reg::before { content: ""; width: 10px; height: 10px; border-radius: 2px; }
+  .reg-print {
+    background: var(--paper); color: var(--ink);
+    font-family: var(--serif); font-style: italic;
+    border: 1px solid var(--paper-line);
+  }
+  .reg-print::before { background: var(--cardinal); }
+  .reg-live {
+    background: var(--night-3); color: var(--night-text);
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .02em;
+    border: 1px solid var(--night-line2);
+  }
+  .reg-live::before { background: var(--goldfinch); box-shadow: 0 0 8px var(--goldfinch); }
+
+  /* ---------- three-tier legend ---------- */
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+    gap: 10px;
+    margin: 0 0 26px;
+  }
+  .legend-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 13px 15px;
+    background: var(--night-3);
+    border: 1px solid var(--night-line);
+    border-radius: 4px;
+  }
+  .legend-dot {
+    flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%;
+    margin-top: 5px;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.03), 0 0 12px 1px currentColor;
+  }
+  .legend-item h4 { margin: 0 0 3px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .legend-item p { margin: 0; font-size: 13.5px; color: var(--night-mut); }
+  .legend-item .rgs { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--night-faint); margin-top: 4px; letter-spacing: .02em; }
+  .dot-cardinal  { color: var(--cardinal);  background: var(--cardinal); }
+  .dot-heron     { color: var(--heron-lt);  background: var(--heron-lt); }
+  .dot-goldfinch { color: var(--goldfinch); background: var(--goldfinch); }
+
+  /* ---------- controls (quiet switcher) ---------- */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 14px 20px;
+    align-items: center; justify-content: space-between;
+    margin: 0 0 6px;
+  }
+  .segmented {
+    display: inline-flex; gap: 2px;
+    border-bottom: 1px solid var(--night-line2);
+  }
+  .seg-btn {
+    appearance: none; background: transparent; border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--night-mut);
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: .02em;
+    padding: 9px 15px; cursor: pointer;
+    display: inline-flex; align-items: baseline; gap: 8px;
+    transition: color .18s, border-color .18s;
+    white-space: nowrap;
+  }
+  .seg-btn .k { font-size: 10.5px; color: var(--night-faint); }
+  .seg-btn:hover { color: var(--night-text); }
+  .seg-btn[aria-selected="true"] { color: var(--night-text); border-bottom-color: var(--goldfinch); }
+  .seg-btn[aria-selected="true"] .k { color: var(--goldfinch); }
+
+  .rm-note {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--night-faint);
+    padding: 6px 11px; border: 1px dashed var(--night-line2); border-radius: 3px;
+  }
+  .rm-note .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--goldfinch); box-shadow: 0 0 8px var(--goldfinch); }
+  .rm-note.reduced .pip { background: var(--night-faint); box-shadow: none; }
+
+  /* per-direction caption */
+  .caption {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin: 20px 0 18px; padding-bottom: 15px;
+    border-bottom: 1px solid var(--night-line);
+  }
+  .caption .name { font-family: var(--serif); font-size: 19px; font-weight: 600; color: var(--night-text); }
+  .caption .trade {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 3px;
+    background: var(--night-3); border: 1px solid var(--night-line2); color: var(--goldfinch);
+  }
+  .caption .desc { font-size: 14px; color: var(--night-mut); font-style: italic; }
+
+  /* view switching */
+  .view { display: none; }
+  .view.is-active { display: block; animation: fade .35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ================================================================
+     SHARED — printed-register primitives
+     ================================================================ */
+  /* section kicker on paper: serif small-caps + hairline rule */
+  .kicker {
+    font-family: var(--serif); font-variant: small-caps;
+    letter-spacing: .06em; font-size: 15px; color: var(--taupe);
+    margin: 0 0 13px; display: flex; align-items: center; gap: 12px;
+  }
+  .kicker::after { content: ""; flex: 1; height: 1px; background: var(--night-line); }
+  /* kicker on paper surfaces uses a paper hairline */
+  .on-paper .kicker::after { background: var(--paper-line); }
+
+  /* live-register kicker: mono uppercase */
+  .kicker-live {
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em;
+    font-size: 11.5px; color: var(--night-faint);
+    margin: 0 0 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .kicker-live::after { content: ""; flex: 1; height: 1px; background: var(--night-line); }
+
+  /* noteworthy marker (no emoji/dingbat) */
+  .badge-note {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--serif); font-variant: small-caps; letter-spacing: .05em;
+    font-size: 14px; color: var(--cardinal);
+  }
+  .badge-note .mk { width: 7px; height: 7px; background: var(--cardinal); border-radius: 1px; }
+
+  /* printed metadata: serif, tabular figures, taupe (dates on permanent posts) */
+  .pmeta { font-family: var(--serif); font-variant-numeric: tabular-nums; color: var(--taupe); }
+  /* printed tag: serif small-caps */
+  .ptag { font-family: var(--serif); font-variant: small-caps; letter-spacing: .04em; font-size: 13px; color: var(--heron); }
+  /* live metadata: mono tabular (timestamps, distances, precision, counts) */
+  .lmeta { font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+
+  /* ================================================================
+     VIEW 1 — OBSERVATORY LEDGER
+     printed page (left) beside a live night rail (right)
+     ================================================================ */
+  .ledger-grid { display: grid; grid-template-columns: minmax(0,1fr) 328px; gap: 24px; align-items: start; }
+  @media (max-width: 880px) { .ledger-grid { grid-template-columns: 1fr; } .rail { order: -1; } }
+
+  /* the printed sheet */
+  .sheet {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.35), transparent 12%),
+      var(--paper);
+    border: 1px solid var(--paper-line);
+    border-radius: 3px;
+    box-shadow: var(--shadow-paper);
+    padding: 26px clamp(18px,2.4vw,30px) 22px;
+  }
+  .sheet .kicker { margin-top: 4px; }
+  .sheet .kicker + * { margin-top: 0; }
+
+  .feature-stack { display: grid; gap: 20px; margin-bottom: 30px; }
+  .feature-card {
+    position: relative;
+    padding: 4px 4px 20px 20px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .feature-stack .feature-card:last-child { border-bottom: none; padding-bottom: 4px; }
+  .feature-card::before {
+    content: ""; position: absolute; left: 0; top: 4px; bottom: 20px; width: 3px;
+    background: var(--cardinal);
+  }
+  .feature-card .row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .feature-card h3 {
+    font-family: var(--serif); font-weight: 600;
+    margin: 0 0 9px; font-size: clamp(20px, 2.4vw, 27px); line-height: 1.16;
+    letter-spacing: -.01em; color: var(--ink); text-wrap: balance;
+  }
+  .feature-card p { margin: 0 0 13px; color: var(--ink-3); font-size: 15.5px; max-width: 63ch; }
+  .feature-card .meta { display: flex; gap: 16px; align-items: baseline; font-size: 13.5px; flex-wrap: wrap; }
+
+  /* dense chronological list (printed) */
+  .dense-list { display: flex; flex-direction: column; }
+  .dense-row {
+    display: grid; grid-template-columns: 62px 1fr auto; gap: 16px; align-items: baseline;
+    padding: 11px 4px; border-top: 1px solid var(--paper-line);
+    text-decoration: none; color: inherit;
+    transition: background .15s;
+  }
+  .dense-list .dense-row:first-child { border-top: none; }
+  .dense-row:hover { background: var(--paper-2); }
+  .dense-row .d { font-family: var(--serif); font-variant-numeric: tabular-nums; font-size: 13.5px; color: var(--taupe); }
+  .dense-row .t { font-family: var(--serif); font-size: 16px; color: var(--ink); }
+  .dense-row .g { font-size: 12.5px; }
+
+  /* live pulse rail (night register) */
+  .rail {
+    position: sticky; top: 14px;
+    border: 1px solid var(--night-line2); border-radius: 4px;
+    background: linear-gradient(180deg, var(--night-3), var(--night-2));
+    overflow: hidden; box-shadow: var(--shadow-night);
+  }
+  .rail-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 16px; border-bottom: 1px solid var(--night-line);
+    background: rgba(201,162,39,.05);
+  }
+  .rail-head .live { width: 8px; height: 8px; border-radius: 50%; background: var(--goldfinch); animation: livepulse 2.4s ease-out infinite; }
+  @keyframes livepulse {
+    0% { box-shadow: 0 0 0 0 rgba(201,162,39,.5); }
+    70% { box-shadow: 0 0 0 8px rgba(201,162,39,0); }
+    100% { box-shadow: 0 0 0 0 rgba(201,162,39,0); }
+  }
+  .rail-head h3 { margin: 0; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--night-text); }
+  .rail-head .sub { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--night-faint); letter-spacing: .04em; }
+
+  .rail-list { list-style: none; margin: 0; padding: 6px; max-height: 566px; overflow-y: auto; }
+  .pulse-item { display: grid; grid-template-columns: 22px 1fr; gap: 11px; padding: 10px; border-radius: 4px; align-items: start; }
+  .pulse-item + .pulse-item { border-top: 1px solid rgba(255,255,255,.035); }
+  .pulse-item.enter { animation: slidein .55s cubic-bezier(.2,.7,.2,1); }
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(-10px); background: rgba(201,162,39,.10); }
+    to   { opacity: 1; transform: none; background: transparent; }
+  }
+  .pi-icon { width: 22px; height: 22px; border-radius: 3px; display: grid; place-items: center; font-size: 12px; border: 1px solid var(--night-line2); }
+  .pi-bird { color: var(--heron-lt);  background: rgba(124,160,176,.10); }
+  .pi-run  { color: var(--goldfinch); background: rgba(201,162,39,.10); }
+  .pi-life { color: #C7BFA8;          background: rgba(199,191,168,.08); }
+  .pi-body .txt { font-family: var(--mono); font-size: 12.5px; line-height: 1.4; color: var(--night-text); }
+  .pi-body .sub { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 10.5px; color: var(--night-faint); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pi-body .sub .when { color: var(--goldfinch); }
+
+  .rail-foot {
+    padding: 11px 16px; border-top: 1px solid var(--night-line);
+    font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 11px;
+    color: var(--night-mut); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: rgba(0,0,0,.22);
+  }
+  .rail-foot .sep { color: var(--night-faint); }
+  .rail-foot b { color: var(--night-text); font-weight: 600; }
+
+  /* ---- section header with a "read specimen" toggle ---- */
+  .section-head {
+    display: flex; align-items: baseline; gap: 14px;
+    margin: 4px 0 16px; padding-bottom: 9px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .section-head .kicker-txt { font-family: var(--serif); font-variant: small-caps; letter-spacing: .06em; font-size: 15px; color: var(--taupe); }
+  .specimen-open {
+    margin-left: auto; appearance: none; background: none; border: none; cursor: pointer;
+    font-family: var(--serif); font-variant: small-caps; letter-spacing: .03em; font-size: 13.5px;
+    color: var(--cardinal); padding: 0;
+  }
+  .specimen-open:hover { text-decoration: underline; }
+
+  /* clickable noteworthy cards reveal the affordance */
+  .feature-card { cursor: pointer; }
+  .fc-open { margin-top: 11px; font-family: var(--serif); font-variant: small-caps; letter-spacing: .03em; font-size: 13px; color: var(--cardinal); opacity: 0; transition: opacity .16s; }
+  .feature-card:hover .fc-open, .feature-card:focus-visible .fc-open { opacity: 1; }
+  .feature-card:focus-visible { outline: 2px solid var(--cardinal); outline-offset: 4px; }
+
+  /* ---- noteworthy long-form specimen (printed register, "opened post") ---- */
+  .specimen { padding: 22px clamp(18px,2.6vw,34px) 28px; }
+  .specimen-back {
+    appearance: none; background: none; border: none; cursor: pointer; padding: 0;
+    font-family: var(--serif); font-variant: small-caps; letter-spacing: .03em; font-size: 13.5px;
+    color: var(--cardinal); margin-bottom: 20px;
+  }
+  .specimen-back:hover { text-decoration: underline; }
+  .sp-body { max-width: 66ch; margin: 0 auto; }
+  .sp-meta { font-size: 13.5px; color: var(--taupe); margin-bottom: 8px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .sp-title { font-family: var(--serif); font-weight: 600; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.14; letter-spacing: -.015em; color: var(--ink); margin: 4px 0 16px; text-wrap: balance; }
+  .sp-body p { font-family: var(--serif); font-size: 16.5px; line-height: 1.72; color: var(--ink); margin: 0 0 18px; max-width: 65ch; }
+  .sp-body p code { font-family: var(--mono); font-size: .86em; background: var(--paper-2); padding: 1px 5px; border-radius: 3px; color: var(--ink-2); }
+
+  /* code block — hand-authored to mimic shiki `github-light` */
+  .codeblock { margin: 22px 0; }
+  .codescroll { overflow-x: auto; border: 1px solid #d0d7de; border-radius: 6px; background: #f6f8fa; }
+  .code {
+    display: flex; flex-direction: column; min-width: max-content;
+    font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-feature-settings: 'calt' 1, 'liga' 1;
+    font-variant-ligatures: contextual;
+    font-size: 13px; line-height: 1.62; color: #24292f;
+    padding: 14px 0; tab-size: 2;
+  }
+  .cl { display: flex; align-items: baseline; padding: 0 16px; }
+  .cl .gutter { flex: 0 0 18px; margin-right: 10px; text-align: center; color: #8c959f; user-select: none; }
+  .cl .src { white-space: pre; }
+  .cl .mark { margin-left: auto; padding-left: 26px; color: #b9c0ca; font-style: italic; white-space: pre; }
+  .cl.add { background: #e6ffec; }
+  .cl.add .gutter { color: #1a7f37; }
+  .cl.del { background: #ffebe9; }
+  .cl.del .gutter { color: #cf222e; }
+  .cl.hl  { background: #fff8c5; box-shadow: inset 2px 0 0 #d4a72c; }
+  .code .k { color: #cf222e; }  /* keyword */
+  .code .s { color: #0a3069; }  /* string  */
+  .code .c { color: #6e7781; }  /* comment */
+  .code .f { color: #8250df; }  /* function */
+  .code .n { color: #0550ae; }  /* number  */
+  .code-cap { margin-top: 10px; font-family: var(--serif); font-style: italic; font-size: 12.5px; color: var(--taupe); line-height: 1.55; }
+  .code-cap code { font-family: var(--mono); font-style: normal; font-size: 11px; background: var(--paper-2); padding: 1px 5px; border-radius: 3px; color: var(--ink-2); }
+
+  /* ================================================================
+     VIEW 2 — TICKER + RIVER
+     ================================================================ */
+  .carousel {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--paper-line); border-radius: 3px;
+    background: var(--paper); box-shadow: var(--shadow-paper);
+    margin-bottom: 14px;
+  }
+  .carousel-track { display: flex; transition: transform .7s cubic-bezier(.5,.05,.2,1); }
+  .slide { min-width: 100%; padding: 32px clamp(20px,4vw,46px) 40px; }
+  .slide .badge-note { margin-bottom: 15px; }
+  .slide h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 12px; font-size: clamp(22px, 3.4vw, 34px); line-height: 1.12; letter-spacing: -.015em; color: var(--ink); max-width: 20ch; text-wrap: balance; }
+  .slide p { margin: 0 0 18px; color: var(--ink-3); font-size: clamp(15px,1.6vw,17px); max-width: 60ch; }
+  .slide .meta { display: flex; gap: 16px; font-size: 13.5px; flex-wrap: wrap; align-items: baseline; }
+  .carousel-ui { position: absolute; right: 16px; bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .dots { display: flex; gap: 7px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; cursor: pointer; background: rgba(32,36,31,.22); transition: background .2s, width .2s; }
+  .dot[aria-current="true"] { background: var(--cardinal); width: 20px; border-radius: 4px; }
+  .arrow { width: 30px; height: 30px; border-radius: 3px; display: grid; place-items: center; background: rgba(32,36,31,.05); border: 1px solid var(--paper-line); color: var(--ink); cursor: pointer; font-size: 15px; font-family: var(--serif); }
+  .arrow:hover { background: rgba(32,36,31,.1); }
+  .carousel-hoverhint { position: absolute; left: 18px; bottom: 16px; font-family: var(--mono); font-size: 10.5px; color: var(--taupe); letter-spacing: .03em; }
+
+  /* pulse ticker strip (live night register) */
+  .ticker {
+    position: relative; overflow: hidden; display: flex; align-items: stretch;
+    border: 1px solid var(--night-line2); border-radius: 4px;
+    background: linear-gradient(90deg, rgba(201,162,39,.07), rgba(62,92,107,.05));
+    margin-bottom: 30px;
+  }
+  .ticker-label {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 0 14px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--goldfinch); background: rgba(201,162,39,.08);
+    border-right: 1px solid var(--night-line2); z-index: 2;
+  }
+  .ticker-label .live { width: 7px; height: 7px; border-radius: 50%; background: var(--goldfinch); box-shadow: 0 0 8px var(--goldfinch); }
+  .ticker-mask { flex: 1 1 auto; overflow: hidden; position: relative; display: flex; align-items: center; }
+  .ticker-track { display: flex; white-space: nowrap; will-change: transform; animation: marquee 46s linear infinite; }
+  .ticker:hover .ticker-track { animation-play-state: paused; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .tick { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; font-family: var(--mono); font-size: 12.5px; color: var(--night-text); border-right: 1px solid rgba(255,255,255,.05); }
+  .tick .chip { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; }
+  .chip-bird { color: var(--heron-lt);  background: rgba(124,160,176,.12); }
+  .chip-run  { color: var(--goldfinch); background: rgba(201,162,39,.12); }
+  .chip-life { color: #C7BFA8;          background: rgba(199,191,168,.10); }
+  .tick .m { color: var(--night-faint); font-variant-numeric: tabular-nums; font-size: 11px; }
+
+  /* river of less-noteworthy (printed cards) */
+  .river { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .river-card {
+    display: block; text-decoration: none; color: inherit;
+    padding: 16px 17px 15px;
+    border: 1px solid var(--paper-line); border-radius: 3px;
+    background: var(--paper);
+    box-shadow: 0 8px 22px -18px rgba(0,0,0,.6), 0 1px 0 rgba(255,255,255,.3) inset;
+    transition: border-color .18s, transform .18s;
+  }
+  .river-card:hover { border-color: var(--taupe); transform: translateY(-2px); }
+  .river-card .rc-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 9px; gap: 10px; }
+  .river-card .rc-top .d { font-family: var(--serif); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--taupe); }
+  .river-card h4 { font-family: var(--serif); font-weight: 600; margin: 0; font-size: 16.5px; line-height: 1.3; color: var(--ink); text-wrap: balance; }
+
+  /* ================================================================
+     VIEW 3 — PLANETARIUM (full night register)
+     ================================================================ */
+  .planet-shell {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--night-line2); border-radius: 4px;
+    background: radial-gradient(80% 80% at 50% 45%, rgba(24,40,48,.55), #060A0D);
+    box-shadow: var(--shadow-night);
+  }
+  #planetCanvas { display: block; width: 100%; height: clamp(430px, 62vh, 650px); max-width: 100%; cursor: grab; }
+  .planet-overlay { position: absolute; left: 14px; top: 14px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .planet-legendbox {
+    background: rgba(8,12,15,.62); border: 1px solid var(--night-line); border-radius: 4px;
+    padding: 10px 12px; font-family: var(--mono); font-size: 11px; color: var(--night-mut);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  }
+  .planet-legendbox .lg { display: flex; align-items: center; gap: 8px; margin: 3px 0; }
+  .planet-legendbox .s { display: inline-block; border-radius: 50%; }
+  .planet-hint { position: absolute; right: 14px; bottom: 12px; font-family: var(--mono); font-size: 10.5px; color: var(--night-faint); pointer-events: none; text-align: right; line-height: 1.5; }
+  .planet-tip {
+    position: absolute; pointer-events: none; padding: 9px 12px;
+    background: rgba(10,14,18,.94); border: 1px solid var(--night-line2); border-radius: 4px;
+    max-width: 250px; opacity: 0; transform: translate(-50%, -122%); transition: opacity .15s;
+    z-index: 3; box-shadow: var(--shadow-night);
+  }
+  .planet-tip.show { opacity: 1; }
+  .planet-tip .tt-kind { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+  .planet-tip .tt-title { font-family: var(--serif); color: var(--night-text); font-weight: 600; line-height: 1.28; font-size: 15px; }
+  .planet-tip .tt-meta { color: var(--night-faint); font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 10.5px; margin-top: 5px; }
+  .planet-reset {
+    position: absolute; left: 14px; bottom: 12px; pointer-events: auto;
+    font-family: var(--mono); font-size: 11px; color: var(--night-mut);
+    background: rgba(8,12,15,.6); border: 1px solid var(--night-line); border-radius: 3px;
+    padding: 6px 10px; cursor: pointer;
+  }
+  .planet-reset:hover { color: var(--night-text); border-color: var(--night-line2); }
+
+  .foot-note {
+    margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--night-line);
+    font-family: var(--mono); font-size: 11.5px; color: var(--night-faint); line-height: 1.7;
+  }
+  a { color: inherit; }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <!-- ===================== HEADER ===================== -->
+    <header>
+      <p class="eyebrow">tinyland.dev · design study · /posts + /pulse</p>
+      <h1 class="title">A naturalist-technologist's log, in one system and two registers</h1>
+      <p class="lede">
+        The feed has <strong>three strata of signal</strong>, and they split into two registers.
+        <em>Printed &amp; permanent</em> — the blog: <strong>noteworthy</strong> (deep reverse-engineering and
+        architecture write-ups, promoted to the top) and <strong>less-noteworthy</strong> (everyday recipes,
+        release notes, field observations). <em>Live &amp; observed</em> — <strong>pulse</strong>: Cayuga-basin
+        bird sightings, trail runs, and small life updates, fetched from the broker. Same sample content below,
+        rendered three ways — so you compare layout and motion, not palette, and pick one.
+      </p>
+
+      <div class="registers">
+        <span class="reg reg-print">Printed &amp; permanent — serif on parchment</span>
+        <span class="reg reg-live">live &amp; observed — mono on ink-teal</span>
+      </div>
+
+      <div class="legend" aria-label="Why these three tiers">
+        <div class="legend-item">
+          <span class="legend-dot dot-cardinal"></span>
+          <div><h4>Noteworthy</h4><p>Deep / reverse-engineering / architecture. Hand-curated to the top.</p><span class="rgs">cardinal · printed</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot dot-heron"></span>
+          <div><h4>Less-noteworthy</h4><p>Recipes, release notes, casual posts. Published, not promoted.</p><span class="rgs">heron · printed</span></div>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot dot-goldfinch"></span>
+          <div><h4>Pulse</h4><p>Notes, bird sightings, runs. Small, frequent, broker-fed. Motion lives here.</p><span class="rgs">goldfinch · live</span></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="segmented" role="tablist" aria-label="Design direction">
+          <button class="seg-btn" role="tab" aria-selected="true"  data-view="ledger"><span class="k">C</span> Observatory Ledger</button>
+          <button class="seg-btn" role="tab" aria-selected="false" data-view="ticker"><span class="k">A</span> Ticker + River</button>
+          <button class="seg-btn" role="tab" aria-selected="false" data-view="planet"><span class="k">B</span> Planetarium</button>
+        </div>
+        <span class="rm-note" id="rmNote"><span class="pip"></span> <span id="rmText">motion on · respects reduced-motion</span></span>
+      </div>
+    </header>
+
+    <!-- ===================== VIEW 1: OBSERVATORY LEDGER ===================== -->
+    <section class="view is-active" id="view-ledger" role="tabpanel" aria-label="Observatory Ledger">
+      <div class="caption">
+        <span class="name">Observatory Ledger</span>
+        <span class="trade">SSR-friendly · recommended beta default</span>
+        <span class="desc">A printed field-guide page beside a live night rail — motion only where it's genuinely live.</span>
+      </div>
+
+      <div class="ledger-grid" id="ledgerMain">
+        <div class="sheet on-paper">
+          <div class="section-head">
+            <span class="kicker-txt">Noteworthy</span>
+            <button class="specimen-open" id="openSpecimen">read specimen &rarr;</button>
+          </div>
+          <div class="feature-stack" id="ledgerFeatures"></div>
+
+          <p class="kicker">Less-noteworthy — chronological</p>
+          <div class="dense-list" id="ledgerDense"></div>
+        </div>
+
+        <aside class="rail" aria-label="Live pulse">
+          <div class="rail-head">
+            <span class="live"></span>
+            <h3>Pulse</h3>
+            <span class="sub">hydrate → live</span>
+          </div>
+          <ul class="rail-list" id="railList"></ul>
+          <div class="rail-foot" id="railFoot">
+            <b>142</b> posts <span class="sep">·</span> <b id="pulseToday">18</b> pulse today
+            <span class="sep">·</span> broker live <b id="brokerAgo">just now</b>
+          </div>
+        </aside>
+      </div>
+
+      <!-- opened noteworthy long-form specimen: the printed register, shiki github-light -->
+      <div class="sheet on-paper specimen" id="ledgerSpecimen" style="display:none">
+        <button class="specimen-back" id="specimenBack">&larr; back to the ledger</button>
+        <article class="sp-body">
+          <div class="sp-meta">
+            <span class="badge-note"><span class="mk"></span>Noteworthy</span>
+            <span>·</span><span class="ptag">hardware</span>
+            <span>·</span><span class="pmeta">Jun 28</span>
+            <span>·</span><span class="pmeta">14 min read</span>
+          </div>
+          <h1 class="sp-title">Reverse-engineering the Canon G-series service protocol</h1>
+
+          <p>The service menu never shipped with documentation. What it <em>did</em> ship with was a
+          six-byte frame header and a two-byte trailer that refused to be a plain sum, an XOR, or any of
+          the usual suspects. It was a CRC &mdash; the only real question was which one.</p>
+
+          <p>So I pulled 41,900 frames off the serial bus and did the unsubtle thing: brute-force every
+          16-bit polynomial until one reproduced every captured trailer. On a laptop that is a long
+          afternoon; across the flywheel's remote executors it is a single parallel <code>forall</code>
+          and a coffee. Chapel makes the parallelism disappear into the language &mdash; the same source
+          runs on one core or on the whole cluster.</p>
+
+          <figure class="codeblock">
+            <div class="codescroll"><div class="code" aria-label="Chapel source, github-light theme"><span class="cl"><span class="gutter"> </span><span class="src"><span class="c">// G-series service frames: 6-byte header, CRC-16 trailer.</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="c">// decode pipeline:   raw -&gt; frame -&gt; crc16 -&gt; verdict</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="c">// candidate polys:   0x8005 :: uint(16)  |&gt;  reflect  |&gt;  (== trailer)</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">use</span> BlockDist, Time;</span></span><span class="cl"><span class="gutter"> </span><span class="src"> </span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">const</span> frames = <span class="f">readFrames</span>(<span class="s">"dump.bin"</span>);          <span class="c">// 41,900 captured frames</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">config const</span> poly = <span class="n">0x1021</span>: uint(<span class="n">16</span>);           <span class="c">// CCITT guess</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"> </span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">proc</span> <span class="f">crc16</span>(bytes: [] uint(<span class="n">8</span>), poly: uint(<span class="n">16</span>)): uint(<span class="n">16</span>) {</span></span><span class="cl"><span class="gutter"> </span><span class="src">  <span class="k">var</span> crc: uint(<span class="n">16</span>) = <span class="n">0xFFFF</span>;</span></span><span class="cl"><span class="gutter"> </span><span class="src">  <span class="k">for</span> b <span class="k">in</span> bytes {</span></span><span class="cl"><span class="gutter"> </span><span class="src">    crc ^= (b: uint(<span class="n">16</span>)) &lt;&lt; <span class="n">8</span>;</span></span><span class="cl"><span class="gutter"> </span><span class="src">    <span class="k">for</span> <span class="n">0</span>..#<span class="n">8</span> <span class="k">do</span></span></span><span class="cl"><span class="gutter"> </span><span class="src">      crc = <span class="k">if</span> (crc &amp; <span class="n">0x8000</span>) != <span class="n">0</span> <span class="k">then</span> (crc &lt;&lt; <span class="n">1</span>) ^ poly <span class="k">else</span> crc &lt;&lt; <span class="n">1</span>;</span></span><span class="cl"><span class="gutter"> </span><span class="src">  }</span></span><span class="cl"><span class="gutter"> </span><span class="src">  <span class="k">return</span> crc;</span></span><span class="cl"><span class="gutter"> </span><span class="src">}</span></span><span class="cl"><span class="gutter"> </span><span class="src"> </span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="c">// brute-force every polynomial across the flywheel, in parallel</span></span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">var</span> hits: atomic int;</span></span><span class="cl"><span class="gutter"> </span><span class="src"><span class="k">forall</span> p <span class="k">in</span> <span class="n">0x0000</span>..<span class="n">0xFFFF</span> {</span></span><span class="cl"><span class="gutter"> </span><span class="src">  <span class="k">var</span> ok = <span class="k">true</span>;</span></span><span class="cl"><span class="gutter"> </span><span class="src">  <span class="k">for</span> f <span class="k">in</span> frames <span class="k">do</span></span></span><span class="cl"><span class="gutter"> </span><span class="src">    <span class="k">if</span> <span class="f">crc16</span>(f.body, p: uint(<span class="n">16</span>)) != f.trailer <span class="k">then</span> { ok = <span class="k">false</span>; <span class="k">break</span>; }</span></span><span class="cl add"><span class="gutter">+</span><span class="src">  <span class="k">if</span> ok <span class="k">then</span> hits.<span class="f">add</span>(<span class="n">1</span>);</span><span class="mark">// [!code ++]</span></span><span class="cl del"><span class="gutter">-</span><span class="src">  <span class="k">if</span> ok <span class="k">then</span> <span class="f">writeln</span>(<span class="s">"match: 0x"</span>, p: uint(<span class="n">16</span>));</span><span class="mark">// [!code --]</span></span><span class="cl hl"><span class="gutter"> </span><span class="src">  <span class="k">if</span> ok &amp;&amp; p &gt;= <span class="n">0x1000</span> &amp;&amp; p &lt;= <span class="n">0x9000</span> <span class="k">then</span></span><span class="mark">// [!code highlight]</span></span><span class="cl"><span class="gutter"> </span><span class="src">    <span class="f">writeln</span>(<span class="s">"plausible service poly =&gt; 0x%04xu"</span>.<span class="f">format</span>(p));</span></span><span class="cl"><span class="gutter"> </span><span class="src">}</span></span></div></div>
+            <figcaption class="code-cap">Rendered with shiki (<code>github-light</code>) &mdash; the printed register. On the live
+            site the <code>// [!code ++]</code>, <code>[!code --]</code> and highlight comments are consumed by shiki's
+            notation transformers and the lines are tinted; here they are shown faded so the mapping is visible.
+            Ligatures (&rarr;, &ne;, &ge;, &le;, &rArr;, ::) render fuller with the bundled ligature mono on the real site.</figcaption>
+          </figure>
+
+          <p><code>0x8005</code> fell out in under a minute &mdash; the reflected CRC-16/ARC, not the CCITT
+          polynomial I'd started guessing with. Every trailer in the capture verified, the service frames
+          decoded clean, and the whole search was a page of Chapel that ran wherever the flywheel had cores
+          to spare.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== VIEW 2: TICKER + RIVER ===================== -->
+    <section class="view" id="view-ticker" role="tabpanel" aria-label="Ticker and River">
+      <div class="caption">
+        <span class="name">Ticker + River</span>
+        <span class="trade">animated · attention-forward</span>
+        <span class="desc">Auto-advancing noteworthy carousel, a live pulse marquee, then a plain river of everyday posts.</span>
+      </div>
+
+      <p class="kicker-live">Noteworthy — carousel</p>
+      <div class="carousel" id="carousel">
+        <div class="carousel-track" id="carTrack"></div>
+        <span class="carousel-hoverhint">hover to pause · ~8s auto-advance</span>
+        <div class="carousel-ui">
+          <button class="arrow" id="carPrev" aria-label="Previous">‹</button>
+          <div class="dots" id="carDots"></div>
+          <button class="arrow" id="carNext" aria-label="Next">›</button>
+        </div>
+      </div>
+
+      <div class="ticker" id="ticker">
+        <div class="ticker-label"><span class="live"></span> Pulse</div>
+        <div class="ticker-mask"><div class="ticker-track" id="tickTrack"></div></div>
+      </div>
+
+      <p class="kicker-live">Less-noteworthy — river</p>
+      <div class="river" id="river"></div>
+    </section>
+
+    <!-- ===================== VIEW 3: PLANETARIUM ===================== -->
+    <section class="view" id="view-planet" role="tabpanel" aria-label="Planetarium">
+      <div class="caption">
+        <span class="name">Planetarium</span>
+        <span class="trade">wow · heavier</span>
+        <span class="desc">A living constellation. Time = radial distance; plumage-hue + brightness encode the tier.</span>
+      </div>
+
+      <div class="planet-shell">
+        <canvas id="planetCanvas"></canvas>
+        <div class="planet-overlay">
+          <div class="planet-legendbox">
+            <div class="lg"><span class="s" style="width:11px;height:11px;background:#c94a38;box-shadow:0 0 8px #b23a2e"></span> Noteworthy — bright cardinal stars</div>
+            <div class="lg"><span class="s" style="width:6px;height:6px;background:#7ca0b0"></span> Less-noteworthy — dim heron stars</div>
+            <div class="lg"><span class="s" style="width:9px;height:3px;border-radius:2px;background:#c9a227;box-shadow:0 0 8px #c9a227"></span> Pulse — goldfinch comets</div>
+          </div>
+        </div>
+        <button class="planet-reset" id="planetReset">⟳ reset view</button>
+        <div class="planet-hint">hover a star for its title · click to zoom<br>tag lines = shared topics · center = now, edge = older</div>
+        <div class="planet-tip" id="planetTip"></div>
+      </div>
+    </section>
+
+    <p class="foot-note">
+      Static prototype · all data is sample content · pulse "liveness" is simulated (no broker attached).
+      Self-contained single file — system serif + mono, inline SVG/unicode only, no external requests.
+      Reduced-motion: carousel &amp; ticker freeze, the pulse rail pre-fills without animation, the planetarium renders a static star map.
+    </p>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------------- shared sample content ---------------- */
+  var NOTEWORTHY = [
+    { title: "Reverse-engineering the Canon G-series service protocol",
+      blurb: "A serial handshake, an undocumented checksum, and the ROM dump that finally cracked the service menu open.",
+      tag: "hardware", read: "14 min read", date: "Jun 28" },
+    { title: "A databaseless auth architecture",
+      blurb: "Signed snapshots, verification at the edge, and why the edge never needs a session table to trust a request.",
+      tag: "systems", read: "11 min read", date: "Jun 19" },
+    { title: "GloriousFlywheel: remote-everything Bazel",
+      blurb: "Remote cache, remote execution, and a flywheel that makes a cold build feel like it was already warm.",
+      tag: "build", read: "17 min read", date: "Jun 06" }
+  ];
+
+  var LESS = [
+    { title: "Sourdough hydration notes", tag: "kitchen", date: "Jul 01" },
+    { title: "Released tinyland-fingerprint 0.3.0", tag: "release", date: "Jun 30" },
+    { title: "Weeknight dal, three ways", tag: "kitchen", date: "Jun 27" },
+    { title: "Switched the blog to signed snapshots", tag: "meta", date: "Jun 24" },
+    { title: "Notes on the Cayuga watershed maps", tag: "field", date: "Jun 22" },
+    { title: "Why canvas entropy is overrated", tag: "release", date: "Jun 20" },
+    { title: "A quieter keyboard layer", tag: "desk", date: "Jun 17" },
+    { title: "Compost bin, year two", tag: "garden", date: "Jun 14" },
+    { title: "Small wins with just recipes", tag: "meta", date: "Jun 12" },
+    { title: "Reading list, Q2", tag: "notes", date: "Jun 09" },
+    { title: "Repointing the darkroom sink", tag: "shop", date: "Jun 05" },
+    { title: "Field-recording the dawn chorus", tag: "audio", date: "Jun 02" }
+  ];
+
+  var PULSE_POOL = [
+    { kind: "bird", txt: "Northern Cardinal — Cayuga Lake basin", meta: "REGION precision" },
+    { kind: "bird", txt: "Great Blue Heron — Sapsucker Woods",  meta: "exact" },
+    { kind: "run",  txt: "5.2mi loop, Six Mile Creek",          meta: "42:10" },
+    { kind: "life", txt: "repotted the monstera",               meta: "" },
+    { kind: "life", txt: "new espresso setup dialed in",        meta: "18g → 36g" },
+    { kind: "bird", txt: "Red-tailed Hawk — over the gorge",    meta: "REGION precision" },
+    { kind: "run",  txt: "easy 3mi shakeout",                   meta: "27:40" },
+    { kind: "bird", txt: "Black-capped Chickadee — feeder",     meta: "exact" },
+    { kind: "life", txt: "sharpened the kitchen knives",        meta: "" },
+    { kind: "bird", txt: "Pileated Woodpecker — Sapsucker Woods", meta: "exact" },
+    { kind: "run",  txt: "hill repeats, Cornell campus",        meta: "6×400m" },
+    { kind: "life", txt: "first tomatoes on the vine",          meta: "" },
+    { kind: "bird", txt: "Wood Duck pair — Beebe Lake",         meta: "REGION precision" },
+    { kind: "run",  txt: "long run, Black Diamond Trail",       meta: "9.1mi" }
+  ];
+
+  var KIND_ICON  = { bird: "▴", run: "↗", life: "○" }; // ▴ ↗ ○ (unicode, not emoji)
+  var KIND_LABEL = { bird: "bird", run: "run", life: "note" };
+
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;"; }); }
+
+  /* ================================================================
+     VIEW 1 — OBSERVATORY LEDGER
+     ================================================================ */
+  var ledger = (function () {
+    var addTimer = null, tickTimer = null, agoSec = 0, poolIdx = 0, todayCount = 18, built = false;
+    var resetSpec = null;
+
+    function build() {
+      if (built) return;
+      built = true;
+
+      // specimen ("opened post") toggle wiring
+      var mainEl = document.getElementById("ledgerMain");
+      var specEl = document.getElementById("ledgerSpecimen");
+      var openBtn = document.getElementById("openSpecimen");
+      var backBtn = document.getElementById("specimenBack");
+      function openSpec() {
+        mainEl.style.display = "none";
+        specEl.style.display = "";
+        specEl.scrollIntoView({ block: "start" });
+        if (backBtn) backBtn.focus();
+      }
+      function closeSpec() {
+        specEl.style.display = "none";
+        mainEl.style.display = "";
+        if (openBtn) openBtn.focus();
+      }
+      resetSpec = function () { specEl.style.display = "none"; mainEl.style.display = ""; };
+      if (openBtn) openBtn.addEventListener("click", openSpec);
+      if (backBtn) backBtn.addEventListener("click", closeSpec);
+
+      var f = document.getElementById("ledgerFeatures");
+      NOTEWORTHY.forEach(function (n) {
+        var c = el("article", "feature-card");
+        c.setAttribute("role", "button");
+        c.tabIndex = 0;
+        c.innerHTML =
+          '<div class="row"><span class="badge-note"><span class="mk"></span>Noteworthy</span>' +
+          '<span class="ptag">' + esc(n.tag) + '</span></div>' +
+          '<h3>' + esc(n.title) + '</h3>' +
+          '<p>' + esc(n.blurb) + '</p>' +
+          '<div class="meta"><span class="pmeta">' + esc(n.date) + '</span><span class="pmeta">' + esc(n.read) + '</span></div>' +
+          '<div class="fc-open">read specimen &rarr;</div>';
+        c.addEventListener("click", openSpec);
+        c.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSpec(); }
+        });
+        f.appendChild(c);
+      });
+      var d = document.getElementById("ledgerDense");
+      LESS.forEach(function (p) {
+        var a = el("a", "dense-row");
+        a.href = "#";
+        a.innerHTML =
+          '<span class="d">' + esc(p.date) + '</span>' +
+          '<span class="t">' + esc(p.title) + '</span>' +
+          '<span class="g ptag">' + esc(p.tag) + '</span>';
+        d.appendChild(a);
+      });
+      var seed = RM ? 8 : 5;
+      for (var i = 0; i < seed; i++) prependPulse(false);
+    }
+
+    function relWhen(i) {
+      var opts = ["just now", "1m", "3m", "6m", "11m", "18m", "24m", "31m", "40m"];
+      return opts[Math.min(i, opts.length - 1)];
+    }
+
+    function prependPulse(animate) {
+      var list = document.getElementById("railList");
+      if (!list) return;
+      var p = PULSE_POOL[poolIdx % PULSE_POOL.length];
+      poolIdx++;
+      var li = el("li", "pulse-item" + (animate ? " enter" : ""));
+      var sub = '<span class="when">' + (animate ? "live" : relWhen(list.children.length)) + "</span>";
+      if (p.meta) sub += "<span>" + esc(p.meta) + "</span>";
+      li.innerHTML =
+        '<span class="pi-icon pi-' + p.kind + '">' + KIND_ICON[p.kind] + "</span>" +
+        '<span class="pi-body"><span class="txt">' + esc(p.txt) + "</span>" +
+        '<span class="sub">' + sub + "</span></span>";
+      list.insertBefore(li, list.firstChild);
+      while (list.children.length > 9) list.removeChild(list.lastChild);
+    }
+
+    function updateFoot() {
+      var a = document.getElementById("brokerAgo");
+      if (a) a.textContent = agoSec <= 0 ? "just now" : agoSec + "s ago";
+      var t = document.getElementById("pulseToday");
+      if (t) t.textContent = todayCount;
+    }
+
+    function start() {
+      build(); updateFoot();
+      if (resetSpec) resetSpec();
+      if (RM) return;
+      addTimer = setInterval(function () {
+        prependPulse(true); todayCount++; agoSec = 0; updateFoot();
+      }, 3400);
+      tickTimer = setInterval(function () { agoSec++; updateFoot(); }, 1000);
+    }
+    function stop() { clearInterval(addTimer); clearInterval(tickTimer); addTimer = tickTimer = null; }
+    return { start: start, stop: stop };
+  })();
+
+  /* ================================================================
+     VIEW 2 — TICKER + RIVER
+     ================================================================ */
+  var ticker = (function () {
+    var idx = 0, autoTimer = null, built = false;
+
+    function build() {
+      if (built) return;
+      built = true;
+      var track = document.getElementById("carTrack");
+      var dots = document.getElementById("carDots");
+      NOTEWORTHY.forEach(function (n, i) {
+        var s = el("div", "slide");
+        s.innerHTML =
+          '<span class="badge-note"><span class="mk"></span>Noteworthy</span>' +
+          '<h3>' + esc(n.title) + '</h3>' +
+          '<p>' + esc(n.blurb) + '</p>' +
+          '<div class="meta"><span class="ptag">' + esc(n.tag) + '</span><span class="pmeta">' + esc(n.date) + '</span><span class="pmeta">' + esc(n.read) + '</span></div>';
+        track.appendChild(s);
+        var b = el("button", "dot");
+        b.setAttribute("aria-label", "Slide " + (i + 1));
+        if (i === 0) b.setAttribute("aria-current", "true");
+        b.addEventListener("click", function () { go(i); resetAuto(); });
+        dots.appendChild(b);
+      });
+
+      var tt = document.getElementById("tickTrack");
+      var half = "";
+      PULSE_POOL.forEach(function (p) {
+        half +=
+          '<span class="tick"><span class="chip chip-' + p.kind + '">' + KIND_LABEL[p.kind] + "</span>" +
+          esc(p.txt) + (p.meta ? ' <span class="m">' + esc(p.meta) + "</span>" : "") + "</span>";
+      });
+      tt.innerHTML = half + half;
+
+      var r = document.getElementById("river");
+      LESS.forEach(function (p) {
+        var a = el("a", "river-card");
+        a.href = "#";
+        a.innerHTML =
+          '<div class="rc-top"><span class="ptag">' + esc(p.tag) + '</span><span class="d">' + esc(p.date) + "</span></div>" +
+          "<h4>" + esc(p.title) + "</h4>";
+        r.appendChild(a);
+      });
+
+      var car = document.getElementById("carousel");
+      car.addEventListener("mouseenter", stopAuto);
+      car.addEventListener("mouseleave", startAuto);
+      document.getElementById("carPrev").addEventListener("click", function () { go(idx - 1); resetAuto(); });
+      document.getElementById("carNext").addEventListener("click", function () { go(idx + 1); resetAuto(); });
+    }
+
+    function go(i) {
+      var n = NOTEWORTHY.length;
+      idx = (i % n + n) % n;
+      document.getElementById("carTrack").style.transform = "translateX(" + (-idx * 100) + "%)";
+      var dots = document.getElementById("carDots").children;
+      for (var k = 0; k < dots.length; k++) {
+        if (k === idx) dots[k].setAttribute("aria-current", "true");
+        else dots[k].removeAttribute("aria-current");
+      }
+    }
+    function startAuto() { if (!RM && !autoTimer) autoTimer = setInterval(function () { go(idx + 1); }, 8000); }
+    function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
+    function resetAuto() { stopAuto(); startAuto(); }
+
+    function start() {
+      build(); go(idx);
+      if (RM) document.getElementById("tickTrack").style.animation = "none";
+      startAuto();
+    }
+    function stop() { stopAuto(); }
+    return { start: start, stop: stop };
+  })();
+
+  /* ================================================================
+     VIEW 3 — PLANETARIUM
+     plumage encodes tier: cardinal=noteworthy, heron=less, goldfinch=pulse
+     ================================================================ */
+  var planet = (function () {
+    var canvas, ctx, tip, reset;
+    var W = 0, H = 0, dpr = 1, cx = 0, cy = 0, maxR = 0;
+    var raf = null, running = false, built = false, t0 = 0;
+    var stars = [], links = [], comets = [], nextComet = 0;
+    var cam = { zoom: 1, panx: 0, pany: 0, tzoom: 1, tpanx: 0, tpany: 0 };
+    var selected = null, hovered = null;
+
+    function buildModel() {
+      stars = []; links = [];
+      var timeline = [];
+      NOTEWORTHY.forEach(function (n) { timeline.push({ type: "note", title: n.title, tag: n.tag, meta: n.read }); });
+      LESS.forEach(function (n) { timeline.push({ type: "less", title: n.title, tag: n.tag, meta: n.date }); });
+
+      var GA = Math.PI * (3 - Math.sqrt(5));
+      timeline.forEach(function (item, i) {
+        var ageRatio = i / (timeline.length - 1 + 0.0001);
+        var distR = (item.type === "note" ? 0.16 : 0.30) + ageRatio * 0.66;
+        var ang = i * GA + (item.type === "note" ? 0.4 : 0);
+        stars.push({
+          type: item.type, title: item.title, tag: item.tag, meta: item.meta,
+          distR: Math.min(distR, 0.98), ang: ang,
+          base: item.type === "note" ? 3.6 : 1.8,
+          bright: item.type === "note" ? 1 : 0.55,
+          tw: Math.random() * Math.PI * 2,
+          x: 0, y: 0, sx: 0, sy: 0
+        });
+      });
+      var byTag = {};
+      stars.forEach(function (s, i) { (byTag[s.tag] || (byTag[s.tag] = [])).push(i); });
+      Object.keys(byTag).forEach(function (tag) {
+        var arr = byTag[tag];
+        for (var i = 1; i < arr.length; i++) links.push([arr[i - 1], arr[i]]);
+      });
+    }
+
+    function layout() {
+      cx = W / 2; cy = H / 2;
+      maxR = Math.min(W, H) * 0.44;
+      stars.forEach(function (s) {
+        s.x = cx + Math.cos(s.ang) * s.distR * maxR;
+        s.y = cy + Math.sin(s.ang) * s.distR * maxR * 0.86;
+      });
+    }
+
+    function resize() {
+      if (!canvas) return;
+      var rect = canvas.getBoundingClientRect();
+      if (rect.width < 2) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = rect.width; H = rect.height;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layout();
+      if (!running) draw(performance.now());
+    }
+
+    function screenOf(wx, wy) {
+      return { x: cam.zoom * (wx - cx + cam.panx) + cx, y: cam.zoom * (wy - cy + cam.pany) + cy };
+    }
+
+    function draw(now) {
+      var dt = now - t0; t0 = now;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 1.5);
+      g.addColorStop(0, "rgba(24,40,48,0.40)");
+      g.addColorStop(1, "rgba(6,10,13,0)");
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+      if (running && !RM) {
+        cam.zoom += (cam.tzoom - cam.zoom) * 0.08;
+        cam.panx += (cam.tpanx - cam.panx) * 0.08;
+        cam.pany += (cam.tpany - cam.pany) * 0.08;
+      } else {
+        cam.zoom = cam.tzoom; cam.panx = cam.tpanx; cam.pany = cam.tpany;
+      }
+
+      // faint heron time-rings
+      ctx.strokeStyle = "rgba(124,160,176,0.07)"; ctx.lineWidth = 1;
+      var c0 = screenOf(cx, cy);
+      for (var rr = 0.33; rr <= 1.0; rr += 0.335) {
+        var p0 = screenOf(cx + maxR * rr, cy);
+        ctx.beginPath();
+        ctx.ellipse(c0.x, c0.y, (p0.x - c0.x), (p0.x - c0.x) * 0.86, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      stars.forEach(function (s) { var p = screenOf(s.x, s.y); s.sx = p.x; s.sy = p.y; });
+
+      // constellation (tag) lines
+      ctx.lineWidth = 1;
+      links.forEach(function (l) {
+        var a = stars[l[0]], b = stars[l[1]];
+        var lit = (selected && (a === selected || b === selected)) || (hovered && (a === hovered || b === hovered));
+        ctx.strokeStyle = lit ? "rgba(201,162,39,0.30)" : "rgba(124,160,176,0.10)";
+        ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+      });
+
+      // goldfinch comets (pulse)
+      for (var i = comets.length - 1; i >= 0; i--) {
+        var c = comets[i];
+        c.life += dt;
+        var prog = c.life / c.dur;
+        if (prog >= 1) { comets.splice(i, 1); continue; }
+        c.wx += c.vx * dt * 0.06; c.wy += c.vy * dt * 0.06;
+        var sp = screenOf(c.wx, c.wy);
+        var tailx = screenOf(c.wx - c.vx * 7, c.wy - c.vy * 7);
+        var alpha = Math.sin(Math.min(prog, 1) * Math.PI);
+        var grad = ctx.createLinearGradient(tailx.x, tailx.y, sp.x, sp.y);
+        grad.addColorStop(0, "rgba(201,162,39,0)");
+        grad.addColorStop(1, "rgba(201,162,39," + (0.55 * alpha).toFixed(3) + ")");
+        ctx.strokeStyle = grad; ctx.lineWidth = 1.6 * cam.zoom;
+        ctx.beginPath(); ctx.moveTo(tailx.x, tailx.y); ctx.lineTo(sp.x, sp.y); ctx.stroke();
+        ctx.fillStyle = "rgba(244,228,160," + alpha.toFixed(3) + ")";
+        ctx.beginPath(); ctx.arc(sp.x, sp.y, 1.9 * cam.zoom, 0, Math.PI * 2); ctx.fill();
+        if (alpha > 0.5) {
+          ctx.fillStyle = "rgba(201,162,39," + (alpha - 0.4).toFixed(3) + ")";
+          ctx.font = "10px ui-monospace, monospace";
+          ctx.fillText(c.label, sp.x + 8, sp.y - 6);
+        }
+      }
+
+      // stars
+      stars.forEach(function (s) {
+        var isNote = s.type === "note";
+        var twinkle = (running && !RM) ? (0.82 + 0.18 * Math.sin(now * 0.002 + s.tw)) : 1;
+        var r = s.base * cam.zoom * twinkle;
+        var isFocus = (s === selected || s === hovered);
+        var glowR = r * (isNote ? 6 : 3.4) * (isFocus ? 1.5 : 1);
+        var gg = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, glowR);
+        if (isNote) gg.addColorStop(0, "rgba(200,74,56," + (0.55 * s.bright * twinkle).toFixed(3) + ")");
+        else        gg.addColorStop(0, "rgba(124,160,176," + (0.34 * twinkle).toFixed(3) + ")");
+        gg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = gg;
+        ctx.beginPath(); ctx.arc(s.sx, s.sy, glowR, 0, Math.PI * 2); ctx.fill();
+        // core
+        ctx.fillStyle = isNote ? "#F6E7CF" : "#D3DEE1";
+        ctx.beginPath(); ctx.arc(s.sx, s.sy, r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = isNote ? "#C24A38" : "#4E6E7D";
+        ctx.beginPath(); ctx.arc(s.sx, s.sy, r * 0.55, 0, Math.PI * 2); ctx.fill();
+        // named label (noteworthy always, plus any focused star)
+        if (isNote || isFocus) {
+          ctx.fillStyle = isFocus ? "rgba(231,225,210,0.96)" : "rgba(226,194,78,0.78)";
+          ctx.font = (isFocus ? "600 13px" : "12px") + " ui-serif, Georgia, serif";
+          var label = shortTitle(s.title, isFocus ? 44 : 26);
+          ctx.fillText(label, s.sx + r + 8, s.sy + 4);
+        }
+      });
+
+      if (running) raf = requestAnimationFrame(draw);
+    }
+
+    function shortTitle(t, n) { return t.length > n ? t.slice(0, n - 1) + "…" : t; }
+
+    function spawnComet() {
+      if (comets.length > 6) return;
+      var p = PULSE_POOL[Math.floor(Math.random() * PULSE_POOL.length)];
+      var edge = Math.random() * Math.PI * 2;
+      var startR = maxR * 1.15;
+      var wx = cx + Math.cos(edge) * startR, wy = cy + Math.sin(edge) * startR;
+      var target = edge + Math.PI + (Math.random() - 0.5) * 1.2;
+      comets.push({
+        wx: wx, wy: wy,
+        vx: Math.cos(target) * (1.4 + Math.random()),
+        vy: Math.sin(target) * (1.4 + Math.random()),
+        life: 0, dur: 4200 + Math.random() * 2600,
+        label: p.kind === "bird" ? p.txt.split(" — ")[0] : (p.kind === "run" ? "run " + p.meta : p.txt)
+      });
+    }
+
+    function pickNearest(mx, my) {
+      var best = null, bd = 26 * 26;
+      stars.forEach(function (s) {
+        var dx = s.sx - mx, dy = s.sy - my, d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = s; }
+      });
+      return best;
+    }
+
+    function showTip(s, mx, my) {
+      var isNote = s.type === "note";
+      var col = isNote ? "#c94a38" : "#7ca0b0";
+      tip.innerHTML =
+        '<div class="tt-kind" style="color:' + col + '">' + (isNote ? "cardinal · noteworthy" : "heron · less-noteworthy") + " · " + esc(s.tag) + "</div>" +
+        '<div class="tt-title">' + esc(s.title) + "</div>" +
+        '<div class="tt-meta">' + esc(s.meta) + "</div>";
+      tip.style.left = mx + "px"; tip.style.top = my + "px";
+      tip.classList.add("show");
+    }
+    function hideTip() { tip.classList.remove("show"); }
+
+    function focusStar(s) {
+      selected = s;
+      cam.tzoom = 1.32; cam.tpanx = cx - s.x; cam.tpany = cy - s.y;
+      if (!running || RM) draw(performance.now());
+    }
+    function resetView() {
+      selected = null; cam.tzoom = 1; cam.tpanx = 0; cam.tpany = 0;
+      if (!running || RM) draw(performance.now());
+    }
+
+    function onMove(e) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var s = pickNearest(mx, my);
+      hovered = s;
+      canvas.style.cursor = s ? "pointer" : "grab";
+      if (s) showTip(s, mx, my); else hideTip();
+      if (!running) draw(performance.now());
+    }
+    function onLeave() { hovered = null; hideTip(); if (!running) draw(performance.now()); }
+    function onClick(e) {
+      var rect = canvas.getBoundingClientRect();
+      var s = pickNearest(e.clientX - rect.left, e.clientY - rect.top);
+      if (s) focusStar(s); else resetView();
+    }
+
+    function build() {
+      if (built) return;
+      built = true;
+      canvas = document.getElementById("planetCanvas");
+      ctx = canvas.getContext("2d");
+      tip = document.getElementById("planetTip");
+      reset = document.getElementById("planetReset");
+      buildModel();
+      canvas.addEventListener("mousemove", onMove);
+      canvas.addEventListener("mouseleave", onLeave);
+      canvas.addEventListener("click", onClick);
+      reset.addEventListener("click", resetView);
+      if (window.ResizeObserver) new ResizeObserver(function () { resize(); }).observe(canvas);
+      else window.addEventListener("resize", resize);
+    }
+
+    function start() {
+      build(); resize();
+      t0 = performance.now();
+      if (RM) { running = false; draw(performance.now()); return; }
+      running = true;
+      comets = [];
+      for (var i = 0; i < 3; i++) spawnComet();
+      raf = requestAnimationFrame(draw);
+      nextComet = setInterval(spawnComet, 2600);
+    }
+    function stop() {
+      running = false;
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      clearInterval(nextComet);
+    }
+    return { start: start, stop: stop };
+  })();
+
+  /* ================================================================
+     TAB SWITCHING — only the active view animates
+     ================================================================ */
+  var VIEWS = { ledger: ledger, ticker: ticker, planet: planet };
+  var PANELS = { ledger: "view-ledger", ticker: "view-ticker", planet: "view-planet" };
+  var current = null;
+
+  function activate(name) {
+    if (current === name) return;
+    if (current && VIEWS[current]) VIEWS[current].stop();
+    Object.keys(PANELS).forEach(function (k) {
+      document.getElementById(PANELS[k]).classList.toggle("is-active", k === name);
+    });
+    var btns = document.querySelectorAll(".seg-btn");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-selected", btns[i].getAttribute("data-view") === name ? "true" : "false");
+    }
+    current = name;
+    requestAnimationFrame(function () { VIEWS[name].start(); });
+  }
+
+  var btns = document.querySelectorAll(".seg-btn");
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener("click", function () { activate(this.getAttribute("data-view")); });
+  }
+
+  if (RM) {
+    var rm = document.getElementById("rmNote");
+    rm.classList.add("reduced");
+    document.getElementById("rmText").textContent = "reduced-motion on · animation disabled, static fallbacks shown";
+  }
+
+  activate("ledger");
+})();
+</script>
