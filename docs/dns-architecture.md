@@ -14,7 +14,7 @@ rollback publisher.
 | Current DNS authority | Cloudflare zone `602400322c1ecac4983542c76af90115`, nameservers `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. This is the public authority. |
 | Records | apex `CNAME` → `transscendsurvival-org.pages.dev` (proxied / orange-cloud); `www` `CNAME` → `transscendsurvival-org.pages.dev` (proxied / orange-cloud). |
 | Serving | Cloudflare Pages at the apex and `www`. GitHub Pages remains the rollback publisher; `static/CNAME` = `transscendsurvival.org` stays in place for fallback. |
-| Cloudflare Pages | Production: the `transscendsurvival.org` and `www.transscendsurvival.org` custom domains on project `transscendsurvival-org` are ACTIVE + serving. Shadow: `tss.tinyland.dev` / `tss.ephemera.tinyland.dev`. |
+| Cloudflare Pages | Production: the `transscendsurvival.org` and `www.transscendsurvival.org` custom domains on project `transscendsurvival-org` are ACTIVE + serving. Shadow: `tss.tinyland.dev` is served by the dedicated Pages project `tss-shadow` (custom domain moved off `transscendsurvival-org` 2026-07-07 — Pages custom domains always serve a project's *production* deployment, so the shadow build is `tss-shadow`'s production); `tss.ephemera.tinyland.dev` remains on `transscendsurvival-org`. |
 | DNSSEC | Active. Cloudflare Registrar publishes the parent DS; Cloudflare signs the zone. |
 | Cert | Cloudflare Pages-managed certs for apex and `www`. GitHub Pages-managed cert remains relevant only for rollback. |
 
@@ -156,8 +156,11 @@ failing DreamHost DNS platform from the target resolution path.
 
 The Cloudflare Pages project `transscendsurvival-org` serves the production apex
 and `www` as of 2026-06-23. It builds via
-`.github/workflows/cloudflare-pages-shadow.yml`; the shadow domains
-`tss.tinyland.dev` and `tss.ephemera.tinyland.dev` continue to build.
+`.github/workflows/cloudflare-pages-shadow.yml`; the shadow domain
+`tss.ephemera.tinyland.dev` continues to build there. `tss.tinyland.dev` moved to
+the dedicated `tss-shadow` Pages project on 2026-07-07 and goes stale on
+shadow-branch pushes until redeployed (`wrangler pages deploy build
+--project-name=tss-shadow --branch=main` with the lab admin CF token).
 
 The cut followed the safe order below, which stays load-bearing for any future
 rollback-and-recut. The hard rule: **NEVER flip a production hostname to the
