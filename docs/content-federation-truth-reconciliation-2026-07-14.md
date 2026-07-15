@@ -426,32 +426,20 @@ after #228 merged, its checkout was clean, and its exact HEAD matched the
 merged pull-request head. No branch was deleted. No operator-owned or unrelated
 agent worktree was modified.
 
-Active and meaningful:
+The registered worktree inventory at the end of this audit has four entries:
 
 - `docs/content-federation-truth-20260714` for this audit (#226).
-- `shadow-ui` for blog #217.
-- `ws5-node-shadow` for open, operator-gated blog #216.
-- `footer-fix` for draft blog #140.
-- `blog-chore` for open blog #225 and `kvm-post` for open blog #224. These
-  are independently owned content/ops lanes, not federation cleanup residue.
+- `shadow-ui` at #217's exact head `bc08910b1`; the pull request is a draft.
+- `footer-fix` at #140's exact head `915ccea0b`; the pull request is a draft.
+- `ws5-node-shadow` at local head `37dfb7033`. Pull request #216 has already
+  merged at `0907bb6e`, from remote head `3c233d9f`; this behind checkout is
+  merged-lane residue, not an open operator gate or source of runtime truth.
 
-Worktree presence is not pull-request authority. The `blog-chore` and
-`kvm-post` checkouts track `origin/main` instead of their actual remote
-branches; both actual branches are two commits ahead of the local checkout.
-`ws5-node-shadow` correctly tracks its remote branch but is also two commits
-behind. Those independently owned lanes were reported, not rewritten.
-
-Retired or prunable after one final unique-commit check:
-
-- Missing `/private/tmp/blog-frontdoor`, whose pull request #218 merged.
-- `gates-retry` and `gates-serial`, whose pull requests #221 and #219 merged.
-- `gates-fix`, whose pull request #227 merged, and `gates-mem`, whose pull
-  request #229 closed after its unique safeguard was folded into #228. They
-  remain untouched pending an owner-side final unique-commit check.
-- Historical `worktree-wf_*` branches that are already ancestors of `main`
-  and have no remote pull request.
-- Merged-PR residue under several `codex/*`, `docs/*`, `feat/*`, `fix/*`,
-  `infra/*`, `jess/fix-*`, and `posts/*` branches.
+Open pull request #224 has no registered local worktree. Merged pull request
+#225 likewise has no registered worktree. The earlier `blog-chore`, `kvm-post`,
+and gate-retry worktrees are absent from `git worktree list`; they are not
+pending registered-worktree cleanup. No operator-owned worktree was removed or
+rewritten during this audit.
 
 Operator classification required before cleanup:
 
