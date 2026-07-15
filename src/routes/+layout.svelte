@@ -43,15 +43,32 @@
 	let bannerNaturalHeight = 0;
 	let scrolledPastBanner = $state(false);
 
+	// Primary nav (TIN-2903 ratified reduction): the Blog link is retired — "/" is
+	// now the reader home, reached via the wordmark — and Signal Boosts is demoted
+	// to the footer "More" group. Photography/Music/Making/CV/About are unchanged.
 	const navLinks = [
-		{ href: '/blog', label: 'Blog' },
 		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
 		{ href: '/making', label: 'Making' },
-		{ href: '/signal-boosts', label: 'Signal Boosts' },
 		{ href: '/cv', label: 'CV' },
 		{ href: '/about', label: 'About' },
 	];
+
+	// Footer "More" group: primary-demoted plus previously-unlinked destinations.
+	const footerMoreLinks = [
+		{ href: '/blog', label: 'Full archive (/blog)' },
+		{ href: '/signal-boosts', label: 'Signal Boosts' },
+		{ href: '/aag', label: 'AAG 2019 poster' },
+		{ href: '/consultancy', label: 'Consultancy' },
+	];
+
+	// Public build SHA, injected at build time via Vite `define` (see
+	// vite.config.ts). Empty unless a real published build sets PUBLIC_BUILD_SHA /
+	// GITHUB_SHA — the footer provenance line renders only when it is present.
+	const buildSha = __BUILD_SHA__;
+	const buildShaShort = buildSha.slice(0, 7);
+
+	const isReaderHome = $derived($page.url.pathname === '/');
 
 	onMount(() => {
 		theme.init();
@@ -59,9 +76,11 @@
 		// Scroll-fade for hero banner
 		if (bannerRef) bannerNaturalHeight = bannerRef.offsetHeight;
 		const onScroll = () => {
+			// Glass-nav tracks scroll on every route, including "/" where the reader
+			// owns its own masthead and no layout hero banner is present.
+			scrolledPastBanner = window.scrollY > 50;
 			if (!bannerRef || !bannerNaturalHeight) return;
 			bannerOpacity = Math.max(0, 1 - window.scrollY / bannerNaturalHeight);
-			scrolledPastBanner = window.scrollY > 50;
 		};
 		window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -113,7 +132,7 @@
 		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
 			<AppBar.Lead>
 				<a
-					href="/blog"
+					href="/"
 					class="text-lg font-bold font-heading-hero hover:text-primary-500 transition-colors whitespace-nowrap tracking-wide"
 				>
 					transscendsurvival.org
@@ -122,21 +141,20 @@
 			<AppBar.Headline></AppBar.Headline>
 			<AppBar.Trail>
 				<nav class="hidden md:flex items-center gap-3 text-sm">
-						{#each navLinks as { href, label } (href)}
-							<a
-								{href}
-								class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
-								aria-label={label}
-								>{label}</a
-							>
-						{/each}
+					{#each navLinks as { href, label } (href)}
 						<a
-							href="https://github.com/Jesssullivan"
-							class="hover:text-primary-500 transition-colors"
-							target="_blank"
-							rel="noopener"
-							aria-label="GitHub profile">GitHub</a
+							{href}
+							class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
+							aria-label={label}>{label}</a
 						>
+					{/each}
+					<a
+						href="https://github.com/Jesssullivan"
+						class="hover:text-primary-500 transition-colors"
+						target="_blank"
+						rel="noopener"
+						aria-label="GitHub profile">GitHub</a
+					>
 					<ThemeSwitcher />
 				</nav>
 				<!-- Mobile drawer trigger -->
@@ -249,43 +267,46 @@
 		</AppBar.Toolbar>
 	</AppBar>
 
-	<!-- Hero banner — visible on all pages, scroll-fades -->
-	<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
-		<picture>
-			<source srcset="/images/header.webp" type="image/webp" />
-			<img
-				src="/images/header.png"
-				alt="Great Blue Heron"
-				class="hero-banner-img"
-				width="672"
-				height="219"
-				fetchpriority="high"
-				decoding="sync"
-			/>
-		</picture>
-		<div class="hero-banner-overlay">
-			<p class="hero-banner-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl" role="banner">Trans Scend Survival</p>
-			<div class="hero-banner-separator" aria-hidden="true"></div>
-			<p class="hero-banner-description">
-				<span class="hero-banner-description-word"
-					><strong>Trans:</strong> Latin prefix implying &ldquo;across&rdquo; or &ldquo;Beyond&rdquo;, often used in gender
-					nonconforming situations</span
-				>
-				<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
-				<span class="hero-banner-description-word"
-					><strong>Scend:</strong> Archaic word describing a strong &ldquo;surge&rdquo; or &ldquo;wave&rdquo;, originating
-					with 15th century english sailors</span
-				>
-				<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
-				<span class="hero-banner-description-word"
-					><strong>Survival:</strong> 15th century english compound word describing an existence only worth transcending</span
-				>
-			</p>
-			<p class="hero-banner-subtitle text-base sm:text-lg lg:text-xl">Jess Sullivan</p>
-		</div>
-	</section>
+	<!-- Hero banner — scroll-fades; suppressed on the reader home "/", where the
+	     Observatory masthead carries the identity and its own scroll-fade. -->
+	{#if !isReaderHome}
+		<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
+			<picture>
+				<source srcset="/images/header.webp" type="image/webp" />
+				<img
+					src="/images/header.png"
+					alt="Great Blue Heron"
+					class="hero-banner-img"
+					width="672"
+					height="219"
+					fetchpriority="high"
+					decoding="sync"
+				/>
+			</picture>
+			<div class="hero-banner-overlay">
+				<p class="hero-banner-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl" role="banner">Trans Scend Survival</p>
+				<div class="hero-banner-separator" aria-hidden="true"></div>
+				<p class="hero-banner-description">
+					<span class="hero-banner-description-word"
+						><strong>Trans:</strong> Latin prefix implying &ldquo;across&rdquo; or &ldquo;Beyond&rdquo;, often used in gender
+						nonconforming situations</span
+					>
+					<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+					<span class="hero-banner-description-word"
+						><strong>Scend:</strong> Archaic word describing a strong &ldquo;surge&rdquo; or &ldquo;wave&rdquo;, originating
+						with 15th century english sailors</span
+					>
+					<span class="hero-banner-description-dash" aria-hidden="true">&mdash;</span>
+					<span class="hero-banner-description-word"
+						><strong>Survival:</strong> 15th century english compound word describing an existence only worth transcending</span
+					>
+				</p>
+				<p class="hero-banner-subtitle text-base sm:text-lg lg:text-xl">Jess Sullivan</p>
+			</div>
+		</section>
+	{/if}
 
-	{#if $page.url.pathname.startsWith('/blog')}
+	{#if isReaderHome || $page.url.pathname.startsWith('/blog')}
 		<main id="main-content" class="flex-1">
 			{@render children()}
 		</main>
@@ -341,5 +362,29 @@
 				rel="noopener">source</a
 			>
 		</p>
+
+		<!-- More group: destinations demoted from / never in primary nav (TIN-2903). -->
+		<nav class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs" aria-label="More">
+			<span class="uppercase tracking-wider text-surface-400">More</span>
+			{#each footerMoreLinks as { href, label }, i (href)}
+				{#if i > 0}<span class="text-surface-400">·</span>{/if}
+				<a {href} class="hover:text-primary-500 transition-colors">{label}</a>
+			{/each}
+		</nav>
+
+		{#if buildSha}
+			<p class="mt-2 text-xs text-surface-400 font-mono">
+				built from <a
+					href="https://github.com/Jesssullivan/jesssullivan.github.io/commit/{buildSha}"
+					class="hover:text-primary-500 transition-colors underline"
+					target="_blank"
+					rel="noopener">{buildShaShort}</a
+				> · GitHub-verified
+			</p>
+		{/if}
+
+		<!-- TODO(TIN-2903): record the Great Blue Heron header asset's provenance in a
+		     credits register before public ship. Provenance is currently unrecorded —
+		     do not fabricate an attribution line here. -->
 	</footer>
 </div>
