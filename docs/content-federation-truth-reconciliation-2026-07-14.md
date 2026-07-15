@@ -269,13 +269,14 @@ The following were not ratified or not completed:
 - **tinyland.dev #737 and #738:** draft citation and proof-runbook work for
   TIN-2416. #737 head `c251074f1` now emits TIN-2416 as the sole current gate,
   while TIN-1119 remains solely as dated history or roster provenance. #738
-  head `237adba90` preserves normalized SPKI DER hashing and now explicitly
-  labels itself a non-executable proof specification. It corrects the ConfigMap
-  apply and rollback surface, makes the advertised-inbox/proof-plane seam a hard
-  gate, requires bounded retry/drain evidence, and adds final NodeInfo/public-copy
-  reconciliation. TIN-2801, TIN-2731, TIN-2883, the route convergence, and every
-  live peer proof still remain open. Neither draft is merged behavior or a
-  completed live signed-peer proof.
+  head `4223d0bc2` preserves normalized SPKI DER hashing, makes its key gate
+  neutral between a ratified retain path and a ratified rotate path, and
+  explicitly labels itself a non-executable proof specification. It corrects
+  the ConfigMap apply and rollback surface, makes the
+  advertised-inbox/proof-plane seam a hard gate, requires bounded retry/drain
+  evidence, and adds final NodeInfo/public-copy reconciliation. TIN-2801,
+  TIN-2731, TIN-2883, route convergence, and every live peer proof still remain
+  open. Neither draft is merged behavior or a completed live signed-peer proof.
 - **tinyland.dev #702 / TIN-2648:** decision packet only; no ratification or
   live custody implementation.
 - **tinyland-auth #41 and #42, tinyland-invitation #12 and #14:** draft
