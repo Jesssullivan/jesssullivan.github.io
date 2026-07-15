@@ -9,15 +9,9 @@ category: "hardware"
 author_slug: "jesssullivan"
 ---
 
-Tiny discovery.
+Quick reference for letting a USB KVM HID device enumerate on a Mac that is sitting at the login window, when Screen Sharing is not usable and SSH is.
 
-I was decommissioning a Mac and needed a USB KVM HID device to enumerate before I wiped the machine. The fun part was that the Mac was sitting at the login window, Screen Sharing was not getting me into a usable session, and SSH worked perfectly.
-
-So naturally the accessory prompt was somewhere I could not click.
-
-On Apple silicon Mac laptops, macOS can block data for new USB, Thunderbolt, and similar accessories until a console user approves them. That is the right default! It is also a lil awkward when the whole point of the KVM is "please let me reach the console from over here."
-
-The SSH-side workaround that got me moving was flipping the local accessory restriction preference off. The key name is inverted from the thing you want: `allowUSBRestrictedMode` set to `false` is what disables the restriction and lets the accessory talk without a console click:
+On Apple silicon Mac laptops, macOS blocks data for new USB, Thunderbolt, and similar accessories until a console user approves them. From SSH, the local escape hatch is the `com.apple.applicationaccess` restriction preference. The key name is inverted from the thing you want: `allowUSBRestrictedMode` set to `false` is what disables the restriction and lets the accessory talk without a console click:
 
 ```bash
 TARGET="user@mac-on-your-network"
@@ -34,7 +28,7 @@ printf '%s\n' "$SUDO_PASS" | ssh -tt "$TARGET" \
 unset SUDO_PASS
 ```
 
-Then I rechecked the USB tree:
+Recheck the USB tree:
 
 ```bash
 ssh "$TARGET" \
@@ -48,15 +42,15 @@ ssh "$TARGET" \
   "/usr/sbin/ioreg -r -c IOHIDDevice -l -w0 | /usr/bin/grep -E '^\\+-o |\"Product\"|\"Manufacturer\"|\"Transport\"|\"VendorID\"|\"ProductID\"|\"Built-In\"'"
 ```
 
-After that, the NanoKVM showed up as both a USB device and USB HID device.
+The KVM should now enumerate as both a USB device and a USB HID device.
 
-Huzzah.
+Notes:
 
-Two caveats. First, do not put the sudo password in the SSH command line; process listings and shell history are boring places to leak secrets. Second, Apple documents the durable control as a device-level `com.apple.applicationaccess` restrictions profile, normally delivered by MDM. The local preference was enough for this one-off decommissioning session, but it is an escape hatch rather than a fleet-enforcement mechanism.
+- Do not put the sudo password in the SSH command line; process listings and shell history are boring places to leak secrets.
+- Apple documents the durable control as a device-level `com.apple.applicationaccess` restrictions profile, normally delivered by MDM. The local preference is a one-off escape hatch, not fleet enforcement.
+- On a Mac whose USB is load-bearing — external SSD scratch for nix and bazel, YubiKeys, darwin artifact builds that have to keep enumerating with nobody at the console — you want this off durably through that device-level profile rather than poked in ad hoc. Same knob, opposite lifetime.
 
-The flip side: on a Mac whose USB is load-bearing — external SSD scratch for nix and bazel, YubiKeys, darwin artifact builds that have to keep enumerating even when nobody is at the console — you probably want this off *durably* through that device-level profile rather than poked in ad hoc. Same knob, opposite lifetime.
-
-When done, either wipe the Mac as planned or undo the local override (deleting the key restores the default, so approval prompts come back):
+When done, either wipe the Mac as planned or undo the local override; deleting the key restores the default, so approval prompts come back:
 
 ```bash
 read -rsp "sudo password for remote Mac: " SUDO_PASS
@@ -67,7 +61,3 @@ printf '%s\n' "$SUDO_PASS" | ssh -tt "$TARGET" \
 
 unset SUDO_PASS
 ```
-
-Tiny gate. Useful escape hatch.
-
--Jess
