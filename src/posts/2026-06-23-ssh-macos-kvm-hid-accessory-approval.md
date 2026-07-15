@@ -7,6 +7,7 @@ published: true
 slug: "ssh-macos-kvm-hid-accessory-approval"
 category: "hardware"
 author_slug: "jesssullivan"
+editorial_tier: "less-noteworthy"
 ---
 
 Quick reference for letting a USB KVM HID device enumerate on a Mac that is sitting at the login window, when Screen Sharing is not usable and SSH is.
