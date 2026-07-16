@@ -3,7 +3,7 @@ title: "The tiny SSH trick for letting a USB KVM talk to a locked Mac"
 date: "2026-06-23"
 description: "A quick macOS tip for allowing a NanoKVM-style USB HID accessory from an SSH session when Screen Sharing is unavailable and the Mac is stuck at the login window."
 tags: ["macOS", "hardware", "homelab", "usb-protocol", "kvm", "ssh"]
-published: true
+published: false
 slug: "ssh-macos-kvm-hid-accessory-approval"
 category: "hardware"
 author_slug: "jesssullivan"
