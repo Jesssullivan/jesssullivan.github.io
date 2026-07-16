@@ -22,7 +22,7 @@
 		<!-- Mobile compact: horizontal layout -->
 		<div class="flex items-center gap-4 mb-4">
 			<img
-				src="https://github.com/Jesssullivan.png"
+				src="/images/profile-avatar.jpg"
 				alt="Jess Sullivan"
 				width="64"
 				height="64"
@@ -38,7 +38,7 @@
 		<!-- Desktop: vertical card layout -->
 		<div class="text-center mb-4">
 			<img
-				src="https://github.com/Jesssullivan.png"
+				src="/images/profile-avatar.jpg"
 				alt="Jess Sullivan"
 				width="250"
 				height="250"
