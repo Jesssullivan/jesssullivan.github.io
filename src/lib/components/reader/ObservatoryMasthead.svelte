@@ -15,7 +15,10 @@
 	// lives in the ConstellationSection elsewhere on the page.
 	let { posts = [], pulseItems = [] }: { posts?: Post[]; pulseItems?: PublicPulseItem[] } = $props();
 
-	// Reactive UI state.
+	// Reactive UI state. The heron identity stays the SSR/no-JS state, but the
+	// constellation crossfades in at hydration (operator ruling 2026-07-15:
+	// visible on load, not gated behind a dwell interval) — except under
+	// reduced motion, where visitors stay on the static heron.
 	let showB = $state(false); // false = heron (A), true = constellation (B)
 	let paused = $state(false);
 	let reduced = $state(false);
@@ -26,6 +29,8 @@
 
 	// Non-reactive per-instance animation state.
 	let hovered = false;
+	let inView = true;
+	let docVisible = true;
 	let dwellTimer: ReturnType<typeof setInterval> | null = null;
 	let cometTimer: ReturnType<typeof setInterval> | null = null;
 	let raf = 0;
@@ -35,7 +40,8 @@
 	let dpr = 1;
 	let cx = 0;
 	let cy = 0;
-	let maxR = 0;
+	let maxRx = 0;
+	let maxRy = 0;
 	let drift = 0;
 	let lastT = 0;
 
@@ -104,11 +110,14 @@
 	function layout() {
 		cx = W / 2;
 		cy = H / 2;
-		maxR = Math.min(W, H * 2.2) * 0.44;
+		// Fill the band on both axes: an ellipse matched to the band's own
+		// aspect, instead of the earlier hard y*0.5 squish against one radius.
+		maxRx = W * 0.42;
+		maxRy = H * 0.42;
 		for (const s of stars) {
 			const a = s.ang + drift;
-			s.x = cx + Math.cos(a) * s.distR * maxR;
-			s.y = cy + Math.sin(a) * s.distR * maxR * 0.5;
+			s.x = cx + Math.cos(a) * s.distR * maxRx;
+			s.y = cy + Math.sin(a) * s.distR * maxRy;
 		}
 	}
 
@@ -123,19 +132,19 @@
 		canvasEl.height = Math.round(H * dpr);
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		layout();
-		if (paused || reduced) drawFrame(performance.now());
+		if (!raf) drawFrame(performance.now()); // keep a crisp static frame when the loop is idle
 	}
 
 	function spawnComet() {
 		if (comets.length > 6 || pulseItems.length === 0) return;
 		const edge = Math.random() * Math.PI * 2;
-		const startR = maxR * 1.2;
 		const target = edge + Math.PI + (Math.random() - 0.5) * 1.2;
+		const aspect = maxRx > 0 ? maxRy / maxRx : 1;
 		comets.push({
-			wx: cx + Math.cos(edge) * startR,
-			wy: cy + Math.sin(edge) * startR * 0.5,
+			wx: cx + Math.cos(edge) * maxRx * 1.2,
+			wy: cy + Math.sin(edge) * maxRy * 1.2,
 			vx: Math.cos(target) * (1.3 + Math.random()),
-			vy: Math.sin(target) * (1.3 + Math.random()) * 0.6,
+			vy: Math.sin(target) * (1.3 + Math.random()) * aspect,
 			life: 0,
 			dur: 4200 + Math.random() * 2600,
 		});
@@ -145,7 +154,7 @@
 		if (!ctx) return;
 		const dt = lastT ? now - lastT : 16;
 		lastT = now;
-		const running = !paused && !reduced;
+		const running = shouldRun();
 		if (running) {
 			drift += dt * 0.00002; // slow living-sky rotation
 			layout();
@@ -153,7 +162,7 @@
 
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 		ctx.clearRect(0, 0, W, H);
-		const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 1.6);
+		const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRx * 1.6);
 		g.addColorStop(0, 'rgba(24,40,48,0.45)');
 		g.addColorStop(1, 'rgba(6,10,13,0)');
 		ctx.fillStyle = g;
@@ -164,7 +173,7 @@
 		ctx.lineWidth = 1;
 		for (let rr = 0.33; rr <= 1.0; rr += 0.335) {
 			ctx.beginPath();
-			ctx.ellipse(cx, cy, maxR * rr, maxR * rr * 0.5, 0, 0, Math.PI * 2);
+			ctx.ellipse(cx, cy, maxRx * rr, maxRy * rr, 0, 0, Math.PI * 2);
 			ctx.stroke();
 		}
 
@@ -235,20 +244,28 @@
 		}
 
 		if (running) raf = requestAnimationFrame(drawFrame);
+		else raf = 0;
 	}
 
-	function startLoop() {
-		stopLoop();
+	// The loop only spends frames when the constellation can actually be seen:
+	// its layer showing, the masthead in the viewport, and the tab visible.
+	function shouldRun() {
+		return !paused && !reduced && showB && inView && docVisible;
+	}
+
+	function syncLoop() {
 		if (!ctx) return;
-		lastT = 0;
-		if (paused || reduced) {
-			drawFrame(performance.now());
-			return;
+		if (shouldRun()) {
+			if (raf) return;
+			lastT = 0;
+			if (comets.length === 0) for (let i = 0; i < 3; i++) spawnComet();
+			raf = requestAnimationFrame(drawFrame);
+			if (!cometTimer) cometTimer = setInterval(spawnComet, 2600);
+		} else {
+			stopLoop();
+			// Paused-but-visible keeps a crisp static frame on the canvas.
+			if (showB && inView && docVisible) drawFrame(performance.now());
 		}
-		comets = [];
-		for (let i = 0; i < 3; i++) spawnComet();
-		raf = requestAnimationFrame(drawFrame);
-		cometTimer = setInterval(spawnComet, 2600);
 	}
 
 	function stopLoop() {
@@ -263,19 +280,22 @@
 		dwellTimer = null;
 		if (reduced) return;
 		dwellTimer = setInterval(() => {
-			if (!paused && !hovered) showB = !showB;
+			if (!paused && !hovered) {
+				showB = !showB;
+				syncLoop();
+			}
 		}, DWELL_MS);
 	}
 
 	function toggleState() {
 		showB = !showB;
 		armDwell(); // reset dwell so the manual choice is honoured for a full interval
+		syncLoop();
 	}
 
 	function togglePause() {
 		paused = !paused;
-		if (paused) stopLoop();
-		else startLoop();
+		syncLoop();
 	}
 
 	onMount(() => {
@@ -283,10 +303,11 @@
 		ctx = canvasEl.getContext('2d');
 		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		if (reduced) paused = true; // motion is off; the play button reflects it
+		else showB = true; // constellation crossfades in on load (heron stays the no-JS state)
 
 		buildModel();
 		resize();
-		startLoop();
+		syncLoop();
 		armDwell();
 
 		let ro: ResizeObserver | undefined;
@@ -294,6 +315,21 @@
 			ro = new ResizeObserver(() => resize());
 			ro.observe(canvasEl);
 		}
+
+		// Frames are only spent while the masthead can actually be seen.
+		let io: IntersectionObserver | undefined;
+		if (window.IntersectionObserver && rootEl) {
+			io = new IntersectionObserver((entries) => {
+				inView = entries[0]?.isIntersecting ?? true;
+				syncLoop();
+			});
+			io.observe(rootEl);
+		}
+		const onVisibility = () => {
+			docVisible = !document.hidden;
+			syncLoop();
+		};
+		document.addEventListener('visibilitychange', onVisibility);
 
 		// Scroll-fade: same behaviour as the site hero — fade the whole masthead
 		// out over its own height as the reader scrolls into the ledger.
@@ -308,6 +344,8 @@
 			stopLoop();
 			if (dwellTimer) clearInterval(dwellTimer);
 			ro?.disconnect();
+			io?.disconnect();
+			document.removeEventListener('visibilitychange', onVisibility);
 			window.removeEventListener('scroll', onScroll);
 		};
 	});
@@ -390,8 +428,16 @@
 	.observatory-masthead {
 		position: relative;
 		overflow: hidden;
-		min-height: 280px;
+		min-height: clamp(360px, 48vh, 640px);
 		background: #0e1316;
+	}
+	/* Inside the fixed-height band the heron must cover, not size the layer. */
+	.mast-layer picture {
+		display: block;
+		height: 100%;
+	}
+	.mast-layer .hero-banner-img {
+		height: 100%;
 	}
 	.mast-layer {
 		position: absolute;
