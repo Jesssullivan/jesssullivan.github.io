@@ -18,10 +18,12 @@
 	const shown = $derived(rows.slice(0, cap));
 	const total = $derived(archiveTotal ?? rows.length);
 
-	function monthDay(iso: string): string {
+	// Full ISO date: the ledger spans a decade of entries, so a month-day
+	// alone is ambiguous across years.
+	function isoDay(iso: string): string {
 		if (!iso) return '';
 		const d = new Date(iso);
-		return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 	}
 </script>
 
@@ -39,8 +41,8 @@
 			<tbody>
 				{#each shown as post (post.slug)}
 					<tr class="border-b border-surface-300-700 align-baseline">
-						<td class="py-2 pr-3 font-mono text-xs text-surface-500 tabular-nums whitespace-nowrap w-[5em]">
-							{monthDay(post.date)}
+						<td class="py-2 pr-3 font-mono text-xs text-surface-500 tabular-nums whitespace-nowrap w-[7em]">
+							<time datetime={post.date}>{isoDay(post.date)}</time>
 						</td>
 						<td class="py-2 pr-3">
 							<TierBadge tier={post.editorial_tier} class="mr-1 align-middle" />

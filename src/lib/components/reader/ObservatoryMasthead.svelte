@@ -396,7 +396,10 @@
 			/>
 		</picture>
 		<div class="hero-banner-overlay">
-			<p class="hero-banner-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl" role="banner">Trans Scend Survival</p>
+			<!-- The reader home's document h1 (the layout's banner hero is suppressed
+			     on "/"); role="banner" is NOT used here — this sits inside <main>,
+			     and the AppBar header already provides the page's banner landmark. -->
+			<h1 class="hero-banner-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl">Trans Scend Survival</h1>
 			<div class="hero-banner-separator" aria-hidden="true"></div>
 			<p class="hero-banner-description">
 				<span class="hero-banner-description-word"
