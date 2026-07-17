@@ -34,6 +34,26 @@ test.describe('Navigation', () => {
 		await expect(footer.locator('a[href="/feed.xml"]')).toBeVisible();
 		await expect(footer.locator('a[href="/feed.json"]')).toBeVisible();
 	});
+
+	test('footer keeps bottom clearance in preview-sized viewports', async ({ page }) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto('/cv');
+		await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+		const clearance = await page.evaluate(() => {
+			const footer = Array.from(document.querySelectorAll('footer')).at(-1);
+			if (!footer) return 0;
+
+			const visibleDescendants = Array.from(footer.querySelectorAll('*'))
+				.map((element) => element.getBoundingClientRect())
+				.filter((rect) => rect.width > 0 && rect.height > 0);
+			const lowestContentBottom = Math.max(...visibleDescendants.map((rect) => rect.bottom));
+
+			return window.innerHeight - lowestContentBottom;
+		});
+
+		expect(clearance).toBeGreaterThanOrEqual(88);
+	});
 });
 
 test.describe('About Page', () => {
