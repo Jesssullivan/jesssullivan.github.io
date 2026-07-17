@@ -20,7 +20,7 @@
 		"check": "npm run remote:check",
 		"icons:generate": "tsx scripts/generate-favicon-kit.mts",
 		"remote:check": "bash scripts/bazel-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks //static/cv:pdfs_synced_test",
-		"remote:test": "bash scripts/bazel-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke",
+		"remote:test": "bash scripts/bazel-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:shadow_preview_digest_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke",
 		"remote:e2e": "bash scripts/bazel-cache-backed.sh test //:playwright_chromium_e2e",
 		"remote:all": "npm run remote:check && npm run remote:test && npm run remote:e2e",
 		"ingest:tinyland-posts": "tsx scripts/ingest-tinyland-posts.mts --adopt-reviewed",
