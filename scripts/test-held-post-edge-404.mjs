@@ -27,7 +27,7 @@ async function listFunctionFiles(directoryUrl, prefix = '') {
 		const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
 		if (entry.isDirectory()) {
 			files.push(...(await listFunctionFiles(new URL(`${entry.name}/`, directoryUrl), relativePath)));
-		} else if (entry.isFile() && entry.name.endsWith('.js')) {
+		} else if (entry.isFile()) {
 			files.push(relativePath);
 		}
 	}
@@ -35,7 +35,20 @@ async function listFunctionFiles(directoryUrl, prefix = '') {
 	return files.sort();
 }
 
-const functionFiles = await listFunctionFiles(functionsUrl);
+function relativeFunctionPath(rootpath) {
+	const normalized = rootpath.replaceAll('\\', '/');
+	if (normalized.startsWith('functions/')) return normalized.slice('functions/'.length);
+
+	const marker = '/functions/';
+	const markerIndex = normalized.lastIndexOf(marker);
+	assert.notEqual(markerIndex, -1, `Bazel function rootpath is outside functions/: ${rootpath}`);
+	return normalized.slice(markerIndex + marker.length);
+}
+
+const bazelFunctionRootpaths = process.env.PAGES_FUNCTION_ROOTPATHS?.trim();
+const functionFiles = bazelFunctionRootpaths
+	? bazelFunctionRootpaths.split(/\s+/).map(relativeFunctionPath).sort()
+	: await listFunctionFiles(functionsUrl);
 assert.deepEqual(functionFiles, [`blog/${retainedAssetSlug}.js`]);
 const guardedSlugs = functionFiles.map((filename) =>
 	filename.slice('blog/'.length, -'.js'.length)

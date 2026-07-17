@@ -319,19 +319,28 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "pages_function_sources",
+    srcs = glob(
+        ["functions/**"],
+        allow_empty = True,
+    ),
+)
+
 js_test(
     name = "held_post_edge_404_contract",
     copy_data_to_bin = False,
     data = [
+        ":pages_function_sources",
         ".github/workflows/cloudflare-pages-shadow.yml",
         "scripts/test-held-post-edge-404.mjs",
         "static/blog-publication-holds.json",
         "static/_routes.json",
-    ] + glob(
-        ["functions/**"],
-        allow_empty = True,
-    ),
+    ],
     entry_point = "scripts/test-held-post-edge-404.mjs",
+    env = {
+        "PAGES_FUNCTION_ROOTPATHS": "$(rootpaths :pages_function_sources)",
+    },
     patch_node_fs = False,
     tags = [
         "cloudflare-pages",
