@@ -79,6 +79,7 @@ filegroup(
     name = "sveltekit_build_srcs",
     srcs = glob(
         [
+            "functions/**",
             "packages/**",
             "scripts/**",
             "src/**",
@@ -319,6 +320,23 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+js_test(
+    name = "held_post_edge_404_contract",
+    copy_data_to_bin = False,
+    data = [
+        "functions/blog/ssh-macos-kvm-hid-accessory-approval.js",
+        "static/_routes.json",
+    ],
+    entry_point = "scripts/test-held-post-edge-404.mjs",
+    patch_node_fs = False,
+    tags = [
+        "cloudflare-pages",
+        "edge-contract",
+        "gloriousflywheel-rbe-candidate",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -339,6 +357,7 @@ exports_files(
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
         "scripts/test-cloudflare-cache-purge-contract.sh",
+        "scripts/test-held-post-edge-404.mjs",
         "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",
