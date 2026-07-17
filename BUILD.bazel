@@ -312,6 +312,13 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+sh_test(
+    name = "cloudflare_cache_purge_contract",
+    srcs = ["scripts/test-cloudflare-cache-purge-contract.sh"],
+    data = [".github/workflows/cloudflare-cache-purge.yml"],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -331,6 +338,7 @@ exports_files(
         "scripts/run-sveltekit-check-bazel.mjs",
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
+        "scripts/test-cloudflare-cache-purge-contract.sh",
         "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",

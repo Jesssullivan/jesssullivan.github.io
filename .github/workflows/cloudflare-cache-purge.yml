@@ -36,6 +36,14 @@ jobs:
             echo '::error::path must not contain a query, fragment, traversal, or whitespace'
             exit 2
           fi
+          if [[ "$TARGET_PATH" == *%* || "$TARGET_PATH" == *\\* || "$TARGET_PATH" == *//* ]]; then
+            echo '::error::path must be canonical and must not contain encoding, backslashes, or empty segments'
+            exit 2
+          fi
+          if [[ "$TARGET_PATH" == "/." || "$TARGET_PATH" == *"/./"* || "$TARGET_PATH" == *"/." ]]; then
+            echo '::error::path must not contain dot segments'
+            exit 2
+          fi
 
           target_url="https://transscendsurvival.org${TARGET_PATH}"
           printf 'url=%s\n' "$target_url" >> "$GITHUB_OUTPUT"
@@ -43,6 +51,7 @@ jobs:
 
       - name: Purge exact URL
         env:
+          ACCOUNT_ID: fdcb4fb750ab79be0800e885f09ddbdc
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           TARGET_URL: ${{ steps.target.outputs.url }}
           ZONE_ID: 602400322c1ecac4983542c76af90115
@@ -79,8 +88,17 @@ jobs:
             REQUEST_BODY="${response%$'\n'*}"
           }
 
+          token_is_active() {
+            [[ "$REQUEST_STATUS" == 200 \
+              && "$(jq -r '.success // false' <<<"$REQUEST_BODY")" == true \
+              && "$(jq -r '.result.status // ""' <<<"$REQUEST_BODY")" == active ]]
+          }
+
           request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'
-          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true ]]; then
+          if ! token_is_active; then
+            request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"
+          fi
+          if ! token_is_active; then
             echo "::error::Cloudflare token verification failed (HTTP $REQUEST_STATUS)"
             jq -r '.errors[]? | "::error::Cloudflare code=\(.code) message=\(.message)"' <<<"$REQUEST_BODY"
             exit 4
