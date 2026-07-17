@@ -1,0 +1,8 @@
+{
+	"version": 1,
+	"include": [
+		"/blog/ssh-macos-kvm-hid-accessory-approval",
+		"/blog/ssh-macos-kvm-hid-accessory-approval/"
+	],
+	"exclude": []
+}

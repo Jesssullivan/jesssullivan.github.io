@@ -12,6 +12,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/cloudflare-pages-shadow.yml"
+      - "functions/**"
       - "package.json"
       - "package-lock.json"
       - "svelte.config.js"
@@ -23,6 +24,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/cloudflare-pages-shadow.yml"
+      - "functions/**"
       - "package.json"
       - "package-lock.json"
       - "svelte.config.js"

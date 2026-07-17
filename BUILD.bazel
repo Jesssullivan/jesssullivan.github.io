@@ -319,6 +319,37 @@ sh_test(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "pages_function_sources",
+    srcs = glob(
+        ["functions/**"],
+        allow_empty = True,
+    ),
+)
+
+js_test(
+    name = "held_post_edge_404_contract",
+    copy_data_to_bin = False,
+    data = [
+        ":pages_function_sources",
+        ".github/workflows/cloudflare-pages-shadow.yml",
+        "scripts/test-held-post-edge-404.mjs",
+        "static/blog-publication-holds.json",
+        "static/_routes.json",
+    ],
+    entry_point = "scripts/test-held-post-edge-404.mjs",
+    env = {
+        "PAGES_FUNCTION_ROOTPATHS": "$(rootpaths :pages_function_sources)",
+    },
+    patch_node_fs = False,
+    tags = [
+        "cloudflare-pages",
+        "edge-contract",
+        "gloriousflywheel-rbe-candidate",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
@@ -339,6 +370,7 @@ exports_files(
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
         "scripts/test-cloudflare-cache-purge-contract.sh",
+        "scripts/test-held-post-edge-404.mjs",
         "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",
