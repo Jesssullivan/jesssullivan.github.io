@@ -67,6 +67,12 @@ export interface ConstellationNode {
 	readonly href: string;
 	// Reader-weight tier (post `editorial_tier` / pulse `salience`). Absent = untiered.
 	readonly tier?: PostEditorialTier;
+	// First non-empty tag (display case) — tooltip topic + tag-line basis.
+	readonly tag?: string;
+	// ISO date (post `date` / pulse `occurredAt`) — the time axis.
+	readonly date?: string;
+	// Post `reading_time` in minutes — tooltip meta line (posts only).
+	readonly readingMinutes?: number;
 }
 
 export interface ConstellationGroup {
@@ -78,13 +84,16 @@ export interface ConstellationGroup {
 	readonly nodes: ConstellationNode[];
 }
 
-function postToNode(post: Post): ConstellationNode {
+export function postToConstellationNode(post: Post): ConstellationNode {
 	return {
 		kind: 'post',
 		id: `post:${post.slug}`,
 		label: post.title,
 		href: `/blog/${post.slug}`,
 		tier: post.editorial_tier,
+		tag: post.tags.find((t) => t.trim().length > 0),
+		date: post.date,
+		readingMinutes: post.reading_time,
 	};
 }
 
@@ -95,6 +104,8 @@ function pulseToNode(item: PublicPulseItem): ConstellationNode {
 		label: item.summary,
 		href: '/pulse',
 		tier: item.salience,
+		date: item.occurredAt,
+		tag: item.kind,
 	};
 }
 
@@ -135,7 +146,7 @@ export function buildConstellationGroups(
 			key,
 			label: bucket.label,
 			basis: bucket.basis,
-			nodes: [...bucket.posts].sort(byDateDescThenSlug).map(postToNode),
+			nodes: [...bucket.posts].sort(byDateDescThenSlug).map(postToConstellationNode),
 		}));
 
 	if (pulseItems.length > 0) {
