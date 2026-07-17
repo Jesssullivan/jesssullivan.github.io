@@ -44,10 +44,13 @@ test.describe('Homepage — visual QA across viewports', () => {
 
 			test('navigation is accessible', async ({ page }) => {
 				if (vp.width >= 768) {
-					// Desktop nav: visible inline links (md: breakpoint = 768px)
+					// Desktop nav: visible inline links (md: breakpoint = 768px).
+					// TIN-2903 nav reduction: the Blog link is retired (wordmark → /),
+					// so assert a surviving primary link and the Blog link's absence.
 					const desktopNav = page.locator('nav.hidden.md\\:flex');
 					await expect(desktopNav).toBeVisible();
-					await expect(desktopNav.getByRole('link', { name: 'Blog' })).toBeVisible();
+					await expect(desktopNav.getByRole('link', { name: 'Photography' })).toBeVisible();
+					await expect(desktopNav.getByRole('link', { name: 'Blog' })).toHaveCount(0);
 				} else {
 					// Mobile: hamburger button present
 					const hamburger = page.getByRole('button', { name: 'Open navigation' });
