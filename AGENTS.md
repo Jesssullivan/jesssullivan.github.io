@@ -21,12 +21,42 @@ These rules apply before the writing-style guidance below.
 - Blog and Pulse broker streams are display/projection contracts only. Do not treat them as public Fediverse delivery, and do not weaken broker hydration tests just because prerendered fallback still paints.
 - `static/cv` is synced from the private `spear_resumes` repository. Preserve that boundary and use the existing sync/test path instead of hand-editing generated resume artifacts.
 
+## Cross-Repo Delivery Ownership
+
+- This repo owns blog source, the static build, source-image/digest publication
+  and protected dispatch, and the production Cloudflare Pages contract.
+- `Jesssullivan/jesssullivan-infra` owns the private tailnet acceptance
+  environment: dispatch and digest validation, private image mirroring,
+  RustFS-backed OpenTofu state, the `jesssullivan-blog-shadow` workload, apply
+  workflow, and Tailscale route.
+- `https://jesssullivan-blog-shadow.taila4c78d.ts.net` is the approved active
+  exact-head acceptance and interactive QA route. The Cloudflare Pages shadow
+  workflow and `https://tss.tinyland.dev` remain active compatibility/build
+  surfaces, but they do not prove the digest-pinned private exact-head route.
+  Cloudflare Pages remains production serving.
+- `tinyland-inc/GloriousFlywheel` supplies reusable runner/build, Nix/toolchain,
+  Bazel/cache/RBE, enrollment, and validation substrate. Passing GF checks or
+  running on GF substrate does not transfer application deployment ownership
+  to GF.
+- `tinyland-inc/tinyland.dev` owns mothership content, broker, producer, and
+  federation contracts consumed by this spoke.
+- `tinyland-inc/blahaj` may provide generic cluster receiver/admission
+  interfaces, but it does not own this blog's shadow workload or application
+  lifecycle. `tinyland-inc/lab` may escrow narrowly scoped credentials and
+  bootstrap hosts, but it is not an application deployment owner.
+- Never infer application ownership from the cluster hosting a pod, the repo
+  escrowing a credential, or the runner executing a build. Follow the
+  source-to-digest-to-overlay chain above.
+
 ## Build, Test, And Deploy
 
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
 - Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
 - CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
-- Cloudflare Pages shadow builds come from `.github/workflows/cloudflare-pages-shadow.yml`; PRs are build-only unless the workflow is explicitly eligible to deploy. GitHub Pages deploys come from `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
+- `.github/workflows/cloudflare-pages-shadow.yml` remains the Cloudflare Pages
+  build/deploy lane for production and its compatibility shadow. It is not the
+  private exact-head acceptance authority. GitHub Pages deploys come from
+  `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
 - `.github/workflows/production-health.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
 
 ## Bazel And GloriousFlywheel
