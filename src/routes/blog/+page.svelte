@@ -20,6 +20,7 @@
 
 	const POSTS_PER_PAGE = 20;
 	const brokerEndpoint = TINYLAND_BLOG_BROKER_STREAM_URL;
+	const publicationHolds = new Set(data.publicationHolds);
 
 	let brokerState = $state<TinylandBlogBrokerState>({
 		status: 'loading',
@@ -31,10 +32,13 @@
 	// can lag the deploy (a just-published post sits in the hub's held-back
 	// remainder for a window), so it is merged additively: it enriches existing
 	// posts and appends broker-only ones, but can never drop a freshly published
-	// post. This fixes the listing flash-then-disappear on hydration; see
+	// post. Explicit local publication holds still win over either source. This
+	// fixes the listing flash-then-disappear on hydration; see
 	// mergeBrokerPostsIntoStatic for the full rationale.
 	let displayPosts = $derived(
-		brokerState.status === 'ready' ? mergeBrokerPostsIntoStatic(data.posts, brokerState.posts) : data.posts,
+		brokerState.status === 'ready'
+			? mergeBrokerPostsIntoStatic(data.posts, brokerState.posts, publicationHolds)
+			: data.posts.filter((post) => !publicationHolds.has(post.slug)),
 	);
 
 	let totalPages = $derived(Math.ceil(displayPosts.length / POSTS_PER_PAGE));

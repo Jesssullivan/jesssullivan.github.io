@@ -6,6 +6,7 @@ import { parseFrontmatter } from './lib/frontmatter.mts';
 
 const POSTS_DIR = 'src/posts';
 const OUTPUT = 'static/search-index.json';
+const PUBLICATION_HOLDS_OUTPUT = 'static/blog-publication-holds.json';
 const WORDS_PER_MINUTE = 230;
 
 function computeReadingTime(text: string): number {
@@ -16,14 +17,19 @@ function computeReadingTime(text: string): number {
 async function main(): Promise<void> {
 	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
 	const index: SearchIndexEntry[] = [];
+	const publicationHolds: string[] = [];
 
 	for (const file of files) {
 		const content = await readFile(join(POSTS_DIR, file), 'utf-8');
 		const meta = parseFrontmatter(content);
-		if (!meta || !meta.published) continue;
+		if (!meta) continue;
 
 		const slug =
 			(meta.slug as string) ?? file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+		if (meta.published !== true) {
+			if (meta.published === false) publicationHolds.push(slug);
+			continue;
+		}
 
 		// Extract body excerpt (~150 chars of plain text)
 		const body = content.replace(/^---[\s\S]*?---/, '');
@@ -84,9 +90,14 @@ async function main(): Promise<void> {
 
 	// Sort by date descending
 	index.sort((a, b) => b.date.localeCompare(a.date));
+	publicationHolds.sort((a, b) => a.localeCompare(b));
 
-	await writeFile(OUTPUT, JSON.stringify(index), 'utf-8');
+	await Promise.all([
+		writeFile(OUTPUT, JSON.stringify(index), 'utf-8'),
+		writeFile(PUBLICATION_HOLDS_OUTPUT, JSON.stringify(publicationHolds), 'utf-8'),
+	]);
 	console.log(`Search index: ${index.length} posts -> ${OUTPUT}`);
+	console.log(`Publication holds: ${publicationHolds.length} slugs -> ${PUBLICATION_HOLDS_OUTPUT}`);
 }
 
 main().catch((err) => {

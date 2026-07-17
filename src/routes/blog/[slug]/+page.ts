@@ -1,5 +1,7 @@
 import type { PageLoad, EntryGenerator } from './$types';
+import { error } from '@sveltejs/kit';
 import searchIndexData from '../../../../static/search-index.json';
+import publicationHoldsData from '../../../../static/blog-publication-holds.json';
 
 interface PostMeta {
 	title: string;
@@ -24,6 +26,7 @@ interface SearchIndexEntry {
 }
 
 const searchIndex = (searchIndexData as SearchIndexEntry[]).filter((entry) => entry.published !== false);
+const publicationHolds = new Set(publicationHoldsData as string[]);
 
 function getSortedPosts(): { slug: string; title: string; date: string; tags: string[] }[] {
 	return [...searchIndex]
@@ -67,6 +70,10 @@ export const entries: EntryGenerator = async () => {
 };
 
 export const load: PageLoad = async ({ params }) => {
+	if (publicationHolds.has(params.slug)) {
+		throw error(404, 'Post not found');
+	}
+
 	const lazyModules = import.meta.glob('/src/posts/*.md');
 	const searchEntry = searchIndex.find((entry) => entry.slug === params.slug);
 	const matchedPath = searchEntry?.source_file;

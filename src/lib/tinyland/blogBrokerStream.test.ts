@@ -295,4 +295,13 @@ describe('mergeBrokerPostsIntoStatic', () => {
 		);
 		expect(merged.map((p) => p.slug)).toEqual(['canon', 'federated', 'old']);
 	});
+
+	it('does not revive an explicitly held slug from the broker', () => {
+		const merged = mergeBrokerPostsIntoStatic(
+			[post('canon', '2026-06-09')],
+			[post('held', '2026-06-10'), post('federated', '2026-06-01')],
+			new Set(['held']),
+		);
+		expect(merged.map((p) => p.slug)).toEqual(['canon', 'federated']);
+	});
 });
