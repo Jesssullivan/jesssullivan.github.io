@@ -63,6 +63,7 @@
 		"vitest": "^4.1.4"
 	},
 	"dependencies": {
+		"@floating-ui/dom": "^1.8.0",
 		"@fontsource/crimson-pro": "^5.2.8",
 		"@fontsource/fira-code": "^5.2.7",
 		"@fontsource/inter": "^5.2.8",
