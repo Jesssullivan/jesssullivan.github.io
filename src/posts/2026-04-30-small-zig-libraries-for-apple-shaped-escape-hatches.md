@@ -8,6 +8,7 @@ published: true
 slug: "small-zig-libraries-for-apple-shaped-escape-hatches"
 excerpt: "Four tiny Zig libraries, one small thesis: keep the app shell pleasant on macOS, but move native capabilities behind a boring C ABI so Linux ports do not become full rewrites."
 feature_image: "/images/posts/zig-ffi-apple-linux-bridge.png"
+editorial_tier: "noteworthy"
 ---
 
 ![Zig C ABI bridge from Apple application code to Linux native capabilities](/images/posts/zig-ffi-apple-linux-bridge.svg)
