@@ -8,6 +8,7 @@ category: "hardware"
 slug: "glue-you-can-see-in-uv"
 author_slug: "jesssullivan"
 feature_image: "/images/posts/uv-glue-development.jpg"
+editorial_tier: "noteworthy"
 ---
 
 <script>

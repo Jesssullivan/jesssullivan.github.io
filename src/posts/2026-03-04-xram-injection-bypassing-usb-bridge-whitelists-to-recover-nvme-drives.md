@@ -10,6 +10,7 @@ feature_image: "/images/posts/IMG_2127.jpg"
 source_repo: "Jesssullivan/hiberpower-ntfs"
 source_path: "docs/blog/xram-injection-guide.md"
 publish_to: "blog"
+editorial_tier: "noteworthy"
 ---
 
 ![The ASM2362 USB-NVMe bridge enclosure under investigation](/images/posts/IMG_2127.jpg)

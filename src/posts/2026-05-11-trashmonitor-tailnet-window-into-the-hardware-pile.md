@@ -11,6 +11,7 @@ source_path: "README.md"
 excerpt: "I glued together a tittle tailnet-only streaming surface so I can oggle my goggles, blinkenlights, dev boards, and the hardware pile from the sanctum of anywhere"
 feature_image: "/images/posts/trashmonitor-setup.webp"
 thumbnail_image: "/images/posts/trashmonitor-dashboard-screenshot.jpg"
+editorial_tier: "noteworthy"
 ---
 
 

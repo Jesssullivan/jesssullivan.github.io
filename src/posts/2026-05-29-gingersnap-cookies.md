@@ -9,6 +9,7 @@ slug: "gingersnap-cookies"
 excerpt: "A milk-free, soy-free gingersnap recipe card, transcribed from a photo with Apple Vision OCR, metric equivalents, a scaler, and notes on the baking soda reaction."
 feature_image: "/images/posts/gingersnap-cookies.webp"
 thumbnail_image: "/images/posts/gingersnap-cookies.webp"
+editorial_tier: "less-noteworthy"
 ---
 
 <script>
