@@ -328,7 +328,7 @@ js_test(
         "static/blog-publication-holds.json",
         "static/_routes.json",
     ] + glob(
-        ["functions/blog/**"],
+        ["functions/**"],
         allow_empty = True,
     ),
     entry_point = "scripts/test-held-post-edge-404.mjs",

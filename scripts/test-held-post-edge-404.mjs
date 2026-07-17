@@ -17,11 +17,29 @@ const routesUrl = new URL('../static/_routes.json', import.meta.url);
 const routes = JSON.parse(await readFile(routesUrl, 'utf8'));
 const publicationHoldsUrl = new URL('../static/blog-publication-holds.json', import.meta.url);
 const publicationHolds = JSON.parse(await readFile(publicationHoldsUrl, 'utf8'));
-const functionsUrl = new URL('../functions/blog/', import.meta.url);
-const guardedSlugs = (await readdir(functionsUrl))
-	.filter((filename) => filename.endsWith('.js'))
-	.map((filename) => filename.slice(0, -'.js'.length))
-	.sort();
+const functionsUrl = new URL('../functions/', import.meta.url);
+
+async function listFunctionFiles(directoryUrl, prefix = '') {
+	const entries = await readdir(directoryUrl, { withFileTypes: true });
+	const files = [];
+
+	for (const entry of entries) {
+		const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+		if (entry.isDirectory()) {
+			files.push(...(await listFunctionFiles(new URL(`${entry.name}/`, directoryUrl), relativePath)));
+		} else if (entry.isFile() && entry.name.endsWith('.js')) {
+			files.push(relativePath);
+		}
+	}
+
+	return files.sort();
+}
+
+const functionFiles = await listFunctionFiles(functionsUrl);
+assert.deepEqual(functionFiles, [`blog/${retainedAssetSlug}.js`]);
+const guardedSlugs = functionFiles.map((filename) =>
+	filename.slice('blog/'.length, -'.js'.length)
+);
 
 assert.deepEqual(guardedSlugs, [retainedAssetSlug]);
 assert.ok(publicationHolds.includes(retainedAssetSlug));
