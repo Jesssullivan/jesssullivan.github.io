@@ -24,12 +24,36 @@ require_fixed $'    permissions:\n      contents: read\n      packages: write' "
 require_fixed "sha = context.sha" "manual-dispatch selected-ref binding"
 require_fixed 'SOURCE_DIGEST: ${{ steps.source_image.outputs.digest }}' "digest propagation"
 require_fixed '[[ ! "${SOURCE_DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]' "digest validation"
-require_fixed "source_digest: process.env.SOURCE_DIGEST" "repository-dispatch digest"
-require_fixed "source_workflow_run_id: String(context.runId)" "repository-dispatch run evidence"
+require_fixed "source_digest: process.env.SOURCE_DIGEST" "workflow-dispatch digest"
+require_fixed "source_workflow_run_id: String(context.runId)" "workflow-dispatch run evidence"
 require_fixed 'Source digest: \`${{ steps.source_image.outputs.digest }}\`' "digest evidence"
+require_fixed "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1" "pinned GitHub App token action"
+require_fixed 'app-id: ${{ vars.BLOG_SHADOW_DISPATCH_APP_ID }}' "GitHub App ID authority"
+require_fixed 'private-key: ${{ secrets.BLOG_SHADOW_DISPATCH_APP_PRIVATE_KEY }}' "GitHub App private-key authority"
+require_fixed "permission-actions: write" "actions-only App token permission"
+require_fixed 'github-token: ${{ steps.overlay_token.outputs.token }}' "short-lived dispatch token"
+require_fixed 'workflow_id: "blog-shadow-preview-deploy.yml"' "private receiver workflow"
+require_fixed "github.rest.actions.createWorkflowDispatch" "workflow-dispatch API"
+require_fixed 'const expectedRunName = `Blog shadow ${process.env.SOURCE_SHA} (source run ${context.runId})`' "source-correlated receiver name"
+require_fixed 'core.setOutput("expected_run_name", expectedRunName)' "receiver correlation output"
+require_fixed "github.rest.actions.listWorkflowRuns" "receiver discovery"
+require_fixed "candidate.display_title === expectedRunName" "race-safe receiver correlation"
+require_fixed "github.rest.actions.getWorkflowRun" "receiver conclusion polling"
+require_fixed 'run.conclusion !== "success"' "private receiver fail-closed gate"
+require_fixed 'steps.await_deploy.outputs.receiver_run_url' "private receiver evidence"
 
 if grep -Fq -- "REQUESTED_REF" "${workflow}"; then
   echo "ERROR: shadow preview manual dispatch still accepts a second mutable ref" >&2
+  exit 1
+fi
+
+if grep -Fq -- "BLOG_SHADOW_DISPATCH_TOKEN" "${workflow}"; then
+  echo "ERROR: shadow preview still references the retired long-lived dispatch token" >&2
+  exit 1
+fi
+
+if grep -Fq -- "createDispatchEvent" "${workflow}"; then
+  echo "ERROR: shadow preview must use actions-scoped workflow_dispatch" >&2
   exit 1
 fi
 
