@@ -31,7 +31,7 @@
 				<p class="text-surface-700-300 max-w-prose">{lead.description}</p>
 			{/if}
 			<p class="reader-meta">
-				{fmtDate(lead.date)}{#if lead.category}
+				<time datetime={lead.date}>{fmtDate(lead.date)}</time>{#if lead.category}
 					· <span class="text-primary-500">{lead.category}</span>{/if}
 			</p>
 		</article>
@@ -48,7 +48,7 @@
 							<p class="text-sm text-surface-700-300">{post.description}</p>
 						{/if}
 						<p class="reader-meta">
-							{fmtDate(post.date)}{#if post.category}
+							<time datetime={post.date}>{fmtDate(post.date)}</time>{#if post.category}
 								· <span class="text-primary-500">{post.category}</span>{/if}
 						</p>
 					</article>
