@@ -91,6 +91,7 @@ executor_args=()
 credential_args=()
 routing_args=()
 upload_args=()
+remote_compat_args=()
 browser_args=()
 local_action_args=()
 startup_args=()
@@ -110,6 +111,12 @@ is_gf_reapi_host() {
   local host="$1"
 
   [[ ${host} == gf-reapi-cell* || ${host} == *.gf-rbe.svc || ${host} == *.gf-rbe.svc.* ]]
+}
+
+is_tenant_concurrency_exhaustion() {
+  local stderr_file="$1"
+
+  grep -Eq -- 'RESOURCE_EXHAUSTED:.*concurrent[- ]execution limit' "${stderr_file}"
 }
 
 configure_gf_reapi_credentials() {
@@ -215,6 +222,12 @@ shutdown)
     executor_args+=(--remote_upload_local_results=false)
   fi
   configure_gf_reapi_credentials "${remote_executor:-${effective_remote_cache}}"
+  if is_gf_reapi_host "$(endpoint_host "${effective_remote_cache}")"; then
+    # The current GF cell advertises identity encoding only. Keep this explicit
+    # after ci-cached so the repo-wide compression default cannot produce
+    # unsupported compressed CAS uploads during the front-door cutover.
+    remote_compat_args+=(--noremote_cache_compression)
+  fi
   if [[ -n ${BAZEL_REMOTE_INSTANCE_NAME:-} ]]; then
     validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
     routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
@@ -240,15 +253,17 @@ shutdown)
     )
   fi
 
-  # Bounded retry on the gf-reapi-cell per-tenant quota (Bazel exit 34,
-  # RESOURCE_EXHAUSTED: concurrent-execution limit). Mirrors the
-  # tinyland.dev lane's 3-attempt pattern. Any other exit code propagates
-  # immediately. Concurrency-group serialization was tried first but GitHub
-  # evicts (cancels) middle pending jobs in a shared group, which breaks
-  # required checks.
+  # Bazel uses exit 34 for several environmental failures. Retry only when
+  # stderr proves the gf-reapi-cell per-tenant concurrent-execution limit;
+  # endpoint outages and other exit-34 failures must propagate immediately.
   quota_attempts="${GF_BAZEL_QUOTA_RETRIES:-3}"
+  attempt_stderr="$(mktemp "${TMPDIR:-/tmp}/blog-bazel-stderr.XXXXXX")"
+  trap 'rm -f "${attempt_stderr}"' EXIT
   attempt=1
   while :; do
+    : >"${attempt_stderr}"
+    exec 9> >(tee "${attempt_stderr}" >&2)
+    tee_pid=$!
     rc=0
     "${bazel_bin}" "${startup_args[@]}" "${command}" \
       --config="${bazel_config}" \
@@ -257,11 +272,22 @@ shutdown)
       "${executor_args[@]}" \
       "${credential_args[@]}" \
       "${routing_args[@]}" \
+      "${remote_compat_args[@]}" \
       "${external_fetch_args[@]}" \
       "${browser_args[@]}" \
       "${local_action_args[@]}" \
-      "$@" || rc=$?
-    if [[ ${rc} -ne 34 || ${attempt} -ge ${quota_attempts} ]]; then
+      "$@" 2>&9 9>&- || rc=$?
+    exec 9>&-
+    wait "${tee_pid}" || true
+
+    if [[ ${rc} -ne 34 ]]; then
+      exit "${rc}"
+    fi
+    if ! is_tenant_concurrency_exhaustion "${attempt_stderr}"; then
+      echo "bazel-cache-backed: exit 34 did not match GF tenant concurrent-execution exhaustion; not retrying" >&2
+      exit "${rc}"
+    fi
+    if [[ ${attempt} -ge ${quota_attempts} ]]; then
       exit "${rc}"
     fi
     backoff=$((75 * attempt + RANDOM % 30))
