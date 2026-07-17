@@ -65,6 +65,10 @@ run_upload_case() {
   grep -Fx -- "--test_env=GF_RBE_CHROMIUM_EXECUTABLE=/opt/pinned-chromium" "${args_file}" >/dev/null
   grep -Fx -- "--action_env=TECTONIC_CACHE_DIR=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
   grep -Fx -- "--sandbox_writable_path=${tmp_dir}/tectonic-cache" "${args_file}" >/dev/null
+  if grep -Fxq -- "--noremote_cache_compression" "${args_file}"; then
+    echo "ERROR: a generic cache endpoint received the GF-only compression override" >&2
+    exit 1
+  fi
 
   host_jvm_line="$(awk '$0 == "--host_jvm_args=-Xmx2560m" { print NR; exit }' "${args_file}")"
   command_line="$(awk '$0 == "test" { print NR; exit }' "${args_file}")"
@@ -82,6 +86,21 @@ run_upload_case() {
 
 run_upload_case false false
 run_upload_case true true
+
+gf_cache_args="${tmp_dir}/gf-cache.args"
+BAZEL_BIN="${fake_bazel}" \
+  BAZEL_REMOTE_CACHE="grpc://gf-reapi-cell.gf-rbe.svc.cluster.local:8980" \
+  GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
+  GF_REAPI_CREDENTIAL_HELPER_TOKEN="test-token" \
+  FAKE_BAZEL_ARGS="${gf_cache_args}" \
+  bash "${repo_root}/scripts/bazel-cache-backed.sh" build //:fake_target >/dev/null
+grep -Fx -- "--noremote_cache_compression" "${gf_cache_args}" >/dev/null
+gf_config_line="$(awk '$0 == "--config=ci-cached" { print NR; exit }' "${gf_cache_args}")"
+gf_compat_line="$(awk '$0 == "--noremote_cache_compression" { print NR; exit }' "${gf_cache_args}")"
+if [[ -z ${gf_config_line} || -z ${gf_compat_line} || ${gf_config_line} -ge ${gf_compat_line} ]]; then
+  echo "ERROR: GF cache compression override must follow the selected Bazel config" >&2
+  exit 1
+fi
 
 shutdown_args="${tmp_dir}/shutdown.args"
 BAZEL_BIN="${fake_bazel}" \

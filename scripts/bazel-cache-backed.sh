@@ -91,6 +91,7 @@ executor_args=()
 credential_args=()
 routing_args=()
 upload_args=()
+remote_compat_args=()
 browser_args=()
 local_action_args=()
 startup_args=()
@@ -221,6 +222,12 @@ shutdown)
     executor_args+=(--remote_upload_local_results=false)
   fi
   configure_gf_reapi_credentials "${remote_executor:-${effective_remote_cache}}"
+  if is_gf_reapi_host "$(endpoint_host "${effective_remote_cache}")"; then
+    # The current GF cell advertises identity encoding only. Keep this explicit
+    # after ci-cached so the repo-wide compression default cannot produce
+    # unsupported compressed CAS uploads during the front-door cutover.
+    remote_compat_args+=(--noremote_cache_compression)
+  fi
   if [[ -n ${BAZEL_REMOTE_INSTANCE_NAME:-} ]]; then
     validate_runtime_value "BAZEL_REMOTE_INSTANCE_NAME" "${BAZEL_REMOTE_INSTANCE_NAME}"
     routing_args+=(--remote_instance_name="${BAZEL_REMOTE_INSTANCE_NAME}")
@@ -265,6 +272,7 @@ shutdown)
       "${executor_args[@]}" \
       "${credential_args[@]}" \
       "${routing_args[@]}" \
+      "${remote_compat_args[@]}" \
       "${external_fetch_args[@]}" \
       "${browser_args[@]}" \
       "${local_action_args[@]}" \
