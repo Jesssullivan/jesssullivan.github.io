@@ -301,16 +301,24 @@ jobs:
             throw new Error(`Private receiver run did not complete within forty minutes: ${run.html_url}`);
 
       - name: Summary
+        env:
+          SUMMARY_BRANCH: ${{ needs.resolve.outputs.branch }}
+          SUMMARY_IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
+          SUMMARY_PR_NUMBER: ${{ needs.resolve.outputs.pr_number || 'manual' }}
+          SUMMARY_RECEIVER_URL: ${{ steps.await_deploy.outputs.receiver_run_url }}
+          SUMMARY_SOURCE_DIGEST: ${{ needs.build.outputs.source_digest }}
+          SUMMARY_SOURCE_RUNNER: ${{ needs.resolve.outputs.source_runner }}
+          SUMMARY_SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
         run: |
           {
             echo "## Shadow preview dispatch"
             echo ""
-            echo "- Source image: \`${SOURCE_IMAGE}:${{ needs.resolve.outputs.image_tag }}\`"
-            echo "- Branch: \`${{ needs.resolve.outputs.branch }}\`"
-            echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
-            echo "- Source digest: \`${{ needs.build.outputs.source_digest }}\`"
-            echo "- PR: \`${{ needs.resolve.outputs.pr_number || 'manual' }}\`"
-            echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
+            echo "- Source image: \`${SOURCE_IMAGE}:${SUMMARY_IMAGE_TAG}\`"
+            echo "- Branch: \`${SUMMARY_BRANCH}\`"
+            echo "- Commit: \`${SUMMARY_SOURCE_SHA}\`"
+            echo "- Source digest: \`${SUMMARY_SOURCE_DIGEST}\`"
+            echo "- PR: \`${SUMMARY_PR_NUMBER}\`"
+            echo "- Source runner: \`${SUMMARY_SOURCE_RUNNER}\`"
             echo "- Deploy repo: \`${DEPLOY_REPOSITORY}\`"
-            echo "- Private receiver: ${{ steps.await_deploy.outputs.receiver_run_url }}"
+            echo "- Private receiver: ${SUMMARY_RECEIVER_URL}"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -44,6 +44,8 @@ require_fixed "candidate.display_title === expectedRunName" "race-safe receiver 
 require_fixed "github.rest.actions.getWorkflowRun" "receiver conclusion polling"
 require_fixed 'run.conclusion !== "success"' "private receiver fail-closed gate"
 require_fixed 'steps.await_deploy.outputs.receiver_run_url' "private receiver evidence"
+require_fixed 'SUMMARY_BRANCH: ${{ needs.resolve.outputs.branch }}' "shell-safe branch summary input"
+require_fixed 'echo "- Branch: \`${SUMMARY_BRANCH}\`"' "shell-safe branch summary rendering"
 
 if grep -Fq -- "REQUESTED_REF" "${workflow}"; then
   echo "ERROR: shadow preview manual dispatch still accepts a second mutable ref" >&2
@@ -74,6 +76,10 @@ fi
 dispatch_block="$(sed -n '/^  dispatch:/,$p' "${workflow}")"
 if grep -Fq -- "actions/checkout" <<<"${dispatch_block}"; then
   echo "ERROR: secret-bearing dispatch job must not check out PR source" >&2
+  exit 1
+fi
+if grep -Fq -- '${{ needs.resolve.outputs.branch }}' <<<"$(sed -n '/run: |/,$p' <<<"${dispatch_block}")"; then
+  echo "ERROR: untrusted PR branch is interpolated directly into dispatch shell" >&2
   exit 1
 fi
 
