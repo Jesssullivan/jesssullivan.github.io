@@ -1,10 +1,10 @@
 # In-house reference — jesssullivan.github.io
 
-Ground truth for the blog's design system, in-house packages/repos, and as-built engineering patterns. Verified 2026-07-17 against `jesssullivan.github.io.worktrees/tin-2903-reader` (branch `jess/tin-2903-observatory-ledger-reader`) + installed `node_modules`; `origin` = GitHub direct on both worktrees.
+Reference index for the blog's design system, in-house packages/repos, and as-built engineering patterns. Package versions are a 2026-07-17 snapshot of committed manifests and lockfiles; architecture claims point to committed source or named GitHub/Linear records. Local clone paths, worktree heads, and uncommitted files are deliberately not authority.
 
 ## Design system
 
-### Pins (installed, not manifest range)
+### Pins (manifest and resolved lockfile snapshot)
 
 | Package | package.json | Installed | npm `latest` | npm `next` |
 |---|---|---|---|---|
@@ -20,7 +20,7 @@ Ground truth for the blog's design system, in-house packages/repos, and as-built
 
 **4.15.2 vs "5.15.2":** `5.15.2` was never published for either Skeleton package (npm `versions` tail = `4.15.1, 4.15.2, 5.0.0-next.0…next.12`). 4.15.2 is `latest`-stable and the pin everywhere; v5 exists only as prerelease on the `next` tag (`5.0.0-next.12`). Ruled by TIN-2222 (Done, "correct the Skeleton-v5 phantom, stay pinned 4.15.2") and TIN-1541 (2026-05-18: "5.14.2 does not exist; latest=4.15.2; next=5.0.0-next.9"). Treat "5.15.2" as a misremembering of "4.15.2 on the v5-next track".
 
-### Component usage (grep `src/`)
+### Component usage (committed `src/` at this revision)
 
 | Component (`@skeletonlabs/skeleton-svelte`) | Call sites |
 |---|---|
@@ -79,7 +79,7 @@ Positioning chain: `Skeleton Tooltip/Popover → @zag-js/{tooltip,popover} → @
 
 ### v5-beta posture
 
-Fully on 4.15.2 stable — no v5 code, no v5 CSS-var renames, no local v5 validation landed. No `~/git/skeleton*` clone. Migration tickets are Backlog: TIN-603 (install `5.0.0-next.4` on a worktree, validate themes/components), TIN-604 (Pride/Trans OKLCH themes vs v5 theme-spec PR #4353: renamed CSS vars, new `accent-color`/`corner-shape`), TIN-607/609 (dev-env/Discord, not started). TIN-608 (Done): `floating-ui-svelte` archived 2026-01-29, Zag owns positioning. When v5 ships to `latest`, most-exposed here = (1) hand-authored OKLCH themes `pride.css`/`trans.css` vs renamed CSS-var spec, (2) `Popover`/new `Tooltip` compound call sites (Zag anatomy most likely to shift). Until a TIN-603-class pass runs, 4.15.2 is the only supported target. TIN-606's "27 of 50 Zag machines used" figure is unverified here (installed `node_modules/@zag-js` ≈42 packages, many shared infra not machines).
+Fully on 4.15.2 stable — no v5 code, no v5 CSS-var renames, and no reviewed v5 validation has landed. Migration tickets are Backlog: TIN-603 (install the v5 prerelease on a worktree and validate themes/components), TIN-604 (Pride/Trans OKLCH themes vs v5 theme-spec PR #4353: renamed CSS vars, new `accent-color`/`corner-shape`), and TIN-607/609 (dev-env/Discord, not started). TIN-608 (Done): `floating-ui-svelte` archived 2026-01-29, Zag owns positioning. When v5 ships to `latest`, most-exposed here = (1) hand-authored OKLCH themes `pride.css`/`trans.css` vs renamed CSS-var spec, (2) `Popover`/new `Tooltip` compound call sites (Zag anatomy most likely to shift). Until a TIN-603-class pass runs, 4.15.2 is the only supported target. TIN-606's "27 of 50 Zag machines used" figure remains unverified for this repository.
 
 ## In-house packages & repos
 
@@ -91,11 +91,11 @@ Fully on 4.15.2 stable — no v5 code, no v5 CSS-var renames, no local v5 valida
 | `@blog/pulse-client` | 0.0.1 | Durable client contract scaffold | Subpaths `. ./drafts ./identity ./media ./storage`; deps `@blog/pulse-core` 0.0.1. |
 | `@blog/agent` (dir `blog-agent`) | 0.1.0 | Agentuity agent surface | Deps `@agentuity/{core,runtime}`, `@anthropic-ai/sdk`, `@octokit/rest`; `src/agents/{commands,review}.ts`, `src/cli.ts`. |
 
-`src/lib/stream/blend.ts` (reader worktree only) is the actual blend logic — imports `PublicPulseItem` from `@blog/pulse-core/schema` and `post.editorial_tier` from `$lib/types`; not a pulse-core export.
+`src/lib/stream/blend.ts` in draft reader PR #231 is the actual blend logic — it imports `PublicPulseItem` from `@blog/pulse-core/schema` and `post.editorial_tier` from `$lib/types`; it is not a pulse-core export.
 
 ### bazel-registry modules (`tinyland-inc/bazel-registry`)
 
-Local clone `~/git/bazel-registry` on branch `registry/tin-2786-content-0.3.1` (HEAD `2d3ea08`, ahead of `origin/main` `6ec6b63`) — unmerged promotion branch, not authoritative HEAD.
+Published registry entries and the consumer's committed `MODULE.bazel` are the authority. A local registry checkout or promotion branch is discovery material only.
 
 | Module | Registry latest | tinyland.dev pin | State |
 |---|---|---|---|
@@ -106,34 +106,34 @@ Local clone `~/git/bazel-registry` on branch `registry/tin-2786-content-0.3.1` (
 | `tummycrypt_tinyland_security` | 0.3.2 | 0.3.1 | BEHIND |
 | `tummycrypt_tinyland_activitypub` | 0.3.1 | 0.3.1 | CURRENT |
 
-~55 other `tummycrypt_tinyland_*` modules on registry (auth_pg/auth_redis/admin_*/analytics/calendar/forms/logging/otel/rate_limit/threat_detection/websocket_metrics/…). **Consumption rule (verified `~/git/tinyland.dev/MODULE.bazel`):** the registry pin is sole build authority; editing `tinyland.dev/packages/*` source is inert — flow is release → promote → pin-bump. Registry wave is done upstream; tinyland.dev live pins are still pre-fix.
+~55 other `tummycrypt_tinyland_*` modules are present in the registry (auth_pg/auth_redis/admin_*/analytics/calendar/forms/logging/otel/rate_limit/threat_detection/websocket_metrics/…). **Consumption rule (`tinyland.dev/MODULE.bazel`):** the registry pin is sole build authority; editing `tinyland.dev/packages/*` source is inert — flow is release → promote → pin-bump. The version table above is a dated snapshot, not a standing claim about current pins.
 
 ### Org repos (reference material)
 
-| Repo | Role | Local clone / caveat |
+| Repo | Role | Authority / caveat |
 |---|---|---|
-| `tinyland.dev` | Hub SoT (managed blog content, projections, pulse snapshot) | `~/git/tinyland.dev`. TWO remotes: `origin`→yoga STALE (`origin/main` `49aa4888e`), `github`→GitHub TRUTH (`github/main` `c64098abc`); local HEAD matches `github`. Diff against `github`, not `origin`. |
-| `lab` | Sops/secrets conventions, Nix-first infra, `just` entrypoint | `~/git/lab`, single `origin`→GitHub. `.sops.yaml` + `scripts/validation/sops-runtime-secret-audit.py`. Own AGENTS.md flags docs transitional; SoT order `justfile > inventory/* > nix/* > playbooks > docs/ARCHITECTURE.md`. |
-| `GloriousFlywheel` | Cache-first bazel build/runner substrate backing blog CI | `~/git/GloriousFlywheel` on `codex/tin-2763-pr-b` (`e5a9c167`), NOT main (`origin/main` `3aa22ac8`). ~10 `GloriousFlywheel-*` sibling clones = per-task worktrees; don't conflate. Repo split: `docs/` (internal) vs `public-docs/` (conservative) vs `examples/` (alpha). |
-| `prompts-enqueue` | Prompt library, git-only authority | `~/git/prompts-enqueue` on main, HEAD `0079c0e` = `origin/main` (current). |
-| `bazel-registry` | BCR for `@tummycrypt` packages | See above; on branch not main. |
+| `tinyland.dev` | Hub SoT (managed blog content, projections, pulse snapshot) | GitHub `tinyland-inc/tinyland.dev` is review authority. Some developer clones also carry a mirror remote; confirm which remote targets GitHub before comparing refs. |
+| `lab` | SOPS/secrets conventions, Nix-first infra, `just` entrypoint | Repo `AGENTS.md` and committed operator paths govern. SoT order: `justfile > inventory/* > nix/* > playbooks > docs/ARCHITECTURE.md`. |
+| `GloriousFlywheel` | Cache-first Bazel build/runner substrate backing blog CI | Default-branch committed source governs. Keep internal `docs/`, conservative `public-docs/`, and alpha `examples/` claim levels distinct. |
+| `prompts-enqueue` | Prompt library, git-only authority | GitHub default branch is the durable prompt record; local queue state is not. |
+| `bazel-registry` | BCR for `@tummycrypt` packages | Published registry entries govern consumers; an unmerged promotion branch does not. |
 
 Other tinyland-inc repos (via `gh repo list`, not inspected): `blahaj`, `tinyland.media`, `finances`, `outbot-ci`, `fuzzy`, `tinyland-fingerprint`, `rockies.tinyland.dev`, `signals.tinyland.dev`, `transcendsurvival.org` (single-s repo name, distinct from live apex `transscendsurvival.org` double-s), etc.
 
 ### Personal repos serving the blog
 
-| Repo | Role | Local state |
+| Repo | Role | Authority / boundary |
 |---|---|---|
-| `jesssullivan.github.io` | This spoke; Svelte content + `packages/*` | `~/git/jesssullivan.github.io` + `-footer-fix` sibling + `.worktrees/tin-2903-reader` (agent-active). |
-| `jesssullivan-infra` | Shadow-preview receiver + OpenTofu IaC | `~/git/jesssullivan-infra` on `feat/tinyland-goo-nix-anchor` (`ab37d9c`), behind `origin/main` `4feff84`. 5 task sibling clones. |
-| `spear_resumes` (GH `spear-resumes`) | `rules_tectonic`/XeLaTeX CV pipeline → blog `/cv` | `~/git/spear_resumes` on main. ~16 lane dirs on disk (generic, cra, cra_scepter, str, une, mitre, mitre_{agentic,decision,embsec,network}, cmcc, lightmatter, adi_{aiml,algorithms,audio,platform}) + `study_*` — far more than the "5-lane" summary. Blog `/cv` consumes ONLY `generic`: `static/cv/BUILD.bazel` `sync_pdfs` maps `@spear_resumes//generic:{resume,precis,cv}` → `jess_sullivan_{resume,precis,cv}.pdf`, CI-gated by `build-cv.yml` + `assert_pdfs_synced.mjs`. |
-| `Great-Falls-Tool-Bus/greatfallstoolbus.org` | Footer-provenance reference | `~/git/greatfallstoolbus.org`. `src/lib/build-info.ts`: `PUBLIC_BUILD_SHA` injected only by container-image CI from `github.sha`; `normalizeSha()` validates 7-64 hex else `''`; footer fail-quiet (absent sha → no provenance line). Reusable for blog footer build-provenance. |
+| `jesssullivan.github.io` | This spoke; Svelte content + `packages/*` | This repository's reviewed default branch and open PRs. Agent worktrees are never product authority. |
+| `jesssullivan-infra` | Shadow-preview receiver + OpenTofu IaC | Reviewed default-branch workflow and OpenTofu source. The private receiver owns mirroring, apply, digest verification, and route smoke. |
+| `spear_resumes` (GH `spear-resumes`) | `rules_tectonic`/XeLaTeX CV pipeline → blog `/cv` | Blog `/cv` consumes only `generic`: `static/cv/BUILD.bazel` maps `@spear_resumes//generic:{resume,precis,cv}` to the three checked PDFs, gated by `build-cv.yml` and `assert_pdfs_synced.mjs`. Other resume variants remain private-repo concerns. |
+| `Great-Falls-Tool-Bus/greatfallstoolbus.org` | Footer-provenance reference | `src/lib/build-info.ts` provides the reference contract: validate `PUBLIC_BUILD_SHA`, render provenance only when valid, and fail quiet when absent. |
 
 ### Naming traps
 
 - **`prompt-pulse`** (tinyland-inc: `prompt-pulse`, `-mirror`, `-tui`) is a prompt-library/TUI product, UNRELATED to blog `@blog/pulse-core`/`pulse-client` (content-federation event stream). Pure name collision.
 - **`transcendsurvival.org`** (GH repo, single-s) ≠ live apex `transscendsurvival.org` (double-s).
-- **Local origin-mirror trap** — many `~/git` clones' `origin` is a stale yoga mirror; prefer the GitHub-pointing remote (confirmed for `tinyland.dev`).
+- **Remote-name trap** — a developer clone's `origin` may be a mirror rather than GitHub. Inspect remote URLs and compare against the GitHub-pointing remote; remote names alone do not establish authority.
 
 ## Engineering patterns
 
@@ -151,8 +151,8 @@ Test targets (`BUILD.bazel`, all tagged `gloriousflywheel-rbe-candidate`): `vite
 
 | File | Exports | State |
 |---|---|---|
-| `src/lib/reader/ledger.ts` | `partitionLedger`, `buildConstellationGroups`, `postToConstellationNode` | Committed on reader branch (`b47be05`) + uncommitted working-tree edits (mid-change, mtime 17 Jul 08:22); **ABSENT on `origin/main`**. |
-| `src/lib/stream/blend.ts` | `blendStream`, `compareStreamItems`, `postToStreamItem`, `pulseItemToStreamItem` | Harvested verbatim from #217 donors (`e7ed2c2`); **ABSENT on `origin/main`**; present on `origin/feat/blog-tiered-reader-ui`. In reader worktree it is carried-but-unconsumed (its `/stream/+page.ts` consumer lives on #217, not here). |
+| `src/lib/reader/ledger.ts` | `partitionLedger`, `buildConstellationGroups`, `postToConstellationNode` | Reviewed in draft reader PR #231; not production authority until that PR is promoted. |
+| `src/lib/stream/blend.ts` | `blendStream`, `compareStreamItems`, `postToStreamItem`, `pulseItemToStreamItem` | Preserved from donor PR #217 in draft reader PR #231. It remains carried but unconsumed there because `/stream` is not the selected reader route. |
 
 `ledger.ts` invariants (each has a named test in `ledger.test.ts`): total order `byDateDescThenSlug` (date-desc, slug tie-break, input-order-independent); tier read strictly from `editorial_tier` frontmatter (never inferred from featured/category/tags/length/recency); N-in→N-out into exactly one of `{noteworthy, lessNoteworthy, unclassified}` (no silent cap); `buildConstellationGroups` honest `basis: category|tag|pulse` (no embedding/similarity), post groups key-ordered, pulse group preserves producer order + appended last + never re-ranked + omitted when empty. `blend.ts` (`blend.test.ts`): reverse-chron, noteworthy floats within equal date (weight 0/1, mirrors #217 comparator), stable `id` tie-break, handles empty inputs.
 
