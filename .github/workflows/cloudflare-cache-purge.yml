@@ -80,9 +80,17 @@ jobs:
             REQUEST_BODY="${response%$'\n'*}"
           }
 
-          request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"
-          token_status="$(jq -r '.result.status // ""' <<<"$REQUEST_BODY")"
-          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true || "$token_status" != active ]]; then
+          token_is_active() {
+            [[ "$REQUEST_STATUS" == 200 \
+              && "$(jq -r '.success // false' <<<"$REQUEST_BODY")" == true \
+              && "$(jq -r '.result.status // ""' <<<"$REQUEST_BODY")" == active ]]
+          }
+
+          request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'
+          if ! token_is_active; then
+            request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"
+          fi
+          if ! token_is_active; then
             echo "::error::Cloudflare token verification failed (HTTP $REQUEST_STATUS)"
             jq -r '.errors[]? | "::error::Cloudflare code=\(.code) message=\(.message)"' <<<"$REQUEST_BODY"
             exit 4

@@ -21,15 +21,12 @@ require_fixed() {
 }
 
 require_fixed "ACCOUNT_ID: fdcb4fb750ab79be0800e885f09ddbdc" "fixed account authority"
+require_fixed "request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'" "user-token verification"
 require_fixed 'request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"' "account-token verification"
-require_fixed '"$token_status" != active' "active-token requirement"
+require_fixed 'if ! token_is_active; then' "account-token fallback"
+require_fixed '"$(jq -r '\''.result.status // ""'\'' <<<"$REQUEST_BODY")" == active' "active-token requirement"
 require_fixed "ZONE_ID: 602400322c1ecac4983542c76af90115" "fixed zone authority"
 require_fixed 'target_url="https://transscendsurvival.org${TARGET_PATH}"' "fixed production host"
 require_fixed '{files:[$url]}' "one-URL purge payload"
-
-if grep -Fq -- "/user/tokens/verify" "${workflow}"; then
-  echo "ERROR: account-owned Cloudflare tokens must not use the user-token verifier" >&2
-  exit 1
-fi
 
 echo "Cloudflare cache purge contract passed"
