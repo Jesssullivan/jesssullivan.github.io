@@ -19,10 +19,14 @@ branch to the shared shadow route.
    by default.
 3. The workflow pushes the CI source artifact to
    `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
-4. The workflow dispatches `Jesssullivan/jesssullivan-infra` with the exact
-   image tag and source metadata.
-5. The private infra workflow mirrors that tag into the private operator
+4. A separate, no-checkout job enters the reviewer-gated
+   `blog-shadow-dispatch` environment, mints a short-lived GitHub App token,
+   and starts the named workflow in `Jesssullivan/jesssullivan-infra` with the
+   exact image digest and source metadata.
+5. The private infra workflow mirrors that digest into the private operator
    package and applies the RustFS-backed OpenTofu stack.
+6. The public workflow follows the source-SHA/run-ID-correlated private run
+   and fails unless that exact receiver run succeeds.
 
 Only one branch owns the shared shadow route at a time. The source-image build
 job uses concurrency group `blog-shadow-preview` with `cancel-in-progress:
@@ -33,13 +37,21 @@ Fork PRs and draft PRs are ignored. Branch pushes are covered by the PR
 `synchronize` event so the workflow does not create duplicate push and PR check
 runs for the same commit.
 
-## Required Secret
+## Required Dispatch Authority
 
-This public repo needs one secret:
+The `blog-shadow-dispatch` environment requires operator review and carries
+one secret. The App ID is a repository variable:
 
-| Secret | Purpose |
-|---|---|
-| `BLOG_SHADOW_DISPATCH_TOKEN` | Can create `repository_dispatch` events in `Jesssullivan/jesssullivan-infra` |
+| Kind | Name | Purpose |
+|---|---|---|
+| Variable | `BLOG_SHADOW_DISPATCH_APP_ID` | Selects the reviewed GitHub App |
+| Environment secret | `BLOG_SHADOW_DISPATCH_APP_PRIVATE_KEY` | Mints a short-lived token scoped at runtime to `jesssullivan-infra` with `actions: write` |
+
+The inherited `gloriousflywheel-jesssullivan` App installation has broader
+repository administration authority than this lane needs. Keep its key behind
+the required-review environment and the no-checkout job; do not move it to a
+repository-wide secret. A dedicated App installed only on
+`Jesssullivan/jesssullivan-infra` is the final least-privilege posture.
 
 Cluster credentials, RustFS credentials, and private GHCR mirroring credentials
 stay in the private infra repo.
@@ -49,9 +61,9 @@ stay in the private infra repo.
 The default source-image runner remains `tinyland-dind`; that is the real ARC
 proof for private-route preview builds. Manual dispatch also accepts
 `source_runner=ubuntu-latest` as a guarded fallback when the ARC source-image
-lane is unavailable. That fallback only proves the public source artifact build
-and dispatch. It does not prove private GHCR mirroring, RustFS-backed
-OpenTofu apply, or tailnet smoke; those remain private infra responsibilities.
+lane is unavailable. That fallback does not prove the ARC source-build lane.
+The correlated receiver result still separately proves private GHCR mirroring,
+RustFS-backed OpenTofu apply, and tailnet smoke.
 
 ## Manual Shadow Image Build
 
@@ -94,8 +106,8 @@ the Cloudflare deploy with an explicit notice. Manual dispatch accepts
 `require_deploy=true` when the operator wants missing credentials to fail
 instead of skip.
 
-Keep GitHub Pages as production until the Cloudflare deploy URL, TLS, route
-smoke, and rollback notes are proven. Browser validation remains in GitHub
+Cloudflare Pages is the production serving authority. GitHub Pages remains the
+rollback publisher and parity path. Browser validation remains in GitHub
 Actions or an approved remote lane. Do not run local Playwright for this slice.
 
 ## Pulse Client Smoke

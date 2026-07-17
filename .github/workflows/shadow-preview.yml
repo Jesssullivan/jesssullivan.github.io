@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Resolve active branch or PR
         id: target
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const owner = context.repo.owner;
@@ -116,10 +116,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      source_digest: ${{ steps.source_image.outputs.digest }}
     concurrency:
-      group: blog-shadow-preview
+      group: blog-shadow-preview-build
       cancel-in-progress: true
-    timeout-minutes: 60
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
         with:
@@ -170,6 +172,32 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
 
+      - name: Source image summary
+        run: |
+          {
+            echo "## Shadow preview source image"
+            echo ""
+            echo "- Source image: \`${SOURCE_IMAGE}:${{ needs.resolve.outputs.image_tag }}\`"
+            echo "- Source digest: \`${{ steps.source_image.outputs.digest }}\`"
+            echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
+            echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  dispatch:
+    name: Dispatch and verify private shadow
+    needs:
+      - resolve
+      - build
+    if: needs.resolve.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment: blog-shadow-dispatch
+    permissions: {}
+    concurrency:
+      group: blog-shadow-preview-dispatch
+      cancel-in-progress: true
+    timeout-minutes: 50
+    steps:
+
       - name: Mint private overlay dispatch token
         id: overlay_token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -182,12 +210,12 @@ jobs:
 
       - name: Dispatch private infra deploy
         id: dispatch
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
           SOURCE_BRANCH: ${{ needs.resolve.outputs.branch }}
           SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
-          SOURCE_DIGEST: ${{ steps.source_image.outputs.digest }}
+          SOURCE_DIGEST: ${{ needs.build.outputs.source_digest }}
           PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
         with:
           github-token: ${{ steps.overlay_token.outputs.token }}
@@ -216,7 +244,7 @@ jobs:
 
       - name: Await exact private infra deploy
         id: await_deploy
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           EXPECTED_RUN_NAME: ${{ steps.dispatch.outputs.expected_run_name }}
           DISPATCHED_AT: ${{ steps.dispatch.outputs.dispatched_at }}
@@ -280,7 +308,7 @@ jobs:
             echo "- Source image: \`${SOURCE_IMAGE}:${{ needs.resolve.outputs.image_tag }}\`"
             echo "- Branch: \`${{ needs.resolve.outputs.branch }}\`"
             echo "- Commit: \`${{ needs.resolve.outputs.sha }}\`"
-            echo "- Source digest: \`${{ steps.source_image.outputs.digest }}\`"
+            echo "- Source digest: \`${{ needs.build.outputs.source_digest }}\`"
             echo "- PR: \`${{ needs.resolve.outputs.pr_number || 'manual' }}\`"
             echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo "- Deploy repo: \`${DEPLOY_REPOSITORY}\`"

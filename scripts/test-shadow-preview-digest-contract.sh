@@ -28,9 +28,12 @@ require_fixed "source_digest: process.env.SOURCE_DIGEST" "workflow-dispatch dige
 require_fixed "source_workflow_run_id: String(context.runId)" "workflow-dispatch run evidence"
 require_fixed 'Source digest: \`${{ steps.source_image.outputs.digest }}\`' "digest evidence"
 require_fixed "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1" "pinned GitHub App token action"
+require_fixed "actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3" "pinned GitHub Script action"
 require_fixed 'app-id: ${{ vars.BLOG_SHADOW_DISPATCH_APP_ID }}' "GitHub App ID authority"
 require_fixed 'private-key: ${{ secrets.BLOG_SHADOW_DISPATCH_APP_PRIVATE_KEY }}' "GitHub App private-key authority"
 require_fixed "permission-actions: write" "actions-only App token permission"
+require_fixed "environment: blog-shadow-dispatch" "review-gated secret boundary"
+require_fixed "group: blog-shadow-preview-dispatch" "dispatch serialization"
 require_fixed 'github-token: ${{ steps.overlay_token.outputs.token }}' "short-lived dispatch token"
 require_fixed 'workflow_id: "blog-shadow-preview-deploy.yml"' "private receiver workflow"
 require_fixed "github.rest.actions.createWorkflowDispatch" "workflow-dispatch API"
@@ -57,9 +60,20 @@ if grep -Fq -- "createDispatchEvent" "${workflow}"; then
   exit 1
 fi
 
+if grep -Fq -- "actions/github-script@v9" "${workflow}"; then
+  echo "ERROR: shadow preview still references a mutable GitHub Script tag" >&2
+  exit 1
+fi
+
 resolve_block="$(sed -n '/^  resolve:/,/^  build:/p' "${workflow}")"
 if grep -Fq -- "packages: write" <<<"${resolve_block}"; then
   echo "ERROR: shadow preview resolver has package-write authority" >&2
+  exit 1
+fi
+
+dispatch_block="$(sed -n '/^  dispatch:/,$p' "${workflow}")"
+if grep -Fq -- "actions/checkout" <<<"${dispatch_block}"; then
+  echo "ERROR: secret-bearing dispatch job must not check out PR source" >&2
   exit 1
 fi
 
