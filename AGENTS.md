@@ -40,8 +40,9 @@ These rules apply before the writing-style guidance below.
   to GF.
 - `tinyland-inc/tinyland.dev` owns mothership content, broker, producer, and
   federation contracts consumed by this spoke.
-- `tinyland-inc/blahaj` may provide generic cluster receiver/admission
-  interfaces, but it does not own this blog's shadow workload or application
+- `tinyland-inc/blahaj` owns cluster-side admission and enforcement. Its
+  app-specific receivers and reapers are limited to the canonical adopted-live
+  exception register; none owns this blog's shadow workload or application
   lifecycle. `tinyland-inc/lab` may escrow narrowly scoped credentials and
   bootstrap hosts, but it is not an application deployment owner.
 - Never infer application ownership from the cluster hosting a pod, the repo

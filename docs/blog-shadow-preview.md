@@ -21,9 +21,10 @@ https://jesssullivan-blog-shadow.taila4c78d.ts.net
 - GloriousFlywheel supplies reusable runner/build, Nix/toolchain,
   Bazel/cache/RBE, enrollment, and validation substrate. It does not own this
   application's deployment.
-- Blahaj and Lab do not own this application. Cluster receiver/admission
-  substrate, credential escrow, or host bootstrap support does not transfer
-  source, workload, route, or deployment authority.
+- Blahaj and Lab do not own this application. Blahaj's cluster admission and
+  enforcement, including only its canonical adopted-live receiver/reaper
+  exceptions, does not transfer source, workload, route, or deployment
+  authority. Neither does Lab credential escrow or host bootstrap support.
 
 ## Automatic PR Flow
 
