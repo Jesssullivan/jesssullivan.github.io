@@ -324,10 +324,13 @@ js_test(
     copy_data_to_bin = False,
     data = [
         ".github/workflows/cloudflare-pages-shadow.yml",
-        "functions/blog/ssh-macos-kvm-hid-accessory-approval.js",
+        "scripts/test-held-post-edge-404.mjs",
         "static/blog-publication-holds.json",
         "static/_routes.json",
-    ],
+    ] + glob(
+        ["functions/blog/**"],
+        allow_empty = True,
+    ),
     entry_point = "scripts/test-held-post-edge-404.mjs",
     patch_node_fs = False,
     tags = [
