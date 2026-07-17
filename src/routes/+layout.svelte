@@ -45,6 +45,8 @@
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
+		{ href: '/stream', label: 'Stream' },
+		{ href: '/pulse', label: 'Pulse' },
 		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
 		{ href: '/making', label: 'Making' },
@@ -73,6 +75,7 @@
 	function isActive(href: string): boolean {
 		const path = $page.url.pathname;
 		if (href === '/blog') return path.startsWith('/blog');
+		if (href === '/pulse') return path.startsWith('/pulse');
 		if (href === '/photography') return path.startsWith('/photography');
 		return path === href;
 	}
@@ -121,7 +124,10 @@
 			</AppBar.Lead>
 			<AppBar.Headline></AppBar.Headline>
 			<AppBar.Trail>
-				<nav class="hidden md:flex items-center gap-3 text-sm">
+				<!-- lg: not md: — with Stream+Pulse the full nav measures ~830px, which
+				     overflows the viewport right at the md (768px) breakpoint; the
+				     drawer covers tablet widths (e2e prose-overflow guards this). -->
+				<nav class="hidden lg:flex items-center gap-3 text-sm">
 						{#each navLinks as { href, label } (href)}
 							<a
 								{href}
@@ -149,7 +155,7 @@
 					closeOnEscape
 					preventScroll
 				>
-					<Dialog.Trigger class="md:hidden p-2 hover:bg-surface-200-800" aria-label="Open navigation">
+					<Dialog.Trigger class="lg:hidden p-2 hover:bg-surface-200-800" aria-label="Open navigation">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-5 w-5"

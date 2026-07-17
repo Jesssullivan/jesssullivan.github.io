@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { PostEditorialTier } from '$lib/types';
 	import GiscusComments from '$lib/components/GiscusComments.svelte';
+	import TierBadge from '$lib/components/TierBadge.svelte';
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
@@ -41,6 +43,7 @@
 		tags?: string[];
 		original_url?: string;
 		category?: string;
+		editorial_tier?: PostEditorialTier;
 		feature_image?: string;
 	};
 
@@ -66,6 +69,7 @@
 					description: activePost.description,
 					tags: activePost.tags,
 					category: activePost.category,
+					editorial_tier: activePost.editorial_tier,
 					feature_image: activePost.feature_image,
 				}
 			: data.metadata
@@ -313,6 +317,10 @@
 					{#if activeMetadata.category}
 						<span>&middot;</span>
 						<span class="badge preset-outlined-surface-500 text-xs capitalize">{activeMetadata.category}</span>
+					{/if}
+					{#if activeMetadata.editorial_tier}
+						<span>&middot;</span>
+						<TierBadge tier={activeMetadata.editorial_tier} />
 					{/if}
 				</div>
 				{#if activeMetadata.tags?.length}

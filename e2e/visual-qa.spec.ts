@@ -43,13 +43,16 @@ test.describe('Homepage — visual QA across viewports', () => {
 			});
 
 			test('navigation is accessible', async ({ page }) => {
-				if (vp.width >= 768) {
-					// Desktop nav: visible inline links (md: breakpoint = 768px)
-					const desktopNav = page.locator('nav.hidden.md\\:flex');
+				if (vp.width >= 1024) {
+					// Desktop nav: visible inline links (lg: breakpoint = 1024px —
+					// with Stream+Pulse the full nav overflows below that, so
+					// tablet uses the drawer; see +layout.svelte nav comment)
+					const desktopNav = page.locator('nav.hidden.lg\\:flex');
 					await expect(desktopNav).toBeVisible();
 					await expect(desktopNav.getByRole('link', { name: 'Blog' })).toBeVisible();
+					await expect(desktopNav.getByRole('link', { name: 'Stream' })).toBeVisible();
 				} else {
-					// Mobile: hamburger button present
+					// Mobile + tablet: hamburger button present
 					const hamburger = page.getByRole('button', { name: 'Open navigation' });
 					await expect(hamburger).toBeVisible();
 				}
