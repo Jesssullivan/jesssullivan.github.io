@@ -8,6 +8,7 @@ slug: "darwin-nic-docs-are-live"
 category: "devops"
 source_repo: "Jesssullivan/DarwinNicUtil"
 feature_image: "/images/posts/darwin-nic-bastion-flow.png"
+editorial_tier: "less-noteworthy"
 ---
 
 The public [DarwinNicUtil](https://github.com/Jesssullivan/DarwinNicUtil) docs are live, and the current release, `v2.1.2`, is available through PyPI, GitHub Releases, and FlakeHub.

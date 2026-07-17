@@ -15,6 +15,7 @@ tinyland_projection_snapshot: "jesssullivan-github-io-posts-pulse-static-2026-05
 tinyland_projection_snapshot_hash_prefix: "sha256:3ff059b493f5"
 tinyland_projection_source: "content/users/jesssullivan/blog/winrm-quotas-hidden-plugin-layers-and-why-psrp-has-been-the-answer-since-2018.md"
 tinyland_projection_source_hash_prefix: "sha256:56a5c55505d2"
+editorial_tier: "noteworthy"
 ---
 ---
 

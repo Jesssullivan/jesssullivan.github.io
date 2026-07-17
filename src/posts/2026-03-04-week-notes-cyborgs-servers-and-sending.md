@@ -13,6 +13,7 @@ tinyland_projection_snapshot: "jesssullivan-github-io-posts-pulse-static-2026-05
 tinyland_projection_snapshot_hash_prefix: "sha256:3ff059b493f5"
 tinyland_projection_source: "content/users/jesssullivan/blog/week-notes-cyborgs-servers-and-sending.md"
 tinyland_projection_source_hash_prefix: "sha256:13a16d0211d9"
+editorial_tier: "less-noteworthy"
 ---
 ![Cyborg lab: goggles, server guts, drives](/images/posts/IMG_2125.jpg)
 

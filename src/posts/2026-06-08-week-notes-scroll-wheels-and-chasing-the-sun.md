@@ -8,6 +8,7 @@ category: "personal"
 slug: "week-notes-scroll-wheels-and-chasing-the-sun"
 author_slug: "jesssullivan"
 feature_image: "/images/posts/chainwax-emulsion.jpg"
+editorial_tier: "less-noteworthy"
 ---
 
 

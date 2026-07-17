@@ -9,6 +9,7 @@ category: "devops"
 feature_image: "/images/posts/aperture-architecture.png"
 source_repo: "Jesssullivan/aperture-bootstrap"
 source_path: "blog/aperture-identity-gap.md"
+editorial_tier: "noteworthy"
 ---
 
 I was setting up [Tailscale Aperture](https://tailscale.com/aperture) to route my K8s agents' LLM calls to Anthropic -- identity-aware metering, dashboards, centralized API key management.  Three agents (IronClaw, PicoClaw, HexStrike).  ACLs in place (managed with [Dhall](https://dhall-lang.org), naturally).  Network connectivity confirmed.

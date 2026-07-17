@@ -9,6 +9,7 @@ category: "hardware"
 feature_image: "/images/posts/chapel-lang-meme.webp"
 source_repo: "Jesssullivan/Dell-7810"
 source_path: "docs/platform/honey-rt-chapel-repeat-2026-04-26.md"
+editorial_tier: "noteworthy"
 ---
 
 

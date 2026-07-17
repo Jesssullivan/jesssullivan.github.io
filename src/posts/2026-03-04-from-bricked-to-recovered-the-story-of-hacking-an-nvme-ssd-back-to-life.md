@@ -10,6 +10,7 @@ feature_image: "/images/posts/xram-injection-flow.png"
 source_repo: "Jesssullivan/hiberpower-ntfs"
 source_path: "docs/blog/recovery-journey.md"
 publish_to: "blog"
+editorial_tier: "noteworthy"
 ---
 
 ```mermaid

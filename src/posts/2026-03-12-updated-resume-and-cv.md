@@ -7,6 +7,7 @@ published: true
 slug: "updated-resume-and-cv"
 feature_image: "/images/posts/idle_jess.webp"
 category: "personal"
+editorial_tier: "less-noteworthy"
 ---
 
 # Updated Resume & CV

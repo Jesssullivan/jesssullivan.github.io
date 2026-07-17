@@ -8,6 +8,7 @@ category: "devops"
 published: true
 slug: "was110-fidium-gonetspeed-omci-personalities"
 excerpt: "Two fiber ISPs, one switch, two BFW WAS-110 SFP+ XGS-PON modules running 8311 community firmware. Fidium and GoNetSpeed both authenticate the same way (clone the operator-supplied ONT's identity into IaC), but their upstream OLTs push very different OMCI service profiles. This is the procedure I used to land both, with annotated scripts and OMCI captures."
+editorial_tier: "noteworthy"
 ---
 
 Lets take an adventure in comfort hacking, exploring and ultimately configuring two fiber ISP uplinks — Fidium and GoNetSpeed — through [BFW Solutions WAS-110](https://pon.wiki/xgs-pon/ont/bfw-solutions/was-110/) [\[1\]](#ref-1) XGS-PON SFP+ ONT modules.
