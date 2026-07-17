@@ -87,9 +87,11 @@ async function main(): Promise<void> {
 	index.sort((a, b) => b.date.localeCompare(a.date));
 	publicationHolds.sort((a, b) => a.localeCompare(b));
 	publishedSourceFiles.sort((a, b) => a.localeCompare(b));
-	const unsafeGlobPath = publishedSourceFiles.find((sourceFile) => /[!*?\[\]{}\\]/.test(sourceFile));
-	if (unsafeGlobPath) {
-		throw new Error(`Published post path contains glob syntax and cannot be emitted safely: ${unsafeGlobPath}`);
+	const unsafeLoaderPath = publishedSourceFiles.find(
+		(sourceFile) => !/^\/src\/posts\/[A-Za-z0-9._-]+\.md$/.test(sourceFile),
+	);
+	if (unsafeLoaderPath) {
+		throw new Error(`Published post path cannot be emitted as an exact loader: ${unsafeLoaderPath}`);
 	}
 
 	const publishedPostLoadersSource = [
