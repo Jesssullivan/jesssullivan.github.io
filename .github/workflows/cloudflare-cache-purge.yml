@@ -36,6 +36,14 @@ jobs:
             echo '::error::path must not contain a query, fragment, traversal, or whitespace'
             exit 2
           fi
+          if [[ "$TARGET_PATH" == *%* || "$TARGET_PATH" == *\\* || "$TARGET_PATH" == *//* ]]; then
+            echo '::error::path must be canonical and must not contain encoding, backslashes, or empty segments'
+            exit 2
+          fi
+          if [[ "$TARGET_PATH" == "/." || "$TARGET_PATH" == *"/./"* || "$TARGET_PATH" == *"/." ]]; then
+            echo '::error::path must not contain dot segments'
+            exit 2
+          fi
 
           target_url="https://transscendsurvival.org${TARGET_PATH}"
           printf 'url=%s\n' "$target_url" >> "$GITHUB_OUTPUT"
