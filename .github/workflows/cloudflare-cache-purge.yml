@@ -43,6 +43,7 @@ jobs:
 
       - name: Purge exact URL
         env:
+          ACCOUNT_ID: fdcb4fb750ab79be0800e885f09ddbdc
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           TARGET_URL: ${{ steps.target.outputs.url }}
           ZONE_ID: 602400322c1ecac4983542c76af90115
@@ -79,8 +80,9 @@ jobs:
             REQUEST_BODY="${response%$'\n'*}"
           }
 
-          request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'
-          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true ]]; then
+          request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"
+          token_status="$(jq -r '.result.status // ""' <<<"$REQUEST_BODY")"
+          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true || "$token_status" != active ]]; then
             echo "::error::Cloudflare token verification failed (HTTP $REQUEST_STATUS)"
             jq -r '.errors[]? | "::error::Cloudflare code=\(.code) message=\(.message)"' <<<"$REQUEST_BODY"
             exit 4
