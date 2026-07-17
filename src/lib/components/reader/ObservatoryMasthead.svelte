@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 	import { goto } from '$app/navigation';
 	import type { Post, PostEditorialTier } from '$lib/types';
 	import type { PublicPulseItem } from '@blog/pulse-core/schema';
@@ -189,10 +190,36 @@
 		}
 		// Position the tooltip imperatively — kept out of the reactive graph so a
 		// pointer move never triggers a Svelte update beyond content changes.
-		if (i >= 0 && tipEl) {
-			tipEl.style.left = `${mx}px`;
-			tipEl.style.top = `${my}px`;
-		}
+		if (i >= 0) positionTip(e.clientX, e.clientY);
+	}
+
+	// House pattern for canvas-point tooltips (a star is not a DOM trigger, so
+	// Skeleton's Tooltip anatomy doesn't apply): Floating UI against a virtual
+	// element at the cursor, with flip/shift so the tip never clips the band's
+	// edges. Same positioning engine Skeleton's own Tooltip uses via zag.
+	function positionTip(clientX: number, clientY: number) {
+		if (!tipEl) return;
+		const virtual = {
+			getBoundingClientRect: () => ({
+				x: clientX,
+				y: clientY,
+				width: 0,
+				height: 0,
+				top: clientY,
+				right: clientX,
+				bottom: clientY,
+				left: clientX,
+			}),
+		};
+		computePosition(virtual, tipEl, {
+			placement: 'top',
+			middleware: [offset(14), flip(), shift({ padding: 8 })],
+		}).then(({ x, y }) => {
+			if (tipEl) {
+				tipEl.style.left = `${x}px`;
+				tipEl.style.top = `${y}px`;
+			}
+		});
 	}
 
 	function onPointerLeave() {
@@ -649,7 +676,6 @@
 		border-radius: 4px;
 		max-width: 250px;
 		opacity: 0;
-		transform: translate(-50%, -122%);
 		transition: opacity 0.15s;
 		z-index: 3;
 	}
