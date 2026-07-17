@@ -8,8 +8,8 @@ Reference index for the blog's design system, in-house packages/repos, and as-bu
 
 | Package | package.json | Installed | npm `latest` | npm `next` |
 |---|---|---|---|---|
-| `@skeletonlabs/skeleton` | `^4.15.2` | 4.15.2 | 4.15.2 | 5.0.0-next.12 |
-| `@skeletonlabs/skeleton-svelte` | `^4.15.2` | 4.15.2 | 4.15.2 | 5.0.0-next.12 |
+| `@skeletonlabs/skeleton` | `^4.15.2` | 4.15.2 | 5.0.0 | 5.0.0-next.12 |
+| `@skeletonlabs/skeleton-svelte` | `^4.15.2` | 4.15.2 | 5.0.0 | 5.0.0-next.12 |
 | `tailwindcss` | `^4.2.2` | 4.2.2 | — | — |
 | `svelte` | `^5.55.4` | 5.55.4 | — | — |
 | `@sveltejs/kit` | `^2.61.1` | 2.61.1 | — | — |
@@ -18,7 +18,7 @@ Reference index for the blog's design system, in-house packages/repos, and as-bu
 | `@tummycrypt/vite-plugin-a11y` | `^0.2.2` | 0.2.2 | — | — |
 | `@tummycrypt/vite-plugin-skeleton-colors` | `^0.2.2` | 0.2.2 | — | — |
 
-**4.15.2 vs "5.15.2":** `5.15.2` was never published for either Skeleton package (npm `versions` tail = `4.15.1, 4.15.2, 5.0.0-next.0…next.12`). 4.15.2 is `latest`-stable and the pin everywhere; v5 exists only as prerelease on the `next` tag (`5.0.0-next.12`). Ruled by TIN-2222 (Done, "correct the Skeleton-v5 phantom, stay pinned 4.15.2") and TIN-1541 (2026-05-18: "5.14.2 does not exist; latest=4.15.2; next=5.0.0-next.9"). Treat "5.15.2" as a misremembering of "4.15.2 on the v5-next track".
+**4.15.2 vs "5.15.2":** `5.15.2` was never published for either Skeleton package. The published sequence moves from `4.15.2` through `5.0.0-next.0…next.12` to stable `5.0.0`; on 2026-07-17 npm's `latest` tag is `5.0.0` and `next` still names `5.0.0-next.12`. This repository remains pinned to 4.15.2. TIN-2222 and TIN-1541 record the earlier correction when v5 was still prerelease; they do not establish that v5 remains prerelease now. Treat "5.15.2" as a misremembering, not a usable package version.
 
 ### Component usage (committed `src/` at this revision)
 
@@ -77,9 +77,9 @@ Positioning chain: `Skeleton Tooltip/Popover → @zag-js/{tooltip,popover} → @
 1. **DOM-anchored** tooltip/popover → the Skeleton compound component (`import { Tooltip | Popover } from '@skeletonlabs/skeleton-svelte'`; bare component = root, children `.Trigger/.Positioner/.Content/...`). Reference call site: `ThemeSwitcher.svelte`.
 2. **Canvas/virtual-point** tooltip (no DOM trigger exists) → direct `@floating-ui/dom` `computePosition` with a virtual element + `offset/flip/shift` middleware — the same engine Skeleton uses via `@zag-js/popper`, per the TIN-608 Floating-UI-Attachments cookbook. Precedent: `ObservatoryMasthead.svelte` `positionTip()` (M1.3). Direct usage requires the dep declared in `package.json` (done: `^1.8.0`) — never lean on the transitive copy.
 
-### v5-beta posture
+### v5 migration posture
 
-Fully on 4.15.2 stable — no v5 code, no v5 CSS-var renames, and no reviewed v5 validation has landed. Migration tickets are Backlog: TIN-603 (install the v5 prerelease on a worktree and validate themes/components), TIN-604 (Pride/Trans OKLCH themes vs v5 theme-spec PR #4353: renamed CSS vars, new `accent-color`/`corner-shape`), and TIN-607/609 (dev-env/Discord, not started). TIN-608 (Done): `floating-ui-svelte` archived 2026-01-29, Zag owns positioning. When v5 ships to `latest`, most-exposed here = (1) hand-authored OKLCH themes `pride.css`/`trans.css` vs renamed CSS-var spec, (2) `Popover`/new `Tooltip` compound call sites (Zag anatomy most likely to shift). Until a TIN-603-class pass runs, 4.15.2 is the only supported target. TIN-606's "27 of 50 Zag machines used" figure remains unverified for this repository.
+The repository is fully on 4.15.2 — no v5 code, no v5 CSS-var renames, and no reviewed v5 validation has landed. Stable 5.0.0 is now available, but adopting it remains a reviewed migration rather than an automatic dependency bump. TIN-603 (install and validate themes/components), TIN-604 (Pride/Trans OKLCH themes vs the v5 theme spec), TIN-607 (upstream development environment), TIN-608 (`floating-ui-svelte` disposition), and TIN-609 (upstream contribution coordination) are all still Backlog as of 2026-07-17. The most-exposed surfaces are (1) hand-authored OKLCH themes `pride.css`/`trans.css` and (2) `Popover`/`Tooltip` compound call sites. Until a TIN-603-class pass runs, 4.15.2 is the only supported target in this repository. TIN-606's "27 of 50 Zag machines used" figure remains unverified for this repository.
 
 ## In-house packages & repos
 
@@ -99,8 +99,8 @@ Published registry entries and the consumer's committed `MODULE.bazel` are the a
 
 | Module | Registry latest | tinyland.dev pin | State |
 |---|---|---|---|
-| `tummycrypt_tinyland_auth` | 0.7.1 | 0.6.0 | BEHIND (0.7.1 fixes TIN-2781 TOCTOU) |
-| `tummycrypt_tinyland_invitation` | 0.2.5 | 0.2.3 | BEHIND (0.2.5 fixes TIN-2780 dup service) |
+| `tummycrypt_tinyland_auth` | 0.7.1 | 0.6.0 | BEHIND (0.7.x removes the TIN-2780 ungated duplicate; 0.7.1 is the graph-compat patch) |
+| `tummycrypt_tinyland_invitation` | 0.2.5 | 0.2.3 | BEHIND (0.2.5 fixes TIN-2781 single-use acceptance) |
 | `tummycrypt_tinyland_content` | 0.3.2 | 0.2.5 | BEHIND |
 | `tummycrypt_tinyland_content_types` | 0.3.1 | 0.2.4 | BEHIND |
 | `tummycrypt_tinyland_security` | 0.3.2 | 0.3.1 | BEHIND |
