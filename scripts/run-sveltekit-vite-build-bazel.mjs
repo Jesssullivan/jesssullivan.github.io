@@ -64,6 +64,8 @@ if (!indexHtml.includes('<!doctype html>')) {
 	throw new Error('SvelteKit build output index.html is missing doctype');
 }
 
+assertUnpublishedPostContentExcluded();
+
 console.log(
 	`SvelteKit/Vite build smoke passed for ${packageJson.name}; output=${indexPath}; mermaid=${process.env.MERMAID_PRERENDER}`,
 );
@@ -84,6 +86,85 @@ function copyInputsToBuildRoot() {
 	]) {
 		copyPath(resolve(workspaceRoot, file), resolve(buildRoot, file));
 	}
+}
+
+function assertUnpublishedPostContentExcluded() {
+	const postsDir = join(buildRoot, 'src', 'posts');
+	const appDir = join(buildRoot, 'build', '_app');
+	const posts = readdirSync(postsDir)
+		.filter((file) => file.endsWith('.md'))
+		.map((file) => ({ file, source: readFileSync(join(postsDir, file), 'utf8') }));
+	const publishedCorpus = posts
+		.filter(({ source }) => /^published:\s*true\s*$/m.test(frontmatter(source)))
+		.map(({ source }) => source)
+		.join('\n');
+	const unpublishedPosts = posts
+		.filter(({ source }) => !/^published:\s*true\s*$/m.test(frontmatter(source)))
+		.map(({ file, source }) => ({
+			file,
+			sentinel: publicationSentinel(file, source, publishedCorpus),
+		}));
+	const appAssets = collectFiles(appDir).map((file) => ({
+		file,
+		source: readFileSync(file, 'utf8'),
+	}));
+
+	for (const unpublishedPost of unpublishedPosts) {
+		const leak = appAssets.find(({ source }) => assetContains(source, unpublishedPost.sentinel));
+		if (leak) {
+			throw new Error(`Unpublished post ${unpublishedPost.file} leaked into client asset ${leak.file}`);
+		}
+	}
+
+	console.log(`Unpublished-post asset scan passed for ${unpublishedPosts.length} posts`);
+}
+
+function frontmatter(source) {
+	const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+	return match?.[1] ?? '';
+}
+
+function publicationSentinel(file, source, publishedCorpus) {
+	const block = frontmatter(source);
+	const bodyLines = source
+		.slice(source.indexOf(block) + block.length)
+		.split(/\r?\n/)
+		.map((line) => line.trim())
+		.filter((line) => line.length >= 32 && !/^(?:[#>*_`-]|\d+\.)/.test(line));
+	const candidates = [frontmatterScalar(block, 'description'), frontmatterScalar(block, 'title'), ...bodyLines].filter(
+		(candidate) => candidate.length >= 24,
+	);
+	const sentinel = candidates.find((candidate) => !publishedCorpus.includes(candidate));
+	if (!sentinel) {
+		throw new Error(`Unpublished post ${file} has no unique public-asset sentinel`);
+	}
+	return sentinel;
+}
+
+function frontmatterScalar(block, key) {
+	const match = block.match(new RegExp(`^${key}:\\s*(.+?)\\s*$`, 'm'));
+	if (!match) return '';
+	const raw = match[1].trim();
+	if (raw.startsWith('"') && raw.endsWith('"')) {
+		return JSON.parse(raw);
+	}
+	if (raw.startsWith("'") && raw.endsWith("'")) {
+		return raw.slice(1, -1).replaceAll("''", "'");
+	}
+	return raw;
+}
+
+function assetContains(source, sentinel) {
+	const jsonEscaped = JSON.stringify(sentinel).slice(1, -1);
+	const singleQuoteEscaped = sentinel.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+	return source.includes(sentinel) || source.includes(jsonEscaped) || source.includes(singleQuoteEscaped);
+}
+
+function collectFiles(root) {
+	return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+		const path = join(root, entry.name);
+		return entry.isDirectory() ? collectFiles(path) : [path];
+	});
 }
 
 function copyPath(source, destination) {

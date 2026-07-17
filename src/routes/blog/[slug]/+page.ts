@@ -1,5 +1,8 @@
 import type { PageLoad, EntryGenerator } from './$types';
+import { error } from '@sveltejs/kit';
+import { publishedPostLoaders } from '$lib/data/blog-post-loaders.generated';
 import searchIndexData from '../../../../static/search-index.json';
+import publicationHoldsData from '../../../../static/blog-publication-holds.json';
 
 interface PostMeta {
 	title: string;
@@ -24,6 +27,7 @@ interface SearchIndexEntry {
 }
 
 const searchIndex = (searchIndexData as SearchIndexEntry[]).filter((entry) => entry.published !== false);
+const publicationHolds = new Set(publicationHoldsData as string[]);
 
 function getSortedPosts(): { slug: string; title: string; date: string; tags: string[] }[] {
 	return [...searchIndex]
@@ -31,7 +35,7 @@ function getSortedPosts(): { slug: string; title: string; date: string; tags: st
 			slug: entry.slug,
 			title: entry.title ?? entry.slug,
 			date: entry.date ?? '',
-			tags: entry.tag_list ?? []
+			tags: entry.tag_list ?? [],
 		}))
 		.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
@@ -39,7 +43,7 @@ function getSortedPosts(): { slug: string; title: string; date: string; tags: st
 function computeRelatedPosts(
 	currentSlug: string,
 	currentTags: Set<string>,
-	posts: { slug: string; title: string; date: string; tags: string[] }[]
+	posts: { slug: string; title: string; date: string; tags: string[] }[],
 ): { slug: string; title: string; date: string }[] {
 	if (currentTags.size === 0) {
 		// No tags — return 3 most recent posts (excluding current)
@@ -67,12 +71,18 @@ export const entries: EntryGenerator = async () => {
 };
 
 export const load: PageLoad = async ({ params }) => {
-	const lazyModules = import.meta.glob('/src/posts/*.md');
+	if (publicationHolds.has(params.slug)) {
+		throw error(404, 'Post not found');
+	}
+
 	const searchEntry = searchIndex.find((entry) => entry.slug === params.slug);
 	const matchedPath = searchEntry?.source_file;
+	const postLoader = matchedPath
+		? (publishedPostLoaders as Record<string, () => Promise<unknown>>)[matchedPath]
+		: undefined;
 
-	if (matchedPath && lazyModules[matchedPath]) {
-		const post = (await lazyModules[matchedPath]()) as {
+	if (matchedPath && postLoader) {
+		const post = (await postLoader()) as {
 			default: import('svelte').Snippet;
 			metadata: PostMeta;
 		};

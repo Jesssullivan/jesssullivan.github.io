@@ -379,22 +379,28 @@ export function tinylandBlogBrokerStreamToPosts(stream: TinylandBlogBrokerStream
  *   - a static post with no feature_image is backfilled from the matching broker
  *     post only,
  *   - broker-only posts (live posts not present in the repo) are appended,
+ *   - explicit publication holds are removed from both sources,
  *   - the result is re-sorted newest-first to match the static ordering.
  *
  * Net: new-post visibility is independent of broker freshness.
  */
-export function mergeBrokerPostsIntoStatic(staticPosts: readonly Post[], brokerPosts: readonly Post[]): Post[] {
+export function mergeBrokerPostsIntoStatic(
+	staticPosts: readonly Post[],
+	brokerPosts: readonly Post[],
+	publicationHolds: ReadonlySet<string> = new Set(),
+): Post[] {
 	const brokerBySlug = new Map(brokerPosts.map((post) => [post.slug, post]));
-	const staticSlugs = new Set(staticPosts.map((post) => post.slug));
+	const visibleStaticPosts = staticPosts.filter((post) => !publicationHolds.has(post.slug));
+	const staticSlugs = new Set(visibleStaticPosts.map((post) => post.slug));
 
-	const merged: Post[] = staticPosts.map((post) => {
+	const merged: Post[] = visibleStaticPosts.map((post) => {
 		if (post.feature_image) return post;
 		const broker = brokerBySlug.get(post.slug);
 		return broker?.feature_image ? { ...post, feature_image: broker.feature_image } : post;
 	});
 
 	for (const post of brokerPosts) {
-		if (!staticSlugs.has(post.slug)) merged.push(post);
+		if (!staticSlugs.has(post.slug) && !publicationHolds.has(post.slug)) merged.push(post);
 	}
 
 	return merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || a.slug.localeCompare(b.slug));
