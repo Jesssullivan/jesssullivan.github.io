@@ -31,9 +31,14 @@ require_fixed '{files:[$url]}' "one-URL purge payload"
 require_fixed '[[ "$TARGET_PATH" == *%* || "$TARGET_PATH" == *\\* || "$TARGET_PATH" == *//* ]]' "encoded and ambiguous path rejection"
 require_fixed '[[ "$TARGET_PATH" == "/." || "$TARGET_PATH" == *"/./"* || "$TARGET_PATH" == *"/." ]]' "dot-segment rejection"
 
-for forbidden in purge_everything '"tags"' '"hosts"' '"prefixes"'; do
-  if grep -Fq -- "${forbidden}" "${workflow}"; then
-    echo "ERROR: cache purge workflow contains broad purge mode: ${forbidden}" >&2
+if grep -Fq -- "purge_everything" "${workflow}"; then
+  echo "ERROR: cache purge workflow contains broad purge mode: purge_everything" >&2
+  exit 1
+fi
+
+for forbidden_key in tags hosts prefixes; do
+  if grep -Eq -- "(^|[,{[:space:]])[\"']?${forbidden_key}[\"']?[[:space:]]*:" "${workflow}"; then
+    echo "ERROR: cache purge workflow contains broad purge key: ${forbidden_key}" >&2
     exit 1
   fi
 done
