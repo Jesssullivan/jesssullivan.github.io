@@ -1,0 +1,107 @@
+name: Cloudflare Cache Purge
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'One transscendsurvival.org path to evict (for example /blog/post-slug)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-cache-purge-${{ inputs.path }}
+  cancel-in-progress: false
+
+jobs:
+  purge-one-url:
+    name: Purge one production URL
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate exact production path
+        id: target
+        env:
+          TARGET_PATH: ${{ inputs.path }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$TARGET_PATH" || "$TARGET_PATH" != /* || "$TARGET_PATH" == / ]]; then
+            echo '::error::path must be one non-root absolute path'
+            exit 2
+          fi
+          if [[ "$TARGET_PATH" == *'?'* || "$TARGET_PATH" == *'#'* || "$TARGET_PATH" == *'..'* || "$TARGET_PATH" =~ [[:space:]] ]]; then
+            echo '::error::path must not contain a query, fragment, traversal, or whitespace'
+            exit 2
+          fi
+
+          target_url="https://transscendsurvival.org${TARGET_PATH}"
+          printf 'url=%s\n' "$target_url" >> "$GITHUB_OUTPUT"
+          printf "Validated one-URL purge target: \`%s\`\n" "$target_url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Purge exact URL
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TARGET_URL: ${{ steps.target.outputs.url }}
+          ZONE_ID: 602400322c1ecac4983542c76af90115
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$CLOUDFLARE_API_TOKEN" ]]; then
+            echo '::error::CLOUDFLARE_API_TOKEN is not configured'
+            exit 3
+          fi
+
+          request() {
+            local method="$1"
+            local endpoint="$2"
+            local payload="${3:-}"
+            local response
+
+            if [[ -n "$payload" ]]; then
+              response="$(curl -sS -w $'\n%{http_code}' \
+                -X "$method" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                -H 'Content-Type: application/json' \
+                --data-binary "$payload" \
+                "$endpoint")"
+            else
+              response="$(curl -sS -w $'\n%{http_code}' \
+                -X "$method" \
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+                -H 'Content-Type: application/json' \
+                "$endpoint")"
+            fi
+
+            REQUEST_STATUS="${response##*$'\n'}"
+            REQUEST_BODY="${response%$'\n'*}"
+          }
+
+          request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'
+          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true ]]; then
+            echo "::error::Cloudflare token verification failed (HTTP $REQUEST_STATUS)"
+            jq -r '.errors[]? | "::error::Cloudflare code=\(.code) message=\(.message)"' <<<"$REQUEST_BODY"
+            exit 4
+          fi
+
+          request GET "https://api.cloudflare.com/client/v4/zones/$ZONE_ID"
+          zone_name="$(jq -r '.result.name // ""' <<<"$REQUEST_BODY")"
+          if [[ "$REQUEST_STATUS" != 200 || "$zone_name" != transscendsurvival.org ]]; then
+            echo "::error::Cloudflare zone verification failed (HTTP $REQUEST_STATUS, name=$zone_name)"
+            exit 5
+          fi
+
+          # $url is a jq variable, not a shell variable.
+          # shellcheck disable=SC2016
+          payload="$(jq -cn --arg url "$TARGET_URL" '{files:[$url]}')"
+          request POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/purge_cache" "$payload"
+          if [[ "$REQUEST_STATUS" != 200 || "$(jq -r '.success // false' <<<"$REQUEST_BODY")" != true ]]; then
+            echo "::error::Exact-URL purge failed (HTTP $REQUEST_STATUS)"
+            jq -r '.errors[]? | "::error::Cloudflare code=\(.code) message=\(.message)"' <<<"$REQUEST_BODY"
+            exit 6
+          fi
+
+          result_id="$(jq -r '.result.id // "none"' <<<"$REQUEST_BODY")"
+          printf "Purged exactly \`%s\` (result \`%s\`).\n" "$TARGET_URL" "$result_id" >> "$GITHUB_STEP_SUMMARY"
