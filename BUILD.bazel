@@ -79,7 +79,6 @@ filegroup(
     name = "sveltekit_build_srcs",
     srcs = glob(
         [
-            "functions/**",
             "packages/**",
             "scripts/**",
             "src/**",
@@ -326,6 +325,7 @@ js_test(
     data = [
         ".github/workflows/cloudflare-pages-shadow.yml",
         "functions/blog/ssh-macos-kvm-hid-accessory-approval.js",
+        "static/blog-publication-holds.json",
         "static/_routes.json",
     ],
     entry_point = "scripts/test-held-post-edge-404.mjs",
