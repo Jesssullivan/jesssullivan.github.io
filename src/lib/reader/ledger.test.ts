@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Post } from '$lib/types';
 import type { PublicPulseItem } from '@blog/pulse-core/schema';
-import { buildConstellationGroups, partitionLedger } from './ledger';
+import { buildConstellationGroups, partitionLedger, postToConstellationNode } from './ledger';
 
 function makePost(overrides: Partial<Post> = {}): Post {
 	return {
@@ -137,5 +137,22 @@ describe('buildConstellationGroups', () => {
 	it('omits the pulse group entirely when there are no pulse items', () => {
 		const groups = buildConstellationGroups([makePost({ category: 'hardware' })], []);
 		expect(groups.some((g) => g.basis === 'pulse')).toBe(false);
+	});
+});
+
+describe('postToConstellationNode', () => {
+	it('carries the interaction metadata: first non-empty tag, ISO date, reading minutes', () => {
+		const node = postToConstellationNode(
+			makePost({ slug: 'x', date: '2026-06-09', tags: [' ', 'firmware', 'usb'], reading_time: 7 }),
+		);
+		expect(node.tag).toBe('firmware');
+		expect(node.date).toBe('2026-06-09');
+		expect(node.readingMinutes).toBe(7);
+	});
+
+	it('never invents fields: absent tags/reading time stay undefined', () => {
+		const node = postToConstellationNode(makePost({ slug: 'y', tags: [], reading_time: undefined }));
+		expect(node.tag).toBeUndefined();
+		expect(node.readingMinutes).toBeUndefined();
 	});
 });
