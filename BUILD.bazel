@@ -324,6 +324,7 @@ js_test(
     name = "held_post_edge_404_contract",
     copy_data_to_bin = False,
     data = [
+        ".github/workflows/cloudflare-pages-shadow.yml",
         "functions/blog/ssh-macos-kvm-hid-accessory-approval.js",
         "static/_routes.json",
     ],

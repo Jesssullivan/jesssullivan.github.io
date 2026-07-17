@@ -21,4 +21,11 @@ assert.deepEqual(routes, {
 	exclude: []
 });
 
+const workflowUrl = new URL('../.github/workflows/cloudflare-pages-shadow.yml', import.meta.url);
+const workflow = await readFile(workflowUrl, 'utf8');
+const functionPathFilters = workflow.match(/- "functions\/\*\*"/g) ?? [];
+
+assert.equal(functionPathFilters.length, 2);
+assert.match(workflow, /command: pages deploy build --project-name=/);
+
 console.log('Held-post edge 404 contract passed');
