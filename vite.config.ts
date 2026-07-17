@@ -32,6 +32,12 @@ function skeletonTailwindV4Compat(): Plugin {
 }
 
 export default defineConfig({
+	// Public build SHA baked at build time. Empty unless a real published build
+	// sets PUBLIC_BUILD_SHA (or CI's GITHUB_SHA); the footer provenance line in
+	// +layout.svelte renders only when it is non-empty.
+	define: {
+		__BUILD_SHA__: JSON.stringify(process.env.PUBLIC_BUILD_SHA ?? process.env.GITHUB_SHA ?? ''),
+	},
 	plugins: [
 		skeletonTailwindV4Compat(),
 		skeletonColorUtilities(),
@@ -41,15 +47,17 @@ export default defineConfig({
 			failOnError: false,
 		}),
 		sveltekit(),
-		...(process.env.BUILD_ANALYZE ? [
-			visualizer({
-				emitFile: true,
-				filename: 'stats.html',
-				template: 'treemap',
-				gzipSize: true,
-				brotliSize: true,
-			}),
-		] : []),
+		...(process.env.BUILD_ANALYZE
+			? [
+					visualizer({
+						emitFile: true,
+						filename: 'stats.html',
+						template: 'treemap',
+						gzipSize: true,
+						brotliSize: true,
+					}),
+				]
+			: []),
 	],
 	build: {
 		reportCompressedSize: true,
