@@ -1,10 +1,22 @@
 <script lang="ts">
 	import type { ConstellationGroup } from '$lib/reader/ledger';
+	import TierBadge from '$lib/components/TierBadge.svelte';
 
 	// The accessible, deterministic counterpart to the decorative masthead
 	// constellation: the SAME nodes, grouped honestly by the metadata already on
 	// each entry, exposed as native <details> disclosures (keyboard + AT native).
+	// The canvas encodes three axes (tier as brightness, time as radius, topic as
+	// tag-lines); this surface carries the same three — topic via grouping, tier
+	// via TierBadge, time via <time datetime> in the nodes' date-desc order.
 	let { groups }: { groups: ConstellationGroup[] } = $props();
+
+	// Short, stable date label for the time axis. Absent date -> empty (guarded
+	// by the {#if} below), so untimed nodes simply omit the <time>.
+	function fmtDate(iso: string): string {
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return '';
+		return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+	}
 </script>
 
 {#if groups.length > 0}
@@ -25,8 +37,12 @@
 				</summary>
 				<ol class="pb-2 pl-4 space-y-1">
 					{#each group.nodes as node (node.id)}
-						<li class="text-sm text-surface-700-300">
+						<li class="text-sm text-surface-700-300 flex items-baseline gap-2 flex-wrap">
 							<a href={node.href} class="hover:text-primary-500 transition-colors">{node.label}</a>
+							<TierBadge tier={node.tier} />
+							{#if node.date}
+								<time datetime={node.date} class="text-xs text-surface-500 tabular-nums">{fmtDate(node.date)}</time>
+							{/if}
 						</li>
 					{/each}
 				</ol>

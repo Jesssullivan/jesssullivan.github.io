@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Post } from '$lib/types';
+	import { goto } from '$app/navigation';
+	import type { Post, PostEditorialTier } from '$lib/types';
 	import type { PublicPulseItem } from '@blog/pulse-core/schema';
-	import { partitionLedger } from '$lib/reader/ledger';
+	import { partitionLedger, postToConstellationNode, type ConstellationNode } from '$lib/reader/ledger';
 
 	// The oscillating "/" masthead. State A is the site's existing heron hero
 	// (identity, SSR-rendered, accessible). State B is a decorative night-sky
@@ -67,7 +68,49 @@
 	let links: [number, number][] = [];
 	let comets: Comet[] = [];
 
+	// Interaction state. `nodes` is index-aligned to `stars[]` (same build order),
+	// so a hit-test index selects both the drawn star and its node metadata. These
+	// stay OUT of the reactive graph — pointer moves must not thrash Svelte; only
+	// the tooltip's content (`hoveredNode`) and its element ref are runes.
+	let nodes: ConstellationNode[] = [];
+	let hoveredIdx = -1;
+	let flourishIdx = -1;
+	let flourishStart = 0;
+	let flourishTimer = 0;
+	let hoveredNode = $state<ConstellationNode | null>(null);
+	let tipEl: HTMLDivElement | undefined = $state();
+
 	const DWELL_MS = 14000;
+	const PICK_R2 = 26 * 26; // hit-test radius² in CSS px (point-in-radius over live x/y)
+	const FLOURISH_MS = 200; // click magnify duration before navigating
+
+	const TIER_LABEL: Record<PostEditorialTier, string> = {
+		noteworthy: 'Noteworthy',
+		'less-noteworthy': 'Less noteworthy',
+	};
+
+	// Two-tier label truncation. (The study's shortTitle was a plain slice;
+	// this variant prefers a word boundary when one falls late enough.)
+	function shortTitle(t: string, n: number): string {
+		if (t.length <= n) return t;
+		const cut = t.slice(0, n);
+		const sp = cut.lastIndexOf(' ');
+		return (sp > n * 0.6 ? cut.slice(0, sp) : cut).trimEnd() + '…';
+	}
+
+	// Tooltip meta line: reading time for noteworthy posts that carry it, else date.
+	function tipMeta(node: ConstellationNode): string {
+		return node.tier === 'noteworthy' && node.readingMinutes
+			? `${node.readingMinutes} min read`
+			: formatDate(node.date);
+	}
+
+	function formatDate(iso?: string): string {
+		if (!iso) return '';
+		const d = new Date(iso);
+		if (Number.isNaN(d.getTime())) return '';
+		return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+	}
 
 	function buildModel() {
 		stars = [];
@@ -104,6 +147,78 @@
 		});
 		for (const arr of Object.values(byTag)) {
 			for (let i = 1; i < arr.length; i++) links.push([arr[i - 1], arr[i]]);
+		}
+		// Index-aligned node metadata (same [...noteworthy, ...less, ...unclassified]
+		// order as `stars`) — the single node shape the section also renders.
+		nodes = timeline.map((item) => postToConstellationNode(item.post));
+	}
+
+	// O(n) point-in-radius hit test over the live star positions (CSS px). Returns
+	// the nearest star index within PICK_R2, or -1. No camera state — a plain x/y
+	// test, because the masthead never pans or zooms the field.
+	function pickNearest(mx: number, my: number): number {
+		let best = -1;
+		let bestD2 = PICK_R2;
+		for (let i = 0; i < stars.length; i++) {
+			const dx = stars[i].x - mx;
+			const dy = stars[i].y - my;
+			const d2 = dx * dx + dy * dy;
+			if (d2 <= bestD2) {
+				bestD2 = d2;
+				best = i;
+			}
+		}
+		return best;
+	}
+
+	// Pointer events cover mouse, pen, and touch-tap with one path. All handlers
+	// bail unless the constellation layer is the shown one.
+	function onPointerMove(e: PointerEvent) {
+		if (!showB || !canvasEl) return;
+		const rect = canvasEl.getBoundingClientRect();
+		const mx = e.clientX - rect.left;
+		const my = e.clientY - rect.top;
+		const i = pickNearest(mx, my);
+		if (i !== hoveredIdx) {
+			hoveredIdx = i;
+			hoveredNode = i >= 0 ? nodes[i] : null;
+			canvasEl.style.cursor = i >= 0 ? 'pointer' : 'default';
+			// Reflect the new lighting even when the loop is idle (paused /
+			// RM-opted-in) — only on a hover CHANGE, never per pointer move.
+			if (!raf) drawFrame(performance.now());
+		}
+		// Position the tooltip imperatively — kept out of the reactive graph so a
+		// pointer move never triggers a Svelte update beyond content changes.
+		if (i >= 0 && tipEl) {
+			tipEl.style.left = `${mx}px`;
+			tipEl.style.top = `${my}px`;
+		}
+	}
+
+	function onPointerLeave() {
+		if (hoveredIdx === -1 && !hoveredNode) return;
+		hoveredIdx = -1;
+		hoveredNode = null;
+		if (canvasEl) canvasEl.style.cursor = 'default';
+		if (!raf) drawFrame(performance.now());
+	}
+
+	function onCanvasClick(e: MouseEvent) {
+		if (!showB || !canvasEl) return;
+		const rect = canvasEl.getBoundingClientRect();
+		const i = pickNearest(e.clientX - rect.left, e.clientY - rect.top);
+		if (i < 0) return; // empty space = no-op
+		const node = nodes[i];
+		if (shouldRun()) {
+			// Brief local magnify (the running loop animates it), then route in.
+			flourishIdx = i;
+			flourishStart = performance.now();
+			// One pending navigation at a time; cleared on unmount so a late
+			// goto can never fire after the reader has left the page.
+			window.clearTimeout(flourishTimer);
+			flourishTimer = window.setTimeout(() => goto(node.href), FLOURISH_MS);
+		} else {
+			goto(node.href); // reduced-motion / paused: navigate immediately, no flourish
 		}
 	}
 
@@ -156,7 +271,9 @@
 		lastT = now;
 		const running = shouldRun();
 		if (running) {
-			drift += dt * 0.00002; // slow living-sky rotation
+			// Freeze drift while a star is hovered so the target holds still under
+			// the cursor (the section-level `hovered` dwell guard is untouched).
+			if (hoveredIdx < 0) drift += dt * 0.00002; // slow living-sky rotation
 			layout();
 		}
 
@@ -177,12 +294,14 @@
 			ctx.stroke();
 		}
 
-		// Tag (constellation) lines.
-		ctx.strokeStyle = 'rgba(124,160,176,0.10)';
+		// Tag (constellation) lines. A hovered star lights its own tag-lines
+		// goldfinch; all others stay faint. Base links always drawn (thinning is M1.4).
 		ctx.lineWidth = 1;
 		for (const [ai, bi] of links) {
 			const a = stars[ai];
 			const b = stars[bi];
+			const lit = hoveredIdx >= 0 && (ai === hoveredIdx || bi === hoveredIdx);
+			ctx.strokeStyle = lit ? 'rgba(201,162,39,0.30)' : 'rgba(124,160,176,0.10)';
 			ctx.beginPath();
 			ctx.moveTo(a.x, a.y);
 			ctx.lineTo(b.x, b.y);
@@ -220,11 +339,25 @@
 			}
 		}
 
-		// Stars: radial-gradient glow + plumage core, with a gentle twinkle.
-		for (const s of stars) {
+		// Stars: radial-gradient glow + plumage core, with a gentle twinkle. Indexed
+		// so each star can reach its node (tier/label), the hover focus, and the
+		// click flourish.
+		for (let i = 0; i < stars.length; i++) {
+			const s = stars[i];
+			const node = nodes[i];
+			const isNote = node?.tier === 'noteworthy';
+			const isFocus = i === hoveredIdx;
 			const twinkle = running ? 0.82 + 0.18 * Math.sin(now * 0.002 + s.tw) : 1;
-			const r = s.base * twinkle;
-			const glowR = r * (s.cardinal ? 6 : 3.4);
+			// Click flourish: ramp the clicked star's core+glow ~1.0->2.2x over
+			// FLOURISH_MS, then release. Only ever set when motion is live.
+			let mag = 1;
+			if (i === flourishIdx) {
+				const fp = Math.min((performance.now() - flourishStart) / FLOURISH_MS, 1);
+				mag = 1 + fp * 1.2;
+				if (fp >= 1) flourishIdx = -1;
+			}
+			const r = s.base * twinkle * mag;
+			const glowR = r * (s.cardinal ? 6 : 3.4) * (isFocus ? 1.5 : 1);
 			const gg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, glowR);
 			if (s.cardinal) gg.addColorStop(0, `rgba(200,74,56,${(0.55 * s.bright * twinkle).toFixed(3)})`);
 			else gg.addColorStop(0, `rgba(124,160,176,${(0.34 * twinkle).toFixed(3)})`);
@@ -241,6 +374,15 @@
 			ctx.beginPath();
 			ctx.arc(s.x, s.y, r * 0.55, 0, Math.PI * 2);
 			ctx.fill();
+
+			// Two-tier labels: noteworthy always labeled; any hovered star labeled
+			// brighter; everything else hover-only. (0 noteworthy posts today, so
+			// every label is hover-only until TIN-2891 lands the noteworthy set.)
+			if (node && (isNote || isFocus)) {
+				ctx.font = isFocus ? '600 13px ui-serif, Georgia, serif' : '12px ui-serif, Georgia, serif';
+				ctx.fillStyle = isFocus ? 'rgba(231,225,210,0.96)' : 'rgba(226,194,78,0.78)';
+				ctx.fillText(shortTitle(node.label, isFocus ? 44 : 26), s.x + r + 8, s.y + 4);
+			}
 		}
 
 		if (running) raf = requestAnimationFrame(drawFrame);
@@ -343,6 +485,7 @@
 		return () => {
 			stopLoop();
 			if (dwellTimer) clearInterval(dwellTimer);
+			window.clearTimeout(flourishTimer);
 			ro?.disconnect();
 			io?.disconnect();
 			document.removeEventListener('visibilitychange', onVisibility);
@@ -361,6 +504,7 @@
 	onfocusin={() => (hovered = true)}
 	onfocusout={() => (hovered = false)}
 	aria-label="Trans Scend Survival"
+	aria-describedby="masthead-a11y-note"
 >
 	<div class="mast-ctl">
 		<button
@@ -422,9 +566,33 @@
 
 	<!-- State B: decorative constellation night render (aria-hidden). -->
 	<div class="mast-layer mast-constellation" class:on={showB} aria-hidden="true">
-		<canvas bind:this={canvasEl}></canvas>
+		<canvas
+			bind:this={canvasEl}
+			onpointermove={onPointerMove}
+			onpointerleave={onPointerLeave}
+			onclick={onCanvasClick}
+			style:pointer-events={showB ? 'auto' : 'none'}
+		></canvas>
+		<!-- Tooltip: a DOM element over the canvas (never canvas-drawn text). Always
+		     mounted, `.show` toggled; content bound from the hovered node (no innerHTML). -->
+		<div bind:this={tipEl} class="mast-tip" class:show={hoveredNode} aria-hidden="true">
+			{#if hoveredNode}
+				<div class="tt-kind" data-tier={hoveredNode.tier ?? 'none'}>
+					{hoveredNode.tier ? TIER_LABEL[hoveredNode.tier] : 'Entry'}{hoveredNode.tag ? ` · ${hoveredNode.tag}` : ''}
+				</div>
+				<div class="tt-title">{hoveredNode.label}</div>
+				<div class="tt-meta">{tipMeta(hoveredNode)}</div>
+			{/if}
+		</div>
 		<span class="mast-honesty">deterministic layout from current category &amp; tag metadata — not an embedding</span>
 	</div>
+
+	<!-- A11y bridge: the canvas is decorative/aria-hidden; this points AT users at
+	     the keyboard-navigable index of the same entries (ConstellationSection). -->
+	<p id="masthead-a11y-note" class="sr-only">
+		The masthead shows an interactive star map of the log's entries; a keyboard-navigable index of the same entries,
+		grouped by topic, is below.
+	</p>
 </section>
 
 <style>
@@ -469,6 +637,48 @@
 		font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
 		font-size: 0.6rem;
 		color: rgba(114, 124, 119, 0.9);
+	}
+	/* Hover tooltip — a DOM element positioned imperatively over the canvas
+	   (ported from the study's .planet-tip). */
+	.mast-tip {
+		position: absolute;
+		pointer-events: none;
+		padding: 9px 12px;
+		background: rgba(10, 14, 18, 0.94);
+		border: 1px solid #39474f;
+		border-radius: 4px;
+		max-width: 250px;
+		opacity: 0;
+		transform: translate(-50%, -122%);
+		transition: opacity 0.15s;
+		z-index: 3;
+	}
+	.mast-tip.show {
+		opacity: 1;
+	}
+	.tt-kind {
+		font: 10px ui-monospace;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		margin-bottom: 4px;
+		color: #7ca0b0;
+	}
+	.tt-kind[data-tier='noteworthy'] {
+		color: #c94a38;
+	}
+	.tt-title {
+		font: 600 15px ui-serif, Georgia, serif;
+		color: #e7e1d2;
+		line-height: 1.28;
+	}
+	.tt-meta {
+		font: 10.5px ui-monospace;
+		color: rgba(114, 124, 119, 0.9);
+		font-variant-numeric: tabular-nums;
+		margin-top: 5px;
+	}
+	.observatory-masthead.reduced .mast-tip {
+		transition: none;
 	}
 	.mast-ctl {
 		position: absolute;
