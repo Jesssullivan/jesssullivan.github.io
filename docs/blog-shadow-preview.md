@@ -113,15 +113,16 @@ uses the `tinyland-dind` ARC runner by default and accepts
 `BLOG_SHADOW_SOURCE_RUNNER=ubuntu-latest`, or manual dispatch with
 `source_runner=ubuntu-latest`, when the ARC source-build lane is unavailable.
 
-## Cloudflare Pages Compatibility Surfaces
+## Cloudflare Pages Production And Legacy Routes
 
-`.github/workflows/cloudflare-pages-shadow.yml` and
-`https://tss.ephemera.tinyland.dev` are the `transscendsurvival-org` Pages
-build/deploy and compatibility-shadow surfaces. The workflow exercises the
-static Pages artifact and is still referenced by machine production-consumer
-checks. `https://tss.tinyland.dev` belongs to the separate `tss-shadow` Pages
-project and can go stale until that project is deliberately redeployed. None
-of these surfaces proves the private mirror, infra-owned state/apply,
+Despite its stale name, `.github/workflows/cloudflare-pages-shadow.yml` builds
+and, on eligible `main` or manual runs, deploys the production
+`transscendsurvival-org` Pages project. Pull-request runs are build-only.
+`https://tss.ephemera.tinyland.dev` still serves legacy compatibility content
+from that project, while `https://tss.tinyland.dev` still serves the separate,
+stale `tss-shadow` project. Both URLs are retired as QA routes. Do not
+deliberately redeploy the separate `tss-shadow` project as part of blog QA.
+None of these surfaces proves the private mirror, infra-owned state/apply,
 digest-pinned workload, or current MagicDNS route, so do not cite them as
 exact-head acceptance evidence.
 
@@ -134,10 +135,11 @@ The workflow uses these repository credentials and configuration:
 | Variable | `CLOUDFLARE_PAGES_PROJECT_NAME` | Pages project name; defaults to `transscendsurvival-org` |
 
 PRs and missing-credential runs build and validate the static artifact, then
-skip the Cloudflare deploy with an explicit notice. Manual dispatch accepts
+skip the Cloudflare deploy with an explicit notice. Eligible `main` pushes and
+manual runs can deploy production. Manual dispatch accepts
 `require_deploy=true` when an operator deliberately wants missing credentials
-to fail instead of skip. This remains compatibility and production-serving
-machinery, not the interactive PR QA route.
+to fail instead of skip. This is production-serving machinery, not the
+interactive PR QA route.
 
 Cloudflare Pages remains the production serving authority for
 `https://transscendsurvival.org` and `https://www.transscendsurvival.org`.

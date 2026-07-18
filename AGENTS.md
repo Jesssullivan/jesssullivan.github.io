@@ -30,12 +30,14 @@ These rules apply before the writing-style guidance below.
   mirroring, RustFS-backed OpenTofu state, the `jesssullivan-blog-shadow`
   workload, protected apply workflow, and Tailscale route.
 - `https://jesssullivan-blog-shadow.taila4c78d.ts.net` is the approved active
-  exact-head acceptance and interactive QA route. The Cloudflare Pages shadow
-  workflow targets the `transscendsurvival-org` project and its
-  `https://tss.ephemera.tinyland.dev` compatibility route.
-  `https://tss.tinyland.dev` belongs to the separately deployed `tss-shadow`
-  project. Neither proves the digest-pinned private exact-head route.
-  Cloudflare Pages remains production serving.
+  exact-head acceptance and interactive QA route. Despite its stale name,
+  `.github/workflows/cloudflare-pages-shadow.yml` publishes the production
+  `transscendsurvival-org` Pages project on eligible `main` or manual runs;
+  pull-request runs are build-only. `https://tss.ephemera.tinyland.dev` and
+  the separately deployed `https://tss.tinyland.dev` still serve legacy
+  compatibility content, but both are retired as QA routes. Neither proves the
+  digest-pinned private exact-head route. Cloudflare Pages remains production
+  serving.
 - `tinyland-inc/GloriousFlywheel` supplies reusable runner/build, Nix/toolchain,
   Bazel/cache/RBE, enrollment, and validation substrate. Passing GF checks or
   running on GF substrate does not transfer application deployment ownership
@@ -59,10 +61,12 @@ These rules apply before the writing-style guidance below.
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
 - Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
 - CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
-- `.github/workflows/cloudflare-pages-shadow.yml` remains the Cloudflare Pages
-  build/deploy lane for production and its compatibility shadow. It is not the
-  private exact-head acceptance authority. GitHub Pages deploys come from
-  `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
+- `.github/workflows/cloudflare-pages-shadow.yml` is the stale-named
+  Cloudflare Pages production build/deploy lane; pull requests build without
+  deploying. It does not make either legacy `tss` route an active QA surface
+  and is not the private exact-head acceptance authority. GitHub Pages deploys
+  come from `.github/workflows/deploy-pages.yml` and are still needed for
+  rollback parity.
 - `.github/workflows/production-health.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
 
 ## Bazel And GloriousFlywheel
