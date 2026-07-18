@@ -113,14 +113,17 @@ uses the `tinyland-dind` ARC runner by default and accepts
 `BLOG_SHADOW_SOURCE_RUNNER=ubuntu-latest`, or manual dispatch with
 `source_runner=ubuntu-latest`, when the ARC source-build lane is unavailable.
 
-## Cloudflare Pages Compatibility Shadow
+## Cloudflare Pages Compatibility Surfaces
 
 `.github/workflows/cloudflare-pages-shadow.yml` and
-`https://tss.tinyland.dev` remain active Cloudflare Pages build/deploy and
-compatibility-shadow surfaces. They exercise the static Pages artifact and are
-still referenced by machine production-consumer checks. They do not prove the
-private mirror, infra-owned state/apply, digest-pinned workload, or current
-MagicDNS route, so do not cite them as exact-head acceptance evidence.
+`https://tss.ephemera.tinyland.dev` are the `transscendsurvival-org` Pages
+build/deploy and compatibility-shadow surfaces. The workflow exercises the
+static Pages artifact and is still referenced by machine production-consumer
+checks. `https://tss.tinyland.dev` belongs to the separate `tss-shadow` Pages
+project and can go stale until that project is deliberately redeployed. None
+of these surfaces proves the private mirror, infra-owned state/apply,
+digest-pinned workload, or current MagicDNS route, so do not cite them as
+exact-head acceptance evidence.
 
 The workflow uses these repository credentials and configuration:
 
@@ -161,5 +164,6 @@ curl -fsSIL "$SHADOW/pulse/client"
 curl -fsSL "$SHADOW/data/pulse/public-snapshot.v1.json"
 ```
 
-Browser validation for the client route stays in hosted GitHub Actions. Do not
-run Playwright locally.
+Browser validation for the client route stays in the GF-backed
+`bazel-remote-gates` GitHub Actions job on `tinyland-dind`. Do not run
+Playwright locally.
