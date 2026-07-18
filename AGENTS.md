@@ -31,8 +31,10 @@ These rules apply before the writing-style guidance below.
   workload, protected apply workflow, and Tailscale route.
 - `https://jesssullivan-blog-shadow.taila4c78d.ts.net` is the approved active
   exact-head acceptance and interactive QA route. The Cloudflare Pages shadow
-  workflow and `https://tss.tinyland.dev` remain active compatibility/build
-  surfaces, but they do not prove the digest-pinned private exact-head route.
+  workflow targets the `transscendsurvival-org` project and its
+  `https://tss.ephemera.tinyland.dev` compatibility route.
+  `https://tss.tinyland.dev` belongs to the separately deployed `tss-shadow`
+  project. Neither proves the digest-pinned private exact-head route.
   Cloudflare Pages remains production serving.
 - `tinyland-inc/GloriousFlywheel` supplies reusable runner/build, Nix/toolchain,
   Bazel/cache/RBE, enrollment, and validation substrate. Passing GF checks or
