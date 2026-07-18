@@ -21,12 +21,52 @@ These rules apply before the writing-style guidance below.
 - Blog and Pulse broker streams are display/projection contracts only. Do not treat them as public Fediverse delivery, and do not weaken broker hydration tests just because prerendered fallback still paints.
 - `static/cv` is synced from the private `spear_resumes` repository. Preserve that boundary and use the existing sync/test path instead of hand-editing generated resume artifacts.
 
+## Cross-Repo Delivery Ownership
+
+- This repo owns blog source, the static build, source-image/digest publication
+  and protected dispatch, and the production Cloudflare Pages contract.
+- `Jesssullivan/jesssullivan-infra` owns the private tailnet acceptance
+  environment: dispatch validation and digest validation, private image
+  mirroring, RustFS-backed OpenTofu state, the `jesssullivan-blog-shadow`
+  workload, protected apply workflow, and Tailscale route.
+- `https://jesssullivan-blog-shadow.taila4c78d.ts.net` is the approved active
+  exact-head acceptance and interactive QA route. Despite its stale name,
+  `.github/workflows/cloudflare-pages-shadow.yml` publishes the production
+  `transscendsurvival-org` Pages project on eligible `main` or manual runs;
+  pull-request runs are build-only. `https://tss.ephemera.tinyland.dev` and
+  the separately deployed `https://tss.tinyland.dev` still serve legacy
+  compatibility content, but both are retired as QA routes. Neither proves the
+  digest-pinned private exact-head route. Cloudflare Pages remains production
+  serving.
+- `tinyland-inc/GloriousFlywheel` supplies reusable runner/build, Nix/toolchain,
+  Bazel/cache/RBE, enrollment, and validation substrate. Passing GF checks or
+  running on GF substrate does not transfer application deployment ownership
+  to GF.
+- `tinyland-inc/tinyland.dev` owns mothership content, broker, producer, and
+  federation contracts consumed by this spoke.
+- `tinyland-inc/blahaj` is the bounded infrastructure receiver and owns
+  cluster-side admission, RBAC, placement, storage,
+  DNS/certificate/tunnel enforcement, and state contracts. Its app-specific
+  receivers and reapers are limited to the canonical adopted-live exception
+  register; none owns this blog's shadow workload, apply decision, or
+  application lifecycle. `tinyland-inc/lab` may bootstrap hosts, enforce
+  runtime policy and operator preflights, and project narrowly scoped
+  credentials, but it is not an application deployment owner.
+- Never infer application ownership from the cluster hosting a pod, the repo
+  escrowing a credential, or the runner executing a build. Follow the
+  source-to-digest-to-overlay chain above.
+
 ## Build, Test, And Deploy
 
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
 - Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
 - CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
-- Cloudflare Pages shadow builds come from `.github/workflows/cloudflare-pages-shadow.yml`; PRs are build-only unless the workflow is explicitly eligible to deploy. GitHub Pages deploys come from `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
+- `.github/workflows/cloudflare-pages-shadow.yml` is the stale-named
+  Cloudflare Pages production build/deploy lane; pull requests build without
+  deploying. It does not make either legacy `tss` route an active QA surface
+  and is not the private exact-head acceptance authority. GitHub Pages deploys
+  come from `.github/workflows/deploy-pages.yml` and are still needed for
+  rollback parity.
 - `.github/workflows/production-health.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
 
 ## Bazel And GloriousFlywheel
