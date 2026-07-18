@@ -26,9 +26,9 @@ These rules apply before the writing-style guidance below.
 - This repo owns blog source, the static build, source-image/digest publication
   and protected dispatch, and the production Cloudflare Pages contract.
 - `Jesssullivan/jesssullivan-infra` owns the private tailnet acceptance
-  environment: dispatch and digest validation, private image mirroring,
-  RustFS-backed OpenTofu state, the `jesssullivan-blog-shadow` workload, apply
-  workflow, and Tailscale route.
+  environment: dispatch validation and digest validation, private image
+  mirroring, RustFS-backed OpenTofu state, the `jesssullivan-blog-shadow`
+  workload, protected apply workflow, and Tailscale route.
 - `https://jesssullivan-blog-shadow.taila4c78d.ts.net` is the approved active
   exact-head acceptance and interactive QA route. The Cloudflare Pages shadow
   workflow and `https://tss.tinyland.dev` remain active compatibility/build
@@ -40,11 +40,14 @@ These rules apply before the writing-style guidance below.
   to GF.
 - `tinyland-inc/tinyland.dev` owns mothership content, broker, producer, and
   federation contracts consumed by this spoke.
-- `tinyland-inc/blahaj` owns cluster-side admission and enforcement. Its
-  app-specific receivers and reapers are limited to the canonical adopted-live
-  exception register; none owns this blog's shadow workload or application
-  lifecycle. `tinyland-inc/lab` may escrow narrowly scoped credentials and
-  bootstrap hosts, but it is not an application deployment owner.
+- `tinyland-inc/blahaj` is the bounded infrastructure receiver and owns
+  cluster-side admission, RBAC, placement, storage,
+  DNS/certificate/tunnel enforcement, and state contracts. Its app-specific
+  receivers and reapers are limited to the canonical adopted-live exception
+  register; none owns this blog's shadow workload, apply decision, or
+  application lifecycle. `tinyland-inc/lab` may bootstrap hosts, enforce
+  runtime policy and operator preflights, and project narrowly scoped
+  credentials, but it is not an application deployment owner.
 - Never infer application ownership from the cluster hosting a pod, the repo
   escrowing a credential, or the runner executing a build. Follow the
   source-to-digest-to-overlay chain above.
