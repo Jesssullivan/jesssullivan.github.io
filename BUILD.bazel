@@ -313,13 +313,6 @@ sh_test(
 )
 
 sh_test(
-    name = "shadow_image_digest_contract",
-    srcs = ["scripts/test-shadow-image-digest-contract.sh"],
-    data = [".github/workflows/shadow-image.yml"],
-    visibility = ["//visibility:public"],
-)
-
-sh_test(
     name = "cloudflare_cache_purge_contract",
     srcs = ["scripts/test-cloudflare-cache-purge-contract.sh"],
     data = [".github/workflows/cloudflare-cache-purge.yml"],
@@ -378,7 +371,6 @@ exports_files(
         "scripts/serve-static-build.mjs",
         "scripts/test-cloudflare-cache-purge-contract.sh",
         "scripts/test-held-post-edge-404.mjs",
-        "scripts/test-shadow-image-digest-contract.sh",
         "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",

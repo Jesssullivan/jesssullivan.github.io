@@ -21,10 +21,12 @@ https://jesssullivan-blog-shadow.taila4c78d.ts.net
 - GloriousFlywheel supplies reusable runner/build, Nix/toolchain,
   Bazel/cache/RBE, enrollment, and validation substrate. It does not own this
   application's deployment.
-- Blahaj and Lab do not own this application. Blahaj's cluster admission and
-  enforcement, including only its canonical adopted-live receiver/reaper
-  exceptions, does not transfer source, workload, route, or deployment
-  authority. Neither does Lab credential escrow or host bootstrap support.
+- Blahaj and Lab do not own this application. Blahaj is the bounded
+  infrastructure receiver for cluster admission, RBAC, placement, storage,
+  DNS/certificate/tunnel enforcement, and state contracts; its canonical
+  adopted-live receiver/reaper exceptions do not transfer source, workload,
+  route, apply-decision, or lifecycle authority. Neither do Lab host bootstrap,
+  runtime policy, operator preflight, or scoped credential projection.
 
 ## Automatic PR Flow
 
@@ -119,6 +121,20 @@ compatibility-shadow surfaces. They exercise the static Pages artifact and are
 still referenced by machine production-consumer checks. They do not prove the
 private mirror, infra-owned state/apply, digest-pinned workload, or current
 MagicDNS route, so do not cite them as exact-head acceptance evidence.
+
+The workflow uses these repository credentials and configuration:
+
+| Kind | Name | Purpose |
+|---|---|---|
+| Secret | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account that owns the Pages project |
+| Secret | `CLOUDFLARE_API_TOKEN` | Token with Cloudflare Pages edit/deploy access |
+| Variable | `CLOUDFLARE_PAGES_PROJECT_NAME` | Pages project name; defaults to `transscendsurvival-org` |
+
+PRs and missing-credential runs build and validate the static artifact, then
+skip the Cloudflare deploy with an explicit notice. Manual dispatch accepts
+`require_deploy=true` when an operator deliberately wants missing credentials
+to fail instead of skip. This remains compatibility and production-serving
+machinery, not the interactive PR QA route.
 
 Cloudflare Pages remains the production serving authority for
 `https://transscendsurvival.org` and `https://www.transscendsurvival.org`.

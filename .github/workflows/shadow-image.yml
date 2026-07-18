@@ -80,21 +80,6 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
-      - name: Resolve selected source identity
-        id: source
-        run: |
-          set -euo pipefail
-          source_sha="$(git rev-parse HEAD)"
-          if [[ ! "${source_sha}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "::error::Selected source did not resolve to a full commit SHA."
-            exit 1
-          fi
-          {
-            echo "sha=${source_sha}"
-            echo "short_sha=${source_sha:0:12}"
-            echo "workflow_run_id=${GITHUB_RUN_ID}"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Compute image tag
         id: tag
         run: |
@@ -104,7 +89,7 @@ jobs:
           if [ -z "${REF_SLUG}" ]; then
             REF_SLUG="manual"
           fi
-          SHA_SHORT="${{ steps.source.outputs.short_sha }}"
+          SHA_SHORT="${GITHUB_SHA:0:12}"
           TAG="shadow-${REF_SLUG}-${SHA_SHORT}-amd64"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "Computed tag: ${TAG}"
@@ -120,7 +105,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        id: source_image
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -131,18 +115,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
-
-      - name: Validate immutable source evidence
-        id: evidence
-        env:
-          SOURCE_DIGEST: ${{ steps.source_image.outputs.digest }}
-        run: |
-          set -euo pipefail
-          if [[ ! "${SOURCE_DIGEST}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
-            echo "::error::Source image did not publish a valid immutable OCI digest."
-            exit 1
-          fi
-          echo "source_digest=${SOURCE_DIGEST}" >> "$GITHUB_OUTPUT"
 
       - name: Trivy scan (report-only for M1.5)
         # v0.36.0; keep this action pinned because the shadow lane has deploy credentials nearby.
@@ -157,20 +129,13 @@ jobs:
           ignore-unfixed: true
 
       - name: Summary
-        env:
-          SUMMARY_IMAGE_TAG: ${{ steps.tag.outputs.tag }}
-          SUMMARY_SOURCE_DIGEST: ${{ steps.evidence.outputs.source_digest }}
-          SUMMARY_SOURCE_SHA: ${{ steps.source.outputs.sha }}
-          SUMMARY_SOURCE_RUN_ID: ${{ steps.source.outputs.workflow_run_id }}
         run: |
           {
             echo "## Shadow image build"
             echo ""
-            echo "- Image tag: \`${IMAGE_NAME}:${SUMMARY_IMAGE_TAG}\`"
-            echo "- Source digest: \`${SUMMARY_SOURCE_DIGEST}\`"
+            echo "- Image: \`${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}\`"
             echo "- Branch: \`${{ github.ref_name }}\`"
-            echo "- Selected commit: \`${SUMMARY_SOURCE_SHA}\`"
-            echo "- Source workflow run: \`${SUMMARY_SOURCE_RUN_ID}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
             echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo ""
             echo "### Private package mirror"
@@ -180,11 +145,8 @@ jobs:
             echo "\`\`\`bash"
             echo "gh auth token | docker login ghcr.io -u Jesssullivan --password-stdin"
             echo "docker buildx imagetools create \\"
-            echo "  -t ghcr.io/jesssullivan/jesssullivan-github-io-shadow-operator:${SUMMARY_IMAGE_TAG} \\"
-            echo "  ${IMAGE_NAME}@${SUMMARY_SOURCE_DIGEST}"
-            echo "operator_digest=\"\$(docker buildx imagetools inspect \\"
-            echo "  ghcr.io/jesssullivan/jesssullivan-github-io-shadow-operator:${SUMMARY_IMAGE_TAG} \\"
-            echo "  --format '{{json .Manifest.Digest}}' | tr -d '\"')\""
+            echo "  -t ghcr.io/jesssullivan/jesssullivan-github-io-shadow-operator:${{ steps.tag.outputs.tag }} \\"
+            echo "  ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
             echo "docker logout ghcr.io"
             echo "\`\`\`"
             echo ""
@@ -192,10 +154,7 @@ jobs:
             echo "From \`~/git/jesssullivan-infra/\`:"
             echo ""
             echo "\`\`\`bash"
-            echo "export TF_VAR_image_tag=${SUMMARY_IMAGE_TAG}"
-            echo "export TF_VAR_image_digest=\"\${operator_digest}\""
-            echo "export TF_VAR_source_sha=${SUMMARY_SOURCE_SHA}"
-            echo "export TF_VAR_source_workflow_run_id=${SUMMARY_SOURCE_RUN_ID}"
+            echo "export TF_VAR_image_tag=${{ steps.tag.outputs.tag }}"
             echo "export TF_VAR_ghcr_token=\"\$(operator-token-source)\""
             echo "export TF_VAR_ghcr_username=\"jesssullivan\""
             echo "just blog-shadow-plan"
