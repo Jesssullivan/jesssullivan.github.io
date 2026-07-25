@@ -18,6 +18,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 COPY packages ./packages
+# The root `prepare` hook (scripts/build-tinyvectors.mjs) runs at the end of
+# npm ci and builds the registry-pinned tinyvectors dist — the script must be
+# present before the install layer.
+COPY scripts/build-tinyvectors.mjs ./scripts/build-tinyvectors.mjs
 RUN npm ci
 
 # ─────────────────────────────────────────────────────────────────────────
