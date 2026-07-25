@@ -20,6 +20,18 @@ bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 bazel_dep(name = "spear_resumes", version = "0.2.0")
 bazel_dep(name = "rules_tectonic", version = "0.2.1")
 
+# @tummycrypt/tinyvectors is never resolved from the public npm registry
+# (versions past 0.3.0 were never published there). package.json pins the
+# GitHub tag archive named by tinyland-inc/bazel-registry's
+# modules/tummycrypt_tinyvectors/<version>/source.json, and the root `prepare`
+# hook (scripts/build-tinyvectors.mjs) compiles dist/ for the npm rail. That
+# archive ships source only, so the pnpm-lock copy in the Bazel npm store has
+# no dist/; Bazel test lanes that build the site instead consume the module's
+# hermetically built package (@tummycrypt_tinyvectors//:pkg), overlaid by the
+# run-*-bazel.mjs wrappers. Keep this version, the package.json pin, and the
+# prepare hook's PINNED_INTEGRITY in lockstep.
+bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.5")
+
 git_override(
     module_name = "spear_resumes",
     remote = "git@github.com:Jesssullivan/spear-resumes.git",

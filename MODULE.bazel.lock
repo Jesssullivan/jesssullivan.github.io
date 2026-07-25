@@ -305,6 +305,8 @@
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.7.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/tar.bzl/0.2.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/tar.bzl/0.5.1/MODULE.bazel": "not found",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/tummycrypt_tinyvectors/0.3.5/MODULE.bazel": "661a6c62a50baf461ee0ad4bb6fd196527ebf9bc06fa5abfb10b31142a8880fa",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/tummycrypt_tinyvectors/0.3.5/source.json": "3c1c17be97bfb34de55ba0236cd5798a79cea44626bb06bdc9b43528c69bf3e7",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/upb/0.0.0-20220923-a547704/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/yq.bzl/0.1.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/yq.bzl/0.3.2/MODULE.bazel": "not found",
@@ -706,7 +708,7 @@
     "@@rules_nodejs+//nodejs:extensions.bzl%node": {
       "general": {
         "bzlTransitiveDigest": "4pUxCNc22K4I+6+4Nxu52Hur12tFRfa1JMsN5mdDv60=",
-        "usagesDigest": "6fwAwXf0cVsUA6U2RJq2wDpo4QhwQKRD/ldpanhHxVA=",
+        "usagesDigest": "v5bQCH3Ohdfoi13r+gubJ6t1BCkqrWiliL6M+dSPYl4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},

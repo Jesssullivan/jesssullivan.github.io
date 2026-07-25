@@ -8,6 +8,7 @@ import {
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	rmSync,
 	statSync,
 	symlinkSync,
 } from 'node:fs';
@@ -114,6 +115,30 @@ function linkNodeModules() {
 		'optionalDependencies',
 	]);
 	linkWorkspacePackageDependencies(buildNodeModules);
+	overrideHermeticTinyvectors(buildNodeModules);
+}
+
+function overrideHermeticTinyvectors(buildNodeModules) {
+	// The pnpm-lock resolution for @tummycrypt/tinyvectors is the pinned GitHub
+	// source archive, which ships no dist/ (the npm rail compiles it via the
+	// root prepare hook, scripts/build-tinyvectors.mjs). Bazel lanes that build
+	// or typecheck the site consume the bazel-registry module's hermetically
+	// built package instead; the test target passes its runfiles path via
+	// TINYVECTORS_HERMETIC_PKG (see MODULE.bazel and BUILD.bazel).
+	const hermeticPkg = process.env.TINYVECTORS_HERMETIC_PKG;
+	if (!hermeticPkg) {
+		throw new Error(
+			'TINYVECTORS_HERMETIC_PKG is not set; pass $(rootpath @tummycrypt_tinyvectors//:pkg) in the test env',
+		);
+	}
+	const source = resolve(workspaceRoot, hermeticPkg);
+	if (!existsSync(join(source, 'package.json')) || !existsSync(join(source, 'dist', 'index.js'))) {
+		throw new Error(`Hermetic tinyvectors package is incomplete at: ${source}`);
+	}
+	const destination = resolve(buildNodeModules, '@tummycrypt', 'tinyvectors');
+	mkdirSync(dirname(destination), { recursive: true });
+	rmSync(destination, { recursive: true, force: true });
+	symlinkSync(source, destination, 'dir');
 }
 
 function linkPackageDependencies(buildNodeModules, packageJsonPath, sections) {
