@@ -123,4 +123,4 @@ jobs:
             static/images/tag-graph.svg
             static/images/tag-graph-dark.svg
             static/blog-stats.json
-          retention-days: 30
+          retention-days: 7
