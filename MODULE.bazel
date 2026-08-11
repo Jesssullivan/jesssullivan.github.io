@@ -23,7 +23,7 @@ bazel_dep(name = "rules_tectonic", version = "0.2.1")
 git_override(
     module_name = "spear_resumes",
     remote = "git@github.com:Jesssullivan/spear-resumes.git",
-    commit = "d5112bf1fd15fbf28eb684b12c74af6f3a664d14",
+    commit = "d0eb072cee8f2b56446dc2725c98c68fedc34105",
 )
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
