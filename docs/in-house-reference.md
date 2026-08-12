@@ -81,6 +81,8 @@ Positioning chain: `Skeleton Tooltip/Popover → @zag-js/{tooltip,popover} → @
 
 The repository is fully on 4.15.2 — no v5 code, no v5 CSS-var renames, and no reviewed v5 validation has landed. Stable 5.0.0 is now available, but adopting it remains a reviewed migration rather than an automatic dependency bump. TIN-603 (install and validate themes/components), TIN-604 (Pride/Trans OKLCH themes vs the v5 theme spec), TIN-607 (upstream development environment), TIN-608 (`floating-ui-svelte` disposition), and TIN-609 (upstream contribution coordination) are all still Backlog as of 2026-07-17. The most-exposed surfaces are (1) hand-authored OKLCH themes `pride.css`/`trans.css` and (2) `Popover`/`Tooltip` compound call sites. Until a TIN-603-class pass runs, 4.15.2 is the only supported target in this repository. TIN-606's "27 of 50 Zag machines used" figure remains unverified for this repository.
 
+2026-08-12: TIN-603 v5-parity lane opened as PR #251.
+
 ## In-house packages & repos
 
 ### Blog workspace packages (`packages/*`)
