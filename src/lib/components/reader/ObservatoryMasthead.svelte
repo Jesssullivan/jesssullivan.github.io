@@ -132,8 +132,12 @@
 				cardinal: item.cardinal,
 				distR: Math.min(distR, 0.98),
 				ang: i * GA + (item.cardinal ? 0.4 : 0),
-				base: item.cardinal ? 3.2 : 1.6,
-				bright: item.cardinal ? 1 : 0.55,
+				/* Non-cardinal floor raised 1.6→2.2 / 0.55→0.62 while the tier
+				   field is sparse (0 noteworthy today): every star was rendering
+				   at the dim minimum, reading as empty. Revisit after TIN-2891
+				   lands real tiers. */
+				base: item.cardinal ? 3.2 : 2.2,
+				bright: item.cardinal ? 1 : 0.62,
 				tw: Math.random() * Math.PI * 2,
 				x: 0,
 				y: 0,
@@ -254,8 +258,9 @@
 		cy = H / 2;
 		// Fill the band on both axes: an ellipse matched to the band's own
 		// aspect, instead of the earlier hard y*0.5 squish against one radius.
-		maxRx = W * 0.42;
-		maxRy = H * 0.42;
+		/* 0.47 fills the hero (was 0.42 — 84% of an already-capped band). */
+		maxRx = W * 0.47;
+		maxRy = H * 0.47;
 		for (const s of stars) {
 			const a = s.ang + drift;
 			s.x = cx + Math.cos(a) * s.distR * maxRx;
@@ -387,7 +392,7 @@
 			const glowR = r * (s.cardinal ? 6 : 3.4) * (isFocus ? 1.5 : 1);
 			const gg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, glowR);
 			if (s.cardinal) gg.addColorStop(0, `rgba(200,74,56,${(0.55 * s.bright * twinkle).toFixed(3)})`);
-			else gg.addColorStop(0, `rgba(124,160,176,${(0.34 * twinkle).toFixed(3)})`);
+			else gg.addColorStop(0, `rgba(124,160,176,${(0.38 * twinkle).toFixed(3)})`);
 			gg.addColorStop(1, 'rgba(0,0,0,0)');
 			ctx.fillStyle = gg;
 			ctx.beginPath();
@@ -626,7 +631,12 @@
 	.observatory-masthead {
 		position: relative;
 		overflow: hidden;
-		min-height: clamp(360px, 48vh, 640px);
+		/* Full-bleed hero (operator ruling 2026-08-12): the constellation owns
+		   the first viewport, content scrolls beneath. 92svh keeps a sliver of
+		   the registers visible as the scroll affordance; svh tracks mobile
+		   browser chrome. Was clamp(360px, 48vh, 640px) — the downscaled
+		   crossfade band the dwell verdict called too small. */
+		min-height: clamp(430px, 92svh, 1100px);
 		background: #0e1316;
 	}
 	/* Inside the fixed-height band the heron must cover, not size the layer. */
