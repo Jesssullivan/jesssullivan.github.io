@@ -1,6 +1,6 @@
 {
 	"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
-	"generatedAt": "2026-05-10T13:00:00.000Z",
+	"generatedAt": "2026-08-12T22:14:02.488Z",
 	"items": [
 		{
 			"id": "tinyland-pulse-note-2026-05-10-001",
@@ -11,18 +11,18 @@
 			"tags": [
 				"tinyland",
 				"pulse",
-				"static-projection"
+				"broker-projection"
 			]
 		},
 		{
 			"id": "tinyland-pulse-note-2026-05-10-002",
 			"kind": "note",
 			"occurredAt": "2026-05-10T12:12:00.000Z",
-			"summary": "transscendsurvival.org stays a checked-in static consumer while the broker and delivery planes mature.",
-			"content": "transscendsurvival.org stays a checked-in static consumer while the broker and delivery planes mature.",
+			"summary": "transscendsurvival.org displays the Tinyland broker stream while public follower delivery matures.",
+			"content": "transscendsurvival.org displays the Tinyland broker stream while public follower delivery matures.",
 			"tags": [
 				"transscendsurvival",
-				"static-spoke"
+				"broker-stream"
 			]
 		},
 		{
@@ -40,14 +40,46 @@
 				"count": 2,
 				"placeLabel": "Cayuga Lake basin"
 			}
+		},
+		{
+			"id": "tinyland-pulse-note-2026-04-26-cardinals-before-dawn",
+			"kind": "note",
+			"occurredAt": "2026-04-26T09:12:00.000Z",
+			"summary": "Cardinals on the feeder before dawn. The feeder rush is back and the whole basin is loud again — a good reason to keep the Pulse stream running alongside the long-form posts.",
+			"content": "Cardinals on the feeder before dawn. The feeder rush is back and the whole basin is loud again — a good reason to keep the Pulse stream running alongside the long-form posts.",
+			"tags": [
+				"birds",
+				"morning"
+			]
+		},
+		{
+			"id": "tinyland-pulse-note-2026-04-26-northern-cardinal-sighting",
+			"kind": "note",
+			"occurredAt": "2026-04-26T07:42:00.000Z",
+			"summary": "Two Northern Cardinals (Cardinalis cardinalis) at the feeder before dawn, up in the Cayuga Lake basin. Region-precision only — no exact coordinates on the Pulse.",
+			"content": "Two Northern Cardinals (Cardinalis cardinalis) at the feeder before dawn, up in the Cayuga Lake basin. Region-precision only — no exact coordinates on the Pulse.",
+			"tags": [
+				"birds"
+			]
+		},
+		{
+			"id": "tinyland-pulse-note-2026-04-25-hello-from-the-m1-lab",
+			"kind": "note",
+			"occurredAt": "2026-04-25T18:30:00.000Z",
+			"summary": "Back at the M1 lab bench this evening — first field note flowing through the Tinyland Pulse instead of the blog tier. Short, low-ceremony, less-noteworthy by design. Hello tinyland",
+			"content": "Back at the M1 lab bench this evening — first field note flowing through the Tinyland Pulse instead of the blog tier. Short, low-ceremony, less-noteworthy by design. Hello tinyland.",
+			"tags": [
+				"pulse",
+				"lab"
+			]
 		}
 	],
 	"manifest": {
 		"schemaVersion": "tinyland.pulse.v1.PublicPulseSnapshot",
-		"generatedAt": "2026-05-10T13:00:00.000Z",
-		"sourceSnapshotId": "tinyland-jesssullivan-pulse-static-seed-2026-05-10",
-		"contentHash": "sha256:fc3b04ec97946d6777e5245040b09a3ead296a9bf4614d0fea7df2d3cfb2ccb7",
-		"itemCount": 3,
+		"generatedAt": "2026-08-12T22:14:02.488Z",
+		"sourceSnapshotId": "tinyland-jesssullivan-pulse-broker-seed-2026-05-10+live-notes",
+		"contentHash": "sha256:afa6ea7ebd7ac64bdd60a1762f6f8fe5501711ea66053e9c8f53530b300e5525",
+		"itemCount": 6,
 		"policyVersion": "m1-2026-04-27"
 	}
 }
