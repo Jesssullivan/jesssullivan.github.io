@@ -40,7 +40,12 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    runs-on: tinyland-dind
+    # jesssullivan-blog-dind is this repo's own ARC scale set. The old
+    # tinyland-dind label names an org-registered (tinyland-inc) runner pool a
+    # personal-account repo can never draw from, so the job queued forever —
+    # masked until 2026-08-12 because a failing build-and-test always cancelled
+    # this job before it could wait.
+    runs-on: jesssullivan-blog-dind
     # Shared-cache actions execute locally inside a fleet-managed ARC pod.
     # Keep the repo process envelope bounded independently of fleet sizing.
     timeout-minutes: 90
