@@ -2,12 +2,13 @@ name: Publish shadow preview
 
 # Builds the latest active same-repo PR branch into the public CI source image
 # package, then dispatches the private infra repo to mirror/apply that exact
-# tag to the tailnet-only shadow blog route.
+# digest to the infra-managed shared review route.
 #
 # Security shape:
 # - fork PRs are ignored
 # - draft PRs are ignored
 # - the public blog workflow never receives cluster or RustFS credentials
+# - private receiver dispatch is disabled unless BLOG_SHADOW_APPLY_ENABLED=true
 # - a short-lived GitHub App token dispatches only the private infra workflow
 # - the private infra repo owns GHCR private mirroring and OpenTofu apply
 
@@ -32,6 +33,7 @@ env:
   SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
   DEPLOY_REPOSITORY: Jesssullivan/jesssullivan-infra
   SOURCE_RUNNER: ${{ inputs.source_runner || vars.BLOG_SHADOW_SOURCE_RUNNER || 'tinyland-dind' }}
+  BLOG_SHADOW_APPLY_ENABLED: ${{ vars.BLOG_SHADOW_APPLY_ENABLED || 'false' }}
 
 jobs:
   resolve:
@@ -42,6 +44,7 @@ jobs:
       pull-requests: read
     outputs:
       deploy: ${{ steps.target.outputs.deploy }}
+      apply: ${{ steps.target.outputs.apply }}
       ref: ${{ steps.target.outputs.ref }}
       branch: ${{ steps.target.outputs.branch }}
       sha: ${{ steps.target.outputs.sha }}
@@ -64,6 +67,7 @@ jobs:
             let sha = "";
             let prNumber = "";
             const sourceRunner = process.env.SOURCE_RUNNER || "tinyland-dind";
+            const applyEnabled = process.env.BLOG_SHADOW_APPLY_ENABLED === "true";
             const allowedSourceRunners = new Set(["tinyland-dind", "ubuntu-latest"]);
 
             if (!allowedSourceRunners.has(sourceRunner)) {
@@ -101,6 +105,7 @@ jobs:
             }
 
             core.setOutput("deploy", deploy ? "true" : "false");
+            core.setOutput("apply", deploy && applyEnabled ? "true" : "false");
             core.setOutput("ref", ref);
             core.setOutput("branch", branch);
             core.setOutput("sha", sha);
@@ -127,6 +132,14 @@ jobs:
         with:
           ref: ${{ needs.resolve.outputs.sha }}
 
+      - name: Verify exact checked-out SHA
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "${actual_sha}" = "${EXPECTED_SHA}"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -146,6 +159,11 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ env.SOURCE_IMAGE }}:${{ needs.resolve.outputs.image_tag }}
+          build-args: |
+            PUBLIC_DEPLOY_TIER=shadow
+            PUBLIC_SOURCE_SHA=${{ needs.resolve.outputs.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ needs.resolve.outputs.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -188,7 +206,7 @@ jobs:
     needs:
       - resolve
       - build
-    if: needs.resolve.outputs.deploy == 'true'
+    if: needs.resolve.outputs.deploy == 'true' && needs.resolve.outputs.apply == 'true'
     runs-on: ubuntu-latest
     environment: blog-shadow-dispatch
     permissions: {}

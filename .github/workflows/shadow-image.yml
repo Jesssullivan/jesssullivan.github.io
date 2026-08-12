@@ -1,7 +1,7 @@
 name: Build shadow image
 
-# Builds and pushes the tailnet-only mirror image used by jesssullivan-infra's
-# jesssullivan-blog-shadow tofu stack. Triggered ONLY on shadow-deploy/*
+# Builds and pushes the legacy review-shadow source image used by
+# jesssullivan-infra's blog-shadow stack. Triggered ONLY on shadow-deploy/*
 # branches; this workflow does not run on main, on PRs against main, or on
 # any other branch pattern.
 #
@@ -80,6 +80,17 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
 
+      - name: Resolve exact checked-out SHA
+        id: source
+        run: |
+          set -euo pipefail
+          source_sha="$(git rev-parse HEAD)"
+          if [[ ! "${source_sha}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Checkout did not resolve to an exact commit SHA."
+            exit 1
+          fi
+          echo "source_sha=${source_sha}" >> "$GITHUB_OUTPUT"
+
       - name: Compute image tag
         id: tag
         run: |
@@ -89,7 +100,8 @@ jobs:
           if [ -z "${REF_SLUG}" ]; then
             REF_SLUG="manual"
           fi
-          SHA_SHORT="${GITHUB_SHA:0:12}"
+          SHA_SHORT="${{ steps.source.outputs.source_sha }}"
+          SHA_SHORT="${SHA_SHORT:0:12}"
           TAG="shadow-${REF_SLUG}-${SHA_SHORT}-amd64"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "Computed tag: ${TAG}"
@@ -112,6 +124,11 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: ${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+          build-args: |
+            PUBLIC_DEPLOY_TIER=shadow
+            PUBLIC_SOURCE_SHA=${{ steps.source.outputs.source_sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ steps.source.outputs.source_sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
@@ -135,7 +152,7 @@ jobs:
             echo ""
             echo "- Image: \`${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}\`"
             echo "- Branch: \`${{ github.ref_name }}\`"
-            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Commit: \`${{ steps.source.outputs.source_sha }}\`"
             echo "- Source runner: \`${{ needs.resolve.outputs.source_runner }}\`"
             echo ""
             echo "### Private package mirror"

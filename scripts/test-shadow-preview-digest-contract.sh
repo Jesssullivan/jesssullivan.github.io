@@ -46,6 +46,9 @@ require_fixed 'run.conclusion !== "success"' "private receiver fail-closed gate"
 require_fixed 'steps.await_deploy.outputs.receiver_run_url' "private receiver evidence"
 require_fixed 'SUMMARY_BRANCH: ${{ needs.resolve.outputs.branch }}' "shell-safe branch summary input"
 require_fixed 'echo "- Branch: \`${SUMMARY_BRANCH}\`"' "shell-safe branch summary rendering"
+require_fixed "BLOG_SHADOW_APPLY_ENABLED: \${{ vars.BLOG_SHADOW_APPLY_ENABLED || 'false' }}" "fail-closed shadow apply variable"
+require_fixed 'core.setOutput("apply", deploy && applyEnabled ? "true" : "false")' "shadow apply eligibility output"
+require_fixed "if: needs.resolve.outputs.deploy == 'true' && needs.resolve.outputs.apply == 'true'" "receiver dispatch apply gate"
 
 if grep -Fq -- "REQUESTED_REF" "${workflow}"; then
   echo "ERROR: shadow preview manual dispatch still accepts a second mutable ref" >&2

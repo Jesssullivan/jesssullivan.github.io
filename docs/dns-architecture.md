@@ -156,11 +156,13 @@ failing DreamHost DNS platform from the target resolution path.
 
 The Cloudflare Pages project `transscendsurvival-org` serves the production apex
 and `www` as of 2026-06-23. It builds via
-`.github/workflows/cloudflare-pages-shadow.yml`; the shadow domain
-`tss.ephemera.tinyland.dev` continues to build there. `tss.tinyland.dev` moved to
-the dedicated `tss-shadow` Pages project on 2026-07-07 and goes stale on
-shadow-branch pushes until redeployed (`wrangler pages deploy build
---project-name=tss-shadow --branch=main` with the lab admin CF token).
+`.github/workflows/cloudflare-pages-production.yml` from the exact successful
+canonical-CI `main` SHA. `tss.ephemera.tinyland.dev` remains attached to that
+production project. `tss.tinyland.dev` moved to the dedicated `tss-shadow` Pages
+project on 2026-07-07; the production workflow does not update it. A TSS direct
+upload must compile with `PUBLIC_DEPLOY_TIER=shadow` and an exact
+`PUBLIC_SOURCE_SHA`, then use `wrangler pages deploy build
+--project-name=tss-shadow --branch=main` with the lab admin CF token.
 
 The cut followed the safe order below, which stays load-bearing for any future
 rollback-and-recut. The hard rule: **NEVER flip a production hostname to the

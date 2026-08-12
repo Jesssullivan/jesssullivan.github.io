@@ -43,6 +43,7 @@ for (const command of [
 	['vite', 'build'],
 	['tsx', 'scripts/generate-redirects.mts'],
 	['tsx', 'scripts/generate-directory-index-aliases.mts'],
+	['node', 'scripts/validate-deploy-tier-output.mjs', 'production'],
 	['tsx', 'scripts/validate-redirects.mts'],
 	['tsx', 'scripts/validate-directory-index-aliases.mts'],
 	['tsx', 'scripts/validate-frontmatter.mts'],

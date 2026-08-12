@@ -26,7 +26,7 @@ These rules apply before the writing-style guidance below.
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
 - Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
 - CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
-- Cloudflare Pages shadow builds come from `.github/workflows/cloudflare-pages-shadow.yml`; PRs are build-only unless the workflow is explicitly eligible to deploy. GitHub Pages deploys come from `.github/workflows/deploy-pages.yml` and are still needed for rollback parity.
+- Cloudflare Pages production builds come from `.github/workflows/cloudflare-pages-production.yml`; PRs build only, and production publishes only an exact `main` SHA proven by successful canonical CI. The review-shadow source image and its SHA+digest provenance come from `.github/workflows/shadow-preview.yml`. GitHub Pages deploys come from `.github/workflows/deploy-pages.yml` and are still needed for rollback parity; that workflow remains an independent main-push publisher, so the canonical-CI promotion gate applies only to Cloudflare production.
 - `.github/workflows/production-health.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
 
 ## Bazel And GloriousFlywheel

@@ -1,40 +1,28 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { skeletonColorUtilities } from '@tummycrypt/vite-plugin-skeleton-colors';
 import { accessibilityPlugin } from '@tummycrypt/vite-plugin-a11y';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
-import type { Plugin } from 'vite';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const deployTier = process.env.PUBLIC_DEPLOY_TIER || 'production';
+const sourceSha = process.env.PUBLIC_SOURCE_SHA || '';
 
-// Skeleton-Tailwind v4 compatibility plugin (from tinyland.dev)
-function skeletonTailwindV4Compat(): Plugin {
-	return {
-		name: 'skeleton-tailwind-v4-compat',
-		enforce: 'pre',
-		transform(code, id) {
-			if (id.includes('@skeletonlabs/skeleton') && id.endsWith('.css')) {
-				code = code
-					.replace(/@variant\s+sm\s*{/g, '@media (min-width: 640px) {')
-					.replace(/@variant\s+md\s*{/g, '@media (min-width: 768px) {')
-					.replace(/@variant\s+lg\s*{/g, '@media (min-width: 1024px) {')
-					.replace(/@variant\s+xl\s*{/g, '@media (min-width: 1280px) {')
-					.replace(/@variant\s+2xl\s*{/g, '@media (min-width: 1536px) {')
-					.replace(/@variant\s+dark\s*{/g, '.dark & {')
-					.replace(/@apply\s+variant-/g, '@apply ');
-				return { code, map: null };
-			}
-		},
-	};
+if (deployTier !== 'production' && deployTier !== 'shadow') {
+	throw new Error(`Unsupported PUBLIC_DEPLOY_TIER: ${deployTier}`);
+}
+if (deployTier === 'shadow' && !/^[0-9a-f]{40}$/.test(sourceSha)) {
+	throw new Error('Shadow builds require PUBLIC_SOURCE_SHA as an exact 40-character lowercase SHA.');
 }
 
 export default defineConfig({
+	define: {
+		__BLOG_DEPLOY_TIER__: JSON.stringify(deployTier),
+		__BLOG_SOURCE_SHA__: JSON.stringify(sourceSha),
+	},
 	plugins: [
-		skeletonTailwindV4Compat(),
-		skeletonColorUtilities(),
 		tailwindcss(),
 		accessibilityPlugin({
 			wcagLevel: 'AA',

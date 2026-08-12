@@ -45,10 +45,9 @@ the next one for `jesssullivan.github.io` so it does not lapse silently again.
    prefix before exchange mints). Track TIN-2364's rollout for any change to
    how this repo's Bazel remote-gates lane authenticates.
 5. **`/stream` shadow surface.** The `transscendsurvival.org` shadow `/stream`
-   ingestion route (#217) stays a shadow-preview concern
-   (`cloudflare-pages-shadow.yml`, non-`main` branch deploys) until it has its
-   own promotion decision. Do not fold it into the production apex path
-   silently.
+   ingestion route (#217) stays a dedicated `tss-shadow` concern until it has
+   its own promotion decision. The canonical-CI production workflow does not
+   update TSS. Do not fold it into the production apex path silently.
 
 ## Exit Criteria For This Window (Target: 2026-09-06)
 

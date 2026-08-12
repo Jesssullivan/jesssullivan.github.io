@@ -33,9 +33,11 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
 - **DNSSEC:** active. Cloudflare Registrar publishes the parent DS and
   Cloudflare signs the zone.
 - **CF Pages (`transscendsurvival-org`):** builds via
-  `.github/workflows/cloudflare-pages-shadow.yml`. The production apex and `www`
-  hostnames are attached and active. Shadow domains `tss.tinyland.dev` and
-  `tss.ephemera.tinyland.dev` may stay attached.
+  `.github/workflows/cloudflare-pages-production.yml` from an exact `main` SHA
+  after both canonical CI authority jobs succeed and the fail-closed repository
+  variable `CLOUDFLARE_PAGES_PRODUCTION_ENABLED=true`. The production apex and
+  `www` hostnames are attached and active. `tss.tinyland.dev` belongs to the
+  separate `tss-shadow` project; this production workflow does not update it.
 
 ```text
 Cloudflare Registrar          Cloudflare DNS (current)          Cloudflare Pages
@@ -43,6 +45,7 @@ Cloudflare Registrar          Cloudflare DNS (current)          Cloudflare Pages
 
 GitHub Pages remains rollback only:
   static/CNAME = transscendsurvival.org
+  deploy-pages.yml = independent main-push publisher (not Cloudflare CI promotion)
 ```
 
 ## ROLLBACK: revert apex serving to GitHub Pages

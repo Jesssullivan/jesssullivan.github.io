@@ -16,6 +16,8 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  PUBLIC_DEPLOY_TIER: production
+  PUBLIC_SOURCE_SHA: ${{ github.sha }}
 
 jobs:
   build:
@@ -29,6 +31,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: node scripts/validate-deploy-tier-output.mjs production
       - run: npx tsx scripts/validate-redirects.mts
       - run: npx tsx scripts/validate-directory-index-aliases.mts
       - uses: actions/upload-pages-artifact@v5

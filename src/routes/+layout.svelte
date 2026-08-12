@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import 'virtual:skeleton-colors';
 	import { AppBar, Dialog, Navigation } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
@@ -11,6 +10,7 @@
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 
 	let { children } = $props();
+	const isShadowDeployment = __BLOG_DEPLOY_TIER__ === 'shadow';
 
 	function hexToRgba(hex: string, alpha: number): string {
 		const r = parseInt(hex.slice(1, 3), 16);
@@ -79,6 +79,10 @@
 </script>
 
 <svelte:head>
+	{#if isShadowDeployment}
+		<meta name="robots" content="noindex,nofollow" data-deploy-tier="shadow" />
+		<meta name="tinyland-source-sha" content={__BLOG_SOURCE_SHA__} data-deploy-tier="shadow" />
+	{/if}
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html `<script type="application/ld+json">${JSON.stringify({
 		'@context': 'https://schema.org',
