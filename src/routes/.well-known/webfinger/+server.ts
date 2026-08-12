@@ -26,6 +26,13 @@ export const _WEBFINGER_RESPONSE = {
 		{
 			rel: 'http://ostatus.org/schema/1.0/subscribe',
 			template: HUB_AUTHORIZE_INTERACTION
+		},
+		{
+			// Display-only GPG identity surfacing. Not an ActivityPub authority
+			// link and unrelated to AP key custody.
+			rel: 'pgpkey',
+			type: 'application/pgp-keys',
+			href: 'https://transscendsurvival.org/publickey.asc'
 		}
 	]
 };

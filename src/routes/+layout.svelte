@@ -323,6 +323,13 @@
 			<a href="/feed.json" class="hover:text-primary-500 transition-colors">JSON</a>
 			<span class="text-surface-400">|</span>
 			<a href="/THIRD-PARTY-LICENSES" class="hover:text-primary-500 transition-colors">Licenses</a>
+			<span class="text-surface-400">|</span>
+			<a
+				href="/about#pgp"
+				class="hover:text-primary-500 transition-colors font-mono whitespace-nowrap"
+				title="GPG public key — fingerprint 1618 9513 6D2E 5C29 2D2A 663D 0B01 977B 8DD5 DA60"
+				>PGP 0B01 977B 8DD5 DA60</a
+			>
 		</div>
 		<p class="mt-2 text-xs text-surface-400">
 			Static site built with <a
