@@ -284,6 +284,22 @@
 		</div>
 	</section>
 
+	<!-- 5d. PGP identity -->
+	<section id="pgp" class="mb-8 scroll-mt-24">
+		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">PGP</h3>
+		<div class="card p-4 text-center space-y-2">
+			<p class="font-mono text-sm break-words">1618 9513 6D2E 5C29 2D2A 663D 0B01 977B 8DD5 DA60</p>
+			<p class="text-sm text-surface-600-400">Jess Sullivan &lt;jess@sulliwood.org&gt;</p>
+			<p class="text-sm text-surface-500">Commits signed with subkey <span class="font-mono">0xD34D0D8F65EE5C88</span></p>
+			<div class="flex flex-wrap gap-2 justify-center pt-1">
+				<a href="/publickey.asc" download class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label="Download armored GPG public key">publickey.asc</a>
+				<a href="https://keys.openpgp.org/vks/v1/by-fingerprint/161895136D2E5C292D2A663D0B01977B8DD5DA60" target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label="View key on keys.openpgp.org">keys.openpgp.org</a>
+				<a href="https://keyoxide.org/161895136D2E5C292D2A663D0B01977B8DD5DA60" target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label="View key profile on Keyoxide">Keyoxide</a>
+				<a href="https://github.com/Jesssullivan.gpg" target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label="View key on GitHub">github/Jesssullivan.gpg</a>
+			</div>
+		</div>
+	</section>
+
 	<!-- 6. Featured + Recent Posts -->
 	{#if data.featured.length > 0}
 		<section class="mb-12">

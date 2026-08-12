@@ -34,6 +34,12 @@ describe('blog webfinger JRD', () => {
 		expect(profile?.href).toBe('https://transscendsurvival.org');
 	});
 
+	it('publishes the GPG public key as a display-only identity link on the blog domain', () => {
+		const pgp = WEBFINGER_RESPONSE.links.find((l) => l.rel === 'pgpkey');
+		expect(pgp?.type).toBe('application/pgp-keys');
+		expect(pgp?.href).toBe('https://transscendsurvival.org/publickey.asc');
+	});
+
 	it('serves a JRD with the correct content type and subject', async () => {
 		const res = GET();
 		expect(res.headers.get('Content-Type')).toBe('application/jrd+json');
