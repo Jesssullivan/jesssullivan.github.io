@@ -25,7 +25,10 @@ on:
       source_runner:
         description: "Runner for the public source image build"
         required: false
-        default: "tinyland-dind"
+        # ubuntu-latest: dispatches were inheriting the org-registered
+        # tinyland-dind label this personal repo can never draw from — PR
+        # runs already resolved ubuntu-latest via BLOG_SHADOW_SOURCE_RUNNER.
+        default: "ubuntu-latest"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
