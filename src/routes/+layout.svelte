@@ -92,6 +92,10 @@
 
 {#if browser}
 	<div class="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true" data-testid="blob-background">
+		<!-- enablePointerPhysics is new in tinyvectors 0.3.x and defaults to true;
+		     it attaches window-level pointer listeners, so the pointer-events-none
+		     wrapper does not neutralize it. Keep it off to preserve the pre-0.3
+		     background behavior (scroll-only physics). -->
 		<TinyVectors
 			theme="custom"
 			colors={blobColors}
@@ -99,6 +103,7 @@
 			blobCount={5}
 			enableScrollPhysics={true}
 			enableDeviceMotion={false}
+			enablePointerPhysics={false}
 		/>
 	</div>
 {/if}
