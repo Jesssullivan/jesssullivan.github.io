@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Post } from '$lib/types';
 	import TierBadge from '$lib/components/TierBadge.svelte';
+	import PostHoverPreview from './PostHoverPreview.svelte';
 
 	// Register 02 — the quieter ledger: a dense, type-first table of the entries
 	// that are not headlined in register 01. Capped at `cap` rows per the ratified
@@ -46,7 +47,17 @@
 						</td>
 						<td class="py-2 pr-3">
 							<TierBadge tier={post.editorial_tier} class="mr-1 align-middle" />
-							<a href="/blog/{post.slug}" class="hover:text-primary-500 transition-colors">{post.title}</a>
+							<PostHoverPreview {post} id="ledger-preview-{post.slug}">
+								{#snippet trigger(attributes)}
+									<a
+										{...attributes}
+										href="/blog/{post.slug}"
+										class="hover:text-primary-500 transition-colors"
+									>
+										{post.title}
+									</a>
+								{/snippet}
+							</PostHoverPreview>
 						</td>
 						{#if post.category}
 							<td class="py-2 font-mono text-xs text-surface-500 text-right whitespace-nowrap">{post.category}</td>
