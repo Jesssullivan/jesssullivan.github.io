@@ -1,5 +1,10 @@
-name: Cloudflare Pages Shadow Deploy
+name: Cloudflare Pages Production Deploy
 
+# This lane IS the production deploy for transscendsurvival.org (Cloudflare
+# Pages project transscendsurvival-org). The historical pull_request "shadow"
+# trigger is retired: PR iteration happens on the tailnet shadow route via
+# shadow-preview.yml, and the build-only PR pass here produced misleading
+# green "shadow" checks with can_deploy=false.
 on:
   workflow_dispatch:
     inputs:
@@ -8,18 +13,6 @@ on:
         required: false
         type: boolean
         default: false
-  pull_request:
-    branches: [main]
-    paths:
-      - ".github/workflows/cloudflare-pages-shadow.yml"
-      - "functions/**"
-      - "package.json"
-      - "package-lock.json"
-      - "svelte.config.js"
-      - "vite.config.ts"
-      - "scripts/**"
-      - "src/**"
-      - "static/**"
   push:
     branches: [main]
     paths:
@@ -38,7 +31,7 @@ permissions:
   deployments: write
 
 concurrency:
-  group: cloudflare-pages-shadow-${{ github.ref }}
+  group: cloudflare-pages-production-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -46,8 +39,8 @@ env:
   CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'transscendsurvival-org' }}
 
 jobs:
-  shadow-deploy:
-    name: Build and optionally deploy Cloudflare Pages shadow
+  production-deploy:
+    name: Build and optionally deploy Cloudflare Pages production
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -72,14 +65,9 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           REQUIRE_DEPLOY: ${{ github.event_name == 'workflow_dispatch' && inputs.require_deploy || 'false' }}
         run: |
-          deploy_branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          deploy_branch="${GITHUB_REF_NAME}"
           can_deploy=true
           missing=()
-
-          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
-            can_deploy=false
-            echo "::notice title=Cloudflare shadow deploy skipped::Pull requests build only; deploy after merge or manual dispatch."
-          fi
 
           if [ -z "${CF_ACCOUNT_ID}" ]; then
             can_deploy=false
@@ -94,10 +82,10 @@ jobs:
           if [ "${can_deploy}" != "true" ] && [ "${#missing[@]}" -gt 0 ]; then
             message="Missing Cloudflare secrets: ${missing[*]}"
             if [ "${REQUIRE_DEPLOY}" = "true" ]; then
-              echo "::error title=Cloudflare shadow deploy blocked::${message}"
+              echo "::error title=Cloudflare production deploy blocked::${message}"
               exit 1
             fi
-            echo "::notice title=Cloudflare shadow deploy skipped::${message}"
+            echo "::notice title=Cloudflare production deploy skipped::${message}"
           fi
 
           {
@@ -106,14 +94,14 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           {
-            echo "## Cloudflare Pages Shadow"
+            echo "## Cloudflare Pages Production"
             echo ""
             echo "- Project: \`${CLOUDFLARE_PAGES_PROJECT_NAME}\`"
             echo "- Branch: \`${deploy_branch}\`"
             echo "- Deploy enabled: \`${can_deploy}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Deploy shadow build to Cloudflare Pages
+      - name: Deploy production build to Cloudflare Pages
         if: steps.cloudflare.outputs.can_deploy == 'true'
         uses: cloudflare/wrangler-action@v4
         with:
