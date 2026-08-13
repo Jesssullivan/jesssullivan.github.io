@@ -199,6 +199,47 @@ await rejects(
 	/Unsupported event pull_request/,
 );
 
+// Ambiguous API responses must fail closed rather than let ordering decide.
+await rejects(
+	'conflicting completed CI conclusions for the same SHA fail closed',
+	{
+		eventName: 'repository_dispatch',
+		runs: [canonicalRun(), canonicalRun({ id: 102, conclusion: 'failure' })],
+	},
+	/Ambiguous CI evidence: 2 completed canonical CI push runs matched exact SHA/,
+);
+await rejects(
+	'multiple matching successful CI runs for the same SHA fail closed',
+	{
+		eventName: 'repository_dispatch',
+		runs: [canonicalRun(), canonicalRun({ id: 103 })],
+	},
+	/Ambiguous CI evidence: 2 completed canonical CI push runs matched exact SHA/,
+);
+await rejects(
+	'conflicting completed private CV authority runs for the same SHA fail closed',
+	{
+		eventName: 'repository_dispatch',
+		cvRuns: [
+			canonicalRun({ id: 202, html_url: 'https://github.example/cv/202' }),
+			canonicalRun({ id: 203, conclusion: 'failure', html_url: 'https://github.example/cv/203' }),
+		],
+	},
+	/Ambiguous private CV authority evidence: 2 completed runs for exact SHA/,
+);
+await rejects(
+	'duplicate latest authority jobs with conflicting conclusions fail closed',
+	{
+		eventName: 'workflow_run',
+		jobs: [
+			{ name: 'build-and-test', conclusion: 'success' },
+			{ name: 'build-and-test', conclusion: 'failure' },
+			{ name: 'bazel-remote-gates', conclusion: 'success' },
+		],
+	},
+	/Ambiguous CI evidence: 2 latest jobs named build-and-test/,
+);
+
 const revalidationSource = extractGithubScript(
 	'Revalidate production kill switch and current main immediately before publish',
 );

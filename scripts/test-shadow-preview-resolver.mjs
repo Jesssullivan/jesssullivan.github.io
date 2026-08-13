@@ -262,6 +262,54 @@ await assert.rejects(
 	/arbitrary ref/,
 	'trusted resolver rejects manual source workflow from arbitrary ref',
 );
+await assert.rejects(
+	() => runTrusted({ pr: pullRequest({ number: 999 }) }),
+	/Ambiguous PR lookup: requested #251 but the API returned #999/,
+	'PR lookup returning a different candidate fails closed even with an identical head',
+);
+
+// Ambiguous job evidence in the consume gate must classify as not-consumable.
+const executeConsumeGate = new AsyncFunction(
+	'github',
+	'context',
+	'core',
+	'process',
+	extractGithubScript(trustedWorkflow, 'Require successful unprivileged build job'),
+);
+async function runConsume(jobs) {
+	const outputs = {};
+	const github = {
+		rest: { actions: { listJobsForWorkflowRun: async () => ({ data: { jobs } }) } },
+		paginate: async (method, args) => (await method(args)).data.jobs,
+	};
+	const context = {
+		repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' },
+		payload: { workflow_run: { id: 9001 } },
+	};
+	const core = {
+		notice() {},
+		setOutput(name, value) {
+			outputs[name] = value;
+		},
+	};
+	await executeConsumeGate(github, context, core, { env: {} });
+	return outputs;
+}
+assert.equal(
+	(await runConsume([{ name: 'Build unprivileged OCI archive', conclusion: 'success' }])).consume,
+	'true',
+	'a single successful build job is consumable',
+);
+assert.equal(
+	(
+		await runConsume([
+			{ name: 'Build unprivileged OCI archive', conclusion: 'success' },
+			{ name: 'Build unprivileged OCI archive', conclusion: 'failure' },
+		])
+	).consume,
+	'false',
+	'duplicate latest build jobs with conflicting conclusions fail closed',
+);
 
 function liveGithub({ pr = pullRequest(), variables = {} } = {}) {
 	return {
@@ -311,6 +359,20 @@ await assert.rejects(
 		),
 	/changed after source provenance resolution/,
 	'redraft immediately before package write fails closed',
+);
+await assert.rejects(
+	() =>
+		executePublishRecheck(
+			liveGithub({
+				pr: pullRequest({ number: 999 }),
+				variables: { BLOG_SHADOW_SOURCE_PUBLISH_ENABLED: 'true' },
+			}),
+			liveContext,
+			{},
+			{ env: liveEnv },
+		),
+	/Ambiguous PR lookup: requested #251 but the API returned #999/,
+	'package-write recheck rejects a different PR candidate with an identical head',
 );
 console.log('Shadow preview v2 resolver fixtures passed');
 
