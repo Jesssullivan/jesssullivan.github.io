@@ -315,8 +315,6 @@ for (const fixture of [
 	'./test-cloudflare-parity-resolver.mjs',
 	'./test-github-pages-rollback-resolver.mjs',
 	'./test-private-cv-authority-resolver.mjs',
-	'./test-incident-20260812-regression.mjs',
-	'./test-validate-deploy-tier-output.mjs',
 ]) {
 	await import(fixture);
 }

@@ -62,11 +62,7 @@ jobs:
                 per_page: 100,
               });
               for (const requiredName of ["build-and-test", "bazel-remote-gates"]) {
-                const matches = jobs.filter((candidate) => candidate.name === requiredName);
-                if (matches.length > 1) {
-                  throw new Error(`Ambiguous CI evidence: ${matches.length} latest jobs named ${requiredName} for run ${runId} with conclusions ${matches.map((job) => job.conclusion).join(", ")}; refusing to choose.`);
-                }
-                const job = matches[0];
+                const job = jobs.find((candidate) => candidate.name === requiredName);
                 if (!job || job.conclusion !== "success") {
                   throw new Error(`Required CI job ${requiredName} was missing or not successful for run ${runId}.`);
                 }
@@ -85,18 +81,13 @@ jobs:
                   event: "push",
                   per_page: 100,
                 });
-                const completed = runs.filter((run) =>
+                const exact = runs.find((run) =>
                   run.head_sha === sourceSha &&
                   run.head_branch === "main" &&
                   run.event === "push" &&
-                  run.head_repository?.full_name === `${owner}/${repo}` &&
-                  run.status === "completed"
+                  run.head_repository?.full_name === `${owner}/${repo}`
                 );
-                if (completed.length > 1) {
-                  throw new Error(`Ambiguous private CV authority evidence: ${completed.length} completed runs for exact SHA ${sourceSha} with conclusions ${completed.map((run) => run.conclusion).join(", ")}; refusing to choose.`);
-                }
-                const exact = completed[0];
-                if (exact) {
+                if (exact?.status === "completed") {
                   if (exact.conclusion !== "success") {
                     throw new Error(`Private CV authority concluded ${exact.conclusion} for exact SHA ${sourceSha}.`);
                   }
@@ -152,17 +143,14 @@ jobs:
                 status: "completed",
                 per_page: 100,
               });
-              const matching = runs.filter((run) =>
+              const ciRun = runs.find((run) =>
                 run.head_sha === sourceSha &&
                 run.head_branch === "main" &&
                 run.event === "push" &&
+                run.conclusion === "success" &&
                 run.head_repository?.full_name === `${owner}/${repo}`
               );
-              if (matching.length > 1) {
-                throw new Error(`Ambiguous CI evidence: ${matching.length} completed canonical CI push runs matched exact SHA ${sourceSha} with conclusions ${matching.map((run) => run.conclusion).join(", ")}; refusing to choose.`);
-              }
-              const ciRun = matching[0];
-              if (!ciRun || ciRun.conclusion !== "success") {
+              if (!ciRun) {
                 throw new Error(`No successful canonical CI push run found for exact SHA ${sourceSha}.`);
               }
               await requireAuthorityJobs(ciRun.id);

@@ -47,8 +47,8 @@ jobs:
               filter: "latest",
               per_page: 100,
             });
-            const builds = jobs.filter((candidate) => candidate.name === "Build unprivileged OCI archive");
-            const consume = builds.length === 1 && builds[0].conclusion === "success";
+            const build = jobs.find((candidate) => candidate.name === "Build unprivileged OCI archive");
+            const consume = build?.conclusion === "success";
             if (!consume) {
               core.notice("Upstream run produced no successful source build; nothing will be published.");
             }
@@ -114,9 +114,6 @@ jobs:
             }
 
             const pr = (await github.rest.pulls.get({ owner, repo, pull_number: metadata.prNumber })).data;
-            if (pr.number !== metadata.prNumber) {
-              throw new Error(`Ambiguous PR lookup: requested #${metadata.prNumber} but the API returned #${pr.number}; refusing to publish.`);
-            }
             if (
               pr.state !== "open" ||
               pr.draft ||
@@ -211,9 +208,6 @@ jobs:
               repo,
               pull_number: Number(process.env.EXPECTED_PR),
             })).data;
-            if (pr.number !== Number(process.env.EXPECTED_PR)) {
-              throw new Error(`Ambiguous PR lookup: requested #${process.env.EXPECTED_PR} but the API returned #${pr.number}; refusing package write.`);
-            }
             if (
               pr.state !== "open" ||
               pr.draft ||

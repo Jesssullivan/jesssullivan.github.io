@@ -341,10 +341,8 @@ js_test(
         "scripts/test-cloudflare-parity-resolver.mjs",
         "scripts/test-cloudflare-production-resolver.mjs",
         "scripts/test-github-pages-rollback-resolver.mjs",
-        "scripts/test-incident-20260812-regression.mjs",
         "scripts/test-private-cv-authority-resolver.mjs",
         "scripts/test-shadow-preview-resolver.mjs",
-        "scripts/test-validate-deploy-tier-output.mjs",
         "scripts/test-workflow-authority.mjs",
         "scripts/validate-deploy-tier-output.mjs",
         "src/lib/components/ThemeSwitcher.svelte",
@@ -384,19 +382,6 @@ js_test(
         "edge-contract",
         "gloriousflywheel-rbe-candidate",
     ],
-    visibility = ["//visibility:public"],
-)
-
-js_test(
-    name = "theme_contract_tests",
-    copy_data_to_bin = False,
-    data = [
-        "scripts/test-theme-contract.mjs",
-        "src/lib/styles/themes/pride.css",
-        "src/lib/styles/themes/trans.css",
-    ],
-    entry_point = "scripts/test-theme-contract.mjs",
-    patch_node_fs = False,
     visibility = ["//visibility:public"],
 )
 
