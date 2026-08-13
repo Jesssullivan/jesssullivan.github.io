@@ -8,7 +8,7 @@ if [[ -n "${TEST_SRCDIR:-}" && -n "${TEST_WORKSPACE:-}" ]]; then
 else
   workspace="${BUILD_WORKSPACE_DIRECTORY:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 fi
-workflow="${workspace}/.github/workflows/cloudflare-cache-purge.yml"
+workflow="${workspace}/.github/workflows/cloudflare-cache-purge-v2.yml"
 
 require_fixed() {
   local needle="$1"
@@ -21,6 +21,8 @@ require_fixed() {
 }
 
 require_fixed "ACCOUNT_ID: fdcb4fb750ab79be0800e885f09ddbdc" "fixed account authority"
+require_fixed "types: [cloudflare-cache-purge-v2]" "default-owned repository dispatch"
+require_fixed "CLOUDFLARE_CACHE_PURGE_ENABLED" "live purge kill switch"
 require_fixed "request GET 'https://api.cloudflare.com/client/v4/user/tokens/verify'" "user-token verification"
 require_fixed 'request GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/tokens/verify"' "account-token verification"
 require_fixed '"$(jq -r '\''.result.status // ""'\'' <<<"$REQUEST_BODY")" == active' "active-token requirement"
@@ -32,6 +34,11 @@ require_fixed '[[ "$TARGET_PATH" == "/." || "$TARGET_PATH" == *"/./"* || "$TARGE
 
 if grep -Fq -- "purge_everything" "${workflow}"; then
   echo "ERROR: cache purge workflow contains broad purge mode: purge_everything" >&2
+  exit 1
+fi
+
+if grep -Eq 'workflow_dispatch:|pull_request(_target)?:' "${workflow}"; then
+  echo "ERROR: cache purge credential path must be default-branch-owned" >&2
   exit 1
 fi
 

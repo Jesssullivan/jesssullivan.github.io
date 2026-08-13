@@ -6,7 +6,7 @@ flowchart TD
   REG[("tinyland-inc/<br/>bazel-registry")]
   RT["rules_tectonic<br/>Tectonic · XeLaTeX engine"]
   PDFS["resume · précis · cv<br/>3 compiled PDFs"]
-  SYNC["bazel run //static/cv:sync_pdfs<br/>write_source_files"]
+  SYNC["operator-reviewed bazel run<br/>//static/cv:sync_pdfs"]
   STATIC["static/cv/*.pdf<br/>(committed to this repo)"]
   PAGE["/cv page<br/>iframe per tab"]
 
@@ -17,8 +17,8 @@ flowchart TD
   SYNC --> STATIC
   STATIC --> PAGE
 
-  CI["build-cv.yml · GitHub Actions<br/>SSH deploy key fetches private source,<br/>installs bazelisk, runs sync, auto-commits PDFs"]
-  CI -. orchestrates .-> SYNC
+  CI["private-cv-authority-v2.yml<br/>exact-main, read-only consistency check<br/>no commit or publication"]
+  CI -. verifies PDFS match STATIC .-> STATIC
 
   classDef priv fill:#fde68a,stroke:#b45309,color:#1f2937;
   classDef bz fill:#bfdbfe,stroke:#1d4ed8,color:#1f2937;

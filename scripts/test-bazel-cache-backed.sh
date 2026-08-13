@@ -15,8 +15,8 @@ grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "      GF_REAPI_TOKEN_EXCHANGE_TTL: 45m" "${repo_root}/.github/workflows/ci.yml" >/dev/null
 mint_count="$(grep -c -F -- "run: bash scripts/mint-gf-reapi-token-from-exchange.sh" "${repo_root}/.github/workflows/ci.yml")"
-if [[ ${mint_count} -ne 5 ]]; then
-  echo "ERROR: CI must mint once for attachment validation and refresh before all four Bazel phases; found ${mint_count}." >&2
+if [[ ${mint_count} -ne 4 ]]; then
+  echo "ERROR: CI must mint once for attachment validation and refresh before all three public Bazel phases; found ${mint_count}." >&2
   exit 1
 fi
 

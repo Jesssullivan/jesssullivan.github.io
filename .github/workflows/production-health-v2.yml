@@ -1,20 +1,14 @@
-name: Production Health
+name: Production Health v2
 
 on:
   schedule:
     - cron: '*/30 * * * *'
-  workflow_dispatch:
-    inputs:
-      send_ntfy_smoke:
-        description: 'Send a harmless ntfy smoke notification before health checks'
-        required: false
-        type: boolean
-        default: false
+  repository_dispatch:
+    types: [production-health-v2]
 
 permissions:
   contents: read
   deployments: read
-  actions: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -24,14 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
       - name: Send ntfy smoke notification
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_ntfy_smoke }}
+        if: ${{ github.event_name == 'repository_dispatch' && github.event.action == 'production-health-v2' && github.event.client_payload.send_ntfy_smoke == 'true' }}
         env:
           NTFY_TOPIC_URL: ${{ secrets.NTFY_TOPIC_URL }}
           NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
@@ -46,7 +42,7 @@ jobs:
           {
             echo "production-health ntfy smoke test for transscendsurvival.org"
             echo ""
-            echo "This is a harmless manual alert-routing test. DNS, Pages, and site serving were not mutated."
+            echo "This is a harmless operator-requested alert-routing test. DNS, Pages, and site serving were not mutated."
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo "Ref: ${GITHUB_REF_NAME}"
             echo "SHA: ${GITHUB_SHA}"
@@ -125,60 +121,4 @@ jobs:
 
       - name: Fail after production health notification
         if: steps.production_health.outcome == 'failure'
-        run: exit 1
-
-      - name: Verify Pages deployment is current main
-        id: pages_deployment
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          latest_main="$(gh api repos/${GITHUB_REPOSITORY}/commits/main --jq .sha)"
-          latest_pages="$(gh api "repos/${GITHUB_REPOSITORY}/deployments?environment=github-pages&per_page=1" --jq '.[0].sha')"
-          if [ "${latest_pages}" != "${latest_main}" ]; then
-            gh workflow run deploy-pages.yml --ref main
-            echo "::error title=GitHub Pages is stale::github-pages deployment ${latest_pages} does not match main ${latest_main}"
-            echo "::notice title=Pages deploy dispatched::Triggered deploy-pages.yml for main ${latest_main}"
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Notify ntfy on stale Pages deployment
-        if: steps.pages_deployment.outcome == 'failure'
-        env:
-          NTFY_TOPIC_URL: ${{ secrets.NTFY_TOPIC_URL }}
-          NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "${NTFY_TOPIC_URL:-}" ]; then
-            echo "::notice title=ntfy alert skipped::NTFY_TOPIC_URL is not configured."
-            exit 0
-          fi
-
-          body="$(mktemp)"
-          {
-            echo "production-health detected a stale GitHub Pages deployment."
-            echo ""
-            echo "The workflow dispatched deploy-pages.yml, but this monitor is failing until Pages catches up."
-            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-            echo "Ref: ${GITHUB_REF_NAME}"
-            echo "SHA: ${GITHUB_SHA}"
-          } >"${body}"
-
-          auth_args=()
-          if [ -n "${NTFY_TOKEN:-}" ]; then
-            auth_args=(-H "Authorization: Bearer ${NTFY_TOKEN}")
-          fi
-
-          curl -fsS \
-            -o /dev/null \
-            -H "Title: production-health STALE PAGES - transscendsurvival.org" \
-            -H "Priority: 4" \
-            -H "Tags: warning,dns" \
-            "${auth_args[@]}" \
-            --data-binary "@${body}" \
-            "${NTFY_TOPIC_URL}"
-
-      - name: Fail after stale Pages notification
-        if: steps.pages_deployment.outcome == 'failure'
         run: exit 1

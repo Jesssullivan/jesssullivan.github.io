@@ -8,8 +8,9 @@
 #   2. nginxinc/nginx-unprivileged:alpine serving the SvelteKit
 #      adapter-static `build/` output on port 8080.
 #
-# The active PR path is .github/workflows/shadow-preview.yml; the older
-# .github/workflows/shadow-image.yml remains an explicit operator build lane.
+# The unprivileged PR path is .github/workflows/shadow-source-build-v2.yml;
+# trusted source publication lives in shadow-source-publish-v2.yml. Historical
+# branch-authored package-write workflows are retired.
 # Deployment authority and the public review route stay outside this image.
 
 FROM node:22-bookworm-slim AS builder
@@ -48,14 +49,9 @@ COPY packages/ ./packages/
 # must be present before the install layer.
 COPY scripts/build-tinyvectors.mjs ./scripts/build-tinyvectors.mjs
 
-# `npm install` rather than `npm ci`: tolerates lockfile lag against upstream
-# transitive deps that have re-published since the committed lock was
-# generated (npm ci's strict consistency check has been triggering on
-# yaml@2.8.3 / @emnapi@1.10.0 entries that aren't yet in the committed
-# lock). Layer-level reproducibility comes from the Docker cache; the
-# committed lock continues to gate the blog repo's GH Actions CI which uses
-# the canonical npm ci path.
-RUN npm install --no-audit --no-fund --no-save
+# The source image uses the same committed package-lock authority as CI.
+# Lock drift is a build failure, not permission to resolve newer transitives.
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 

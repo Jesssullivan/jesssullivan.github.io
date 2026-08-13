@@ -15,10 +15,12 @@ bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 # uses rules_tectonic to compile its .tex via the tectonic binary.
 # rules_tectonic is published in tinyland-inc/bazel-registry (wired in via
 # .bazelrc) and resolves normally. spear_resumes lives in a private GitHub
-# repo (sensitive STR-variant content) so it is pinned via git_override; CI
-# uses an SSH deploy key (secret SPEAR_RESUMES_DEPLOY_KEY) to fetch it.
-bazel_dep(name = "spear_resumes", version = "0.2.0")
-bazel_dep(name = "rules_tectonic", version = "0.2.1")
+# repo (sensitive STR-variant content) so it is pinned via git_override. These
+# are root-only development dependencies: public PR/GF commands pass
+# --ignore_dev_dependency and cannot resolve the private repository. The
+# default local command and trusted private-CV workflow retain the full graph.
+bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)
+bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)
 
 # @tummycrypt/tinyvectors is never resolved from the public npm registry
 # (versions past 0.3.0 were never published there). package.json pins the

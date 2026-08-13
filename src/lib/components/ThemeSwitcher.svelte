@@ -205,7 +205,7 @@
 									>
 									and
 									<a
-										href="https://github.com/Jesssullivan/jesssullivan.github.io/actions/workflows/deploy-pages.yml"
+										href="https://github.com/Jesssullivan/jesssullivan.github.io/actions/workflows/cloudflare-pages-production-v2.yml"
 										target="_blank"
 										rel="noopener"
 										class="text-primary-500 hover:underline"

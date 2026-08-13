@@ -22,7 +22,7 @@ under `tini`, listens on `PORT=3000`, and starts `node build/index.js`.
 
 ## Scope
 
-Production (transscendsurvival.org, GitHub Pages / Cloudflare Pages) stays
+Production (`transscendsurvival.org`, Cloudflare Pages) stays
 `adapter-static` and is FROZEN — it never consumes this adapter or image. This
 shadow is tailnet-only and operator-gated. Infra stack lives in
 `jesssullivan-infra` (`tofu/stacks/jesssullivan-blog-node-shadow`).

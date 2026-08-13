@@ -16,28 +16,28 @@ Checked-in posts and snapshots remain useful for first paint, no-JS fallback,
 search/index fixtures, and regression tests. New Tinyland-managed blog posts are
 authored and edited in `tinyland.dev`, not in this repo's collector flow.
 
-Blog posts can live in any repo. A collection pipeline pulls them into
-`jesssullivan.github.io`, normalizes frontmatter, rewrites links and images,
-and stages them as draft PRs for review before publication.
+The legacy collector remains a manual, reviewed migration tool. No active or
+replacement workflow schedules it, accepts source dispatches, writes branches,
+or opens PRs.
 
 ```
-Source repo push        repository_dispatch        Collector script
-  (blog/**)       --->  collect-posts.yml    --->  collect-external-posts.mts
-                                                         |
-                                                    Draft PR (published: false)
-                                                         |
-                          validate-blog-dates.yml   <--- PR to main
-                                                         |
-                    auto-merge-scheduled.yml  --->  Merge on scheduled date
+reviewed source checkout ---> collect-external-posts.mts ---> local diff
+                                                           |
+                                                   operator-authored PR
+                                                           |
+                           validate-blog-dates.yml <--- PR to main
+                                                           |
+                              reviewed operator  ---> manual merge
 ```
 
 **Five stages:**
 
-1. **Notify** -- Source repo pushes to `main`, triggers `repository_dispatch` on the blog repo.
-2. **Collect** -- `collect-external-posts.mts` fetches posts and images, normalizes frontmatter, writes files.
-3. **Stage** -- A draft PR is opened on `auto/collect-posts` with `published: false`.
+1. **Select** -- an operator reviews the exact source repository and revision.
+2. **Collect** -- `collect-external-posts.mts` fetches posts and images, normalizes frontmatter, and writes a local diff.
+3. **Stage** -- the operator inspects the diff and authors a normal PR with `published: false`.
 4. **Validate** -- `validate-blog-dates.mts` checks future-dated posts on every PR to `main`.
-5. **Auto-merge** -- `auto-merge-scheduled.yml` merges PRs whose `DO NOT MERGE until` date has passed.
+5. **Merge** -- an operator reviews and manually merges. The broad scheduled
+   auto-merge workflow is retired and must remain disabled.
 
 
 ## Writing a Blog Post
@@ -123,35 +123,17 @@ Checklist:
    }
    ```
 
-2. **Propagate the dispatch secret** so the source repo can trigger collection:
-
-   ```bash
-   echo "ghp_your_pat" | ./scripts/propagate-dispatch-secret.sh
-   ```
-
-   This sets `BLOG_DISPATCH_TOKEN` as a GitHub Actions secret on all your
-   public repos. The token needs `contents:write` on `jesssullivan.github.io`.
-
-3. **Add the notify workflow** to the source repo. Copy
-   `.github/workflows/notify-blog-template.yml` to the source repo as
-   `.github/workflows/notify-blog.yml`. It fires on pushes to `main` that
-   touch `blog/**`, `posts/**`, or `docs/blog/**`.
-
-4. **Test** by pushing a post to the source repo and confirming a draft PR
-   appears on `jesssullivan.github.io`.
-
-Optional: set the repo variable `BLOG_DISPATCH_ENABLED=false` to temporarily
-disable notifications without removing the workflow.
+2. **Run the collector manually** with ordinary operator GitHub access, inspect
+   every generated post/image/provenance change, and author a reviewed PR.
+3. **Do not add a notifier or shared PAT.** Source notifications and scheduled
+   collection are parked while `tinyland.dev` is the mothership content SSOT.
 
 
 ## How Collection Works
 
-`scripts/collect-external-posts.mts` runs inside the `collect-posts.yml`
-workflow. It can be triggered three ways:
-
-- **repository_dispatch** -- a source repo pushed new content (collects only that repo).
-- **schedule** -- weekly Monday 09:00 UTC (collects all repos in `blog-sources.json`).
-- **workflow_dispatch** -- manual run, optionally scoped to specific repos.
+`scripts/collect-external-posts.mts` is parked as a manual reference tool. It is
+not called by GitHub Actions. Run it only in an operator-controlled checkout,
+then review the working-tree diff before creating a PR.
 
 For each repo, the script:
 
@@ -168,8 +150,7 @@ For each repo, the script:
 7. Writes posts to `src/posts/YYYY-MM-DD-slug.md`.
 8. Updates the manifest at `.github/external-posts.json` for dedup tracking.
 
-The `peter-evans/create-pull-request` action then opens (or updates) a draft
-PR on the `auto/collect-posts` branch.
+No action automatically opens or updates a branch or PR.
 
 
 ## Scheduling Posts
@@ -189,9 +170,8 @@ To publish a post on a future date:
 - `validate-blog-dates.mts` runs on every PR to `main` that touches
   `src/posts/`. It passes future-dated posts only if the PR body contains a
   matching `DO NOT MERGE until` directive (or if `published: false`).
-- `auto-merge-scheduled.yml` runs daily at 05:00 UTC. It scans open PRs for
-  `DO NOT MERGE until YYYY-MM-DD UTC`, and squash-merges any whose date has
-  arrived and whose CI checks all pass.
+- Once the date arrives and canonical checks pass, an operator reviews and
+  manually merges. No workflow holds generic scheduled merge authority.
 
 
 ## Frontmatter Reference

@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const workflowUrl = new URL('../.github/workflows/cloudflare-pages-production.yml', import.meta.url);
+const workflowUrl = new URL('../.github/workflows/cloudflare-pages-production-v2.yml', import.meta.url);
 const workflow = await readFile(workflowUrl, 'utf8');
-const resolverSource = extractGithubScript('Resolve and verify exact source SHA');
+const resolverSource = extractGithubScript('Resolve and verify exact source SHA')
+	.replace('20 * 60 * 1_000', '1')
+	.replace('15_000', '0');
 assert.match(resolverSource, /requireAuthorityJobs/);
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
@@ -38,15 +40,20 @@ async function runFixture({
 	eventName,
 	run = canonicalRun(),
 	runs = [canonicalRun()],
+	cvRuns = [canonicalRun({ id: 202, html_url: 'https://github.example/cv/202' })],
 	jobs = authorityJobs(),
 	mainSha = sourceSha,
 	manualSha = sourceSha,
-	manualDeploy = 'false',
+	manualDeploy = 'true',
 	productionEnabled = 'false',
+	dispatchAction = 'cloudflare-pages-production-v2',
 }) {
 	const outputs = {};
 	const listJobsForWorkflowRun = async () => ({ data: { jobs } });
-	const listWorkflowRuns = async () => ({ data: { workflow_runs: runs } });
+	const listWorkflowRuns = async (args) => {
+		const selected = args.workflow_id === 'private-cv-authority-v2.yml' ? cvRuns : runs;
+		return { data: { workflow_runs: selected.map((run) => ({ status: 'completed', ...run })) } };
+	};
 	const github = {
 		rest: {
 			actions: { listJobsForWorkflowRun, listWorkflowRuns },
@@ -78,12 +85,12 @@ async function runFixture({
 	const context = {
 		eventName,
 		repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' },
-		payload: eventName === 'workflow_run' ? { workflow_run: run } : {},
+		payload: eventName === 'workflow_run' ? { workflow_run: run } : { action: dispatchAction },
 	};
 	const processFixture = {
 		env: {
-			MANUAL_SOURCE_SHA: manualSha,
-			MANUAL_DEPLOY: manualDeploy,
+			REQUEST_SOURCE_SHA: manualSha,
+			REQUEST_DEPLOY: manualDeploy,
 			PRODUCTION_ENABLED: productionEnabled,
 		},
 	};
@@ -98,8 +105,8 @@ async function rejects(label, fixture, pattern) {
 
 assert.deepEqual(
 	await runFixture({ eventName: 'workflow_run', productionEnabled: 'true' }),
-	{ source_sha: sourceSha, ci_url: 'https://github.example/ci/101', deploy: 'true' },
-	'successful canonical CI run is deploy-eligible only when the operator gate is enabled',
+	{ source_sha: sourceSha, ci_url: 'https://github.example/ci/101', deploy: 'false' },
+	'successful canonical CI run records provenance but never automatically deploys',
 );
 assert.equal(
 	(await runFixture({ eventName: 'workflow_run' })).deploy,
@@ -143,7 +150,7 @@ await rejects(
 assert.equal(
 	(
 		await runFixture({
-			eventName: 'workflow_dispatch',
+			eventName: 'repository_dispatch',
 			manualDeploy: 'true',
 			productionEnabled: 'true',
 		})
@@ -151,25 +158,40 @@ assert.equal(
 	'true',
 	'exact current-main manual SHA with canonical CI and both gates can deploy',
 );
-assert.equal(
-	(await runFixture({ eventName: 'workflow_dispatch', manualDeploy: 'true' })).deploy,
-	'false',
-	'manual deploy request stays build-only while operator gate is unset',
+await rejects(
+	'repository-dispatch deploy request fails when operator gate is unset',
+	{ eventName: 'repository_dispatch', manualDeploy: 'true' },
+	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true/,
 );
 await rejects(
-	'manual SHA must equal current main',
-	{ eventName: 'workflow_dispatch', mainSha: otherSha },
+	'repository dispatch cannot masquerade as parity',
+	{ eventName: 'repository_dispatch', manualDeploy: 'false', productionEnabled: 'true' },
+	/client_payload\.deploy must be the string true/,
+);
+await rejects(
+	'repository dispatch must use the exact v2 type',
+	{ eventName: 'repository_dispatch', dispatchAction: 'arbitrary' },
+	/Unsupported repository_dispatch action/,
+);
+await rejects(
+	'repository-dispatch SHA must equal current main',
+	{ eventName: 'repository_dispatch', mainSha: otherSha },
 	/is not the current main SHA/,
 );
 await rejects(
-	'manual SHA must have a successful exact-SHA CI run',
-	{ eventName: 'workflow_dispatch', runs: [canonicalRun({ head_sha: otherSha })] },
+	'repository-dispatch SHA must have a successful exact-SHA CI run',
+	{ eventName: 'repository_dispatch', runs: [canonicalRun({ head_sha: otherSha })] },
 	/No successful canonical CI push run found for exact SHA/,
 );
 await rejects(
-	'manual CI with skipped remote authority fails closed',
-	{ eventName: 'workflow_dispatch', jobs: authorityJobs({ bazel: 'skipped' }) },
+	'repository-dispatch CI with skipped remote authority fails closed',
+	{ eventName: 'repository_dispatch', jobs: authorityJobs({ bazel: 'skipped' }) },
 	/Required CI job bazel-remote-gates was missing or not successful/,
+);
+await rejects(
+	'missing exact-SHA private CV authority fails closed',
+	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })] },
+	/No successful private CV authority run completed for exact SHA/,
 );
 await rejects(
 	'PR events cannot enter the production resolver',
@@ -177,23 +199,50 @@ await rejects(
 	/Unsupported event pull_request/,
 );
 
-const revalidationSource = extractGithubScript('Revalidate current main immediately before publish');
+const revalidationSource = extractGithubScript(
+	'Revalidate production kill switch and current main immediately before publish',
+);
 const executeRevalidation = new AsyncFunction('github', 'context', 'process', revalidationSource);
 const revalidationContext = { repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' } };
 const revalidationProcess = { env: { EXPECTED_SHA: sourceSha } };
 const githubAtMain = {
-	rest: { git: { getRef: async () => ({ data: { object: { sha: sourceSha } } }) } },
+	rest: {
+		actions: {
+			getRepoVariable: async () => ({ data: { value: 'true' } }),
+		},
+		git: { getRef: async () => ({ data: { object: { sha: sourceSha } } }) },
+	},
 };
 await executeRevalidation(githubAtMain, revalidationContext, revalidationProcess);
 await assert.rejects(
 	() =>
 		executeRevalidation(
-			{ rest: { git: { getRef: async () => ({ data: { object: { sha: otherSha } } }) } } },
+			{
+				rest: {
+					actions: { getRepoVariable: async () => ({ data: { value: 'true' } }) },
+					git: { getRef: async () => ({ data: { object: { sha: otherSha } } }) },
+				},
+			},
 			revalidationContext,
 			revalidationProcess,
 		),
 	/Refusing stale production publish/,
 	'pre-publish revalidation rejects a SHA made stale during the build',
+);
+await assert.rejects(
+	() =>
+		executeRevalidation(
+			{
+				rest: {
+					actions: { getRepoVariable: async () => ({ data: { value: 'false' } }) },
+					git: { getRef: async () => ({ data: { object: { sha: sourceSha } } }) },
+				},
+			},
+			revalidationContext,
+			revalidationProcess,
+		),
+	/not true at publish time/,
+	'production kill switch changing during the build fails immediately before publish',
 );
 
 console.log('Cloudflare production resolver fixtures passed');

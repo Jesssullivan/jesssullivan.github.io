@@ -10,8 +10,9 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
 - **Current DNS authority:** Cloudflare zone
   `602400322c1ecac4983542c76af90115`.
 - **Desired serving posture:** Cloudflare Pages serves the apex and `www`.
-  GitHub Pages remains the rollback publisher (`static/CNAME` =
-  `transscendsurvival.org`), but not the normal `www` path.
+  GitHub Pages is retained only as an explicitly manual, disabled-by-default
+  rollback target (`static/CNAME` = `transscendsurvival.org`), not a CI/CD or
+  normal `www` path.
 - **Desired DNS records in Cloudflare:**
 
   | Name  | Type  | Value                                                                              |
@@ -33,7 +34,7 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
 - **DNSSEC:** active. Cloudflare Registrar publishes the parent DS and
   Cloudflare signs the zone.
 - **CF Pages (`transscendsurvival-org`):** builds via
-  `.github/workflows/cloudflare-pages-production.yml` from an exact `main` SHA
+  `.github/workflows/cloudflare-pages-production-v2.yml` from an exact `main` SHA
   after both canonical CI authority jobs succeed and the fail-closed repository
   variable `CLOUDFLARE_PAGES_PRODUCTION_ENABLED=true`. The production apex and
   `www` hostnames are attached and active. `tss.tinyland.dev` belongs to the
@@ -43,9 +44,9 @@ Operational runbook for the apex/`www` domain of this site. Spelling is
 Cloudflare Registrar          Cloudflare DNS (current)          Cloudflare Pages
   NS -> Cloudflare pair   -->  proxied apex + www CNAMEs   -->   transscendsurvival-org
 
-GitHub Pages remains rollback only:
+GitHub Pages remains explicit rollback only:
   static/CNAME = transscendsurvival.org
-  deploy-pages.yml = independent main-push publisher (not Cloudflare CI promotion)
+  github-pages-rollback-v2.yml = manual exact-main publisher, disabled by default
 ```
 
 ## ROLLBACK: revert apex serving to GitHub Pages
@@ -53,6 +54,22 @@ GitHub Pages remains rollback only:
 This is the normal application-level rollback if Cloudflare Pages serving
 regresses but Cloudflare DNS authority is healthy. Do **not** revert NS for an
 application-level Pages issue.
+
+Before changing DNS, emit the typed `github-pages-rollback-v2` repository
+dispatch with the exact current-main SHA and `confirm_rollback=true`. The
+repository variable `BLOG_GITHUB_PAGES_ROLLBACK_ENABLED` must be exactly `true`,
+and canonical CI plus private-CV consistency must be green for that SHA. The
+live `github-pages` environment has a main-branch policy but no required
+reviewer; do not treat it as an approval gate. The legacy `deploy-pages.yml`
+workflow ID is disabled and must remain so.
+
+```sh
+SHA="$(gh api repos/Jesssullivan/jesssullivan.github.io/commits/main --jq .sha)"
+gh api --method POST repos/Jesssullivan/jesssullivan.github.io/dispatches \
+  -f event_type=github-pages-rollback-v2 \
+  -f "client_payload[source_sha]=$SHA" \
+  -f 'client_payload[confirm_rollback]=true'
+```
 
 Replace the proxied apex CNAME with the GitHub Pages A/AAAA set, and move `www`
 back to the GitHub Pages DNS-only CNAME:
@@ -183,12 +200,12 @@ The IaC-first loop for any DNS change:
 2. **Apply the change manually** to Cloudflare (dashboard or API) to match the
    new desired state. Keep the live edit minimal and identical to the PR.
 3. **Verify zero drift:** run `scripts/cf-dns-check.mts`
-   (`CLOUDFLARE_API_TOKEN` in env, read-only token preferred). It fails loudly
+   (`CLOUDFLARE_API_TOKEN` in env, using a Zone/DNS Read-only token). It fails loudly
    on apex proxy-posture drift, apex drifting off its declared type/target, `www`
    off CNAME, any declared-vs-live mismatch, or DNSSEC disabled. DNSSEC pending
    is only acceptable during a deliberate registrar/DS transition window.
 4. The host-agnostic checks (`scripts/check-production-health.mts`,
-   `.github/workflows/production-health.yml`, the `workers/dns-guard/` Worker)
+   `.github/workflows/production-health-v2.yml`, the `workers/dns-guard/` Worker)
    then assert resolution health (non-empty A/AAAA/SOA over UDP + TCP).
 
 Keep `zone.json` and the live zone in lockstep: never change one without the
@@ -256,14 +273,16 @@ dig +dnssec transscendsurvival.org @izabella.ns.cloudflare.com
 dig DS transscendsurvival.org @a0.org.afilias-nst.info +short
 
 # IaC drift: live Cloudflare zone vs infra/cloudflare/zone.json (read-only, GET-only).
-# Same script CI runs in .github/workflows/cloudflare-dns-drift.yml.
+# Automated DNS drift is parked; run this directly with a read-only token.
 CLOUDFLARE_API_TOKEN=… npx tsx scripts/cf-dns-check.mts
 ```
 
 ## Secrets (names only — never print values)
 
 - Lab SOPS: `["infrastructure"]["cloudflare_api_token" | "cloudflare_account_id" | "dreamhost_api_key"]`.
-- CI: GitHub Actions secrets (e.g. `CLOUDFLARE_API_TOKEN`).
+- Direct drift verification: operator-custodied Zone/DNS Read token. No active
+  scheduled workflow owns this credential.
+- CI: separate `CLOUDFLARE_API_TOKEN` credentials for bounded Pages/purge writes.
 - Never use broad SOPS decrypts for debugging, including `sops -d`, `sops --decrypt`,
   or `sops ... | grep`. Extract one key by path with `sops --extract`, put it in
   an environment variable without echoing it, and unset it after use.

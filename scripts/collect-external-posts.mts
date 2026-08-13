@@ -8,9 +8,7 @@
  * src/posts/ with published: false for review via Draft PR.
  *
  * Environment:
- *   GH_TOKEN        — GitHub token with repo access (GitHub App or PAT)
- *   DISPATCH_REPO   — single repo from repository_dispatch (optional)
- *   MANUAL_REPOS    — comma-separated repos from workflow_dispatch (optional)
+ *   GH_TOKEN — operator GitHub token with read access to the selected repos
  *
  * Usage: tsx scripts/collect-external-posts.mts [--repos owner/name,...]
  */
@@ -57,16 +55,6 @@ function getTargetRepos(): string[] {
 		return process.argv[cliIdx + 1].split(',').map((s) => s.trim());
 	}
 
-	// workflow_dispatch manual input
-	if (process.env.MANUAL_REPOS) {
-		return process.env.MANUAL_REPOS.split(',').map((s) => s.trim());
-	}
-
-	// repository_dispatch from a single source repo
-	if (process.env.DISPATCH_REPO) {
-		return [process.env.DISPATCH_REPO];
-	}
-
 	// Default: all repos from blog-sources.json
 	const sources: BlogSources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
 	return sources.repos;
@@ -76,18 +64,18 @@ function fetchRepoFiles(repo: string, paths: string[]): RepoFile[] {
 	const files: RepoFile[] = [];
 	for (const scanPath of paths) {
 		try {
-			const listing = execSync(
-				`gh api repos/${repo}/contents/${scanPath} --jq '.[].name'`,
-				{ encoding: 'utf-8', env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN } }
-			).trim();
+			const listing = execSync(`gh api repos/${repo}/contents/${scanPath} --jq '.[].name'`, {
+				encoding: 'utf-8',
+				env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN },
+			}).trim();
 			for (const name of listing.split('\n').filter((n) => n.endsWith('.md') || n.endsWith('.mdx'))) {
-				const content = execSync(
-					`gh api repos/${repo}/contents/${scanPath}${name} --jq '.content'`,
-					{ encoding: 'utf-8', env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN } }
-				).trim();
+				const content = execSync(`gh api repos/${repo}/contents/${scanPath}${name} --jq '.content'`, {
+					encoding: 'utf-8',
+					env: { ...process.env, GH_TOKEN: process.env.GH_TOKEN },
+				}).trim();
 				files.push({
 					path: `${scanPath}${name}`,
-					content: Buffer.from(content, 'base64').toString('utf-8')
+					content: Buffer.from(content, 'base64').toString('utf-8'),
 				});
 			}
 		} catch {
@@ -110,22 +98,18 @@ function fetchRepoImages(repo: string, scanPaths: string[]): RepoImage[] {
 		if (seen.has(dir)) continue;
 		seen.add(dir);
 		try {
-			const listing = execSync(
-				`gh api repos/${repo}/contents/${dir} --jq '.[].name'`,
-				{ encoding: 'utf-8' }
-			).trim();
+			const listing = execSync(`gh api repos/${repo}/contents/${dir} --jq '.[].name'`, { encoding: 'utf-8' }).trim();
 			for (const name of listing.split('\n').filter(Boolean)) {
 				if (!IMAGE_EXTS.has(extname(name).toLowerCase())) continue;
 				try {
 					// Download binary via gh api (base64 encoded)
-					const b64 = execSync(
-						`gh api repos/${repo}/contents/${dir}${name} --jq '.content'`,
-						{ encoding: 'utf-8' }
-					).trim();
+					const b64 = execSync(`gh api repos/${repo}/contents/${dir}${name} --jq '.content'`, {
+						encoding: 'utf-8',
+					}).trim();
 					images.push({
 						remotePath: `${dir}${name}`,
 						name,
-						data: Buffer.from(b64, 'base64')
+						data: Buffer.from(b64, 'base64'),
 					});
 				} catch {
 					console.log(`  warn: failed to download ${dir}${name}`);
@@ -148,14 +132,12 @@ function slugify(title: string): string {
 }
 
 const sources: BlogSources = JSON.parse(readFileSync(SOURCES_PATH, 'utf-8'));
-const manifest: Manifest = existsSync(MANIFEST_PATH)
-	? JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8'))
-	: { posts: {} };
+const manifest: Manifest = existsSync(MANIFEST_PATH) ? JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8')) : { posts: {} };
 
 const existingSlugs = new Set(
 	readdirSync(POSTS_DIR)
 		.filter((f) => f.endsWith('.md'))
-		.map((f) => f.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, ''))
+		.map((f) => f.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '')),
 );
 
 const repos = getTargetRepos();
@@ -222,7 +204,7 @@ for (const repo of repos) {
 			// Match markdown images: ![alt](images/name) or ![alt](./images/name)
 			const patterns = [
 				new RegExp(`\\(!?\\.?/?images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g'),
-				new RegExp(`\\(!?\\.?/?blog/images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g')
+				new RegExp(`\\(!?\\.?/?blog/images/${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g'),
 			];
 			for (const pat of patterns) {
 				body = body.replace(pat, `(${localImgPath})`);
@@ -264,7 +246,7 @@ for (const repo of repos) {
 			'---',
 			`title: "${fm.title.replace(/"/g, '\\"')}"`,
 			`date: "${date}"`,
-			`description: "${(description).replace(/"/g, '\\"')}"`,
+			`description: "${description.replace(/"/g, '\\"')}"`,
 			`tags: [${tags.map((t) => `"${t}"`).join(', ')}]`,
 			`published: false`,
 			`slug: "${slug}"`,
@@ -274,7 +256,7 @@ for (const repo of repos) {
 			`source_path: "${file.path}"`,
 			linearIssue ? `linear_issue: "${linearIssue.replace(/"/g, '\\"')}"` : null,
 			linearProject ? `linear_project: "${linearProject.replace(/"/g, '\\"')}"` : null,
-			'---'
+			'---',
 		]
 			.filter(Boolean)
 			.join('\n');
@@ -287,7 +269,7 @@ for (const repo of repos) {
 		manifest.posts[slug] = {
 			source_repo: repo,
 			source_path: file.path,
-			collected_at: new Date().toISOString()
+			collected_at: new Date().toISOString(),
 		};
 
 		existingSlugs.add(slug);
