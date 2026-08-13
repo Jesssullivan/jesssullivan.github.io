@@ -307,8 +307,10 @@ function findAspectPackage(buildNodeModules, packageName) {
 }
 
 function run(binaryName, args) {
-	const binary = resolveBinEntrypoint(binaryName);
-	const result = spawnSync(process.execPath, [binary, ...args], {
+	// 'node' is the runtime itself, not an npm binary: the first arg is the
+	// script entrypoint, so nothing needs resolving from node_modules.
+	const invocation = binaryName === 'node' ? args : [resolveBinEntrypoint(binaryName), ...args];
+	const result = spawnSync(process.execPath, invocation, {
 		cwd: buildRoot,
 		env: process.env,
 		stdio: 'inherit',
