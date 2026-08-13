@@ -341,6 +341,7 @@ js_test(
         "scripts/test-cloudflare-parity-resolver.mjs",
         "scripts/test-cloudflare-production-resolver.mjs",
         "scripts/test-github-pages-rollback-resolver.mjs",
+        "scripts/test-incident-20260812-regression.mjs",
         "scripts/test-private-cv-authority-resolver.mjs",
         "scripts/test-shadow-preview-resolver.mjs",
         "scripts/test-workflow-authority.mjs",
