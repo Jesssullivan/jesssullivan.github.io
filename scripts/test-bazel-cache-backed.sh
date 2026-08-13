@@ -10,6 +10,17 @@ fi
 tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/blog-bazel-cache-contract.XXXXXX")"
 trap 'rm -rf "${tmp_dir}"' EXIT
 
+grep -Fq -- 'exec bash scripts/bazel-cache-backed.sh "$@" --ignore_dev_dependency --lockfile_mode=error' "${repo_root}/scripts/bazel-public-cache-backed.sh"
+grep -Fq -- 'bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)' "${repo_root}/MODULE.bazel"
+grep -Fq -- 'bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)' "${repo_root}/MODULE.bazel"
+grep -Fq -- 'npm run remote:check:public' "${repo_root}/.github/workflows/ci.yml"
+grep -Fq -- 'npm run remote:test:public' "${repo_root}/.github/workflows/ci.yml"
+grep -Fq -- 'npm run remote:e2e:public' "${repo_root}/.github/workflows/ci.yml"
+if grep -Eq 'SPEAR_RESUMES_DEPLOY_KEY|webfactory/ssh-agent|@spear_resumes|static/cv:pdfs_synced_test' "${repo_root}/.github/workflows/ci.yml"; then
+  echo "ERROR: PR-capable CI still carries private CV authority" >&2
+  exit 1
+fi
+
 grep -Fx -- "build:ci-cached --jobs=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
