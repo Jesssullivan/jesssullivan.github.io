@@ -9,13 +9,13 @@ test.describe('Profile Sidebar', () => {
 		await expect(sidebar).toBeVisible();
 	});
 
-	test('shows avatar image from GitHub', async ({ page }) => {
+	test('shows the pinned local avatar image', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const avatar = page.locator('.sticky .profile-sidebar img[alt="Jess Sullivan"]');
 		await expect(avatar).toBeVisible();
 		const src = await avatar.getAttribute('src');
-		expect(src).toContain('github.com/Jesssullivan.png');
+		expect(src).toBe('/images/profile-avatar.jpg');
 	});
 
 	test('shows name and codecogs formula on desktop', async ({ page }) => {
