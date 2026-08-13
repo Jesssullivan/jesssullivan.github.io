@@ -21,6 +21,52 @@ These rules apply before the writing-style guidance below.
 - Blog and Pulse broker streams are display/projection contracts only. Do not treat them as public Fediverse delivery, and do not weaken broker hydration tests just because prerendered fallback still paints.
 - `static/cv` is synced from the private `spear_resumes` repository. Preserve that boundary and use the existing sync/test path instead of hand-editing generated resume artifacts.
 
+## Cross-Repo Delivery Ownership
+
+The current delivery and authority surfaces are enumerated against canonical CI
+and the v2 workflow set. Credentialed lanes fail closed on their own scoped
+contracts, not one universal trigger shape: production and rollback bind an
+exact current-`main` SHA; shadow publication binds an exact live-PR SHA; cache
+purge binds one canonical non-root production path and carries no source SHA;
+private-CV verification accepts an exact current-`main` push or typed dispatch
+and has no kill switch; production health may use ntfy credentials for failure
+alerts or an operator-requested smoke, but cannot mutate serving state. The
+publication, rollback, shadow-publish, and purge switches default false and are
+re-read immediately before their credentialed mutation.
+
+| Surface | Workflow | Trigger class | Kill switch |
+|---|---|---|---|
+| CI proof (check/test/e2e authority) | `.github/workflows/ci.yml` | push to `main`/`dev` + same-repo PR | none; read-only proof consumed by the exact-source production and rollback lanes |
+| Production publish (Cloudflare Pages) | `.github/workflows/cloudflare-pages-production-v2.yml` | dispatch-gated (`cloudflare-pages-production-v2`, `deploy=true`, exact current-`main` SHA proven by canonical CI + private-CV authority); its `workflow_run` lane from CI is build-only | repo var `CLOUDFLARE_PAGES_PRODUCTION_ENABLED` (default false), revalidated immediately before publish |
+| Exact-PR parity build | `.github/workflows/cloudflare-pages-parity-v2.yml` | dispatch-gated (`cloudflare-pages-parity-v2`), build-only against an exact open same-repo PR head | none needed; `permissions: {}`, secretless, no deploy step |
+| Cache purge (one production URL) | `.github/workflows/cloudflare-cache-purge-v2.yml` | dispatch-gated (`cloudflare-cache-purge-v2`), one canonical non-root path per run; path-only, with no source SHA | repo var `CLOUDFLARE_CACHE_PURGE_ENABLED`, revalidated immediately before credential use |
+| Rollback (GitHub Pages) | `.github/workflows/github-pages-rollback-v2.yml` | dispatch-gated (`github-pages-rollback-v2` + `confirm_rollback=true`, exact current-`main` SHA with successful canonical CI) | repo var `BLOG_GITHUB_PAGES_ROLLBACK_ENABLED` (default false) + `github-pages` environment, revalidated at publish time |
+| Shadow source build | `.github/workflows/shadow-source-build-v2.yml` | dispatch-gated (`shadow-source-build-v2`), unprivileged build of an exact open same-repo PR head | none needed; `permissions: {}`, cannot publish packages, mint App tokens, or dispatch infrastructure |
+| Shadow source publish (GHCR) | `.github/workflows/shadow-source-publish-v2.yml` | `workflow_run` consumer of `Build shadow source v2`; runs default-branch code only and independently revalidates provenance, never executing PR code | repo var `BLOG_SHADOW_SOURCE_PUBLISH_ENABLED` (default false), revalidated at package-write time |
+| Private CV consistency | `.github/workflows/private-cv-authority-v2.yml` | exact current-`main` push + typed dispatch (`private-cv-verify-v2`) | none; credentialed verify-only lane that never commits or publishes, and is itself a required proof for production publish |
+| Production health monitor | `.github/workflows/production-health-v2.yml` | cron health check every 30 minutes (ntfy alert on failure) + typed dispatch (`production-health-v2`, optional ntfy smoke) | none; notification credentials carry no serving-state mutation authority, and a red scheduled run is production evidence |
+
+- This repo owns blog source, the static build, shadow source-image
+  publication to `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`,
+  and the production Cloudflare Pages contract for the
+  `transscendsurvival-org` project.
+- `Jesssullivan/jesssullivan-infra` owns the private tailnet acceptance
+  environment. Shadow apply is unavailable from this repo in the v2 world: no
+  v2 workflow carries a GitHub App key, private sender, or cross-repo dispatch
+  call, and publishing a shadow source digest transfers no apply authority.
+- `tinyland-inc/GloriousFlywheel` supplies runner, Nix/toolchain, Bazel
+  cache/RBE, and validation substrate. Passing GF checks or running on GF
+  runners transfers no application deployment ownership.
+- `tinyland-inc/tinyland.dev` owns the mothership content, broker, and
+  federation contracts this spoke consumes.
+- The `substrate-boundary` job in `.github/workflows/ci.yml` enforces that
+  code surfaces reach the blahaj substrate only through the named,
+  provenance-carrying interfaces in
+  `config/substrate-boundary-allowlist.json`.
+- Never infer application ownership from the cluster hosting a pod, the repo
+  escrowing a credential, or the runner executing a build. Ownership follows
+  this register.
+
 ## Build, Test, And Deploy
 
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
