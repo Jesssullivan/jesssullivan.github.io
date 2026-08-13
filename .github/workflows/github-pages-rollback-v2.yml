@@ -1,0 +1,186 @@
+name: Publish GitHub Pages rollback v2
+
+# GitHub Pages is deprecated as a continuous-delivery target. This workflow is
+# an explicit operator rollback only: exact current-main SHA, canonical CI,
+# confirmation payload, repository kill switch, and a last-moment live recheck.
+
+on:
+  repository_dispatch:
+    types: [github-pages-rollback-v2]
+
+permissions: {}
+
+concurrency:
+  group: github-pages-rollback
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  PUBLIC_DEPLOY_TIER: production
+
+jobs:
+  resolve:
+    name: Verify rollback authority
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      ci_url: ${{ steps.source.outputs.ci_url }}
+    steps:
+      - name: Resolve exact current-main rollback source
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUEST_SOURCE_SHA: ${{ github.event.client_payload.source_sha }}
+          CONFIRM_ROLLBACK: ${{ github.event.client_payload.confirm_rollback }}
+          ROLLBACK_ENABLED: ${{ vars.BLOG_GITHUB_PAGES_ROLLBACK_ENABLED || 'false' }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            if (context.eventName !== "repository_dispatch" || context.payload.action !== "github-pages-rollback-v2") {
+              throw new Error("GitHub Pages rollback requires the exact repository dispatch type.");
+            }
+            if (process.env.CONFIRM_ROLLBACK !== "true" || process.env.ROLLBACK_ENABLED !== "true") {
+              throw new Error("GitHub Pages rollback requires confirmation and BLOG_GITHUB_PAGES_ROLLBACK_ENABLED=true.");
+            }
+            const sourceSha = (process.env.REQUEST_SOURCE_SHA || "").trim().toLowerCase();
+            if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+              throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+            }
+            const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+            if (mainRef.data.object.sha !== sourceSha) {
+              throw new Error(`Requested ${sourceSha} is not current main ${mainRef.data.object.sha}.`);
+            }
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner,
+              repo,
+              workflow_id: "ci.yml",
+              branch: "main",
+              event: "push",
+              status: "completed",
+              per_page: 100,
+            });
+            const ciRun = runs.find((run) =>
+              run.head_sha === sourceSha &&
+              run.head_branch === "main" &&
+              run.event === "push" &&
+              run.conclusion === "success" &&
+              run.head_repository?.full_name === `${owner}/${repo}`
+            );
+            if (!ciRun) throw new Error(`No successful canonical CI push run found for ${sourceSha}.`);
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              owner,
+              repo,
+              run_id: ciRun.id,
+              filter: "latest",
+              per_page: 100,
+            });
+            for (const requiredName of ["build-and-test", "bazel-remote-gates"]) {
+              const job = jobs.find((candidate) => candidate.name === requiredName);
+              if (!job || job.conclusion !== "success") {
+                throw new Error(`Required CI job ${requiredName} was missing or not successful.`);
+              }
+            }
+            const cvRuns = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner,
+              repo,
+              workflow_id: "private-cv-authority-v2.yml",
+              branch: "main",
+              event: "push",
+              status: "completed",
+              per_page: 100,
+            });
+            const cvRun = cvRuns.find((run) =>
+              run.head_sha === sourceSha &&
+              run.head_branch === "main" &&
+              run.event === "push" &&
+              run.conclusion === "success" &&
+              run.head_repository?.full_name === `${owner}/${repo}`
+            );
+            if (!cvRun) throw new Error(`No successful private CV authority run found for ${sourceSha}.`);
+            core.setOutput("source_sha", sourceSha);
+            core.setOutput("ci_url", ciRun.html_url);
+
+  build:
+    name: Build exact rollback artifact
+    needs: resolve
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    env:
+      PUBLIC_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/validate-deploy-tier-output.mjs production
+      - run: npx tsx scripts/validate-redirects.mts
+      - run: npx tsx scripts/validate-directory-index-aliases.mts
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: build
+          retention-days: 1
+
+  deploy:
+    name: Publish explicit rollback
+    needs: [resolve, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Revalidate rollback kill switch and current main
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let enabled = false;
+            try {
+              const response = await github.rest.actions.getRepoVariable({
+                owner,
+                repo,
+                name: "BLOG_GITHUB_PAGES_ROLLBACK_ENABLED",
+              });
+              enabled = response.data.value === "true";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) throw new Error("BLOG_GITHUB_PAGES_ROLLBACK_ENABLED is not true at publish time.");
+            const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+            if (mainRef.data.object.sha !== process.env.EXPECTED_SHA) {
+              throw new Error(`Rollback source became stale; current main is ${mainRef.data.object.sha}.`);
+            }
+      - uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
+        id: deployment
+
+      - name: Rollback publication summary
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          CI_URL: ${{ needs.resolve.outputs.ci_url }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          {
+            echo "## Explicit GitHub Pages rollback"
+            echo ""
+            echo "- Commit: \`${SOURCE_SHA}\`"
+            echo "- Canonical CI: ${CI_URL}"
+            echo "- Published URL: ${PAGE_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"

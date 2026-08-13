@@ -43,6 +43,7 @@ for (const command of [
 	['vite', 'build'],
 	['tsx', 'scripts/generate-redirects.mts'],
 	['tsx', 'scripts/generate-directory-index-aliases.mts'],
+	['node', 'scripts/validate-deploy-tier-output.mjs', 'production'],
 	['tsx', 'scripts/validate-redirects.mts'],
 	['tsx', 'scripts/validate-directory-index-aliases.mts'],
 	['tsx', 'scripts/validate-frontmatter.mts'],
@@ -306,8 +307,10 @@ function findAspectPackage(buildNodeModules, packageName) {
 }
 
 function run(binaryName, args) {
-	const binary = resolveBinEntrypoint(binaryName);
-	const result = spawnSync(process.execPath, [binary, ...args], {
+	// 'node' is the runtime itself, not an npm binary: the first arg is the
+	// script entrypoint, so nothing needs resolving from node_modules.
+	const invocation = binaryName === 'node' ? args : [resolveBinEntrypoint(binaryName), ...args];
+	const result = spawnSync(process.execPath, invocation, {
 		cwd: buildRoot,
 		env: process.env,
 		stdio: 'inherit',

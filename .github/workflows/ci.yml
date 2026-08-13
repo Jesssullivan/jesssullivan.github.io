@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Validate substrate boundary
         run: |
@@ -39,6 +39,9 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: read
+      # A PR gets only a signed, tenant-scoped GF cache-read profile. The GF
+      # exchange policy denies PR cache-write and executor grants for this
+      # shared-cache-backed consumer even if PR code requests an upgrade.
       id-token: write
     runs-on: tinyland-dind
     # Shared-cache actions execute locally inside a fleet-managed ARC pod.
@@ -50,39 +53,32 @@ jobs:
       GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
       GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
       GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
-      TECTONIC_CACHE_DIR: /tmp/tectonic-cache-v33
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
       BAZEL_REMOTE_EXECUTOR: ''
       BAZEL_REMOTE_EXECUTOR_CACHE: ''
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: '.nvmrc'
           cache: npm
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Cache Tectonic resources
-        uses: actions/cache@v5
-        with:
-          path: /tmp/tectonic-cache-v33
-          key: tectonic-v33-${{ runner.os }}-${{ hashFiles('MODULE.bazel') }}
-          restore-keys: tectonic-v33-${{ runner.os }}-
 
       - name: Provision package-lock-pinned Chromium
         run: |
           set -euo pipefail
           # Install the revision pinned by @playwright/test outside Bazel,
-          # before token minting and SSH setup, then pass its absolute path
+          # before token minting, then pass its absolute path
           # into browser tests.
           npm ci --ignore-scripts
           npx --no-install playwright install --with-deps chromium
@@ -112,25 +108,8 @@ jobs:
       - name: Validate GloriousFlywheel cache attachment
         run: bash scripts/cache-attachment-contract.sh --strict
 
-      - name: Set up SSH for spear-resumes
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.SPEAR_RESUMES_DEPLOY_KEY }}
-
-      - name: Trust GitHub SSH host keys
-        run: |
-          set -euo pipefail
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          {
-            echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
-            echo 'github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg='
-            echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk='
-          } > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
       - name: Cache Bazel
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: |
             ~/.cache/bazel
@@ -152,23 +131,12 @@ jobs:
             sudo mv "${tmp}" /usr/local/bin/bazel
           fi
 
-      - name: Refresh cache token for Tectonic warm
-        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
-
-      - name: Warm Tectonic resources serially
-        run: |
-          bash scripts/bazel-cache-backed.sh build --jobs=1 \
-            @spear_resumes//generic:resume \
-            @spear_resumes//generic:precis \
-            @spear_resumes//generic:cv
-          bash scripts/bazel-cache-backed.sh shutdown
-
       - name: Refresh cache token for remote check
         run: bash scripts/mint-gf-reapi-token-from-exchange.sh
 
       - name: Remote check
         run: |
-          npm run remote:check
+          npm run remote:check:public
           bash scripts/bazel-cache-backed.sh shutdown
 
       - name: Refresh cache token for remote test
@@ -176,7 +144,7 @@ jobs:
 
       - name: Remote test
         run: |
-          npm run remote:test
+          npm run remote:test:public
           bash scripts/bazel-cache-backed.sh shutdown
 
       - name: Refresh cache token for remote e2e
@@ -184,16 +152,17 @@ jobs:
 
       - name: Remote e2e
         run: |
-          npm run remote:e2e
+          npm run remote:e2e:public
           bash scripts/bazel-cache-backed.sh shutdown
 
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install gitleaks
         env:
@@ -211,7 +180,7 @@ jobs:
       - name: Detect secrets with gitleaks
         run: gitleaks detect --source . --no-banner --redact --verbose
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: '.nvmrc'
           cache: 'npm'
@@ -222,7 +191,7 @@ jobs:
         run: npm run security:audit:static
 
       - name: Restore SvelteKit build cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: .svelte-kit
           key: sveltekit-${{ runner.os }}-${{ hashFiles('svelte.config.js', 'vite.config.ts', 'src/**') }}
@@ -267,7 +236,7 @@ jobs:
 
       - name: Upload Lighthouse results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: lighthouse-report
           path: .lighthouseci/
@@ -277,8 +246,10 @@ jobs:
       - name: CI Summary
         if: always()
         run: |
-          echo "## CI Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## CI Results"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
           node -e "
             const fs = require('fs');
             const path = require('path');
@@ -327,4 +298,4 @@ jobs:
             } catch {}
 
             console.log(lines.join('\n'));
-          " >> $GITHUB_STEP_SUMMARY
+          " >> "$GITHUB_STEP_SUMMARY"

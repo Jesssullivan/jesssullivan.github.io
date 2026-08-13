@@ -4,7 +4,9 @@ Date: 2026-05-03
 
 Linear: `TIN-930` - Add hosted CI and shadow route for durable Pulse client surface.
 
-Status: stacked planning/QA contract on top of `TIN-926` / PR #103. This document describes the proof path for the durable client package while `/pulse/client` remains the noindex blog-hosted review surface.
+Status: historical planning/QA contract on top of `TIN-926` / PR #103, updated
+2026-08-12 for current shadow authority. `/pulse/client` remains a noindex
+blog-hosted surface, but no active v2 workflow deploys it to the tailnet route.
 
 Related:
 
@@ -15,15 +17,20 @@ Related:
 
 ## Decision
 
-Use the existing blog CI and tailnet shadow lane to prove the split client package until the durable Pulse client becomes a separately deployed app.
+Use hosted blog CI to prove the split client package until the durable Pulse
+client becomes a separately deployed app. The previous tailnet shadow apply
+lane is retired; the held route is not current branch-demo evidence.
 
 For the current M2 slice:
 
 - `@blog/pulse-client` owns reusable client-side draft, outbox, identity, media-intent, and storage adapters.
 - `/pulse/client` remains the noindex browser smoke surface for those adapters.
 - GitHub Actions owns browser automation. Do not run Playwright locally.
-- The shared blog shadow route is the tailnet review route for branch demos.
-- `Jesssullivan/jesssullivan-infra` remains the owner of private mirroring, RustFS-backed OpenTofu apply, cluster credentials, and tailnet route exposure.
+- The shared blog shadow route currently serves an older held artifact and is
+  not a branch-demo lane.
+- `Jesssullivan/jesssullivan-infra` remains the owner of private mirroring,
+  RustFS-backed OpenTofu apply, cluster credentials, and tailnet route exposure;
+  no v2 receiver/apply workflow exists today.
 
 When the durable Pulse client grows into a separate app, that app should get its own CI/shadow lane rather than hiding inside the static blog deploy forever.
 
@@ -66,40 +73,41 @@ https://jesssullivan-blog-shadow.taila4c78d.ts.net
 
 The blog repo publishes the source artifact. The private infra repo owns deploy authority.
 
-Automatic flow:
+Current source-evidence flow:
 
-1. A same-repo PR against `main` is marked ready for review or updated while ready.
-2. `.github/workflows/shadow-preview.yml` resolves the PR branch and SHA.
-3. The workflow builds `Dockerfile.shadow` on `tinyland-dind` by default.
-4. The workflow pushes the source image to `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`.
-5. The workflow dispatches `Jesssullivan/jesssullivan-infra`.
-6. Infra mirrors the artifact into the private operator package and applies the RustFS-backed stack.
+1. An operator emits `shadow-source-build-v2` with an open same-repo PR number
+   and its exact current head SHA.
+2. `.github/workflows/shadow-source-build-v2.yml` resolves the exact open PR
+   head and builds without publish authority; the default-branch
+   `.github/workflows/shadow-source-publish-v2.yml` independently revalidates it
+   before any package write.
+3. The workflow builds `Dockerfile.shadow` on hosted `ubuntu-latest` only.
+4. When `BLOG_SHADOW_SOURCE_PUBLISH_ENABLED=true`, the trusted consumer may
+   publish the exact-SHA source image after a last-moment PR/gate recheck.
+5. Apply is unavailable. The public workflow has no apply input, App key,
+   private sender, or dispatch call.
 
-Draft PRs intentionally do not deploy automatically. A draft PR should show `Resolve preview target` passing and `Build source image` skipped. To publish a draft branch anyway, use the workflow's manual dispatch input with the branch or SHA and keep the result tied to the PR review note.
-
-Manual dispatch can override the public source-image runner to
-`ubuntu-latest` when the ARC source-image lane is unavailable. That is a source
-artifact fallback only; it does not replace the private infra mirror/apply/smoke
-proof.
-
-Only one branch owns the shared shadow route at a time. The newest active
-shadow preview wins.
+Draft PRs may produce build-only evidence. There are no automatic preview
+builds and no runner override.
 
 ## Source Artifact Shape
 
-For PR-triggered deploys, the source image tag should look like:
+For exact repository-dispatch source builds, the source image tag is:
 
 ```text
-shadow-pr-{pr_number}-{branch_slug}-{sha12}-amd64
+shadow-pr-{pr_number}-{sha12}-amd64
 ```
 
 Example:
 
 ```text
-ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet:shadow-pr-103-codex-tin-926-durable-pulse-client-c11eea01b865-amd64
+ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet:shadow-pr-103-c11eea01b865-amd64
 ```
 
-This source artifact is not the final private pull target. It is the public repo's CI-produced input that infra mirrors and applies. The public repo must not receive cluster credentials, RustFS credentials, or private GHCR operator credentials.
+This source artifact is not a deploy receipt. A future coordinated private
+receiver may mirror and apply it only after exact run correlation exists. The
+public repo must not receive cluster credentials, RustFS credentials, or private
+GHCR operator credentials.
 
 ## Tailnet Smoke
 
@@ -142,8 +150,8 @@ A Pulse client branch can be treated as ready for client-development review when
 
 - package tests and typecheck pass in hosted CI
 - hosted PR browser smoke covers `/pulse/client`
-- shadow preview has deployed the branch or a manual dispatch has recorded the exact SHA
-- tailnet smoke passes for `/`, `/pulse`, `/pulse/lab`, `/pulse/client`, and the public snapshot
+- typed source evidence records the exact PR head SHA
+- tailnet deployment/smoke remains a separate blocked requirement until the coordinated private v2 receiver exists
 - no private credentials or object-storage state are introduced into the static blog repo
 - no local Playwright was run
 

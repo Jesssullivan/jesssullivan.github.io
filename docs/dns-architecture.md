@@ -3,8 +3,8 @@
 Current DNS state as of 2026-06-23. The domain (double-s
 "tranSScend" — this is the correct spelling, not a typo) is registered at
 Cloudflare Registrar, delegated to Cloudflare nameservers at the `.org` parent,
-and served by Cloudflare Pages at the apex and `www`. GitHub Pages remains the
-rollback publisher.
+and served by Cloudflare Pages at the apex and `www`. GitHub Pages remains a
+disabled-by-default, explicitly manual rollback publisher.
 
 ## Current State
 
@@ -13,7 +13,7 @@ rollback publisher.
 | Registrar | Cloudflare Registrar. Current parent NS = `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. |
 | Current DNS authority | Cloudflare zone `602400322c1ecac4983542c76af90115`, nameservers `izabella.ns.cloudflare.com` + `sullivan.ns.cloudflare.com`. This is the public authority. |
 | Records | apex `CNAME` → `transscendsurvival-org.pages.dev` (proxied / orange-cloud); `www` `CNAME` → `transscendsurvival-org.pages.dev` (proxied / orange-cloud). |
-| Serving | Cloudflare Pages at the apex and `www`. GitHub Pages remains the rollback publisher; `static/CNAME` = `transscendsurvival.org` stays in place for fallback. |
+| Serving | Cloudflare Pages at the apex and `www`. GitHub Pages remains an explicit manual rollback target; `static/CNAME` = `transscendsurvival.org` stays in place for fallback. |
 | Cloudflare Pages | Production: the `transscendsurvival.org` and `www.transscendsurvival.org` custom domains on project `transscendsurvival-org` are ACTIVE + serving. Shadow: `tss.tinyland.dev` is served by the dedicated Pages project `tss-shadow` (custom domain moved off `transscendsurvival-org` 2026-07-07 — Pages custom domains always serve a project's *production* deployment, so the shadow build is `tss-shadow`'s production); `tss.ephemera.tinyland.dev` remains on `transscendsurvival-org`. |
 | DNSSEC | Active. Cloudflare Registrar publishes the parent DS; Cloudflare signs the zone. |
 | Cert | Cloudflare Pages-managed certs for apex and `www`. GitHub Pages-managed cert remains relevant only for rollback. |
@@ -47,8 +47,8 @@ flowchart LR
         Pages["project transscendsurvival-org<br/>apex + www custom domains active<br/>CF-managed certs"]
     end
 
-    subgraph GHP["GitHub Pages — rollback"]
-        GH["static/CNAME = transscendsurvival.org"]
+    subgraph GHP["GitHub Pages — manual rollback"]
+        GH["exact-main, confirmed, gate-controlled publish<br/>static/CNAME = transscendsurvival.org"]
     end
 
     Reg --> NSdeleg
@@ -135,7 +135,7 @@ flowchart TB
         a_aaaa["AAAA query → NOERROR"]
         a_soa["SOA query → NOERROR"]
         a_tcp["TCP/53 → answers"]
-        a_out["resolves → GitHub Pages 200"]
+        a_out["resolves → Cloudflare Pages 200"]
         a_c --> a_r --> a_cf
         a_cf --> a_aaaa
         a_cf --> a_soa
@@ -148,19 +148,21 @@ flowchart TB
     Before -. "prepare and verify Cloudflare authority, then change registrar NS" .-> After
 ```
 
-The root cause lived purely in the DNS-authority plane: GitHub Pages transport and
-the application code were never implicated. Cloudflare authority removes the
+The root cause lived purely in the DNS-authority plane: the serving transport and
+application code were never implicated. Cloudflare authority removes the
 failing DreamHost DNS platform from the target resolution path.
 
 ## 4. Cloudflare Pages Serving (cut 2026-06-23) And Safe-Cut Procedure
 
 The Cloudflare Pages project `transscendsurvival-org` serves the production apex
 and `www` as of 2026-06-23. It builds via
-`.github/workflows/cloudflare-pages-shadow.yml`; the shadow domain
-`tss.ephemera.tinyland.dev` continues to build there. `tss.tinyland.dev` moved to
-the dedicated `tss-shadow` Pages project on 2026-07-07 and goes stale on
-shadow-branch pushes until redeployed (`wrangler pages deploy build
---project-name=tss-shadow --branch=main` with the lab admin CF token).
+`.github/workflows/cloudflare-pages-production-v2.yml` from the exact successful
+canonical-CI `main` SHA. `tss.ephemera.tinyland.dev` remains attached to that
+production project. `tss.tinyland.dev` moved to the dedicated `tss-shadow` Pages
+project on 2026-07-07; the production workflow does not update it. A TSS direct
+upload must compile with `PUBLIC_DEPLOY_TIER=shadow` and an exact
+`PUBLIC_SOURCE_SHA`, then use `wrangler pages deploy build
+--project-name=tss-shadow --branch=main` with the lab admin CF token.
 
 The cut followed the safe order below, which stays load-bearing for any future
 rollback-and-recut. The hard rule: **NEVER flip a production hostname to the
@@ -222,7 +224,7 @@ sequenceDiagram
 
 Monitoring is host-agnostic and already shipped. It lives in
 `scripts/check-production-health.mts`,
-`.github/workflows/production-health.yml`, and the `workers/dns-guard/` Worker.
+`.github/workflows/production-health-v2.yml`, and the `workers/dns-guard/` Worker.
 It asserts non-empty resolution plus `AAAA`/`SOA`/`TCP` across the current
 delegated Cloudflare nameservers and public resolvers, with no hardcoded
 public-resolver IP expectations. It also checks apex and `www` serving

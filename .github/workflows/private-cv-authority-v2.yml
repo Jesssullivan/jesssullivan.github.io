@@ -1,0 +1,135 @@
+name: Verify private CV authority v2
+
+# Default-branch-owned, credentialed verification of the checked-in PDFs
+# against the private spear_resumes source. It never executes PR code and
+# never commits or publishes output.
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [private-cv-verify-v2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: private-cv-authority-${{ github.event_name }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Resolve exact current-main CV source
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+    steps:
+      - name: Resolve default-owned exact source
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUESTED_SHA: ${{ github.event.client_payload.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let sourceSha;
+            if (context.eventName === "push") {
+              if (context.ref !== "refs/heads/main" || !/^[0-9a-f]{40}$/.test(context.sha)) {
+                throw new Error("Automatic private CV authority requires an exact main push.");
+              }
+              sourceSha = context.sha;
+            } else if (context.eventName === "repository_dispatch") {
+              if (context.payload.action !== "private-cv-verify-v2") {
+                throw new Error(`Unsupported repository_dispatch action ${context.payload.action}.`);
+              }
+              sourceSha = (process.env.REQUESTED_SHA || "").trim().toLowerCase();
+              if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+                throw new Error("client_payload.source_sha must be an exact 40-character lowercase commit SHA.");
+              }
+            } else {
+              throw new Error(`Unsupported event ${context.eventName}.`);
+            }
+            const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+            if (mainRef.data.object.sha !== sourceSha) {
+              throw new Error(`Requested ${sourceSha} is not current main ${mainRef.data.object.sha}.`);
+            }
+            core.setOutput("source_sha", sourceSha);
+
+  verify:
+    name: Verify private CV PDFs
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Verify exact checkout
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: test "$(git rev-parse HEAD)" = "${EXPECTED_SHA}"
+
+      - name: Set up SSH for private spear-resumes source
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SPEAR_RESUMES_DEPLOY_KEY }}
+
+      - name: Trust pinned GitHub SSH host keys
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          {
+            echo 'github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl'
+            echo 'github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg='
+          } > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Install pinned Bazelisk
+        env:
+          BAZELISK_VERSION: 1.27.0
+          BAZELISK_SHA256: e1508323f347ad1465a887bc5d2bfb91cffc232d11e8e997b623227c6b32fb76
+        run: |
+          set -euo pipefail
+          asset="bazelisk-linux-amd64"
+          curl --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 10 \
+            -fsSL "https://github.com/bazelbuild/bazelisk/releases/download/v${BAZELISK_VERSION}/${asset}" \
+            -o "${RUNNER_TEMP}/${asset}"
+          echo "${BAZELISK_SHA256}  ${RUNNER_TEMP}/${asset}" | sha256sum -c -
+          sudo install -m 0755 "${RUNNER_TEMP}/${asset}" /usr/local/bin/bazel
+
+      - name: Revalidate current main immediately before private fetch
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+            if (mainRef.data.object.sha !== process.env.EXPECTED_SHA) {
+              throw new Error(`Private CV source became stale; current main is ${mainRef.data.object.sha}.`);
+            }
+
+      - name: Verify checked-in PDFs against private source
+        run: bazel test --config=ci //static/cv:pdfs_synced_test
+
+      - name: Authority summary
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          {
+            echo "## Private CV authority"
+            echo ""
+            echo "- Commit: \`${SOURCE_SHA}\`"
+            echo "- Test: \`//static/cv:pdfs_synced_test\`"
+            echo "- Mutation/publication authority: \`none\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record exact-SHA success marker
+        run: echo "private CV consistency verified for ${{ needs.resolve.outputs.source_sha }}"

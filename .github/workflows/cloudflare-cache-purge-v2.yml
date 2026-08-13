@@ -1,18 +1,14 @@
-name: Cloudflare Cache Purge
+name: Cloudflare Cache Purge v2
 
 on:
-  workflow_dispatch:
-    inputs:
-      path:
-        description: 'One transscendsurvival.org path to evict (for example /blog/post-slug)'
-        required: true
-        type: string
+  repository_dispatch:
+    types: [cloudflare-cache-purge-v2]
 
 permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-cache-purge-${{ inputs.path }}
+  group: cloudflare-cache-purge-${{ github.event.client_payload.path }}
   cancel-in-progress: false
 
 jobs:
@@ -20,13 +16,22 @@ jobs:
     name: Purge one production URL
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Validate exact production path
         id: target
         env:
-          TARGET_PATH: ${{ inputs.path }}
+          REQUEST_TYPE: ${{ github.event.action }}
+          TARGET_PATH: ${{ github.event.client_payload.path }}
         run: |
           set -euo pipefail
+
+          if [[ "$REQUEST_TYPE" != cloudflare-cache-purge-v2 ]]; then
+            echo '::error::exact cloudflare-cache-purge-v2 repository dispatch type is required'
+            exit 2
+          fi
 
           if [[ -z "$TARGET_PATH" || "$TARGET_PATH" != /* || "$TARGET_PATH" == / ]]; then
             echo '::error::path must be one non-root absolute path'
@@ -48,6 +53,27 @@ jobs:
           target_url="https://transscendsurvival.org${TARGET_PATH}"
           printf 'url=%s\n' "$target_url" >> "$GITHUB_OUTPUT"
           printf "Validated one-URL purge target: \`%s\`\n" "$target_url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Revalidate cache purge kill switch immediately before credential use
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            if (context.eventName !== "repository_dispatch" || context.payload.action !== "cloudflare-cache-purge-v2") {
+              throw new Error("Exact cloudflare-cache-purge-v2 repository dispatch type is required.");
+            }
+            let enabled = false;
+            try {
+              const response = await github.rest.actions.getRepoVariable({
+                owner,
+                repo,
+                name: "CLOUDFLARE_CACHE_PURGE_ENABLED",
+              });
+              enabled = response.data.value === "true";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) throw new Error("CLOUDFLARE_CACHE_PURGE_ENABLED is not true at purge time.");
 
       - name: Purge exact URL
         env:

@@ -1,0 +1,107 @@
+name: Build Cloudflare Pages parity v2
+
+# Default-branch-owned repository dispatch. It checks out an exact open same-repo PR
+# head for build parity, but has no deployment permissions or secret references.
+
+on:
+  repository_dispatch:
+    types: [cloudflare-pages-parity-v2]
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  PUBLIC_DEPLOY_TIER: production
+
+jobs:
+  resolve:
+    name: Resolve exact PR parity source
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      pr_number: ${{ steps.source.outputs.pr_number }}
+    steps:
+      - name: Resolve exact open same-repo PR
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUEST_PR_NUMBER: ${{ github.event.client_payload.source_pr }}
+          REQUEST_SOURCE_SHA: ${{ github.event.client_payload.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            if (context.eventName !== "repository_dispatch" || context.payload.action !== "cloudflare-pages-parity-v2") {
+              throw new Error("Cloudflare parity requires the exact repository dispatch type.");
+            }
+            if (!/^[1-9][0-9]*$/.test(process.env.REQUEST_PR_NUMBER || "")) {
+              throw new Error("client_payload.source_pr must be a positive integer.");
+            }
+            const sourceSha = (process.env.REQUEST_SOURCE_SHA || "").trim().toLowerCase();
+            if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+              throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+            }
+            const pr = (await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: Number(process.env.REQUEST_PR_NUMBER),
+            })).data;
+            if (
+              pr.state !== "open" ||
+              pr.base.ref !== "main" ||
+              pr.head.repo?.full_name !== `${owner}/${repo}` ||
+              pr.head.sha !== sourceSha
+            ) {
+              throw new Error(`PR #${pr.number} is not an open same-repo main PR at exact head ${sourceSha}.`);
+            }
+            core.setOutput("source_sha", sourceSha);
+            core.setOutput("pr_number", String(pr.number));
+
+  build:
+    name: Build exact Cloudflare parity artifact
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      PUBLIC_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Verify exact checked-out SHA
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "${actual_sha}" = "${EXPECTED_SHA}"
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/validate-deploy-tier-output.mjs production
+      - run: npx tsx scripts/validate-redirects.mts
+      - run: npx tsx scripts/validate-directory-index-aliases.mts
+
+      - name: Parity evidence
+        env:
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          {
+            echo "## Cloudflare Pages parity build"
+            echo ""
+            echo "- PR: \`${PR_NUMBER}\`"
+            echo "- Commit: \`${SOURCE_SHA}\`"
+            echo "- Deployment authority: \`none\`"
+          } >> "$GITHUB_STEP_SUMMARY"

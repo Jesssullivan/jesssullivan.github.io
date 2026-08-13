@@ -1,0 +1,179 @@
+name: Build shadow source v2
+
+# This workflow is intentionally unprivileged. It may execute a same-repo PR's
+# Dockerfile, but it cannot publish packages, mint an App token, or dispatch
+# infrastructure. The trusted workflow_run consumer owns those authorities.
+
+on:
+  repository_dispatch:
+    types: [shadow-source-build-v2]
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  SOURCE_RUNNER: ${{ github.event.client_payload.source_runner || 'ubuntu-latest' }}
+
+jobs:
+  resolve:
+    name: Resolve exact PR source
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      build: ${{ steps.target.outputs.build }}
+      source_runner: ${{ steps.target.outputs.source_runner }}
+      branch: ${{ steps.target.outputs.branch }}
+      sha: ${{ steps.target.outputs.sha }}
+      pr_number: ${{ steps.target.outputs.pr_number }}
+      image_tag: ${{ steps.target.outputs.image_tag }}
+    steps:
+      - name: Resolve exact open same-repo PR
+        id: target
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUEST_PR_NUMBER: ${{ github.event.client_payload.source_pr }}
+          REQUEST_SOURCE_SHA: ${{ github.event.client_payload.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const expectedRepository = `${owner}/${repo}`;
+            const sourceRunner = process.env.SOURCE_RUNNER || "ubuntu-latest";
+            const allowedSourceRunners = new Set(["ubuntu-latest"]);
+            if (!allowedSourceRunners.has(sourceRunner)) {
+              throw new Error(`Unsupported source runner ${sourceRunner}. Allowed: ubuntu-latest.`);
+            }
+
+            let build = false;
+            let branch = "";
+            let sha = "";
+            let prNumber = "";
+
+            if (context.eventName === "repository_dispatch" && context.payload.action === "shadow-source-build-v2") {
+              if (!/^[1-9][0-9]*$/.test(process.env.REQUEST_PR_NUMBER || "")) {
+                throw new Error("client_payload.source_pr must be a positive integer.");
+              }
+              sha = (process.env.REQUEST_SOURCE_SHA || "").trim().toLowerCase();
+              if (!/^[0-9a-f]{40}$/.test(sha)) {
+                throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+              }
+
+              const pr = (await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: Number(process.env.REQUEST_PR_NUMBER),
+              })).data;
+              if (
+                pr.state !== "open" ||
+                pr.base.ref !== "main" ||
+                pr.head.repo?.full_name !== expectedRepository ||
+                pr.head.sha !== sha
+              ) {
+                throw new Error(`PR #${pr.number} is not an open same-repo main PR at exact head ${sha}.`);
+              }
+
+              build = true;
+              branch = pr.head.ref;
+              prNumber = String(pr.number);
+            } else {
+              throw new Error(`Unsupported event ${context.eventName}.`);
+            }
+
+            const imageTag = build ? `shadow-pr-${prNumber}-${sha.slice(0, 12)}-amd64` : "";
+            core.setOutput("build", build ? "true" : "false");
+            core.setOutput("source_runner", sourceRunner);
+            core.setOutput("branch", branch);
+            core.setOutput("sha", sha);
+            core.setOutput("pr_number", prNumber);
+            core.setOutput("image_tag", imageTag);
+
+  build:
+    name: Build unprivileged OCI archive
+    needs: resolve
+    if: needs.resolve.outputs.build == 'true'
+    runs-on: ${{ needs.resolve.outputs.source_runner }}
+    permissions:
+      contents: read
+    timeout-minutes: 25
+    concurrency:
+      group: blog-shadow-source-${{ needs.resolve.outputs.pr_number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+
+      - name: Verify exact checked-out SHA
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "${actual_sha}" = "${EXPECTED_SHA}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Build source image without registry authority
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          file: Dockerfile.shadow
+          push: false
+          platforms: linux/amd64
+          tags: shadow-source:${{ needs.resolve.outputs.image_tag }}
+          outputs: type=docker,dest=${{ runner.temp }}/shadow-source.tar
+          build-args: |
+            PUBLIC_DEPLOY_TIER=shadow
+            PUBLIC_SOURCE_SHA=${{ needs.resolve.outputs.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ needs.resolve.outputs.sha }}
+          provenance: false
+
+      - name: Record immutable build metadata
+        env:
+          ARCHIVE_PATH: ${{ runner.temp }}/shadow-source.tar
+          SOURCE_BRANCH: ${{ needs.resolve.outputs.branch }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          archive_digest="sha256:$(sha256sum "${ARCHIVE_PATH}" | awk '{print $1}')"
+          export ARCHIVE_DIGEST="${archive_digest}"
+          node <<'NODE'
+          const { writeFileSync } = require('node:fs');
+          const metadata = {
+            schemaVersion: 2,
+            repository: process.env.GITHUB_REPOSITORY,
+            eventName: process.env.GITHUB_EVENT_NAME,
+            sourceBranch: process.env.SOURCE_BRANCH,
+            sourceSha: process.env.SOURCE_SHA,
+            prNumber: Number(process.env.PR_NUMBER),
+            imageTag: process.env.IMAGE_TAG,
+            sourceRunner: 'ubuntu-latest',
+            archiveDigest: process.env.ARCHIVE_DIGEST,
+            sourceWorkflowRunId: Number(process.env.GITHUB_RUN_ID),
+            sourceWorkflowRunAttempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+          };
+          writeFileSync(`${process.env.RUNNER_TEMP}/shadow-source-metadata.json`, `${JSON.stringify(metadata, null, 2)}\n`);
+          NODE
+
+      - name: Upload exact source metadata
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: shadow-source-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/shadow-source-metadata.json
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload unprivileged OCI archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: shadow-source-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/shadow-source.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3

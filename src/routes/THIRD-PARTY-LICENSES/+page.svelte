@@ -25,8 +25,8 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/skeletonlabs/skeleton" class="text-primary-500 hover:underline">@skeletonlabs/skeleton</a></td><td class="py-2 pr-4">4.12.0</td><td class="py-2 pr-4">MIT</td></tr>
-				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/skeletonlabs/skeleton" class="text-primary-500 hover:underline">@skeletonlabs/skeleton-svelte</a></td><td class="py-2 pr-4">1.5.3</td><td class="py-2 pr-4">MIT</td></tr>
+				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/skeletonlabs/skeleton" class="text-primary-500 hover:underline">@skeletonlabs/skeleton</a></td><td class="py-2 pr-4">5.0.0</td><td class="py-2 pr-4">MIT</td></tr>
+				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/skeletonlabs/skeleton" class="text-primary-500 hover:underline">@skeletonlabs/skeleton-svelte</a></td><td class="py-2 pr-4">5.0.0</td><td class="py-2 pr-4">MIT</td></tr>
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/pngwn/MDsveX" class="text-primary-500 hover:underline">mdsvex</a></td><td class="py-2 pr-4">0.12.6</td><td class="py-2 pr-4">MIT</td></tr>
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/mermaid-js/mermaid" class="text-primary-500 hover:underline">mermaid</a></td><td class="py-2 pr-4">11.12.2</td><td class="py-2 pr-4">MIT</td></tr>
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4"><a href="https://github.com/shikijs/shiki" class="text-primary-500 hover:underline">shiki</a></td><td class="py-2 pr-4">3.22.0</td><td class="py-2 pr-4">MIT</td></tr>
@@ -76,7 +76,7 @@
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4">d3</td><td class="py-2 pr-4">ISC / BSD-3-Clause</td><td class="py-2 pr-4">Visualization (mermaid dep)</td></tr>
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4">dompurify</td><td class="py-2 pr-4">MPL-2.0 OR Apache-2.0</td><td class="py-2 pr-4">HTML sanitizer (mermaid dep)</td></tr>
 				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4">@iconify/utils</td><td class="py-2 pr-4">MIT</td><td class="py-2 pr-4">Icon utilities (skeleton dep)</td></tr>
-				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4">@floating-ui/dom</td><td class="py-2 pr-4">MIT</td><td class="py-2 pr-4">Tooltip positioning (skeleton dep)</td></tr>
+				<tr class="border-b border-surface-200-800"><td class="py-2 pr-4">@floating-ui/dom</td><td class="py-2 pr-4">MIT</td><td class="py-2 pr-4">Positioning runtime (Skeleton/Zag dep)</td></tr>
 			</tbody>
 		</table>
 	</div>

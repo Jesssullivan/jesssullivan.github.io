@@ -1,0 +1,295 @@
+name: Publish Cloudflare Pages production v2
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    branches: [main]
+    types: [completed]
+  repository_dispatch:
+    types: [cloudflare-pages-production-v2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'transscendsurvival-org' }}
+
+jobs:
+  resolve:
+    name: Resolve CI-proven production source
+    if: >-
+      github.event_name == 'repository_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      ci_url: ${{ steps.source.outputs.ci_url }}
+      deploy: ${{ steps.source.outputs.deploy }}
+    steps:
+      - name: Resolve and verify exact source SHA
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUEST_SOURCE_SHA: ${{ github.event.client_payload.source_sha }}
+          REQUEST_DEPLOY: ${{ github.event.client_payload.deploy }}
+          PRODUCTION_ENABLED: ${{ vars.CLOUDFLARE_PAGES_PRODUCTION_ENABLED || 'false' }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let sourceSha;
+            let ciUrl;
+            let deploy;
+
+            async function requireAuthorityJobs(runId) {
+              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                owner,
+                repo,
+                run_id: runId,
+                filter: "latest",
+                per_page: 100,
+              });
+              for (const requiredName of ["build-and-test", "bazel-remote-gates"]) {
+                const job = jobs.find((candidate) => candidate.name === requiredName);
+                if (!job || job.conclusion !== "success") {
+                  throw new Error(`Required CI job ${requiredName} was missing or not successful for run ${runId}.`);
+                }
+              }
+            }
+
+            async function requirePrivateCvAuthority(sourceSha) {
+              const deadline = Date.now() + 20 * 60 * 1_000;
+              const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+              while (Date.now() < deadline) {
+                const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                  owner,
+                  repo,
+                  workflow_id: "private-cv-authority-v2.yml",
+                  branch: "main",
+                  event: "push",
+                  per_page: 100,
+                });
+                const exact = runs.find((run) =>
+                  run.head_sha === sourceSha &&
+                  run.head_branch === "main" &&
+                  run.event === "push" &&
+                  run.head_repository?.full_name === `${owner}/${repo}`
+                );
+                if (exact?.status === "completed") {
+                  if (exact.conclusion !== "success") {
+                    throw new Error(`Private CV authority concluded ${exact.conclusion} for exact SHA ${sourceSha}.`);
+                  }
+                  return;
+                }
+                await delay(15_000);
+              }
+              throw new Error(`No successful private CV authority run completed for exact SHA ${sourceSha} within twenty minutes.`);
+            }
+
+            if (context.eventName === "workflow_run") {
+              const run = context.payload.workflow_run;
+              const expectedRepository = `${owner}/${repo}`;
+              if (
+                run.name !== "CI" ||
+                run.conclusion !== "success" ||
+                run.event !== "push" ||
+                run.head_branch !== "main" ||
+                run.head_repository?.full_name !== expectedRepository ||
+                !/^[0-9a-f]{40}$/.test(run.head_sha)
+              ) {
+                throw new Error("Canonical CI workflow_run did not satisfy the production provenance contract.");
+              }
+              sourceSha = run.head_sha;
+              ciUrl = run.html_url;
+              await requireAuthorityJobs(run.id);
+              await requirePrivateCvAuthority(sourceSha);
+              const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+              if (mainRef.data.object.sha !== sourceSha) {
+                throw new Error(`Successful CI SHA ${sourceSha} is stale; current main is ${mainRef.data.object.sha}.`);
+              }
+              deploy = false;
+            } else if (context.eventName === "repository_dispatch") {
+              if (context.payload.action !== "cloudflare-pages-production-v2") {
+                throw new Error(`Unsupported repository_dispatch action ${context.payload.action}.`);
+              }
+              sourceSha = process.env.REQUEST_SOURCE_SHA?.trim().toLowerCase();
+              if (!/^[0-9a-f]{40}$/.test(sourceSha || "")) {
+                throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+              }
+
+              const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+              if (mainRef.data.object.sha !== sourceSha) {
+                throw new Error(`Requested ${sourceSha} is not the current main SHA ${mainRef.data.object.sha}.`);
+              }
+
+              const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                owner,
+                repo,
+                workflow_id: "ci.yml",
+                branch: "main",
+                event: "push",
+                status: "completed",
+                per_page: 100,
+              });
+              const ciRun = runs.find((run) =>
+                run.head_sha === sourceSha &&
+                run.head_branch === "main" &&
+                run.event === "push" &&
+                run.conclusion === "success" &&
+                run.head_repository?.full_name === `${owner}/${repo}`
+              );
+              if (!ciRun) {
+                throw new Error(`No successful canonical CI push run found for exact SHA ${sourceSha}.`);
+              }
+              await requireAuthorityJobs(ciRun.id);
+              await requirePrivateCvAuthority(sourceSha);
+              ciUrl = ciRun.html_url;
+              if (process.env.REQUEST_DEPLOY !== "true") {
+                throw new Error("client_payload.deploy must be the string true; use the separate parity workflow for build-only requests.");
+              }
+              if (process.env.PRODUCTION_ENABLED !== "true") {
+                throw new Error("CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true for an operator deploy request.");
+              }
+              deploy = true;
+            } else {
+              throw new Error(`Unsupported event ${context.eventName}.`);
+            }
+
+            core.setOutput("source_sha", sourceSha);
+            core.setOutput("ci_url", ciUrl);
+            core.setOutput("deploy", deploy ? "true" : "false");
+            await core.summary
+              .addHeading("Cloudflare Pages production provenance")
+              .addRaw(`Commit: \`${sourceSha}\`\n\n`)
+              .addLink("Successful canonical CI", ciUrl)
+              .addRaw(`\n\nProduction enabled: \`${process.env.PRODUCTION_ENABLED === "true"}\`\n\n`)
+              .addRaw(`Deploy requested and eligible: \`${deploy}\`\n`)
+              .write();
+
+  publish:
+    name: Build and publish CI-proven production
+    needs: resolve
+    if: >-
+      needs.resolve.result == 'success' &&
+      (github.event_name != 'workflow_run' || needs.resolve.outputs.deploy == 'false')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+    env:
+      PUBLIC_DEPLOY_TIER: production
+      PUBLIC_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Verify exact checkout
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "${actual_sha}" = "${EXPECTED_SHA}"
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/validate-deploy-tier-output.mjs production
+      - run: npx tsx scripts/validate-redirects.mts
+      - run: npx tsx scripts/validate-directory-index-aliases.mts
+
+      - name: Record static artifact digest
+        id: artifact
+        run: |
+          set -euo pipefail
+          digest="$(find build -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+          if [[ ! "${digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Static build did not produce a valid content digest."
+            exit 1
+          fi
+          echo "digest=sha256:${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Require Cloudflare deploy credentials
+        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${CF_ACCOUNT_ID}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is required."; exit 1; }
+          test -n "${CF_API_TOKEN}" || { echo "::error::CLOUDFLARE_API_TOKEN is required."; exit 1; }
+
+      - name: Revalidate production kill switch and current main immediately before publish
+        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let enabled = false;
+            try {
+              const response = await github.rest.actions.getRepoVariable({
+                owner,
+                repo,
+                name: "CLOUDFLARE_PAGES_PRODUCTION_ENABLED",
+              });
+              enabled = response.data.value === "true";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) {
+              throw new Error("CLOUDFLARE_PAGES_PRODUCTION_ENABLED is not true at publish time.");
+            }
+            const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+            if (mainRef.data.object.sha !== process.env.EXPECTED_SHA) {
+              throw new Error(
+                `Refusing stale production publish: expected ${process.env.EXPECTED_SHA}, current main is ${mainRef.data.object.sha}.`,
+              );
+            }
+
+      - name: Publish exact production build to Cloudflare Pages
+        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        id: cloudflare
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.95.0'
+          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_PROJECT_NAME }} --branch=main --commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false
+
+      - name: Publish provenance summary
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          CI_URL: ${{ needs.resolve.outputs.ci_url }}
+          ARTIFACT_DIGEST: ${{ steps.artifact.outputs.digest }}
+          DEPLOY_ENABLED: ${{ needs.resolve.outputs.deploy }}
+        run: |
+          {
+            echo "## Cloudflare Pages production artifact"
+            echo ""
+            echo "- Project: \`${CLOUDFLARE_PAGES_PROJECT_NAME}\`"
+            echo "- Commit: \`${SOURCE_SHA}\`"
+            echo "- Successful CI: ${CI_URL}"
+            echo "- Static content digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- Deploy enabled: \`${DEPLOY_ENABLED}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

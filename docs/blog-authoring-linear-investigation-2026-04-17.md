@@ -2,12 +2,15 @@
 
 ## Current reality
 
-The blog already has two working authoring lanes:
+This April 2026 investigation originally recorded two working authoring lanes:
 
 1. direct repo-native authoring in `jesssullivan.github.io`
-2. cross-repo staging through `collect-posts.yml` and `collect-external-posts.mts`
+2. cross-repo staging through the then-active `collect-posts.yml` and
+   `collect-external-posts.mts`
 
-Both lanes are GitHub- and markdown-native. That is good. The post body, media,
+As of 2026-08-12, `collect-posts.yml` is retired and disabled; only the manual,
+reviewed script remains as parked reference. Direct repo-native authoring is the
+active lane. The post body, media,
 frontmatter, provenance, review comments, and publication timing all already
 live in places that are durable, reviewable, and automation-friendly.
 

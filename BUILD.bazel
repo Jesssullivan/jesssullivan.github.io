@@ -64,6 +64,17 @@ filegroup(
 )
 
 filegroup(
+    name = "github_workflow_sources",
+    srcs = glob(
+        [
+            ".github/workflows/*.yaml",
+            ".github/workflows/*.yml",
+        ],
+        allow_empty = True,
+    ),
+)
+
+filegroup(
     name = "playwright_e2e_srcs",
     srcs = glob(
         [
@@ -311,23 +322,35 @@ sh_test(
     data = [
         ".bazelrc",
         ".github/workflows/ci.yml",
+        "MODULE.bazel",
+        "scripts/bazel-public-cache-backed.sh",
         "scripts/bazel-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
     ],
     visibility = ["//visibility:public"],
 )
 
-sh_test(
-    name = "shadow_preview_digest_contract",
-    srcs = ["scripts/test-shadow-preview-digest-contract.sh"],
-    data = [".github/workflows/shadow-preview.yml"],
-    visibility = ["//visibility:public"],
-)
-
-sh_test(
-    name = "cloudflare_cache_purge_contract",
-    srcs = ["scripts/test-cloudflare-cache-purge-contract.sh"],
-    data = [".github/workflows/cloudflare-cache-purge.yml"],
+js_test(
+    name = "workflow_authority_tests",
+    copy_data_to_bin = False,
+    data = [
+        ":github_workflow_sources",
+        "Dockerfile.shadow",
+        "package.json",
+        "scripts/stamp-deploy-tier-output.mjs",
+        "scripts/test-cloudflare-parity-resolver.mjs",
+        "scripts/test-cloudflare-production-resolver.mjs",
+        "scripts/test-github-pages-rollback-resolver.mjs",
+        "scripts/test-private-cv-authority-resolver.mjs",
+        "scripts/test-shadow-preview-resolver.mjs",
+        "scripts/test-workflow-authority.mjs",
+        "scripts/validate-deploy-tier-output.mjs",
+        "src/lib/components/ThemeSwitcher.svelte",
+        "src/routes/+layout.svelte",
+        "vite.config.ts",
+    ],
+    entry_point = "scripts/test-workflow-authority.mjs",
+    patch_node_fs = False,
     visibility = ["//visibility:public"],
 )
 
@@ -344,7 +367,7 @@ js_test(
     copy_data_to_bin = False,
     data = [
         ":pages_function_sources",
-        ".github/workflows/cloudflare-pages-shadow.yml",
+        ".github/workflows/cloudflare-pages-production-v2.yml",
         "scripts/test-held-post-edge-404.mjs",
         "static/blog-publication-holds.json",
         "static/_routes.json",
@@ -369,6 +392,7 @@ exports_files(
         "playwright.bazel.config.ts",
         "pnpm-lock.yaml",
         "scripts/bazel-cache-backed.sh",
+        "scripts/bazel-public-cache-backed.sh",
         "scripts/cache-attachment-contract.sh",
         "scripts/check-bazel-graph-hygiene.sh",
         "scripts/chromium-fontconfig.mjs",
@@ -381,9 +405,7 @@ exports_files(
         "scripts/run-sveltekit-check-bazel.mjs",
         "scripts/run-sveltekit-vite-build-bazel.mjs",
         "scripts/serve-static-build.mjs",
-        "scripts/test-cloudflare-cache-purge-contract.sh",
         "scripts/test-held-post-edge-404.mjs",
-        "scripts/test-shadow-preview-digest-contract.sh",
         "scripts/test-bazel-cache-backed.sh",
         "scripts/run-vitest-bazel.mjs",
         "vitest.bazel.config.ts",

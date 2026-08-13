@@ -1,0 +1,238 @@
+name: Publish shadow source v2
+
+# workflow_run executes this file from the default branch. It never checks out
+# or executes PR code. Package publication therefore lives outside the
+# branch-authored build path. Apply authority is deliberately absent.
+
+on:
+  workflow_run:
+    workflows: ['Build shadow source v2']
+    types: [completed]
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  SOURCE_IMAGE: ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet
+
+jobs:
+  resolve:
+    name: Verify trusted source provenance
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    outputs:
+      publish: ${{ steps.target.outputs.publish }}
+      branch: ${{ steps.target.outputs.branch }}
+      sha: ${{ steps.target.outputs.sha }}
+      pr_number: ${{ steps.target.outputs.pr_number }}
+      image_tag: ${{ steps.target.outputs.image_tag }}
+      archive_digest: ${{ steps.target.outputs.archive_digest }}
+      source_run_id: ${{ steps.target.outputs.source_run_id }}
+      source_run_attempt: ${{ steps.target.outputs.source_run_attempt }}
+    steps:
+      - name: Require successful unprivileged build job
+        id: upstream
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              owner,
+              repo,
+              run_id: context.payload.workflow_run.id,
+              filter: "latest",
+              per_page: 100,
+            });
+            const build = jobs.find((candidate) => candidate.name === "Build unprivileged OCI archive");
+            const consume = build?.conclusion === "success";
+            if (!consume) {
+              core.notice("Upstream run produced no successful source build; nothing will be published.");
+            }
+            core.setOutput("consume", consume ? "true" : "false");
+
+      - name: Download exact source metadata
+        if: steps.upstream.outputs.consume == 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: shadow-source-metadata-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          path: ${{ runner.temp }}/shadow-metadata
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Verify exact source metadata and live PR
+        if: steps.upstream.outputs.consume == 'true'
+        id: target
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          METADATA_PATH: ${{ runner.temp }}/shadow-metadata/shadow-source-metadata.json
+          SOURCE_PUBLISH_ENABLED: ${{ vars.BLOG_SHADOW_SOURCE_PUBLISH_ENABLED || 'false' }}
+        with:
+          script: |
+            const { readFile } = await import("node:fs/promises");
+            const { owner, repo } = context.repo;
+            const expectedRepository = `${owner}/${repo}`;
+            const payloadRun = context.payload.workflow_run;
+            const upstream = (await github.rest.actions.getWorkflowRun({
+              owner,
+              repo,
+              run_id: payloadRun.id,
+            })).data;
+            const workflowPath = String(upstream.path || "").split("@")[0];
+            if (
+              upstream.id !== payloadRun.id ||
+              upstream.name !== "Build shadow source v2" ||
+              upstream.conclusion !== "success" ||
+              upstream.repository?.full_name !== expectedRepository ||
+              workflowPath !== ".github/workflows/shadow-source-build-v2.yml" ||
+              upstream.event !== "repository_dispatch"
+            ) {
+              throw new Error("Upstream run does not satisfy the trusted shadow source workflow contract.");
+            }
+            if (upstream.head_branch !== "main") {
+              throw new Error(`Manual source workflow ran from arbitrary ref ${upstream.head_branch}.`);
+            }
+
+            const metadata = JSON.parse(await readFile(process.env.METADATA_PATH, "utf8"));
+            if (
+              metadata.schemaVersion !== 2 ||
+              metadata.repository !== expectedRepository ||
+              metadata.eventName !== upstream.event ||
+              metadata.sourceWorkflowRunId !== upstream.id ||
+              metadata.sourceWorkflowRunAttempt !== upstream.run_attempt ||
+              !Number.isInteger(metadata.prNumber) ||
+              metadata.prNumber < 1 ||
+              !/^[0-9a-f]{40}$/.test(metadata.sourceSha || "") ||
+              !/^sha256:[0-9a-f]{64}$/.test(metadata.archiveDigest || "") ||
+              metadata.sourceRunner !== "ubuntu-latest"
+            ) {
+              throw new Error("Source metadata is malformed or does not bind to the exact upstream run.");
+            }
+
+            const pr = (await github.rest.pulls.get({ owner, repo, pull_number: metadata.prNumber })).data;
+            if (
+              pr.state !== "open" ||
+              pr.draft ||
+              pr.base.ref !== "main" ||
+              pr.head.repo?.full_name !== expectedRepository ||
+              pr.head.sha !== metadata.sourceSha ||
+              pr.head.ref !== metadata.sourceBranch
+            ) {
+              throw new Error(`PR #${metadata.prNumber} is closed, forked, retargeted, or no longer at ${metadata.sourceSha}.`);
+            }
+            const exactTag = `shadow-pr-${pr.number}-${metadata.sourceSha.slice(0, 12)}-amd64`;
+            if (metadata.imageTag !== exactTag) {
+              throw new Error(`Source image tag ${metadata.imageTag} does not equal exact tag ${exactTag}.`);
+            }
+
+            const publish = process.env.SOURCE_PUBLISH_ENABLED === "true";
+            core.setOutput("publish", publish ? "true" : "false");
+            core.setOutput("branch", metadata.sourceBranch);
+            core.setOutput("sha", metadata.sourceSha);
+            core.setOutput("pr_number", String(metadata.prNumber));
+            core.setOutput("image_tag", exactTag);
+            core.setOutput("archive_digest", metadata.archiveDigest);
+            core.setOutput("source_run_id", String(upstream.id));
+            core.setOutput("source_run_attempt", String(upstream.run_attempt));
+
+  publish:
+    name: Publish trusted source image
+    needs: resolve
+    if: needs.resolve.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+      pull-requests: read
+    timeout-minutes: 20
+    concurrency:
+      group: blog-shadow-source-publish
+      cancel-in-progress: true
+    outputs:
+      source_digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - name: Download exact OCI archive
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: shadow-source-image-${{ needs.resolve.outputs.source_run_id }}-${{ needs.resolve.outputs.source_run_attempt }}
+          path: ${{ runner.temp }}/shadow-image
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.resolve.outputs.source_run_id }}
+
+      - name: Verify archive digest and immutable image label
+        env:
+          ARCHIVE_DIGEST: ${{ needs.resolve.outputs.archive_digest }}
+          IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.sha }}
+        run: |
+          set -euo pipefail
+          archive="${RUNNER_TEMP}/shadow-image/shadow-source.tar"
+          actual="sha256:$(sha256sum "${archive}" | awk '{print $1}')"
+          test "${actual}" = "${ARCHIVE_DIGEST}"
+          docker load --input "${archive}"
+          revision="$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "shadow-source:${IMAGE_TAG}")"
+          test "${revision}" = "${SOURCE_SHA}"
+
+      - name: Revalidate publish authority immediately before package write
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          EXPECTED_PR: ${{ needs.resolve.outputs.pr_number }}
+          EXPECTED_SHA: ${{ needs.resolve.outputs.sha }}
+          EXPECTED_BRANCH: ${{ needs.resolve.outputs.branch }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const expectedRepository = `${owner}/${repo}`;
+            let enabled = false;
+            try {
+              const response = await github.rest.actions.getRepoVariable({
+                owner,
+                repo,
+                name: "BLOG_SHADOW_SOURCE_PUBLISH_ENABLED",
+              });
+              enabled = response.data.value === "true";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) {
+              throw new Error("BLOG_SHADOW_SOURCE_PUBLISH_ENABLED is not true at package-write time.");
+            }
+            const pr = (await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: Number(process.env.EXPECTED_PR),
+            })).data;
+            if (
+              pr.state !== "open" ||
+              pr.draft ||
+              pr.base.ref !== "main" ||
+              pr.head.repo?.full_name !== expectedRepository ||
+              pr.head.ref !== process.env.EXPECTED_BRANCH ||
+              pr.head.sha !== process.env.EXPECTED_SHA
+            ) {
+              throw new Error(`PR #${pr.number} changed after source provenance resolution.`);
+            }
+
+      - name: Login and publish exact source image
+        id: publish
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+          IMAGE_TAG: ${{ needs.resolve.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
+          docker tag "shadow-source:${IMAGE_TAG}" "${SOURCE_IMAGE}:${IMAGE_TAG}"
+          push_log="$(mktemp)"
+          docker push "${SOURCE_IMAGE}:${IMAGE_TAG}" 2>&1 | tee "${push_log}"
+          digest="$(sed -nE 's/^.*digest: (sha256:[0-9a-f]{64}).*$/\1/p' "${push_log}" | tail -n 1)"
+          if [[ ! "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Package publish did not return a valid OCI digest."
+            exit 1
+          fi
+          echo "digest=${digest}" >> "${GITHUB_OUTPUT}"

@@ -10,8 +10,8 @@ all direct dependencies and their licenses.
 
 | Package | Version | License | Repository |
 |---------|---------|---------|------------|
-| @skeletonlabs/skeleton | 4.12.0 | MIT | https://github.com/skeletonlabs/skeleton |
-| @skeletonlabs/skeleton-svelte | 1.5.3 | MIT | https://github.com/skeletonlabs/skeleton |
+| @skeletonlabs/skeleton | 5.0.0 | MIT | https://github.com/skeletonlabs/skeleton |
+| @skeletonlabs/skeleton-svelte | 5.0.0 | MIT | https://github.com/skeletonlabs/skeleton |
 | mdsvex | 0.12.6 | MIT | https://github.com/pngwn/MDsveX |
 | mermaid | 11.12.2 | MIT | https://github.com/mermaid-js/mermaid |
 | shiki | 3.22.0 | MIT | https://github.com/shikijs/shiki |
@@ -41,7 +41,7 @@ all direct dependencies and their licenses.
 | d3 | ISC / BSD-3-Clause | Visualization library (mermaid dependency) |
 | dompurify | MPL-2.0 OR Apache-2.0 | HTML sanitizer (mermaid dependency) |
 | @iconify/utils | MIT | Icon utilities (skeleton dependency) |
-| @floating-ui/dom | MIT | Tooltip positioning (skeleton dependency) |
+| @floating-ui/dom | MIT | Positioning runtime (Skeleton/Zag dependency) |
 
 ## License Summary
 
