@@ -385,6 +385,19 @@ js_test(
     visibility = ["//visibility:public"],
 )
 
+js_test(
+    name = "theme_contract_tests",
+    copy_data_to_bin = False,
+    data = [
+        "scripts/test-theme-contract.mjs",
+        "src/lib/styles/themes/pride.css",
+        "src/lib/styles/themes/trans.css",
+    ],
+    entry_point = "scripts/test-theme-contract.mjs",
+    patch_node_fs = False,
+    visibility = ["//visibility:public"],
+)
+
 exports_files(
     [
         "package-lock.json",
