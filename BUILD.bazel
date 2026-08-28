@@ -354,6 +354,18 @@ js_test(
     visibility = ["//visibility:public"],
 )
 
+js_test(
+    name = "production_health_probe_tests",
+    copy_data_to_bin = False,
+    data = [
+        "scripts/production-health-probes.mjs",
+        "scripts/test-production-health-probes.mjs",
+    ],
+    entry_point = "scripts/test-production-health-probes.mjs",
+    patch_node_fs = False,
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "pages_function_sources",
     srcs = glob(

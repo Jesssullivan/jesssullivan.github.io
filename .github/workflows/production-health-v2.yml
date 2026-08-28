@@ -77,6 +77,8 @@ jobs:
       - name: Run production health checks
         id: production_health
         continue-on-error: true
+        env:
+          EXPECTED_MAIN_SHA: ${{ github.sha }}
         run: |
           set -o pipefail
           npm run test:production-health 2>&1 | tee production-health-output.txt

@@ -1,6 +1,17 @@
 import { Resolver } from 'node:dns/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import {
+	SITEMAP_CONCURRENCY,
+	SITEMAP_TIMEOUT_MS,
+	SITEMAP_URL_CAP,
+	buildFreshnessCheck,
+	buildSitemapCoverageCheck,
+	buildTssProvenanceCheck,
+	buildTssRobotsCheck,
+	parseDeployTierMeta,
+	parseSitemapLocs,
+} from './production-health-probes.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -26,6 +37,13 @@ const www = `www.${apex}`;
 const brokerStreamUrl = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
 const cutoverNsNames = ['izabella.ns.cloudflare.com', 'sullivan.ns.cloudflare.com'] as const;
 const transientNetworkAttempts = 3;
+const versionUrl = `https://${apex}/_app/version.json`;
+const sitemapUrl = `https://${apex}/sitemap.xml`;
+const tssOrigin = 'https://tss.tinyland.dev';
+const tssRoutes = ['/', '/blog', '/pulse', '/about'] as const;
+// The shadow acceptance surface is never allowed to fail the production run: it is a
+// private review tier, and its staleness is a review-cadence signal, not an outage.
+const expectedMainSha = process.env.EXPECTED_MAIN_SHA?.trim() ?? '';
 
 // Host-agnostic resolution health. The apex currently resolves through Cloudflare
 // Pages edge addresses via a proxied apex CNAME. www is also a proxied Pages CNAME,
@@ -528,18 +546,127 @@ async function redirectCheck(name: string, from: string, to: string): Promise<Ch
 	}
 }
 
+type TextFetch = { ok: true; body: string } | { ok: false; detail: string };
+
+async function fetchText(url: string, timeoutMs = 15_000): Promise<TextFetch> {
+	try {
+		const response = await fetch(url, {
+			redirect: 'follow',
+			signal: AbortSignal.timeout(timeoutMs),
+			headers: { 'user-agent': 'transscendsurvival-production-health/1.0' },
+		});
+		if (!response.ok) return { ok: false, detail: `status=${response.status}` };
+		return { ok: true, body: await response.text() };
+	} catch (error) {
+		return { ok: false, detail: error instanceof Error ? error.message : String(error) };
+	}
+}
+
+// Production build freshness. SvelteKit's /_app/version.json carries kit.version.name,
+// which defaults to the build timestamp in epoch milliseconds. Promotion to Cloudflare
+// Pages is an explicit, dispatch-gated operator ceremony with a default-false kill
+// switch, so a stale production build is a deliberate hold rather than a fault. This
+// probe therefore only ever warns: it exists so a multi-week silent freeze cannot pass
+// unnoticed for a second time, not to force a promotion the operator is holding.
+async function productionFreshnessCheck(): Promise<Check> {
+	const result = await fetchText(versionUrl);
+	return buildFreshnessCheck({
+		name: 'production build freshness',
+		versionText: result.ok ? result.body : null,
+		error: result.ok ? undefined : result.detail,
+		nowMs: Date.now(),
+	});
+}
+
+async function tssChecks(): Promise<Check[]> {
+	const routes: { path: string; shadowRobots: boolean }[] = [];
+	let sourceSha: string | null = null;
+	let firstError = '';
+
+	for (const path of tssRoutes) {
+		const result = await fetchText(`${tssOrigin}${path}`);
+		if (!result.ok) {
+			if (!firstError) firstError = `${path}: ${result.detail}`;
+			continue;
+		}
+		const meta = parseDeployTierMeta(result.body);
+		routes.push({ path, shadowRobots: meta.shadowRobots });
+		if (sourceSha === null && meta.sourceSha !== null) sourceSha = meta.sourceSha;
+	}
+
+	return [
+		buildTssProvenanceCheck({
+			name: 'tss shadow source provenance vs main',
+			sourceSha,
+			expectedSha: expectedMainSha,
+			error: routes.length === 0 ? firstError || 'no tss routes fetched' : undefined,
+		}),
+		buildTssRobotsCheck({ name: 'tss shadow noindex,nofollow coverage', routes }),
+	];
+}
+
+async function sitemapHeadStatus(url: string): Promise<{ url: string; status: number; error?: string }> {
+	let lastError = 'unknown transport error';
+	for (let attempt = 1; attempt <= transientNetworkAttempts; attempt++) {
+		try {
+			const response = await fetch(url, {
+				method: 'HEAD',
+				redirect: 'manual',
+				signal: AbortSignal.timeout(SITEMAP_TIMEOUT_MS),
+				headers: { 'user-agent': 'transscendsurvival-production-health/1.0' },
+			});
+			return { url, status: response.status };
+		} catch (error) {
+			lastError = error instanceof Error ? error.message : String(error);
+		}
+	}
+	return { url, status: 0, error: lastError };
+}
+
+async function sitemapCoverageCheck(): Promise<Check> {
+	const name = 'sitemap route coverage';
+	const sitemap = await fetchText(sitemapUrl);
+	if (!sitemap.ok) {
+		return buildSitemapCoverageCheck({ name, results: [], sameHost: 0, cap: SITEMAP_URL_CAP, error: sitemap.detail });
+	}
+
+	const parsed = parseSitemapLocs(sitemap.body, { host: apex, cap: SITEMAP_URL_CAP });
+	const results: { url: string; status: number }[] = [];
+	let next = 0;
+	const workers = Array.from({ length: Math.min(SITEMAP_CONCURRENCY, parsed.urls.length) }, async () => {
+		while (next < parsed.urls.length) {
+			const index = next++;
+			results.push(await sitemapHeadStatus(parsed.urls[index]));
+		}
+	});
+	await Promise.all(workers);
+
+	return buildSitemapCoverageCheck({ name, results, sameHost: parsed.sameHost, cap: parsed.cap });
+}
+
 const checks = [
 	...(await authoritativeDnsChecks()),
 	...(await publicDnsChecks()),
 	...(await httpChecks()),
 	await brokerCheck(),
+	await productionFreshnessCheck(),
+	...(await tssChecks()),
+	await sitemapCoverageCheck(),
 ];
 
 let failures = 0;
+let warnings = 0;
 for (const check of checks) {
 	const marker = check.ok ? (check.warn ? 'WARN' : 'PASS') : 'FAIL';
 	console.log(`${marker} ${check.name}: ${check.detail}`);
 	if (!check.ok) failures++;
+	else if (check.warn) warnings++;
+}
+
+// Warnings are reported but never change the exit code, so the ntfy failure notifier
+// stays bound to real production faults instead of intentional operator holds.
+if (warnings > 0) {
+	console.log(`Production health passed with ${warnings} warning(s); warnings do not fail the run.`);
 }
 
 if (failures > 0) {
