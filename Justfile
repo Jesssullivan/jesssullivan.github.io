@@ -59,35 +59,36 @@ validate-frontmatter:
 ingest-tinyland-posts:
     npm run ingest:tinyland-posts
 
-# Type check with svelte-check
+# Check authority: svelte-check, build smoke, package checks, CV sync
 check:
-    npm run check
+    npm run remote:check
+
+# Test authority: graph hygiene, contracts, unit, agent, Chromium smoke
+test:
+    npm run remote:test
+
+# E2E authority: Playwright Chromium
+test-e2e:
+    npm run remote:e2e
 
 # Validate redirects after build
 test-redirects:
     npm run test:redirects
 
-# Run Vitest unit tests
+# Run Vitest unit tests only
 test-unit:
-    npx vitest run
+    npm run test:unit
 
-# Run Playwright E2E tests (builds + serves automatically)
-test-e2e:
-    npx playwright test
-
-# Run a specific E2E test file
+# Debug only, outside the cache-backed graph: run a specific E2E test file
 test-e2e-file file:
     npx playwright test {{file}}
 
-# Run E2E tests with visible browser
+# Debug only, outside the cache-backed graph: E2E with a visible browser
 test-e2e-headed:
     npx playwright test --headed
 
-# Run all tests (unit + redirects + E2E)
-test: test-unit test-redirects test-e2e
-
 # Run full CI pipeline locally
-ci: check test-unit build test-redirects validate-frontmatter test-e2e
+ci: check test build validate-frontmatter test-e2e
 
 # =============================================================================
 # Changelog
