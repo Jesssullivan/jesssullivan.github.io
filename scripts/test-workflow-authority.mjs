@@ -14,9 +14,10 @@ const paths = {
 	pagesRollback: '.github/workflows/github-pages-rollback-v2.yml',
 	productionHealth: '.github/workflows/production-health-v2.yml',
 	privateCv: '.github/workflows/private-cv-authority-v2.yml',
+	tssPublish: '.github/workflows/tss-shadow-publish-v2.yml',
 };
 
-const [production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv, tssPublish] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -174,6 +175,75 @@ requireAll(
 forbid(parity, /secrets\.|deployments: write|cloudflare\/wrangler-action|pages deploy/, 'parity must remain secretless');
 
 requireAll(
+	tssPublish,
+	[
+		'types: [tss-shadow-publish-v2]',
+		"TSS_ENABLED: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}",
+		"TSS_PROJECT: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME || 'tss-shadow' }}",
+		'process.env.TSS_ENABLED !== "true"',
+		'process.env.REQUEST_DEPLOY !== "true"',
+		'const PRODUCTION_PROJECT = "transscendsurvival-org";',
+		'if (project === PRODUCTION_PROJECT)',
+		'/^[a-z0-9][a-z0-9-]{0,62}$/.test(project)',
+		'workflow_id: "ci.yml"',
+		'head_sha: sourceSha,',
+		'for (const requiredName of ["build-and-test", "bazel-remote-gates"])',
+		'pr.head.repo?.full_name !== expectedRepository',
+		'mainRef.data.object.sha !== sourceSha',
+		'PUBLIC_DEPLOY_TIER: shadow',
+		'node scripts/validate-deploy-tier-output.mjs shadow "${PUBLIC_SOURCE_SHA}"',
+		"printf 'User-agent: *\\nDisallow: /\\n' > build/robots.txt",
+		'X-Robots-Tag: noindex, nofollow',
+		'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
+		'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
+		'Verify artifact digest matches the credential-free build',
+		'test "${digest}" = "${EXPECTED_DIGEST}"',
+		"if: needs.build.result == 'success' && vars.BLOG_TSS_PUBLISH_ENABLED == 'true'",
+		'Revalidate the source immediately before publish',
+		"TSS_ENABLED_AT_PUBLISH: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}",
+		'process.env.TSS_ENABLED_AT_PUBLISH !== "true"',
+		'Refusing stale shadow publish',
+		'--project-name="${{ needs.resolve.outputs.project }}"',
+		'--commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false',
+		'Verify the served shadow carries the published source SHA',
+		'cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4',
+		'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6',
+		'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6',
+	],
+	'TSS shadow publish workflow',
+);
+requireOrder(
+	tssPublish,
+	[
+		'Verify artifact digest matches the credential-free build',
+		'Revalidate the source immediately before publish',
+		'Publish exact shadow build to Cloudflare Pages',
+		'Verify the served shadow carries the published source SHA',
+	],
+	'TSS deploy job order: digest check, live-authority recheck, publish, served-SHA proof',
+);
+{
+	const triggerBlock = tssPublish.slice(tssPublish.indexOf('\non:\n') + 5, tssPublish.indexOf('\npermissions:'));
+	assert.equal(
+		triggerBlock.trim(),
+		'repository_dispatch:\n    types: [tss-shadow-publish-v2]',
+		'TSS shadow publish must have exactly one trigger: the typed repository dispatch',
+	);
+	const buildJob = tssPublish.slice(tssPublish.indexOf('\n  build:\n'), tssPublish.indexOf('\n  deploy:\n'));
+	const deployJob = tssPublish.slice(tssPublish.indexOf('\n  deploy:\n'));
+	assert.ok(buildJob.length > 0 && deployJob.length > 0, 'TSS lane keeps separate build and deploy jobs');
+	forbid(buildJob, /secrets\.|wrangler|id-token/, 'the job that executes source-tree code must hold no credential');
+	forbid(deployJob, /actions\/checkout|npm ci|npm run|npx tsx/, 'the job that holds the Cloudflare token must never check out or execute source-tree code');
+	assert.ok(/permissions:\n {6}contents: read\n/.test(buildJob), 'build job permissions are contents: read only');
+}
+forbid(
+	tssPublish,
+	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED|CLOUDFLARE_PAGES_PROJECT_NAME[^_]|--project-name=transscendsurvival-org|PUBLIC_DEPLOY_TIER: production/,
+	'TSS shadow publish must never reach the production project or its kill switch',
+);
+forbid(tssPublish, /deployments:\s*write|secrets\.GITHUB_TOKEN|github\.token|create-github-app-token|createWorkflowDispatch|getRepoVariable/, 'TSS shadow publish must not carry unrelated mutation authority or an unexecutable variables-API recheck');
+
+requireAll(
 	vite,
 	[
 		"process.env.PUBLIC_DEPLOY_TIER || 'production'",
@@ -219,7 +289,7 @@ requireAll(
 );
 forbid(pagesRollback, /^ {2}push:|deploy-pages\.yml/m, 'Pages must remain an explicit rollback path');
 forbid(
-	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}\n${privateCv}`,
+	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}\n${privateCv}\n${tssPublish}`,
 	/^\s*workflow_dispatch:/m,
 	'v2 authority paths must be default-owned',
 );
@@ -315,6 +385,7 @@ for (const fixture of [
 	'./test-cloudflare-parity-resolver.mjs',
 	'./test-github-pages-rollback-resolver.mjs',
 	'./test-private-cv-authority-resolver.mjs',
+	'./test-tss-shadow-publish-resolver.mjs',
 ]) {
 	await import(fixture);
 }
