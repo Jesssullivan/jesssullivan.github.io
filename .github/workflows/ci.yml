@@ -53,6 +53,9 @@ jobs:
       GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
       GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
       GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
+      # Keep Playwright traces for failed specs; the config routes them into
+      # Bazel's undeclared outputs so the evidence step below can upload them.
+      PLAYWRIGHT_TRACE_MODE: retain-on-failure
       # The GF consumer registry records this repo as shared-cache-backed.
       # Clear any executor endpoint inherited from the generic ARC pod.
       BAZEL_REMOTE_EXECUTOR: ''
@@ -154,6 +157,30 @@ jobs:
         run: |
           npm run remote:e2e:public
           bash scripts/bazel-cache-backed.sh shutdown
+
+      - name: Collect e2e evidence
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/playwright-e2e
+          if [[ -d bazel-testlogs/playwright_chromium_e2e ]]; then
+            cp -RL bazel-testlogs/playwright_chromium_e2e/. artifacts/playwright-e2e/
+            if [[ -f artifacts/playwright-e2e/test.outputs/outputs.zip ]]; then
+              (cd artifacts/playwright-e2e && unzip -oq test.outputs/outputs.zip -d undeclared-outputs) || true
+            fi
+            find artifacts/playwright-e2e -type f | head -50
+          else
+            echo "no bazel-testlogs/playwright_chromium_e2e directory (e2e did not run)" | tee artifacts/playwright-e2e/NO-RUN.txt
+          fi
+
+      - name: Upload e2e evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-e2e-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/playwright-e2e
+          if-no-files-found: warn
+          retention-days: 7
 
   build-and-test:
     runs-on: ubuntu-latest

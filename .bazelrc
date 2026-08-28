@@ -22,6 +22,7 @@ test --test_timeout=120,600,1800,3600
 # GF_RBE_CHROMIUM_EXECUTABLE). No hardcoded value: an absent var lets
 # the run-*-bazel.mjs candidate scan handle system chromium paths.
 test --test_env=GF_RBE_CHROMIUM_EXECUTABLE
+test --test_env=PLAYWRIGHT_TRACE_MODE
 
 build:local --disk_cache=~/.cache/bazel-jesssullivan-github-io
 
