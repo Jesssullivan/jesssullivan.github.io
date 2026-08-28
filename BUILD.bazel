@@ -343,6 +343,7 @@ js_test(
         "scripts/test-github-pages-rollback-resolver.mjs",
         "scripts/test-private-cv-authority-resolver.mjs",
         "scripts/test-shadow-preview-resolver.mjs",
+        "scripts/test-tss-shadow-publish-resolver.mjs",
         "scripts/test-workflow-authority.mjs",
         "scripts/validate-deploy-tier-output.mjs",
         "src/lib/components/ThemeSwitcher.svelte",

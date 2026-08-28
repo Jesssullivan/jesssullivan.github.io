@@ -1,0 +1,268 @@
+name: Publish TSS shadow v2
+
+# Default-branch-owned repository dispatch. Publishes an exact, CI-proven source SHA
+# (current main, or the head of an open same-repo PR) to the Cloudflare Pages project
+# that serves https://tss.tinyland.dev — the public, site-wide-noindex development
+# shadow (TIN-3026). It never touches the production project and is fail-closed behind
+# the BLOG_TSS_PUBLISH_ENABLED repository variable, revalidated immediately before publish.
+
+on:
+  repository_dispatch:
+    types: [tss-shadow-publish-v2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tss-shadow-publish
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  resolve:
+    name: Resolve exact shadow source
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      source_ref: ${{ steps.source.outputs.source_ref }}
+      pr_number: ${{ steps.source.outputs.pr_number }}
+      ci_url: ${{ steps.source.outputs.ci_url }}
+      deploy: ${{ steps.source.outputs.deploy }}
+    steps:
+      - name: Resolve exact shadow source
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          REQUEST_SOURCE_SHA: ${{ github.event.client_payload.source_sha }}
+          REQUEST_SOURCE_PR: ${{ github.event.client_payload.source_pr }}
+          REQUEST_DEPLOY: ${{ github.event.client_payload.deploy }}
+          TSS_ENABLED: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const expectedRepository = `${owner}/${repo}`;
+
+            async function requireAuthorityJobs(runId) {
+              const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+                owner,
+                repo,
+                run_id: runId,
+                filter: "latest",
+                per_page: 100,
+              });
+              for (const requiredName of ["build-and-test", "bazel-remote-gates"]) {
+                const job = jobs.find((candidate) => candidate.name === requiredName);
+                if (!job || job.conclusion !== "success") {
+                  throw new Error(`Required CI job ${requiredName} was missing or not successful for run ${runId}.`);
+                }
+              }
+            }
+
+            if (context.eventName !== "repository_dispatch" || context.payload.action !== "tss-shadow-publish-v2") {
+              throw new Error("TSS shadow publish requires the exact repository dispatch type.");
+            }
+            const sourceSha = (process.env.REQUEST_SOURCE_SHA || "").trim().toLowerCase();
+            if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+              throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+            }
+
+            let sourceRef;
+            let prNumber = "";
+            let ciEvent;
+            const requestedPr = (process.env.REQUEST_SOURCE_PR || "").trim();
+            if (requestedPr !== "") {
+              if (!/^[1-9][0-9]*$/.test(requestedPr)) {
+                throw new Error("client_payload.source_pr must be a positive integer when present.");
+              }
+              const pr = (await github.rest.pulls.get({ owner, repo, pull_number: Number(requestedPr) })).data;
+              if (
+                pr.state !== "open" ||
+                pr.base.ref !== "main" ||
+                pr.head.repo?.full_name !== expectedRepository ||
+                pr.head.sha !== sourceSha
+              ) {
+                throw new Error(`PR #${pr.number} is not an open same-repo main PR at exact head ${sourceSha}.`);
+              }
+              sourceRef = `pr-${pr.number}`;
+              prNumber = String(pr.number);
+              ciEvent = "pull_request";
+            } else {
+              const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+              if (mainRef.data.object.sha !== sourceSha) {
+                throw new Error(`Requested ${sourceSha} is not the current main SHA ${mainRef.data.object.sha}.`);
+              }
+              sourceRef = "main";
+              ciEvent = "push";
+            }
+
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              owner,
+              repo,
+              workflow_id: "ci.yml",
+              event: ciEvent,
+              status: "completed",
+              per_page: 100,
+            });
+            const ciRun = runs.find((run) =>
+              run.head_sha === sourceSha &&
+              run.event === ciEvent &&
+              run.conclusion === "success" &&
+              run.head_repository?.full_name === expectedRepository
+            );
+            if (!ciRun) {
+              throw new Error(`No successful canonical CI ${ciEvent} run found for exact SHA ${sourceSha}.`);
+            }
+            await requireAuthorityJobs(ciRun.id);
+
+            if (process.env.REQUEST_DEPLOY !== "true") {
+              throw new Error("client_payload.deploy must be the string true; use the parity workflow for build-only requests.");
+            }
+            if (process.env.TSS_ENABLED !== "true") {
+              throw new Error("BLOG_TSS_PUBLISH_ENABLED must be true for a shadow publish request.");
+            }
+
+            core.setOutput("source_sha", sourceSha);
+            core.setOutput("source_ref", sourceRef);
+            core.setOutput("pr_number", prNumber);
+            core.setOutput("ci_url", ciRun.html_url);
+            core.setOutput("deploy", "true");
+            await core.summary
+              .addHeading("TSS shadow provenance")
+              .addRaw(`Source: \`${sourceRef}\` at \`${sourceSha}\`\n\n`)
+              .addLink("Successful canonical CI", ciRun.html_url)
+              .write();
+
+  publish:
+    name: Build and publish exact shadow to Cloudflare Pages
+    needs: resolve
+    if: needs.resolve.result == 'success' && needs.resolve.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    env:
+      PUBLIC_DEPLOY_TIER: shadow
+      PUBLIC_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+      CLOUDFLARE_PAGES_TSS_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }}
+      CLOUDFLARE_PAGES_TSS_BRANCH: ${{ vars.CLOUDFLARE_PAGES_TSS_BRANCH || 'main' }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Verify exact checkout
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          test "${actual_sha}" = "${EXPECTED_SHA}"
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/validate-deploy-tier-output.mjs shadow "${PUBLIC_SOURCE_SHA}"
+      - run: npx tsx scripts/validate-redirects.mts
+      - run: npx tsx scripts/validate-directory-index-aliases.mts
+
+      - name: Record static artifact digest
+        id: artifact
+        run: |
+          set -euo pipefail
+          digest="$(find build -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+          if [[ ! "${digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Static build did not produce a valid content digest."
+            exit 1
+          fi
+          echo "digest=sha256:${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Require shadow project and Cloudflare deploy credentials
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}" || { echo "::error::CLOUDFLARE_PAGES_TSS_PROJECT_NAME repository variable is required."; exit 1; }
+          if [[ "${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}" == "transscendsurvival-org" ]]; then
+            echo "::error::The shadow lane must never target the production Pages project."
+            exit 1
+          fi
+          test -n "${CF_ACCOUNT_ID}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is required."; exit 1; }
+          test -n "${CF_API_TOKEN}" || { echo "::error::CLOUDFLARE_API_TOKEN is required."; exit 1; }
+
+      - name: Revalidate shadow kill switch and source immediately before publish
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SOURCE_REF: ${{ needs.resolve.outputs.source_ref }}
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            let enabled = false;
+            try {
+              const response = await github.rest.actions.getRepoVariable({
+                owner,
+                repo,
+                name: "BLOG_TSS_PUBLISH_ENABLED",
+              });
+              enabled = response.data.value === "true";
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) {
+              throw new Error("BLOG_TSS_PUBLISH_ENABLED is not true at publish time.");
+            }
+            if (process.env.SOURCE_REF === "main") {
+              const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+              if (mainRef.data.object.sha !== process.env.EXPECTED_SHA) {
+                throw new Error(
+                  `Refusing stale shadow publish: expected ${process.env.EXPECTED_SHA}, current main is ${mainRef.data.object.sha}.`,
+                );
+              }
+            } else {
+              const pr = (await github.rest.pulls.get({ owner, repo, pull_number: Number(process.env.PR_NUMBER) })).data;
+              if (pr.state !== "open" || pr.head.sha !== process.env.EXPECTED_SHA || pr.head.repo?.full_name !== `${owner}/${repo}`) {
+                throw new Error(`Refusing stale shadow publish: PR #${process.env.PR_NUMBER} is no longer open at ${process.env.EXPECTED_SHA}.`);
+              }
+            }
+
+      - name: Publish exact shadow build to Cloudflare Pages
+        id: cloudflare
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.95.0'
+          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }} --branch=${{ env.CLOUDFLARE_PAGES_TSS_BRANCH }} --commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false
+
+      - name: Publish provenance summary
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SOURCE_REF: ${{ needs.resolve.outputs.source_ref }}
+          CI_URL: ${{ needs.resolve.outputs.ci_url }}
+          ARTIFACT_DIGEST: ${{ steps.artifact.outputs.digest }}
+        run: |
+          {
+            echo "## TSS shadow artifact"
+            echo ""
+            echo "- Project: \`${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}\` (branch \`${CLOUDFLARE_PAGES_TSS_BRANCH}\`)"
+            echo "- Source: \`${SOURCE_REF}\` at \`${SOURCE_SHA}\`"
+            echo "- Successful CI: ${CI_URL}"
+            echo "- Static content digest: \`${ARTIFACT_DIGEST}\`"
+            echo "- Deploy tier: \`shadow\` (site-wide noindex, source SHA stamped)"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -14,9 +14,10 @@ const paths = {
 	pagesRollback: '.github/workflows/github-pages-rollback-v2.yml',
 	productionHealth: '.github/workflows/production-health-v2.yml',
 	privateCv: '.github/workflows/private-cv-authority-v2.yml',
+	tssPublish: '.github/workflows/tss-shadow-publish-v2.yml',
 };
 
-const [production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv, tssPublish] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -174,6 +175,43 @@ requireAll(
 forbid(parity, /secrets\.|deployments: write|cloudflare\/wrangler-action|pages deploy/, 'parity must remain secretless');
 
 requireAll(
+	tssPublish,
+	[
+		'types: [tss-shadow-publish-v2]',
+		"TSS_ENABLED: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}",
+		'process.env.TSS_ENABLED !== "true"',
+		'process.env.REQUEST_DEPLOY !== "true"',
+		'for (const requiredName of ["build-and-test", "bazel-remote-gates"])',
+		'pr.head.repo?.full_name !== expectedRepository',
+		'mainRef.data.object.sha !== sourceSha',
+		'PUBLIC_DEPLOY_TIER: shadow',
+		'node scripts/validate-deploy-tier-output.mjs shadow "${PUBLIC_SOURCE_SHA}"',
+		'CLOUDFLARE_PAGES_TSS_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }}',
+		'The shadow lane must never target the production Pages project.',
+		'Revalidate shadow kill switch and source immediately before publish',
+		'name: "BLOG_TSS_PUBLISH_ENABLED"',
+		'Refusing stale shadow publish',
+		'--commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false',
+		'cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4',
+		'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6',
+		'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6',
+	],
+	'TSS shadow publish workflow',
+);
+requireOrder(
+	tssPublish,
+	['Revalidate shadow kill switch and source immediately before publish', 'Publish exact shadow build to Cloudflare Pages'],
+	'TSS live-authority recheck must precede publication',
+);
+forbid(tssPublish, /^ {2}(?:push|pull_request|workflow_run):|^\s*workflow_dispatch:/m, 'TSS shadow publish must be default-owned dispatch only');
+forbid(
+	tssPublish,
+	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED|CLOUDFLARE_PAGES_PROJECT_NAME[^_]|--project-name=transscendsurvival-org|PUBLIC_DEPLOY_TIER: production/,
+	'TSS shadow publish must never reach the production project or its kill switch',
+);
+forbid(tssPublish, /deployments:\s*write|secrets\.GITHUB_TOKEN|github\.token|create-github-app-token|createWorkflowDispatch/, 'TSS shadow publish must not carry unrelated mutation authority');
+
+requireAll(
 	vite,
 	[
 		"process.env.PUBLIC_DEPLOY_TIER || 'production'",
@@ -219,7 +257,7 @@ requireAll(
 );
 forbid(pagesRollback, /^ {2}push:|deploy-pages\.yml/m, 'Pages must remain an explicit rollback path');
 forbid(
-	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}\n${privateCv}`,
+	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}\n${privateCv}\n${tssPublish}`,
 	/^\s*workflow_dispatch:/m,
 	'v2 authority paths must be default-owned',
 );
@@ -315,6 +353,7 @@ for (const fixture of [
 	'./test-cloudflare-parity-resolver.mjs',
 	'./test-github-pages-rollback-resolver.mjs',
 	'./test-private-cv-authority-resolver.mjs',
+	'./test-tss-shadow-publish-resolver.mjs',
 ]) {
 	await import(fixture);
 }
