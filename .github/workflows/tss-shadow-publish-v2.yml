@@ -232,7 +232,7 @@ jobs:
     # The kill switch is re-read here by Actions itself at job start (vars.* is
     # resolved when the job is scheduled, after the build), not through the REST
     # variables API — GITHUB_TOKEN carries no Variables permission, so a
-    # getRepoVariable recheck would 403 and refuse every publish.
+    # REST variables-API recheck would 403 and refuse every publish.
     if: needs.build.result == 'success' && vars.BLOG_TSS_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
