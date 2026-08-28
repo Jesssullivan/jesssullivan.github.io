@@ -7,7 +7,7 @@
 #
 # This cannot go green until a `jesssullivan-blog-nix` ARC scale set is applied
 # in Jesssullivan/jesssullivan-infra
-# (tofu/stacks/arc-runners/jesssullivan.tfvars). `jesssullivan-nix` is the
+# (tofu/stacks/arc-runners/jesssullivan.tfvars). `tinyland-nix` is the
 # capability label those runners will carry; nothing serves it for this
 # repository today, so every job below queues until that apply lands.
 name: Spoke CI (TIN-3914)
@@ -40,11 +40,11 @@ jobs:
       flywheel_config: flywheel
       cache_backed: true
       lanes_path: .github/lanes.json
-      default_runner_class: jesssullivan-nix
+      default_runner_class: tinyland-nix
       # This account publishes one capability class. The template default sends
       # bazel-graph to `tinyland-nix-heavy`, which serves no repository in this
       # forge scope, so the base label is passed here too.
-      heavy_runner_class: jesssullivan-nix
+      heavy_runner_class: tinyland-nix
       # The template default names //:sveltekit_types and //:svelte_check_test.
       # Neither target exists in this repo; these three are its real
       # flywheel-eligible CAS surface (BUILD.bazel).
@@ -60,11 +60,11 @@ jobs:
     name: merge-gate
     if: always()
     needs: [ci]
-    # TIN-3914 retired the GitHub-hosted class. `jesssullivan-nix` is the label
+    # TIN-3914 retired the GitHub-hosted class. `tinyland-nix` is the label
     # the not-yet-applied `jesssullivan-blog-nix` scale set will carry, so this
     # job has nowhere to run until that apply lands -- which is exactly the
     # DO-NOT-MERGE condition on this change.
-    runs-on: jesssullivan-nix
+    runs-on: tinyland-nix
     timeout-minutes: 5
     steps:
       - name: Require complete reusable CI

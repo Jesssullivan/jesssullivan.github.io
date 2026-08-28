@@ -18,13 +18,13 @@
 	"enrollment": {
 		"forgeScope": "Jesssullivan",
 		"operatorOverlay": "jesssullivan-infra",
-		"executionPool": "jesssullivan-nix",
+		"executionPool": "tinyland-nix",
 		"substrateMode": "shared-cache-backed"
 	},
 	"contracts": {
 		"agent_contract": "AGENTS.md",
 		"just": "Justfile",
-		"nix": "none",
+		"nix": "devshell-via-spoke-ci",
 		"github_actions": ".github/workflows",
 		"secrets_scan": "gitleaks",
 		"conformance": "just check"

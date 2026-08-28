@@ -7,7 +7,7 @@
 		"image_repository": "ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet"
 	},
 	"defaults": {
-		"runner_class": "jesssullivan-nix",
+		"runner_class": "tinyland-nix",
 		"ttl_hours": 72,
 		"flywheel_target_classes": ["sveltekit-app-build", "sveltekit-unit-tests"]
 	},
