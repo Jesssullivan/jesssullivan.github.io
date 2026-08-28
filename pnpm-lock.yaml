@@ -27,8 +27,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(svelte@5.55.4)
       '@tummycrypt/tinyvectors':
-        specifier: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz
-        version: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz(svelte@5.55.4)
+        specifier: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.6.tar.gz
+        version: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.6.tar.gz(svelte@5.55.4)
       dompurify:
         specifier: ^3.4.13
         version: 3.4.13
@@ -2166,9 +2166,9 @@ packages:
   '@tootallnate/quickjs-emscripten@0.23.0':
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
 
-  '@tummycrypt/tinyvectors@https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz':
-    resolution: {tarball: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz}
-    version: 0.3.5
+  '@tummycrypt/tinyvectors@https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.6.tar.gz':
+    resolution: {tarball: https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.6.tar.gz}
+    version: 0.3.6
     engines: {node: '>=22.0.0'}
     peerDependencies:
       svelte: '>=5.20.0'
@@ -7690,7 +7690,7 @@ snapshots:
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
-  '@tummycrypt/tinyvectors@https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz(svelte@5.55.4)':
+  '@tummycrypt/tinyvectors@https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.6.tar.gz(svelte@5.55.4)':
     dependencies:
       svelte: 5.55.4
 
