@@ -179,19 +179,31 @@ requireAll(
 	[
 		'types: [tss-shadow-publish-v2]',
 		"TSS_ENABLED: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}",
+		"TSS_PROJECT: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME || 'tss-shadow' }}",
 		'process.env.TSS_ENABLED !== "true"',
 		'process.env.REQUEST_DEPLOY !== "true"',
+		'const PRODUCTION_PROJECT = "transscendsurvival-org";',
+		'if (project === PRODUCTION_PROJECT)',
+		'/^[a-z0-9][a-z0-9-]{0,62}$/.test(project)',
+		'workflow_id: "ci.yml"',
+		'head_sha: sourceSha,',
 		'for (const requiredName of ["build-and-test", "bazel-remote-gates"])',
 		'pr.head.repo?.full_name !== expectedRepository',
 		'mainRef.data.object.sha !== sourceSha',
 		'PUBLIC_DEPLOY_TIER: shadow',
 		'node scripts/validate-deploy-tier-output.mjs shadow "${PUBLIC_SOURCE_SHA}"',
-		'CLOUDFLARE_PAGES_TSS_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }}',
-		'The shadow lane must never target the production Pages project.',
+		"printf 'User-agent: *\\nDisallow: /\\n' > build/robots.txt",
+		'X-Robots-Tag: noindex, nofollow',
+		'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a',
+		'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
+		'Verify artifact digest matches the credential-free build',
+		'test "${digest}" = "${EXPECTED_DIGEST}"',
 		'Revalidate shadow kill switch and source immediately before publish',
 		'name: "BLOG_TSS_PUBLISH_ENABLED"',
 		'Refusing stale shadow publish',
+		'--project-name="${{ needs.resolve.outputs.project }}"',
 		'--commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false',
+		'Verify the served shadow carries the published source SHA',
 		'cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4',
 		'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6',
 		'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6',
@@ -200,10 +212,28 @@ requireAll(
 );
 requireOrder(
 	tssPublish,
-	['Revalidate shadow kill switch and source immediately before publish', 'Publish exact shadow build to Cloudflare Pages'],
-	'TSS live-authority recheck must precede publication',
+	[
+		'Verify artifact digest matches the credential-free build',
+		'Revalidate shadow kill switch and source immediately before publish',
+		'Publish exact shadow build to Cloudflare Pages',
+		'Verify the served shadow carries the published source SHA',
+	],
+	'TSS deploy job order: digest check, live-authority recheck, publish, served-SHA proof',
 );
-forbid(tssPublish, /^ {2}(?:push|pull_request|workflow_run):|^\s*workflow_dispatch:/m, 'TSS shadow publish must be default-owned dispatch only');
+{
+	const triggerBlock = tssPublish.slice(tssPublish.indexOf('\non:\n') + 5, tssPublish.indexOf('\npermissions:'));
+	assert.equal(
+		triggerBlock.trim(),
+		'repository_dispatch:\n    types: [tss-shadow-publish-v2]',
+		'TSS shadow publish must have exactly one trigger: the typed repository dispatch',
+	);
+	const buildJob = tssPublish.slice(tssPublish.indexOf('\n  build:\n'), tssPublish.indexOf('\n  deploy:\n'));
+	const deployJob = tssPublish.slice(tssPublish.indexOf('\n  deploy:\n'));
+	assert.ok(buildJob.length > 0 && deployJob.length > 0, 'TSS lane keeps separate build and deploy jobs');
+	forbid(buildJob, /secrets\.|wrangler|id-token/, 'the job that executes source-tree code must hold no credential');
+	forbid(deployJob, /actions\/checkout|npm ci|npm run|npx tsx/, 'the job that holds the Cloudflare token must never check out or execute source-tree code');
+	assert.ok(/permissions:\n {6}contents: read\n/.test(buildJob), 'build job permissions are contents: read only');
+}
 forbid(
 	tssPublish,
 	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED|CLOUDFLARE_PAGES_PROJECT_NAME[^_]|--project-name=transscendsurvival-org|PUBLIC_DEPLOY_TIER: production/,

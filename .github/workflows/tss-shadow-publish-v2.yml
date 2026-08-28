@@ -1,10 +1,13 @@
 name: Publish TSS shadow v2
 
 # Default-branch-owned repository dispatch. Publishes an exact, CI-proven source SHA
-# (current main, or the head of an open same-repo PR) to the Cloudflare Pages project
-# that serves https://tss.tinyland.dev — the public, site-wide-noindex development
-# shadow (TIN-3026). It never touches the production project and is fail-closed behind
-# the BLOG_TSS_PUBLISH_ENABLED repository variable, revalidated immediately before publish.
+# (current main, or the head of an open same-repo PR) to the dedicated Cloudflare Pages
+# project that serves https://tss.tinyland.dev — the public, site-wide-noindex development
+# shadow (TIN-3026). Structure mirrors shadow-source-build-v2 → shadow-source-publish-v2:
+# the job that executes source-tree code holds no secret; the job that holds the
+# Cloudflare token never checks out or executes source-tree code — it deploys a
+# digest-verified artifact. Fail-closed behind BLOG_TSS_PUBLISH_ENABLED, revalidated
+# immediately before publish; the production project name is refused by construction.
 
 on:
   repository_dispatch:
@@ -34,6 +37,8 @@ jobs:
       source_ref: ${{ steps.source.outputs.source_ref }}
       pr_number: ${{ steps.source.outputs.pr_number }}
       ci_url: ${{ steps.source.outputs.ci_url }}
+      project: ${{ steps.source.outputs.project }}
+      branch: ${{ steps.source.outputs.branch }}
       deploy: ${{ steps.source.outputs.deploy }}
     steps:
       - name: Resolve exact shadow source
@@ -44,10 +49,13 @@ jobs:
           REQUEST_SOURCE_PR: ${{ github.event.client_payload.source_pr }}
           REQUEST_DEPLOY: ${{ github.event.client_payload.deploy }}
           TSS_ENABLED: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}
+          TSS_PROJECT: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME || 'tss-shadow' }}
+          TSS_BRANCH: ${{ vars.CLOUDFLARE_PAGES_TSS_BRANCH || 'main' }}
         with:
           script: |
             const { owner, repo } = context.repo;
             const expectedRepository = `${owner}/${repo}`;
+            const PRODUCTION_PROJECT = "transscendsurvival-org";
 
             async function requireAuthorityJobs(runId) {
               const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
@@ -71,6 +79,18 @@ jobs:
             const sourceSha = (process.env.REQUEST_SOURCE_SHA || "").trim().toLowerCase();
             if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
               throw new Error("source_sha must be an exact 40-character lowercase commit SHA.");
+            }
+
+            const project = (process.env.TSS_PROJECT || "").trim();
+            if (!/^[a-z0-9][a-z0-9-]{0,62}$/.test(project)) {
+              throw new Error("CLOUDFLARE_PAGES_TSS_PROJECT_NAME must be a lowercase Pages project slug.");
+            }
+            if (project === PRODUCTION_PROJECT) {
+              throw new Error("The shadow lane must never target the production Pages project.");
+            }
+            const branch = (process.env.TSS_BRANCH || "").trim();
+            if (!/^[A-Za-z0-9._\/-]{1,120}$/.test(branch)) {
+              throw new Error("CLOUDFLARE_PAGES_TSS_BRANCH must be a plain branch name.");
             }
 
             let sourceRef;
@@ -108,6 +128,7 @@ jobs:
               workflow_id: "ci.yml",
               event: ciEvent,
               status: "completed",
+              head_sha: sourceSha,
               per_page: 100,
             });
             const ciRun = runs.find((run) =>
@@ -132,28 +153,28 @@ jobs:
             core.setOutput("source_ref", sourceRef);
             core.setOutput("pr_number", prNumber);
             core.setOutput("ci_url", ciRun.html_url);
+            core.setOutput("project", project);
+            core.setOutput("branch", branch);
             core.setOutput("deploy", "true");
             await core.summary
               .addHeading("TSS shadow provenance")
-              .addRaw(`Source: \`${sourceRef}\` at \`${sourceSha}\`\n\n`)
+              .addRaw(`Source: \`${sourceRef}\` at \`${sourceSha}\` → project \`${project}\` (branch \`${branch}\`)\n\n`)
               .addLink("Successful canonical CI", ciRun.html_url)
               .write();
 
-  publish:
-    name: Build and publish exact shadow to Cloudflare Pages
+  build:
+    name: Build exact shadow artifact without credentials
     needs: resolve
     if: needs.resolve.result == 'success' && needs.resolve.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      actions: read
       contents: read
-      pull-requests: read
+    outputs:
+      digest: ${{ steps.artifact.outputs.digest }}
     env:
       PUBLIC_DEPLOY_TIER: shadow
       PUBLIC_SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
-      CLOUDFLARE_PAGES_TSS_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }}
-      CLOUDFLARE_PAGES_TSS_BRANCH: ${{ vars.CLOUDFLARE_PAGES_TSS_BRANCH || 'main' }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -179,6 +200,13 @@ jobs:
       - run: npx tsx scripts/validate-redirects.mts
       - run: npx tsx scripts/validate-directory-index-aliases.mts
 
+      - name: Make the shadow uncrawlable beyond the HTML meta
+        run: |
+          set -euo pipefail
+          printf 'User-agent: *\nDisallow: /\n' > build/robots.txt
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > build/_headers
+          test "$(cat build/robots.txt)" = "$(printf 'User-agent: *\nDisallow: /')"
+
       - name: Record static artifact digest
         id: artifact
         run: |
@@ -190,19 +218,55 @@ jobs:
           fi
           echo "digest=sha256:${digest}" >> "$GITHUB_OUTPUT"
 
-      - name: Require shadow project and Cloudflare deploy credentials
+      - name: Upload exact shadow artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: tss-shadow-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    name: Publish the digest-verified shadow artifact to Cloudflare Pages
+    needs: [resolve, build]
+    if: needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    env:
+      EXPECTED_DIGEST: ${{ needs.build.outputs.digest }}
+      TSS_PROJECT: ${{ needs.resolve.outputs.project }}
+      TSS_BRANCH: ${{ needs.resolve.outputs.branch }}
+    steps:
+      - name: Download exact shadow artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v6
+        with:
+          name: tss-shadow-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build
+
+      - name: Verify artifact digest matches the credential-free build
+        run: |
+          set -euo pipefail
+          digest="sha256:$(find build -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+          test "${digest}" = "${EXPECTED_DIGEST}"
+          test -f build/robots.txt && grep -q '^Disallow: /$' build/robots.txt
+          test -f build/_headers && grep -q 'X-Robots-Tag: noindex, nofollow' build/_headers
+
+      - name: Require Cloudflare deploy credentials
         env:
           CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}" || { echo "::error::CLOUDFLARE_PAGES_TSS_PROJECT_NAME repository variable is required."; exit 1; }
-          if [[ "${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}" == "transscendsurvival-org" ]]; then
+          test -n "${CF_ACCOUNT_ID}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is required."; exit 1; }
+          test -n "${CF_API_TOKEN}" || { echo "::error::CLOUDFLARE_API_TOKEN is required."; exit 1; }
+          if [[ "${TSS_PROJECT}" == "transscendsurvival-org" ]]; then
             echo "::error::The shadow lane must never target the production Pages project."
             exit 1
           fi
-          test -n "${CF_ACCOUNT_ID}" || { echo "::error::CLOUDFLARE_ACCOUNT_ID is required."; exit 1; }
-          test -n "${CF_API_TOKEN}" || { echo "::error::CLOUDFLARE_API_TOKEN is required."; exit 1; }
 
       - name: Revalidate shadow kill switch and source immediately before publish
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -248,21 +312,35 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.95.0'
-          command: pages deploy build --project-name=${{ env.CLOUDFLARE_PAGES_TSS_PROJECT_NAME }} --branch=${{ env.CLOUDFLARE_PAGES_TSS_BRANCH }} --commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false
+          command: pages deploy build --project-name="${{ needs.resolve.outputs.project }}" --branch="${{ needs.resolve.outputs.branch }}" --commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false
+
+      - name: Verify the served shadow carries the published source SHA
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 24); do
+            if curl -fsS --max-time 20 https://tss.tinyland.dev/blog | grep -q "<meta name=\"tinyland-source-sha\" content=\"${SOURCE_SHA}\""; then
+              echo "tss.tinyland.dev serves ${SOURCE_SHA}"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::tss.tinyland.dev did not serve source SHA ${SOURCE_SHA} within four minutes of publishing."
+          exit 1
 
       - name: Publish provenance summary
         env:
           SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
           SOURCE_REF: ${{ needs.resolve.outputs.source_ref }}
           CI_URL: ${{ needs.resolve.outputs.ci_url }}
-          ARTIFACT_DIGEST: ${{ steps.artifact.outputs.digest }}
         run: |
           {
             echo "## TSS shadow artifact"
             echo ""
-            echo "- Project: \`${CLOUDFLARE_PAGES_TSS_PROJECT_NAME}\` (branch \`${CLOUDFLARE_PAGES_TSS_BRANCH}\`)"
+            echo "- Project: \`${TSS_PROJECT}\` (branch \`${TSS_BRANCH}\`)"
             echo "- Source: \`${SOURCE_REF}\` at \`${SOURCE_SHA}\`"
             echo "- Successful CI: ${CI_URL}"
-            echo "- Static content digest: \`${ARTIFACT_DIGEST}\`"
-            echo "- Deploy tier: \`shadow\` (site-wide noindex, source SHA stamped)"
+            echo "- Static content digest: \`${EXPECTED_DIGEST}\`"
+            echo "- Deploy tier: \`shadow\` (HTML noindex + robots Disallow + X-Robots-Tag; source SHA stamped and verified live)"
           } >> "$GITHUB_STEP_SUMMARY"

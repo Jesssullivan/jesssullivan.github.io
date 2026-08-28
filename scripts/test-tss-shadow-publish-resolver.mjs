@@ -49,6 +49,8 @@ async function runFixture({
 	manualPr = '',
 	manualDeploy = 'true',
 	tssEnabled = 'true',
+	tssProject = 'tss-shadow',
+	tssBranch = 'main',
 	mainSha = sourceSha,
 	pr = pullRequest(),
 	runs = [ciRun()],
@@ -100,6 +102,8 @@ async function runFixture({
 			REQUEST_SOURCE_PR: manualPr,
 			REQUEST_DEPLOY: manualDeploy,
 			TSS_ENABLED: tssEnabled,
+			TSS_PROJECT: tssProject,
+			TSS_BRANCH: tssBranch,
 		},
 	});
 	return outputs;
@@ -110,11 +114,19 @@ assert.deepEqual(await runFixture(), {
 	source_ref: 'main',
 	pr_number: '',
 	ci_url: 'https://github.example/ci/101',
+	project: 'tss-shadow',
+	branch: 'main',
 	deploy: 'true',
 });
+assert.equal((await runFixture({ tssProject: ' tss-shadow ' })).project, 'tss-shadow', 'surrounding whitespace is trimmed, never shell-interpolated');
+await assert.rejects(() => runFixture({ tssProject: 'transscendsurvival-org' }), /never target the production Pages project/, 'production project refused');
+await assert.rejects(() => runFixture({ tssProject: 'transscendsurvival-org ' }), /never target the production Pages project/, 'production project with trailing space still refused');
+await assert.rejects(() => runFixture({ tssProject: 'tss-shadow; rm -rf' }), /lowercase Pages project slug/, 'shell metacharacters refused');
+await assert.rejects(() => runFixture({ tssProject: '' }), /lowercase Pages project slug/, 'empty project refused');
+await assert.rejects(() => runFixture({ tssBranch: 'main $(x)' }), /plain branch name/, 'branch metacharacters refused');
 assert.deepEqual(
 	await runFixture({ manualPr: '263', runs: [ciRun({ event: 'pull_request', head_branch: 'feature' })], mainSha: otherSha }),
-	{ source_sha: sourceSha, source_ref: 'pr-263', pr_number: '263', ci_url: 'https://github.example/ci/101', deploy: 'true' },
+	{ source_sha: sourceSha, source_ref: 'pr-263', pr_number: '263', ci_url: 'https://github.example/ci/101', project: 'tss-shadow', branch: 'main', deploy: 'true' },
 	'open same-repo PR head with green pull_request CI resolves',
 );
 await assert.rejects(() => runFixture({ eventName: 'workflow_dispatch' }), /exact repository dispatch type/, 'manual carrier fails closed');
