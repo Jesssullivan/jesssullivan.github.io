@@ -45,6 +45,7 @@ re-read immediately before their credentialed mutation.
 | Shadow source publish (GHCR) | `.github/workflows/shadow-source-publish-v2.yml` | `workflow_run` consumer of `Build shadow source v2`; runs default-branch code only and independently revalidates provenance, never executing PR code | repo var `BLOG_SHADOW_SOURCE_PUBLISH_ENABLED` (default false), revalidated at package-write time |
 | Private CV consistency | `.github/workflows/private-cv-authority-v2.yml` | exact current-`main` push + typed dispatch (`private-cv-verify-v2`) | none; credentialed verify-only lane that never commits or publishes, and is itself a required proof for production publish |
 | Production health monitor | `.github/workflows/production-health-v2.yml` | cron health check every 30 minutes (ntfy alert on failure) + typed dispatch (`production-health-v2`, optional ntfy smoke) | none; notification credentials carry no serving-state mutation authority, and a red scheduled run is production evidence |
+| Org spoke CI (TIN-3914, not yet servable) | `.github/workflows/spoke-ci.yml` | push to `main` + PR to `main`, calling `tinyland-inc/ci-templates/.github/workflows/spoke-ci.yml` pinned at the `v3.1.0` commit | none needed; passes no secrets, and every job targets the `jesssullivan-nix` capability class that no scale set serves for this repo yet |
 
 - This repo owns blog source, the static build, shadow source-image
   publication to `ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet`,
@@ -57,6 +58,16 @@ re-read immediately before their credentialed mutation.
 - `tinyland-inc/GloriousFlywheel` supplies runner, Nix/toolchain, Bazel
   cache/RBE, and validation substrate. Passing GF checks or running on GF
   runners transfers no application deployment ownership.
+- `tinyland-inc/ci-templates` owns the reusable spoke CI contract. TIN-3914
+  exception, recorded 2026-08-28: this repo's hand-rolled workflows pin
+  `runs-on: ubuntu-latest` at 17 sites, and `.github/workflows/spoke-ci.yml`
+  is the wiring that retires them, not proof they are retired. It is inert
+  until `Jesssullivan/jesssullivan-infra` applies a `jesssullivan-blog-nix`
+  ARC scale set serving the `jesssullivan-nix` label
+  (`tofu/stacks/arc-runners/jesssullivan.tfvars`), so `ci.yml` stays the
+  required-check authority and nothing about merge protection moves. Do not
+  hand-migrate individual `runs-on` lines or retire any `ci.yml` job ahead of
+  that apply: the tfvars entry lands first, the label flip second.
 - `tinyland-inc/tinyland.dev` owns the mothership content, broker, and
   federation contracts this spoke consumes.
 - The `substrate-boundary` job in `.github/workflows/ci.yml` enforces that
