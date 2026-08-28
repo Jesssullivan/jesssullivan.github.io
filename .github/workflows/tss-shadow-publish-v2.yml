@@ -229,7 +229,11 @@ jobs:
   deploy:
     name: Publish the digest-verified shadow artifact to Cloudflare Pages
     needs: [resolve, build]
-    if: needs.build.result == 'success'
+    # The kill switch is re-read here by Actions itself at job start (vars.* is
+    # resolved when the job is scheduled, after the build), not through the REST
+    # variables API — GITHUB_TOKEN carries no Variables permission, so a
+    # getRepoVariable recheck would 403 and refuse every publish.
+    if: needs.build.result == 'success' && vars.BLOG_TSS_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -268,27 +272,17 @@ jobs:
             exit 1
           fi
 
-      - name: Revalidate shadow kill switch and source immediately before publish
+      - name: Revalidate the source immediately before publish
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
           SOURCE_REF: ${{ needs.resolve.outputs.source_ref }}
           PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          TSS_ENABLED_AT_PUBLISH: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}
         with:
           script: |
             const { owner, repo } = context.repo;
-            let enabled = false;
-            try {
-              const response = await github.rest.actions.getRepoVariable({
-                owner,
-                repo,
-                name: "BLOG_TSS_PUBLISH_ENABLED",
-              });
-              enabled = response.data.value === "true";
-            } catch (error) {
-              if (error.status !== 404) throw error;
-            }
-            if (!enabled) {
+            if (process.env.TSS_ENABLED_AT_PUBLISH !== "true") {
               throw new Error("BLOG_TSS_PUBLISH_ENABLED is not true at publish time.");
             }
             if (process.env.SOURCE_REF === "main") {

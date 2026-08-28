@@ -198,8 +198,10 @@ requireAll(
 		'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c',
 		'Verify artifact digest matches the credential-free build',
 		'test "${digest}" = "${EXPECTED_DIGEST}"',
-		'Revalidate shadow kill switch and source immediately before publish',
-		'name: "BLOG_TSS_PUBLISH_ENABLED"',
+		"if: needs.build.result == 'success' && vars.BLOG_TSS_PUBLISH_ENABLED == 'true'",
+		'Revalidate the source immediately before publish',
+		"TSS_ENABLED_AT_PUBLISH: ${{ vars.BLOG_TSS_PUBLISH_ENABLED || 'false' }}",
+		'process.env.TSS_ENABLED_AT_PUBLISH !== "true"',
 		'Refusing stale shadow publish',
 		'--project-name="${{ needs.resolve.outputs.project }}"',
 		'--commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false',
@@ -214,7 +216,7 @@ requireOrder(
 	tssPublish,
 	[
 		'Verify artifact digest matches the credential-free build',
-		'Revalidate shadow kill switch and source immediately before publish',
+		'Revalidate the source immediately before publish',
 		'Publish exact shadow build to Cloudflare Pages',
 		'Verify the served shadow carries the published source SHA',
 	],
@@ -239,7 +241,7 @@ forbid(
 	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED|CLOUDFLARE_PAGES_PROJECT_NAME[^_]|--project-name=transscendsurvival-org|PUBLIC_DEPLOY_TIER: production/,
 	'TSS shadow publish must never reach the production project or its kill switch',
 );
-forbid(tssPublish, /deployments:\s*write|secrets\.GITHUB_TOKEN|github\.token|create-github-app-token|createWorkflowDispatch/, 'TSS shadow publish must not carry unrelated mutation authority');
+forbid(tssPublish, /deployments:\s*write|secrets\.GITHUB_TOKEN|github\.token|create-github-app-token|createWorkflowDispatch|getRepoVariable/, 'TSS shadow publish must not carry unrelated mutation authority or an unexecutable variables-API recheck');
 
 requireAll(
 	vite,
