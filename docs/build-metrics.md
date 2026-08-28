@@ -1,5 +1,8 @@
 # Build Metrics Baseline
 
+> Superseded 2026-08-28: Vite 8 shipped (`package.json` pins `^8.0.14`). The
+> numbers below are the Vite 6.4.1 baseline, kept for comparison only.
+
 Captured: 2026-02-11 | Branch: `feature/sprint3-week8` | Vite 6.4.1
 
 ## Build Time
