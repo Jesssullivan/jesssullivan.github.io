@@ -1,9 +1,25 @@
 # Build Metrics Baseline
 
-> Superseded 2026-08-28: Vite 8 shipped (`package.json` pins `^8.0.14`). The
-> numbers below are the Vite 6.4.1 baseline, kept for comparison only.
+- **Status:** STALE — superseded 2026-08-28. Vite 8 shipped and the toolchain
+  below no longer exists in this repo. The numbers are kept as the Vite 6.4.1
+  comparison point, not as a description of the current build.
+- **Captured:** 2026-02-11 on branch `feature/sprint3-week8` (commit `9aac474`)
+- **Checked by:** `scripts/truth-surfaces.mjs`. The toolchain table below is
+  machine-compared against `package.json`. If the versions match again this
+  page must drop the STALE marker; while they differ it must carry it. A
+  metrics page cannot silently keep presenting itself as current (TIN-161).
 
-Captured: 2026-02-11 | Branch: `feature/sprint3-week8` | Vite 6.4.1
+## Toolchain At Capture
+
+Declared ranges read from `9aac474:package.json`, the commit that added this
+file — not the resolved versions, so the comparison is like-for-like against
+`package.json` today.
+
+| Package | Declared at capture |
+| --- | --- |
+| `vite` | ^6.4.1 |
+| `svelte` | ^5.19.0 |
+| `@sveltejs/kit` | ^2.16.0 |
 
 ## Build Time
 
@@ -49,4 +65,17 @@ All heavy chunks are lazy-loaded — they don't affect first-load performance.
 
 ## Vite 8 / Rolldown Status
 
-**NOGO** — Vite 8.0.0-beta.13 (Feb 2026). Dead code elimination broken for `esm-env` conditions. No stable SvelteKit support. See [issue #16](https://github.com/Jesssullivan/jesssullivan.github.io/issues/16).
+**NOGO at capture** — Vite 8.0.0-beta.13 (Feb 2026). Dead code elimination
+broken for `esm-env` conditions. No stable SvelteKit support. See
+[issue #16](https://github.com/Jesssullivan/jesssullivan.github.io/issues/16).
+**Overtaken by events:** `package.json` declares `vite ^8.0.14` as of
+2026-08-28, so this row records what was true in February and not a current
+posture.
+
+## Recapture
+
+There is no measured replacement for this page yet. Producing one needs a real
+build, which is the rest of TIN-161; until then the STALE marker and the
+machine check are what keep the page honest. When it is recaptured, update the
+toolchain table in the same commit as the numbers — the check pairs them
+deliberately, so metrics cannot land without the toolchain that produced them.

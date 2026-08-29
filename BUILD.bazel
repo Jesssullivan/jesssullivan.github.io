@@ -21,6 +21,11 @@ filegroup(
         allow_empty = True,
     ) + [
         ".npmrc",
+        # Truth surfaces checked by scripts/truth-surfaces.test.mts (TIN-161):
+        # the test compares these documents against package-lock.json, so they
+        # have to reach the Vitest sandbox alongside it.
+        "THIRD-PARTY-LICENSES.md",
+        "docs/build-metrics.md",
         "package-lock.json",
         "package.json",
         "pnpm-lock.yaml",
