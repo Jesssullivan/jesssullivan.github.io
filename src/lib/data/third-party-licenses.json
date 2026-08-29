@@ -1,0 +1,466 @@
+{
+	"generatedBy": "scripts/truth-surfaces.mjs",
+	"source": "package-lock.json",
+	"groups": [
+		{
+			"key": "dependencies",
+			"heading": "Runtime Dependencies",
+			"rows": [
+				{
+					"name": "@fontsource/crimson-pro",
+					"specifier": "^5.2.8",
+					"version": "5.2.8",
+					"license": "OFL-1.1",
+					"resolved": "https://registry.npmjs.org/@fontsource/crimson-pro/-/crimson-pro-5.2.8.tgz"
+				},
+				{
+					"name": "@fontsource/fira-code",
+					"specifier": "^5.2.7",
+					"version": "5.2.7",
+					"license": "OFL-1.1",
+					"resolved": "https://registry.npmjs.org/@fontsource/fira-code/-/fira-code-5.2.7.tgz"
+				},
+				{
+					"name": "@fontsource/inter",
+					"specifier": "^5.2.8",
+					"version": "5.2.8",
+					"license": "OFL-1.1",
+					"resolved": "https://registry.npmjs.org/@fontsource/inter/-/inter-5.2.8.tgz"
+				},
+				{
+					"name": "@fontsource/raleway",
+					"specifier": "^5.2.8",
+					"version": "5.2.8",
+					"license": "OFL-1.1",
+					"resolved": "https://registry.npmjs.org/@fontsource/raleway/-/raleway-5.2.8.tgz"
+				},
+				{
+					"name": "@skeletonlabs/skeleton",
+					"specifier": "5.0.0",
+					"version": "5.0.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@skeletonlabs/skeleton/-/skeleton-5.0.0.tgz"
+				},
+				{
+					"name": "@skeletonlabs/skeleton-svelte",
+					"specifier": "5.0.0",
+					"version": "5.0.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/-/skeleton-svelte-5.0.0.tgz"
+				},
+				{
+					"name": "@tummycrypt/tinyvectors",
+					"specifier": "https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz",
+					"version": "0.3.5",
+					"license": "Zlib",
+					"resolved": "https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz"
+				},
+				{
+					"name": "dompurify",
+					"specifier": "^3.4.13",
+					"version": "3.4.13",
+					"license": "(MPL-2.0 OR Apache-2.0)",
+					"resolved": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.13.tgz"
+				},
+				{
+					"name": "flexsearch",
+					"specifier": "^0.8.212",
+					"version": "0.8.212",
+					"license": "Apache-2.0",
+					"resolved": "https://registry.npmjs.org/flexsearch/-/flexsearch-0.8.212.tgz"
+				},
+				{
+					"name": "marked",
+					"specifier": "^4.3.0",
+					"version": "4.3.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/marked/-/marked-4.3.0.tgz"
+				},
+				{
+					"name": "mdsvex",
+					"specifier": "^0.12.7",
+					"version": "0.12.7",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/mdsvex/-/mdsvex-0.12.7.tgz"
+				},
+				{
+					"name": "shiki",
+					"specifier": "^4.2.0",
+					"version": "4.2.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/shiki/-/shiki-4.2.0.tgz"
+				},
+				{
+					"name": "tailwindcss",
+					"specifier": "^4.2.2",
+					"version": "4.2.2",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.2.2.tgz"
+				}
+			]
+		},
+		{
+			"key": "devDependencies",
+			"heading": "Build / Dev Dependencies",
+			"rows": [
+				{
+					"name": "@eslint/js",
+					"specifier": "^9.39.2",
+					"version": "9.39.4",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@eslint/js/-/js-9.39.4.tgz"
+				},
+				{
+					"name": "@mermaid-js/mermaid-cli",
+					"specifier": "^11.15.0",
+					"version": "11.15.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@mermaid-js/mermaid-cli/-/mermaid-cli-11.15.0.tgz"
+				},
+				{
+					"name": "@playwright/test",
+					"specifier": "^1.59.1",
+					"version": "1.59.1",
+					"license": "Apache-2.0",
+					"resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.59.1.tgz"
+				},
+				{
+					"name": "@sveltejs/adapter-node",
+					"specifier": "^5.5.7",
+					"version": "5.5.7",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@sveltejs/adapter-node/-/adapter-node-5.5.7.tgz"
+				},
+				{
+					"name": "@sveltejs/adapter-static",
+					"specifier": "^3.0.10",
+					"version": "3.0.10",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@sveltejs/adapter-static/-/adapter-static-3.0.10.tgz"
+				},
+				{
+					"name": "@sveltejs/kit",
+					"specifier": "^2.61.1",
+					"version": "2.61.1",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@sveltejs/kit/-/kit-2.61.1.tgz"
+				},
+				{
+					"name": "@sveltejs/vite-plugin-svelte",
+					"specifier": "^7.1.2",
+					"version": "7.1.2",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-7.1.2.tgz"
+				},
+				{
+					"name": "@tailwindcss/vite",
+					"specifier": "^4.2.2",
+					"version": "4.2.2",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.2.2.tgz"
+				},
+				{
+					"name": "@tummycrypt/vite-plugin-a11y",
+					"specifier": "^0.2.2",
+					"version": "0.2.2",
+					"license": "Zlib AND LicenseRef-Tinyland-Proprietary",
+					"resolved": "https://registry.npmjs.org/@tummycrypt/vite-plugin-a11y/-/vite-plugin-a11y-0.2.2.tgz"
+				},
+				{
+					"name": "@types/node",
+					"specifier": "^25.2.3",
+					"version": "25.5.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@types/node/-/node-25.5.0.tgz"
+				},
+				{
+					"name": "@vitest/coverage-v8",
+					"specifier": "^4.1.4",
+					"version": "4.1.4",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-4.1.4.tgz"
+				},
+				{
+					"name": "eslint",
+					"specifier": "^9.39.2",
+					"version": "9.39.4",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/eslint/-/eslint-9.39.4.tgz"
+				},
+				{
+					"name": "eslint-config-prettier",
+					"specifier": "^10.1.8",
+					"version": "10.1.8",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz"
+				},
+				{
+					"name": "eslint-plugin-svelte",
+					"specifier": "^3.17.0",
+					"version": "3.17.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/eslint-plugin-svelte/-/eslint-plugin-svelte-3.17.0.tgz"
+				},
+				{
+					"name": "pagefind",
+					"specifier": "^1.5.2",
+					"version": "1.5.2",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/pagefind/-/pagefind-1.5.2.tgz"
+				},
+				{
+					"name": "prettier",
+					"specifier": "^3.8.1",
+					"version": "3.8.1",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/prettier/-/prettier-3.8.1.tgz"
+				},
+				{
+					"name": "prettier-plugin-svelte",
+					"specifier": "^3.4.1",
+					"version": "3.5.1",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/prettier-plugin-svelte/-/prettier-plugin-svelte-3.5.1.tgz"
+				},
+				{
+					"name": "puppeteer",
+					"specifier": "^24.43.1",
+					"version": "24.43.1",
+					"license": "Apache-2.0",
+					"resolved": "https://registry.npmjs.org/puppeteer/-/puppeteer-24.43.1.tgz"
+				},
+				{
+					"name": "rehype-slug",
+					"specifier": "^6.0.0",
+					"version": "6.0.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/rehype-slug/-/rehype-slug-6.0.0.tgz"
+				},
+				{
+					"name": "rollup-plugin-visualizer",
+					"specifier": "^6.0.5",
+					"version": "6.0.11",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/rollup-plugin-visualizer/-/rollup-plugin-visualizer-6.0.11.tgz"
+				},
+				{
+					"name": "serve",
+					"specifier": "^14.2.5",
+					"version": "14.2.6",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/serve/-/serve-14.2.6.tgz"
+				},
+				{
+					"name": "sharp",
+					"specifier": "^0.34.5",
+					"version": "0.34.5",
+					"license": "Apache-2.0",
+					"resolved": "https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz"
+				},
+				{
+					"name": "svelte",
+					"specifier": "^5.55.4",
+					"version": "5.55.4",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/svelte/-/svelte-5.55.4.tgz"
+				},
+				{
+					"name": "svelte-check",
+					"specifier": "^4.4.5",
+					"version": "4.4.5",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/svelte-check/-/svelte-check-4.4.5.tgz"
+				},
+				{
+					"name": "tsx",
+					"specifier": "^4.21.0",
+					"version": "4.21.0",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz"
+				},
+				{
+					"name": "typescript",
+					"specifier": "^5.9.3",
+					"version": "5.9.3",
+					"license": "Apache-2.0",
+					"resolved": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz"
+				},
+				{
+					"name": "typescript-eslint",
+					"specifier": "^8.58.2",
+					"version": "8.58.2",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.58.2.tgz"
+				},
+				{
+					"name": "vite",
+					"specifier": "^8.0.14",
+					"version": "8.0.14",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/vite/-/vite-8.0.14.tgz"
+				},
+				{
+					"name": "vitest",
+					"specifier": "^4.1.4",
+					"version": "4.1.4",
+					"license": "MIT",
+					"resolved": "https://registry.npmjs.org/vitest/-/vitest-4.1.4.tgz"
+				}
+			]
+		}
+	],
+	"tree": {
+		"installCount": 1150,
+		"packageCount": 1078,
+		"runtimePackageCount": 361,
+		"licenseHistogram": [
+			[
+				"MIT",
+				769
+			],
+			[
+				"Apache-2.0",
+				162
+			],
+			[
+				"ISC",
+				63
+			],
+			[
+				"BSD-3-Clause",
+				29
+			],
+			[
+				"MPL-2.0",
+				12
+			],
+			[
+				"BSD-2-Clause",
+				10
+			],
+			[
+				"LGPL-3.0-or-later",
+				10
+			],
+			[
+				"OFL-1.1",
+				4
+			],
+			[
+				"Apache-2.0 AND LGPL-3.0-or-later",
+				3
+			],
+			[
+				"UNDECLARED",
+				2
+			],
+			[
+				"(BSD-2-Clause OR MIT OR Apache-2.0)",
+				1
+			],
+			[
+				"(CC-BY-4.0 AND OFL-1.1 AND MIT)",
+				1
+			],
+			[
+				"(MIT AND Zlib)",
+				1
+			],
+			[
+				"(MIT OR CC0-1.0)",
+				1
+			],
+			[
+				"(MPL-2.0 OR Apache-2.0)",
+				1
+			],
+			[
+				"(WTFPL OR MIT)",
+				1
+			],
+			[
+				"0BSD",
+				1
+			],
+			[
+				"Apache-2.0 AND LGPL-3.0-or-later AND MIT",
+				1
+			],
+			[
+				"BlueOak-1.0.0",
+				1
+			],
+			[
+				"EPL-2.0",
+				1
+			],
+			[
+				"Python-2.0",
+				1
+			],
+			[
+				"Unlicense",
+				1
+			],
+			[
+				"Zlib",
+				1
+			],
+			[
+				"Zlib AND LicenseRef-Tinyland-Proprietary",
+				1
+			]
+		],
+		"runtimeLicenseHistogram": [
+			[
+				"MIT",
+				225
+			],
+			[
+				"Apache-2.0",
+				106
+			],
+			[
+				"BSD-3-Clause",
+				11
+			],
+			[
+				"ISC",
+				10
+			],
+			[
+				"OFL-1.1",
+				4
+			],
+			[
+				"(MPL-2.0 OR Apache-2.0)",
+				1
+			],
+			[
+				"0BSD",
+				1
+			],
+			[
+				"BSD-2-Clause",
+				1
+			],
+			[
+				"UNDECLARED",
+				1
+			],
+			[
+				"Zlib",
+				1
+			]
+		],
+		"undeclared": [
+			"@better-fetch/fetch@1.1.21",
+			"khroma@2.1.0"
+		],
+		"workspacePackages": [
+			"@blog/agent",
+			"@blog/pulse-client",
+			"@blog/pulse-core"
+		]
+	}
+}

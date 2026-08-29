@@ -6,9 +6,9 @@ This project (transscendsurvival.org) is dedicated to the public domain under
 [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 Every figure below is derived from `package-lock.json` — the package name and
-its declared range from `package.json`, the resolved version and the license
-string from the lockfile entry for that exact resolution. Nothing here is
-hand-entered, so nothing here can drift without `scripts/truth-surfaces.test.mts`
+its declared range from `package.json`, the resolved version, license string
+and source URL from the lockfile entry for that exact resolution. Nothing here
+is hand-entered, so nothing here can drift without `scripts/truth-surfaces.mjs`
 failing.
 
 Regenerate with:
@@ -16,6 +16,10 @@ Regenerate with:
 ```sh
 node scripts/truth-surfaces.mjs --write
 ```
+
+That command writes this file and `src/lib/data/third-party-licenses.json`, which
+`src/routes/THIRD-PARTY-LICENSES/+page.svelte` renders — the published page and
+this document are the same data, so they cannot disagree.
 
 A dependency whose lockfile entry declares no license is printed as
 `UNDECLARED`. It is never guessed from the package name, the organisation, or
@@ -28,73 +32,100 @@ a runtime dependency it no longer is, and omitted most of the direct set.
 
 ## Runtime Dependencies
 
-| Package | Declared | Resolved | License |
-| --- | --- | --- | --- |
-| @fontsource/crimson-pro | `^5.2.8` | 5.2.8 | OFL-1.1 |
-| @fontsource/fira-code | `^5.2.7` | 5.2.7 | OFL-1.1 |
-| @fontsource/inter | `^5.2.8` | 5.2.8 | OFL-1.1 |
-| @fontsource/raleway | `^5.2.8` | 5.2.8 | OFL-1.1 |
-| @skeletonlabs/skeleton | `5.0.0` | 5.0.0 | MIT |
-| @skeletonlabs/skeleton-svelte | `5.0.0` | 5.0.0 | MIT |
-| @tummycrypt/tinyvectors | `https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz` | 0.3.5 | Zlib |
-| dompurify | `^3.4.13` | 3.4.13 | (MPL-2.0 OR Apache-2.0) |
-| flexsearch | `^0.8.212` | 0.8.212 | Apache-2.0 |
-| marked | `^4.3.0` | 4.3.0 | MIT |
-| mdsvex | `^0.12.7` | 0.12.7 | MIT |
-| shiki | `^4.2.0` | 4.2.0 | MIT |
-| tailwindcss | `^4.2.2` | 4.2.2 | MIT |
+| Package | Declared | Resolved | License | Source |
+| --- | --- | --- | --- | --- |
+| @fontsource/crimson-pro | `^5.2.8` | 5.2.8 | OFL-1.1 | <https://registry.npmjs.org/@fontsource/crimson-pro/-/crimson-pro-5.2.8.tgz> |
+| @fontsource/fira-code | `^5.2.7` | 5.2.7 | OFL-1.1 | <https://registry.npmjs.org/@fontsource/fira-code/-/fira-code-5.2.7.tgz> |
+| @fontsource/inter | `^5.2.8` | 5.2.8 | OFL-1.1 | <https://registry.npmjs.org/@fontsource/inter/-/inter-5.2.8.tgz> |
+| @fontsource/raleway | `^5.2.8` | 5.2.8 | OFL-1.1 | <https://registry.npmjs.org/@fontsource/raleway/-/raleway-5.2.8.tgz> |
+| @skeletonlabs/skeleton | `5.0.0` | 5.0.0 | MIT | <https://registry.npmjs.org/@skeletonlabs/skeleton/-/skeleton-5.0.0.tgz> |
+| @skeletonlabs/skeleton-svelte | `5.0.0` | 5.0.0 | MIT | <https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/-/skeleton-svelte-5.0.0.tgz> |
+| @tummycrypt/tinyvectors | `https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz` | 0.3.5 | Zlib | <https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz> |
+| dompurify | `^3.4.13` | 3.4.13 | (MPL-2.0 OR Apache-2.0) | <https://registry.npmjs.org/dompurify/-/dompurify-3.4.13.tgz> |
+| flexsearch | `^0.8.212` | 0.8.212 | Apache-2.0 | <https://registry.npmjs.org/flexsearch/-/flexsearch-0.8.212.tgz> |
+| marked | `^4.3.0` | 4.3.0 | MIT | <https://registry.npmjs.org/marked/-/marked-4.3.0.tgz> |
+| mdsvex | `^0.12.7` | 0.12.7 | MIT | <https://registry.npmjs.org/mdsvex/-/mdsvex-0.12.7.tgz> |
+| shiki | `^4.2.0` | 4.2.0 | MIT | <https://registry.npmjs.org/shiki/-/shiki-4.2.0.tgz> |
+| tailwindcss | `^4.2.2` | 4.2.2 | MIT | <https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.2.2.tgz> |
 
 ## Build / Dev Dependencies
 
-| Package | Declared | Resolved | License |
-| --- | --- | --- | --- |
-| @eslint/js | `^9.39.2` | 9.39.4 | MIT |
-| @mermaid-js/mermaid-cli | `^11.15.0` | 11.15.0 | MIT |
-| @playwright/test | `^1.59.1` | 1.59.1 | Apache-2.0 |
-| @sveltejs/adapter-node | `^5.5.7` | 5.5.7 | MIT |
-| @sveltejs/adapter-static | `^3.0.10` | 3.0.10 | MIT |
-| @sveltejs/kit | `^2.61.1` | 2.61.1 | MIT |
-| @sveltejs/vite-plugin-svelte | `^7.1.2` | 7.1.2 | MIT |
-| @tailwindcss/vite | `^4.2.2` | 4.2.2 | MIT |
-| @tummycrypt/vite-plugin-a11y | `^0.2.2` | 0.2.2 | Zlib AND LicenseRef-Tinyland-Proprietary |
-| @types/node | `^25.2.3` | 25.5.0 | MIT |
-| @vitest/coverage-v8 | `^4.1.4` | 4.1.4 | MIT |
-| eslint | `^9.39.2` | 9.39.4 | MIT |
-| eslint-config-prettier | `^10.1.8` | 10.1.8 | MIT |
-| eslint-plugin-svelte | `^3.17.0` | 3.17.0 | MIT |
-| pagefind | `^1.5.2` | 1.5.2 | MIT |
-| prettier | `^3.8.1` | 3.8.1 | MIT |
-| prettier-plugin-svelte | `^3.4.1` | 3.5.1 | MIT |
-| puppeteer | `^24.43.1` | 24.43.1 | Apache-2.0 |
-| rehype-slug | `^6.0.0` | 6.0.0 | MIT |
-| rollup-plugin-visualizer | `^6.0.5` | 6.0.11 | MIT |
-| serve | `^14.2.5` | 14.2.6 | MIT |
-| sharp | `^0.34.5` | 0.34.5 | Apache-2.0 |
-| svelte | `^5.55.4` | 5.55.4 | MIT |
-| svelte-check | `^4.4.5` | 4.4.5 | MIT |
-| tsx | `^4.21.0` | 4.21.0 | MIT |
-| typescript | `^5.9.3` | 5.9.3 | Apache-2.0 |
-| typescript-eslint | `^8.58.2` | 8.58.2 | MIT |
-| vite | `^8.0.14` | 8.0.14 | MIT |
-| vitest | `^4.1.4` | 4.1.4 | MIT |
+| Package | Declared | Resolved | License | Source |
+| --- | --- | --- | --- | --- |
+| @eslint/js | `^9.39.2` | 9.39.4 | MIT | <https://registry.npmjs.org/@eslint/js/-/js-9.39.4.tgz> |
+| @mermaid-js/mermaid-cli | `^11.15.0` | 11.15.0 | MIT | <https://registry.npmjs.org/@mermaid-js/mermaid-cli/-/mermaid-cli-11.15.0.tgz> |
+| @playwright/test | `^1.59.1` | 1.59.1 | Apache-2.0 | <https://registry.npmjs.org/@playwright/test/-/test-1.59.1.tgz> |
+| @sveltejs/adapter-node | `^5.5.7` | 5.5.7 | MIT | <https://registry.npmjs.org/@sveltejs/adapter-node/-/adapter-node-5.5.7.tgz> |
+| @sveltejs/adapter-static | `^3.0.10` | 3.0.10 | MIT | <https://registry.npmjs.org/@sveltejs/adapter-static/-/adapter-static-3.0.10.tgz> |
+| @sveltejs/kit | `^2.61.1` | 2.61.1 | MIT | <https://registry.npmjs.org/@sveltejs/kit/-/kit-2.61.1.tgz> |
+| @sveltejs/vite-plugin-svelte | `^7.1.2` | 7.1.2 | MIT | <https://registry.npmjs.org/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-7.1.2.tgz> |
+| @tailwindcss/vite | `^4.2.2` | 4.2.2 | MIT | <https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.2.2.tgz> |
+| @tummycrypt/vite-plugin-a11y | `^0.2.2` | 0.2.2 | Zlib AND LicenseRef-Tinyland-Proprietary | <https://registry.npmjs.org/@tummycrypt/vite-plugin-a11y/-/vite-plugin-a11y-0.2.2.tgz> |
+| @types/node | `^25.2.3` | 25.5.0 | MIT | <https://registry.npmjs.org/@types/node/-/node-25.5.0.tgz> |
+| @vitest/coverage-v8 | `^4.1.4` | 4.1.4 | MIT | <https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-4.1.4.tgz> |
+| eslint | `^9.39.2` | 9.39.4 | MIT | <https://registry.npmjs.org/eslint/-/eslint-9.39.4.tgz> |
+| eslint-config-prettier | `^10.1.8` | 10.1.8 | MIT | <https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz> |
+| eslint-plugin-svelte | `^3.17.0` | 3.17.0 | MIT | <https://registry.npmjs.org/eslint-plugin-svelte/-/eslint-plugin-svelte-3.17.0.tgz> |
+| pagefind | `^1.5.2` | 1.5.2 | MIT | <https://registry.npmjs.org/pagefind/-/pagefind-1.5.2.tgz> |
+| prettier | `^3.8.1` | 3.8.1 | MIT | <https://registry.npmjs.org/prettier/-/prettier-3.8.1.tgz> |
+| prettier-plugin-svelte | `^3.4.1` | 3.5.1 | MIT | <https://registry.npmjs.org/prettier-plugin-svelte/-/prettier-plugin-svelte-3.5.1.tgz> |
+| puppeteer | `^24.43.1` | 24.43.1 | Apache-2.0 | <https://registry.npmjs.org/puppeteer/-/puppeteer-24.43.1.tgz> |
+| rehype-slug | `^6.0.0` | 6.0.0 | MIT | <https://registry.npmjs.org/rehype-slug/-/rehype-slug-6.0.0.tgz> |
+| rollup-plugin-visualizer | `^6.0.5` | 6.0.11 | MIT | <https://registry.npmjs.org/rollup-plugin-visualizer/-/rollup-plugin-visualizer-6.0.11.tgz> |
+| serve | `^14.2.5` | 14.2.6 | MIT | <https://registry.npmjs.org/serve/-/serve-14.2.6.tgz> |
+| sharp | `^0.34.5` | 0.34.5 | Apache-2.0 | <https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz> |
+| svelte | `^5.55.4` | 5.55.4 | MIT | <https://registry.npmjs.org/svelte/-/svelte-5.55.4.tgz> |
+| svelte-check | `^4.4.5` | 4.4.5 | MIT | <https://registry.npmjs.org/svelte-check/-/svelte-check-4.4.5.tgz> |
+| tsx | `^4.21.0` | 4.21.0 | MIT | <https://registry.npmjs.org/tsx/-/tsx-4.21.0.tgz> |
+| typescript | `^5.9.3` | 5.9.3 | Apache-2.0 | <https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz> |
+| typescript-eslint | `^8.58.2` | 8.58.2 | MIT | <https://registry.npmjs.org/typescript-eslint/-/typescript-eslint-8.58.2.tgz> |
+| vite | `^8.0.14` | 8.0.14 | MIT | <https://registry.npmjs.org/vite/-/vite-8.0.14.tgz> |
+| vitest | `^4.1.4` | 4.1.4 | MIT | <https://registry.npmjs.org/vitest/-/vitest-4.1.4.tgz> |
 
-## Full Resolved Tree
+## Resolved Tree
 
-1150 third-party packages are resolved into the
-lockfile in total (direct and transitive). Their declared licenses:
+`package-lock.json` records 1150 installs under `node_modules/`.
+That is a count of install paths, not of packages: npm records a package once
+per place it lands, so a dependency it cannot hoist appears many times over.
+Deduplicated on `name@version`, the tree is **1078** distinct
+third-party packages, of which **361** are reachable
+outside `devDependencies`.
+
+### Runtime Packages
+
+This is the set that governs attribution: the site is a prerendered static
+build, so only these licenses travel to a reader.
 
 | License | Packages |
 | --- | --- |
-| MIT | 794 |
-| Apache-2.0 | 205 |
-| ISC | 64 |
+| MIT | 225 |
+| Apache-2.0 | 106 |
+| BSD-3-Clause | 11 |
+| ISC | 10 |
+| OFL-1.1 | 4 |
+| (MPL-2.0 OR Apache-2.0) | 1 |
+| 0BSD | 1 |
+| BSD-2-Clause | 1 |
+| UNDECLARED | 1 |
+| Zlib | 1 |
+
+### Full Resolved Tree
+
+Development-only packages included. Licenses appearing here but not above are
+build-time only and are not distributed.
+
+| License | Packages |
+| --- | --- |
+| MIT | 769 |
+| Apache-2.0 | 162 |
+| ISC | 63 |
 | BSD-3-Clause | 29 |
 | MPL-2.0 | 12 |
 | BSD-2-Clause | 10 |
 | LGPL-3.0-or-later | 10 |
-| UNDECLARED | 5 |
 | OFL-1.1 | 4 |
 | Apache-2.0 AND LGPL-3.0-or-later | 3 |
+| UNDECLARED | 2 |
 | (BSD-2-Clause OR MIT OR Apache-2.0) | 1 |
 | (CC-BY-4.0 AND OFL-1.1 AND MIT) | 1 |
 | (MIT AND Zlib) | 1 |
@@ -110,14 +141,13 @@ lockfile in total (direct and transitive). Their declared licenses:
 | Zlib | 1 |
 | Zlib AND LicenseRef-Tinyland-Proprietary | 1 |
 
-5 resolved package(s) declare no license field in the lockfile:
+## Undeclared Licenses
 
-- `@better-fetch/fetch`
-- `@blog/agent`
-- `@blog/pulse-client`
-- `@blog/pulse-core`
-- `khroma`
+2 resolved third-party package(s) declare no license field in the lockfile:
 
-Workspace-local packages are covered by this repository's CC0 dedication; any
-other name on that list is an unreviewed license and is a follow-up, not a
-silent MIT.
+- `@better-fetch/fetch@1.1.21`
+- `khroma@2.1.0`
+
+Each one is an unreviewed license and a follow-up, not a silent MIT.
+
+The lockfile also carries 3 workspace link(s) — `@blog/agent`, `@blog/pulse-client`, `@blog/pulse-core` — which are this repository's own code under its CC0 dedication. They are not third party and are excluded from every figure above.
