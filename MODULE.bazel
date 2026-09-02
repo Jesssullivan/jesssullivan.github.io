@@ -32,7 +32,7 @@ bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)
 # hermetically built package (@tummycrypt_tinyvectors//:pkg), overlaid by the
 # run-*-bazel.mjs wrappers. Keep this version, the package.json pin, and the
 # prepare hook's PINNED_INTEGRITY in lockstep.
-bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.5")
+bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.6")
 
 git_override(
     module_name = "spear_resumes",
