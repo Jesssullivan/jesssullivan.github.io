@@ -22,6 +22,11 @@ test --test_timeout=120,600,1800,3600
 # GF_RBE_CHROMIUM_EXECUTABLE). No hardcoded value: an absent var lets
 # the run-*-bazel.mjs candidate scan handle system chromium paths.
 test --test_env=GF_RBE_CHROMIUM_EXECUTABLE
+test --test_env=PLAYWRIGHT_TRACE_MODE
+# Undeclared test outputs (Playwright traces/screenshots) are zipped into a single
+# test.outputs/outputs.zip; Bazel 8's unzipped tree-artifact default refused the
+# directory (spec names carry non-ASCII) on run 33203042020.
+test --zip_undeclared_test_outputs
 
 build:local --disk_cache=~/.cache/bazel-jesssullivan-github-io
 
