@@ -80,12 +80,12 @@ test.describe('Theme Switcher', () => {
 test.describe('Featured Posts', () => {
 	test('homepage shows recent posts section', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByRole('heading', { name: 'Recent Posts' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Latest', exact: true })).toBeVisible();
 	});
 
 	test('recent posts have category badges with variant colors', async ({ page }) => {
 		await page.goto('/');
-		const recentSection = page.locator('section', { has: page.getByRole('heading', { name: 'Recent Posts' }) });
+		const recentSection = page.locator('section', { has: page.getByRole('heading', { name: 'Latest', exact: true }) });
 		const badges = recentSection.locator('.badge');
 		const count = await badges.count();
 		// At least some posts should have categories
