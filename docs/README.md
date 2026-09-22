@@ -2,7 +2,8 @@
 
 Live: `runbooks/dns-cutover-and-rollback.md` (read before any DNS or Pages
 change), `dns-architecture.md`, `blog-staging.md`, `blog-shadow-preview.md`,
-`blog-node-shadow.md`, `blog-editorial-taxonomy-2026-07-03.md`, the
+`blog-node-shadow.md`, `tss-shadow-publish.md` (the gated `tss.tinyland.dev`
+lane and its operator ceremony), `blog-editorial-taxonomy-2026-07-03.md`, the
 `tinyland-pulse-*` contract set, `plans/2026-07-07-blog-operating-priorities.md`,
 and `build-metrics.md` (superseded numbers, kept as the Vite 6 baseline).
 
