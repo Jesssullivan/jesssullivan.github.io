@@ -17,7 +17,7 @@ function computeReadingTime(text: string): number {
 }
 
 async function main(): Promise<void> {
-	const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith('.md'));
+	const files = (await readdir(POSTS_DIR)).filter((f) => /\.(?:md|svx)$/.test(f));
 	const index: SearchIndexEntry[] = [];
 	const publicationHolds: string[] = [];
 	const publishedSourceFiles: string[] = [];
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
 		const meta = parseFrontmatter(content);
 		if (!meta) continue;
 
-		const slug = (meta.slug as string) ?? file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+		const slug = (meta.slug as string) ?? file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 		if (meta.published !== true) {
 			if (meta.published === false) publicationHolds.push(slug);
 			continue;
@@ -88,7 +88,7 @@ async function main(): Promise<void> {
 	publicationHolds.sort((a, b) => a.localeCompare(b));
 	publishedSourceFiles.sort((a, b) => a.localeCompare(b));
 	const unsafeLoaderPath = publishedSourceFiles.find(
-		(sourceFile) => !/^\/src\/posts\/[A-Za-z0-9._-]+\.md$/.test(sourceFile),
+		(sourceFile) => !/^\/src\/posts\/[A-Za-z0-9._-]+\.(?:md|svx)$/.test(sourceFile),
 	);
 	if (unsafeLoaderPath) {
 		throw new Error(`Published post path cannot be emitted as an exact loader: ${unsafeLoaderPath}`);

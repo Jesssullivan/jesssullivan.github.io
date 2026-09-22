@@ -22,7 +22,7 @@ function isValidISODate(s: string): boolean {
 	return !isNaN(d.getTime());
 }
 
-const files = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
+const files = readdirSync(postsDir).filter((f) => /\.(?:md|svx)$/.test(f));
 const errors: string[] = [];
 const warnings: string[] = [];
 const slugs = new Map<string, string>(); // slug -> filename
@@ -132,7 +132,7 @@ for (const file of files) {
 	const slug =
 		typeof fm.slug === 'string' && (fm.slug as string).length > 0
 			? (fm.slug as string)
-			: file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+			: file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
 	if (slugs.has(slug)) {
 		fileErrors.push(`duplicate slug "${slug}" (also in ${slugs.get(slug)})`);

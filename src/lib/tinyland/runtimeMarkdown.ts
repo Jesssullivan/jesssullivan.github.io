@@ -1,10 +1,12 @@
+import { renderReviewedComponentsForRuntime } from './reviewedComponents';
+
 export async function renderTrustedBrokerMarkdown(markdown: string): Promise<string> {
 	if (typeof window === 'undefined') {
 		throw new Error('runtime broker markdown rendering is browser-only');
 	}
 
 	const [markedModule, domPurifyModule] = await Promise.all([import('marked'), import('dompurify')]);
-	const rendered = await markedModule.marked.parse(markdown, {
+	const rendered = await markedModule.marked.parse(renderReviewedComponentsForRuntime(markdown), {
 		gfm: true,
 		breaks: false,
 	});

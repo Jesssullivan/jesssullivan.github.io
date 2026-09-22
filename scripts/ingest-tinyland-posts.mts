@@ -7,6 +7,11 @@
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
+import {
+	compileReviewedComponentMarkdown,
+	reviewedComponentImportBlock,
+	validateReviewedComponentMarkdown,
+} from '../src/lib/tinyland/reviewedComponents';
 
 const SNAPSHOT_PATH = resolve('static', 'data', 'tinyland', 'posts', 'public-snapshot.v1.json');
 const POSTS_ROOT = resolve('src', 'posts');
@@ -117,8 +122,8 @@ function readSnapshot(): TinylandPostSnapshot {
 	}
 
 	for (const post of snapshot.posts ?? []) {
-		if (!post.targetFile.startsWith('src/posts/') || !post.targetFile.endsWith('.md')) {
-			findings.push(`${post.slug}: targetFile must stay under src/posts/*.md`);
+		if (!post.targetFile.startsWith('src/posts/') || !/\.(?:md|svx)$/.test(post.targetFile)) {
+			findings.push(`${post.slug}: targetFile must stay under src/posts/*.md or *.svx`);
 		}
 		if (post.published !== true || post.visibility !== 'public') {
 			findings.push(`${post.slug}: only public published posts may be ingested`);
@@ -128,6 +133,11 @@ function readSnapshot(): TinylandPostSnapshot {
 		}
 		if (!post.tinylandSourceHash.startsWith('sha256:')) {
 			findings.push(`${post.slug}: tinylandSourceHash must be sha256-prefixed`);
+		}
+		try {
+			validateReviewedComponentMarkdown(post.contentMarkdown);
+		} catch (error) {
+			findings.push(`${post.slug}: ${error instanceof Error ? error.message : 'invalid reviewed component content'}`);
 		}
 	}
 
@@ -168,6 +178,10 @@ function legacyOriginalUrl(post: TinylandPostProjection, snapshot: TinylandPostS
 }
 
 function renderPost(post: TinylandPostProjection, snapshot: TinylandPostSnapshot): string {
+	const compiled = compileReviewedComponentMarkdown(post.contentMarkdown);
+	if (compiled.imports.length > 0 && !post.targetFile.endsWith('.svx')) {
+		throw new Error(`${post.slug}: reviewed SVX components require a src/posts/*.svx targetFile`);
+	}
 	const lines = [
 		'---',
 		`title: ${yamlString(post.title)}`,
@@ -190,8 +204,10 @@ function renderPost(post: TinylandPostProjection, snapshot: TinylandPostSnapshot
 		'---',
 	];
 
-	const body = post.contentMarkdown.startsWith('\n') ? post.contentMarkdown : `\n${post.contentMarkdown}`;
-	return `${lines.join('\n')}${body.endsWith('\n') ? body : `${body}\n`}`;
+	const body = compiled.markdown.startsWith('\n') ? compiled.markdown : `\n${compiled.markdown}`;
+	const imports = reviewedComponentImportBlock(compiled.imports);
+	if (!imports) return `${lines.join('\n')}${body.endsWith('\n') ? body : `${body}\n`}`;
+	return `${lines.join('\n')}\n${imports.trimEnd()}\n\n${body.trimStart()}${body.endsWith('\n') ? '' : '\n'}`;
 }
 
 function targetPathFor(post: TinylandPostProjection): string {

@@ -51,7 +51,7 @@ function isPhotographyImage(filename: string): boolean {
 function buildImageToPostMap(): Map<string, { slug: string; title: string }> {
 	const map = new Map<string, { slug: string; title: string }>();
 
-	const files = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md'));
+	const files = readdirSync(POSTS_DIR).filter((f) => /\.(?:md|svx)$/.test(f));
 	for (const file of files) {
 		const content = readFileSync(join(POSTS_DIR, file), 'utf-8');
 
@@ -60,7 +60,7 @@ function buildImageToPostMap(): Map<string, { slug: string; title: string }> {
 
 		const title = (fm.title as string) || '';
 		const slug = (fm.slug as string)
-			|| file.replace('.md', '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+			|| file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
 		// Find image references
 		const imgRefs = content.matchAll(/!\[[^\]]*\]\(\/images\/posts\/([^)]+)\)/g);
