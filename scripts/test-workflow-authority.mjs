@@ -144,7 +144,7 @@ requireAll(
 		'Revalidate production kill switch and current main immediately before publish',
 		'VARIABLES_READ_TOKEN: ${{ secrets.VARIABLES_READ_TOKEN }}',
 		'const variablesReaderToken = process.env.VARIABLES_READ_TOKEN;',
-		'github.getOctokit(variablesReaderToken)',
+		'getOctokit(variablesReaderToken)',
 		'const mainRef = await github.rest.git.getRef',
 		'name: "CLOUDFLARE_PAGES_PRODUCTION_ENABLED"',
 		'Refusing stale production publish:',
