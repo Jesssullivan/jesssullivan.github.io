@@ -45,6 +45,10 @@
 	};
 
 	let readingProgress = $state(0);
+	let articleRoot = $state<HTMLElement | null>(null);
+	let documentRoot = $state<HTMLElement | null>(null);
+	let tocRefresh = $state(0);
+	let reducedMotion = $state(false);
 	let brokerPost = $state<TinylandBlogBrokerPost | null>(null);
 	let brokerHtml = $state('');
 	let brokerStatus = $state<'idle' | 'loading' | 'ready' | 'unavailable'>('idle');
@@ -53,9 +57,7 @@
 	// Broker content drives display ONLY for live-only posts (not in the repo).
 	// Repo posts render their static prerendered content (mermaid SVG + Shiki),
 	// so the broker body never suppresses the rich static render.
-	let activePost = $derived(
-		data.brokerOnly && brokerPost ? tinylandBlogBrokerPostToPost(brokerPost) : null
-	);
+	let activePost = $derived(data.brokerOnly && brokerPost ? tinylandBlogBrokerPostToPost(brokerPost) : null);
 	let activeMetadata = $derived(
 		activePost
 			? {
@@ -68,7 +70,7 @@
 					category: activePost.category,
 					feature_image: activePost.feature_image,
 				}
-			: data.metadata
+			: data.metadata,
 	) as ActiveMetadata;
 	let activeReadingTime = $derived(activePost?.reading_time ?? data.reading_time);
 	let activeImageUrl = $derived(resolveSiteImageUrl(activeMetadata.feature_image));
@@ -97,7 +99,7 @@
 				...(activeMetadata.tags?.length ? { keywords: activeMetadata.tags.join(', ') } : {}),
 			}) +
 			'</' +
-			'script>'
+			'script>',
 	);
 	let brokerStatusLabel = $derived(
 		brokerStatus === 'ready' && brokerPost
@@ -124,70 +126,137 @@
 	}
 
 	function updateReadingProgress() {
-		const article = document.querySelector('article');
-		if (!article) return;
-		const rect = article.getBoundingClientRect();
+		if (!articleRoot) return;
+		const rect = articleRoot.getBoundingClientRect();
 		const totalHeight = rect.height - window.innerHeight;
-		if (totalHeight <= 0) { readingProgress = 100; return; }
+		if (totalHeight <= 0) {
+			readingProgress = 100;
+			return;
+		}
 		const scrolled = -rect.top;
 		readingProgress = Math.min(100, Math.max(0, (scrolled / totalHeight) * 100));
 	}
 
 	onMount(() => {
-		// Reading progress bar
-		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		if (!prefersReducedMotion) {
-			updateReadingProgress();
-			window.addEventListener('scroll', updateReadingProgress, { passive: true });
-		}
+		const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+		const updateMotionPreference = () => (reducedMotion = motionQuery.matches);
+		updateMotionPreference();
+		updateReadingProgress();
+		window.addEventListener('scroll', updateReadingProgress, { passive: true });
+		window.addEventListener('resize', updateReadingProgress, { passive: true });
+		motionQuery.addEventListener('change', updateMotionPreference);
 
 		return () => {
 			window.removeEventListener('scroll', updateReadingProgress);
+			window.removeEventListener('resize', updateReadingProgress);
+			motionQuery.removeEventListener('change', updateMotionPreference);
 		};
 	});
 
-	onMount(async () => {
-		// Code copy buttons
-		document.querySelectorAll('.prose pre').forEach((pre) => {
-			const wrapper = document.createElement('div');
-			wrapper.className = 'relative group';
-			pre.parentNode?.insertBefore(wrapper, pre);
-			wrapper.appendChild(pre);
+	function headingText(heading: HTMLElement) {
+		const clone = heading.cloneNode(true) as HTMLElement;
+		clone.querySelectorAll('[data-heading-anchor]').forEach((anchor) => anchor.remove());
+		return clone.textContent?.trim() ?? '';
+	}
+
+	function slugifyHeading(text: string) {
+		return (
+			text
+				.toLowerCase()
+				.replace(/[^\w\s-]/g, '')
+				.replace(/\s+/g, '-')
+				.replace(/-+/g, '-')
+				.replace(/^-|-$/g, '') || 'section'
+		);
+	}
+
+	function refreshDocumentEnhancements(root: HTMLElement) {
+		if (!root.isConnected) return;
+
+		const headings = Array.from(root.querySelectorAll<HTMLElement>('h2, h3, h4'));
+		const usedIds: string[] = [];
+		headings.forEach((heading) => {
+			const baseId = heading.id || slugifyHeading(headingText(heading));
+			let id = baseId;
+			let suffix = 2;
+			while (usedIds.includes(id)) id = `${baseId}-${suffix++}`;
+			heading.id = id;
+			usedIds.push(id);
+
+			if (heading.querySelector(':scope > [data-heading-anchor]')) return;
+			const link = document.createElement('a');
+			link.href = `#${id}`;
+			link.className = 'heading-anchor';
+			link.dataset.headingAnchor = '';
+			link.setAttribute('aria-label', `Link to ${headingText(heading)}`);
+			link.textContent = '#';
+			heading.prepend(link);
+		});
+
+		root.querySelectorAll('pre').forEach((pre) => {
+			let wrapper = pre.parentElement;
+			if (!wrapper?.hasAttribute('data-code-copy-wrapper')) {
+				const wrapper = document.createElement('div');
+				wrapper.className = 'relative group';
+				wrapper.dataset.codeCopyWrapper = '';
+				pre.parentNode?.insertBefore(wrapper, pre);
+				wrapper.appendChild(pre);
+			}
+			wrapper = pre.parentElement;
+			if (!wrapper || wrapper.querySelector(':scope > [data-code-copy-button]')) return;
 
 			const btn = document.createElement('button');
+			btn.type = 'button';
 			btn.className =
-				'absolute top-2 right-2 px-2 py-1 text-xs bg-surface-700 text-surface-200 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer';
+				'absolute top-2 right-2 px-2 py-1 text-xs bg-surface-700 text-surface-200 opacity-0 group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-opacity cursor-pointer';
 			btn.textContent = 'Copy';
+			btn.dataset.codeCopyButton = '';
+			btn.setAttribute('aria-label', 'Copy code to clipboard');
 			btn.addEventListener('click', () => {
 				const code = pre.querySelector('code')?.textContent || pre.textContent || '';
-				navigator.clipboard.writeText(code).then(() => {
-					btn.textContent = 'Copied!';
-					setTimeout(() => (btn.textContent = 'Copy'), 1500);
-				});
+				if (!navigator.clipboard) {
+					btn.textContent = 'Copy unavailable';
+					return;
+				}
+				void navigator.clipboard
+					.writeText(code)
+					.then(() => {
+						btn.textContent = 'Copied!';
+						setTimeout(() => (btn.textContent = 'Copy'), 1500);
+					})
+					.catch(() => {
+						btn.textContent = 'Copy failed';
+						setTimeout(() => (btn.textContent = 'Copy'), 1500);
+					});
 			});
 			wrapper.appendChild(btn);
 		});
 
-		// Heading anchors
-		document.querySelectorAll('.prose h2, .prose h3, .prose h4').forEach((heading) => {
-			const text = heading.textContent || '';
-			const id =
-				heading.id ||
-				text
-					.toLowerCase()
-					.replace(/[^\w\s-]/g, '')
-					.replace(/\s+/g, '-')
-					.replace(/-+/g, '-')
-					.trim();
-			heading.id = id;
+		tocRefresh += 1;
+		updateReadingProgress();
+	}
 
-			const link = document.createElement('a');
-			link.href = `#${id}`;
-			link.className = 'heading-anchor';
-			link.setAttribute('aria-label', `Link to ${text}`);
-			link.textContent = '#';
-			heading.prepend(link);
-		});
+	onMount(() => {
+		const root = documentRoot;
+		if (!root) return;
+		let pending = false;
+		let disposed = false;
+		const refresh = () => {
+			if (disposed || pending) return;
+			pending = true;
+			queueMicrotask(() => {
+				pending = false;
+				if (!disposed) refreshDocumentEnhancements(root);
+			});
+		};
+
+		refresh();
+		const observer = new MutationObserver(refresh);
+		observer.observe(root, { childList: true, subtree: true });
+		return () => {
+			disposed = true;
+			observer.disconnect();
+		};
 	});
 
 	onMount(() => {
@@ -272,6 +341,7 @@
 
 {#if browser && readingProgress > 0}
 	<div
+		class:motion-reduced={reducedMotion}
 		class="reading-progress"
 		role="progressbar"
 		aria-valuenow={Math.round(readingProgress)}
@@ -282,7 +352,7 @@
 	></div>
 {/if}
 
-<article class="container mx-auto px-4 py-12 max-w-5xl">
+<article bind:this={articleRoot} class="container mx-auto px-4 py-12 max-w-5xl">
 	<div class="sr-only" aria-live="polite" data-testid="tinyland-blog-post-broker-state">
 		{#if brokerStatus === 'ready'}
 			Tinyland broker post loaded.
@@ -296,15 +366,23 @@
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<div class="min-w-0">
 			<header class="mb-8">
-				<Breadcrumbs crumbs={[
-					{ label: 'Home', href: '/' },
-					{ label: 'Blog', href: '/blog' },
-					{ label: activeMetadata.title, href: `/blog/${activeMetadata.slug}` }
-				]} />
+				<Breadcrumbs
+					crumbs={[
+						{ label: 'Home', href: '/' },
+						{ label: 'Blog', href: '/blog' },
+						{ label: activeMetadata.title, href: `/blog/${activeMetadata.slug}` },
+					]}
+				/>
 				<h1 class="text-3xl font-bold mt-2">{activeMetadata.title}</h1>
 				<div class="flex items-center gap-3 mt-3 text-sm text-surface-500">
 					{#if activeMetadata.date}
-						<time>{new Date(activeMetadata.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+						<time
+							>{new Date(activeMetadata.date).toLocaleDateString('en-US', {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric',
+							})}</time
+						>
 					{/if}
 					{#if activeReadingTime}
 						<span>&middot;</span>
@@ -316,16 +394,16 @@
 					{/if}
 				</div>
 				{#if activeMetadata.tags?.length}
-						<div class="flex flex-wrap gap-2 mt-3">
-							{#each activeMetadata.tags as tag (tag)}
-								<a
-									href="/blog/tag/{encodeURIComponent(tag)}"
-									class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors"
-									aria-label={`View posts tagged ${tag}`}
-								>{tag}</a>
-							{/each}
-						</div>
-					{/if}
+					<div class="flex flex-wrap gap-2 mt-3">
+						{#each activeMetadata.tags as tag (tag)}
+							<a
+								href="/blog/tag/{encodeURIComponent(tag)}"
+								class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-colors"
+								aria-label={`View posts tagged ${tag}`}>{tag}</a
+							>
+						{/each}
+					</div>
+				{/if}
 				{#if brokerStatusLabel}
 					<p
 						class="mt-3 text-xs text-surface-600-400"
@@ -336,7 +414,12 @@
 				{/if}
 			</header>
 
-			<div class="prose prose-lg max-w-none overflow-x-hidden" data-pagefind-body>
+			<div
+				bind:this={documentRoot}
+				class="prose prose-lg max-w-none overflow-x-hidden"
+				data-document-root
+				data-pagefind-body
+			>
 				{#if data.content}
 					{@render data.content()}
 				{:else if brokerHtml}
@@ -351,7 +434,11 @@
 
 			{#if activeOriginalUrl}
 				<p class="text-sm text-surface-500 mt-8 pt-4 border-t border-surface-300-700 italic">
-					Originally published at <a href={activeOriginalUrl} class="text-primary-500 hover:underline" aria-label={`Visit original post on ${activeOriginalHost}`}>{activeOriginalHost}</a>
+					Originally published at <a
+						href={activeOriginalUrl}
+						class="text-primary-500 hover:underline"
+						aria-label={`Visit original post on ${activeOriginalHost}`}>{activeOriginalHost}</a
+					>
 				</p>
 			{/if}
 
@@ -385,23 +472,28 @@
 								aria-label={`Read related post: ${related.title}`}
 							>
 								<h3 class="text-sm font-semibold line-clamp-2">{related.title}</h3>
-								<time class="text-xs text-surface-500 mt-1 block">{new Date(related.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+								<time class="text-xs text-surface-500 mt-1 block"
+									>{new Date(related.date).toLocaleDateString('en-US', {
+										year: 'numeric',
+										month: 'short',
+										day: 'numeric',
+									})}</time
+								>
 							</a>
 						{/each}
 					</div>
 				</section>
 			{/if}
-
 		</div>
 
 		<div class="hidden lg:block">
 			<div class="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto space-y-6 sidebar-scroll glass p-4">
 				{#if browser && readingProgress > 0}
 					<div class="flex flex-col items-center">
-						<ReadingProgressRing progress={readingProgress} />
+						<ReadingProgressRing progress={readingProgress} {reducedMotion} />
 					</div>
 				{/if}
-				<TableOfContents />
+				<TableOfContents {documentRoot} refreshKey={tocRefresh} />
 				<hr class="border-surface-300-700" />
 				<ProfileSidebar />
 			</div>
@@ -420,6 +512,9 @@
 		z-index: 100;
 		transition: width 0.1s linear;
 		pointer-events: none;
+	}
+	.reading-progress.motion-reduced {
+		transition: none;
 	}
 	:global(.heading-anchor) {
 		opacity: 0;
