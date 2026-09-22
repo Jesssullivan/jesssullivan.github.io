@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { PublicPulseItem } from '@blog/pulse-core/schema';
+	import { hasLeadImage, type PublicPulseItemAny } from '$lib/pulse/snapshot';
 
-	let { item }: { item: PublicPulseItem } = $props();
+	let { item }: { item: PublicPulseItemAny } = $props();
 
 	const formatted = $derived(
 		new Date(item.occurredAt).toLocaleString(undefined, {
@@ -16,6 +16,17 @@
 		<span aria-label="kind">💬 note</span>
 		<time datetime={item.occurredAt}>{formatted}</time>
 	</header>
+	{#if hasLeadImage(item)}
+		<img
+			src={item.leadImage.preview.url}
+			alt={item.leadImage.alt}
+			width={item.leadImage.preview.width}
+			height={item.leadImage.preview.height}
+			class="w-full rounded object-cover"
+			loading="lazy"
+			decoding="async"
+		/>
+	{/if}
 	<p class="leading-relaxed whitespace-pre-wrap">{item.content}</p>
 	{#if item.tags.length > 0}
 		<ul class="flex flex-wrap gap-2 text-xs text-surface-600-400">

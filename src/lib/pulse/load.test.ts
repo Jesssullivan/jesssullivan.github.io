@@ -7,6 +7,7 @@ import {
 	type PulseSnapshotFetch,
 } from './load';
 import type { PublicPulseSnapshot } from '@blog/pulse-core/schema';
+import { reviewedLeadImageSnapshot } from './fixtures/reviewedLeadImageSnapshot';
 
 const validSnapshot: PublicPulseSnapshot = {
 	schemaVersion: 'tinyland.pulse.v1.PublicPulseSnapshot',
@@ -45,13 +46,19 @@ describe('loadPulseSnapshot', () => {
 		await expect(loadPulseSnapshot(fetchMock)).resolves.toEqual(validSnapshot);
 		expect(fetchMock).toHaveBeenCalledWith(PUBLIC_SNAPSHOT_PATH);
 	});
+
+	it('accepts the reviewed v2 public snapshot contract for static first paint', async () => {
+		const fetchMock = vi.fn<PulseSnapshotFetch>(async () => jsonResponse(reviewedLeadImageSnapshot));
+
+		await expect(loadPulseSnapshot(fetchMock)).resolves.toEqual(reviewedLeadImageSnapshot);
+	});
 });
 
 describe('loadPulsePublicBrokerSnapshot', () => {
 	it('fetches the hub broker snapshot without falling back to the checked-in file', async () => {
-		const fetchMock = vi.fn<PulseSnapshotFetch>(async () => jsonResponse(validSnapshot));
+		const fetchMock = vi.fn<PulseSnapshotFetch>(async () => jsonResponse(reviewedLeadImageSnapshot));
 
-		await expect(loadPulsePublicBrokerSnapshot(fetchMock)).resolves.toEqual(validSnapshot);
+		await expect(loadPulsePublicBrokerSnapshot(fetchMock)).resolves.toEqual(reviewedLeadImageSnapshot);
 		expect(fetchMock).toHaveBeenCalledWith(
 			TINYLAND_PULSE_PUBLIC_SNAPSHOT_URL,
 			expect.objectContaining({
@@ -60,6 +67,19 @@ describe('loadPulsePublicBrokerSnapshot', () => {
 			}),
 		);
 		expect(fetchMock.mock.calls.flat().join(' ')).not.toContain(PUBLIC_SNAPSHOT_PATH);
+	});
+
+	it('retains v1 compatibility while rejecting an original or private lead-image URL in v2', async () => {
+		const v1FetchMock = vi.fn<PulseSnapshotFetch>(async () => jsonResponse(validSnapshot));
+		await expect(loadPulsePublicBrokerSnapshot(v1FetchMock)).resolves.toEqual(validSnapshot);
+
+		const invalidV2 = structuredClone(reviewedLeadImageSnapshot);
+		invalidV2.items[0]!.leadImage!.preview.url =
+			'https://hub.tinyland.dev/media/pulse/jesssullivan/notes/reviewed-lead-image.webp';
+		const invalidFetchMock = vi.fn<PulseSnapshotFetch>(async () => jsonResponse(invalidV2));
+		await expect(loadPulsePublicBrokerSnapshot(invalidFetchMock)).rejects.toThrow(
+			'pulse snapshot failed schema validation',
+		);
 	});
 
 	it('rejects invalid broker snapshots instead of rendering unchecked data', async () => {

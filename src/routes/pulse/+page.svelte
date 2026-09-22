@@ -5,12 +5,12 @@
 		loadPulsePublicBrokerSnapshot,
 		summarizePulseSnapshotError,
 	} from '$lib/pulse/load';
-	import type { PublicPulseSnapshot } from '@blog/pulse-core/schema';
+	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import { onMount } from 'svelte';
 
-	let { data }: { data: { snapshot: PublicPulseSnapshot } } = $props();
+	let { data }: { data: { snapshot: PublicPulseSnapshotAny } } = $props();
 
-	let brokerSnapshot = $state<PublicPulseSnapshot | null>(null);
+	let brokerSnapshot = $state<PublicPulseSnapshotAny | null>(null);
 	let brokerStatus = $state<'loading' | 'ready' | 'stale'>('loading');
 	let brokerUnavailableReason = $state('');
 
