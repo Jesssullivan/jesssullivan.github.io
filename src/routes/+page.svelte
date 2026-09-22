@@ -3,6 +3,7 @@
 	import ReaderArchive from '$lib/components/reader/ReaderArchive.svelte';
 	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
+	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
 
 	let { data }: { data: PageData } = $props();
 </script>
@@ -27,6 +28,8 @@
 			<a class="text-primary-500 hover:underline" href="#archive">Archive</a>
 		</nav>
 	</header>
+
+	<ReaderConstellation posts={data.collection.latest} snapshot={data.pulseSnapshot} />
 
 	<div class="space-y-16">
 		<ReaderLatest posts={data.collection.latest} />
