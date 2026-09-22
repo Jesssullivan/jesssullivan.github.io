@@ -204,7 +204,7 @@ const revalidationSource = extractGithubScript(
 );
 const executeRevalidation = new AsyncFunction('github', 'context', 'process', revalidationSource);
 const revalidationContext = { repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' } };
-const revalidationProcess = { env: { EXPECTED_SHA: sourceSha, GITHUB_VARIABLES_READ_TOKEN: 'variables-reader' } };
+const revalidationProcess = { env: { EXPECTED_SHA: sourceSha, VARIABLES_READ_TOKEN: 'variables-reader' } };
 function githubForRevalidation({ mainSha = sourceSha, gateValue = 'true' } = {}) {
 	const variablesClient = {
 		rest: { actions: { getRepoVariable: async () => ({ data: { value: gateValue } }) } },
@@ -248,7 +248,7 @@ await assert.rejects(
 			revalidationContext,
 			{ env: { EXPECTED_SHA: sourceSha } },
 		),
-	/GITHUB_VARIABLES_READ_TOKEN is required/,
+	/VARIABLES_READ_TOKEN is required/,
 	'production publish fails closed when the dedicated Variables-read credential is unavailable',
 );
 
