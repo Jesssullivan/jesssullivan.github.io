@@ -8,6 +8,7 @@ import PulseBirdCard from './PulseBirdCard.svelte';
 import PulseClientOutbox from './PulseClientOutbox.svelte';
 import PulseLabDecisionRow from './PulseLabDecisionRow.svelte';
 import PulseNoteCard from './PulseNoteCard.svelte';
+import { reviewedLeadImageSnapshot } from '$lib/pulse/fixtures/reviewedLeadImageSnapshot';
 
 const occurredAt = '2026-04-27T18:00:00.000Z';
 
@@ -64,6 +65,19 @@ describe('Pulse cards', () => {
 		expect(html).toContain('#lab');
 		expect(html).toContain('#pulse');
 		expect(html).toContain(`datetime="${occurredAt}"`);
+	});
+
+	it('renders reviewed lead-image alt text and intrinsic dimensions before note text', () => {
+		const item = reviewedLeadImageSnapshot.items[0]!;
+		const { html } = render(PulseNoteCard, { props: { item } });
+
+		expect(html).toContain('src="https://hub.tinyland.dev/media/pulse/jesssullivan/notes/reviewed-lead-image.preview.webp"');
+		expect(html).toContain('alt="A tawny owl resting on a cedar branch"');
+		expect(html).toContain('width="1280"');
+		expect(html).toContain('height="854"');
+		expect(html.indexOf('A tawny owl resting on a cedar branch')).toBeLessThan(
+			html.indexOf('The full public note remains readable before JavaScript.'),
+		);
 	});
 
 	it('renders bird sighting name, count, place, and tags', () => {

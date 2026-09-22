@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { PublicPulseSnapshot } from '@blog/pulse-core/schema';
+	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import PulseNoteCard from './PulseNoteCard.svelte';
 	import PulseBirdCard from './PulseBirdCard.svelte';
 
-	let { snapshot }: { snapshot: PublicPulseSnapshot } = $props();
+	let { snapshot }: { snapshot: PublicPulseSnapshotAny } = $props();
 </script>
 
 {#if snapshot.items.length === 0}

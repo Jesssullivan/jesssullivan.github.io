@@ -1,0 +1,13 @@
+{
+	"schemaVersion": "tinyland.pulse.v2.PublicPulseSnapshot",
+	"generatedAt": "1970-01-01T00:00:00.000Z",
+	"items": [],
+	"manifest": {
+		"schemaVersion": "tinyland.pulse.v2.PublicPulseSnapshot",
+		"generatedAt": "1970-01-01T00:00:00.000Z",
+		"sourceSnapshotId": "tinyland-jesssullivan-pulse-live-notes-4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+		"contentHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+		"itemCount": 0,
+		"policyVersion": "pulse-live-notes-v3-reviewed-lead-image-2026-09-22"
+	}
+}

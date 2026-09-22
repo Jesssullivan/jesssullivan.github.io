@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-// Validates static/data/pulse/public-snapshot.v1.json against the canonical
-// PublicPulseSnapshot schema and re-derives its contentHash to confirm the
+// Validates static/data/pulse/public-snapshot.v2.json against the reviewed
+// Tinyland v1/v2 public snapshot contract and re-derives its contentHash to confirm the
 // committed file matches what the projection logic produces.
 //
 // This script runs in `npm run check` and `npm run prebuild` so any drift in
@@ -9,9 +9,9 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import { PublicPulseSnapshotSchema } from '../packages/pulse-core/src/schema/snapshot.js';
+import { parsePublicPulseSnapshot } from '../src/lib/pulse/snapshot.ts';
 
-const SNAPSHOT_PATH = resolve('static', 'data', 'pulse', 'public-snapshot.v1.json');
+const SNAPSHOT_PATH = resolve('static', 'data', 'pulse', 'public-snapshot.v2.json');
 
 const canonicalJson = (value: unknown): string => {
 	if (value === null || typeof value !== 'object') return JSON.stringify(value);
@@ -24,15 +24,14 @@ const canonicalJson = (value: unknown): string => {
 const main = async (): Promise<void> => {
 	const text = await readFile(SNAPSHOT_PATH, 'utf8');
 	const parsed = JSON.parse(text) as unknown;
-	const result = PublicPulseSnapshotSchema.safeParse(parsed);
-	if (!result.success) {
+	let snapshot;
+	try {
+		snapshot = parsePublicPulseSnapshot(parsed);
+	} catch (error) {
 		console.error(`pulse snapshot schema validation failed at ${SNAPSHOT_PATH}:`);
-		for (const issue of result.error.issues) {
-			console.error(`  - ${issue.path.join('.') || '<root>'}: ${issue.message}`);
-		}
+		console.error(`  - ${error instanceof Error ? error.message : String(error)}`);
 		process.exit(1);
 	}
-	const snapshot = result.data;
 
 	const recomputed = `sha256:${createHash('sha256').update(canonicalJson(snapshot.items)).digest('hex')}`;
 	if (recomputed !== snapshot.manifest.contentHash) {
@@ -50,7 +49,12 @@ const main = async (): Promise<void> => {
 	}
 
 	const serialized = JSON.stringify(snapshot);
-	if (serialized.includes('privateObjectKey') || serialized.includes('s3://')) {
+	if (
+		serialized.includes('privateObjectKey') ||
+		serialized.includes('originalRef') ||
+		serialized.includes('s3://') ||
+		serialized.includes('file://')
+	) {
 		console.error('pulse snapshot leaks private storage references');
 		process.exit(1);
 	}
