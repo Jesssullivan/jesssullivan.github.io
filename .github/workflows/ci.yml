@@ -108,14 +108,14 @@ jobs:
       - name: Validate GloriousFlywheel cache attachment
         run: bash scripts/cache-attachment-contract.sh --strict
 
-      - name: Cache Bazel
+      # Bazel outputs are shared through the tenant-scoped remote cache above.
+      # Keep only Bazelisk's tool download in the local Actions cache; restoring
+      # ~/.cache/bazel duplicated several GiB before validation could start.
+      - name: Cache Bazelisk
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
-          path: |
-            ~/.cache/bazel
-            ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', '.bazelversion', 'pnpm-lock.yaml') }}
-          restore-keys: bazel-${{ runner.os }}-
+          path: ~/.cache/bazelisk
+          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
 
       - name: Install bazelisk
         run: |

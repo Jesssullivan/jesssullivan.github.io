@@ -6,6 +6,7 @@ const fromRoot = (path) => new URL(`../${path}`, import.meta.url);
 const read = (path) => readFile(fromRoot(path), 'utf8');
 
 const paths = {
+	ci: '.github/workflows/ci.yml',
 	production: '.github/workflows/cloudflare-pages-production-v2.yml',
 	parity: '.github/workflows/cloudflare-pages-parity-v2.yml',
 	cachePurge: '.github/workflows/cloudflare-cache-purge-v2.yml',
@@ -16,7 +17,7 @@ const paths = {
 	privateCv: '.github/workflows/private-cv-authority-v2.yml',
 };
 
-const [production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -39,6 +40,8 @@ function requireAll(source, needles, label) {
 function forbid(source, pattern, label) {
 	assert.doesNotMatch(source, pattern, label);
 }
+
+forbid(ci, /^\s*~\/\.cache\/bazel\s*$/m, 'CI must not restore Bazel output caches into bounded ARC pods');
 
 function requireOrder(source, needles, label) {
 	let previous = -1;
