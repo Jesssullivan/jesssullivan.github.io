@@ -204,25 +204,27 @@ const revalidationSource = extractGithubScript(
 );
 const executeRevalidation = new AsyncFunction('github', 'context', 'process', revalidationSource);
 const revalidationContext = { repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' } };
-const revalidationProcess = { env: { EXPECTED_SHA: sourceSha } };
-const githubAtMain = {
-	rest: {
-		actions: {
-			getRepoVariable: async () => ({ data: { value: 'true' } }),
+const revalidationProcess = { env: { EXPECTED_SHA: sourceSha, GITHUB_VARIABLES_READ_TOKEN: 'variables-reader' } };
+function githubForRevalidation({ mainSha = sourceSha, gateValue = 'true' } = {}) {
+	const variablesClient = {
+		rest: { actions: { getRepoVariable: async () => ({ data: { value: gateValue } }) } },
+	};
+	return {
+		getOctokit: (token) => {
+			assert.equal(token, 'variables-reader', 'only the dedicated Variables-read token reaches the variable API');
+			return variablesClient;
 		},
-		git: { getRef: async () => ({ data: { object: { sha: sourceSha } } }) },
-	},
+		rest: { git: { getRef: async () => ({ data: { object: { sha: mainSha } } }) } },
+	};
+}
+const githubAtMain = {
+	...githubForRevalidation(),
 };
 await executeRevalidation(githubAtMain, revalidationContext, revalidationProcess);
 await assert.rejects(
 	() =>
 		executeRevalidation(
-			{
-				rest: {
-					actions: { getRepoVariable: async () => ({ data: { value: 'true' } }) },
-					git: { getRef: async () => ({ data: { object: { sha: otherSha } } }) },
-				},
-			},
+			githubForRevalidation({ mainSha: otherSha }),
 			revalidationContext,
 			revalidationProcess,
 		),
@@ -232,17 +234,22 @@ await assert.rejects(
 await assert.rejects(
 	() =>
 		executeRevalidation(
-			{
-				rest: {
-					actions: { getRepoVariable: async () => ({ data: { value: 'false' } }) },
-					git: { getRef: async () => ({ data: { object: { sha: sourceSha } } }) },
-				},
-			},
+			githubForRevalidation({ gateValue: 'false' }),
 			revalidationContext,
 			revalidationProcess,
 		),
 	/not true at publish time/,
 	'production kill switch changing during the build fails immediately before publish',
+);
+await assert.rejects(
+	() =>
+		executeRevalidation(
+			githubForRevalidation(),
+			revalidationContext,
+			{ env: { EXPECTED_SHA: sourceSha } },
+		),
+	/GITHUB_VARIABLES_READ_TOKEN is required/,
+	'production publish fails closed when the dedicated Variables-read credential is unavailable',
 );
 
 console.log('Cloudflare production resolver fixtures passed');
