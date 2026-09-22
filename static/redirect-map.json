@@ -1,4 +1,5 @@
 {
+  "/stream/": "/",
   "/2016/12/13/example-photo-work/": "/blog/example-photo-work",
   "/2016/12/13/required-custom-tools/": "/blog/required-custom-tools",
   "/2016/12/13/the-audeasy-build/": "/blog/the-audeasy-build",
