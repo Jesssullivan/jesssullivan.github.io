@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { progress = 0 }: { progress?: number } = $props();
+	let { progress = 0, reducedMotion = false }: { progress?: number; reducedMotion?: boolean } = $props();
 
 	const radius = 45;
 	const circumference = $derived(2 * Math.PI * radius);
@@ -8,7 +8,12 @@
 
 <div class="reading-progress-ring">
 	<div class="relative inline-flex items-center justify-center">
-		<svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+		<svg
+			class="w-24 h-24 transform -rotate-90"
+			viewBox="0 0 100 100"
+			role="img"
+			aria-label={`Reading progress: ${Math.round(progress)}%`}
+		>
 			<!-- Background circle -->
 			<circle
 				cx="50"
@@ -30,7 +35,10 @@
 				stroke-dasharray={circumference}
 				stroke-dashoffset={strokeDashoffset}
 				stroke-linecap="round"
-				class="text-primary-500 transition-all duration-300 ease-out"
+				class:transition-all={!reducedMotion}
+				class:duration-300={!reducedMotion}
+				class:ease-out={!reducedMotion}
+				class="text-primary-500"
 			/>
 		</svg>
 		<div class="absolute inset-0 flex items-center justify-center">
