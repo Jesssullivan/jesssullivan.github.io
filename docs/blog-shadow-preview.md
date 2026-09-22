@@ -41,10 +41,14 @@ The replacement uses two new workflow paths and IDs:
    exists now, so apply is unavailable. The disabled legacy
    `blog-shadow-preview-deploy.yml` ID must not be re-enabled.
 
-The publication variable defaults closed. Source-only code merges are permitted
-under the current TIN-2801 ruling, but enabling publication, adding credentialed
-apply authority, or deploying remains prohibited while its `prod-blocker` hold
-is unresolved.
+The publication variable defaults closed. On 2026-09-22, the operator lifted
+the former TIN-2801 publication hold. Source-only code merges remain permitted;
+enabling publication still requires the deliberately scoped, credentialed
+operator ceremony described below.
+
+Historical note: before 2026-09-22, this document treated the TIN-2801
+`prod-blocker` as a publication prohibition. Its credential-recovery history is
+separate from the current publication rule.
 
 Source builds serialize per PR, and trusted package publication has a separate
 global concurrency group. No workflow in this change can update the shared
@@ -121,12 +125,13 @@ upload; a stale request cannot roll production backward.
 
 Publication is additionally held behind the fail-closed repository variable
 `CLOUDFLARE_PAGES_PRODUCTION_ENABLED=true`. An operator deploy request fails
-when it is unset or false; automatic CI completion remains build-only. Do not
-enable it while TIN-2801 has the `prod-blocker` hold.
+when it is unset or false; automatic CI completion remains build-only. This is
+an explicit per-dispatch production control, not a TIN-2801 publication hold.
 
 The `workflow_run` path hard-codes `deploy=false`. Publication requires a later
-typed `repository_dispatch` with `deploy=true` plus the live gate. Keep that
-gate disabled while TIN-2801 or any other production hold is unresolved.
+typed `repository_dispatch` with `deploy=true` plus the live gate. The
+operator must enable that gate only for the exact-SHA ceremony; the workflow
+revalidates the current main SHA and gate immediately before upload.
 
 `https://tss.tinyland.dev` remains the separate `tss-shadow` Pages project and
 is not updated by the production workflow. Its build must set
@@ -181,7 +186,7 @@ credential is absent. `deploy="false"` is rejected; use the secretless parity
 workflow for build-only PR evidence. Automatic CI completion records the exact
 source SHA, successful CI URL, and static-content digest without uploading.
 
-After TIN-2801 is resolved and the gate is deliberately enabled:
+For a deliberately authorized exact-current-main production publish:
 
 ```sh
 SHA="$(gh api repos/Jesssullivan/jesssullivan.github.io/commits/main --jq .sha)"
