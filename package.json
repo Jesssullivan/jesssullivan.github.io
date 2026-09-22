@@ -78,7 +78,8 @@
 		"marked": "^4.3.0",
 		"mdsvex": "^0.12.7",
 		"shiki": "^4.2.0",
-		"tailwindcss": "^4.2.2"
+		"tailwindcss": "^4.2.2",
+		"zod": "4.3.6"
 	},
 	"type": "module",
 	"workspaces": [
