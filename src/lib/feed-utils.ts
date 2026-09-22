@@ -8,7 +8,7 @@ function stripFrontmatter(raw: string): string {
 }
 
 function getSlug(path: string, metadata: { slug?: string }): string {
-	const filename = path.split('/').pop()?.replace('.md', '') ?? '';
+	const filename = path.split('/').pop()?.replace(/\.(?:md|svx)$/, '') ?? '';
 	return metadata.slug ?? filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
 }
 
@@ -17,11 +17,11 @@ function getSlug(path: string, metadata: { slug?: string }): string {
  * Uses eager glob imports so this runs at build time.
  */
 export function getRawPostContent(): Map<string, string> {
-	const eagerModules = import.meta.glob('/src/posts/*.md', { eager: true }) as Record<
+	const eagerModules = import.meta.glob(['/src/posts/*.md', '/src/posts/*.svx'], { eager: true }) as Record<
 		string,
 		{ metadata: { slug?: string; published?: boolean } }
 	>;
-	const rawModules = import.meta.glob('/src/posts/*.md', {
+	const rawModules = import.meta.glob(['/src/posts/*.md', '/src/posts/*.svx'], {
 		eager: true,
 		query: '?raw',
 		import: 'default'

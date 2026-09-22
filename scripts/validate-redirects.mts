@@ -36,7 +36,7 @@ for (const [oldPath, newPath] of Object.entries(redirectMap)) {
 //    Check by matching the original_url's path against redirect-map keys
 const postsDir = join(root, 'src', 'posts');
 const redirectKeys = new Set(Object.keys(redirectMap));
-const postFiles = readdirSync(postsDir).filter((f) => f.endsWith('.md'));
+const postFiles = readdirSync(postsDir).filter((f) => /\.(?:md|svx)$/.test(f));
 
 for (const file of postFiles) {
 	const content = readFileSync(join(postsDir, file), 'utf-8');

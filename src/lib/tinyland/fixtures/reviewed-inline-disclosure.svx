@@ -1,0 +1,9 @@
+<script>
+	import InlineDisclosure from '$lib/components/InlineDisclosure.svelte';
+</script>
+
+<InlineDisclosure label="Show the reviewed body" defaultOpen={false}>
+
+The reviewed Markdown body is present in the static HTML before JavaScript.
+
+</InlineDisclosure>

@@ -94,7 +94,7 @@ function assertUnpublishedPostContentExcluded() {
 	const postsDir = join(buildRoot, 'src', 'posts');
 	const appDir = join(buildRoot, 'build', '_app');
 	const posts = readdirSync(postsDir)
-		.filter((file) => file.endsWith('.md'))
+		.filter((file) => /\.(?:md|svx)$/.test(file))
 		.map((file) => ({ file, source: readFileSync(join(postsDir, file), 'utf8') }));
 	const publishedCorpus = posts
 		.filter(({ source }) => /^published:\s*true\s*$/m.test(frontmatter(source)))

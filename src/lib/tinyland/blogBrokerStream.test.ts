@@ -238,6 +238,40 @@ describe('loadTinylandBlogBrokerStream', () => {
 		);
 	});
 
+	it.each([
+		['component source', '<script>export let source;</script>', 'raw HTML or unknown components'],
+		['an event handler', '<InlineDisclosure label="x" onclick={run}>x</InlineDisclosure>', 'only label and defaultOpen'],
+		['an unknown component', '<RemoteThing label="x">x</RemoteThing>', 'raw HTML or unknown components'],
+		['malformed props', '<InlineDisclosure label={value}>x</InlineDisclosure>', 'only label and defaultOpen'],
+	])('rejects broker content with %s', async (_name, contentMarkdown, expected) => {
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
+			jsonResponse({
+				...validStream,
+				posts: validStream.posts.map((post) => ({ ...post, contentMarkdown })),
+			}),
+		);
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(expected);
+	});
+
+	it('accepts the reviewed native-SVX component syntax without broker-supplied imports', async () => {
+		const contentMarkdown = `<InlineDisclosure label="Show the source" defaultOpen={true}>
+
+The reviewed body remains Markdown.
+
+</InlineDisclosure>`;
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
+			jsonResponse({
+				...validStream,
+				posts: validStream.posts.map((post) => ({ ...post, contentMarkdown })),
+			}),
+		);
+
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(
+			expect.objectContaining({ posts: [expect.objectContaining({ contentMarkdown })] }),
+		);
+	});
+
 	it('finds a stream post by slug for canonical route hydration', () => {
 		expect(findTinylandBlogBrokerPost(validStream, 'example')?.title).toBe('Example');
 		expect(findTinylandBlogBrokerPost(validStream, 'missing')).toBeNull();

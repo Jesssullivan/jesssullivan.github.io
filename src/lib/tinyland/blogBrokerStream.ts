@@ -5,6 +5,7 @@ import {
 	type PostCategory,
 	type PostEditorialTier,
 } from '$lib/types';
+import { validateReviewedComponentMarkdown } from './reviewedComponents';
 
 export const TINYLAND_BLOG_BROKER_STREAM_URL =
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
@@ -277,6 +278,15 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			`post ${index} frontmatter`,
 		);
 
+		const contentMarkdown = requireString(post, 'contentMarkdown');
+		try {
+			validateReviewedComponentMarkdown(contentMarkdown);
+		} catch (error) {
+			throw new Error(
+				`blog broker stream post ${index} ${error instanceof Error ? error.message : 'contains invalid reviewed component content'}`,
+			);
+		}
+
 		return {
 			type: 'Article',
 			id: requireString(post, 'id'),
@@ -298,7 +308,7 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			contentHash,
 			...displayGateFields,
 			frontmatter: post.frontmatter,
-			contentMarkdown: requireString(post, 'contentMarkdown'),
+			contentMarkdown,
 			contentFormat: 'text/markdown',
 			publicFediverseDelivery: false,
 		};

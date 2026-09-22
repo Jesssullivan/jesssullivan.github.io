@@ -70,7 +70,7 @@ interface RenderResult {
 
 function extractMermaidBlocks(postsDir: string): MermaidBlock[] {
 	const blocks: MermaidBlock[] = [];
-	const files = readdirSync(postsDir).filter(f => f.endsWith('.md'));
+	const files = readdirSync(postsDir).filter(f => /\.(?:md|svx)$/.test(f));
 
 	for (const file of files) {
 		const content = readFileSync(resolve(postsDir, file), 'utf-8');

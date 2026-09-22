@@ -11,6 +11,7 @@ filegroup(
         [
             "src/**/*.ts",
             "src/**/*.svelte",
+            "src/**/*.svx",
             "src/**/*.json",
             "src/**/*.html",
             "scripts/**/*.mts",

@@ -56,7 +56,7 @@ interface PostEntry {
 
 async function main(): Promise<void> {
 	const files = await readdir(POSTS_DIR);
-	const mdFiles = files.filter(f => f.endsWith('.md'));
+	const mdFiles = files.filter(f => /\.(?:md|svx)$/.test(f));
 
 	const posts: PostEntry[] = [];
 	const tagCounts: Record<string, number> = {};
