@@ -243,15 +243,15 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
-          GITHUB_VARIABLES_READ_TOKEN: ${{ secrets.GITHUB_VARIABLES_READ_TOKEN }}
+          VARIABLES_READ_TOKEN: ${{ secrets.VARIABLES_READ_TOKEN }}
         with:
           script: |
             const { owner, repo } = context.repo;
-            const variablesReaderToken = process.env.GITHUB_VARIABLES_READ_TOKEN;
+            const variablesReaderToken = process.env.VARIABLES_READ_TOKEN;
             if (!variablesReaderToken) {
-              throw new Error("GITHUB_VARIABLES_READ_TOKEN is required for the live production gate recheck.");
+              throw new Error("VARIABLES_READ_TOKEN is required for the live production gate recheck.");
             }
-            const variablesClient = github.getOctokit(variablesReaderToken);
+            const variablesClient = getOctokit(variablesReaderToken);
             let enabled = false;
             try {
               const response = await variablesClient.rest.actions.getRepoVariable({

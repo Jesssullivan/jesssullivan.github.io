@@ -154,7 +154,7 @@ Required repository secrets:
 |---|---|
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account that owns the Pages project |
 | `CLOUDFLARE_API_TOKEN` | Token with Cloudflare Pages edit/deploy access |
-| `GITHUB_VARIABLES_READ_TOKEN` | Fine-grained GitHub token limited to this repository's Variables: read permission; used only to re-read the live production gate immediately before publish |
+| `VARIABLES_READ_TOKEN` | Fine-grained GitHub token limited to this repository's Variables: read permission; used only to re-read the live production gate immediately before publish |
 
 ### Live-gate reader setup
 
@@ -172,7 +172,7 @@ enterprise maximum), and keep the token in the custodied administrator secret
 store. Before installation, the custodian verifies only the intended read path:
 `GET /repos/Jesssullivan/jesssullivan.github.io/actions/variables/CLOUDFLARE_PAGES_PRODUCTION_ENABLED`
 must return 200. Install the value as the repository Actions secret
-`GITHUB_VARIABLES_READ_TOKEN` through the administrator secret path; never
+`VARIABLES_READ_TOKEN` through the administrator secret path; never
 place it in workflow YAML, a local shell history, or a broader CI secret.
 
 Optional repository variable:

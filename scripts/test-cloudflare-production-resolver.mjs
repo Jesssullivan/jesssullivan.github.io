@@ -202,53 +202,43 @@ await rejects(
 const revalidationSource = extractGithubScript(
 	'Revalidate production kill switch and current main immediately before publish',
 );
-const executeRevalidation = new AsyncFunction('github', 'context', 'process', revalidationSource);
+const executeRevalidation = new AsyncFunction('github', 'context', 'process', 'getOctokit', revalidationSource);
 const revalidationContext = { repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' } };
-const revalidationProcess = { env: { EXPECTED_SHA: sourceSha, GITHUB_VARIABLES_READ_TOKEN: 'variables-reader' } };
+const revalidationProcess = { env: { EXPECTED_SHA: sourceSha, VARIABLES_READ_TOKEN: 'variables-reader' } };
 function githubForRevalidation({ mainSha = sourceSha, gateValue = 'true' } = {}) {
 	const variablesClient = {
 		rest: { actions: { getRepoVariable: async () => ({ data: { value: gateValue } }) } },
 	};
 	return {
-		getOctokit: (token) => {
-			assert.equal(token, 'variables-reader', 'only the dedicated Variables-read token reaches the variable API');
-			return variablesClient;
-		},
+		variablesClient,
 		rest: { git: { getRef: async () => ({ data: { object: { sha: mainSha } } }) } },
 	};
 }
-const githubAtMain = {
-	...githubForRevalidation(),
-};
-await executeRevalidation(githubAtMain, revalidationContext, revalidationProcess);
+function getVariablesReader(variablesClient) {
+	return (token) => {
+		assert.equal(token, 'variables-reader', 'only the dedicated Variables-read token reaches the variable API');
+		return variablesClient;
+	};
+}
+const githubAtMain = githubForRevalidation();
+const runRevalidation = (github, process = revalidationProcess) => executeRevalidation(github, revalidationContext, process, getVariablesReader(github.variablesClient));
+await runRevalidation(githubAtMain);
 await assert.rejects(
 	() =>
-		executeRevalidation(
-			githubForRevalidation({ mainSha: otherSha }),
-			revalidationContext,
-			revalidationProcess,
-		),
+		runRevalidation(githubForRevalidation({ mainSha: otherSha })),
 	/Refusing stale production publish/,
 	'pre-publish revalidation rejects a SHA made stale during the build',
 );
 await assert.rejects(
 	() =>
-		executeRevalidation(
-			githubForRevalidation({ gateValue: 'false' }),
-			revalidationContext,
-			revalidationProcess,
-		),
+		runRevalidation(githubForRevalidation({ gateValue: 'false' })),
 	/not true at publish time/,
 	'production kill switch changing during the build fails immediately before publish',
 );
 await assert.rejects(
 	() =>
-		executeRevalidation(
-			githubForRevalidation(),
-			revalidationContext,
-			{ env: { EXPECTED_SHA: sourceSha } },
-		),
-	/GITHUB_VARIABLES_READ_TOKEN is required/,
+		runRevalidation(githubForRevalidation(), { env: { EXPECTED_SHA: sourceSha } }),
+	/VARIABLES_READ_TOKEN is required/,
 	'production publish fails closed when the dedicated Variables-read credential is unavailable',
 );
 
