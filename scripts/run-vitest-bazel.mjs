@@ -48,6 +48,10 @@ function copyInputsToBuildRoot() {
 
 	for (const file of [
 		'.npmrc',
+		// TIN-161 truth surfaces: scripts/truth-surfaces.test.mts checks these
+		// documents against package-lock.json, so they travel with it.
+		'THIRD-PARTY-LICENSES.md',
+		'docs/build-metrics.md',
 		'package-lock.json',
 		'package.json',
 		'pnpm-lock.yaml',
