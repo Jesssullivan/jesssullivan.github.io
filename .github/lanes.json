@@ -1,0 +1,52 @@
+{
+	"$schema": "https://raw.githubusercontent.com/tinyland-inc/site.scaffold/main/docs/schemas/lanes.schema.json",
+	"schema_version": 1,
+	"spoke": {
+		"name": "jesssullivan-github-io",
+		"domain": "transscendsurvival.org",
+		"image_repository": "ghcr.io/jesssullivan/jesssullivan-github-io-shadow-tailnet"
+	},
+	"defaults": {
+		"runner_class": "tinyland-nix",
+		"ttl_hours": 72,
+		"flywheel_target_classes": ["sveltekit-app-build", "sveltekit-unit-tests"]
+	},
+	"lanes": [
+		{
+			"name": "check",
+			"trigger": "pull_request",
+			"theme": "pine",
+			"snapshot_source": "checked-in",
+			"e2e": false,
+			"extra": {
+				"npm_script": "remote:check",
+				"public_variant": "remote:check:public",
+				"note": "Type/build-smoke authority. spoke-ci does not read `extra`; this records the existing script this lane stands for so the mapping is reviewable in one place."
+			}
+		},
+		{
+			"name": "test",
+			"trigger": "pull_request",
+			"theme": "pine",
+			"snapshot_source": "checked-in",
+			"e2e": false,
+			"extra": {
+				"npm_script": "remote:test",
+				"public_variant": "remote:test:public",
+				"note": "Unit, graph-hygiene, workflow-authority, and browser-smoke authority."
+			}
+		},
+		{
+			"name": "e2e",
+			"trigger": "pull_request",
+			"theme": "pine",
+			"snapshot_source": "checked-in",
+			"e2e": true,
+			"extra": {
+				"npm_script": "remote:e2e",
+				"public_variant": "remote:e2e:public",
+				"note": "Playwright Chromium end-to-end authority. spoke-ci's own playwright job stays disabled until a KVM-capable class is anchored for this repo."
+			}
+		}
+	]
+}

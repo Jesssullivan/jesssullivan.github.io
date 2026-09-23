@@ -1,0 +1,56 @@
+{
+	"$schema": "https://raw.githubusercontent.com/tinyland-inc/site.scaffold/main/docs/schemas/tinyland-repo-manifest.schema.json",
+	"schema_version": 1,
+	"repo": {
+		"name": "jesssullivan.github.io",
+		"github": "Jesssullivan/jesssullivan.github.io",
+		"domain": "transscendsurvival.org",
+		"description": "Personal static SvelteKit blog and CV spoke, published to Cloudflare Pages at transscendsurvival.org.",
+		"linear": {
+			"issue": "TIN-3914"
+		}
+	},
+	"taxonomy": {
+		"primary_role": "static-spoke",
+		"spawned_repo_role": "static-spoke",
+		"layers": ["org-wide-repo-contract", "bazel-package-cache-rbe", "static-spoke"]
+	},
+	"enrollment": {
+		"forgeScope": "Jesssullivan",
+		"operatorOverlay": "jesssullivan-infra",
+		"executionPool": "tinyland-nix",
+		"substrateMode": "shared-cache-backed"
+	},
+	"contracts": {
+		"agent_contract": "AGENTS.md",
+		"just": "Justfile",
+		"nix": "devshell-via-spoke-ci",
+		"github_actions": ".github/workflows",
+		"secrets_scan": "gitleaks",
+		"conformance": "just check"
+	},
+	"boundaries": {
+		"owns_runtime_backend": false,
+		"owns_auth": false,
+		"owns_payments": false,
+		"owns_activitypub_delivery": false,
+		"owns_live_broker_fetch": false,
+		"owns_static_projection_ingest": true,
+		"owns_gitops_apply": false,
+		"owns_cloudflare_mutation": false,
+		"owns_bazel_module_authority": false
+	},
+	"authorities": {
+		"content_authority": "tinyland-inc/tinyland.dev",
+		"ci_templates": "tinyland-inc/ci-templates",
+		"cache_rbe_authority": "tinyland-inc/GloriousFlywheel",
+		"package_registry": "tinyland-inc/bazel-registry"
+	},
+	"supply_chain": {
+		"sbom": {
+			"status": "planned",
+			"formats": ["CycloneDX JSON", "SPDX JSON"],
+			"notes": "No SBOM recipe exists in this repo yet. Adopting one is downstream of the spoke-ci adoption tracked in TIN-3914; status moves off planned only when a recipe lands."
+		}
+	}
+}
