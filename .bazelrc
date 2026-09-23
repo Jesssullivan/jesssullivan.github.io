@@ -1,4 +1,15 @@
 common --enable_bzlmod
+# estate-bazelversion: 8.2.1
+#   The estate-wide Bazel version SSOT, specified in tinyland-inc/bazel-registry
+#   docs/bazel-adoption-v0.md (TIN-3857): "Every Tinyland repo that runs Bazel
+#   carries exactly one `.bazelversion` file at its root, pinned to the current
+#   estate-wide proven value: **8.2.1**" (§1). The root .bazelversion must equal
+#   the value recorded on this line; §5 makes that a scaffold-doctor row.
+#
+#   NOT yet done in this repo, and deliberately out of scope for this change:
+#   the §3 exact-SHA re-pin of the registry URL below (still the mutable `main`
+#   ref), and the §5 scaffold-doctor-boundary.sh row that would enforce this
+#   line. Until that row exists here the recording is documentation, not a gate.
 common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main
 common --registry=https://bcr.bazel.build
 common --experimental_repository_downloader_retries=5
