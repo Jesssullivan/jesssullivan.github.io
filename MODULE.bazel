@@ -7,6 +7,10 @@ module(
 
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "platforms", version = "1.0.0")
+# Pinned so the public graph (--ignore_dev_dependency) and the private graph
+# (spear_resumes brings rules_shell 0.6.1) resolve the same version; one
+# MODULE.bazel.lock can then serve both under --lockfile_mode=error.
+bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
