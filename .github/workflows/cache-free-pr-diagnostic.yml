@@ -96,18 +96,21 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXPECTED_SHA}"
 
+      - name: Prepare bounded runner-work scratch
+        run: bash scripts/check-cache-free-pr-diagnostic.sh prepare
+
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: '.nvmrc'
-          cache: npm
 
       - name: Provision package-lock-pinned Chromium
         run: |
           set -euo pipefail
+          export TMPDIR="${BLOG_DIAGNOSTIC_SCRATCH}/tmp"
           npm ci --ignore-scripts
           npx --no-install playwright install --with-deps chromium
           chromium_path="$(node --input-type=module -e "import { chromium } from '@playwright/test'; process.stdout.write(chromium.executablePath())")"
-          if [[ "${chromium_path}" != /* || ! -x "${chromium_path}" ]]; then
+          if [[ "${chromium_path}" != "${PLAYWRIGHT_BROWSERS_PATH}/"* || ! -x "${chromium_path}" ]]; then
             echo "::error::Playwright Chromium resolution produced an unusable path"
             exit 1
           fi
@@ -116,17 +119,12 @@ jobs:
       - name: Install Bazelisk for pinned Bazel version
         run: |
           set -euo pipefail
-          tmp="$(mktemp)"
+          bazelisk_path="${BLOG_DIAGNOSTIC_SCRATCH}/bin/bazel"
           curl --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 10 \
             -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 \
-            -o "${tmp}"
-          chmod +x "${tmp}"
-          if [ -w /usr/local/bin ]; then
-            mv "${tmp}" /usr/local/bin/bazel
-          else
-            sudo mv "${tmp}" /usr/local/bin/bazel
-          fi
-          test "$(bazel --version)" = "bazel 8.1.1"
+            -o "${bazelisk_path}"
+          chmod +x "${bazelisk_path}"
+          test "$("${bazelisk_path}" --version)" = "bazel 8.1.1"
 
       - name: Direct public Bazel check (supplemental)
         id: check
@@ -154,8 +152,21 @@ jobs:
             echo ''
             echo "- Exact open PR head: #${PR_NUMBER} at \`${SOURCE_SHA}\`"
             echo '- Runner: existing tinyland-dind; local Bazel actions, no GF remote cache or executor'
+            echo "- Scratch: \`${BLOG_DIAGNOSTIC_SCRATCH:-not-prepared}\` under resolved RUNNER_TEMP"
+            echo '- `df` reports backing filesystem availability, not the container writable-layer or Kubernetes ephemeral-storage limit'
             echo '- Inputs: package-lock-pinned Chromium, .bazelversion, MODULE.bazel.lock, pnpm-lock.yaml'
             echo "- Public check/test/e2e outcomes: ${CHECK_RESULT} / ${TEST_RESULT} / ${E2E_RESULT}"
             echo '- Authority: supplemental nonproduction diagnostic only; canonical CI bazel-remote-gates remains required and unchanged'
             echo '- Deployment authority: none'
+            if [[ -n ${BLOG_DIAGNOSTIC_SCRATCH:-} && -d ${BLOG_DIAGNOSTIC_SCRATCH} ]]; then
+              echo ''
+              echo 'Verified runner work mount (`findmnt -T`):'
+              echo '```text'
+              findmnt -n -T /home/runner/_work -o TARGET,OPTIONS
+              echo '```'
+              echo 'Backing filesystem `df -P -h` for diagnostic scratch:'
+              echo '```text'
+              df -P -h "${BLOG_DIAGNOSTIC_SCRATCH}"
+              echo '```'
+            fi
           } >> "${GITHUB_STEP_SUMMARY}"

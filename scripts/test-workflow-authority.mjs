@@ -201,7 +201,12 @@ requireAll(
 		'GF_BAZEL_SUBSTRATE_MODE: compatibility-local-only',
 		"BAZEL_REMOTE_CACHE: ''",
 		"BAZEL_REMOTE_EXECUTOR: ''",
+		'bash scripts/check-cache-free-pr-diagnostic.sh prepare',
+		'export TMPDIR="${BLOG_DIAGNOSTIC_SCRATCH}/tmp"',
 		'--no-install playwright install --with-deps chromium',
+		'PLAYWRIGHT_BROWSERS_PATH}/"*',
+		'${BLOG_DIAGNOSTIC_SCRATCH}/bin/bazel',
+		'df -P -h "${BLOG_DIAGNOSTIC_SCRATCH}"',
 		'bash scripts/check-cache-free-pr-diagnostic.sh check',
 		'bash scripts/check-cache-free-pr-diagnostic.sh test',
 		'bash scripts/check-cache-free-pr-diagnostic.sh e2e',
@@ -210,6 +215,7 @@ requireAll(
 	'cache-free diagnostic workflow',
 );
 forbid(cacheFreeDiagnostic, /^\s*workflow_dispatch:|^\s*repository_dispatch:|^\s*pull_request_target:/m, 'cache-free diagnostic must be a PR label only');
+forbid(cacheFreeDiagnostic, /sudo\s|\/usr\/local\/bin|cache:\s*npm/, 'cache-free diagnostic must keep tool downloads off the runner root layer');
 forbid(
 	cacheFreeDiagnostic,
 	/secrets\.|github\.token|(?:id-token|contents|packages|actions|checks|statuses|pull-requests|deployments|pages):\s*write|createWorkflowDispatch|docker\/login-action|cloudflare\/wrangler-action|pages deploy|push:\s*true/,
