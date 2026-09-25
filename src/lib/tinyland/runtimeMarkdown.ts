@@ -53,7 +53,7 @@ export async function renderTrustedBrokerMarkdown(markdown: string): Promise<str
 		? await getBrokerHighlighter().catch(() => null)
 		: null;
 	const renderer = new markedModule.Renderer();
-	renderer.code = (code, info) => {
+	renderer.code = (code: string, info?: string): string => {
 		const language = brokerCodeLanguage(info);
 		if (language && highlighter) {
 			return highlighter.codeToHtml(code, { lang: language, theme: 'github-dark' });
