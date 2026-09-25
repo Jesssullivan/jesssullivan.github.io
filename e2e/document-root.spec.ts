@@ -157,9 +157,11 @@ test.describe('Homepage public reader enhancement', () => {
 		}
 	});
 
-	test('shows live reviewed Pulse media without creating a dead link for a broker-only article', async ({ page }) => {
+	test('shows reviewed Pulse media from a broker response without creating a dead link for a broker-only article', async ({ page }) => {
+		let reviewedPreviewFulfilled = false;
 		await page.route(reviewedPreviewUrl, async (route) => {
 			await route.fulfill({ status: 200, contentType: 'image/png', body: tinyPng });
+			reviewedPreviewFulfilled = true;
 		});
 		await page.route(endpoint, async (route) => {
 			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(brokerStream) });
@@ -172,6 +174,8 @@ test.describe('Homepage public reader enhancement', () => {
 		await expect(page.locator('.constellation')).toContainText('A reviewed lead image accompanies this public note.');
 		const reviewedImage = page.getByRole('img', { name: 'A tawny owl resting on a cedar branch' });
 		await expect(reviewedImage).toBeVisible();
+		await reviewedImage.scrollIntoViewIfNeeded();
+		await expect.poll(() => reviewedPreviewFulfilled).toBe(true);
 		await expect(reviewedImage).toHaveJSProperty('complete', true);
 		await expect(reviewedImage).toHaveJSProperty('naturalWidth', 1);
 		await expect(page.locator('a[href="/blog/brokered-document-root-test"]')).toHaveCount(0);
