@@ -44,6 +44,7 @@ re-read immediately before their credentialed mutation.
 | Rollback (GitHub Pages) | `.github/workflows/github-pages-rollback-v2.yml` | dispatch-gated (`github-pages-rollback-v2` + `confirm_rollback=true`, exact current-`main` SHA with successful canonical CI) | repo var `BLOG_GITHUB_PAGES_ROLLBACK_ENABLED` (default false) + `github-pages` environment, revalidated at publish time |
 | Shadow source build | `.github/workflows/shadow-source-build-v2.yml` | dispatch-gated (`shadow-source-build-v2`), unprivileged build of an exact open same-repo PR head | none needed; `permissions: {}`, cannot publish packages, mint App tokens, or dispatch infrastructure |
 | Shadow source publish (GHCR) | `.github/workflows/shadow-source-publish-v2.yml` | `workflow_run` consumer of `Build shadow source v2`; runs default-branch code only and independently revalidates provenance, never executing PR code | repo var `BLOG_SHADOW_SOURCE_PUBLISH_ENABLED` (default false), revalidated at package-write time |
+| TSS development Pages upload | `.github/workflows/cloudflare-pages-shadow-v2.yml` | explicit typed dispatch only; default-owned source verifies an exact live same-repo PR, successful source build and reviewed exact-head diagnostic, then uploads the validated static artifact plus the default-owned denial guard to existing `tss-shadow` | repo var `TSS_SHADOW_PAGES_ENABLED` defaults false and is freshly re-read before upload; no production, DNS or private-tailnet apply authority |
 | Private CV consistency | `.github/workflows/private-cv-authority-v2.yml` | exact current-`main` push + typed dispatch (`private-cv-verify-v2`) | none; credentialed verify-only lane that never commits or publishes, and is itself a required proof for production publish |
 | Production health monitor | `.github/workflows/production-health-v2.yml` | cron health check every 30 minutes (ntfy alert on failure) + typed dispatch (`production-health-v2`, optional ntfy smoke) | none; notification credentials carry no serving-state mutation authority, and a red scheduled run is production evidence |
 
@@ -52,9 +53,24 @@ re-read immediately before their credentialed mutation.
   and the production Cloudflare Pages contract for the
   `transscendsurvival-org` project.
 - `Jesssullivan/jesssullivan-infra` owns the private tailnet acceptance
-  environment. Shadow apply is unavailable from this repo in the v2 world: no
+  environment. Private-tailnet shadow apply is unavailable from this repo: no
   v2 workflow carries a GitHub App key, private sender, or cross-repo dispatch
   call, and publishing a shadow source digest transfers no apply authority.
+- The separate `tss.tinyland.dev` Cloudflare Pages development route is not
+  that private tailnet environment. Its reviewed direct-upload recipe is
+  implemented by the manually requested TSS-only Pages workflow above, using
+  the existing `tss-shadow` project and serving branch `main` (not a Git merge).
+  No PR code executes with its publication credential. Exact artifact and
+  noindex/source-marker checks, fresh live-PR revalidation and a default-off
+  switch precede upload. A successful supplemental diagnostic is accepted only
+  for this explicitly approved nonproduction upload; it does not replace
+  canonical CI for production, main-source integration or GF qualification.
+  It creates no project, custom domain, DNS record or infrastructure dispatch.
+  The PR artifact cannot supply Pages Functions, workers or Wrangler config.
+  Publication preserves only the existing default-owned held-post 404 function
+  in an isolated working directory, with its trusted route map required to
+  match the artifact and its identity recorded separately. Do not silently drop
+  the content hold or describe that one trusted denial function as PR code.
 - `tinyland-inc/GloriousFlywheel` supplies runner, Nix/toolchain, Bazel
   cache/RBE, and validation substrate. Passing GF checks or running on GF
   runners transfers no application deployment ownership.
@@ -73,7 +89,7 @@ re-read immediately before their credentialed mutation.
 - Normal local development is npm/SvelteKit: `npm ci`, `npm run build`, `npm run lint`, and focused scripts from `package.json`.
 - Production behavior changes require `npm run test:production-health`. That check covers public DNS, apex/`www` HTTPS, canonical redirects, slash variants, Tinyland broker contract, and browser hydration.
 - CI has two lanes. `build-and-test` runs hosted checks such as gitleaks, production dependency audit, lint, npm build, bundle reporting, and Lighthouse. `bazel-remote-gates` is the check/test/e2e authority.
-- Credentialed Cloudflare publication comes only from the default-branch-owned `.github/workflows/cloudflare-pages-production-v2.yml`; it publishes only on the exact typed repository-dispatch request for a current `main` SHA proven by canonical CI and private-CV consistency, plus the live kill switch. Exact-PR parity is secretless in `.github/workflows/cloudflare-pages-parity-v2.yml`. Review-shadow PR code builds without package or secret authority in `.github/workflows/shadow-source-build-v2.yml`; the default-branch `.github/workflows/shadow-source-publish-v2.yml` independently revalidates provenance before any package write. Shadow apply is unavailable: no v2 workflow carries an App key, private sender, or dispatch call. GitHub Pages is not CI/CD: `.github/workflows/github-pages-rollback-v2.yml` is a disabled-by-default, exact-main, explicitly confirmed repository-dispatch rollback path only.
+- Credentialed Cloudflare production publication comes only from the default-branch-owned `.github/workflows/cloudflare-pages-production-v2.yml`; it publishes only on the exact typed repository-dispatch request for a current `main` SHA proven by canonical CI and private-CV consistency, plus the live kill switch. Exact-PR parity is secretless in `.github/workflows/cloudflare-pages-parity-v2.yml`. Review-shadow PR code builds without package or secret authority in `.github/workflows/shadow-source-build-v2.yml`; the default-branch `.github/workflows/shadow-source-publish-v2.yml` independently revalidates provenance before any package write. Private-tailnet shadow apply is unavailable: no v2 workflow carries an App key, private sender, or dispatch call. GitHub Pages is not CI/CD: `.github/workflows/github-pages-rollback-v2.yml` is a disabled-by-default, exact-main, explicitly confirmed repository-dispatch rollback path only.
 - `.github/workflows/production-health-v2.yml` runs every 30 minutes and sends ntfy alerts on failure. Treat a red scheduled monitor as production evidence, not noise.
 - Hosted-runner exception, recorded 2026-08-28: the v2 workflow estate pins `runs-on: ubuntu-latest` at 17 sites. That is a recorded exception to TIN-3914 (no `ubuntu-latest` since `ci-templates` v3.0.0), not compliance with it. Closing it means adopting `spoke-ci.yml@v3.1.0` in the week of 2026-09-01, which first needs a `jesssullivan-blog-nix` ARS in `Jesssullivan/jesssullivan-infra` plus a governed apply, `tinyland.repo.json`, and `.github/lanes.json`. Do not hand-migrate individual `runs-on` lines ahead of that adoption. (Count as of 2026-08-28 before the TSS shadow lane; the invariant is that a GitHub-hosted label is used only where no self-hosted pool serves that job class — assert it, do not re-count by hand.)
 

@@ -339,6 +339,8 @@ js_test(
         "Dockerfile.shadow",
         "package.json",
         "scripts/stamp-deploy-tier-output.mjs",
+        "scripts/ci/shadow-pages-resolver.mjs",
+        "scripts/ci/shadow-pages-resolver.test.mjs",
         "scripts/test-cloudflare-parity-resolver.mjs",
         "scripts/test-cloudflare-production-resolver.mjs",
         "scripts/test-github-pages-rollback-resolver.mjs",

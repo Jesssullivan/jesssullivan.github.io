@@ -1,0 +1,314 @@
+name: Publish TSS Pages shadow v2
+
+# Explicit default-branch-owned direct upload to the separate tss-shadow Pages
+# project. This is not the private tailnet shadow apply, GHCR source publish,
+# production Pages project, or a PR-authored credentialed workflow.
+on:
+  repository_dispatch:
+    types: [tss-shadow-pages-publish-v2]
+
+permissions: {}
+
+concurrency:
+  group: tss-shadow-pages-publish
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  resolve:
+    name: Admit exact TSS shadow source and diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    outputs:
+      pr_number: ${{ steps.target.outputs.pr_number }}
+      source_sha: ${{ steps.target.outputs.source_sha }}
+      source_branch: ${{ steps.target.outputs.source_branch }}
+      source_run_id: ${{ steps.target.outputs.source_run_id }}
+      source_run_attempt: ${{ steps.target.outputs.source_run_attempt }}
+      diagnostic_run_id: ${{ steps.target.outputs.diagnostic_run_id }}
+      image_tag: ${{ steps.target.outputs.image_tag }}
+      archive_digest: ${{ steps.target.outputs.archive_digest }}
+    steps:
+      - name: Checkout trusted default-branch publisher code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Validate typed request before artifact download
+        id: request
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          TSS_SHADOW_PAGES_ENABLED: ${{ vars.TSS_SHADOW_PAGES_ENABLED || 'false' }}
+        with:
+          script: |
+            const { join } = await import('node:path');
+            const { pathToFileURL } = await import('node:url');
+            const moduleUrl = pathToFileURL(join(process.env.GITHUB_WORKSPACE, 'scripts/ci/shadow-pages-resolver.mjs'));
+            const { validateShadowPagesRequest } = await import(moduleUrl.href);
+            const request = validateShadowPagesRequest({
+              eventName: context.eventName,
+              action: context.payload.action,
+              repository: `${context.repo.owner}/${context.repo.repo}`,
+              ref: context.ref,
+              payload: context.payload.client_payload,
+            });
+            if (process.env.TSS_SHADOW_PAGES_ENABLED !== 'true') {
+              throw new Error('TSS_SHADOW_PAGES_ENABLED is not true.');
+            }
+            core.setOutput('source_run_id', String(request.source_run_id));
+            core.setOutput('source_run_attempt', String(request.source_run_attempt));
+
+      - name: Download exact source metadata
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: shadow-source-metadata-${{ steps.request.outputs.source_run_id }}-${{ steps.request.outputs.source_run_attempt }}
+          path: ${{ runner.temp }}/shadow-metadata
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.request.outputs.source_run_id }}
+
+      - name: Resolve source, reviewed diagnostic, and live PR
+        id: target
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          METADATA_PATH: ${{ runner.temp }}/shadow-metadata/shadow-source-metadata.json
+          TSS_SHADOW_PAGES_ENABLED: ${{ vars.TSS_SHADOW_PAGES_ENABLED || 'false' }}
+        with:
+          script: |
+            const { readFile } = await import('node:fs/promises');
+            const { join } = await import('node:path');
+            const { pathToFileURL } = await import('node:url');
+            const moduleUrl = pathToFileURL(join(process.env.GITHUB_WORKSPACE, 'scripts/ci/shadow-pages-resolver.mjs'));
+            const { resolveShadowPagesPublish } = await import(moduleUrl.href);
+            const metadata = JSON.parse(await readFile(process.env.METADATA_PATH, 'utf8'));
+            const result = await resolveShadowPagesPublish({
+              github,
+              context,
+              metadata,
+              initialEnabled: process.env.TSS_SHADOW_PAGES_ENABLED,
+            });
+            for (const [key, value] of Object.entries({
+              pr_number: result.prNumber,
+              source_sha: result.sourceSha,
+              source_branch: result.sourceBranch,
+              source_run_id: result.sourceRunId,
+              source_run_attempt: result.sourceRunAttempt,
+              diagnostic_run_id: result.diagnosticRunId,
+              image_tag: result.imageTag,
+              archive_digest: result.archiveDigest,
+            })) core.setOutput(key, value);
+
+  publish:
+    name: Upload reviewed static tree and trusted denial guard to tss-shadow only
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout trusted default-branch publisher code
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download exact OCI archive
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: shadow-source-image-${{ needs.resolve.outputs.source_run_id }}-${{ needs.resolve.outputs.source_run_attempt }}
+          path: ${{ runner.temp }}/shadow-image
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.resolve.outputs.source_run_id }}
+
+      - name: Download exact source metadata for independent extraction check
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: shadow-source-metadata-${{ needs.resolve.outputs.source_run_id }}-${{ needs.resolve.outputs.source_run_attempt }}
+          path: ${{ runner.temp }}/shadow-metadata
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ needs.resolve.outputs.source_run_id }}
+
+      - name: Extract only the verified final static tree on Linux
+        env:
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          SOURCE_RUN_ID: ${{ needs.resolve.outputs.source_run_id }}
+          SOURCE_RUN_ATTEMPT: ${{ needs.resolve.outputs.source_run_attempt }}
+          ARCHIVE_DIGEST: ${{ needs.resolve.outputs.archive_digest }}
+        run: |
+          set -euo pipefail
+          test "$(sha256sum "${RUNNER_TEMP}/shadow-image/shadow-source.tar" | awk '{print "sha256:" $1}')" = "${ARCHIVE_DIGEST}"
+          python3 scripts/ci/shadow-pages-artifact.py \
+            --archive "${RUNNER_TEMP}/shadow-image/shadow-source.tar" \
+            --metadata "${RUNNER_TEMP}/shadow-metadata/shadow-source-metadata.json" \
+            --expected-repository 'Jesssullivan/jesssullivan.github.io' \
+            --expected-pr "${PR_NUMBER}" \
+            --expected-source-sha "${SOURCE_SHA}" \
+            --expected-run-id "${SOURCE_RUN_ID}" \
+            --expected-run-attempt "${SOURCE_RUN_ATTEMPT}" \
+            --output-dir "${RUNNER_TEMP}/build" \
+            --receipt "${RUNNER_TEMP}/shadow-pages-receipt.json"
+
+      - name: Verify every emitted HTML is shadow-only
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          cd "${RUNNER_TEMP}"
+          node "${GITHUB_WORKSPACE}/scripts/validate-deploy-tier-output.mjs" shadow "${SOURCE_SHA}"
+
+      - name: Prepare isolated Wrangler directory with only the trusted denial guard
+        env:
+          TRUSTED_PUBLISHER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { createHash } from 'node:crypto';
+          import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+
+          const trustedSha = process.env.TRUSTED_PUBLISHER_SHA;
+          if (!/^[0-9a-f]{40}$/.test(trustedSha || '')) throw new Error('Trusted publisher SHA is malformed.');
+          const trustedRoutes = readFileSync(join(process.env.GITHUB_WORKSPACE, 'static/_routes.json'));
+          const extractedRoutes = readFileSync(join(process.env.RUNNER_TEMP, 'build/_routes.json'));
+          if (!trustedRoutes.equals(extractedRoutes)) {
+            throw new Error('Extracted Pages routes differ from the trusted denial-guard routes.');
+          }
+          const functionPath = 'functions/blog/ssh-macos-kvm-hid-accessory-approval.js';
+          const trustedFunction = join(process.env.GITHUB_WORKSPACE, functionPath);
+          const isolatedCwd = join(process.env.RUNNER_TEMP, 'tss-pages-publisher-cwd');
+          mkdirSync(isolatedCwd);
+          mkdirSync(join(isolatedCwd, 'functions/blog'), { recursive: true });
+          copyFileSync(trustedFunction, join(isolatedCwd, functionPath));
+          const digest = (bytes) => `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
+          writeFileSync(join(process.env.RUNNER_TEMP, 'shadow-pages-denial-guard-receipt.json'),
+            `${JSON.stringify({
+              trustedPublisherSha: trustedSha,
+              routesPath: 'static/_routes.json',
+              routesSha256: digest(trustedRoutes),
+              functionPath,
+              functionSha256: digest(readFileSync(trustedFunction)),
+            }, null, 2)}\n`);
+          console.log('Trusted TIN-2979 denial guard and byte-identical routes prepared in isolated Pages cwd.');
+          NODE
+
+      - name: Upload static extraction and trusted denial-guard receipts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: tss-shadow-pages-receipt-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/shadow-pages-receipt.json
+            ${{ runner.temp }}/shadow-pages-denial-guard-receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Read-only preflight of the existing TSS Pages target
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { verifyTssPagesProject } from './scripts/ci/shadow-pages-resolver.mjs';
+          await verifyTssPagesProject({
+            accountId: process.env.CF_ACCOUNT_ID,
+            apiToken: process.env.CF_API_TOKEN,
+          });
+          console.log('Read-only Pages target preflight: tss-shadow/main/tss.tinyland.dev confirmed');
+          NODE
+
+      - name: Revalidate TSS kill switch and exact live PR immediately before upload
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          VARIABLES_READ_TOKEN: ${{ secrets.VARIABLES_READ_TOKEN }}
+          EXPECTED_PR: ${{ needs.resolve.outputs.pr_number }}
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+          EXPECTED_BRANCH: ${{ needs.resolve.outputs.source_branch }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const reader = process.env.VARIABLES_READ_TOKEN;
+            if (!reader) throw new Error('VARIABLES_READ_TOKEN is required for the live TSS gate recheck.');
+            const variablesClient = getOctokit(reader);
+            let enabled = false;
+            try {
+              const response = await variablesClient.rest.actions.getRepoVariable({
+                owner, repo, name: 'TSS_SHADOW_PAGES_ENABLED',
+              });
+              enabled = response.data.value === 'true';
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (!enabled) throw new Error('TSS_SHADOW_PAGES_ENABLED is not true at upload time.');
+            const pr = (await github.rest.pulls.get({
+              owner, repo, pull_number: Number(process.env.EXPECTED_PR),
+            })).data;
+            if (
+              pr.state !== 'open' ||
+              pr.base.ref !== 'main' ||
+              pr.head.repo?.full_name !== `${owner}/${repo}` ||
+              pr.head.ref !== process.env.EXPECTED_BRANCH ||
+              pr.head.sha !== process.env.EXPECTED_SHA
+            ) throw new Error('TSS source PR changed before Pages upload.');
+
+      - name: Publish exact static artifact and trusted guard to the isolated TSS Pages project
+        id: pages
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: ${{ runner.temp }}/tss-pages-publisher-cwd
+          wranglerVersion: '4.95.0'
+          command: pages deploy ${{ runner.temp }}/build --project-name=tss-shadow --branch=main --commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false
+
+      - name: Verify served TSS shadow source and noindex marker
+        env:
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if status="$(curl -sS --max-redirs 0 --connect-timeout 5 --max-time 12 --max-filesize 2097152 \
+              -o "${RUNNER_TEMP}/tss-shadow-home.html" -w '%{http_code}' https://tss.tinyland.dev/)" && \
+              [[ "${status}" = '200' ]] && \
+              grep -Fq '<meta name="robots" content="noindex,nofollow" data-deploy-tier="shadow"' "${RUNNER_TEMP}/tss-shadow-home.html" && \
+              grep -Fq "<meta name=\"tinyland-source-sha\" content=\"${SOURCE_SHA}\" data-deploy-tier=\"shadow\"" "${RUNNER_TEMP}/tss-shadow-home.html"; then
+              echo "TSS shadow serves exact source ${SOURCE_SHA} with noindex"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo '::error::TSS shadow did not serve the exact uploaded source and noindex marker within the verification window'
+          exit 1
+
+      - name: Verify the held post remains denied on both URL forms
+        run: |
+          set -euo pipefail
+          for route in '/blog/ssh-macos-kvm-hid-accessory-approval' '/blog/ssh-macos-kvm-hid-accessory-approval/'; do
+            verified=false
+            for attempt in $(seq 1 12); do
+              if status="$(curl -sS --max-redirs 0 --connect-timeout 5 --max-time 12 --max-filesize 8192 \
+                -D "${RUNNER_TEMP}/tss-held-headers.txt" -o /dev/null -w '%{http_code}' "https://tss.tinyland.dev${route}")" && \
+                [[ "${status}" = '404' ]] && \
+                grep -Eiq '^cache-control:[[:space:]]*no-store([[:space:]]*,.*)?[[:space:]]*$' "${RUNNER_TEMP}/tss-held-headers.txt" && \
+                grep -Eiq '^x-robots-tag:[[:space:]]*noindex([[:space:]]*,.*)?[[:space:]]*$' "${RUNNER_TEMP}/tss-held-headers.txt"; then
+                verified=true
+                break
+              fi
+              sleep 5
+            done
+            if [[ "${verified}" != true ]]; then
+              echo "::error::TSS shadow held post was not denied with 404/no-store/noindex at ${route}"
+              exit 1
+            fi
+          done
+          echo 'TSS shadow held post remains denied on both URL forms'
