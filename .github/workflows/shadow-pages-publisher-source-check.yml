@@ -1,0 +1,41 @@
+name: TSS shadow publisher source checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/cloudflare-pages-shadow-v2.yml'
+      - '.github/workflows/shadow-pages-publisher-source-check.yml'
+      - 'scripts/ci/shadow-pages-*'
+      - 'scripts/ci/test_shadow_pages_artifact.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cloudflare-pages-shadow-v2.yml'
+      - '.github/workflows/shadow-pages-publisher-source-check.yml'
+      - 'scripts/ci/shadow-pages-*'
+      - 'scripts/ci/test_shadow_pages_artifact.py'
+
+permissions:
+  contents: read
+
+jobs:
+  publisher-contracts:
+    name: tss-shadow-publisher-contracts
+    # Same hosted, unprivileged artifact/source-validation job class as the
+    # existing shadow source builder. This does not confer GF qualification.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Verify source and publication provenance fixtures
+        run: node --test scripts/ci/shadow-pages-resolver.test.mjs
+      - name: Preserve the existing held-post denial contract
+        run: node scripts/test-held-post-edge-404.mjs
+      - name: Verify bounded artifact extraction fixtures
+        run: python3 -m unittest discover -s scripts/ci -p test_shadow_pages_artifact.py
