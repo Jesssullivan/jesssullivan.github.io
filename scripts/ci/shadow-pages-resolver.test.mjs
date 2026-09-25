@@ -176,8 +176,8 @@ await assert.rejects(resolveShadowPagesPublish({
 await rejectResolution((v) => { v.metadata.sourceSha = '0'.repeat(40); }, /metadata SHA mismatch/);
 await rejectResolution((v) => { v.metadata.archiveDigest = 'not-a-digest'; }, /archive digest is malformed/);
 await rejectResolution((v) => { v.pr.head.sha = '0'.repeat(40); }, /no longer at the exact source head/);
-await rejectResolution((v) => { v.source.conclusion = 'failure'; }, /source build contract/);
-await rejectResolution((v) => { v.source.path = 'other.yml'; }, /source build contract/);
+await rejectResolution((v) => { v.source.conclusion = 'failure'; }, /successful default-owned shadow build contract/);
+await rejectResolution((v) => { v.source.path = 'other.yml'; }, /successful default-owned shadow build contract/);
 await rejectResolution((v) => { v.sourceJobs[0].steps[0].conclusion = 'skipped'; }, /Build source image/);
 await rejectResolution((v) => { v.diagnostic.conclusion = 'failure'; }, /successful exact-head/);
 await rejectResolution((v) => { v.diagnostic.head_sha = '0'.repeat(40); }, /successful exact-head/);
