@@ -9,6 +9,7 @@ const paths = {
 	ci: '.github/workflows/ci.yml',
 	production: '.github/workflows/cloudflare-pages-production-v2.yml',
 	parity: '.github/workflows/cloudflare-pages-parity-v2.yml',
+	cacheFreeDiagnostic: '.github/workflows/cache-free-pr-diagnostic.yml',
 	cachePurge: '.github/workflows/cloudflare-cache-purge-v2.yml',
 	shadowSource: '.github/workflows/shadow-source-build-v2.yml',
 	shadowPublish: '.github/workflows/shadow-source-publish-v2.yml',
@@ -17,7 +18,7 @@ const paths = {
 	privateCv: '.github/workflows/private-cv-authority-v2.yml',
 };
 
-const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [ci, production, parity, cacheFreeDiagnostic, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -179,6 +180,41 @@ requireAll(
 	'Cloudflare parity workflow',
 );
 forbid(parity, /secrets\.|deployments: write|cloudflare\/wrangler-action|pages deploy/, 'parity must remain secretless');
+
+requireAll(
+	cacheFreeDiagnostic,
+	[
+		'pull_request:',
+		'branches: [main]',
+		'types: [labeled]',
+		"github.event.label.name == 'diagnostic/cache-free'",
+		'permissions: {}',
+		'context.payload.label?.name !== "diagnostic/cache-free"',
+		'pr.state !== "open"',
+		'pr.base.ref !== "main"',
+		'pr.head.repo?.full_name !== `${owner}/${repo}`',
+		'eventPr.head.repo?.full_name !== `${owner}/${repo}`',
+		'eventPr.base.ref !== "main"',
+		'pr.head.sha !== sourceSha',
+		'runs-on: tinyland-dind',
+		'persist-credentials: false',
+		'GF_BAZEL_SUBSTRATE_MODE: compatibility-local-only',
+		"BAZEL_REMOTE_CACHE: ''",
+		"BAZEL_REMOTE_EXECUTOR: ''",
+		'--no-install playwright install --with-deps chromium',
+		'bash scripts/check-cache-free-pr-diagnostic.sh check',
+		'bash scripts/check-cache-free-pr-diagnostic.sh test',
+		'bash scripts/check-cache-free-pr-diagnostic.sh e2e',
+		'canonical CI bazel-remote-gates remains required and unchanged',
+	],
+	'cache-free diagnostic workflow',
+);
+forbid(cacheFreeDiagnostic, /^\s*workflow_dispatch:|^\s*repository_dispatch:|^\s*pull_request_target:/m, 'cache-free diagnostic must be a PR label only');
+forbid(
+	cacheFreeDiagnostic,
+	/secrets\.|github\.token|(?:id-token|contents|packages|actions|checks|statuses|pull-requests|deployments|pages):\s*write|createWorkflowDispatch|docker\/login-action|cloudflare\/wrangler-action|pages deploy|push:\s*true/,
+	'cache-free diagnostic must not carry credentialed publication authority',
+);
 
 requireAll(
 	vite,
