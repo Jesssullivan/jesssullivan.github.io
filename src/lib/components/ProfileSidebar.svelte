@@ -1,20 +1,8 @@
 <script lang="ts">
 	import TagCloud from './TagCloud.svelte';
 	import ThemedImage from './ThemedImage.svelte';
-	import { THEMED_IMAGES } from '$lib/data/github-profile';
 
 	let { compact = false }: { compact?: boolean } = $props();
-
-	let statsUpdated = $state<string | null>(null);
-
-	$effect(() => {
-		fetch('/images/github-profile/updated.json')
-			.then((r) => (r.ok ? r.json() : null))
-			.then((d) => {
-				if (d?.updated) statsUpdated = d.updated.slice(0, 10);
-			})
-			.catch(() => {});
-	});
 </script>
 
 <div class="profile-sidebar {compact ? 'profile-sidebar--compact' : ''}">
@@ -113,42 +101,10 @@
 			/>
 		</div>
 
-		<!-- GitHub Activity widgets -->
-		<div class="mt-6 space-y-3">
-			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400">GitHub Activity</h4>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.githubStats.light}
-				darkSrc={THEMED_IMAGES.githubStats.dark}
-				alt={THEMED_IMAGES.githubStats.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.topLangs.light}
-				darkSrc={THEMED_IMAGES.topLangs.dark}
-				alt={THEMED_IMAGES.topLangs.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.repoGraph.light}
-				darkSrc={THEMED_IMAGES.repoGraph.dark}
-				alt={THEMED_IMAGES.repoGraph.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.snake.light}
-				darkSrc={THEMED_IMAGES.snake.dark}
-				alt={THEMED_IMAGES.snake.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.streak.light}
-				darkSrc={THEMED_IMAGES.streak.dark}
-				alt={THEMED_IMAGES.streak.alt}
-				class="w-full"
-			/>
-			{#if statsUpdated}
-				<p class="text-xs text-surface-400 mt-1">stats updated {statsUpdated}</p>
-			{/if}
+		<!-- Projects: the facts-driven map and upstream work live on /about (R53) -->
+		<div class="mt-6">
+			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-1.5">Projects</h4>
+			<a href="/about#projects" class="text-sm text-primary-500 hover:underline">Project map &amp; merged upstream work &rarr;</a>
 		</div>
 
 	{/if}

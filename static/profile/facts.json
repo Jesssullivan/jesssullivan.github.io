@@ -1,0 +1,867 @@
+{
+ "community": [
+  "Ongoing engagement with the Rocky Enterprise Linux Foundation (Rocky 10 platform, real-time (PREEMPT_RT) kernel lanes, and downstream CVE backport practice).",
+  "First Fellow, D&M Makerspace, Plymouth State University (2017–2020)",
+  "Membership Chair & 3D Printing Captain, Ithaca Generator (2020–2022)"
+ ],
+ "generated_by": "spear_resumes profile/render/render.py (just profile)",
+ "identity": {
+  "always_building": "Hey! I am always hacking, learning, building, reading, and tinkering. Day in, day out, this is what I do.",
+  "email": "jess@sulliwood.org",
+  "headline": "Senior Full-Stack & Systems Engineer · 8+ years",
+  "location": "Lewiston, ME & Boston, MA",
+  "name": "Jess Sullivan",
+  "summary": "Senior full-stack and systems engineer with 8+ years building software across TypeScript/SvelteKit, Python, Go, C++, Rust, Zig, Chapel, Haskell, and Nix-first infrastructure.",
+  "taglines": [
+   "Full-Stack & Product · DevSecOps · ML / Computer Vision · Compilers & HPC · Kernel & Security Research"
+  ]
+ },
+ "images": [
+  {
+   "alt": "Photograph: a great blue heron in flight, wings spread, low over dense green ferns and brush",
+   "file": "header_image.png",
+   "slot": "banner",
+   "src": "img/header_image.png"
+  },
+  {
+   "alt": "Member of The Internet Defense League",
+   "file": "idl_badge.png",
+   "slot": "links",
+   "src": "img/idl_badge.png",
+   "url": "https://www.fightforthefuture.org/"
+  },
+  {
+   "alt": "Equation: Learning = internet × (time + standards × Ambition) / Difficulty",
+   "file": "CodeCogsEqn-1.png",
+   "slot": "closing",
+   "src": "img/CodeCogsEqn-1.png",
+   "src_dark": "img/CodeCogsEqn-1-dark.png"
+  }
+ ],
+ "languages": [
+  {
+   "language": "TypeScript",
+   "share": 0.313
+  },
+  {
+   "language": "Python",
+   "share": 0.223
+  },
+  {
+   "language": "C",
+   "share": 0.057
+  },
+  {
+   "language": "Zig",
+   "share": 0.054
+  },
+  {
+   "language": "Starlark",
+   "share": 0.039
+  },
+  {
+   "language": "Shell",
+   "share": 0.037
+  },
+  {
+   "language": "Chapel",
+   "share": 0.03
+  },
+  {
+   "language": "R",
+   "share": 0.029
+  },
+  {
+   "language": "Other",
+   "share": 0.218
+  }
+ ],
+ "links": [
+  {
+   "label": "GitHub",
+   "url": "https://github.com/Jesssullivan"
+  },
+  {
+   "label": "Blog",
+   "url": "https://transscendsurvival.org"
+  },
+  {
+   "label": "CV",
+   "url": "https://transscendsurvival.org/cv"
+  },
+  {
+   "label": "AAG poster",
+   "url": "https://transscendsurvival.org/aag"
+  },
+  {
+   "label": "LinkedIn",
+   "url": "https://www.linkedin.com/in/jess-sullivan-11032a367/"
+  },
+  {
+   "label": "xoxd.ai",
+   "url": "https://xoxd.ai"
+  },
+  {
+   "label": "xoxd.ai on GitHub",
+   "url": "https://github.com/xoxd-ai"
+  },
+  {
+   "label": "Great Falls Tool Bus",
+   "url": "https://greatfallstoolbus.org"
+  },
+  {
+   "label": "Email",
+   "url": "mailto:jess@sulliwood.org"
+  }
+ ],
+ "merged_upstream": [
+  {
+   "merged": "2026-09-25",
+   "project": "llama.cpp",
+   "relation": "",
+   "url": "https://github.com/ggml-org/llama.cpp/pull/29283"
+  },
+  {
+   "merged": "2026-06-04",
+   "project": "nixpkgs",
+   "relation": "",
+   "url": "https://github.com/NixOS/nixpkgs/pull/516711"
+  },
+  {
+   "merged": "2026-05-27",
+   "project": "KeePassXC",
+   "relation": "committer",
+   "url": "https://github.com/keepassxreboot/keepassxc/pull/13383"
+  },
+  {
+   "merged": "2026-05-19",
+   "project": "ShikiJS textmate-grammars-themes",
+   "relation": "",
+   "url": "https://github.com/shikijs/textmate-grammars-themes/pull/203"
+  },
+  {
+   "merged": "2026-04-22",
+   "project": "numtide/nix-vm-test",
+   "relation": "",
+   "url": "https://github.com/numtide/nix-vm-test/pull/172"
+  },
+  {
+   "merged": "2026-03-21",
+   "project": "cmux",
+   "relation": "",
+   "url": "https://github.com/manaflow-ai/cmux/pull/1877"
+  },
+  {
+   "merged": "2026-03-09",
+   "project": "rspamd",
+   "relation": "committer",
+   "url": "https://github.com/rspamd/rspamd/pull/5923"
+  },
+  {
+   "merged": "2026-02-22",
+   "project": "svelte-superforms",
+   "relation": "",
+   "url": "https://github.com/ciscoheat/sveltekit-superforms/pull/678"
+  },
+  {
+   "merged": "2026-02-10",
+   "project": "Futhark",
+   "relation": "",
+   "url": "https://github.com/diku-dk/futhark/pull/2365"
+  },
+  {
+   "merged": "2026-01-16",
+   "project": "Chapel Mason registry",
+   "relation": "committer",
+   "url": "https://github.com/chapel-lang/mason-registry/pull/77"
+  },
+  {
+   "merged": "2025-05-05",
+   "project": "xCaddy",
+   "relation": "",
+   "url": "https://github.com/caddyserver/xcaddy/pull/238"
+  },
+  {
+   "merged": "2023-03-28",
+   "project": "Klipper",
+   "relation": "contributor",
+   "url": "https://github.com/Klipper3d/klipper/pull/6112"
+  }
+ ],
+ "projects": [
+  {
+   "category": "applied-ml",
+   "category_label": "Applied ML & classification",
+   "label": "birdsong-identification interpreter experiments and demos",
+   "url": "https://github.com/Jesssullivan/MerlinAI-Interpreters",
+   "x": 0.667,
+   "y": 0.369
+  },
+  {
+   "category": "applied-ml",
+   "category_label": "Applied ML & classification",
+   "label": "image-based mushroom identification experiments for MushroomObserver",
+   "url": "https://github.com/Jesssullivan/mo-image-identifier",
+   "x": 0.682,
+   "y": 0.404
+  },
+  {
+   "category": "applied-ml",
+   "category_label": "Applied ML & classification",
+   "label": "a Leaflet audio annotator for squirrel and chipmunk calls",
+   "url": "https://github.com/Jesssullivan/squirrel-leaflet-annotation",
+   "x": 0.653,
+   "y": 0.381
+  },
+  {
+   "category": "kernel-security",
+   "category_label": "Kernel, firmware & security research",
+   "label": "ASM2362 NVMe recovery experiments and FTL-corruption research",
+   "url": "https://github.com/Jesssullivan/hiberpower-ntfs",
+   "x": 0.268,
+   "y": 0.06
+  },
+  {
+   "category": "kernel-security",
+   "category_label": "Kernel, firmware & security research",
+   "label": "key-free, native-Linux recovery tooling for Canon MegaTank printers' ink-absorber lockout",
+   "url": "https://github.com/Jesssullivan/canon-megatank-reset",
+   "x": 0.251,
+   "y": 0.038
+  },
+  {
+   "category": "kernel-security",
+   "category_label": "Kernel, firmware & security research",
+   "label": "a native KeePassXC KDBX database reader",
+   "url": null,
+   "x": 0.234,
+   "y": 0.0
+  },
+  {
+   "category": "kernel-security",
+   "category_label": "Kernel, firmware & security research",
+   "label": "a research fork of Magic Lantern firmware",
+   "url": "https://github.com/Jesssullivan/magiclantern_hydrogen",
+   "x": 0.21,
+   "y": 0.05
+  },
+  {
+   "category": "kernel-security",
+   "category_label": "Kernel, firmware & security research",
+   "label": "Rocky Linux 10 real-time (PREEMPT_RT) kernel lane carrying XR display patches and Dirty Frag security backports",
+   "url": "https://github.com/xoxd-ai/linux-xr",
+   "x": 0.205,
+   "y": 0.098
+  },
+  {
+   "category": "compilers-hpc",
+   "category_label": "Compilers, HPC & functional compute",
+   "label": "early Chapel experiments: duplicate checking, string iteration and parallel evaluation",
+   "url": "https://github.com/Jesssullivan/ChapelTests",
+   "x": 0.251,
+   "y": 0.561
+  },
+  {
+   "category": "compilers-hpc",
+   "category_label": "Compilers, HPC & functional compute",
+   "label": "glyph-compositor research with Futhark and WebGPU",
+   "url": "https://github.com/Jesssullivan/pixelwise-research",
+   "x": 0.196,
+   "y": 0.523
+  },
+  {
+   "category": "compilers-hpc",
+   "category_label": "Compilers, HPC & functional compute",
+   "label": "property-based testing package for Chapel",
+   "url": "https://github.com/Jesssullivan/quickchpl",
+   "x": 0.253,
+   "y": 0.544
+  },
+  {
+   "category": "compilers-hpc",
+   "category_label": "Compilers, HPC & functional compute",
+   "label": "provenance-clean Bessel functions (J0, J1 and J1 roots) for Futhark",
+   "url": "https://github.com/Jesssullivan/futhark-bessel",
+   "x": 0.197,
+   "y": 0.503
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "an accounting and financial-modeling R package and MCP tool surface for GnuCash",
+   "url": "https://github.com/Jesssullivan/gnucashr",
+   "x": 0.032,
+   "y": 0.199
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "a cross-platform disk-cleanup daemon with graduated thresholds (Go, Nix, systemd and launchd)",
+   "url": null,
+   "x": 0.11,
+   "y": 0.257
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "in-progress encrypted sync filesystem (Linux FUSE + macOS FileProvider)",
+   "url": "https://github.com/Jesssullivan/tummycrypt",
+   "x": 0.115,
+   "y": 0.206
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "an XWayland Emacs window manager experimenting with eye-gesture and XR input",
+   "url": "https://github.com/Jesssullivan/XoxdWM",
+   "x": 0.131,
+   "y": 0.184
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "Zig capability libraries with C ABIs",
+   "url": "https://github.com/Jesssullivan/zig-crypto",
+   "x": 0.034,
+   "y": 0.315
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "Zig capability libraries with C ABIs",
+   "url": "https://github.com/Jesssullivan/zig-ctap2",
+   "x": 0.0,
+   "y": 0.296
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "Zig capability libraries with C ABIs",
+   "url": "https://github.com/Jesssullivan/zig-keychain",
+   "x": 0.031,
+   "y": 0.271
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "Zig capability libraries with C ABIs",
+   "url": "https://github.com/Jesssullivan/zig-notify",
+   "x": 0.054,
+   "y": 0.276
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "automated patching for Chrome Remote Desktop on Budgie and GNOME desktops",
+   "url": "https://github.com/Jesssullivan/chrome-remote-desktop-budgie",
+   "x": 0.538,
+   "y": 0.045
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "a Bazel module registry for the firm's published packages",
+   "url": "https://github.com/xoxd-ai/bazel-registry",
+   "x": 0.535,
+   "y": 0.115
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "Bazel rules for compiling LaTeX to PDF with Tectonic",
+   "url": "https://github.com/Jesssullivan/rules_tectonic",
+   "x": 0.554,
+   "y": 0.119
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "a Caddy, Tailscale and DNS reverse-proxy demo",
+   "url": "https://github.com/Jesssullivan/ts-caddy",
+   "x": 0.638,
+   "y": 0.018
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "a Dhall-typed Tailscale ACL policy with continuous delivery",
+   "url": "https://github.com/Jesssullivan/tailnet-acl",
+   "x": 0.675,
+   "y": 0.056
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "Raspberry Pi image tooling: emulate, organize, burn and manage Debian images",
+   "url": "https://github.com/Jesssullivan/clipi",
+   "x": 0.581,
+   "y": 0.051
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "Tailscale Aperture configuration bootstrapped from tagged devices over tsnet",
+   "url": "https://github.com/Jesssullivan/aperture-bootstrap",
+   "x": 0.661,
+   "y": 0.068
+  },
+  {
+   "category": "build-infra",
+   "category_label": "Build systems & infrastructure",
+   "label": "a utility for out-of-band management of air-gapped network devices",
+   "url": "https://github.com/Jesssullivan/DarwinNicUtil",
+   "x": 0.608,
+   "y": 0.092
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "experimental OAuth multiplexing for autonomous agents and people",
+   "url": "https://github.com/Jesssullivan/oauth-mux",
+   "x": 0.382,
+   "y": 0.327
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "a formal, auditable tool surface for playing the adversary in security testing",
+   "url": null,
+   "x": 0.442,
+   "y": 0.324
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "Linear and Google Workspace automation for calendar-facing operational workflows",
+   "url": "https://github.com/xoxd-ai/linear-gsuite",
+   "x": 0.335,
+   "y": 0.307
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "a local agent-research condenser with provenance-preserving prompt minimization",
+   "url": "https://github.com/Jesssullivan/prompt-toon",
+   "x": 0.395,
+   "y": 0.288
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "reusable GitHub Actions composite actions for Nix, Attic cache and CI/CD",
+   "url": "https://github.com/xoxd-ai/ci-templates",
+   "x": 0.375,
+   "y": 0.272
+  },
+  {
+   "category": "sdlc-automation",
+   "category_label": "Software-lifecycle automation",
+   "label": "a self-bootstrapping LangGraph DAG harness for Ansible iteration cycles in GitLab",
+   "url": "https://github.com/Jesssullivan/Ansible-DAG-Harness",
+   "x": 0.411,
+   "y": 0.362
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "an ActivityPub federation library",
+   "url": null,
+   "x": 0.525,
+   "y": 0.752
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "an authentication library with TOTP, RBAC and pluggable storage",
+   "url": null,
+   "x": 0.496,
+   "y": 0.791
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a backend-agnostic scheduling system with Acuity, Cal.com and native adapters",
+   "url": "https://github.com/xoxd-ai/scheduling-kit",
+   "x": 0.441,
+   "y": 0.832
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a calendar library with CalDAV, iCal, RRULE and time-zone support",
+   "url": null,
+   "x": 0.501,
+   "y": 0.697
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a Flask image server with Lanczos resampling",
+   "url": "https://github.com/Jesssullivan/FastPhotoAPI",
+   "x": 0.36,
+   "y": 0.759
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "framework-agnostic rate-limiting and CSRF middleware",
+   "url": null,
+   "x": 0.602,
+   "y": 0.782
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "the Great Falls Tool Bus apex site for Lewiston-Auburn, Maine",
+   "url": "https://github.com/Great-Falls-Tool-Bus/gftb-site",
+   "x": 0.407,
+   "y": 0.767
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "markdown content services with versioning, scheduling and relationship resolution",
+   "url": null,
+   "x": 0.546,
+   "y": 0.761
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "an OpenTelemetry instrumentation layer with a TraceQL query builder and RED metrics",
+   "url": null,
+   "x": 0.313,
+   "y": 0.885
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "physics-simulated animated vector backgrounds for Svelte 5",
+   "url": "https://github.com/xoxd-ai/tinyvectors",
+   "x": 0.445,
+   "y": 0.867
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a public dark-sky planning map for astronomy, field sensing and low-light logistics",
+   "url": "https://github.com/Jesssullivan/darkmap.phasi.space",
+   "x": 0.515,
+   "y": 0.866
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "request-security utilities: IP hashing, encryption, risk scoring and timing-safe helpers",
+   "url": null,
+   "x": 0.605,
+   "y": 0.801
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a static rewrite of the transscendsurvival.org blog",
+   "url": "https://github.com/Jesssullivan/jesssullivan.github.io",
+   "x": 0.434,
+   "y": 0.776
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a streaming accessibility evaluation engine: WCAG contrast, ARIA and keyboard-navigation checks",
+   "url": null,
+   "x": 0.424,
+   "y": 0.974
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "structured logging with Loki integration and OpenTelemetry trace correlation",
+   "url": null,
+   "x": 0.309,
+   "y": 0.91
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a tutorial for writing a command-line utility in modern TypeScript",
+   "url": "https://github.com/Jesssullivan/IntroTypeScript",
+   "x": 0.531,
+   "y": 0.944
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a Vite plugin for build-time WCAG checks of Svelte components",
+   "url": "https://github.com/xoxd-ai/vite-plugin-a11y",
+   "x": 0.449,
+   "y": 0.974
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "a Vite plugin generating Skeleton UI color-pairing utilities on demand",
+   "url": "https://github.com/xoxd-ai/vite-plugin-skeleton-colors",
+   "x": 0.497,
+   "y": 0.973
+  },
+  {
+   "category": "web-product",
+   "category_label": "Web product & libraries",
+   "label": "Zod schemas, field validators and Superforms integration helpers",
+   "url": null,
+   "x": 0.364,
+   "y": 0.897
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "3D-printer profiles for the Ithaca Generator makerspace",
+   "url": "https://github.com/Jesssullivan/IG-3DP-Profiles",
+   "x": 0.968,
+   "y": 0.288
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "CAD-as-code 19-inch rack mounts for ATX power supplies",
+   "url": "https://github.com/Jesssullivan/modular-atx-power-rack",
+   "x": 0.95,
+   "y": 0.368
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "open-source stepper hardware for coil winding",
+   "url": "https://github.com/Jesssullivan/Arduino_Coil_Winder",
+   "x": 0.952,
+   "y": 0.316
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "R / Shiny KML geoprocessing tools",
+   "url": "https://github.com/Jesssullivan/Shiny-Apps",
+   "x": 0.888,
+   "y": 0.333
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "R processing for bird point-count field data",
+   "url": "https://github.com/Jesssullivan/FieldProcessing",
+   "x": 0.888,
+   "y": 0.309
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "shelving and related CAD drawings for the Great Falls Tool Bus",
+   "url": "https://github.com/Great-Falls-Tool-Bus/cad",
+   "x": 0.932,
+   "y": 0.386
+  },
+  {
+   "category": "gis-fabrication",
+   "category_label": "GIS, fabrication & community",
+   "label": "a UV-reactive 3D-printer bed adhesive: recipe, scaler and Klipper integration",
+   "url": null,
+   "x": 1.0,
+   "y": 0.338
+  }
+ ],
+ "publications": [
+  {
+   "authors": "Sullivan, J.",
+   "title": "Recovering Write-Protected NVMe SSDs Through USB Bridge XRAM Injection: Bypassing the ASMedia ASM2362 Firmware Opcode Whitelist",
+   "url": "https://transscendsurvival.org/papers/recovery-paper.pdf",
+   "year": 2026
+  },
+  {
+   "authors": "Reitsma, L.R., Burns, C., & Sullivan, J.",
+   "title": "Poecile atricapillus (Black-capped Chickadee) Feeding Catharus guttatus (Hermit Thrush) Nestlings",
+   "url": "https://doi.org/10.1656/045.026.0213",
+   "venue": "Northeastern Naturalist, 26(2)",
+   "year": 2019
+  },
+  {
+   "authors": "Sullivan, J.",
+   "title": "Web GIS: Telling Stories & Solving Problems",
+   "venue": "AAG Annual Meeting",
+   "year": 2019
+  }
+ ],
+ "relations": [
+  {
+   "project": "KeePassXC",
+   "proof": "keepassxreboot/keepassxc#13383",
+   "relation": "committer"
+  },
+  {
+   "project": "rspamd",
+   "proof": "rspamd/rspamd#5923",
+   "relation": "committer"
+  },
+  {
+   "project": "Chapel Mason registry",
+   "proof": "chapel-lang/mason-registry#77",
+   "relation": "committer"
+  },
+  {
+   "project": "Klipper",
+   "proof": "Klipper3d/klipper#6112",
+   "relation": "contributor"
+  },
+  {
+   "project": "FFT.js",
+   "relation": "contributor",
+   "url": "https://github.com/indutny/fft.js"
+  },
+  {
+   "grid": true,
+   "project": "ggplot2",
+   "relation": "engagement",
+   "url": "https://github.com/tidyverse/ggplot2"
+  }
+ ],
+ "roles": [
+  {
+   "bullets": [
+    "Current Bates work spans enterprise authentication, SAML/LTI/Shibboleth, secret management, ACME certificate automation, OpenTelemetry, GitLab AutoDevOps, OpenTofu, RKE2/Rancher, legacy modernization, and 24/7 CVE response.",
+    "Built a property-based orchestrator and instrumentation harness for 1980s-era degree-management C in Haskell + Python (QuickCheck, Cabal, podman-compose for dev parity, FPM for packaging, AutoDevOps for CI/CD); turned an unautomatable legacy codebase into a verifiable, traceable, k8s-friendly workload.",
+    "Overhauled and automated the event-management lifecycle (C#, Go, Ansible).",
+    "Helped lead adoption of horizontally-scalable Apache Solr instances across multiple public and private indexing and search applications.",
+    "Built out internal ACME-first certificate-management and DNS libraries, templates, and tooling.",
+    "Contributed to enterprise secret-management practice and authentication / authorization college-wide; developed multiple SAML, LTI, Shibboleth, and bespoke TOTP / OAuth integrations; helped lead adoption of KeePassXC, firewalld, and fail2ban inside declarative Ansible workflows; OTEL / LGTM / Tempo telemetry stack in production."
+   ],
+   "end": "present",
+   "org": "Bates College",
+   "start": 2024,
+   "summary": "Build and maintain enterprise systems supporting staff, faculty, and the technical ILS team. 24/7 on-call for CVE triage and mitigation; help lead IaC and dev-CI parity college-wide.",
+   "title": "Systems Analyst (DevSecOps)"
+  },
+  {
+   "bullets": [
+    "Led R&D on internal ML annotation tooling, model-evaluation web APIs, and end-to-end MLOps pipelines (Flask, TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with the Visipedia / iNaturalist community.",
+    "Streamlined Macaulay Library MLOps and asset ingestion pipeline."
+   ],
+   "end": 2021,
+   "org": "Macaulay Library, Cornell Lab of Ornithology",
+   "start": 2019,
+   "summary": "Developed & launched Merlin Sound ID, a production fine-grained audio classification system used by millions worldwide.",
+   "title": "Computer Vision Software Engineer"
+  },
+  {
+   "bullets": [],
+   "end": 2022,
+   "org": "Cornell CALS Landscape Architecture (DLA Makerspace)",
+   "start": 2021,
+   "summary": "Developed and taught rapid-fabrication curricula.",
+   "title": "Fabrication Laboratory Manager"
+  },
+  {
+   "bullets": [
+    "Developed web GIS tools used by the National Park Service, Foundation for Healthy Communities, GPRED, the Northern Border Regional Commission, presented at the 2019 AAG Annual Meeting in Washington, DC",
+    "Client work (client list on request): the entire business stack for a multi-location clinical practice, grown through four business expansions over three years; R&D for a hydraulic sawmill equipment maker; and business systems for other small firms."
+   ],
+   "end": "present",
+   "org": "Full-Stack Contracting & FOSS",
+   "start": 2017,
+   "summary": "Independent contractor; active upstream contributor and committer.",
+   "title": "Independent contractor"
+  }
+ ],
+ "schema": 1,
+ "svgs": [
+  "svg/header-dark.svg",
+  "svg/header-light.svg",
+  "svg/languages-dark.svg",
+  "svg/languages-light.svg",
+  "svg/org-header-dark.svg",
+  "svg/org-header-light.svg",
+  "svg/org-map-dark.svg",
+  "svg/org-map-light.svg",
+  "svg/project-map-dark.svg",
+  "svg/project-map-light.svg",
+  "svg/timeline-dark.svg",
+  "svg/timeline-light.svg",
+  "svg/upstream-dark.svg",
+  "svg/upstream-light.svg"
+ ],
+ "taxonomy": [
+  {
+   "id": "applied-ml",
+   "label": "Applied ML & classification"
+  },
+  {
+   "id": "kernel-security",
+   "label": "Kernel, firmware & security research"
+  },
+  {
+   "id": "compilers-hpc",
+   "label": "Compilers, HPC & functional compute"
+  },
+  {
+   "id": "systems",
+   "label": "Systems libraries & tools"
+  },
+  {
+   "id": "build-infra",
+   "label": "Build systems & infrastructure"
+  },
+  {
+   "id": "sdlc-automation",
+   "label": "Software-lifecycle automation"
+  },
+  {
+   "id": "web-product",
+   "label": "Web product & libraries"
+  },
+  {
+   "id": "gis-fabrication",
+   "label": "GIS, fabrication & community"
+  }
+ ],
+ "updated": "2026-09-26",
+ "ventures": [
+  {
+   "description": "Independent contractor / contributor business while in the GIS & ML space.",
+   "end": 2021,
+   "name": "Columbari.us LLC",
+   "start": 2017
+  },
+  {
+   "description": "Formed in NY to raise capital and interest in a for-profit hackerspace with a focus on mathematics and high performance computing alongside my nonprofit work leading the Ithaca Generator; shelved due to move to Maine.",
+   "end": 2024,
+   "name": "Moonlight Coworking LLC",
+   "start": 2021
+  },
+  {
+   "description": "Bootstrapped engineering and contracting firm: infrastructure automation, build platforms, agent orchestration for semi-autonomous infrastructure lifecycle management, and full business stacks for clients.",
+   "end": "present",
+   "github": "https://github.com/xoxd-ai",
+   "name": "xoxd.ai",
+   "product": "glorious.build",
+   "product_line": "Building glorious.build, a cache-first build and CI substrate (Bazel remote cache and execution, Nix, pooled self-hosted runners); pre-launch.",
+   "product_verb": "Building",
+   "role": "Founder",
+   "start": 2024,
+   "url": "https://xoxd.ai"
+  },
+  {
+   "description": "Ultrasonics and piezoelectric lab-equipment venture focused on ultrasonic chaining of metapolymers.",
+   "end": "ongoing",
+   "name": "Kitten Spit Labs"
+  },
+  {
+   "description": "Founder of the Great Falls Tool Bus, a member-run tool and gear lending library in Lewiston, ME, and builder of its site and member infrastructure.",
+   "end": "present",
+   "github": "https://github.com/Great-Falls-Tool-Bus",
+   "infra": "Built the public site and member-management infrastructure for the Great Falls Tool Bus.",
+   "name": "Great Falls Tool Bus",
+   "role": "Founder",
+   "start": 2026,
+   "url": "https://greatfallstoolbus.org"
+  }
+ ]
+}

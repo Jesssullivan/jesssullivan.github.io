@@ -2,170 +2,67 @@
 	import type { PageData } from './$types';
 	import ThemedImage from '$lib/components/ThemedImage.svelte';
 	import {
-		TYPING_SVG_URL,
-		CTA_BADGES,
-		IDENTITY_BADGES,
-		TECH_FOSS_BADGES,
-		THEMED_IMAGES,
-		CLIENT_BADGES,
-		SPONSORING_BADGES,
-	} from '$lib/data/github-profile';
+		profile,
+		profileAsset,
+		svgPair,
+		imageForSlot,
+		period,
+		projectGroups,
+		currentRole,
+		personSameAs,
+	} from '$lib/data/profile';
 
 	let { data }: { data: PageData } = $props();
 
-	type FossProject = {
-		name: string;
-		url: string;
-		desc: string;
-		docsUrl?: string;
-		proofUrl?: string;
+	// R53: every claim below comes from static/profile/facts.json (synced from
+	// spear_resumes). Hand-written here: the offline-year note, Beyond Code, the
+	// post lists, the page meta description and the blog-local link extras.
+	const identity = profile.identity;
+	const role = currentRole();
+	const groups = projectGroups();
+	// Intrinsic sizes (the SVG viewBoxes) reserve layout space before load.
+	const charts = {
+		timeline: { ...svgPair('timeline'), width: 960, height: 550 },
+		projectMap: { ...svgPair('project-map'), width: 960, height: 740 },
+		languages: { ...svgPair('languages'), width: 960, height: 402 },
+		upstream: { ...svgPair('upstream'), width: 960, height: 534 },
 	};
+	const learning = imageForSlot('closing');
+	const linkBadge = imageForSlot('links');
+	const upstreamProjects = new Set(profile.merged_upstream.map((u) => u.project));
+	const otherRelations = profile.relations.filter((r) => !upstreamProjects.has(r.project) && 'url' in r && r.url);
 
-	type FossCategory = {
-		label: string;
-		projects: FossProject[];
-	};
-
-	type FossContribution = {
-		name: string;
-		url: string;
-	};
-
-	const ventures = [
-		{ name: 'Tinyland, Inc', url: 'https://github.com/tinyland-inc', period: '2024\u2013Present', desc: 'Agent orchestration platform for semiautonomous infrastructure lifecycle management in higher education. Bootstrapped and in stealth; source-available where appropriate.' },
-		{ name: 'Columbari.us LLC', url: 'https://columbari.us', period: '2017\u20132021', desc: 'Independent Gov. contractor in GIS & ML.' },
-		{ name: 'Moonlight Coworking LLC', url: null, period: '2021\u20132024', desc: 'HPC hackerspace initiative in NY; shelved due to move to Maine.' },
-		{ name: 'Kitten Spit Labs', url: null, period: '2022\u2013Present', desc: 'Ultrasonic phantom network gel synthesis. Currently on mfg. pause.' },
+	// R54: blog-local extras, appended after the facts links. Nothing here may
+	// repeat a facts link (facts already carry GitHub, Blog, CV, AAG poster,
+	// LinkedIn, xoxd.ai and Email).
+	const blogLinks: { label: string; url: string }[] = [
+		{ label: 'GitLab', url: 'https://gitlab.com/jesssullivan' },
+		{ label: 'Signal Boosts', url: '/signal-boosts' },
+		{ label: 'Making', url: '/making' },
+		{ label: 'Thingiverse', url: 'https://www.thingiverse.com/Jesssullivan/designs' },
+		{ label: 'SketchUp 3D Warehouse', url: 'https://3dwarehouse.sketchup.com/by/Jesssullivan' },
+		{ label: 'YouTube', url: 'https://www.youtube.com/@jesssullivan' },
+		{ label: 'SoundCloud', url: 'https://soundcloud.com/jesssullivan' },
+		{ label: 'Sponsor', url: 'https://github.com/sponsors/Jesssullivan' },
+		{ label: 'EFF Member', url: 'https://www.eff.org/' },
 	];
+	const factUrls = new Set(profile.links.map((l) => l.url));
+	const extraLinks = blogLinks.filter((l) => !factUrls.has(l.url));
 
-	const experience = [
-		{
-			role: 'Systems Analyst (DevSecOps)',
-			org: 'Bates College',
-			period: '2024\u2013Present',
-			highlights: [
-				'Legacy modernization, bespoke Ansible extensions, roles & plugins',
-				'Apache Solr, ACME cert management, SAML integrations',
-				'GitLab AutoDevOps, RKE2 + Rancher, promoter of IaC practices',
-				'Orchestration, packaging & tooling work (Haskell + Python, QuickCheck, Cabal, FPM)',
-			],
-		},
-		{
-			role: 'CV/ML Software Engineer',
-			org: 'Macaulay Library',
-			period: '2018\u20132022',
-			highlights: [
-				'Developed & launched Merlin Sound ID & The Machine Learning Blog',
-				'Fine-grained ML annotation tools for audio classification',
-				'Internal classification & model evaluation web APIs',
-				'Python (TensorFlow, NumPy, Pandas), Flask, TypeScript, Docker, WASM',
-			],
-		},
-		{
-			role: 'Fabrication Lab Manager',
-			org: 'Cornell CALS',
-			period: '2021\u20132022',
-			highlights: [
-				'Rapid fabrication curricula for Landscape Architecture students & faculty',
-				'OpenSCAD, Fusion 360, C++ tiler development',
-			],
-		},
-	];
-
-	const fossCategories: FossCategory[] = [
-		{
-			label: 'Languages & Compilers',
-			projects: [
-				{ name: 'quickchpl', url: 'https://github.com/Jesssullivan/quickchpl', desc: 'Property-Based Testing for Chapel' },
-				{ name: 'RemoteJuggler', url: 'https://github.com/Jesssullivan/remote-juggler', desc: 'Multi-identity git credential resolver in Chapel', docsUrl: 'https://transscendsurvival.org/remote-juggler/' },
-				{ name: 'pixelwise-research', url: 'https://github.com/Jesssullivan/pixelwise-research', desc: 'WebGPU glyph compositor demo in Futhark', proofUrl: 'https://github.com/Jesssullivan/pixelwise-research/pull/7' },
-			]
-		},
-		{
-			label: 'Infrastructure & DevOps',
-			projects: [
-				{ name: 'GloriousFlywheel', url: 'https://github.com/tinyland-inc/GloriousFlywheel', desc: 'Recursive IaC flywheel for GitLab', docsUrl: 'https://tinyland-inc.github.io/GloriousFlywheel/' },
-				{ name: 'Ansible-DAG-Harness', url: 'https://github.com/Jesssullivan/Ansible-DAG-Harness', desc: 'LangGraph DAG harness for Ansible iteration cycles' },
-				{ name: 'bazel-registry', url: 'https://github.com/tinyland-inc/bazel-registry', desc: 'Bazel Central Registry for @tummycrypt packages', proofUrl: 'https://github.com/tinyland-inc/bazel-registry/pull/42' },
-				{ name: 'searchies', url: 'https://github.com/Jesssullivan/searchies', desc: 'SearXNG infrastructure with Caddy & OpenTofu' },
-			]
-		},
-		{
-			label: 'Hardware & Maker',
-			projects: [
-				{ name: 'XoxdWM', url: 'https://github.com/Jesssullivan/XoxdWM', desc: 'Eye-gesture VR & BCI XWayland Emacs WM' },
-				{ name: 'TurkeyProbe', url: 'https://github.com/Jesssullivan/TurkeyProbe', desc: 'ESP8266 thermistor probe with WebSocket UI' },
-				{ name: 'hiberpower-ntfs', url: 'https://github.com/Jesssullivan/hiberpower-ntfs', desc: 'ASM2362 NVMe FTL corruption recovery research' },
-			]
-		},
-		{
-			label: 'Systems & Security',
-			projects: [
-				{ name: 'linux-xr', url: 'https://github.com/tinyland-inc/linux-xr', desc: 'Rocky Linux 10 RPM kernel lane with XR display patches and CVE backports' },
-				{ name: 'zig-crypto', url: 'https://github.com/Jesssullivan/zig-crypto', desc: 'Portable Zig crypto primitives with a stable C FFI', docsUrl: 'https://transscendsurvival.org/zig-crypto/' },
-				{ name: 'zig-keychain', url: 'https://github.com/Jesssullivan/zig-keychain', desc: 'Cross-platform keychain abstraction in Zig with C FFI', docsUrl: 'https://transscendsurvival.org/zig-keychain/' },
-				{ name: 'zig-ctap2', url: 'https://github.com/Jesssullivan/zig-ctap2', desc: 'CTAP2-over-USB-HID external authenticator support', docsUrl: 'https://transscendsurvival.org/zig-ctap2/' },
-				{ name: 'zig-notify', url: 'https://github.com/Jesssullivan/zig-notify', desc: 'Cross-platform desktop notifications via a C ABI', docsUrl: 'https://transscendsurvival.org/zig-notify/' },
-				{ name: 'oauth-mux', url: 'https://github.com/Jesssullivan/oauth-mux', desc: 'OAuth multiplexing in Zig' },
-				{ name: 'tinyland-auth', url: 'https://github.com/tinyland-inc/tinyland-auth', desc: 'Production auth with TOTP, RBAC, and pluggable storage' },
-				{ name: 'tummycrypt', url: 'https://github.com/Jesssullivan/tummycrypt', desc: 'Encrypted file sync with TCFS auth and hydration proofs', proofUrl: 'https://github.com/Jesssullivan/tummycrypt/pull/356' },
-				{ name: 'DarwinNicUtil', url: 'https://github.com/Jesssullivan/DarwinNicUtil', desc: 'OOB management / air-gapped NIC utility for institutional Macs' },
-				{ name: 'caldera', url: 'https://github.com/Jesssullivan/caldera', desc: 'Local OpenTofu deployment of MITRE Caldera for Shibboleth/SAML hacking' },
-			]
-		},
-		{
-			label: 'Web & Apps',
-			projects: [
-				{ name: 'scheduling-bridge', url: 'https://github.com/Jesssullivan/scheduling-bridge', desc: 'Server-side Acuity migration bridge with async worker hardening', proofUrl: 'https://github.com/Jesssullivan/scheduling-bridge/pull/135' },
-				{ name: 'scheduling-kit', url: 'https://github.com/Jesssullivan/scheduling-kit', desc: 'Backend-agnostic scheduling system with adapter abstractions', proofUrl: 'https://github.com/Jesssullivan/scheduling-kit/pull/94' },
-				{ name: 'tetrahedron', url: 'https://github.com/Jesssullivan/tetrahedron', desc: 'Mental health social service application' },
-				{ name: 'timberbuddy', url: 'https://github.com/Jesssullivan/timberbuddy', desc: 'Control package for Amish sawmill robotics' },
-				{ name: 'FastPhotoAPI', url: 'https://github.com/Jesssullivan/FastPhotoAPI', desc: 'Flask image server with Lanczos resampling' },
-			]
-		},
-		{
-			label: 'ML & Data',
-			projects: [
-				{ name: 'gnucashr', url: 'https://github.com/Jesssullivan/gnucashr', desc: 'High-performance R package for GNUCash accounting' },
-			]
-		},
-	];
-
-	const fossContributions: FossContribution[] = [
-		{ name: 'Chapel-lang', url: 'https://github.com/chapel-lang/mason-registry/pull/77' },
-		{ name: 'rspamd', url: 'https://github.com/rspamd/rspamd/pull/5923' },
-		{ name: 'numtide/nix-vm-test', url: 'https://github.com/numtide/nix-vm-test/pull/172' },
-		{ name: 'manaflow-ai/cmux', url: 'https://github.com/manaflow-ai/cmux/pull/1877' },
-		{ name: 'diku-dk/Futhark', url: 'https://github.com/diku-dk/futhark/pull/2365' },
-		{ name: 'Budgie DE', url: 'https://buddiesofbudgie.org/' },
-		{ name: 'Mason', url: 'https://github.com/Jesssullivan/quickchpl' },
-		{ name: 'SearXNG', url: 'https://github.com/searxng/searxng' },
-		{ name: 'KeePassXC', url: 'https://keepassxc.org/' },
-		{ name: 'Apache Solr', url: 'https://solr.apache.org/' },
-		{ name: 'Skeleton UI', url: 'https://skeleton.dev/' },
-		{ name: 'xCaddy', url: 'https://github.com/caddyserver/xcaddy/pull/238' },
-		{ name: 'fft.js', url: 'https://github.com/indutny/fft.js' },
-		{ name: 'libdns', url: 'https://github.com/libdns/libdns' },
-		{ name: 'ShikiJS', url: 'https://github.com/shikijs/shiki' },
-		{ name: 'ggplot2', url: 'https://github.com/tidyverse/ggplot2' },
-		{ name: 'qutebrowser', url: 'https://github.com/qutebrowser/qutebrowser' },
-		{ name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
-		{ name: 'svelte-superforms', url: 'https://github.com/ciscoheat/sveltekit-superforms/pull/678' },
-		{ name: 'Klipper', url: 'https://github.com/Klipper3d/klipper' },
-		{ name: 'Liqo', url: 'https://liqo.io/' },
-		{ name: 'Joplin', url: 'https://joplinapp.org/' },
-	];
-
-	function badgeUrl(text: string, color: string, opts?: { logo?: string; style?: string; emoji?: string }): string {
-		const style = opts?.style ?? 'flat-square';
-		let label = text;
-		if (opts?.emoji) label = `${opts.emoji} ${text}`;
-		const encoded = encodeURIComponent(label).replace(/-/g, '--');
-		let url = `https://img.shields.io/badge/${encoded}-${color}?style=${style}`;
-		if (opts?.logo) url += `&logo=${opts.logo}&logoColor=white`;
-		return url;
+	function isExternal(url: string): boolean {
+		return /^https?:\/\//.test(url);
 	}
 
+	const personLd = {
+		'@context': 'https://schema.org',
+		'@type': 'Person',
+		name: identity.name,
+		url: 'https://transscendsurvival.org',
+		jobTitle: role.title,
+		worksFor: { '@type': 'Organization', name: role.org },
+		sameAs: personSameAs(),
+		description: identity.summary,
+	};
 </script>
 
 <svelte:head>
@@ -182,109 +79,35 @@
 	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
 	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/about" />
-	{@html `<script type="application/ld+json">${JSON.stringify({
-		"@context": "https://schema.org",
-		"@type": "Person",
-		"name": "Jess Sullivan",
-		"url": "https://transscendsurvival.org",
-		"jobTitle": "Systems Analyst (DevSecOps)",
-		"worksFor": { "@type": "Organization", "name": "Bates College" },
-		"sameAs": [
-			"https://github.com/Jesssullivan",
-			"https://gitlab.com/jesssullivan",
-			"https://www.linkedin.com/in/jess-sullivan-11032a367/",
-			"https://soundcloud.com/jesssullivan"
-		],
-		"description": "Full stack engineer, musician, and birdwatcher based in Lewiston, ME & Boston, MA."
-	})}</script>`}
+	{@html `<script type="application/ld+json">${JSON.stringify(personLd).replace(/</g, '\\u003c')}</script>`}
 </svelte:head>
 
 <div class="container mx-auto px-4 py-12 max-w-3xl">
 	<h1 class="text-3xl font-bold mb-8">About</h1>
 
-	<!-- 2. Typing SVG -->
-	<section class="mb-8 text-center">
-		<img src={TYPING_SVG_URL} alt="Typing animation of skills and technologies" width="800" height="50" loading="eager" class="mx-auto max-w-full" />
-	</section>
-
-	<!-- 3. CTA badges -->
-	<section class="mb-8 flex flex-wrap justify-center gap-3">
-		{#each CTA_BADGES as badge}
-			<a href={badge.url} target="_blank" rel="noopener" aria-label={`${badge.label}: ${badge.text}`}>
-				<img
-					src={badgeUrl(`${badge.label}-${badge.text}`, badge.color, { style: 'for-the-badge' })}
-					alt={badge.label}
-					height="28"
-					loading="eager"
-				/>
-			</a>
+	<!-- Intro (facts identity) -->
+	<section class="mb-8" id="profile-intro">
+		<p class="text-lg font-semibold">{identity.headline}</p>
+		{#each identity.taglines as tagline}
+			<p class="text-sm text-surface-500 mb-4">{tagline}</p>
 		{/each}
-	</section>
-
-	<!-- 4. Bio -->
-	<section class="mb-8">
-		<p class="text-surface-600-400 leading-relaxed mb-4">
-			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA.
-		</p>
+		<p class="text-surface-600-400 leading-relaxed mb-4">{identity.summary}</p>
+		<p class="text-sm text-surface-500 mb-4">{identity.location}</p>
 		<p class="text-surface-600-400 leading-relaxed mb-4">
 			I spent about a year completely offline &mdash; no LinkedIn, no blog, no social media.
 			Late 2023 through the end of 2024. An intentional disconnect.
 			I'm back to building in the open.
 		</p>
-		<p class="text-surface-600-400 leading-relaxed mb-4">
-			I build infrastructure tooling, contribute to compilers and languages, hack on hardware,
-			and maintain a <em>lot</em> of FOSS.
-		</p>
+		<blockquote class="border-l-2 border-primary-500 pl-4 mb-4 italic text-surface-500">
+			{identity.always_building}
+		</blockquote>
 		<div class="flex gap-3">
 			<a href="/blog" class="btn preset-filled-primary-500">Read the Blog</a>
 			<a href="/cv" class="btn preset-outlined-primary-500">View CV</a>
 		</div>
 	</section>
 
-	<!-- 5. Identity badges -->
-	<section class="mb-6">
-		<div class="flex flex-wrap gap-1.5 justify-center">
-			{#each IDENTITY_BADGES as badge}
-				<img
-					src={badgeUrl(badge.text, badge.color, { logo: badge.logo, emoji: badge.emoji })}
-					alt={badge.text}
-					height="20"
-				/>
-			{/each}
-		</div>
-	</section>
-
-	<!-- 5b. Tech / FOSS badges -->
-	<section class="mb-6">
-		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">Tech & FOSS</h3>
-		<div class="flex flex-wrap gap-1.5 justify-center">
-			{#each TECH_FOSS_BADGES as badge}
-				<img
-					src={badgeUrl(badge.text, badge.color, { logo: badge.logo })}
-					alt={badge.text}
-					height="20"
-				/>
-			{/each}
-		</div>
-	</section>
-
-	<!-- 5c. Sponsoring badges -->
-	<section class="mb-8">
-		<h3 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2 text-center">Sponsoring</h3>
-		<div class="flex flex-wrap gap-1.5 justify-center">
-			{#each SPONSORING_BADGES as badge}
-				<a href={badge.url} target="_blank" rel="noopener" aria-label={`Visit ${badge.text}`}>
-					<img
-						src={badgeUrl(badge.text, badge.color, { logo: badge.logo })}
-						alt={badge.text}
-						height="20"
-					/>
-				</a>
-			{/each}
-		</div>
-	</section>
-
-	<!-- 6. Featured + Recent Posts -->
+	<!-- Featured + Recent Posts (blog data) -->
 	{#if data.featured.length > 0}
 		<section class="mb-12">
 			<h2 class="text-2xl font-semibold mb-4">Featured</h2>
@@ -351,158 +174,151 @@
 		{/if}
 	</section>
 
-	<!-- 7. GitHub Activity -->
-	<section class="mb-12">
-		<h2 class="text-2xl font-semibold mb-4">GitHub Activity</h2>
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.githubStats.light}
-				darkSrc={THEMED_IMAGES.githubStats.dark}
-				alt={THEMED_IMAGES.githubStats.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.topLangs.light}
-				darkSrc={THEMED_IMAGES.topLangs.dark}
-				alt={THEMED_IMAGES.topLangs.alt}
-				class="w-full"
-			/>
-		</div>
-		<div class="mb-4">
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.snake.light}
-				darkSrc={THEMED_IMAGES.snake.dark}
-				alt={THEMED_IMAGES.snake.alt}
-				class="w-full"
-			/>
-		</div>
-		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.streak.light}
-				darkSrc={THEMED_IMAGES.streak.dark}
-				alt={THEMED_IMAGES.streak.alt}
-				class="w-full"
-			/>
-			<ThemedImage
-				lightSrc={THEMED_IMAGES.activityGraph.light}
-				darkSrc={THEMED_IMAGES.activityGraph.dark}
-				alt={THEMED_IMAGES.activityGraph.alt}
-				class="w-full"
-			/>
-		</div>
-	</section>
-
-	<!-- 8. Repository Similarity Graph -->
-	<section class="mb-12">
-		<h2 class="text-2xl font-semibold mb-4">Repository Similarity Graph</h2>
-		<ThemedImage
-			lightSrc={THEMED_IMAGES.repoGraph.light}
-			darkSrc={THEMED_IMAGES.repoGraph.dark}
-			alt={THEMED_IMAGES.repoGraph.alt}
-			class="w-full"
-		/>
-		<p class="text-sm text-surface-500 mt-2 text-center italic">Jaccard similarity of repository language distributions</p>
-	</section>
-
-	<!-- 9. Experience -->
-	<section class="mb-12">
+	<!-- Experience (facts roles) -->
+	<section class="mb-12" id="experience">
 		<h2 class="text-2xl font-semibold mb-4">Experience</h2>
 		<div class="space-y-6">
-			{#each experience as e}
+			{#each profile.roles as r}
 				<div>
-					<h3 class="font-semibold">{e.role} &mdash; {e.org}</h3>
-					<p class="text-sm text-surface-500 mb-2">{e.period}</p>
-					<ul class="list-disc list-inside text-surface-600-400 space-y-1">
-						{#each e.highlights as h}
-							<li>{h}</li>
-						{/each}
-					</ul>
+					<h3 class="font-semibold">{r.title} &mdash; {r.org}</h3>
+					<p class="text-sm text-surface-500 mb-2">{period(r)}</p>
+					<p class="text-surface-600-400 mb-2">{r.summary}</p>
+					{#if r.bullets.length > 0}
+						<ul class="list-disc list-inside text-surface-600-400 space-y-1">
+							{#each r.bullets as b}
+								<li>{b}</li>
+							{/each}
+						</ul>
+					{/if}
 				</div>
 			{/each}
 		</div>
+		<div class="mt-6">
+			<ThemedImage lightSrc={charts.timeline.light} darkSrc={charts.timeline.dark} alt="Roles and ventures timeline" width={charts.timeline.width} height={charts.timeline.height} class="w-full h-auto" />
+		</div>
 	</section>
 
-	<!-- 10. Ventures -->
-	<section class="mb-12">
+	<!-- Ventures (facts ventures) -->
+	<section class="mb-12" id="ventures">
 		<h2 class="text-2xl font-semibold mb-4">Ventures</h2>
 		<div class="space-y-4">
-			{#each ventures as v}
+			{#each profile.ventures as v}
 				<div>
 					<h3 class="font-semibold">
-						{#if v.url}
+						{#if 'url' in v && v.url}
 							<a href={v.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener" aria-label={`Visit ${v.name}`}>{v.name}</a>
 						{:else}
 							{v.name}
 						{/if}
+						{#if 'role' in v && v.role}
+							<span class="text-sm font-normal text-surface-500">&middot; {v.role}</span>
+						{/if}
 					</h3>
-					<p class="text-sm text-surface-500">{v.period} &mdash; {v.desc}</p>
+					<p class="text-sm text-surface-500">{period(v)} &mdash; {v.description}</p>
+					{#if 'product_line' in v && v.product_line}
+						<p class="text-sm text-surface-500 mt-1">{v.product_line}</p>
+					{/if}
+					{#if 'infra' in v && v.infra}
+						<p class="text-sm text-surface-500 mt-1">{v.infra}</p>
+					{/if}
+					{#if 'github' in v && v.github}
+						<a href={v.github} class="text-xs text-primary-500 hover:underline" target="_blank" rel="noopener" aria-label={`${v.name} on GitHub`}>{v.name} on GitHub</a>
+					{/if}
 				</div>
 			{/each}
 		</div>
 	</section>
 
-	<!-- 11. Clients -->
-	<section class="mb-12">
-		<h3 class="text-sm font-semibold uppercase text-surface-500 mb-3">Clients</h3>
-		<div class="flex flex-wrap gap-2">
-			{#each CLIENT_BADGES as client}
-				<img
-					src={badgeUrl(client.text, client.color)}
-					alt={client.text}
-					height="20"
-				/>
-			{/each}
+	<!-- Projects (facts project map + table) -->
+	<section class="mb-12" id="projects">
+		<h2 class="text-2xl font-semibold mb-4">Projects</h2>
+		<ThemedImage lightSrc={charts.projectMap.light} darkSrc={charts.projectMap.dark} alt="Project map of public repositories by category" width={charts.projectMap.width} height={charts.projectMap.height} class="w-full mb-4 h-auto" />
+		<div class="overflow-x-auto">
+			<table class="table w-full text-sm" data-testid="project-table">
+				<thead>
+					<tr>
+						<th class="text-left">Project</th>
+						<th class="text-left">Category</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each groups as g}
+						{#each g.rows as row}
+							<tr>
+								<td>
+									{#if row.urls.length > 0}
+										<a href={row.urls[0]} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{row.label}</a>
+										{#each row.urls.slice(1) as url, i}
+											<a href={url} class="text-primary-500 hover:underline ml-1" target="_blank" rel="noopener" aria-label={`${row.label}, repository ${i + 2}`}>[{i + 2}]</a>
+										{/each}
+									{:else}
+										{row.label}
+									{/if}
+								</td>
+								<td class="text-surface-500">{g.label}</td>
+							</tr>
+						{/each}
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<div class="mt-6">
+			<ThemedImage lightSrc={charts.languages.light} darkSrc={charts.languages.dark} alt="Language mix across the mapped public repositories" width={charts.languages.width} height={charts.languages.height} class="w-full h-auto" />
 		</div>
 	</section>
 
-	<!-- 12. FOSS -->
-	<section class="mb-12">
-		<h2 class="text-2xl font-semibold mb-4">FOSS</h2>
-		<h3 class="text-sm font-semibold uppercase text-surface-500 mb-3">Original Projects</h3>
-		{#each fossCategories as cat}
-			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mt-4 mb-2">{cat.label}</h4>
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-				{#each cat.projects as proj}
-					<div class="card p-4 hover:ring-2 ring-primary-500 transition-all">
-						<a href={proj.url} class="block" target="_blank" rel="noopener" aria-label={`Open project: ${proj.name}`}>
-							<h5 class="font-semibold">{proj.name}</h5>
-							<p class="text-sm text-surface-500 mt-1">{proj.desc}</p>
-						</a>
-						{#if proj.docsUrl || proj.proofUrl}
-							<div class="flex flex-wrap gap-2 mt-3">
-								{#if proj.docsUrl}
-									<a href={proj.docsUrl} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 text-xs hover:preset-filled-primary-500 transition-all" aria-label={`Open documentation for ${proj.name}`}>docs</a>
-								{/if}
-								{#if proj.proofUrl}
-									<a href={proj.proofUrl} target="_blank" rel="noopener" class="badge preset-outlined-secondary-500 text-xs hover:preset-filled-secondary-500 transition-all" aria-label={`Open proof link for ${proj.name}`}>proof</a>
-								{/if}
-							</div>
-						{/if}
-					</div>
+	<!-- Merged upstream (facts merged_upstream + relations) -->
+	<section class="mb-12" id="upstream">
+		<h2 class="text-2xl font-semibold mb-4">Merged Upstream</h2>
+		<ThemedImage lightSrc={charts.upstream.light} darkSrc={charts.upstream.dark} alt="Merged upstream work by project and merge date" width={charts.upstream.width} height={charts.upstream.height} class="w-full mb-4 h-auto" />
+		<ul class="space-y-1 text-surface-600-400" data-testid="upstream-list">
+			{#each profile.merged_upstream as u}
+				<li>
+					<a href={u.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{u.project}</a>
+					{#if u.relation}<span class="text-surface-500"> ({u.relation})</span>{/if}
+					<span class="text-xs text-surface-500">&middot; merged {u.merged}</span>
+				</li>
+			{/each}
+		</ul>
+		{#if otherRelations.length > 0}
+			<h3 class="text-sm font-semibold uppercase text-surface-500 mt-6 mb-2">Also</h3>
+			<div class="flex flex-wrap gap-2">
+				{#each otherRelations as r}
+					<a href={'url' in r ? r.url : undefined} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all">{r.project} ({r.relation})</a>
 				{/each}
 			</div>
-		{/each}
-		<h3 class="text-sm font-semibold uppercase text-surface-500 mt-6 mb-3">Contributor & Maintainer</h3>
-		<div class="flex flex-wrap gap-2">
-			{#each fossContributions as c}
-				<a href={c.url} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all" aria-label={`Visit ${c.name}`}>{c.name}</a>
-			{/each}
-		</div>
+		{/if}
 	</section>
 
-	<!-- 13. Community -->
-	<section class="mb-12">
+	<!-- Community (facts community) -->
+	<section class="mb-12" id="community">
 		<h2 class="text-2xl font-semibold mb-4">Community</h2>
 		<ul class="list-disc list-inside text-surface-600-400 space-y-2">
-			<li><strong>RESF Community Member</strong> &mdash; Rocky Enterprise Linux Foundation</li>
-			<li><strong>First Fellow</strong> &mdash; D&M Makerspace, Plymouth State University (2017&ndash;2020)</li>
-			<li>Taught Advanced GIS Programming & Intro to Electromechanics at PSU</li>
-			<li><strong>Membership Chair & 3D Printing Captain</strong> &mdash; Ithaca Generator (2020&ndash;2022)</li>
-			<li><strong>COVID-19 PPE manufacturing coordination</strong> across New England makerspaces</li>
+			{#each profile.community as c}
+				<li>{c}</li>
+			{/each}
 		</ul>
 	</section>
 
-	<!-- 14. Beyond Code -->
+	<!-- Publications (facts publications) -->
+	<section class="mb-12" id="publications">
+		<h2 class="text-2xl font-semibold mb-4">Publications</h2>
+		<ul class="space-y-3 text-surface-600-400">
+			{#each profile.publications as pub}
+				<li>
+					{pub.authors} ({pub.year}).
+					{#if 'url' in pub && pub.url}
+						<a href={pub.url} class="text-primary-500 hover:underline" target={isExternal(pub.url) ? '_blank' : undefined} rel={isExternal(pub.url) ? 'noopener' : undefined}>{pub.title}</a>.
+					{:else}
+						{pub.title}.
+					{/if}
+					{#if 'venue' in pub && pub.venue}<em>{pub.venue}</em>.{/if}
+				</li>
+			{/each}
+		</ul>
+	</section>
+
+	<!-- Beyond Code (hand-written, R53) -->
 	<section class="mb-12">
 		<h2 class="text-2xl font-semibold mb-4">Beyond Code</h2>
 		<div class="space-y-4">
@@ -541,34 +357,35 @@
 		</div>
 	</section>
 
-	<!-- 15. Learning Formula -->
-	<section class="mb-12 text-center">
-		<img src="/images/CodeCogsEqn-1.png" alt="Learning = internet * (time + standards * Ambition) / Difficulty" width="400" class="mx-auto" />
-	</section>
+	<!-- Learning formula (facts image, closing slot) -->
+	{#if learning}
+		<section class="mb-12 text-center">
+			<ThemedImage
+				lightSrc={profileAsset(learning.src)}
+				darkSrc={profileAsset(learning.src_dark ?? learning.src)}
+				alt={learning.alt}
+				width="400"
+				height="46"
+				class="mx-auto h-auto"
+			/>
+		</section>
+	{/if}
 
-	<!-- 16. Links -->
+	<!-- Links: facts links first, then blog-local extras (R54) -->
 	<section class="mb-12">
 		<h2 class="text-xl font-semibold mb-3">Links</h2>
-		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center">
-			<a href="https://github.com/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitHub</a>
-			<a href="https://gitlab.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">GitLab</a>
-			<a href="https://xoxd.ai" class="text-primary-500 hover:underline" target="_blank" rel="noopener">xoxd.ai</a>
-			<a href="https://tinyland.dev" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Tinyland</a>
-			<a href="https://www.linkedin.com/in/jess-sullivan-11032a367/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">LinkedIn</a>
-			<a href="/cv" class="text-primary-500 hover:underline">CV / Resume</a>
-			<a href="/aag" class="text-primary-500 hover:underline">AAG 2019 Poster</a>
-			<a href="/signal-boosts" class="text-primary-500 hover:underline">Signal Boosts</a>
-			<a href="/making" class="text-primary-500 hover:underline">Making</a>
-			<a href="https://www.thingiverse.com/Jesssullivan/designs" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Thingiverse</a>
-			<a href="https://3dwarehouse.sketchup.com/by/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SketchUp 3D Warehouse</a>
-			<a href="https://www.youtube.com/@jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">YouTube</a>
-			<a href="https://soundcloud.com/jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">SoundCloud</a>
-			<a href="/blog" class="text-primary-500 hover:underline">Blog</a>
-			<a href="https://github.com/sponsors/Jesssullivan" class="text-primary-500 hover:underline" target="_blank" rel="noopener">Sponsor</a>
-			<a href="https://www.eff.org/" class="text-primary-500 hover:underline" target="_blank" rel="noopener">EFF Member</a>
-			<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener" aria-label="Visit Fight for the Future">
-				<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="inline" />
-			</a>
+		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center" data-testid="profile-links">
+			{#each profile.links as l}
+				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
+			{/each}
+			{#each extraLinks as l}
+				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
+			{/each}
+			{#if linkBadge && 'url' in linkBadge && linkBadge.url}
+				<a href={linkBadge.url} target="_blank" rel="noopener" aria-label="Visit Fight for the Future">
+					<img src={profileAsset(linkBadge.src)} alt={linkBadge.alt} height="20" class="inline h-5" />
+				</a>
+			{/if}
 		</div>
 	</section>
 

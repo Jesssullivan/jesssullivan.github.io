@@ -1,0 +1,103 @@
+"""Profile facts and charts synced from the spear_resumes module (R53).
+
+Run `bazel run //static/profile:sync_profile` to write/update, in the source
+tree:
+
+  static/profile/facts.json   (from //profile:facts_json)
+  static/profile/svg/*.svg    (from //profile:svgs, light/dark pairs)
+  static/profile/img/*.png    (from //profile:images)
+
+The /about page imports facts.json at build time and shows the SVG pairs
+through ThemedImage. spear_resumes' //profile:facts is private to that
+package and never a dependency here. The profile_synced_test below guards
+against forgetting to re-sync after a spear_resumes bump, the same way
+//static/cv:pdfs_synced_test guards the CV PDFs.
+
+This directory is its own Bazel package, so the root `static/**` glob stops
+here; :public_files hands the committed copies to the SvelteKit build and
+check targets without touching @spear_resumes (public graphs pass
+--ignore_dev_dependency).
+"""
+
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
+load("@aspect_rules_js//js:defs.bzl", "js_test")
+
+# Keep in step with spear_resumes profile/out/ (facts.json "svgs" and
+# "images" lists); profile_synced_test fails on any file missing here.
+PROFILE_SVGS = [
+    "header-dark.svg",
+    "header-light.svg",
+    "languages-dark.svg",
+    "languages-light.svg",
+    "org-header-dark.svg",
+    "org-header-light.svg",
+    "org-map-dark.svg",
+    "org-map-light.svg",
+    "project-map-dark.svg",
+    "project-map-light.svg",
+    "timeline-dark.svg",
+    "timeline-light.svg",
+    "upstream-dark.svg",
+    "upstream-light.svg",
+]
+
+PROFILE_IMAGES = [
+    "CodeCogsEqn-1-dark.png",
+    "CodeCogsEqn-1.png",
+    "header_image.png",
+    "idl_badge.png",
+]
+
+# write_source_files copies one file or one directory per entry, so the two
+# multi-file filegroups are first gathered into flat directories.
+copy_to_directory(
+    name = "svg_dir",
+    srcs = ["@spear_resumes//profile:svgs"],
+    include_external_repositories = ["spear_resumes*"],
+    root_paths = ["profile/out/svg"],
+)
+
+copy_to_directory(
+    name = "img_dir",
+    srcs = ["@spear_resumes//profile:images"],
+    include_external_repositories = ["spear_resumes*"],
+    root_paths = ["profile/out/img"],
+)
+
+write_source_files(
+    name = "sync_profile",
+    files = {
+        "facts.json": "@spear_resumes//profile:facts_json",
+        "svg": ":svg_dir",
+        "img": ":img_dir",
+    },
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "public_files",
+    srcs = ["facts.json"] + ["svg/" + f for f in PROFILE_SVGS] + ["img/" + f for f in PROFILE_IMAGES],
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "profile_synced_test",
+    # facts.json counts as a JS-family file to rules_js; the external copy
+    # cannot be copied into this package's bin tree, so read sources in place.
+    copy_data_to_bin = False,
+    data = [
+        ":public_files",
+        "@spear_resumes//profile:facts_json",
+        "@spear_resumes//profile:images",
+        "@spear_resumes//profile:svgs",
+    ],
+    entry_point = "assert_profile_synced.mjs",
+    patch_node_fs = False,
+    tags = [
+        "gloriousflywheel-rbe-candidate",
+        "profile",
+    ],
+    timeout = "short",
+    visibility = ["//visibility:public"],
+)
