@@ -41,7 +41,7 @@ bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.5")
 git_override(
     module_name = "spear_resumes",
     remote = "git@github.com:Jesssullivan/spear-resumes.git",
-    commit = "5d11e3999d2ff1ddd83f6d9268bfb13ab5a75fa0",
+    commit = "2605ceedcdb300dfee3feee8c0cc0deb6e99305f",
 )
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
