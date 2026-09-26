@@ -48,7 +48,6 @@
 			label: 'Ventures',
 			badges: [
 				{ label: 'xoxd.ai', color: 'preset-outlined-primary-500', url: 'https://xoxd.ai' },
-				{ label: 'tinyland.dev', color: 'preset-outlined-primary-500', url: 'https://tinyland.dev' },
 			],
 		},
 	];

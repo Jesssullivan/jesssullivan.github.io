@@ -106,7 +106,17 @@ test.describe('Tag Cloud', () => {
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
 		await expect(tagCloud.getByRole('link', { name: 'xoxd.ai' })).toBeVisible();
-		await expect(tagCloud.getByRole('link', { name: 'tinyland.dev' })).toBeVisible();
+	});
+
+	test('no Tinyland venture chip in the sidebar (R36)', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		for (const path of ['/about', '/blog']) {
+			await page.goto(path);
+			const tagCloud = page.locator('.sticky .tag-cloud, .profile-sidebar .tag-cloud').first();
+			await expect(tagCloud, path).toBeVisible();
+			await expect(tagCloud.getByText(/tinyland/i), path).toHaveCount(0);
+			await expect(tagCloud.locator('a[href*="tinyland"]'), path).toHaveCount(0);
+		}
 	});
 
 	test('renders all 3 category sections', async ({ page }) => {
