@@ -180,7 +180,8 @@ test.describe('About (merged) page', () => {
 	test('other upstream involvement is separate and never says "engagement"', async ({ page }) => {
 		const merged = new Set(facts.merged_upstream.map((u) => u.project));
 		const others = facts.relations.filter((r) => !merged.has(r.project) && r.url);
-		expect(others.map((r) => r.project).sort()).toEqual(['FFT.js', 'ggplot2']);
+		// R60: FFT.js now has a merged PR, so only ggplot2 is left here.
+		expect(others.map((r) => r.project).sort()).toEqual(['ggplot2']);
 		const upstream = page.locator('#upstream');
 		const section = page.locator('#other-upstream');
 		await expect(section.getByRole('heading', { name: 'Other upstream involvement' })).toBeVisible();
@@ -189,7 +190,8 @@ test.describe('About (merged) page', () => {
 			await expect(section.getByRole('link', { name: r.project, exact: true })).toHaveAttribute('href', r.url!);
 		}
 		const text = (await section.innerText()) ?? '';
-		expect(text).toContain('FFT.js (contributor)');
+		await expect(section.getByRole('listitem')).toHaveCount(others.length);
+		expect(text).not.toContain('FFT.js');
 		expect(text).not.toMatch(/engagement/i);
 		expect(text).not.toMatch(/ggplot2 \(/);
 		// The Budgie DE relation is render = false: it never shows as upstream
@@ -217,7 +219,7 @@ test.describe('About (merged) page', () => {
 		for (const u of facts.merged_upstream) {
 			await expect(upstream.getByRole('link', { name: u.project, exact: true })).toHaveAttribute('href', u.url);
 		}
-		for (const name of ['llama.cpp', 'KeePassXC', 'rspamd', 'nixpkgs']) {
+		for (const name of ['llama.cpp', 'KeePassXC', 'rspamd', 'nixpkgs', 'FFT.js', 'Joplin']) {
 			await expect(upstream.getByRole('link', { name, exact: true })).toBeVisible();
 		}
 	});
