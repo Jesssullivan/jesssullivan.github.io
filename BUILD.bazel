@@ -109,6 +109,9 @@ filegroup(
         "//packages/blog-agent:srcs",
         "//packages/pulse-client:srcs",
         "//packages/pulse-core:srcs",
+        # static/profile is its own package (the facts sync), so `static/**`
+        # above stops there; its committed copies come in explicitly.
+        "//static/profile:public_files",
     ],
 )
 

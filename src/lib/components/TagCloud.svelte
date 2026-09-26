@@ -1,4 +1,8 @@
 <script lang="ts">
+	// Named JSON import so the layout bundle takes only this array, not all of
+	// facts.json (static/profile is synced from spear_resumes; never hand-edit).
+	import { merged_upstream } from '../../../static/profile/facts.json';
+
 	interface TagBadge {
 		label: string;
 		color: string;
@@ -14,26 +18,15 @@
 
 	const categories: TagCategory[] = [
 		{
-			label: 'Tech / FOSS',
-			badges: [
-				{ label: 'Chapel', color: 'preset-outlined-surface-500', url: 'https://chapel-lang.org/' },
-				{ label: 'Rocky Linux', color: 'preset-outlined-surface-500', url: 'https://rockylinux.org/' },
-				{ label: 'Apache Solr', color: 'preset-outlined-surface-500', url: 'https://solr.apache.org/' },
-				{ label: 'Skeleton UI', color: 'preset-outlined-surface-500', url: 'https://skeleton.dev/' },
-				{ label: 'SearXNG', color: 'preset-outlined-surface-500', url: 'https://github.com/searxng/searxng' },
-				{ label: 'KeePassXC', color: 'preset-outlined-surface-500', url: 'https://keepassxc.org/' },
-				{ label: 'Futhark', color: 'preset-outlined-surface-500', url: 'https://futhark-lang.org/' },
-				{ label: 'xCaddy', color: 'preset-outlined-surface-500', url: 'https://github.com/caddyserver/xcaddy' },
-				{
-					label: 'qutebrowser',
-					color: 'preset-outlined-surface-500',
-					url: 'https://github.com/qutebrowser/qutebrowser',
-				},
-				{ label: 'pytest', color: 'preset-outlined-surface-500', url: 'https://github.com/pytest-dev/pytest' },
-				{ label: 'Klipper', color: 'preset-outlined-surface-500', url: 'https://github.com/Klipper3d/klipper' },
-				{ label: 'Budgie Desktop', color: 'preset-outlined-surface-500', url: 'https://buddiesofbudgie.org/' },
-				{ label: 'Tails', color: 'preset-outlined-surface-500', url: 'https://tails.net/' },
-			],
+			// R69: merged upstream work from the profile facts (spear_resumes
+			// facts.json merged_upstream), one chip per project, in facts order,
+			// each linking its merged PR. No hand-written project list here.
+			label: 'Merged upstream',
+			badges: merged_upstream.map((u) => ({
+				label: u.project,
+				color: 'preset-outlined-surface-500',
+				url: u.url,
+			})),
 		},
 		{
 			label: 'Sponsoring',
@@ -55,7 +48,6 @@
 			label: 'Ventures',
 			badges: [
 				{ label: 'xoxd.ai', color: 'preset-outlined-primary-500', url: 'https://xoxd.ai' },
-				{ label: 'tinyland.dev', color: 'preset-outlined-primary-500', url: 'https://tinyland.dev' },
 			],
 		},
 	];
