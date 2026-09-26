@@ -186,6 +186,18 @@
    "project": "Klipper",
    "relation": "contributor",
    "url": "https://github.com/Klipper3d/klipper/pull/6112"
+  },
+  {
+   "merged": "2021-01-11",
+   "project": "FFT.js",
+   "relation": "contributor",
+   "url": "https://github.com/indutny/fft.js/pull/13"
+  },
+  {
+   "merged": "2020-08-02",
+   "project": "Joplin",
+   "relation": "",
+   "url": "https://github.com/laurent22/joplin/pull/3570"
   }
  ],
  "projects": [
@@ -714,6 +726,7 @@
   },
   {
    "project": "FFT.js",
+   "proof": "indutny/fft.js#13",
    "relation": "contributor",
    "url": "https://github.com/indutny/fft.js"
   },
