@@ -159,6 +159,18 @@ test.describe('About (merged) page', () => {
 		}
 	});
 
+	test('GFTB venture does not repeat its description as an infra line (R70)', async ({ page }) => {
+		const ventures = page.locator('#ventures');
+		const raw = JSON.parse(readFileSync(new URL('../static/profile/facts.json', import.meta.url), 'utf8'));
+		const gftb = raw.ventures.find((v: { name: string }) => v.name === 'Great Falls Tool Bus');
+		expect(gftb?.infra).toBeTruthy();
+		await expect(ventures.getByText(gftb.description, { exact: false })).toBeVisible();
+		await expect(ventures.getByText(gftb.infra, { exact: true })).toHaveCount(0);
+		// Other venture lines still render (xoxd.ai product line).
+		const xoxd = raw.ventures.find((v: { name: string }) => v.name === 'xoxd.ai');
+		await expect(ventures.getByText(xoxd.product_line, { exact: true })).toBeVisible();
+	});
+
 	test('projects section renders the map table', async ({ page }) => {
 		const projects = page.locator('#projects');
 		await expect(projects.getByRole('heading', { name: 'Projects' })).toBeVisible();

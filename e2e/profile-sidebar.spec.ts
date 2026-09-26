@@ -1,4 +1,10 @@
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+
+// R69: the sidebar's upstream chips come from the synced profile facts.
+const facts: { merged_upstream: { project: string; url: string }[] } = JSON.parse(
+	readFileSync(new URL('../static/profile/facts.json', import.meta.url), 'utf8'),
+);
 
 test.describe('Profile Sidebar', () => {
 	test('visible on desktop blog listing', async ({ page }) => {
@@ -72,21 +78,20 @@ test.describe('Tag Cloud', () => {
 		await expect(tagCloud).toBeVisible();
 	});
 
-	test('has tech/FOSS badges including Budgie and Tails', async ({ page }) => {
+	test('merged-upstream chips equal facts merged_upstream, in order (R69)', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
-		await expect(tagCloud.getByRole('link', { name: 'Budgie Desktop' })).toBeVisible();
-		await expect(tagCloud.getByRole('link', { name: 'Tails' })).toBeVisible();
-	});
-
-	test('has tech/FOSS badges with links', async ({ page }) => {
-		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/blog');
-		const tagCloud = page.locator('.sticky .tag-cloud');
-		const chapelLink = tagCloud.getByRole('link', { name: 'Chapel' });
-		await expect(chapelLink).toBeVisible();
-		await expect(chapelLink).toHaveAttribute('href', 'https://chapel-lang.org/');
+		await expect(tagCloud.getByText('Merged upstream', { exact: true })).toBeVisible();
+		// The first chip row is the merged-upstream category.
+		const chips = tagCloud.locator('div.flex').first().locator('a');
+		expect(await chips.allInnerTexts()).toEqual(facts.merged_upstream.map((u) => u.project));
+		const hrefs = await chips.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+		expect(hrefs).toEqual(facts.merged_upstream.map((u) => u.url));
+		// The old hand-written chips are gone.
+		for (const name of ['SearXNG', 'qutebrowser', 'pytest', 'Budgie Desktop', 'Tails', 'Apache Solr', 'Skeleton UI']) {
+			await expect(tagCloud.getByText(name, { exact: true }), name).toHaveCount(0);
+		}
 	});
 
 	test('has sponsoring badges', async ({ page }) => {
@@ -108,7 +113,7 @@ test.describe('Tag Cloud', () => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/blog');
 		const tagCloud = page.locator('.sticky .tag-cloud');
-		await expect(tagCloud.getByText('Tech / FOSS')).toBeVisible();
+		await expect(tagCloud.getByText('Merged upstream', { exact: true })).toBeVisible();
 		await expect(tagCloud.getByText('Sponsoring')).toBeVisible();
 		await expect(tagCloud.getByText('Ventures')).toBeVisible();
 	});

@@ -30,6 +30,11 @@
 		languages: { ...svgPair('languages'), width: 960, height: 402 },
 		upstream: { ...svgPair('upstream'), width: 960, height: 534 },
 	};
+	// R70 (per Jess, 2026-09-26): the Great Falls Tool Bus description already
+	// says Jess built its site and member infrastructure, so its separate
+	// "infra" line would repeat it. Only ventures named here skip that line;
+	// the data stays as is.
+	const REPEATS_DESCRIPTION = new Set(['Great Falls Tool Bus']);
 	const learning = imageForSlot('closing');
 	const linkBadge = imageForSlot('links');
 	const upstreamProjects = new Set(profile.merged_upstream.map((u) => u.project));
@@ -244,7 +249,7 @@
 					{#if 'product_line' in v && v.product_line}
 						<p class="text-sm text-surface-500 mt-1">{v.product_line}</p>
 					{/if}
-					{#if 'infra' in v && v.infra}
+					{#if 'infra' in v && v.infra && !REPEATS_DESCRIPTION.has(v.name)}
 						<p class="text-sm text-surface-500 mt-1">{v.infra}</p>
 					{/if}
 					{#if 'github' in v && v.github}
