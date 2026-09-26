@@ -273,7 +273,7 @@ flowchart TD
 
 ## Measurements; kinda meh but is repeatable 🤙
 
-The host runs two kernel lanes from [linux-xr](https://github.com/tinyland-inc/linux-xr) (my Rocky 10 kernel carry with [DRM patches](https://gitlab.freedesktop.org/drm/misc/kernel.git) and a variety of other stuff for the Bigscreen Beyond headset and related toys):
+The host runs two kernel lanes from [linux-xr](https://github.com/xoxd-ai/linux-xr) (my Rocky 10 kernel carry with [DRM patches](https://gitlab.freedesktop.org/drm/misc/kernel.git) and a variety of other stuff for the Bigscreen Beyond headset and related toys):
 
 - **Generic**: `6.19.5-7.xr.el10` (`PREEMPT_DYNAMIC`)
 - **RT**: `6.19.5-rt1-8.xr.el10` (`PREEMPT_RT`)
@@ -330,7 +330,7 @@ Serial times (not shown) are nearly identical across both lanes (~22-27ms). The 
 
 PREEMPT_RT converts spinlocks to sleeping mutexes and threads interrupt handlers. The parallel degradation (serial unchanged, parallel slower and more variable) is the expected cost of that conversion on a NUMA-aware `forall` workload. The [RT necessity analysis](https://github.com/Jesssullivan/Dell-7810/blob/main/docs/research/rt-necessity-analysis-2026-04-26.md) in the repo has the full reasoning.
 
-RT is still available as insurance for specific deadline-sensitive paths -- audio buffer underruns at low sample counts, or BCI callback timing if we ever need sub-millisecond guarantees. The [linux-xr](https://github.com/tinyland-inc/linux-xr) kernel carries both lanes, and the host can one-shot boot into RT and return to generic with a validated fallback. But the current evidence says the generic lane with `isolcpus` + `SCHED_FIFO` is the stronger default for a mixed GPU + audio + Chapel + Kubernetes workload.
+RT is still available as insurance for specific deadline-sensitive paths -- audio buffer underruns at low sample counts, or BCI callback timing if we ever need sub-millisecond guarantees. The [linux-xr](https://github.com/xoxd-ai/linux-xr) kernel carries both lanes, and the host can one-shot boot into RT and return to generic with a validated fallback. But the current evidence says the generic lane with `isolcpus` + `SCHED_FIFO` is the stronger default for a mixed GPU + audio + Chapel + Kubernetes workload.
 
 ## What's next for me and the Dell ^w^
 
