@@ -15,8 +15,11 @@
 	let { data }: { data: PageData } = $props();
 
 	// R53: every claim below comes from static/profile/facts.json (synced from
-	// spear_resumes). Hand-written here: the offline-year note, Beyond Code, the
-	// post lists, the page meta description and the blog-local link extras.
+	// spear_resumes). Hand-written in this file, and nothing else: the
+	// Beyond Code section, the offline-year paragraph in the intro, the
+	// meta/OG/Twitter descriptions in <svelte:head>, section headings and chart
+	// alt text, and the R54 blog-local link extras (blogLinks). The post lists
+	// are blog data from +page.ts.
 	const identity = profile.identity;
 	const role = currentRole();
 	const groups = projectGroups();
@@ -30,7 +33,17 @@
 	const learning = imageForSlot('closing');
 	const linkBadge = imageForSlot('links');
 	const upstreamProjects = new Set(profile.merged_upstream.map((u) => u.project));
-	const otherRelations = profile.relations.filter((r) => !upstreamProjects.has(r.project) && 'url' in r && r.url);
+	// Relations without a merged PR here (e.g. FFT.js, ggplot2) are not merged
+	// upstream work; they get their own list. Only these relation words are
+	// shown; anything else (e.g. "engagement") renders as the bare project name.
+	const SHOWN_RELATIONS = new Set(['contributor', 'collaborator', 'committer']);
+	const otherRelations = profile.relations
+		.filter((r) => !upstreamProjects.has(r.project) && 'url' in r && r.url)
+		.map((r) => ({
+			project: r.project,
+			url: ('url' in r ? r.url : '') as string,
+			label: SHOWN_RELATIONS.has(r.relation) ? r.relation : '',
+		}));
 
 	// R54: blog-local extras, appended after the facts links. Nothing here may
 	// repeat a facts link (facts already carry GitHub, Blog, CV, AAG poster,
@@ -48,6 +61,19 @@
 	];
 	const factUrls = new Set(profile.links.map((l) => l.url));
 	const extraLinks = blogLinks.filter((l) => !factUrls.has(l.url));
+
+	// Facts links to this site render root-relative and open in the same tab;
+	// one pointing at the site root ("Blog") is dropped, the reader is here.
+	const SITE_ORIGIN = 'https://transscendsurvival.org';
+	const factLinks = profile.links
+		.map((l) => {
+			if (l.url === SITE_ORIGIN || l.url.startsWith(`${SITE_ORIGIN}/`)) {
+				const path = l.url.slice(SITE_ORIGIN.length);
+				return { label: l.label, url: path === '' || path === '/' ? '' : path };
+			}
+			return { label: l.label, url: l.url };
+		})
+		.filter((l) => l.url !== '');
 
 	function isExternal(url: string): boolean {
 		return /^https?:\/\//.test(url);
@@ -109,7 +135,7 @@
 
 	<!-- Featured + Recent Posts (blog data) -->
 	{#if data.featured.length > 0}
-		<section class="mb-12">
+		<section class="mb-12" id="featured-posts">
 			<h2 class="text-2xl font-semibold mb-4">Featured</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{#each data.featured as post, i}
@@ -142,7 +168,7 @@
 		</section>
 	{/if}
 
-	<section class="mb-12">
+	<section class="mb-12" id="recent-posts">
 		<h2 class="text-2xl font-semibold mb-4">Recent Posts</h2>
 		{#if data.posts.length > 0}
 			<div class="space-y-4">
@@ -247,15 +273,15 @@
 							<tr>
 								<td>
 									{#if row.urls.length > 0}
-										<a href={row.urls[0]} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{row.label}</a>
+										<a href={row.urls[0]} class="text-primary-500 hover:underline" target="_blank" rel="noopener"><span class="project-label">{row.label}</span></a>
 										{#each row.urls.slice(1) as url, i}
 											<a href={url} class="text-primary-500 hover:underline ml-1" target="_blank" rel="noopener" aria-label={`${row.label}, repository ${i + 2}`}>[{i + 2}]</a>
 										{/each}
 									{:else}
-										{row.label}
+										<span class="project-label">{row.label}</span>
 									{/if}
 								</td>
-								<td class="text-surface-500">{g.label}</td>
+								<td class="text-surface-500 project-category">{g.label}</td>
 							</tr>
 						{/each}
 					{/each}
@@ -280,15 +306,22 @@
 				</li>
 			{/each}
 		</ul>
-		{#if otherRelations.length > 0}
-			<h3 class="text-sm font-semibold uppercase text-surface-500 mt-6 mb-2">Also</h3>
-			<div class="flex flex-wrap gap-2">
-				{#each otherRelations as r}
-					<a href={'url' in r ? r.url : undefined} target="_blank" rel="noopener" class="badge preset-outlined-primary-500 hover:preset-filled-primary-500 transition-all">{r.project} ({r.relation})</a>
-				{/each}
-			</div>
-		{/if}
 	</section>
+
+	{#if otherRelations.length > 0}
+		<!-- Other upstream involvement (facts relations without a merged PR here) -->
+		<section class="mb-12" id="other-upstream">
+			<h2 class="text-xl font-semibold mb-3">Other upstream involvement</h2>
+			<ul class="space-y-1 text-surface-600-400">
+				{#each otherRelations as r}
+					<li>
+						<a href={r.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{r.project}</a>
+						{#if r.label}<span class="text-surface-500"> ({r.label})</span>{/if}
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/if}
 
 	<!-- Community (facts community) -->
 	<section class="mb-12" id="community">
@@ -375,10 +408,7 @@
 	<section class="mb-12">
 		<h2 class="text-xl font-semibold mb-3">Links</h2>
 		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center" data-testid="profile-links">
-			{#each profile.links as l}
-				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
-			{/each}
-			{#each extraLinks as l}
+			{#each factLinks as l}
 				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
 			{/each}
 			{#if linkBadge && 'url' in linkBadge && linkBadge.url}
@@ -386,6 +416,9 @@
 					<img src={profileAsset(linkBadge.src)} alt={linkBadge.alt} height="20" class="inline h-5" />
 				</a>
 			{/if}
+			{#each extraLinks as l}
+				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
+			{/each}
 		</div>
 	</section>
 

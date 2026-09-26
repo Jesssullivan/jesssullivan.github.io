@@ -23,32 +23,6 @@ load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@aspect_rules_js//js:defs.bzl", "js_test")
 
-# Keep in step with spear_resumes profile/out/ (facts.json "svgs" and
-# "images" lists); profile_synced_test fails on any file missing here.
-PROFILE_SVGS = [
-    "header-dark.svg",
-    "header-light.svg",
-    "languages-dark.svg",
-    "languages-light.svg",
-    "org-header-dark.svg",
-    "org-header-light.svg",
-    "org-map-dark.svg",
-    "org-map-light.svg",
-    "project-map-dark.svg",
-    "project-map-light.svg",
-    "timeline-dark.svg",
-    "timeline-light.svg",
-    "upstream-dark.svg",
-    "upstream-light.svg",
-]
-
-PROFILE_IMAGES = [
-    "CodeCogsEqn-1-dark.png",
-    "CodeCogsEqn-1.png",
-    "header_image.png",
-    "idl_badge.png",
-]
-
 # write_source_files copies one file or one directory per entry, so the two
 # multi-file filegroups are first gathered into flat directories.
 copy_to_directory(
@@ -65,6 +39,9 @@ copy_to_directory(
     root_paths = ["profile/out/img"],
 )
 
+# The sync is whole-filegroup: every chart and image spear_resumes publishes
+# lands here, including ones the blog does not render (org-*, header-*,
+# header_image.png); profile_synced_test compares the full sets both ways.
 write_source_files(
     name = "sync_profile",
     files = {
@@ -77,7 +54,9 @@ write_source_files(
 
 filegroup(
     name = "public_files",
-    srcs = ["facts.json"] + ["svg/" + f for f in PROFILE_SVGS] + ["img/" + f for f in PROFILE_IMAGES],
+    # Globbed, not listed: the expected set lives in facts.json ("svgs",
+    # "images") and profile_synced_test fails on a missing or extra file.
+    srcs = ["facts.json"] + glob(["svg/*", "img/*"]),
     visibility = ["//visibility:public"],
 )
 

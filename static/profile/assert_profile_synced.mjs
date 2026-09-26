@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Fails when static/profile/ drifts from @spear_resumes//profile (R53).
-// The expected file list comes from the source facts.json itself ("svgs" and
-// the "images" src/src_dark paths), so a new chart or image in spear_resumes
-// fails here until it is synced and listed in static/profile/BUILD.bazel.
+// The expected file set comes from the source facts.json itself ("svgs" and
+// the "images" src/src_dark paths). The test fails on a stale file, on a file
+// the source has that static/profile lacks, and on a file static/profile still
+// carries that the source no longer has (a deletion upstream).
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -55,6 +56,30 @@ for (const rel of relPaths) {
 	);
 }
 
+// Deletions / strays: every file under static/profile/{svg,img} must be in the
+// expected set, and so must every file the source filegroups ship.
+const expected = new Set(relPaths);
+for (const sub of ['svg', 'img']) {
+	for (const [label, prefixes] of [
+		['static/profile', [staticPrefix]],
+		['source', sourcePrefixes],
+	]) {
+		const dir = resolveDir(prefixes.map((p) => `${p}${sub}`));
+		if (!dir) {
+			failures += 1;
+			console.error(`${label}: no ${sub}/ directory`);
+			continue;
+		}
+		for (const name of readdirSync(dir)) {
+			const rel = `${sub}/${name}`;
+			if (!expected.has(rel)) {
+				failures += 1;
+				console.error(`${label}: ${rel} is not listed in the source facts.json (svgs/images); re-sync or remove it`);
+			}
+		}
+	}
+}
+
 if (failures > 0) {
 	throw new Error(`${failures} profile artifact(s) are stale or missing; run bazel run //static/profile:sync_profile`);
 }
@@ -69,6 +94,18 @@ function resolveExisting(candidates) {
 		}
 	}
 	throw new Error(`Unable to resolve runfile from candidates: ${candidates.join(', ')}`);
+}
+
+function resolveDir(candidates) {
+	for (const root of roots) {
+		for (const candidate of candidates) {
+			const path = resolve(root, candidate);
+			if (existsSync(path) && statSync(path).isDirectory()) {
+				return path;
+			}
+		}
+	}
+	return null;
 }
 
 function digest(data) {
