@@ -21,7 +21,7 @@ The big additions:
 
 - **Research section** — Binary analysis and reverse engineering work (Ghidra, Frida, Zig), heterogeneous compute research with WebGPU and Futhark, and ongoing functional programming explorations with ESDT monads.
 
-- **Restructured ventures** — [Tinyland.dev](https://github.com/tinyland-inc) now leads as the primary venture, with xoxd.ai positioned as its ML/AI research arm. Cleaner framing of what we're actually building.
+- **Restructured ventures** — [Tinyland.dev](https://github.com/xoxd-ai) now leads as the primary venture, with xoxd.ai positioned as its ML/AI research arm. Cleaner framing of what we're actually building.
 
 - **New FOSS contributions** — Added rspamd, Budgie DE, Mason, and Chapel-lang to the list alongside the usual suspects.
 
