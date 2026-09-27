@@ -1,7 +1,8 @@
 <script lang="ts">
-	// Named JSON import so the layout bundle takes only this array, not all of
-	// facts.json (static/profile is synced from spear_resumes; never hand-edit).
-	import { merged_upstream } from '../../../static/profile/facts.json';
+	// Shared approved facts import; Vite public assets require the ?raw loader.
+	// static/profile is synced from spear_resumes; never hand-edit its data.
+	import { profile } from '$lib/data/profile';
+	const merged_upstream = profile.merged_upstream;
 
 	interface TagBadge {
 		label: string;
@@ -46,9 +47,7 @@
 		},
 		{
 			label: 'Ventures',
-			badges: [
-				{ label: 'xoxd.ai', color: 'preset-outlined-primary-500', url: 'https://xoxd.ai' },
-			],
+			badges: [{ label: 'xoxd.ai', color: 'preset-outlined-primary-500', url: 'https://xoxd.ai' }],
 		},
 	];
 </script>
@@ -63,13 +62,13 @@
 		<div class="flex flex-wrap gap-1.5 {compact ? 'mb-2' : 'mb-1'}">
 			{#each cat.badges as badge (badge.label)}
 				{#if badge.url}
-						<a
-							href={badge.url}
-							target="_blank"
-							rel="noopener"
-							aria-label={`Visit ${badge.label}`}
-							class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors">{badge.label}</a
-						>
+					<a
+						href={badge.url}
+						target="_blank"
+						rel="noopener"
+						aria-label={`Visit ${badge.label}`}
+						class="badge {badge.color} text-xs hover:preset-filled-primary-500 transition-colors">{badge.label}</a
+					>
 				{:else}
 					<span class="badge {badge.color} text-xs">{badge.label}</span>
 				{/if}

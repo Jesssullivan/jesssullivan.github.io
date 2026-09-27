@@ -27,6 +27,8 @@ const Timestamp = Text.refine(
 );
 const YearMonth = Text.refine((v) => /^\d{4}-\d{2}$/.test(v) && validDate(`${v}-01`), 'real year-month');
 function safeHttps(value: string): boolean {
+	// Control characters must be rejected in public evidence URLs.
+	// eslint-disable-next-line no-control-regex
 	if (!value.startsWith('https://') || /[\s\\\x00-\x1f\x7f]/.test(value)) return false;
 	try {
 		const url = new URL(value);

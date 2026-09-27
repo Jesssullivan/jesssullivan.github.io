@@ -43,10 +43,9 @@
 		</div>
 
 		<p class="text-sm text-surface-600-400 mb-4">
-			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA.
-			I build infrastructure tooling, digital automata, hack upon compilers,
-			love learning new languages, futz with hardware, and maintain a lot of
-			fun projects here and elsewhere.
+			Full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA. I build infrastructure
+			tooling, digital automata, hack upon compilers, love learning new languages, futz with hardware, and maintain a
+			lot of fun projects here and elsewhere.
 		</p>
 
 		<!-- Social links -->
@@ -55,34 +54,29 @@
 				href="https://github.com/Jesssullivan"
 				target="_blank"
 				rel="noopener"
-				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-			>GitHub</a>
+				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors">GitHub</a
+			>
 			<a
 				href="https://gitlab.com/jesssullivan"
 				target="_blank"
 				rel="noopener"
-				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-			>GitLab</a>
+				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors">GitLab</a
+			>
 			<a
 				href="https://github.com/sponsors/Jesssullivan"
 				target="_blank"
 				rel="noopener"
-				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-			>Sponsor</a>
+				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors">Sponsor</a
+			>
 			<a
 				href="/cv"
-				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-			>CV</a>
+				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors">CV</a
+			>
 			<a
 				href="/about"
-				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors"
-			>About</a>
-			<a
-				href="https://www.fightforthefuture.org/"
-				target="_blank"
-				rel="noopener"
-				class="inline-flex items-center"
+				class="badge preset-outlined-surface-500 text-xs hover:preset-outlined-primary-500 transition-colors">About</a
 			>
+			<a href="https://www.fightforthefuture.org/" target="_blank" rel="noopener" class="inline-flex items-center">
 				<img src="/images/idl_badge.png" alt="Member of The Internet Defense League" height="20" class="h-5" />
 			</a>
 		</div>
@@ -101,11 +95,12 @@
 			/>
 		</div>
 
-		<!-- Projects: the facts-driven map and upstream work live on /about (R53) -->
+		<!-- Projects: the validated map and upstream evidence have a dedicated explorer. -->
 		<div class="mt-6">
 			<h4 class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-1.5">Projects</h4>
-			<a href="/about#projects" class="text-sm text-primary-500 hover:underline">Project map &amp; merged upstream work &rarr;</a>
+			<a href="/projects" class="text-sm text-primary-500 hover:underline"
+				>Project map &amp; merged upstream work &rarr;</a
+			>
 		</div>
-
 	{/if}
 </div>

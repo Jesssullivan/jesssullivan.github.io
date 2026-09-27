@@ -1,7 +1,8 @@
 // Profile facts for the /about page (R53). static/profile/ is synced from
 // @spear_resumes//profile (bazel run //static/profile:sync_profile); never
 // hand-edit it. Every claim string rendered from here is facts.json data.
-import facts from '../../../static/profile/facts.json';
+import factsSource from '../../../static/profile/facts.json?raw';
+const facts = JSON.parse(factsSource) as typeof import('../../../static/profile/facts.json');
 
 export type ProfileFacts = typeof facts;
 export type ProfileRole = ProfileFacts['roles'][number];
@@ -74,7 +75,9 @@ export function currentRole(): ProfileRole {
  */
 export function personSameAs(): string[] {
 	const ventureUrls = new Set(
-		profile.ventures.flatMap((v) => [('url' in v ? v.url : undefined), ('github' in v ? v.github : undefined)]).filter(Boolean),
+		profile.ventures
+			.flatMap((v) => ['url' in v ? v.url : undefined, 'github' in v ? v.github : undefined])
+			.filter(Boolean),
 	);
 	return profile.links
 		.map((l) => l.url)

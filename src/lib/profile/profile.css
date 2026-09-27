@@ -1,0 +1,137 @@
+/* Scoped PAL2/PAL2a values from the reviewed xoxd source pin in xoxd-palette.json. */
+.profile-surface {
+	--profile-bg: #f7f3fc;
+	--profile-ink: #020103;
+	--profile-heading: #69001a;
+	--profile-accent: #cc003b;
+	--profile-link: #cc003b;
+	--profile-muted: #4a4551;
+	--profile-rule: #dad5e0;
+	--profile-outline: #4a4551;
+	--profile-panel: #ede9f3;
+	--profile-slate: #4f7eae;
+	--profile-category: var(--category-light);
+}
+:root[data-mode='dark'] .profile-surface {
+	--profile-bg: #020103;
+	--profile-ink: #f7f3fc;
+	--profile-heading: #ff767f;
+	--profile-accent: #f5184c;
+	--profile-link: #f5184c;
+	--profile-muted: #c0bbc7;
+	--profile-rule: #2b2730;
+	--profile-outline: #a19ba9;
+	--profile-panel: #131017;
+	--profile-slate: #9ac0e7;
+	--profile-category: var(--category-dark);
+}
+.profile-surface {
+	--profile-font-body: 'Inter', Arial, Helvetica, sans-serif;
+	--profile-font-mono: 'Fira Code', 'SFMono-Regular', Menlo, Consolas, monospace;
+	color: var(--profile-ink);
+	background: var(--profile-bg);
+	font-family: var(--profile-font-body);
+	color-scheme: light;
+	min-width: 0;
+	line-height: 1.55;
+}
+:root[data-mode='dark'] .profile-surface {
+	color-scheme: dark;
+}
+.profile-surface :is(h1, h2, h3, h4) {
+	font-family: var(--profile-font-mono);
+	color: var(--profile-heading);
+	text-wrap: balance;
+}
+.profile-surface :is(a, button, input, select, summary):focus-visible {
+	outline: 3px solid var(--profile-ink);
+	outline-offset: 4px;
+}
+.profile-surface a {
+	color: var(--profile-link);
+	text-underline-offset: 3px;
+	text-decoration: underline;
+}
+.profile-surface button,
+.profile-surface select,
+.profile-surface input {
+	color: var(--profile-ink);
+	background: var(--profile-bg);
+	border: 1px solid var(--profile-outline);
+	border-radius: 0;
+	font: inherit;
+	min-height: 44px;
+	padding: 0.5rem 0.75rem;
+}
+.profile-surface button {
+	cursor: pointer;
+}
+.profile-surface button:hover,
+.profile-surface button[aria-pressed='true'] {
+	background: var(--profile-panel);
+}
+.profile-surface button:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+.profile-surface .profile-muted {
+	color: var(--profile-muted);
+}
+.profile-surface .profile-panel {
+	margin-block: 3rem;
+	padding-block: 1.5rem;
+	border-block-start: 1px solid var(--profile-rule);
+	min-width: 0;
+}
+.profile-surface .profile-panel > h2 {
+	font-size: clamp(1.35rem, 3vw, 1.75rem);
+	line-height: 1.3;
+	margin: 0 0 0.6rem;
+}
+.profile-surface .profile-panel > p {
+	max-width: 70ch;
+}
+.profile-surface table {
+	border-collapse: collapse;
+	font-size: 0.9rem;
+	width: 100%;
+}
+.profile-surface :is(th, td) {
+	text-align: left;
+	vertical-align: top;
+	padding: 0.65rem;
+	border-bottom: 1px solid var(--profile-rule);
+}
+.profile-surface th {
+	font-weight: 600;
+}
+.profile-surface details {
+	margin-block: 1rem;
+}
+.profile-surface summary {
+	cursor: pointer;
+	min-height: 44px;
+	padding-block: 0.65rem;
+	color: var(--profile-link);
+}
+.profile-surface .table-scroll {
+	max-width: 100%;
+	overflow: auto;
+}
+.profile-surface .category-mark {
+	fill: var(--profile-category, var(--category-light));
+	stroke: var(--profile-ink);
+	stroke-width: 1;
+}
+:root[data-mode='dark'] .profile-surface .category-mark {
+	fill: var(--category-dark);
+}
+@media (prefers-reduced-motion: reduce) {
+	.profile-surface *,
+	.profile-surface *::before,
+	.profile-surface *::after {
+		animation: none !important;
+		transition: none !important;
+		scroll-behavior: auto !important;
+	}
+}

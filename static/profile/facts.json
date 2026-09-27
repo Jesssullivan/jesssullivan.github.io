@@ -755,7 +755,7 @@
   },
   {
    "bullets": [
-    "Led R&D on internal ML annotation tooling, model-evaluation web APIs, and end-to-end MLOps pipelines (Flask, TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with the Visipedia / iNaturalist community.",
+    "Led R&D on internal ML annotation tooling, model-evaluation web APIs, and end-to-end MLOps pipelines (Flask, TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with Visipedia.",
     "Streamlined Macaulay Library MLOps and asset ingestion pipeline."
    ],
    "end": 2021,
@@ -775,7 +775,7 @@
   {
    "bullets": [
     "Developed web GIS tools used by the National Park Service, Foundation for Healthy Communities, GPRED, the Northern Border Regional Commission, presented at the 2019 AAG Annual Meeting in Washington, DC",
-    "Client work (client list on request): the entire business stack for a multi-location clinical practice, grown through four business expansions over three years; R&D for a hydraulic sawmill equipment maker; and business systems for other small firms."
+    "Client work (client list on request): R&D for a hydraulic sawmill equipment maker; business systems for other small firms."
    ],
    "end": "present",
    "org": "Full-Stack Contracting & FOSS",
@@ -850,14 +850,14 @@
    "start": 2021
   },
   {
-   "description": "Bootstrapped engineering and contracting firm: infrastructure automation, build platforms, agent orchestration for semi-autonomous infrastructure lifecycle management, and full business stacks for clients.",
+   "description": "Bootstrapped engineering and contracting firm: infrastructure automation, build platforms, agent orchestration for semi-autonomous infrastructure lifecycle management.",
    "end": "present",
    "github": "https://github.com/xoxd-ai",
    "name": "xoxd.ai",
    "product": "glorious.build",
    "product_line": "Building glorious.build, a cache-first build and CI substrate (Bazel remote cache and execution, Nix, pooled self-hosted runners); pre-launch.",
    "product_verb": "Building",
-   "role": "Founder",
+   "role": "Operating as",
    "start": 2024,
    "url": "https://xoxd.ai"
   },

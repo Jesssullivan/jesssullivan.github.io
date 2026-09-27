@@ -50,6 +50,7 @@ export async function loadLiveProfile(fetchFn: ProfileFetch, options: ProfileLoa
 	const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? PROFILE_LIVE_TIMEOUT_MS);
 	const onOuterAbort = () => controller.abort();
 	options.signal?.addEventListener('abort', onOuterAbort, { once: true });
+	if (options.signal?.aborted) controller.abort();
 	try {
 		const res = await fetchFn(url, {
 			headers: { Accept: 'application/json' },

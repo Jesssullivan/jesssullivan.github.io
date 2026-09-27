@@ -31,6 +31,7 @@ filegroup(
         "vite.config.ts",
         "vitest.bazel.config.ts",
         "vitest.config.ts",
+        "//static/profile:public_files",
         "//packages/pulse-client:srcs",
         "//packages/pulse-core:srcs",
     ],
