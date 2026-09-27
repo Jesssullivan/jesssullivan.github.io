@@ -306,6 +306,28 @@ describe('loadTinylandBlogBrokerStream', () => {
 		).toEqual(['glue-you-can-see-in-uv', 'new-live']);
 	});
 
+	it('quarantines consecutive posts with the same unknown component without admitting the second', async () => {
+		const badPost = (slug: string) => ({
+			...liveDisplayStream.posts[0],
+			slug,
+			contentMarkdown: '<RemoteThing />',
+		});
+		const stream = {
+			...liveDisplayStream,
+			counts: { publicPublishedDisplayPosts: 3 },
+			posts: [
+				badPost('first-invalid'),
+				badPost('second-invalid'),
+				{ ...liveDisplayStream.posts[0], slug: 'valid-live' },
+			],
+		};
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(stream));
+
+		const loaded = await loadTinylandBlogBrokerStream(fetchMock);
+		expect(loaded.quarantinedContentPostSlugs).toEqual(['first-invalid', 'second-invalid']);
+		expect(loaded.posts.map((post) => post.slug)).toEqual(['valid-live']);
+	});
+
 	it('keeps whole-stream privacy, publication and declared-count gates when another post has invalid content', async () => {
 		const invalidContentPost = { ...liveDisplayStream.posts[0], contentMarkdown: '<RemoteThing />' };
 		const validPost = { ...liveDisplayStream.posts[0], slug: 'new-live' };
