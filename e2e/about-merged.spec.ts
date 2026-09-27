@@ -17,12 +17,21 @@ type Facts = {
 	images: { slot: string; alt: string; url?: string }[];
 };
 const facts: Facts = JSON.parse(readFileSync(new URL('../static/profile/facts.json', import.meta.url), 'utf8'));
+// The interactive explorer consumes the separate validated public projection.
+const projection: {
+	repos: { label: string; category: string }[];
+	categories: { id: string; label: string }[];
+	merged_upstream: { project: string; repo: string; number: number }[];
+} = JSON.parse(readFileSync(new URL('../static/profile/profile.v1.json', import.meta.url), 'utf8'));
 const SITE = 'https://transscendsurvival.org';
 
 // Facts links as the page renders them: same-site URLs root-relative, and the
 // site-root link dropped (the reader is already on the site).
 const renderedFactLinks = facts.links
-	.map((l) => ({ label: l.label, url: l.url === SITE || l.url.startsWith(`${SITE}/`) ? l.url.slice(SITE.length) : l.url }))
+	.map((l) => ({
+		label: l.label,
+		url: l.url === SITE || l.url.startsWith(`${SITE}/`) ? l.url.slice(SITE.length) : l.url,
+	}))
 	.filter((l) => l.url !== '' && l.url !== '/');
 
 /** Visible text of the about page's own content, without the blog post lists. */
@@ -58,6 +67,7 @@ async function openThemeSettings(page: Page) {
 
 test.describe('About (merged) page', () => {
 	test.beforeEach(async ({ page }) => {
+		await page.route('https://jess.clients.xoxd.ai/**', (route) => route.abort());
 		await page.addInitScript(() => {
 			localStorage.setItem('color-mode', 'light');
 		});
@@ -74,6 +84,8 @@ test.describe('About (merged) page', () => {
 
 	test('banner fades on scroll', async ({ page, browserName }) => {
 		test.skip(browserName === 'webkit', 'Scroll timing differs on WebKit');
+		// The SSR banner precedes the layout's scroll listener; wait for hydration.
+		await expect(page.getByText('Live refresh unavailable;', { exact: false })).toBeVisible();
 		const banner = page.locator('section.hero-banner');
 		// Initial opacity should be 1
 		const initialOpacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
@@ -81,10 +93,7 @@ test.describe('About (merged) page', () => {
 
 		// Scroll down
 		await page.evaluate(() => window.scrollBy(0, 500));
-		await page.waitForTimeout(100);
-
-		const fadedOpacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
-		expect(Number(fadedOpacity)).toBeLessThan(1);
+		await expect.poll(() => banner.evaluate((el) => Number(getComputedStyle(el).opacity))).toBeLessThan(1);
 	});
 
 	test('banner fades even with prefers-reduced-motion (scroll-driven, not animated)', async ({ page, browserName }) => {
@@ -93,12 +102,10 @@ test.describe('About (merged) page', () => {
 		await page.goto('/about', { waitUntil: 'domcontentloaded' });
 		const banner = page.locator('section.hero-banner');
 		await expect(banner).toBeVisible();
+		await expect(page.getByText('Live refresh unavailable;', { exact: false })).toBeVisible();
 
 		await page.evaluate(() => window.scrollBy(0, 500));
-		await page.waitForTimeout(500);
-
-		const opacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
-		expect(Number(opacity)).toBeLessThan(1);
+		await expect.poll(() => banner.evaluate((el) => Number(getComputedStyle(el).opacity))).toBeLessThan(1);
 	});
 
 	test('etymology description text present', async ({ page }) => {
@@ -119,22 +126,27 @@ test.describe('About (merged) page', () => {
 		await expect(postLinks.first()).toBeVisible();
 	});
 
-	test('facts charts present (project map, timeline, upstream, languages)', async ({ page }) => {
+	test('validated map, responsive timeline and links to the full evidence views are present', async ({ page }) => {
 		const main = page.locator('#main-content');
-		await expect(main.locator('img[src="/profile/svg/project-map-light.svg"]')).toBeVisible();
-		await expect(main.locator('img[src="/profile/svg/timeline-light.svg"]')).toHaveCount(1);
-		await expect(main.locator('img[src="/profile/svg/upstream-light.svg"]')).toHaveCount(1);
-		await expect(main.locator('img[src="/profile/svg/languages-light.svg"]')).toHaveCount(1);
+		await expect(main.locator('#project-map .map-svg')).toBeVisible();
+		await expect(main.locator('[data-project]')).toHaveCount(projection.repos.length);
+		await expect(main.locator('img[src="/profile/v2/svg/timeline-light.svg"]')).toHaveCount(1);
+		await expect(main.locator('a[href="/projects#upstream"]')).toBeVisible();
+		await expect(main.locator('a[href="/projects#language-history"]')).toBeVisible();
+		await expect(main.locator('a[href="/projects#activity"]')).toBeVisible();
 	});
 
-	test('ThemedImage swaps src on dark mode toggle', async ({ page }) => {
-		const mapImg = page.locator('#main-content').locator('img[src*="/profile/svg/project-map-"]');
-		await expect(mapImg).toHaveAttribute('src', /project-map-light\.svg/);
+	test('timeline and scoped map palette follow the color mode toggle', async ({ page }) => {
+		const timeline = page.locator('#main-content').locator('img[src*="/profile/v2/svg/timeline-"]');
+		const map = page.locator('#project-map');
+		await expect(timeline).toHaveAttribute('src', /timeline-light\.svg/);
+		await expect(map).toHaveCSS('color', 'rgb(2, 1, 3)');
 
 		await openThemeSettings(page);
 		await page.getByRole('button', { name: 'Set color mode to dark' }).click();
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
-		await expect(mapImg).toHaveAttribute('src', /project-map-dark\.svg/);
+		await expect(timeline).toHaveAttribute('src', /timeline-dark\.svg/);
+		await expect(map).toHaveCSS('color', 'rgb(247, 243, 252)');
 	});
 
 	test('experience section renders every facts role', async ({ page }) => {
@@ -154,8 +166,17 @@ test.describe('About (merged) page', () => {
 		const xoxd = facts.ventures.find((v) => v.name === 'xoxd.ai');
 		expect(xoxd?.url).toBe('https://xoxd.ai');
 		await expect(ventures.getByRole('link', { name: 'Visit xoxd.ai' })).toHaveAttribute('href', 'https://xoxd.ai');
+		const xoxdHeading = ventures
+			.getByRole('heading')
+			.filter({ has: page.getByRole('link', { name: 'Visit xoxd.ai' }) });
+		await expect(xoxdHeading).toHaveText('Operating as xoxd.ai');
 		for (const v of facts.ventures) {
-			await expect(ventures.getByText(v.name, { exact: true }).or(ventures.getByRole('link', { name: `Visit ${v.name}` })).first()).toBeVisible();
+			await expect(
+				ventures
+					.getByText(v.name, { exact: true })
+					.or(ventures.getByRole('link', { name: `Visit ${v.name}` }))
+					.first(),
+			).toBeVisible();
 		}
 	});
 
@@ -171,22 +192,13 @@ test.describe('About (merged) page', () => {
 		await expect(ventures.getByText(xoxd.product_line, { exact: true })).toBeVisible();
 	});
 
-	test('projects section renders the map table', async ({ page }) => {
-		const projects = page.locator('#projects');
-		await expect(projects.getByRole('heading', { name: 'Projects' })).toBeVisible();
-		// Exactly the facts projects, in taxonomy order, one row per distinct
-		// label within a category (the four Zig libraries share one row).
-		const expected: { label: string; category: string }[] = [];
-		for (const cat of facts.taxonomy) {
-			for (const p of facts.projects.filter((p) => p.category === cat.id)) {
-				if (!expected.some((e) => e.label === p.label && e.category === cat.label)) {
-					expected.push({ label: p.label, category: cat.label });
-				}
-			}
-		}
-		const table = projects.locator('[data-testid="project-table"]');
-		expect(await table.locator('.project-label').allInnerTexts()).toEqual(expected.map((e) => e.label));
-		expect(await table.locator('.project-category').allInnerTexts()).toEqual(expected.map((e) => e.category));
+	test('projects section renders every validated project in its accessible catalogue', async ({ page }) => {
+		const projects = page.locator('#project-map');
+		await expect(projects.getByRole('heading', { name: 'Project similarity' })).toBeVisible();
+		await projects.locator('#project-catalogue summary').click();
+		const table = projects.locator('#project-catalogue table');
+		expect(await table.locator('.catalogue-label').allInnerTexts()).toEqual(projection.repos.map((r) => r.label));
+		await expect(table.locator('tbody tr')).toHaveCount(projection.repos.length);
 	});
 
 	test('other upstream involvement is separate and never says "engagement"', async ({ page }) => {
@@ -220,16 +232,20 @@ test.describe('About (merged) page', () => {
 			expect(text).toContain(pub.title);
 			expect(text).toContain(`${pub.authors} (${pub.year})`);
 			if (pub.venue) expect(text).toContain(pub.venue);
-			if (pub.url) await expect(pubs.getByRole('link', { name: pub.title, exact: true })).toHaveAttribute('href', pub.url);
+			if (pub.url)
+				await expect(pubs.getByRole('link', { name: pub.title, exact: true })).toHaveAttribute('href', pub.url);
 		}
 		await expect(pubs.locator('li')).toHaveCount(facts.publications.length);
 	});
 
-	test('merged upstream lists every facts project with its PR link', async ({ page }) => {
+	test('merged upstream lists every validated project with its latest verified PR link', async ({ page }) => {
 		const upstream = page.locator('#upstream');
-		await expect(upstream.getByRole('heading', { name: 'Merged Upstream' })).toBeVisible();
-		for (const u of facts.merged_upstream) {
-			await expect(upstream.getByRole('link', { name: u.project, exact: true })).toHaveAttribute('href', u.url);
+		await expect(upstream.getByRole('heading', { name: 'Merged upstream work' })).toBeVisible();
+		for (const u of projection.merged_upstream) {
+			await expect(upstream.getByRole('link', { name: u.project, exact: true })).toHaveAttribute(
+				'href',
+				`https://github.com/${u.repo}/pull/${u.number}`,
+			);
 		}
 		for (const name of ['llama.cpp', 'KeePassXC', 'rspamd', 'nixpkgs', 'FFT.js', 'Joplin']) {
 			await expect(upstream.getByRole('link', { name, exact: true })).toBeVisible();
@@ -249,7 +265,17 @@ test.describe('About (merged) page', () => {
 	test('no Tinyland venture or link, no counter badges, no RPM kernel', async ({ page }) => {
 		// Facts-driven sections and Links only: post titles in the lists above
 		// are blog content and may legitimately mention the Tinyland broker.
-		const sections = ['#profile-intro', '#experience', '#ventures', '#projects', '#upstream', '#other-upstream', '#community', '#publications', '[data-testid="profile-links"]'];
+		const sections = [
+			'#profile-intro',
+			'#experience',
+			'#ventures',
+			'#projects',
+			'#upstream',
+			'#other-upstream',
+			'#community',
+			'#publications',
+			'[data-testid="profile-links"]',
+		];
 		for (const sel of sections) {
 			const section = page.locator(sel);
 			await expect(section).toHaveCount(1);
@@ -271,6 +297,10 @@ test.describe('About (merged) page', () => {
 		// Entries once hallucinated into the page.
 		expect(text).not.toContain('BrainFlow');
 		expect(text).not.toContain('MeshCore');
+		// Jess's direct source corrections supersede the former curated claims.
+		expect(text).not.toMatch(
+			/iNaturalist|entire business stack|four (?:business )?expansions|full business stacks for clients/i,
+		);
 		// Describe, don't name (R32): Jess's coinages never show as visible text;
 		// they may still appear inside link URLs.
 		for (const coinage of ['GloriousFlywheel', 'XoxdWM', 'tummycrypt', 'oauth-mux', 'hexstrunk']) {
@@ -338,7 +368,9 @@ test.describe('About (merged) page', () => {
 		expect(hrefs.some((h) => h && /tinyland/i.test(h))).toBe(false);
 		// same-site links are root-relative, same tab; the site-root Blog link is dropped
 		expect(hrefs.some((h) => h && h.startsWith(SITE))).toBe(false);
-		await expect(main.locator('[data-testid="profile-links"]').getByRole('link', { name: 'Blog', exact: true })).toHaveCount(0);
+		await expect(
+			main.locator('[data-testid="profile-links"]').getByRole('link', { name: 'Blog', exact: true }),
+		).toHaveCount(0);
 		for (const path of ['/cv', '/aag']) {
 			const link = main.locator(`[data-testid="profile-links"] a[href="${path}"]`);
 			await expect(link).toHaveCount(1);

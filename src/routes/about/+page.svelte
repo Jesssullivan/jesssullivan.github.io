@@ -1,16 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import ThemedImage from '$lib/components/ThemedImage.svelte';
-	import {
-		profile,
-		profileAsset,
-		svgPair,
-		imageForSlot,
-		period,
-		projectGroups,
-		currentRole,
-		personSameAs,
-	} from '$lib/data/profile';
+	import ProfileExplorer from '$lib/profile/ProfileExplorer.svelte';
+	import { profileFallback } from '$lib/profile/fallback';
+	import ProfileTimeline from '$lib/profile/ProfileTimeline.svelte';
+	import '$lib/profile/profile.css';
+	import { profile, profileAsset, svgPair, imageForSlot, period, currentRole, personSameAs } from '$lib/data/profile';
 
 	let { data }: { data: PageData } = $props();
 
@@ -20,16 +15,10 @@
 	// meta/OG/Twitter descriptions in <svelte:head>, section headings and chart
 	// alt text, and the R54 blog-local link extras (blogLinks). The post lists
 	// are blog data from +page.ts.
-	const identity = profile.identity;
+	const identity = profileFallback.identity ?? profile.identity;
+	const approvedRoles = profileFallback.roles ?? profile.roles;
+	const approvedVentures = profileFallback.ventures ?? profile.ventures;
 	const role = currentRole();
-	const groups = projectGroups();
-	// Intrinsic sizes (the SVG viewBoxes) reserve layout space before load.
-	const charts = {
-		timeline: { ...svgPair('timeline'), width: 960, height: 550 },
-		projectMap: { ...svgPair('project-map'), width: 960, height: 740 },
-		languages: { ...svgPair('languages'), width: 960, height: 402 },
-		upstream: { ...svgPair('upstream'), width: 960, height: 534 },
-	};
 	// R70 (per Jess, 2026-09-26): the Great Falls Tool Bus description already
 	// says Jess built its site and member infrastructure, so its separate
 	// "infra" line would repeat it. Only ventures named here skip that line;
@@ -38,7 +27,7 @@
 	const learning = imageForSlot('closing');
 	const linkBadge = imageForSlot('links');
 	const upstreamProjects = new Set(profile.merged_upstream.map((u) => u.project));
-	// Relations without a merged PR here (e.g. FFT.js, ggplot2) are not merged
+	// Relations without a merged PR here (e.g. ggplot2) are not merged
 	// upstream work; they get their own list. Only these relation words are
 	// shown; anything else (e.g. "engagement") renders as the bare project name.
 	const SHOWN_RELATIONS = new Set(['contributor', 'collaborator', 'committer']);
@@ -98,38 +87,46 @@
 
 <svelte:head>
 	<title>About | transscendsurvival.org</title>
-	<meta name="description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
+	<meta
+		name="description"
+		content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA."
+	/>
 	<meta property="og:title" content="About | transscendsurvival.org" />
-	<meta property="og:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
+	<meta
+		property="og:description"
+		content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA."
+	/>
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://transscendsurvival.org/about" />
 	<meta property="og:image" content="https://transscendsurvival.org/images/header.png" />
 	<meta property="og:site_name" content="transscendsurvival.org" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content="About | transscendsurvival.org" />
-	<meta name="twitter:description" content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA." />
+	<meta
+		name="twitter:description"
+		content="Jess Sullivan — full stack engineer, musician, and birdwatcher based in Lewiston, ME &amp; Boston, MA."
+	/>
 	<meta name="twitter:image" content="https://transscendsurvival.org/images/header.png" />
 	<link rel="canonical" href="https://transscendsurvival.org/about" />
 	{@html `<script type="application/ld+json">${JSON.stringify(personLd).replace(/</g, '\\u003c')}</script>`}
 </svelte:head>
 
-<div class="container mx-auto px-4 py-12 max-w-3xl">
+<div class="profile-surface about-profile container mx-auto px-4 py-12 max-w-5xl">
 	<h1 class="text-3xl font-bold mb-8">About</h1>
 
 	<!-- Intro (facts identity) -->
 	<section class="mb-8" id="profile-intro">
 		<p class="text-lg font-semibold">{identity.headline}</p>
 		{#each identity.taglines as tagline}
-			<p class="text-sm text-surface-500 mb-4">{tagline}</p>
+			<p class="text-sm profile-muted mb-4">{tagline}</p>
 		{/each}
-		<p class="text-surface-600-400 leading-relaxed mb-4">{identity.summary}</p>
-		<p class="text-sm text-surface-500 mb-4">{identity.location}</p>
-		<p class="text-surface-600-400 leading-relaxed mb-4">
-			I spent about a year completely offline &mdash; no LinkedIn, no blog, no social media.
-			Late 2023 through the end of 2024. An intentional disconnect.
-			I'm back to building in the open.
+		<p class="profile-body leading-relaxed mb-4">{identity.summary}</p>
+		<p class="text-sm profile-muted mb-4">{identity.location}</p>
+		<p class="profile-body leading-relaxed mb-4">
+			I spent about a year completely offline &mdash; no LinkedIn, no blog, no social media. Late 2023 through the end
+			of 2024. An intentional disconnect. I'm back to building in the open.
 		</p>
-		<blockquote class="border-l-2 border-primary-500 pl-4 mb-4 italic text-surface-500">
+		<blockquote class="border-l-2 border-primary-500 pl-4 mb-4 italic profile-muted">
 			{identity.always_building}
 		</blockquote>
 		<div class="flex gap-3">
@@ -144,17 +141,26 @@
 			<h2 class="text-2xl font-semibold mb-4">Featured</h2>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{#each data.featured as post, i}
-					{@const variants = ['preset-filled-primary-500', 'preset-filled-secondary-500', 'preset-filled-tertiary-500', 'preset-filled-success-500', 'preset-filled-warning-500', 'preset-filled-error-500']}
+					{@const variants = [
+						'preset-filled-primary-500',
+						'preset-filled-secondary-500',
+						'preset-filled-tertiary-500',
+						'preset-filled-success-500',
+						'preset-filled-warning-500',
+						'preset-filled-error-500',
+					]}
 					<a
 						href="/blog/{post.slug}"
-						class="block card p-5 hover:ring-2 ring-primary-500 transition-all {data.featured.length === 1 ? 'sm:col-span-2' : ''}"
+						class="block card p-5 hover:ring-2 ring-primary-500 transition-all {data.featured.length === 1
+							? 'sm:col-span-2'
+							: ''}"
 						aria-label={`Read featured post: ${post.title}`}
 					>
 						<div class="flex items-start justify-between gap-3">
 							<div>
 								<h3 class="text-lg font-bold">{post.title}</h3>
 								{#if post.description}
-									<p class="text-sm text-surface-500 mt-1 line-clamp-3">{post.description}</p>
+									<p class="text-sm profile-muted mt-1 line-clamp-3">{post.description}</p>
 								{/if}
 							</div>
 							{#if post.category}
@@ -162,9 +168,15 @@
 							{/if}
 						</div>
 						<div class="flex items-center gap-3 mt-3">
-							<time class="text-xs text-surface-500">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+							<time class="text-xs profile-muted"
+								>{new Date(post.date).toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric',
+								})}</time
+							>
 							{#if post.reading_time}
-								<span class="text-xs text-surface-400">{post.reading_time} min read</span>
+								<span class="text-xs profile-muted">{post.reading_time} min read</span>
 							{/if}
 						</div>
 					</a>
@@ -178,7 +190,14 @@
 		{#if data.posts.length > 0}
 			<div class="space-y-4">
 				{#each data.posts as post, i}
-					{@const variants = ['preset-outlined-primary-500', 'preset-outlined-secondary-500', 'preset-outlined-tertiary-500', 'preset-outlined-success-500', 'preset-outlined-warning-500', 'preset-outlined-error-500']}
+					{@const variants = [
+						'preset-outlined-primary-500',
+						'preset-outlined-secondary-500',
+						'preset-outlined-tertiary-500',
+						'preset-outlined-success-500',
+						'preset-outlined-warning-500',
+						'preset-outlined-error-500',
+					]}
 					<a
 						href="/blog/{post.slug}"
 						class="block card p-4 hover:ring-2 ring-primary-500 transition-all"
@@ -190,32 +209,39 @@
 								{#if post.category}
 									<span class="badge {variants[i % variants.length]} text-xs">{post.category}</span>
 								{/if}
-								<time class="text-xs text-surface-500 whitespace-nowrap">{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+								<time class="text-xs profile-muted whitespace-nowrap"
+									>{new Date(post.date).toLocaleDateString('en-US', {
+										month: 'short',
+										day: 'numeric',
+										year: 'numeric',
+									})}</time
+								>
 							</div>
 						</div>
 						{#if post.description}
-							<p class="text-sm text-surface-500 mt-1 line-clamp-2">{post.description}</p>
+							<p class="text-sm profile-muted mt-1 line-clamp-2">{post.description}</p>
 						{/if}
 					</a>
 				{/each}
 			</div>
-			<a href="/blog" class="inline-block mt-4 text-sm text-primary-500 hover:underline">View all posts &rarr;</a>
+			<a href="/blog" class="inline-block mt-4 text-sm profile-link hover:underline">View all posts &rarr;</a>
 		{:else}
-			<p class="text-surface-500">No posts yet.</p>
+			<p class="profile-muted">No posts yet.</p>
 		{/if}
 	</section>
 
-	<!-- Experience (facts roles) -->
+	<span id="roles"></span>
+	<!-- Experience (validated projection roles; legacy claims remain the fallback) -->
 	<section class="mb-12" id="experience">
 		<h2 class="text-2xl font-semibold mb-4">Experience</h2>
 		<div class="space-y-6">
-			{#each profile.roles as r}
+			{#each approvedRoles as r}
 				<div>
 					<h3 class="font-semibold">{r.title} &mdash; {r.org}</h3>
-					<p class="text-sm text-surface-500 mb-2">{period(r)}</p>
-					<p class="text-surface-600-400 mb-2">{r.summary}</p>
+					<p class="text-sm profile-muted mb-2">{period(r)}</p>
+					<p class="profile-body mb-2">{r.summary}</p>
 					{#if r.bullets.length > 0}
-						<ul class="list-disc list-inside text-surface-600-400 space-y-1">
+						<ul class="list-disc list-inside profile-body space-y-1">
 							{#each r.bullets as b}
 								<li>{b}</li>
 							{/each}
@@ -225,7 +251,7 @@
 			{/each}
 		</div>
 		<div class="mt-6">
-			<ThemedImage lightSrc={charts.timeline.light} darkSrc={charts.timeline.dark} alt="Roles and ventures timeline" width={charts.timeline.width} height={charts.timeline.height} class="w-full h-auto" />
+			<ProfileTimeline />
 		</div>
 	</section>
 
@@ -233,95 +259,59 @@
 	<section class="mb-12" id="ventures">
 		<h2 class="text-2xl font-semibold mb-4">Ventures</h2>
 		<div class="space-y-4">
-			{#each profile.ventures as v}
+			{#each approvedVentures as v}
 				<div>
 					<h3 class="font-semibold">
+						{#if 'role' in v && v.role === 'Operating as'}Operating as
+						{/if}
 						{#if 'url' in v && v.url}
-							<a href={v.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener" aria-label={`Visit ${v.name}`}>{v.name}</a>
+							<a
+								href={v.url}
+								class="profile-link hover:underline"
+								target="_blank"
+								rel="noopener"
+								aria-label={`Visit ${v.name}`}>{v.name}</a
+							>
 						{:else}
 							{v.name}
 						{/if}
-						{#if 'role' in v && v.role}
-							<span class="text-sm font-normal text-surface-500">&middot; {v.role}</span>
+						{#if 'role' in v && v.role && v.role !== 'Operating as'}
+							<span class="text-sm font-normal profile-muted">&middot; {v.role}</span>
 						{/if}
 					</h3>
-					<p class="text-sm text-surface-500">{period(v)} &mdash; {v.description}</p>
+					<p class="text-sm profile-muted">{period(v)} &mdash; {v.description}</p>
 					{#if 'product_line' in v && v.product_line}
-						<p class="text-sm text-surface-500 mt-1">{v.product_line}</p>
+						<p class="text-sm profile-muted mt-1">{v.product_line}</p>
 					{/if}
 					{#if 'infra' in v && v.infra && !REPEATS_DESCRIPTION.has(v.name)}
-						<p class="text-sm text-surface-500 mt-1">{v.infra}</p>
+						<p class="text-sm profile-muted mt-1">{v.infra}</p>
 					{/if}
 					{#if 'github' in v && v.github}
-						<a href={v.github} class="text-xs text-primary-500 hover:underline" target="_blank" rel="noopener" aria-label={`${v.name} on GitHub`}>{v.name} on GitHub</a>
+						<a
+							href={v.github}
+							class="text-xs profile-link hover:underline"
+							target="_blank"
+							rel="noopener"
+							aria-label={`${v.name} on GitHub`}>{v.name} on GitHub</a
+						>
 					{/if}
 				</div>
 			{/each}
 		</div>
 	</section>
 
-	<!-- Projects (facts project map + table) -->
-	<section class="mb-12" id="projects">
-		<h2 class="text-2xl font-semibold mb-4">Projects</h2>
-		<ThemedImage lightSrc={charts.projectMap.light} darkSrc={charts.projectMap.dark} alt="Project map of public repositories by category" width={charts.projectMap.width} height={charts.projectMap.height} class="w-full mb-4 h-auto" />
-		<div class="overflow-x-auto">
-			<table class="table w-full text-sm" data-testid="project-table">
-				<thead>
-					<tr>
-						<th class="text-left">Project</th>
-						<th class="text-left">Category</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each groups as g}
-						{#each g.rows as row}
-							<tr>
-								<td>
-									{#if row.urls.length > 0}
-										<a href={row.urls[0]} class="text-primary-500 hover:underline" target="_blank" rel="noopener"><span class="project-label">{row.label}</span></a>
-										{#each row.urls.slice(1) as url, i}
-											<a href={url} class="text-primary-500 hover:underline ml-1" target="_blank" rel="noopener" aria-label={`${row.label}, repository ${i + 2}`}>[{i + 2}]</a>
-										{/each}
-									{:else}
-										<span class="project-label">{row.label}</span>
-									{/if}
-								</td>
-								<td class="text-surface-500 project-category">{g.label}</td>
-							</tr>
-						{/each}
-					{/each}
-				</tbody>
-			</table>
-		</div>
-		<div class="mt-6">
-			<ThemedImage lightSrc={charts.languages.light} darkSrc={charts.languages.dark} alt="Language mix across the mapped public repositories" width={charts.languages.width} height={charts.languages.height} class="w-full h-auto" />
-		</div>
-	</section>
-
-	<!-- Merged upstream (facts merged_upstream + relations) -->
-	<section class="mb-12" id="upstream">
-		<h2 class="text-2xl font-semibold mb-4">Merged Upstream</h2>
-		<ThemedImage lightSrc={charts.upstream.light} darkSrc={charts.upstream.dark} alt="Merged upstream work by project and merge date" width={charts.upstream.width} height={charts.upstream.height} class="w-full mb-4 h-auto" />
-		<ul class="space-y-1 text-surface-600-400" data-testid="upstream-list">
-			{#each profile.merged_upstream as u}
-				<li>
-					<a href={u.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{u.project}</a>
-					{#if u.relation}<span class="text-surface-500"> ({u.relation})</span>{/if}
-					<span class="text-xs text-surface-500">&middot; merged {u.merged}</span>
-				</li>
-			{/each}
-		</ul>
-	</section>
+	<!-- Validated public evidence; the approved prose above remains intact. -->
+	<div id="projects"><ProfileExplorer embedded /></div>
 
 	{#if otherRelations.length > 0}
 		<!-- Other upstream involvement (facts relations without a merged PR here) -->
 		<section class="mb-12" id="other-upstream">
 			<h2 class="text-xl font-semibold mb-3">Other upstream involvement</h2>
-			<ul class="space-y-1 text-surface-600-400">
+			<ul class="space-y-1 profile-body">
 				{#each otherRelations as r}
 					<li>
-						<a href={r.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{r.project}</a>
-						{#if r.label}<span class="text-surface-500"> ({r.label})</span>{/if}
+						<a href={r.url} class="profile-link hover:underline" target="_blank" rel="noopener">{r.project}</a>
+						{#if r.label}<span class="profile-muted"> ({r.label})</span>{/if}
 					</li>
 				{/each}
 			</ul>
@@ -331,7 +321,7 @@
 	<!-- Community (facts community) -->
 	<section class="mb-12" id="community">
 		<h2 class="text-2xl font-semibold mb-4">Community</h2>
-		<ul class="list-disc list-inside text-surface-600-400 space-y-2">
+		<ul class="list-disc list-inside profile-body space-y-2">
 			{#each profile.community as c}
 				<li>{c}</li>
 			{/each}
@@ -341,12 +331,17 @@
 	<!-- Publications (facts publications) -->
 	<section class="mb-12" id="publications">
 		<h2 class="text-2xl font-semibold mb-4">Publications</h2>
-		<ul class="space-y-3 text-surface-600-400">
+		<ul class="space-y-3 profile-body">
 			{#each profile.publications as pub}
 				<li>
 					{pub.authors} ({pub.year}).
 					{#if 'url' in pub && pub.url}
-						<a href={pub.url} class="text-primary-500 hover:underline" target={isExternal(pub.url) ? '_blank' : undefined} rel={isExternal(pub.url) ? 'noopener' : undefined}>{pub.title}</a>.
+						<a
+							href={pub.url}
+							class="profile-link hover:underline"
+							target={isExternal(pub.url) ? '_blank' : undefined}
+							rel={isExternal(pub.url) ? 'noopener' : undefined}>{pub.title}</a
+						>.
 					{:else}
 						{pub.title}.
 					{/if}
@@ -362,34 +357,32 @@
 		<div class="space-y-4">
 			<div>
 				<h3 class="font-semibold mb-2">Photography</h3>
-				<p class="text-surface-600-400 leading-relaxed">
-					Cut my teeth professionally with world-renowned aerial photographer Alex MacLean
-					and Mike Nyman Wedding Photography before going into business as J.S. Event Photography.
-					Wrote and taught the youth photography curriculum at Joppa Flats and Drumlin Farm
-					Mass Audubon Wildlife Sanctuaries &mdash; programs still going strong.
-					Work featured at Celebrate Newton, Newton Public Library, Pease Public Library,
-					Newtonville Cinema, Newton Camera Club, Broadmoor Wildlife Sanctuary, and in the Newton Tab.
-					Did my own printing on a heavily modified inkjet printer.
-					Completely burnt out from photography by end of 2017, sold all my gear by the end of college.
+				<p class="profile-body leading-relaxed">
+					Cut my teeth professionally with world-renowned aerial photographer Alex MacLean and Mike Nyman Wedding
+					Photography before going into business as J.S. Event Photography. Wrote and taught the youth photography
+					curriculum at Joppa Flats and Drumlin Farm Mass Audubon Wildlife Sanctuaries &mdash; programs still going
+					strong. Work featured at Celebrate Newton, Newton Public Library, Pease Public Library, Newtonville Cinema,
+					Newton Camera Club, Broadmoor Wildlife Sanctuary, and in the Newton Tab. Did my own printing on a heavily
+					modified inkjet printer. Completely burnt out from photography by end of 2017, sold all my gear by the end of
+					college.
 				</p>
 			</div>
 			<div>
 				<h3 class="font-semibold mb-2">Music</h3>
-				<p class="text-surface-600-400 leading-relaxed">
-					20+ years of guitar &mdash; currently play a custom 9-string electric made for me in NH
-					and a 12-string acoustic. 25+ years of piano/organ &mdash; primarily on a rotary Yamaha organ these days.
+				<p class="profile-body leading-relaxed">
+					20+ years of guitar &mdash; currently play a custom 9-string electric made for me in NH and a 12-string
+					acoustic. 25+ years of piano/organ &mdash; primarily on a rotary Yamaha organ these days.
 				</p>
-				<blockquote class="border-l-2 border-primary-500 pl-4 mt-3 italic text-surface-500">
+				<blockquote class="border-l-2 border-primary-500 pl-4 mt-3 italic profile-muted">
 					"If there were no computers I'd probably be a baker, a minstrel or a bard."
 				</blockquote>
 			</div>
 			<div>
 				<h3 class="font-semibold mb-2">Hospitality</h3>
-				<p class="text-surface-600-400 leading-relaxed">
-					Evening bartender & event organizer at Modern Alchemy Game Bar in Ithaca &mdash;
-					organized monthly Goth Nights, art shows & private events.
-					Bartender at The Downstairs Listening Room & Tavern and The Watershed in New York.
-					Casual bagel baker at Tandem Bagel Co in Northampton, MA (Spring 2024).
+				<p class="profile-body leading-relaxed">
+					Evening bartender & event organizer at Modern Alchemy Game Bar in Ithaca &mdash; organized monthly Goth
+					Nights, art shows & private events. Bartender at The Downstairs Listening Room & Tavern and The Watershed in
+					New York. Casual bagel baker at Tandem Bagel Co in Northampton, MA (Spring 2024).
 				</p>
 			</div>
 		</div>
@@ -414,7 +407,12 @@
 		<h2 class="text-xl font-semibold mb-3">Links</h2>
 		<div class="flex flex-wrap gap-x-4 gap-y-2 items-center" data-testid="profile-links">
 			{#each factLinks as l}
-				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
+				<a
+					href={l.url}
+					class="profile-link hover:underline"
+					target={isExternal(l.url) ? '_blank' : undefined}
+					rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a
+				>
 			{/each}
 			{#if linkBadge && 'url' in linkBadge && linkBadge.url}
 				<a href={linkBadge.url} target="_blank" rel="noopener" aria-label="Visit Fight for the Future">
@@ -422,9 +420,42 @@
 				</a>
 			{/if}
 			{#each extraLinks as l}
-				<a href={l.url} class="text-primary-500 hover:underline" target={isExternal(l.url) ? '_blank' : undefined} rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a>
+				<a
+					href={l.url}
+					class="profile-link hover:underline"
+					target={isExternal(l.url) ? '_blank' : undefined}
+					rel={isExternal(l.url) ? 'noopener' : undefined}>{l.label}</a
+				>
 			{/each}
 		</div>
 	</section>
-
 </div>
+
+<style>
+	.about-profile {
+		padding-inline: clamp(1rem, 4vw, 3rem);
+	}
+	.about-profile :global(.profile-body) {
+		color: var(--profile-ink);
+	}
+	.about-profile :global(.profile-muted) {
+		color: var(--profile-muted);
+	}
+	.about-profile :global(.card) {
+		border: 1px solid var(--profile-rule);
+		border-radius: 0;
+		background: var(--profile-bg);
+	}
+	.about-profile :global(.btn) {
+		border-radius: 0;
+		background: var(--profile-bg);
+		color: var(--profile-link);
+		border: 1px solid var(--profile-outline);
+	}
+	.about-profile :global(blockquote) {
+		border-color: var(--profile-accent);
+	}
+	.about-profile :global(.badge) {
+		border-radius: 0;
+	}
+</style>

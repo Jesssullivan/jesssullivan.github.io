@@ -1,0 +1,8 @@
+{
+  "schema": "profile-fallback-receipt.v1",
+  "source_commit": "d42cf1197c1590ab09383d31e6aaba643d980bb7",
+  "fetched_at": "2026-09-27T00:11:21Z",
+  "corpus_sha256": "238d08134814c34d0f5c1dfab485b3e442dbdf0dfcffad42763e56adfd87f6b1",
+  "content_sha256": "94020a4a54f6cf74131e17f878ecf65327e66b09013122db3a3b31e77025d584",
+  "legacy_facts_sha256": "7c4ca82372eaa1d7161385a0979cebb6d24329091bd19a58e5949015a84161ba"
+}

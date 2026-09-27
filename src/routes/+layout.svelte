@@ -49,6 +49,7 @@
 		{ href: '/music', label: 'Music' },
 		{ href: '/making', label: 'Making' },
 		{ href: '/signal-boosts', label: 'Signal Boosts' },
+		{ href: '/projects', label: 'Projects' },
 		{ href: '/cv', label: 'CV' },
 		{ href: '/about', label: 'About' },
 	];
@@ -131,21 +132,20 @@
 			<AppBar.Headline></AppBar.Headline>
 			<AppBar.Trail>
 				<nav class="hidden md:flex items-center gap-3 text-sm">
-						{#each navLinks as { href, label } (href)}
-							<a
-								{href}
-								class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
-								aria-label={label}
-								>{label}</a
-							>
-						{/each}
+					{#each navLinks as { href, label } (href)}
 						<a
-							href="https://github.com/Jesssullivan"
-							class="hover:text-primary-500 transition-colors"
-							target="_blank"
-							rel="noopener"
-							aria-label="GitHub profile">GitHub</a
+							{href}
+							class="hover:text-primary-500 transition-colors {isActive(href) ? 'text-primary-500 font-semibold' : ''}"
+							aria-label={label}>{label}</a
 						>
+					{/each}
+					<a
+						href="https://github.com/Jesssullivan"
+						class="hover:text-primary-500 transition-colors"
+						target="_blank"
+						rel="noopener"
+						aria-label="GitHub profile">GitHub</a
+					>
 					<ThemeSwitcher />
 				</nav>
 				<!-- Mobile drawer trigger -->
@@ -294,7 +294,7 @@
 		</div>
 	</section>
 
-	{#if $page.url.pathname.startsWith('/blog')}
+	{#if $page.url.pathname.startsWith('/blog') || $page.url.pathname === '/projects'}
 		<main id="main-content" class="flex-1">
 			{@render children()}
 		</main>

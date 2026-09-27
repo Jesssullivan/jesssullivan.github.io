@@ -7,8 +7,15 @@ tree:
   static/profile/svg/*.svg    (from //profile:svgs, light/dark pairs)
   static/profile/img/*.png    (from //profile:images)
 
-The /about page imports facts.json at build time and shows the SVG pairs
-through ThemedImage. spear_resumes' //profile:facts is private to that
+The legacy facts and image surface remains governed by this sync.
+The /projects explorer and /about embed additionally import profile.v1.json
+as their validated last-good projection. scripts/sync-profile-v2.mts accepts
+an explicit reviewed producer release and optionally its v2 timeline SVGs;
+an explicit --legacy source copies matching generated facts and their whole
+artifact manifest after verifying claim equality with the v2 projection.
+It never fetches or edits generated claim strings. The private module pin
+and profile_synced_test remain the release authority for the legacy copy.
+spear_resumes' //profile:facts is private to that
 package and never a dependency here. The profile_synced_test below guards
 against forgetting to re-sync after a spear_resumes bump, the same way
 //static/cv:pdfs_synced_test guards the CV PDFs.
@@ -54,9 +61,9 @@ write_source_files(
 
 filegroup(
     name = "public_files",
-    # Globbed, not listed: the expected set lives in facts.json ("svgs",
-    # "images") and profile_synced_test fails on a missing or extra file.
-    srcs = ["facts.json"] + glob(["svg/*", "img/*"]),
+    # Legacy svg/img sets are guarded by profile_synced_test. The separate v2
+    # projection has a SHA-256 receipt and strict schema/semantic tests.
+    srcs = ["facts.json", "profile.v1.json", "profile.v1.provenance.json"] + glob(["svg/*", "img/*", "v2/svg/*"]),
     visibility = ["//visibility:public"],
 )
 
