@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 
 type TraceMode = 'off' | 'on' | 'retain-on-failure' | 'on-first-retry';
@@ -6,6 +7,12 @@ const chromiumExecutable =
 	process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || process.env.GF_RBE_CHROMIUM_EXECUTABLE || process.env.CHROME_BIN;
 const traceMode = parseTraceMode(process.env.PLAYWRIGHT_TRACE_MODE);
 const e2ePort = parsePort(process.env.PLAYWRIGHT_E2E_PORT);
+// Under `bazel test` the sandbox is discarded; anything worth keeping (traces,
+// screenshots, error contexts) must land in TEST_UNDECLARED_OUTPUTS_DIR so Bazel
+// zips it into bazel-testlogs/<target>/test.outputs/outputs.zip.
+const outputDir = process.env.TEST_UNDECLARED_OUTPUTS_DIR
+	? join(process.env.TEST_UNDECLARED_OUTPUTS_DIR, 'playwright')
+	: 'test-results';
 
 if (!chromiumExecutable) {
 	throw new Error(
@@ -15,6 +22,7 @@ if (!chromiumExecutable) {
 
 export default defineConfig({
 	testDir: 'e2e',
+	outputDir,
 	timeout: 30_000,
 	fullyParallel: true,
 	forbidOnly: true,
