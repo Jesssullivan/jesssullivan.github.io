@@ -1,4 +1,5 @@
 import { renderReviewedComponentsForRuntime } from './reviewedComponents';
+import { splitMarkdownFences } from './markdownFences';
 
 const BROKER_CODE_LANGUAGES = [
 	'javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json',
@@ -18,8 +19,8 @@ export function brokerCodeLanguage(info: string | undefined): (typeof BROKER_COD
 }
 
 export function hasHighlightableBrokerFence(markdown: string): boolean {
-	return [...markdown.matchAll(/^ {0,3}```([^\n]*)$/gm)]
-		.some((match) => brokerCodeLanguage(match[1]) !== null);
+	return splitMarkdownFences(markdown)
+		.some((segment) => segment.fenceInfo !== undefined && brokerCodeLanguage(segment.fenceInfo) !== null);
 }
 
 function escapeHtml(value: string): string {

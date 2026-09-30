@@ -276,6 +276,17 @@ The reviewed body remains Markdown.
 		expect(findTinylandBlogBrokerPost(validStream, 'example')?.title).toBe('Example');
 		expect(findTinylandBlogBrokerPost(validStream, 'missing')).toBeNull();
 	});
+
+	it('preserves full broker Markdown containing tilde-fenced SVX examples', async () => {
+		const contentMarkdown = '~~~svx\n<script>{notExecutable}</script>\n<InlineDisclosure label="Literal">example</InlineDisclosure>\n~~~';
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse({
+			...validStream,
+			posts: validStream.posts.map((post) => ({ ...post, contentMarkdown })),
+		}));
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(
+			expect.objectContaining({ posts: [expect.objectContaining({ contentMarkdown })] }),
+		);
+	});
 });
 
 describe('mergeBrokerPostsIntoStatic', () => {

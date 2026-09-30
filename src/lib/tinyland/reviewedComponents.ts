@@ -1,3 +1,5 @@
+import { splitMarkdownFences } from './markdownFences';
+
 /**
  * Portable, reviewed interactive-document syntax.
  *
@@ -52,7 +54,10 @@ function parseInlineDisclosureProps(raw: string): InlineDisclosureProps {
 function documentSurface(markdown: string): string {
 	// Code examples are data, including examples that contain import statements
 	// or script tags. Only document prose/SVX surface is executable.
-	return markdown.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '');
+	return splitMarkdownFences(markdown)
+		.map((segment) => segment.fenceInfo !== undefined ? '\n' : segment.markdown)
+		.join('')
+		.replace(/`[^`]*`/g, '');
 }
 
 /** Validate the content without changing it. Used before broker data is displayed. */
@@ -129,7 +134,7 @@ function escapeHtml(value: string): string {
  */
 export function renderReviewedComponentsForRuntime(markdown: string): string {
 	validateReviewedComponentMarkdown(markdown);
-	// The validator removes triple fences before single-backtick spans. Keep
+	// The validator removes Markdown fences before single-backtick spans. Keep
 	// that order: a preceding inline tick must not consume a fence delimiter.
 	// Within non-fenced text, an exact multi-backtick span or a v1 single span
 	// stays literal. A real opening tag wins before backticks in its quoted label.
@@ -137,8 +142,8 @@ export function renderReviewedComponentsForRuntime(markdown: string): string {
 	// validator's accepted grammar or its static import bookkeeping.
 	const tokens = /(?<!`)(`{2,})(?!`)[\s\S]*?(?<!`)\1(?!`)|`[^`]*`|<InlineDisclosure\s+([^>]*?)>|<\/InlineDisclosure\s*>/g;
 	let rendered = '';
-	for (const [index, segment] of markdown.split(/(```[\s\S]*?```)/).entries()) {
-		if (index % 2 === 1) {
+	for (const { markdown: segment, fenceInfo } of splitMarkdownFences(markdown)) {
+		if (fenceInfo !== undefined) {
 			rendered += segment;
 			continue;
 		}

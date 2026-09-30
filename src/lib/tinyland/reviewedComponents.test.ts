@@ -46,6 +46,35 @@ describe('reviewed interactive SVX components', () => {
 		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
 	});
 
+	it.each(['~~~', '~~~~', '````', '  ~~~'])('keeps %s code fences literal in static and runtime projections', (fence) => {
+		const example = `${fence}svx\n<InlineDisclosure label="Literal">{notExecutable}</InlineDisclosure>\n${fence}`;
+		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('does not close a longer fence with a shorter or different marker', () => {
+		const example = '~~~~svx\n~~~\n```\n<script>{notExecutable}</script>\n~~~~';
+		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('keeps an unclosed fence literal through EOF but rejects executable prose after a closed fence', () => {
+		const example = '~~~svx\n<InlineDisclosure label="Literal">{notExecutable}';
+		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+		expect(() => validateReviewedComponentMarkdown('~~~text\nsafe example\n~~~\n<script>danger</script>'))
+			.toThrow('raw HTML or unknown components');
+	});
+
+	it('only imports and transforms the real disclosure alongside a tilde-fenced example', () => {
+		const literal = '~~~svx\n<InlineDisclosure label="Example">{notExecutable}</InlineDisclosure>\n~~~\n';
+		const real = '<InlineDisclosure label="Real">Body</InlineDisclosure>';
+		expect(compileReviewedComponentMarkdown(literal + real).imports).toEqual(['InlineDisclosure']);
+		expect(renderReviewedComponentsForRuntime(literal + real)).toBe(
+			literal + '<details data-reviewed-component="InlineDisclosure" open><summary>Real</summary>Body</details>',
+		);
+	});
+
 	it('masks a fence before an earlier inline tick can consume its delimiter', () => {
 		const example = '`prefix\n```svx\n<InlineDisclosure label="Example">body</InlineDisclosure>\n```\nsuffix`';
 		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });

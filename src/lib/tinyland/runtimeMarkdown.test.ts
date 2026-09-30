@@ -19,4 +19,11 @@ describe('broker-only article code fences', () => {
 		expect(hasHighlightableBrokerFence('```mermaid\ngraph TD\n```')).toBe(false);
 		expect(hasHighlightableBrokerFence('Here is `ts` inline.')).toBe(false);
 	});
+
+	it('recognizes tilde and longer fences without treating their contents as new openings', () => {
+		expect(hasHighlightableBrokerFence('~~~ts\nconst x = 1;\n~~~')).toBe(true);
+		expect(hasHighlightableBrokerFence('````python\nprint(1)\n````')).toBe(true);
+		expect(hasHighlightableBrokerFence('~~~text\n```ts\nconst x = 1;\n```\n~~~')).toBe(false);
+		expect(hasHighlightableBrokerFence('Inline ```ts is not a fence.')).toBe(false);
+	});
 });
