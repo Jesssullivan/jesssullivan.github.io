@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type BrowserContext } from '@playwright/test';
 import { reviewedLeadImageSnapshot } from '../src/lib/pulse/fixtures/reviewedLeadImageSnapshot';
 
 const endpoint = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
@@ -80,7 +80,81 @@ const brokerStream = {
 	projectionTombstones: [],
 };
 
+async function confineToLocalOrigin(context: BrowserContext, baseURL: string | undefined) {
+	if (!baseURL) throw new Error('document-root diagnostics require an explicit loopback baseURL');
+	const local = new URL(baseURL);
+	if (local.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(local.hostname) || local.username || local.password) {
+		throw new Error('document-root diagnostics may run only against an HTTP loopback origin');
+	}
+	await context.route('**/*', async (route) => {
+		const request = route.request();
+		const url = new URL(request.url());
+		if (url.origin === local.origin && !url.username && !url.password && ['GET', 'HEAD'].includes(request.method())) {
+			// Route handlers are not re-run for followed redirects. Fetch exactly
+			// one hop and reject redirects before a local URL can escape to prod.
+			const response = await route.fetch({ maxRedirects: 0, timeout: 20_000 });
+			if (response.status() >= 300 && response.status() < 400) {
+				await route.abort('blockedbyclient');
+			} else {
+				await route.fulfill({ response });
+			}
+		} else {
+			// Specific page-level broker/media fixtures take precedence. Everything
+			// else stays local: no production, live broker, comments or AP traffic.
+			await route.abort('blockedbyclient');
+		}
+	});
+}
+
+test.beforeEach(async ({ context, baseURL }) => {
+	await confineToLocalOrigin(context, baseURL);
+});
+
 test.describe('Blog document root enhancements', () => {
+	test('keeps fenced SVX examples literal beside a reviewed runtime disclosure', async ({ page }) => {
+		const contentMarkdown = [
+			'## Literal examples',
+			'',
+			'~~~svx',
+			'<script>window.fencedSvxExecuted = true;</script>',
+			'<InlineDisclosure label="Tilde literal">{notExecutable}</InlineDisclosure>',
+			'~~~',
+			'',
+			'````svx',
+			'```',
+			'<InlineDisclosure label="Long fence literal">example</InlineDisclosure>',
+			'````',
+			'',
+			'<InlineDisclosure label="Reviewed runtime disclosure" defaultOpen={true}>',
+			'',
+			'This reviewed body remains readable.',
+			'',
+			'</InlineDisclosure>',
+		].join('\n');
+		await page.route(endpoint, async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify({
+					...brokerStream,
+					posts: brokerStream.posts.map((post) => ({ ...post, contentMarkdown })),
+				}),
+			});
+		});
+		await page.goto(`/blog/${brokerSlug}`);
+		await expect(page.getByTestId('tinyland-blog-post-broker-state')).toContainText('loaded');
+		const root = page.locator('[data-document-root]');
+		await expect(root.locator('pre code')).toHaveCount(2);
+		await expect(root.locator('pre code').first()).toContainText('<script>window.fencedSvxExecuted = true;</script>');
+		await expect(root.locator('pre code').first()).toContainText('<InlineDisclosure label="Tilde literal">');
+		await expect(root.locator('pre code').last()).toContainText('<InlineDisclosure label="Long fence literal">');
+		await expect(root.locator('details[data-reviewed-component="InlineDisclosure"]')).toHaveCount(1);
+		await expect(root.locator('summary')).toHaveText('Reviewed runtime disclosure');
+		await expect(root).toContainText('This reviewed body remains readable.');
+		await expect(root.locator('script')).toHaveCount(0);
+		expect(await page.evaluate(() => Object.hasOwn(window, 'fencedSvxExecuted'))).toBe(false);
+	});
+
 	test('keeps static headings, controls, and TOC inside its article root', async ({ page }) => {
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto('/blog/from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life');
@@ -147,6 +221,7 @@ test.describe('Homepage public reader enhancement', () => {
 			baseURL: test.info().project.use.baseURL,
 		});
 		try {
+			await confineToLocalOrigin(context, test.info().project.use.baseURL);
 			const page = await context.newPage();
 			await page.goto('/');
 			await expect(page.locator('#latest a[href^="/blog/"]').first()).toBeVisible();

@@ -10,7 +10,9 @@ export function splitMarkdownFences(markdown: string): MarkdownFenceSegment[] {
 	let offset = 0;
 	let proseStart = 0;
 	let fence: { start: number; marker: string; length: number; info: string } | undefined;
-	for (const line of markdown.match(/[^\n]*\n|[^\n]+$/g) ?? []) {
+	// Preserve original CR/LF/CRLF bytes and offsets. mdsvex treats bare CR as
+	// a line ending too, so LF-only splitting could hide subsequent executable SVX.
+	for (const line of markdown.match(/[^\r\n]*(?:\r\n|\r|\n)|[^\r\n]+$/g) ?? []) {
 		if (fence) {
 			const close = line.match(/^ {0,3}(`{3,}|~{3,})[\t ]*\r?\n?$/);
 			if (close && close[1][0] === fence.marker && close[1].length >= fence.length) {
