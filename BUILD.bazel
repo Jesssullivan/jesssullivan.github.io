@@ -33,6 +33,9 @@ filegroup(
         "vitest.config.ts",
         "//packages/pulse-client:srcs",
         "//packages/pulse-core:srcs",
+        # src/lib/profile and the map tests read the committed profile.v1
+        # copy; static/profile is its own package.
+        "//static/profile:public_files",
     ],
 )
 

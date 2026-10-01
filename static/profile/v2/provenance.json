@@ -1,0 +1,29 @@
+{
+	"source": "spear_resumes profile/out-v2",
+	"source_commit": "0d0de7ed43a19133169420f25050ebf5a8f9d704",
+	"note": "copied by hand: spear main has no public v2 filegroup yet; held charts (manifest held=true) are not copied",
+	"files": {
+		"profile.v1.json": "f8a73a4de8668f0a709e663cde5dc48f932c1dd52e5530c975388da3c0e08d06",
+		"manifest.json": "2cdb8dc7744b2d2734db7189d8cf677144c70e815bbe091798a57366152b7d27",
+		"svg/activity-rhythm-compact-dark.svg": "af4f6b9e69e7102f1c27e59299bf4c17ae33ecb259e66a3e45405e1843101924",
+		"svg/activity-rhythm-compact-light.svg": "56f9d8dbcd0d0d87387f80c55b506f45e7e9793225d25b051d56d78efdd6b0ae",
+		"svg/activity-rhythm-dark.svg": "39b512aad4144eea7803f59050b56dd27efa63616193f51694232d714797996d",
+		"svg/activity-rhythm-light.svg": "4371b8d65af325680c93859174bf351adfa5b4516d7d0e759de107395b5ae832",
+		"svg/header-compact-dark.svg": "5d6ec5dcb5b4156152bcb9dfbbaa6aa558cdf12f25217787e5fdef1c5cf07612",
+		"svg/header-compact-light.svg": "07ecf70d5c3e9a357e477f87c1992ef52ea3c88545d3dbbb945e37d216569777",
+		"svg/header-dark.svg": "6b45095854e5b0a4bbb3852b7853873e293d9496f8b1836952ceefeeca249c19",
+		"svg/header-light.svg": "b9cba338ca0a7ccb1aee51054097558e5cd4c41cd2bcbf6a65ee48883541aa04",
+		"svg/project-map-compact-dark.svg": "742b7c2c12bd55d9668cbf34857f8a0f29f4526b4cddd20a70eb844daa5fb3bc",
+		"svg/project-map-compact-light.svg": "765137f608668c1203733553f4e9c1725baf1e0901b4f5ff697a12a45db6521e",
+		"svg/project-map-dark.svg": "52786edfce61357df71446db1e7430e1c9e3782308dee5e5a0a4c510454ab94c",
+		"svg/project-map-light.svg": "cf3ed47e80244c2a11e73d46c81bac5ca3890b19663b84af48d845a3eb5f83f0",
+		"svg/timeline-compact-dark.svg": "7c18d3786ee25fd9f05a8d576ccd873a5f6f9f6a154e5b1e5470a287fb4a292e",
+		"svg/timeline-compact-light.svg": "9c5cbdecd2c12c907bda199d5ce9ec4780eb4971bf8e0f5c18e61945df8498b6",
+		"svg/timeline-dark.svg": "9dad53d00e62f4c3d27bf40c723cea2d8f46aea32c095b414818256b508a396c",
+		"svg/timeline-light.svg": "09e036016aecaf56117789f70c5e5f2ea97802a6f53bae649e483b64ab8d5dbf",
+		"svg/upstream-ribbon-compact-dark.svg": "72766ebb16d896a55425b4042492c70bd49db489176cf58f766c05b7376383ff",
+		"svg/upstream-ribbon-compact-light.svg": "7ef57926c980168264ec56484f47bd781a06f1d4818665480ec8b5368235b789",
+		"svg/upstream-ribbon-dark.svg": "4d053093f01a17aa9731111f50e44baa21269ef00212630dfb0f0f75de0e2d57",
+		"svg/upstream-ribbon-light.svg": "17785669a41cf144d0111c7e9226e32ee5d23eedf79a8bc3c1c07a6a68357de2"
+	}
+}

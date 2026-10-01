@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 477" width="390" height="477" role="img" aria-labelledby="upstream-dark-390-title" aria-describedby="upstream-dark-390-desc"><title id="upstream-dark-390-title">Merged upstream work</title><desc id="upstream-dark-390-desc">Independent external projects with verified merged pull requests. Every project is marked once at its exact latest-merge date on one horizontal axis. Fixed-size circles and diamonds distinguish contributor and committer relationships. Vertical offsets only separate overlapping marks and annotations. Selected labels keep the diagram legible; the linked table contains every project and date. The horizontal axis encodes recency; contribution depth is not measured. The newest merge mark may pulse briefly; the static chart is complete without motion.</desc><style>text{font-variant-numeric:tabular-nums}@keyframes ribbon-pulse{0%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(3.2)}}.ribbon-pulse{opacity:0;transform-box:fill-box;transform-origin:center;animation:ribbon-pulse 1.8s ease-out .6s 3}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><rect x=".5" y=".5" width="389" height="476" fill="#020103" stroke="#2b2730"/><text x="20" y="43" font-size="24" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="600" fill="#ff767f" text-anchor="start">Merged upstream work</text>
+<text x="20" y="69" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">Latest verified merge per external project.</text>
+<line x1="20" y1="89" x2="370" y2="89" stroke="#2b2730"/>
+<line x1="20" y1="213" x2="370" y2="213" stroke="#a19ba9" data-date-axis="true"/>
+<line x1="20" y1="227" x2="20" y2="233" stroke="#a19ba9"/>
+<text x="20" y="252" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#c0bbc7" text-anchor="start">2021</text>
+<line x1="136.613" y1="227" x2="136.613" y2="233" stroke="#a19ba9"/>
+<text x="136.613" y="252" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#c0bbc7" text-anchor="start">2023</text>
+<line x1="253.387" y1="227" x2="253.387" y2="233" stroke="#a19ba9"/>
+<text x="253.387" y="252" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#c0bbc7" text-anchor="start">2025</text>
+<line x1="311.693" y1="227" x2="311.693" y2="233" stroke="#a19ba9"/>
+<text x="311.693" y="252" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#c0bbc7" text-anchor="start">2026</text>
+<line x1="24.473" y1="207" x2="24.473" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="354.345" y1="207" x2="354.345" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="314.089" y1="219" x2="296.089" y2="275" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="150.351" y1="207" x2="150.351" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="273.195" y1="207" x2="255.195" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
+<g data-project="indutny/fft.js" data-merged="2021-01-29" data-relation="contributor" data-x="24.473" data-y="213"><title>FFT.js: 2021-01-29; contributor</title>
+<line x1="24.473" y1="209" x2="24.473" y2="217" stroke="#f5184c"/>
+<circle cx="24.473" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="laurent22/joplin" data-merged="2021-03-15" data-relation="contributor" data-x="31.661" data-y="201"><title>Joplin: 2021-03-15; contributor</title>
+<line x1="31.661" y1="209" x2="31.661" y2="217" stroke="#f5184c"/>
+<line x1="31.661" y1="213" x2="31.661" y2="201" stroke="#a19ba9"/>
+<circle cx="31.661" cy="201" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="visipedia/visipedia.github.io" data-merged="2021-04-23" data-relation="contributor" data-x="37.891" data-y="213"><title>Visipedia website: 2021-04-23; contributor</title>
+<line x1="37.891" y1="209" x2="37.891" y2="217" stroke="#f5184c"/>
+<circle cx="37.891" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="Klipper3d/klipper" data-merged="2023-03-28" data-relation="contributor" data-x="150.351" data-y="213"><title>Klipper: 2023-03-28; contributor</title>
+<line x1="150.351" y1="209" x2="150.351" y2="217" stroke="#f5184c"/>
+<circle cx="150.351" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="caddyserver/xcaddy" data-merged="2025-05-05" data-relation="contributor" data-x="273.195" data-y="213"><title>xCaddy: 2025-05-05; contributor</title>
+<line x1="273.195" y1="209" x2="273.195" y2="217" stroke="#f5184c"/>
+<circle cx="273.195" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="chapel-lang/mason-registry" data-merged="2026-01-16" data-relation="committer" data-x="314.089" data-y="213"><title>Chapel Mason registry: 2026-01-16; committer</title>
+<line x1="314.089" y1="209" x2="314.089" y2="217" stroke="#f5184c"/>
+<path d="M314.089 208l5 5l-5 5l-5 -5Z" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="diku-dk/futhark" data-merged="2026-02-10" data-relation="contributor" data-x="318.083" data-y="201"><title>Futhark: 2026-02-10; contributor</title>
+<line x1="318.083" y1="209" x2="318.083" y2="217" stroke="#f5184c"/>
+<line x1="318.083" y1="213" x2="318.083" y2="201" stroke="#a19ba9"/>
+<circle cx="318.083" cy="201" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="ciscoheat/sveltekit-superforms" data-merged="2026-02-22" data-relation="contributor" data-x="320" data-y="225"><title>svelte-superforms: 2026-02-22; contributor</title>
+<line x1="320" y1="209" x2="320" y2="217" stroke="#f5184c"/>
+<line x1="320" y1="213" x2="320" y2="225" stroke="#a19ba9"/>
+<circle cx="320" cy="225" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="rspamd/rspamd" data-merged="2026-03-09" data-relation="committer" data-x="322.396" data-y="189"><title>rspamd: 2026-03-09; committer</title>
+<line x1="322.396" y1="209" x2="322.396" y2="217" stroke="#f5184c"/>
+<line x1="322.396" y1="213" x2="322.396" y2="189" stroke="#a19ba9"/>
+<path d="M322.396 184l5 5l-5 5l-5 -5Z" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="manaflow-ai/cmux" data-merged="2026-03-21" data-relation="contributor" data-x="324.313" data-y="237"><title>cmux: 2026-03-21; contributor</title>
+<line x1="324.313" y1="209" x2="324.313" y2="217" stroke="#f5184c"/>
+<line x1="324.313" y1="213" x2="324.313" y2="237" stroke="#a19ba9"/>
+<circle cx="324.313" cy="237" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="numtide/nix-vm-test" data-merged="2026-04-22" data-relation="contributor" data-x="329.425" data-y="213"><title>numtide/nix-vm-test: 2026-04-22; contributor</title>
+<line x1="329.425" y1="209" x2="329.425" y2="217" stroke="#f5184c"/>
+<circle cx="329.425" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="shikijs/textmate-grammars-themes" data-merged="2026-05-19" data-relation="contributor" data-x="333.738" data-y="201"><title>ShikiJS textmate-grammars-themes: 2026-05-19; contributor</title>
+<line x1="333.738" y1="209" x2="333.738" y2="217" stroke="#f5184c"/>
+<line x1="333.738" y1="213" x2="333.738" y2="201" stroke="#a19ba9"/>
+<circle cx="333.738" cy="201" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="keepassxreboot/keepassxc" data-merged="2026-05-27" data-relation="committer" data-x="335.016" data-y="225"><title>KeePassXC: 2026-05-27; committer</title>
+<line x1="335.016" y1="209" x2="335.016" y2="217" stroke="#f5184c"/>
+<line x1="335.016" y1="213" x2="335.016" y2="225" stroke="#a19ba9"/>
+<path d="M335.016 220l5 5l-5 5l-5 -5Z" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="NixOS/nixpkgs" data-merged="2026-06-04" data-relation="contributor" data-x="336.294" data-y="189"><title>nixpkgs: 2026-06-04; contributor</title>
+<line x1="336.294" y1="209" x2="336.294" y2="217" stroke="#f5184c"/>
+<line x1="336.294" y1="213" x2="336.294" y2="189" stroke="#a19ba9"/>
+<circle cx="336.294" cy="189" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g data-project="ggml-org/llama.cpp" data-merged="2026-09-25" data-relation="contributor" data-x="354.345" data-y="213" data-newest="true"><title>llama.cpp: 2026-09-25; contributor; newest merge</title>
+<line x1="354.345" y1="209" x2="354.345" y2="217" stroke="#f5184c"/>
+<circle cx="354.345" cy="213" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+</g>
+<g aria-hidden="true">
+<circle class="ribbon-pulse" data-pulse="ggml-org/llama.cpp" cx="354.345" cy="213" r="5" fill="none" stroke="#f5184c" stroke-width="1.5"/>
+</g>
+<g data-annotation="indutny/fft.js">
+<text x="20" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">FFT.js</text>
+</g>
+<g data-annotation="ggml-org/llama.cpp">
+<text x="300.28" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">llama.cpp</text>
+</g>
+<g data-annotation="chapel-lang/mason-registry">
+<text x="195.289" y="289" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">Chapel Mason</text>
+<text x="195.289" y="307" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">registry</text>
+</g>
+<g data-annotation="Klipper3d/klipper">
+<text x="125.291" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">Klipper</text>
+</g>
+<g data-annotation="caddyserver/xcaddy">
+<text x="202.275" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">xCaddy</text>
+</g>
+<circle cx="24" cy="347" r="4" fill="#f5184c" stroke="#f7f3fc"/>
+<text x="37" y="351" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">Contributor</text>
+<path d="M170 342l5 5l-5 5l-5 -5Z" fill="#f5184c" stroke="#f7f3fc"/>
+<text x="183" y="351" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">Committer</text>
+<line x1="20" y1="383" x2="370" y2="383" stroke="#2b2730"/>
+<text x="20" y="399" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">Every project is marked; selected names are</text>
+<text x="20" y="419" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">annotated.</text>
+<text x="20" y="439" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#c0bbc7" text-anchor="start">Full project and date table follows the chart link.</text></svg>

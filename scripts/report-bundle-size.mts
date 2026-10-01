@@ -5,7 +5,8 @@
  * Outputs a summary table and optionally writes JSON for tracking.
  */
 
-import { readdirSync, statSync, writeFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
+import { gzipSync } from 'zlib';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
 import type { BundleChunk, BundleReport } from './lib/types.mts';
@@ -103,4 +104,93 @@ if (process.argv.includes('--json')) {
 	const outPath = join(__dirname, '..', 'bundle-report.json');
 	writeFileSync(outPath, JSON.stringify(report, null, 2));
 	console.log(`JSON report written to bundle-report.json`);
+}
+
+// ---------------------------------------------------------------------------
+// Profile map budget (Appendix A, workstream C): the interactive map engine
+// (mapScene, the WebGL2/2D layers, theme tokens and the d3-zoom/selection/
+// delaunay/polygon code they pull in) is dynamically imported by
+// ProjectMap.svelte on mount. Its chunks must stay within 45 KB gzipped and
+// must never be reachable from the root layout or the app entry.
+
+const MAP_BUDGET_GZ = 45 * 1024;
+const ENGINE_SOURCES = [
+	'src/lib/components/profile-map/mapScene.ts',
+	'src/lib/components/profile-map/glLayer.ts',
+	'src/lib/components/profile-map/canvasLayer.ts',
+	'src/lib/components/profile-map/themeTokens.ts',
+];
+const ENGINE_PACKAGES = /node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?(d3-zoom|d3-selection)\//;
+
+interface ManifestChunk {
+	file: string;
+	src?: string;
+	isEntry?: boolean;
+	isDynamicEntry?: boolean;
+	imports?: string[];
+	dynamicImports?: string[];
+}
+
+function staticClosure(manifest: Record<string, ManifestChunk>, roots: string[]): Set<string> {
+	const seen = new Set<string>();
+	const stack = [...roots];
+	while (stack.length) {
+		const key = stack.pop()!;
+		if (seen.has(key) || !manifest[key]) continue;
+		seen.add(key);
+		stack.push(...(manifest[key].imports ?? []));
+	}
+	return seen;
+}
+
+function checkProfileMapBudget(): number {
+	const manifestPath = join(__dirname, '..', '.svelte-kit', 'output', 'client', '.vite', 'manifest.json');
+	if (!existsSync(manifestPath)) {
+		console.log('Profile map budget: SKIPPED (no Vite client manifest; run the build first)');
+		return 0;
+	}
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, ManifestChunk>;
+	const keys = Object.keys(manifest);
+	const engineRoots = keys.filter(
+		(k) => manifest[k].isDynamicEntry && (ENGINE_SOURCES.some((s) => k.endsWith(s)) || ENGINE_PACKAGES.test(k)),
+	);
+	const missing = ENGINE_SOURCES.filter((s) => !engineRoots.some((k) => k.endsWith(s)));
+	let failures = 0;
+	if (missing.length) {
+		console.log(`Profile map budget: FAIL, not dynamically imported: ${missing.join(', ')}`);
+		failures++;
+	}
+
+	const layoutRoots = keys.filter((k) => manifest[k].isEntry || /nodes\/0\.js$/.test(k));
+	const layoutClosure = staticClosure(manifest, layoutRoots);
+	// Route chunks that statically include ProjectMap (the /about and /projects nodes).
+	const routeRoots = keys.filter((k) => /nodes\/\d+\.js$/.test(k) && !/nodes\/0\.js$/.test(k));
+	const routeClosure = staticClosure(manifest, routeRoots);
+	const engineClosure = staticClosure(manifest, engineRoots);
+
+	const leaked = [...engineClosure].filter((k) => layoutClosure.has(k) && engineRoots.includes(k));
+	if (leaked.length) {
+		console.log(`Profile map budget: FAIL, engine chunks reachable from the layout entry: ${leaked.join(', ')}`);
+		failures++;
+	}
+
+	// Cost of opening the map: engine chunks not already loaded by a route.
+	const own = [...engineClosure].filter((k) => !routeClosure.has(k) && !layoutClosure.has(k));
+	let gz = 0;
+	console.log('Profile map engine chunks (dynamic, gzipped):');
+	for (const k of own) {
+		const file = join(buildDir, manifest[k].file);
+		const size = existsSync(file) ? gzipSync(readFileSync(file), { level: 9 }).length : 0;
+		gz += size;
+		console.log(`  ${formatBytes(size).padStart(10)}  ${manifest[k].file}  (${k})`);
+	}
+	const verdict = gz <= MAP_BUDGET_GZ ? 'OK' : 'FAIL';
+	console.log(`Profile map budget: ${verdict} ${formatBytes(gz)} gzipped of ${formatBytes(MAP_BUDGET_GZ)}`);
+	if (gz > MAP_BUDGET_GZ) failures++;
+	return failures;
+}
+
+console.log();
+if (checkProfileMapBudget() > 0) {
+	process.exitCode = 1;
 }

@@ -1,0 +1,59 @@
+{
+  "charts": {
+    "activity-rhythm": {
+      "files": [
+        "svg/activity-rhythm-compact-dark.svg",
+        "svg/activity-rhythm-compact-light.svg",
+        "svg/activity-rhythm-dark.svg",
+        "svg/activity-rhythm-light.svg"
+      ],
+      "held": false
+    },
+    "header": {
+      "files": [
+        "svg/header-compact-dark.svg",
+        "svg/header-compact-light.svg",
+        "svg/header-dark.svg",
+        "svg/header-light.svg"
+      ],
+      "held": false
+    },
+    "language-heatmap": {
+      "files": [
+        "held/svg/language-heatmap-compact-dark.svg",
+        "held/svg/language-heatmap-compact-light.svg",
+        "held/svg/language-heatmap-dark.svg",
+        "held/svg/language-heatmap-light.svg"
+      ],
+      "held": true,
+      "reason": "R111 (per Jess, 2026-10-01): held from the README, org and blog outputs until observed language history covers an agreed 12-month span"
+    },
+    "project-map": {
+      "files": [
+        "svg/project-map-compact-dark.svg",
+        "svg/project-map-compact-light.svg",
+        "svg/project-map-dark.svg",
+        "svg/project-map-light.svg"
+      ],
+      "held": false
+    },
+    "timeline": {
+      "files": [
+        "svg/timeline-compact-dark.svg",
+        "svg/timeline-compact-light.svg",
+        "svg/timeline-dark.svg",
+        "svg/timeline-light.svg"
+      ],
+      "held": false
+    },
+    "upstream-ribbon": {
+      "files": [
+        "svg/upstream-ribbon-compact-dark.svg",
+        "svg/upstream-ribbon-compact-light.svg",
+        "svg/upstream-ribbon-dark.svg",
+        "svg/upstream-ribbon-light.svg"
+      ],
+      "held": false
+    }
+  }
+}

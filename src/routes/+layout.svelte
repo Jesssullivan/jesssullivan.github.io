@@ -294,7 +294,8 @@
 		</div>
 	</section>
 
-	{#if $page.url.pathname.startsWith('/blog')}
+	{#if $page.url.pathname.startsWith('/blog') || $page.url.pathname.replace(/\/$/, '') === '/projects'}
+		<!-- /projects is full-bleed (no profile sidebar): the map takes the width. -->
 		<main id="main-content" class="flex-1">
 			{@render children()}
 		</main>
