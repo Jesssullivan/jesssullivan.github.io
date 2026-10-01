@@ -17,6 +17,8 @@ filegroup(
             "scripts/**/*.mts",
             "scripts/**/*.mjs",
             "src/posts/**/*.md",
+            # The map palette test reads the theme stage colours (R141).
+            "src/lib/styles/themes/*.css",
             "static/data/**",
         ],
         allow_empty = True,

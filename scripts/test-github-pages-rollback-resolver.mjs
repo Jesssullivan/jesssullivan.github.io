@@ -124,6 +124,36 @@ await assert.rejects(
 	/No successful private-cv-authority commit status found/,
 );
 await assert.rejects(
+	() => runResolver({ cvStatuses: { [sourceSha]: [cvStatus({ state: 'failure' })] } }),
+	/No successful private-cv-authority commit status found/,
+);
+await assert.rejects(
+	() =>
+		runResolver({
+			cvStatuses: {
+				[sourceSha]: [
+					cvStatus(),
+					cvStatus({ state: 'failure', created_at: '2026-10-01T13:00:00Z', updated_at: '2026-10-01T13:00:00Z' }),
+				],
+			},
+		}),
+	/No successful private-cv-authority commit status found/,
+);
+assert.equal(
+	(
+		await runResolver({
+			cvStatuses: {
+				[sourceSha]: [
+					cvStatus({ state: 'failure' }),
+					cvStatus({ created_at: '2026-10-01T13:00:00Z', updated_at: '2026-10-01T13:00:00Z' }),
+				],
+			},
+		})
+	).source_sha,
+	sourceSha,
+	'rollback: a newer success wins over an older failure',
+);
+await assert.rejects(
 	() => runResolver({ cvStatuses: { [sourceSha]: [cvStatus({ creator: { login: 'someone-else' } })] } }),
 	/was not posted by Jesssullivan/,
 );

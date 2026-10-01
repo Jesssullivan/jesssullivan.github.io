@@ -22,7 +22,8 @@ bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 # repo (sensitive STR-variant content) so it is pinned via git_override. These
 # are root-only development dependencies: public PR/GF commands pass
 # --ignore_dev_dependency and cannot resolve the private repository. The
-# default local command and trusted private-CV workflow retain the full graph.
+# default local command (including `npm run cv:authority`, R163) retains the
+# full graph.
 bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)
 bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)
 

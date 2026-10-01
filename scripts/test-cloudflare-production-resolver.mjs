@@ -53,6 +53,7 @@ async function runFixture({
 	runs = [canonicalRun()],
 	// R163: the private CV authority is a commit status on the exact SHA.
 	cvStatuses = { [sourceSha]: [cvStatus()] },
+	statusError = null,
 	jobs = authorityJobs(),
 	mainSha = sourceSha,
 	manualSha = sourceSha,
@@ -65,7 +66,10 @@ async function runFixture({
 	const listWorkflowRuns = async () => ({
 		data: { workflow_runs: runs.map((run) => ({ status: 'completed', ...run })) },
 	});
-	const listCommitStatusesForRef = async (args) => ({ data: cvStatuses[args.ref] ?? [] });
+	const listCommitStatusesForRef = async (args) => {
+		if (statusError) throw statusError;
+		return { data: cvStatuses[args.ref] ?? [] };
+	};
 	const github = {
 		rest: {
 			actions: { listJobsForWorkflowRun, listWorkflowRuns },
@@ -223,6 +227,37 @@ await rejects(
 		},
 	},
 	/Private CV authority status is error/,
+);
+await rejects(
+	'a pending private CV authority status that never resolves times out closed',
+	{ eventName: 'repository_dispatch', cvStatuses: { [sourceSha]: [cvStatus({ state: 'pending' })] } },
+	/No successful private-cv-authority commit status for exact SHA .* within twenty minutes/,
+);
+assert.equal(
+	(
+		await runFixture({
+			eventName: 'repository_dispatch',
+			productionEnabled: 'true',
+			cvStatuses: {
+				[sourceSha]: [
+					cvStatus({ state: 'failure' }),
+					cvStatus({ created_at: '2026-10-01T14:00:00Z', updated_at: '2026-10-01T14:00:00Z' }),
+				],
+			},
+		})
+	).deploy,
+	'true',
+	'a newer success recovers an older failed private CV authority status',
+);
+await rejects(
+	'the workflow_run path also requires the private CV authority status',
+	{ eventName: 'workflow_run', cvStatuses: {} },
+	/No successful private-cv-authority commit status for exact SHA/,
+);
+await rejects(
+	'a commit-status API error fails closed',
+	{ eventName: 'repository_dispatch', statusError: new Error('statuses API unavailable') },
+	/statuses API unavailable/,
 );
 await rejects(
 	'a private CV authority status from anyone but the owner fails closed',

@@ -984,22 +984,24 @@
 	/*
 	 * Category colours (R141, per Jess 2026-10-01): independent of the site
 	 * theme. Eight fixed, hue-distinct tokens in the producer's category
-	 * order, one variant per colour mode. Picked for colour-vision
-	 * deficiency: every pair stays apart under simulated deuteranopia and
-	 * protanopia (min OKLab distance 0.069 light, 0.087 dark), and each
-	 * clears 3:1 against the light map background and 5.8:1 against the
-	 * dark one. Shape is the second channel (shapes.ts, matching the README
-	 * SVG), so colour is never the only cue.
+	 * order, one variant per colour mode. The stage background does follow
+	 * the theme (surface-50 light, surface-950 dark), so every slot is
+	 * checked against all five themes: min WCAG contrast 3.53:1 light (pine
+	 * is the darkest light stage) and 5.52:1 dark (projectMapPalette.test.ts
+	 * fails under 3:1). Colour-vision deficiency: min OKLab distance between
+	 * any two slots under simulated deuteranopia, protanopia and tritanopia
+	 * is 0.061 light, 0.067 dark. Shape is the second channel (shapes.ts,
+	 * matching the README SVG), so colour is never the only cue.
 	 */
 	.pm {
-		--pm-cat-0: #0a8fd1; /* blue, applied-ml */
-		--pm-cat-1: #803200; /* vermillion, kernel-security */
-		--pm-cat-2: #095b41; /* green, compilers-hpc */
-		--pm-cat-3: #b9649f; /* magenta, systems */
-		--pm-cat-4: #a87f09; /* amber, build-infra */
-		--pm-cat-5: #572e9d; /* violet, sdlc-automation */
-		--pm-cat-6: #677008; /* olive, web-product */
-		--pm-cat-7: #b7535e; /* rose, gis-fabrication */
+		--pm-cat-0: #1178a5; /* blue, applied-ml */
+		--pm-cat-1: #5e2402; /* vermillion, kernel-security */
+		--pm-cat-2: #2b7351; /* green, compilers-hpc */
+		--pm-cat-3: #9b5084; /* magenta, systems */
+		--pm-cat-4: #794d0b; /* amber, build-infra */
+		--pm-cat-5: #3e0d8b; /* violet, sdlc-automation */
+		--pm-cat-6: #737409; /* olive, web-product */
+		--pm-cat-7: #7c0438; /* rose, gis-fabrication */
 		--pm-bg: var(--color-surface-50);
 		--pm-panel: color-mix(in oklab, var(--color-surface-50) 86%, transparent);
 		--pm-panel-solid: var(--color-surface-50);
@@ -1011,14 +1013,14 @@
 		margin: 0;
 	}
 	:global([data-mode='dark']) .pm {
-		--pm-cat-0: #32a9fe;
-		--pm-cat-1: #e56636;
-		--pm-cat-2: #76eea5;
-		--pm-cat-3: #d861aa;
-		--pm-cat-4: #e8a127;
-		--pm-cat-5: #d4c8fe;
-		--pm-cat-6: #c3e151;
-		--pm-cat-7: #fd8a8c;
+		--pm-cat-0: #b3d4ff;
+		--pm-cat-1: #eea471;
+		--pm-cat-2: #6cfcd0;
+		--pm-cat-3: #c984ba;
+		--pm-cat-4: #fed899;
+		--pm-cat-5: #b0adfe;
+		--pm-cat-6: #7ab22c;
+		--pm-cat-7: #e87782;
 		--pm-bg: var(--color-surface-950);
 		--pm-panel: color-mix(in oklab, var(--color-surface-950) 84%, transparent);
 		--pm-panel-solid: var(--color-surface-900);
