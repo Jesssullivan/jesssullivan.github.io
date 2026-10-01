@@ -25,6 +25,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      statuses: read
     outputs:
       source_sha: ${{ steps.source.outputs.source_sha }}
       ci_url: ${{ steps.source.outputs.ci_url }}
@@ -83,23 +84,24 @@ jobs:
                 throw new Error(`Required CI job ${requiredName} was missing or not successful.`);
               }
             }
-            const cvRuns = await github.paginate(github.rest.actions.listWorkflowRuns, {
+            // R163 (per Jess, 2026-10-01; TIN-5260): the private CV check is a
+            // locally posted commit status on the exact SHA (newest wins,
+            // success only, posted by the repository owner).
+            const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, {
               owner,
               repo,
-              workflow_id: "private-cv-authority-v2.yml",
-              branch: "main",
-              event: "push",
-              status: "completed",
+              ref: sourceSha,
               per_page: 100,
             });
-            const cvRun = cvRuns.find((run) =>
-              run.head_sha === sourceSha &&
-              run.head_branch === "main" &&
-              run.event === "push" &&
-              run.conclusion === "success" &&
-              run.head_repository?.full_name === `${owner}/${repo}`
-            );
-            if (!cvRun) throw new Error(`No successful private CV authority run found for ${sourceSha}.`);
+            const cvStatus = statuses
+              .filter((status) => status.context === "private-cv-authority")
+              .sort((a, b) => Date.parse(b.updated_at || b.created_at) - Date.parse(a.updated_at || a.created_at))[0];
+            if (!cvStatus || cvStatus.state !== "success") {
+              throw new Error(`No successful private-cv-authority commit status found for ${sourceSha}.`);
+            }
+            if ((cvStatus.creator?.login || "").toLowerCase() !== owner.toLowerCase()) {
+              throw new Error(`Private CV authority status for ${sourceSha} was not posted by ${owner}.`);
+            }
             core.setOutput("source_sha", sourceSha);
             core.setOutput("ci_url", ciRun.html_url);
 

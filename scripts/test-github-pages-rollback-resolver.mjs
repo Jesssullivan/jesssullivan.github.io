@@ -42,6 +42,17 @@ function authorityJobs(overrides = {}) {
 	];
 }
 
+function cvStatus(overrides = {}) {
+	return {
+		context: 'private-cv-authority',
+		state: 'success',
+		created_at: '2026-10-01T12:00:00Z',
+		updated_at: '2026-10-01T12:00:00Z',
+		creator: { login: 'Jesssullivan' },
+		...overrides,
+	};
+}
+
 async function runResolver({
 	dispatchAction = 'github-pages-rollback-v2',
 	manualSha = sourceSha,
@@ -49,22 +60,23 @@ async function runResolver({
 	enabled = 'true',
 	mainSha = sourceSha,
 	runs = [canonicalRun()],
-	cvRuns = [canonicalRun({ id: 42 })],
+	// R163: the private CV authority is a commit status on the exact SHA.
+	cvStatuses = { [sourceSha]: [cvStatus()] },
 	jobs = authorityJobs(),
 } = {}) {
 	const outputs = {};
-	const listWorkflowRuns = async (args) => ({
-		data: { workflow_runs: args.workflow_id === 'private-cv-authority-v2.yml' ? cvRuns : runs },
-	});
+	const listWorkflowRuns = async () => ({ data: { workflow_runs: runs } });
 	const listJobsForWorkflowRun = async () => ({ data: { jobs } });
+	const listCommitStatusesForRef = async (args) => ({ data: cvStatuses[args.ref] ?? [] });
 	const github = {
 		rest: {
 			actions: { listWorkflowRuns, listJobsForWorkflowRun },
+			repos: { listCommitStatusesForRef },
 			git: { getRef: async () => ({ data: { object: { sha: mainSha } } }) },
 		},
 		paginate: async (method, args) => {
 			const response = await method(args);
-			return response.data.workflow_runs ?? response.data.jobs;
+			return Array.isArray(response.data) ? response.data : (response.data.workflow_runs ?? response.data.jobs);
 		},
 	};
 	const context = {
@@ -104,8 +116,16 @@ await assert.rejects(
 	/Required CI job bazel-remote-gates was missing or not successful/,
 );
 await assert.rejects(
-	() => runResolver({ cvRuns: [canonicalRun({ head_sha: otherSha })] }),
-	/No successful private CV authority run found/,
+	() => runResolver({ cvStatuses: { [otherSha]: [cvStatus()] } }),
+	/No successful private-cv-authority commit status found/,
+);
+await assert.rejects(
+	() => runResolver({ cvStatuses: { [sourceSha]: [cvStatus({ state: 'pending' })] } }),
+	/No successful private-cv-authority commit status found/,
+);
+await assert.rejects(
+	() => runResolver({ cvStatuses: { [sourceSha]: [cvStatus({ creator: { login: 'someone-else' } })] } }),
+	/was not posted by Jesssullivan/,
 );
 
 const recheckContext = { repo: { owner: 'Jesssullivan', repo: 'jesssullivan.github.io' } };
