@@ -21,6 +21,7 @@ if grep -Eq 'SPEAR_RESUMES_DEPLOY_KEY|webfactory/ssh-agent|@spear_resumes|static
   exit 1
 fi
 
+grep -Fx -- "build:ci-remote-base --remote_max_connections=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "build:ci-cached --jobs=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null

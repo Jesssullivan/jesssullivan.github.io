@@ -36,6 +36,13 @@ build:ci-remote-base --config=ci
 build:ci-remote-base --remote_upload_local_results=true
 build:ci-remote-base --remote_download_minimal
 build:ci-remote-base --remote_timeout=60
+# TIN-4972 (R99): the GF REAPI cell admits 2 active + 64 pending ByteStream
+# transfers and refuses the overflow with RESOURCE_EXHAUSTED ("blob transfer
+# pending queue exhausted: pending=64/64"). The cell caps streams per HTTP/2
+# connection at active+pending, so a single connection keeps this client's
+# in-flight transfers inside that envelope (extra streams wait at transport
+# admission instead). Mirrors GloriousFlywheel's own .bazelrc (TIN-3701).
+build:ci-remote-base --remote_max_connections=1
 
 build:ci-cached --config=ci-remote-base
 build:ci-cached --remote_cache_compression
