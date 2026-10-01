@@ -137,12 +137,14 @@ test.describe('About (merged) page', () => {
 		await expect(postLinks.first()).toBeVisible();
 	});
 
-	test('server render carries the v2 map SVG, timeline and languages, and no upstream image', async ({ request }) => {
+	test('server render carries the v2 map SVG and timeline, and no upstream or language-shares image', async ({ request }) => {
 		const html = await (await request.get('/about')).text();
 		expect(html).toContain('src="/profile/v2/svg/project-map-light.svg"');
+		expect(html).toContain('srcset="/profile/v2/svg/project-map-compact-light.svg"');
 		expect(html).toContain('src="/profile/svg/timeline-light.svg"');
-		expect(html).toContain('src="/profile/svg/languages-light.svg"');
 		expect(html).not.toContain('upstream-light.svg');
+		// R134 (per Jess, 2026-10-01): the v1 language-shares bar chart is gone.
+		expect(html).not.toMatch(/languages-(light|dark)\.svg/);
 		// R111: the language heatmap is held; nothing on the page consumes it.
 		expect(html).not.toMatch(/language-heatmap|language_months/);
 	});
@@ -229,11 +231,71 @@ test.describe('About (merged) page', () => {
 		const expected = [...v2.repos].sort(
 			(a, b) => order.indexOf(a.category) - order.indexOf(b.category) || a.label.localeCompare(b.label),
 		);
-		const table = projects.locator('[data-testid="project-table"]');
-		expect(await table.locator('.project-label').allInnerTexts()).toEqual(expected.map((e) => e.label));
-		expect((await table.locator('.project-category').allInnerTexts()).map((t) => t.trim())).toEqual(
-			expected.map((e) => label.get(e.category)),
+		// Repositories sharing one label (and category) are one row.
+		const grouped = expected.filter(
+			(e, i) => i === 0 || e.label !== expected[i - 1].label || e.category !== expected[i - 1].category,
 		);
+		const table = projects.locator('[data-testid="project-table"]');
+		expect(await table.locator('.project-label').allInnerTexts()).toEqual(grouped.map((e) => e.label));
+		expect((await table.locator('.project-category').allInnerTexts()).map((t) => t.trim())).toEqual(
+			grouped.map((e) => label.get(e.category)),
+		);
+	});
+
+	test('each Zig library has its own table row and link (R138)', async ({ page }) => {
+		const zig = v2.repos.filter((r) => /\bin Zig\b/.test(r.label));
+		expect(zig).toHaveLength(4);
+		expect(new Set(zig.map((r) => r.label)).size).toBe(4);
+		const table = page.locator('#projects [data-testid="project-table"]');
+		for (const repo of zig) {
+			const row = table.locator('tbody tr', { has: page.locator('.project-label', { hasText: repo.label }) });
+			await expect(row).toHaveCount(1);
+			await expect(row.getByRole('link', { name: repo.label, exact: true })).toHaveAttribute('href', repo.link!);
+			// Distinct labels never take the grouped-row link list.
+			await expect(row.locator('[data-testid="project-row-links"]')).toHaveCount(0);
+		}
+		// No repository name leaks into the table (describe-don't-name).
+		expect(await table.innerText()).not.toMatch(/zig-(crypto|ctap2|keychain|notify)/);
+	});
+
+	test('embed search box keeps its keys: typing and arrows never drive the map', async ({ page }) => {
+		await page.route('https://jess.clients.xoxd.ai/**', (route) => route.abort('blockedbyclient'));
+		const map = page.locator('#projects [data-testid="project-map"]');
+		await map.locator('.pm-stage').scrollIntoViewIfNeeded();
+		await expect(map).toHaveAttribute('data-state', 'interactive', { timeout: 15_000 });
+		await expect(map).toHaveAttribute('data-assembled', 'true', { timeout: 10_000 });
+		const search = map.getByLabel('Search projects');
+		await search.click();
+		await search.pressSequentially('real-time');
+		await search.press('ArrowLeft');
+		await expect(search).toHaveValue('real-time');
+		await expect(search).toBeFocused();
+		// '-' did not zoom out and '0' was never needed: the markers did not move.
+		expect(await map.locator('.pm-node[data-state="near"]').count()).toBe(0);
+		await search.press('Escape');
+		await expect(search).toHaveValue('');
+	});
+
+	test('phone: the static fallback is the compact chart; the ribbon opens at its newest end', async ({ browser }) => {
+		const context = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+		const page = await context.newPage();
+		await page.goto('/about', { waitUntil: 'load' });
+		const img = page.locator('#projects img.pm-static');
+		await img.scrollIntoViewIfNeeded();
+		await expect.poll(() => img.evaluate((e) => (e as HTMLImageElement).currentSrc)).toMatch(/project-map-compact-light\.svg$/);
+		const box = (await page.locator('#projects .pm-stage').boundingBox())!;
+		expect(box.height / box.width).toBeCloseTo(1038 / 390, 1);
+		await context.close();
+
+		const live = await browser.newContext({ viewport: { width: 390, height: 844 } });
+		const p2 = await live.newPage();
+		await p2.goto('/about', { waitUntil: 'domcontentloaded' });
+		const scroller = p2.locator('#upstream .ur-scroll');
+		await expect
+			.poll(() => scroller.evaluate((e) => e.scrollWidth - e.clientWidth - e.scrollLeft))
+			.toBeLessThanOrEqual(1);
+		expect(await scroller.evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
+		await live.close();
 	});
 
 	test('other upstream involvement is separate and never says "engagement"', async ({ page }) => {

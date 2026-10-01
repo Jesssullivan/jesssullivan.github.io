@@ -12,9 +12,9 @@
 <text x="311.693" y="252" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2026</text>
 <line x1="24.473" y1="207" x2="24.473" y2="142" stroke="#4a4551" data-annotation-leader="true"/>
 <line x1="354.345" y1="207" x2="354.345" y2="142" stroke="#4a4551" data-annotation-leader="true"/>
-<line x1="314.089" y1="219" x2="296.089" y2="275" stroke="#4a4551" data-annotation-leader="true"/>
 <line x1="150.351" y1="207" x2="150.351" y2="142" stroke="#4a4551" data-annotation-leader="true"/>
 <line x1="273.195" y1="207" x2="255.195" y2="142" stroke="#4a4551" data-annotation-leader="true"/>
+<line x1="314.089" y1="219" x2="296.089" y2="275" stroke="#4a4551" data-annotation-leader="true"/>
 <g data-project="indutny/fft.js" data-merged="2021-01-29" data-relation="contributor" data-x="24.473" data-y="213"><title>FFT.js: 2021-01-29; contributor</title>
 <line x1="24.473" y1="209" x2="24.473" y2="217" stroke="#cc003b"/>
 <circle cx="24.473" cy="213" r="4" fill="#cc003b" stroke="#020103"/>
@@ -36,9 +36,9 @@
 <line x1="273.195" y1="209" x2="273.195" y2="217" stroke="#cc003b"/>
 <circle cx="273.195" cy="213" r="4" fill="#cc003b" stroke="#020103"/>
 </g>
-<g data-project="chapel-lang/mason-registry" data-merged="2026-01-16" data-relation="committer" data-x="314.089" data-y="213"><title>Chapel Mason registry: 2026-01-16; committer</title>
+<g data-project="chapel-lang/mason-registry" data-merged="2026-01-16" data-relation="contributor" data-x="314.089" data-y="213"><title>Chapel Mason registry: 2026-01-16; contributor</title>
 <line x1="314.089" y1="209" x2="314.089" y2="217" stroke="#cc003b"/>
-<path d="M314.089 208l5 5l-5 5l-5 -5Z" fill="#cc003b" stroke="#020103"/>
+<circle cx="314.089" cy="213" r="4" fill="#cc003b" stroke="#020103"/>
 </g>
 <g data-project="diku-dk/futhark" data-merged="2026-02-10" data-relation="contributor" data-x="318.083" data-y="201"><title>Futhark: 2026-02-10; contributor</title>
 <line x1="318.083" y1="209" x2="318.083" y2="217" stroke="#cc003b"/>
@@ -92,15 +92,15 @@
 <g data-annotation="ggml-org/llama.cpp">
 <text x="300.28" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">llama.cpp</text>
 </g>
-<g data-annotation="chapel-lang/mason-registry">
-<text x="195.289" y="289" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Chapel Mason</text>
-<text x="195.289" y="307" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">registry</text>
-</g>
 <g data-annotation="Klipper3d/klipper">
 <text x="125.291" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Klipper</text>
 </g>
 <g data-annotation="caddyserver/xcaddy">
 <text x="202.275" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">xCaddy</text>
+</g>
+<g data-annotation="chapel-lang/mason-registry">
+<text x="195.289" y="289" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Chapel Mason</text>
+<text x="195.289" y="307" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">registry</text>
 </g>
 <circle cx="24" cy="347" r="4" fill="#cc003b" stroke="#020103"/>
 <text x="37" y="351" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Contributor</text>

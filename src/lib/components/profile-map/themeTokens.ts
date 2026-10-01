@@ -50,10 +50,35 @@ export function rgbCss([r, g, b]: Rgb, alpha = 1): string {
 
 export function readMapTokens(el: Element): MapTokens {
 	const style = getComputedStyle(el);
-	const get = (name: string, fallback: Rgb) => resolveColor(style.getPropertyValue(name), fallback);
+	// A custom property computes to its token stream (var() substituted, but a
+	// relative colour or color-mix() left unresolved), so resolve each one as
+	// the `color` of a hidden probe element first: that yields one absolute
+	// colour the 1x1 canvas probe can read.
+	const probeEl = document.createElement('span');
+	probeEl.setAttribute('aria-hidden', 'true');
+	probeEl.style.display = 'none';
+	el.appendChild(probeEl);
+	const get = (name: string, fallback: Rgb) => {
+		if (!style.getPropertyValue(name).trim()) return fallback;
+		probeEl.style.color = `var(${name})`;
+		return resolveColor(getComputedStyle(probeEl).color, fallback);
+	};
 	const root = document.documentElement;
 	const mode = root.getAttribute('data-mode') === 'dark' ? 'dark' : 'light';
 	const ink: Rgb = mode === 'dark' ? [0.95, 0.95, 0.95] : [0.08, 0.08, 0.1];
+	try {
+		return readWith(get, mode, root, ink);
+	} finally {
+		probeEl.remove();
+	}
+}
+
+function readWith(
+	get: (name: string, fallback: Rgb) => Rgb,
+	mode: 'light' | 'dark',
+	root: Element,
+	ink: Rgb,
+): MapTokens {
 	return {
 		mode,
 		theme: root.getAttribute('data-theme') ?? '',

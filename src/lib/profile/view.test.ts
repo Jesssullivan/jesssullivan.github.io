@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parseProfileV1 } from './schema';
 import {
@@ -13,7 +13,11 @@ import {
 } from './view';
 
 const raw = JSON.parse(readFileSync(new URL('../../../static/profile/v2/profile.v1.json', import.meta.url), 'utf8'));
-const manifest = JSON.parse(readFileSync(new URL('../../../static/profile/v2/manifest.json', import.meta.url), 'utf8'));
+const v2Dir = new URL('../../../static/profile/v2/', import.meta.url);
+const provenance = JSON.parse(readFileSync(new URL('provenance.json', v2Dir), 'utf8')) as {
+	source_commit: string;
+	files: Record<string, string>;
+};
 const data = parseProfileV1(raw);
 const view = toProfileView(data);
 
@@ -23,17 +27,17 @@ describe('held charts (R111)', () => {
 		expect(view.coverage_details.every((d) => d.scope === 'activity')).toBe(true);
 	});
 
-	it('never copies a held chart into the blog', () => {
-		const held = Object.entries(manifest.charts as Record<string, { held: boolean; files: string[] }>).filter(
-			([, c]) => c.held,
-		);
-		expect(held.map(([name]) => name)).toContain('language-heatmap');
-		for (const [, chart] of held) {
-			for (const file of chart.files) {
-				const name = file.split('/').pop()!;
-				expect(() => readFileSync(new URL(`../../../static/profile/v2/svg/${name}`, import.meta.url))).toThrow();
-			}
-		}
+	it('never copies a held chart, held/ or the manifest into the blog', () => {
+		// The copy is profile.v1.json plus the released svg/ charts, nothing
+		// else: no held/ tree (R111) and no manifest.json (it lists held paths).
+		const svgs = readdirSync(new URL('svg/', v2Dir)).sort();
+		expect(readdirSync(v2Dir).sort()).toEqual(['profile.v1.json', 'provenance.json', 'svg']);
+		expect(existsSync(new URL('held', v2Dir))).toBe(false);
+		expect(existsSync(new URL('manifest.json', v2Dir))).toBe(false);
+		expect(svgs.filter((f) => /heatmap|language/i.test(f))).toEqual([]);
+		// provenance.json lists exactly what is on disk.
+		expect(Object.keys(provenance.files).sort()).toEqual(['profile.v1.json', ...svgs.map((f) => `svg/${f}`)].sort());
+		expect(provenance.source_commit).toMatch(/^[0-9a-f]{40}$/);
 	});
 });
 
@@ -104,9 +108,57 @@ describe('upstream ribbon', () => {
 describe('project table', () => {
 	it('lists every repository once, grouped in category order', () => {
 		const rows = projectRows(view);
-		expect(rows).toHaveLength(view.repos.length);
+		expect(rows.flatMap((r) => r.ids).sort()).toEqual(view.repos.map((r) => r.id).sort());
 		const order = view.categories.map((c) => c.id);
 		const seen = rows.map((r) => order.indexOf(r.category));
 		expect([...seen].sort((a, b) => a - b)).toEqual(seen);
+	});
+
+	it('gives each Zig library its own label and row (R138)', () => {
+		const rows = projectRows(view);
+		expect(new Set(rows.map((r) => `${r.category}/${r.label}`)).size).toBe(rows.length);
+		const zig = view.repos.filter((r) => /\bin Zig\b/.test(r.label));
+		expect(zig.length).toBe(4);
+		for (const repo of zig) expect(rows.filter((r) => r.label === repo.label)).toHaveLength(1);
+	});
+
+	it('collapses repositories that share a label into one row with every link (safety net)', () => {
+		const rows = projectRows({
+			categories: [{ id: 'sys', label: 'Systems' }] as never,
+			repos: [
+				{ id: 'b', label: 'Shared label', link: 'https://example.org/b', category: 'sys', langs: { Zig: 0.9, C: 0.1 } },
+				{
+					id: 'a',
+					label: 'Shared label',
+					link: 'https://example.org/a',
+					category: 'sys',
+					langs: { Zig: 0.5, Shell: 0.5 },
+				},
+				{ id: 'c', label: 'Shared label', link: null, category: 'sys', langs: { Zig: 1 } },
+				{ id: 'd', label: 'Other', link: 'https://example.org/d', category: 'sys', langs: {} },
+			] as never,
+		});
+		expect(rows.map((r) => r.label)).toEqual(['Other', 'Shared label']);
+		const shared = rows[1];
+		expect(shared.ids).toEqual(['a', 'b', 'c']);
+		expect(shared.links).toEqual([
+			{ id: 'a', href: 'https://example.org/a' },
+			{ id: 'b', href: 'https://example.org/b' },
+		]);
+		expect(shared.languages[0]).toBe('Zig');
+	});
+
+	it('keeps a single repository as a single-link row', () => {
+		const rows = projectRows({
+			categories: [{ id: 'a', label: 'A' }] as never,
+			repos: [
+				{ id: 'x', label: 'One', link: 'https://example.org/x', category: 'a', langs: { Go: 1 } },
+				{ id: 'y', label: 'Two', link: null, category: 'a', langs: {} },
+			] as never,
+		});
+		expect(rows.map((r) => [r.label, r.links.length])).toEqual([
+			['One', 1],
+			['Two', 0],
+		]);
 	});
 });

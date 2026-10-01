@@ -16,13 +16,13 @@
 <text x="778.735" y="302" font-size="12" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#c0bbc7" text-anchor="start">2026</text>
 <line x1="43.45" y1="257" x2="43.45" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="887.923" y1="257" x2="887.923" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
-<line x1="784.869" y1="257" x2="766.869" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="806.134" y1="245" x2="806.134" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="838.441" y1="245" x2="838.441" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="61.853" y1="269" x2="79.853" y2="334" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="77.802" y1="257" x2="95.802" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="365.7" y1="257" x2="365.7" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
-<line x1="680.179" y1="269" x2="680.179" y2="334" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="680.179" y1="257" x2="680.179" y2="192" stroke="#a19ba9" data-annotation-leader="true"/>
+<line x1="784.869" y1="257" x2="766.869" y2="142" stroke="#a19ba9" data-annotation-leader="true"/>
 <line x1="811.042" y1="269" x2="829.042" y2="334" stroke="#a19ba9" data-annotation-leader="true"/>
 <g data-project="indutny/fft.js" data-merged="2021-01-29" data-relation="contributor" data-x="43.45" data-y="263"><title>FFT.js: 2021-01-29; contributor</title>
 <line x1="43.45" y1="259" x2="43.45" y2="267" stroke="#f5184c"/>
@@ -44,9 +44,9 @@
 <line x1="680.179" y1="259" x2="680.179" y2="267" stroke="#f5184c"/>
 <circle cx="680.179" cy="263" r="4" fill="#f5184c" stroke="#f7f3fc"/>
 </g>
-<g data-project="chapel-lang/mason-registry" data-merged="2026-01-16" data-relation="committer" data-x="784.869" data-y="263"><title>Chapel Mason registry: 2026-01-16; committer</title>
+<g data-project="chapel-lang/mason-registry" data-merged="2026-01-16" data-relation="contributor" data-x="784.869" data-y="263"><title>Chapel Mason registry: 2026-01-16; contributor</title>
 <line x1="784.869" y1="259" x2="784.869" y2="267" stroke="#f5184c"/>
-<path d="M784.869 258l5 5l-5 5l-5 -5Z" fill="#f5184c" stroke="#f7f3fc"/>
+<circle cx="784.869" cy="263" r="4" fill="#f5184c" stroke="#f7f3fc"/>
 </g>
 <g data-project="diku-dk/futhark" data-merged="2026-02-10" data-relation="contributor" data-x="795.093" data-y="251"><title>Futhark: 2026-02-10; contributor</title>
 <line x1="795.093" y1="259" x2="795.093" y2="267" stroke="#f5184c"/>
@@ -97,9 +97,6 @@
 <g data-annotation="ggml-org/llama.cpp">
 <text x="853.063" y="188" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">llama.cpp</text>
 </g>
-<g data-annotation="chapel-lang/mason-registry">
-<text x="608.109" y="188" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">Chapel Mason registry</text>
-</g>
 <g data-annotation="rspamd/rspamd">
 <text x="780.304" y="188" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">rspamd</text>
 </g>
@@ -116,7 +113,10 @@
 <text x="340.64" y="188" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">Klipper</text>
 </g>
 <g data-annotation="caddyserver/xcaddy">
-<text x="653.719" y="348" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">xCaddy</text>
+<text x="653.719" y="188" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">xCaddy</text>
+</g>
+<g data-annotation="chapel-lang/mason-registry">
+<text x="608.109" y="138" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">Chapel Mason registry</text>
 </g>
 <g data-annotation="manaflow-ai/cmux">
 <text x="829.042" y="348" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#f7f3fc" text-anchor="start">cmux</text>

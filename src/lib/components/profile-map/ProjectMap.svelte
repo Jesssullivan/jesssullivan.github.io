@@ -50,7 +50,14 @@
 		status: ProfileStatus;
 		source?: string;
 		mode?: 'embed' | 'full';
-		svg: { light: string; dark: string; width: number; height: number };
+		svg: {
+			light: string;
+			dark: string;
+			width: number;
+			height: number;
+			/** Phone-width producer chart (embed only), served under max-width: 600px. */
+			compact?: { light: string; dark: string; width: number; height: number };
+		};
 		focusId?: string | null;
 		onselect?: (selection: MapSelection | null) => void;
 		tableHeading?: string;
@@ -93,6 +100,8 @@
 	let zoomAnim = 0;
 	let assemblyStart = -1;
 	let raf = 0;
+	/** True while drawNow keeps scheduling itself (exposed as data-animating for tests). */
+	let frameLoop = $state(false);
 	let lastPointer = $state('mouse');
 	let disposers: (() => void)[] = [];
 
@@ -135,6 +144,37 @@
 		return new Set(picked.filter(isVisible));
 	});
 
+	/**
+	 * Label boxes in screen space, highlight first, then neighbours, matches
+	 * and (zoomed in) the rest. Each box is kept inside the stage (8 px
+	 * margin both sides, so a phone never clips the start of a label) and a
+	 * label that would overlap one already placed is skipped; the tooltip and
+	 * table still carry it.
+	 */
+	let placedLabels = $derived.by(() => {
+		if (!scene || labelSet.size === 0) return [];
+		const placed: { i: number; x: number; y: number; text: string; strong: boolean }[] = [];
+		const boxes: [number, number, number, number][] = [];
+		const order = [...labelSet].sort((a, b) => Number(b === highlight) - Number(a === highlight));
+		const margin = 8;
+		for (const i of order) {
+			const [nx, ny] = screen(i);
+			const strong = i === highlight;
+			const text = truncate(scene.nodes[i].label);
+			const w = text.length * (strong ? 7 : 6.4);
+			const h = strong ? 15 : 14;
+			// Right of the marker when it fits, else left of it, then clamped.
+			let left = nx + 10 + w > size.width - margin ? nx - 10 - w : nx + 10;
+			left = Math.max(margin, Math.min(size.width - margin - w, left));
+			const top = ny + 4 - h + 3;
+			const box: [number, number, number, number] = [left, top, left + w, top + h];
+			if (!strong && boxes.some(([a, b, c, d]) => box[0] < c && box[2] > a && box[1] < d && box[3] > b)) continue;
+			boxes.push(box);
+			placed.push({ i, x: left, y: ny + 4, text, strong });
+		}
+		return placed;
+	});
+
 	let hullPath = $derived.by(() => {
 		if (!scene || !legendHover) return '';
 		const cat = scene.categories.find((c) => c.id === legendHover);
@@ -175,7 +215,10 @@
 
 	function drawNow(now: number) {
 		raf = 0;
-		if (!scene || !mods) return;
+		if (!scene || !mods) {
+			frameLoop = false;
+			return;
+		}
 		let animating = false;
 		if (assemblyStart >= 0 && !assembled) {
 			const f = mods.scene.assemblyFrame(scene, now - assemblyStart);
@@ -192,15 +235,25 @@
 				alpha: layerAlpha(),
 				hovered: highlight,
 				time: now / 1000,
-				shimmer: !reducedMotion,
+				shimmer: shimmering(),
 			});
 		}
-		if (highlight >= 0 && !reducedMotion && assembled) animating = true;
+		// Shimmer is hover-only: a selection (click, Tab, ?focus=) draws its
+		// highlighted edges once and lets the frame loop stop.
+		if (shimmering() && assembled) animating = true;
 		if (animating && inView) raf = requestAnimationFrame(drawNow);
+		frameLoop = raf !== 0;
+	}
+
+	function shimmering(): boolean {
+		return hovered >= 0 && !reducedMotion;
 	}
 
 	function requestDraw() {
-		if (!raf && phase === 'interactive') raf = requestAnimationFrame(drawNow);
+		if (!raf && phase === 'interactive') {
+			raf = requestAnimationFrame(drawNow);
+			frameLoop = true;
+		}
 	}
 
 	$effect(() => {
@@ -210,6 +263,7 @@
 		void hidden.size;
 		void matches;
 		void tokenVersion;
+		void hovered;
 		void inView;
 		void size;
 		requestDraw();
@@ -497,6 +551,9 @@
 	};
 
 	function onGroupKey(e: KeyboardEvent) {
+		// The embed's search box and legend sit inside the stage: their keys
+		// (typing -, 0, arrows, Escape) belong to them, not to the map.
+		if ((e.target as Element).closest('input, .pm-legend')) return;
 		if (!scene || !mods) return;
 		const dir = ARROWS[e.key];
 		if (dir) {
@@ -627,6 +684,7 @@
 	data-source={source}
 	data-motion={reducedMotion ? 'reduced' : 'full'}
 	data-assembled={assembled ? 'true' : 'false'}
+	data-animating={frameLoop ? 'true' : 'false'}
 	aria-labelledby={titleId}
 >
 	<div class="pm-shell">
@@ -634,6 +692,8 @@
 		<!-- The group handles keys that bubble from its focusable markers (arrows, Escape, zoom) and pointer hover/picking. -->
 		<div
 			class="pm-stage"
+			class:pm-stage-static={phase !== 'interactive'}
+			style:--pm-compact-ratio={svg.compact ? `${svg.compact.width} / ${svg.compact.height}` : null}
 			bind:this={stageEl}
 			role="group"
 			aria-label="Project similarity map. Tab to a project; arrow keys follow similarity links; plus, minus and 0 zoom; Escape clears."
@@ -651,6 +711,15 @@
 					width={svg.width}
 					height={svg.height}
 					class="pm-static"
+					compact={mode === 'embed' && svg.compact
+						? {
+								lightSrc: svg.compact.light,
+								darkSrc: svg.compact.dark,
+								width: svg.compact.width,
+								height: svg.compact.height,
+								media: '(max-width: 600px)',
+							}
+						: undefined}
 				/>
 			{:else}
 				<canvas bind:this={canvasEl} class="pm-canvas" aria-hidden="true"></canvas>
@@ -712,17 +781,8 @@
 							{/each}
 						</g>
 						<g class="pm-labels" aria-hidden="true">
-							{#each [...labelSet] as i (i)}
-								{@const [x, y] = screen(i)}
-								{@const text = truncate(scene.nodes[i].label)}
-								{@const flip = x + 12 + text.length * 6.4 > size.width - 8}
-								<text
-									x={flip ? x - 10 : x + 10}
-									y={y + 4}
-									text-anchor={flip ? 'end' : 'start'}
-									class="pm-label"
-									class:pm-label-strong={i === highlight}>{text}</text
-								>
+							{#each placedLabels as l (l.i)}
+								<text x={l.x} y={l.y} class="pm-label" class:pm-label-strong={l.strong}>{l.text}</text>
 							{/each}
 						</g>
 					{/if}
@@ -874,14 +934,28 @@
 			</thead>
 			<tbody>
 				{#each rows as row (row.id)}
-					<tr data-repo-id={row.id}>
+					<tr data-repo-id={row.id} data-repo-ids={row.ids.join(' ')}>
 						<td>
-							{#if row.link}
-								<a href={row.link} class="text-primary-500 hover:underline" target="_blank" rel="noopener"
+							{#if row.links.length === 1}
+								<a href={row.links[0].href} class="text-primary-500 hover:underline" target="_blank" rel="noopener"
 									><span class="project-label">{row.label}</span></a
 								>
 							{:else}
 								<span class="project-label">{row.label}</span>
+								{#if row.links.length > 1}
+									<!-- One row, one link per repository sharing this description. -->
+									<span class="pm-row-links" data-testid="project-row-links">
+										{#each row.links as link, j (link.id)}
+											<a
+												href={link.href}
+												class="text-primary-500 hover:underline"
+												target="_blank"
+												rel="noopener"
+												aria-label={`${row.label}, repository ${j + 1}`}>{j + 1}</a
+											>
+										{/each}
+									</span>
+								{/if}
 							{/if}
 						</td>
 						<td class="text-surface-500 project-category">
@@ -907,15 +981,25 @@
 </figure>
 
 <style>
+	/*
+	 * Category colours. No site theme has eight distinct hues in its own
+	 * families (pride's primary and error are the same red, pine's primary
+	 * and warning sit 4deg apart, trans's primary and tertiary 20deg), so a
+	 * fixed family per slot always collides somewhere. Where relative colour
+	 * syntax is supported (all current engines) the eight slots are the
+	 * theme's primary hue stepped by 45deg at one lightness and chroma per
+	 * mode: always hue-distinct, always anchored to the active theme. The
+	 * fallback below uses six distinct families plus two in-palette mixes.
+	 */
 	.pm {
 		--pm-cat-0: var(--color-primary-600);
 		--pm-cat-1: var(--color-secondary-600);
 		--pm-cat-2: var(--color-tertiary-600);
 		--pm-cat-3: var(--color-success-600);
-		--pm-cat-4: var(--color-warning-700);
-		--pm-cat-5: var(--color-error-600);
-		--pm-cat-6: var(--color-primary-800);
-		--pm-cat-7: var(--color-secondary-800);
+		--pm-cat-4: var(--color-error-600);
+		--pm-cat-5: var(--color-warning-700);
+		--pm-cat-6: color-mix(in oklch, var(--color-primary-600), var(--color-success-600));
+		--pm-cat-7: color-mix(in oklch, var(--color-secondary-600), var(--color-tertiary-600));
 		--pm-bg: var(--color-surface-50);
 		--pm-panel: color-mix(in oklab, var(--color-surface-50) 86%, transparent);
 		--pm-panel-solid: var(--color-surface-50);
@@ -931,10 +1015,10 @@
 		--pm-cat-1: var(--color-secondary-400);
 		--pm-cat-2: var(--color-tertiary-400);
 		--pm-cat-3: var(--color-success-400);
-		--pm-cat-4: var(--color-warning-400);
-		--pm-cat-5: var(--color-error-400);
-		--pm-cat-6: var(--color-primary-200);
-		--pm-cat-7: var(--color-secondary-200);
+		--pm-cat-4: var(--color-error-400);
+		--pm-cat-5: var(--color-warning-400);
+		--pm-cat-6: color-mix(in oklch, var(--color-primary-400), var(--color-success-400));
+		--pm-cat-7: color-mix(in oklch, var(--color-secondary-400), var(--color-tertiary-400));
 		--pm-bg: var(--color-surface-950);
 		--pm-panel: color-mix(in oklab, var(--color-surface-950) 84%, transparent);
 		--pm-panel-solid: var(--color-surface-900);
@@ -943,6 +1027,29 @@
 		--pm-line: var(--color-surface-700);
 		--pm-edge: var(--color-surface-400);
 		--pm-focus: var(--color-primary-400);
+	}
+
+	@supports (color: oklch(from red l c h)) {
+		.pm {
+			--pm-cat-0: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 0));
+			--pm-cat-1: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 45));
+			--pm-cat-2: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 90));
+			--pm-cat-3: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 135));
+			--pm-cat-4: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 180));
+			--pm-cat-5: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 225));
+			--pm-cat-6: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 270));
+			--pm-cat-7: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 315));
+		}
+		:global([data-mode='dark']) .pm {
+			--pm-cat-0: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 0));
+			--pm-cat-1: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 45));
+			--pm-cat-2: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 90));
+			--pm-cat-3: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 135));
+			--pm-cat-4: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 180));
+			--pm-cat-5: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 225));
+			--pm-cat-6: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 270));
+			--pm-cat-7: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 315));
+		}
 	}
 
 	.pm-shell {
@@ -961,6 +1068,12 @@
 		/* Same box as the server-rendered SVG, so the swap never shifts layout. */
 		aspect-ratio: 960 / 1226;
 	}
+	@media (max-width: 600px) {
+		/* The phone fallback is the producer's compact chart, in its own box. */
+		.pm-embed .pm-stage.pm-stage-static {
+			aspect-ratio: var(--pm-compact-ratio, 960 / 1226);
+		}
+	}
 	.pm-full .pm-shell {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 320px;
@@ -971,6 +1084,9 @@
 	.pm-full .pm-stage {
 		height: 100%;
 		border: 0;
+	}
+	.pm-stage :global(picture) {
+		display: contents;
 	}
 	.pm-stage :global(.pm-static) {
 		display: block;
@@ -1187,6 +1303,17 @@
 		text-align: left;
 		font-weight: 600;
 		padding-bottom: 0.4rem;
+	}
+	.pm-row-links {
+		display: inline-flex;
+		gap: 0.4rem;
+		margin-left: 0.4rem;
+		font-size: 0.78rem;
+		font-variant-numeric: tabular-nums;
+	}
+	.pm-row-links a::before {
+		content: '↗';
+		margin-right: 0.1rem;
 	}
 	.pm-table path {
 		stroke: var(--pm-ink);

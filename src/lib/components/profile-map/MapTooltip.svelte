@@ -31,10 +31,11 @@
 		hint?: string;
 	} = $props();
 
-	const WIDTH = 280;
-	let flipX = $derived(x + WIDTH + 24 > bounds.width);
+	// 280 px, narrowed to the stage minus an 8 px margin each side on phones.
+	let width = $derived(Math.max(0, Math.min(280, bounds.width - 16)));
+	let flipX = $derived(x + width + 24 > bounds.width);
 	let flipY = $derived(y > bounds.height * 0.62);
-	let left = $derived(Math.max(8, Math.min(bounds.width - WIDTH - 8, flipX ? x - WIDTH - 16 : x + 16)));
+	let left = $derived(Math.max(8, Math.min(bounds.width - width - 8, flipX ? x - width - 16 : x + 16)));
 </script>
 
 {#if node}
@@ -45,7 +46,7 @@
 		data-testid="map-tooltip"
 		style="left: {left}px; {flipY
 			? `bottom: ${Math.max(8, bounds.height - y + 14)}px`
-			: `top: ${y + 14}px`}; width: {WIDTH}px"
+			: `top: ${y + 14}px`}; width: {width}px"
 	>
 		<p class="pm-tooltip-label">{node.label}</p>
 		<p class="pm-tooltip-cat">

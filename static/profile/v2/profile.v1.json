@@ -2589,7 +2589,7 @@
     }
   ],
   "community": [
-    "Ongoing engagement with the Rocky Enterprise Linux Foundation (Rocky 10 platform, real-time (PREEMPT_RT) kernel lanes, and downstream CVE backport practice).",
+    "Ongoing engagement with the Rocky Enterprise Linux Foundation: Rocky 10 platform, real-time (PREEMPT_RT) kernel lanes and downstream CVE backport practice.",
     "First Fellow, D&M Makerspace, Plymouth State University (2017–2020)",
     "Membership Chair & 3D Printing Captain, Ithaca Generator (2020–2022)"
   ],
@@ -3238,7 +3238,7 @@
       "to": "2018-03-31"
     }
   ],
-  "data_changed_at": "2026-10-01T14:30:15Z",
+  "data_changed_at": "2026-10-01T17:53:39Z",
   "edges": [
     {
       "a": "r-3fc6019c93586ee9",
@@ -3637,14 +3637,14 @@
     }
   ],
   "fetched_at": "2026-09-27T00:11:21Z",
-  "generated_at": "2026-10-01T14:30:15Z",
+  "generated_at": "2026-10-01T17:53:39Z",
   "identity": {
-    "always_building": "Hey! I am always hacking, learning, building, reading, and tinkering. Day in, day out, this is what I do.",
+    "always_building": "Hey! I am always learning, building, reading and tinkering. Day in, day out, this is what I do.",
     "email": "jess@sulliwood.org",
     "headline": "Senior Full-Stack & Systems Engineer · 10+ years",
     "location": "Lewiston, ME & Boston, MA",
     "name": "Jess Sullivan",
-    "summary": "Senior full-stack and systems engineer with 10+ years building software across TypeScript/SvelteKit, Python, Go, C++, Rust, Zig, Chapel, Haskell, and Nix-first infrastructure.",
+    "summary": "Senior full stack and systems engineer with 10+ years shipping software.",
     "taglines": [
       "Full-Stack & Product · DevSecOps · ML / Computer Vision · Compilers & HPC · Kernel & Security Research"
     ]
@@ -10511,7 +10511,7 @@
       "merged": "2026-01-16",
       "number": 77,
       "project": "Chapel Mason registry",
-      "relation": "committer",
+      "relation": "contributor",
       "repo": "chapel-lang/mason-registry"
     },
     {
@@ -11345,7 +11345,7 @@
       "category": "systems",
       "category_inferred": false,
       "id": "r-a226ea3b8779e0af",
-      "label": "Zig capability libraries with C ABIs",
+      "label": "cryptographic primitives in Zig behind a stable C ABI",
       "langs": {
         "C": 0.068,
         "Just": 0.013,
@@ -11363,7 +11363,7 @@
       "category": "systems",
       "category_inferred": false,
       "id": "r-e697adfa30449860",
-      "label": "Zig capability libraries with C ABIs",
+      "label": "portable FIDO2 / WebAuthn security-key operations in Zig over USB HID",
       "langs": {
         "C": 0.05194805194805194,
         "Just": 0.009990009990009988,
@@ -11381,7 +11381,7 @@
       "category": "systems",
       "category_inferred": false,
       "id": "r-4436b8fd9a36a757",
-      "label": "Zig capability libraries with C ABIs",
+      "label": "cross-platform secret storage in Zig over the macOS Keychain and Linux libsecret",
       "langs": {
         "C": 0.117,
         "Nix": 0.039,
@@ -11398,7 +11398,7 @@
       "category": "systems",
       "category_inferred": false,
       "id": "r-ae9cce6bbfd6e9b0",
-      "label": "Zig capability libraries with C ABIs",
+      "label": "cross-platform desktop notifications in Zig for macOS and Linux",
       "langs": {
         "C": 0.04004004004004004,
         "Nix": 0.04304304304304304,
@@ -11720,7 +11720,7 @@
   "roles": [
     {
       "bullets": [
-        "Current Bates work spans enterprise authentication, SAML/LTI/Shibboleth, secret management, ACME certificate automation, OpenTelemetry, GitLab AutoDevOps, OpenTofu, RKE2/Rancher, legacy modernization, and 24/7 CVE response.",
+        "Current Bates work spans enterprise authentication, SAML/LTI/Shibboleth, secret management, ACME certificate automation, OpenTelemetry, GitLab AutoDevOps, OpenTofu, RKE2/Rancher, legacy modernization and 24/7 CVE response.",
         "Built a property-based orchestrator and instrumentation harness for 1980s-era degree-management C in Haskell + Python (QuickCheck, Cabal, podman-compose for dev parity, FPM for packaging, AutoDevOps for CI/CD); turned an unautomatable legacy codebase into a verifiable, traceable, k8s-friendly workload.",
         "Overhauled and automated the event-management lifecycle (C#, Go, Ansible).",
         "Helped lead adoption of horizontally-scalable Apache Solr instances across multiple public and private indexing and search applications.",
@@ -11730,12 +11730,12 @@
       "end": "present",
       "org": "Bates College",
       "start": 2024,
-      "summary": "Build and maintain enterprise systems supporting staff, faculty, and the technical ILS team. 24/7 on-call for CVE triage and mitigation; help lead IaC and dev-CI parity college-wide.",
+      "summary": "Build and maintain enterprise systems supporting staff, faculty and the technical ILS team. 24/7 on-call for CVE triage and mitigation; help lead IaC and dev-CI parity college-wide.",
       "title": "Systems Analyst (DevSecOps)"
     },
     {
       "bullets": [
-        "Led R&D on internal ML annotation tooling, model-evaluation web APIs, and end-to-end MLOps pipelines (Flask, TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with Visipedia.",
+        "Led R&D on internal ML annotation tooling, model-evaluation web APIs and end-to-end MLOps pipelines (TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with Visipedia.",
         "Streamlined Macaulay Library MLOps and asset ingestion pipeline."
       ],
       "end": 2021,
@@ -11758,14 +11758,14 @@
         "Client work (client list on request): R&D for a hydraulic sawmill equipment maker; business systems for other small firms."
       ],
       "end": "present",
-      "org": "Full-Stack Contracting & FOSS",
+      "org": "Engineering & Contracting",
       "start": 2017,
-      "summary": "Independent contractor; active upstream contributor and committer.",
-      "title": "Independent contractor"
+      "summary": "Operating as xoxd.ai as of 2024.",
+      "title": "Engineering & Contracting"
     }
   ],
   "schema": "profile.v1",
-  "source_commit": "66ef8a4128e465f3de519aec1d180c317587eb44",
+  "source_commit": "aabb4629e47d46dbe6ba65ca63dff77494986f54",
   "ventures": [
     {
       "description": "Independent contractor / contributor business while in the GIS & ML space.",

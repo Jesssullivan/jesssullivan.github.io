@@ -146,7 +146,17 @@ function staticClosure(manifest: Record<string, ManifestChunk>, roots: string[])
 function checkProfileMapBudget(): number {
 	const manifestPath = join(__dirname, '..', '.svelte-kit', 'output', 'client', '.vite', 'manifest.json');
 	if (!existsSync(manifestPath)) {
-		console.log('Profile map budget: SKIPPED (no Vite client manifest; run the build first)');
+		// A skip is only honest on a checkout that was never built. In CI, or
+		// next to a build/ that exists without its manifest, it would hide a
+		// missing or relocated manifest, so it fails instead.
+		if (process.env.CI || existsSync(buildDir)) {
+			console.log(
+				`Profile map budget: FAIL, no Vite client manifest at ${manifestPath}` +
+					(process.env.CI ? ' (CI is set)' : ' (build/ exists without it)'),
+			);
+			return 1;
+		}
+		console.log('Profile map budget: SKIPPED (no build/ and no Vite client manifest; run the build first)');
 		return 0;
 	}
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, ManifestChunk>;

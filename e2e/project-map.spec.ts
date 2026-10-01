@@ -10,6 +10,8 @@ type Profile = { repos: Repo[]; categories: { id: string; label: string }[]; edg
 const profile: Profile = JSON.parse(
 	readFileSync(new URL('../static/profile/v2/profile.v1.json', import.meta.url), 'utf8'),
 );
+/** Table rows: repositories sharing a label (and category) share one row. */
+const rowCount = new Set(profile.repos.map((r) => `${r.category}\u0000${r.label}`)).size;
 const LIVE = 'https://jess.clients.xoxd.ai/**';
 const COUNT_PATTERN = /\d+\s+(repos|projects)/i;
 
@@ -44,7 +46,7 @@ test.describe('Project map (/projects)', () => {
 		await expect(map.locator('.pm-node')).toHaveCount(profile.repos.length);
 		// The static SVG was swapped out, the table stays.
 		await expect(map.locator('img.pm-static')).toHaveCount(0);
-		await expect(map.locator('[data-testid="project-table"] tbody tr')).toHaveCount(profile.repos.length);
+		await expect(map.locator('[data-testid="project-table"] tbody tr')).toHaveCount(rowCount);
 		await expect(page.locator('#main-content aside .pm-title')).toHaveText('Project similarity');
 	});
 
@@ -72,7 +74,7 @@ test.describe('Project map (/projects)', () => {
 		await expect(map).toHaveAttribute('data-state', 'static');
 		await expect(map.locator('img.pm-static')).toBeVisible();
 		const rows = map.locator('[data-testid="project-table"] tbody tr');
-		await expect(rows).toHaveCount(profile.repos.length);
+		await expect(rows).toHaveCount(rowCount);
 		const hrefs = await map
 			.locator('[data-testid="project-table"] a')
 			.evaluateAll((els) => els.map((e) => e.getAttribute('href')));
@@ -187,6 +189,34 @@ test.describe('Project map (/projects)', () => {
 		await expect(page.locator(`[data-node-index="9"]`)).toHaveAttribute('data-state', 'near');
 	});
 
+	test('a selection draws once: the frame loop stops (shimmer is hover-only)', async ({ page }) => {
+		const target = profile.repos[9];
+		const map = await openInteractive(page, `/projects?focus=${target.id}`);
+		await expect(page.locator('[data-node-index="9"]')).toHaveAttribute('data-state', 'near');
+		// ?focus= selects on load; with nothing hovered the loop must go idle.
+		await expect(map).toHaveAttribute('data-animating', 'false', { timeout: 3_000 });
+		// Count only the map's frames: the layout (nodes/0) runs its own
+		// unrelated animation loop.
+		const calls = await page.evaluate(async () => {
+			let n = 0;
+			const orig = window.requestAnimationFrame.bind(window);
+			window.requestAnimationFrame = (cb) => {
+				if (!/\/nodes\/0\./.test(new Error().stack ?? '')) n++;
+				return orig(cb);
+			};
+			await new Promise((r) => setTimeout(r, 1_000));
+			window.requestAnimationFrame = orig;
+			return n;
+		});
+		expect(calls).toBeLessThanOrEqual(2);
+		// Hovering shimmers; leaving stops it again.
+		const { x, y } = await nodeCenter(page, 9);
+		await page.mouse.move(x, y);
+		await expect(map).toHaveAttribute('data-animating', 'true');
+		await page.mouse.move(2, 2);
+		await expect(map).toHaveAttribute('data-animating', 'false', { timeout: 3_000 });
+	});
+
 	test('reduced motion: no entrance animation, the map is complete at once', async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: 'reduce' });
 		await blockLive(page);
@@ -223,6 +253,38 @@ test.describe('Project map (/projects)', () => {
 			() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
 		);
 		expect(overflow).toBeLessThanOrEqual(0);
+		await context.close();
+	});
+
+	test('390 px: labels and tooltip stay inside the stage', async ({ browser }) => {
+		const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+		const page = await context.newPage();
+		const map = await openInteractive(page);
+		const stage = (await map.locator('.pm-stage').boundingBox())!;
+		// Zoomed in far enough that every label competes for space.
+		for (let i = 0; i < 3; i++) await map.locator('.pm-zoom button[aria-label="Zoom in"]').click();
+		await page.waitForTimeout(400);
+		const index = profile.repos.findIndex((r) => r.label.length > 30);
+		await map.locator(`[data-node-index="${index}"]`).focus();
+		await expect(map.locator('[data-testid="map-tooltip"]')).toBeVisible();
+		const tip = (await map.locator('[data-testid="map-tooltip"]').boundingBox())!;
+		expect(tip.width).toBeLessThanOrEqual(stage.width - 16 + 0.5);
+		expect(tip.x).toBeGreaterThanOrEqual(stage.x + 7.5);
+		const boxes = await map.locator('.pm-label').evaluateAll((els) =>
+			els.map((e) => {
+				const b = (e as SVGGraphicsElement).getBoundingClientRect();
+				return { x: b.x, y: b.y, r: b.right, b: b.bottom };
+			}),
+		);
+		expect(boxes.length).toBeGreaterThan(0);
+		for (const b of boxes) expect(b.x).toBeGreaterThanOrEqual(stage.x + 7.5);
+		// No two placed labels overlap.
+		for (let i = 0; i < boxes.length; i++)
+			for (let j = i + 1; j < boxes.length; j++) {
+				const [p, q] = [boxes[i], boxes[j]];
+				const overlap = Math.min(p.r, q.r) - Math.max(p.x, q.x) > 1 && Math.min(p.b, q.b) - Math.max(p.y, q.y) > 1;
+				expect(overlap, `labels ${i} and ${j}`).toBe(false);
+			}
 		await context.close();
 	});
 

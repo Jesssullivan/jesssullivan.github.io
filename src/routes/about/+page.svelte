@@ -32,6 +32,12 @@
 		dark: '/profile/v2/svg/project-map-dark.svg',
 		width: 960,
 		height: 1226,
+		compact: {
+			light: '/profile/v2/svg/project-map-compact-light.svg',
+			dark: '/profile/v2/svg/project-map-compact-dark.svg',
+			width: 390,
+			height: 1038,
+		},
 	};
 
 	// R53: every claim below comes from static/profile/facts.json (synced from
@@ -46,7 +52,6 @@
 	// Intrinsic sizes (the SVG viewBoxes) reserve layout space before load.
 	const charts = {
 		timeline: { ...svgPair('timeline'), width: 960, height: 550 },
-		languages: { ...svgPair('languages'), width: 960, height: 402 },
 	};
 	// R70 (per Jess, 2026-09-26): the Great Falls Tool Bus description already
 	// says Jess built its site and member infrastructure, so its separate
@@ -293,9 +298,6 @@
 			svg={mapSvg}
 			tableHeading="All public projects"
 		/>
-		<div class="mt-6">
-			<ThemedImage lightSrc={charts.languages.light} darkSrc={charts.languages.dark} alt="Language mix across the mapped public repositories" width={charts.languages.width} height={charts.languages.height} class="w-full h-auto" />
-		</div>
 	</section>
 
 	<!-- Merged upstream (profile.v1 merged_upstream; HTML ribbon + linked list) -->

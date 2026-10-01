@@ -37,29 +37,58 @@ export function toProfileView(data: ProfileV1): ProfileView {
 // ---------------------------------------------------------------------------
 // Project table
 
-export interface ProjectRow {
+export interface ProjectRowLink {
 	id: string;
+	href: string;
+}
+
+export interface ProjectRow {
+	/** First member's repository id (stable row key). */
+	id: string;
+	/** Every repository id sharing this row's label and category. */
+	ids: string[];
 	label: string;
-	link: string | null;
+	/** Public links of the members, in id order; empty when none is public. */
+	links: ProjectRowLink[];
 	category: string;
 	categoryLabel: string;
 	languages: string[];
 }
 
-/** Rows grouped in the producer's category order, labels sorted within. */
+/**
+ * Rows grouped in the producer's category order, labels sorted within.
+ * Repositories that share one label (describe-don't-name gives several
+ * libraries the same description) collapse into one row carrying every
+ * link; the map keeps them as separate nodes.
+ */
 export function projectRows(view: Pick<ProfileView, 'repos' | 'categories'>): ProjectRow[] {
 	const order = new Map(view.categories.map((c, i) => [c.id, i]));
 	const labels = new Map(view.categories.map((c) => [c.id, c.label]));
-	return [...view.repos]
-		.sort((a, b) => (order.get(a.category) ?? 99) - (order.get(b.category) ?? 99) || a.label.localeCompare(b.label))
-		.map((r: ProfileRepo) => ({
-			id: r.id,
-			label: r.label,
-			link: r.link,
-			category: r.category,
-			categoryLabel: labels.get(r.category) ?? r.category,
-			languages: topLanguages(r, 3).map((l) => l.name),
-		}));
+	const groups = new Map<string, ProfileRepo[]>();
+	for (const r of view.repos) {
+		const key = `${r.category}\u0000${r.label}`;
+		const members = groups.get(key);
+		if (members) members.push(r);
+		else groups.set(key, [r]);
+	}
+	return [...groups.values()]
+		.map((members) => {
+			members.sort((a, b) => a.id.localeCompare(b.id));
+			const first = members[0];
+			const share = new Map<string, number>();
+			for (const m of members)
+				for (const [name, s] of Object.entries(m.langs)) share.set(name, (share.get(name) ?? 0) + s);
+			return {
+				id: first.id,
+				ids: members.map((m) => m.id),
+				label: first.label,
+				links: members.filter((m) => m.link).map((m) => ({ id: m.id, href: m.link! })),
+				category: first.category,
+				categoryLabel: labels.get(first.category) ?? first.category,
+				languages: topLanguages({ langs: Object.fromEntries(share) }, 3).map((l) => l.name),
+			};
+		})
+		.sort((a, b) => (order.get(a.category) ?? 99) - (order.get(b.category) ?? 99) || a.label.localeCompare(b.label));
 }
 
 // ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 	// committer diamond / contributor dot, alternating leader labels where they
 	// fit, the newest mark pulsing briefly. Every project is in the list below
 	// with its real PR link; the ribbon is the visual summary of that list.
+	import { onMount } from 'svelte';
 	import { formatDay, upstreamRows, upstreamYearTicks, type UpstreamRow } from '$lib/profile/view';
 	import type { ProfileMergedUpstream } from '$lib/profile/schema';
 
@@ -36,10 +37,16 @@
 		return out;
 	});
 	let labelled = $derived(new Set(placed.map((p) => p.project)));
+
+	// On a narrow screen the ribbon scrolls; open it at the newest (right) end.
+	let scrollEl: HTMLDivElement | undefined = $state();
+	onMount(() => {
+		if (scrollEl) scrollEl.scrollLeft = scrollEl.scrollWidth;
+	});
 </script>
 
 <div class="ur" data-testid="upstream-ribbon">
-	<div class="ur-scroll">
+	<div class="ur-scroll" bind:this={scrollEl}>
 		<div class="ur-ribbon" aria-hidden="true">
 			<div class="ur-axis"></div>
 			{#each ticks as tick (tick.year)}
