@@ -16,6 +16,7 @@ import {
 	shapePath,
 	type Direction,
 } from './mapScene';
+import { CATEGORY_SHAPES, polygonArea, shapePoints } from './shapes';
 
 // The real projection the page falls back to (spear_resumes profile/out-v2).
 const view: ProfileView = toProfileView(
@@ -190,7 +191,53 @@ describe('entrance motion', () => {
 describe('shapes', () => {
 	it('cycles through eight closed paths', () => {
 		expect(SHAPES).toHaveLength(8);
+		expect(new Set(SHAPES).size).toBe(8);
 		expect(shapeFor(8)).toBe(shapeFor(0));
 		for (const s of SHAPES) expect(shapePath(s, 5)).toMatch(/^M.*Z$/);
+	});
+
+	it('gives every shape the same fill area (no size weighting)', () => {
+		for (const s of SHAPES) {
+			if (s === 'circle') continue;
+			expect(polygonArea(shapePoints(s, 5))).toBeCloseTo(Math.PI * 25, 6);
+		}
+	});
+
+	it('assigns shapes in the producer category order (R141)', () => {
+		expect(view.categories.map((c) => c.id)).toEqual(CATEGORY_SHAPES.map(([id]) => id));
+	});
+
+	it('draws the same shape per category as the README SVG (R141)', () => {
+		const svg = readFileSync(
+			new URL('../../../../static/profile/v2/svg/project-map-light.svg', import.meta.url),
+			'utf8',
+		);
+		const nodes = [
+			...svg.matchAll(/<g class="map-node" data-repo-id="([^"]+)"[^>]*>(?:<title>[^<]*<\/title>)?<path d="([^"]+)"/g),
+		];
+		expect(nodes).toHaveLength(view.repos.length);
+		const catIndex = new Map(view.categories.map((c, i) => [c.id, i]));
+		const normalise = (pts: [number, number][]) => {
+			const m = Math.max(...pts.map(([x, y]) => Math.hypot(x, y)));
+			return pts.map(([x, y]) => [x / m, y / m]);
+		};
+		for (const [, id, d] of nodes) {
+			const repo = view.repos.find((r) => r.id === id)!;
+			const shape = shapeFor(catIndex.get(repo.category)!);
+			if (d.includes('A')) {
+				expect(shape, id).toBe('circle');
+				continue;
+			}
+			const theirs = [...d.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map(
+				(m) => [Number(m[1]), Number(m[2])] as [number, number],
+			);
+			const ours = shapePoints(shape, 10);
+			expect(ours.length, `${id} ${shape}`).toBe(theirs.length);
+			const [a, b] = [normalise(ours), normalise(theirs)];
+			a.forEach(([x, y], i) => {
+				expect(x).toBeCloseTo(b[i][0], 3);
+				expect(y).toBeCloseTo(b[i][1], 3);
+			});
+		}
 	});
 });

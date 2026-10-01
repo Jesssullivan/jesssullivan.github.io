@@ -276,28 +276,6 @@ test.describe('About (merged) page', () => {
 		await expect(search).toHaveValue('');
 	});
 
-	test('phone: the static fallback is the compact chart; the ribbon opens at its newest end', async ({ browser }) => {
-		const context = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
-		const page = await context.newPage();
-		await page.goto('/about', { waitUntil: 'load' });
-		const img = page.locator('#projects img.pm-static');
-		await img.scrollIntoViewIfNeeded();
-		await expect.poll(() => img.evaluate((e) => (e as HTMLImageElement).currentSrc)).toMatch(/project-map-compact-light\.svg$/);
-		const box = (await page.locator('#projects .pm-stage').boundingBox())!;
-		expect(box.height / box.width).toBeCloseTo(1038 / 390, 1);
-		await context.close();
-
-		const live = await browser.newContext({ viewport: { width: 390, height: 844 } });
-		const p2 = await live.newPage();
-		await p2.goto('/about', { waitUntil: 'domcontentloaded' });
-		const scroller = p2.locator('#upstream .ur-scroll');
-		await expect
-			.poll(() => scroller.evaluate((e) => e.scrollWidth - e.clientWidth - e.scrollLeft))
-			.toBeLessThanOrEqual(1);
-		expect(await scroller.evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
-		await live.close();
-	});
-
 	test('other upstream involvement is separate and never says "engagement"', async ({ page }) => {
 		const merged = new Set(v2.merged_upstream.map((u) => u.project));
 		const others = facts.relations.filter((r) => !merged.has(r.project) && r.url);
@@ -467,5 +445,33 @@ test.describe('About (merged) page', () => {
 	test('nav links work from about page', async ({ page }) => {
 		await page.getByRole('link', { name: 'Read the Blog' }).click();
 		await page.waitForURL(/\/blog/, { waitUntil: 'domcontentloaded' });
+	});
+});
+
+// Phone checks use the fixture page (no second browser context, which this
+// Chromium build can stall on while another page is open).
+test.describe('About on a phone, JavaScript off', () => {
+	test.use({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+
+	test('the map fallback is the compact chart in its own box', async ({ page }) => {
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
+		const img = page.locator('#projects img.pm-static');
+		await img.scrollIntoViewIfNeeded();
+		await expect.poll(() => img.evaluate((e) => (e as HTMLImageElement).currentSrc)).toMatch(/project-map-compact-light\.svg$/);
+		const box = (await page.locator('#projects .pm-stage').boundingBox())!;
+		expect(box.height / box.width).toBeCloseTo(1038 / 390, 1);
+	});
+});
+
+test.describe('About on a phone', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('the upstream ribbon opens at its newest end', async ({ page }) => {
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
+		const scroller = page.locator('#upstream .ur-scroll');
+		await expect
+			.poll(() => scroller.evaluate((e) => e.scrollWidth - e.clientWidth - e.scrollLeft))
+			.toBeLessThanOrEqual(1);
+		expect(await scroller.evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
 	});
 });

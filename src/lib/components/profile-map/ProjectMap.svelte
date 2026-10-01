@@ -982,24 +982,24 @@
 
 <style>
 	/*
-	 * Category colours. No site theme has eight distinct hues in its own
-	 * families (pride's primary and error are the same red, pine's primary
-	 * and warning sit 4deg apart, trans's primary and tertiary 20deg), so a
-	 * fixed family per slot always collides somewhere. Where relative colour
-	 * syntax is supported (all current engines) the eight slots are the
-	 * theme's primary hue stepped by 45deg at one lightness and chroma per
-	 * mode: always hue-distinct, always anchored to the active theme. The
-	 * fallback below uses six distinct families plus two in-palette mixes.
+	 * Category colours (R141, per Jess 2026-10-01): independent of the site
+	 * theme. Eight fixed, hue-distinct tokens in the producer's category
+	 * order, one variant per colour mode. Picked for colour-vision
+	 * deficiency: every pair stays apart under simulated deuteranopia and
+	 * protanopia (min OKLab distance 0.069 light, 0.087 dark), and each
+	 * clears 3:1 against the light map background and 5.8:1 against the
+	 * dark one. Shape is the second channel (shapes.ts, matching the README
+	 * SVG), so colour is never the only cue.
 	 */
 	.pm {
-		--pm-cat-0: var(--color-primary-600);
-		--pm-cat-1: var(--color-secondary-600);
-		--pm-cat-2: var(--color-tertiary-600);
-		--pm-cat-3: var(--color-success-600);
-		--pm-cat-4: var(--color-error-600);
-		--pm-cat-5: var(--color-warning-700);
-		--pm-cat-6: color-mix(in oklch, var(--color-primary-600), var(--color-success-600));
-		--pm-cat-7: color-mix(in oklch, var(--color-secondary-600), var(--color-tertiary-600));
+		--pm-cat-0: #0a8fd1; /* blue, applied-ml */
+		--pm-cat-1: #803200; /* vermillion, kernel-security */
+		--pm-cat-2: #095b41; /* green, compilers-hpc */
+		--pm-cat-3: #b9649f; /* magenta, systems */
+		--pm-cat-4: #a87f09; /* amber, build-infra */
+		--pm-cat-5: #572e9d; /* violet, sdlc-automation */
+		--pm-cat-6: #677008; /* olive, web-product */
+		--pm-cat-7: #b7535e; /* rose, gis-fabrication */
 		--pm-bg: var(--color-surface-50);
 		--pm-panel: color-mix(in oklab, var(--color-surface-50) 86%, transparent);
 		--pm-panel-solid: var(--color-surface-50);
@@ -1011,14 +1011,14 @@
 		margin: 0;
 	}
 	:global([data-mode='dark']) .pm {
-		--pm-cat-0: var(--color-primary-400);
-		--pm-cat-1: var(--color-secondary-400);
-		--pm-cat-2: var(--color-tertiary-400);
-		--pm-cat-3: var(--color-success-400);
-		--pm-cat-4: var(--color-error-400);
-		--pm-cat-5: var(--color-warning-400);
-		--pm-cat-6: color-mix(in oklch, var(--color-primary-400), var(--color-success-400));
-		--pm-cat-7: color-mix(in oklch, var(--color-secondary-400), var(--color-tertiary-400));
+		--pm-cat-0: #32a9fe;
+		--pm-cat-1: #e56636;
+		--pm-cat-2: #76eea5;
+		--pm-cat-3: #d861aa;
+		--pm-cat-4: #e8a127;
+		--pm-cat-5: #d4c8fe;
+		--pm-cat-6: #c3e151;
+		--pm-cat-7: #fd8a8c;
 		--pm-bg: var(--color-surface-950);
 		--pm-panel: color-mix(in oklab, var(--color-surface-950) 84%, transparent);
 		--pm-panel-solid: var(--color-surface-900);
@@ -1027,29 +1027,6 @@
 		--pm-line: var(--color-surface-700);
 		--pm-edge: var(--color-surface-400);
 		--pm-focus: var(--color-primary-400);
-	}
-
-	@supports (color: oklch(from red l c h)) {
-		.pm {
-			--pm-cat-0: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 0));
-			--pm-cat-1: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 45));
-			--pm-cat-2: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 90));
-			--pm-cat-3: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 135));
-			--pm-cat-4: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 180));
-			--pm-cat-5: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 225));
-			--pm-cat-6: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 270));
-			--pm-cat-7: oklch(from var(--color-primary-500) 0.55 0.15 calc(h + 315));
-		}
-		:global([data-mode='dark']) .pm {
-			--pm-cat-0: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 0));
-			--pm-cat-1: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 45));
-			--pm-cat-2: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 90));
-			--pm-cat-3: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 135));
-			--pm-cat-4: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 180));
-			--pm-cat-5: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 225));
-			--pm-cat-6: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 270));
-			--pm-cat-7: oklch(from var(--color-primary-500) 0.77 0.13 calc(h + 315));
-		}
 	}
 
 	.pm-shell {
