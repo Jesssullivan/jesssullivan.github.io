@@ -1,0 +1,28 @@
+{
+	"source": "spear_resumes profile/out-v2 (@spear_resumes//profile:v2)",
+	"source_commit": "28b367034c84553b368128b3ff25866e8c7c7222",
+	"note": "reviewed copy of spear_resumes origin/main 28b3670 (the MODULE.bazel pin): profile.v1.json and the released svg/ charts only. manifest.json is not copied (nothing here reads it; it lists held paths) and held/ never is (R111). profile_synced_test checks every file and sha256 against the filegroup.",
+	"files": {
+		"profile.v1.json": "4c3d7d66a81be0f549844a3d3492e98641d4ffd1ae612f090e60463f672d3736",
+		"svg/activity-rhythm-compact-dark.svg": "af4f6b9e69e7102f1c27e59299bf4c17ae33ecb259e66a3e45405e1843101924",
+		"svg/activity-rhythm-compact-light.svg": "56f9d8dbcd0d0d87387f80c55b506f45e7e9793225d25b051d56d78efdd6b0ae",
+		"svg/activity-rhythm-dark.svg": "39b512aad4144eea7803f59050b56dd27efa63616193f51694232d714797996d",
+		"svg/activity-rhythm-light.svg": "4371b8d65af325680c93859174bf351adfa5b4516d7d0e759de107395b5ae832",
+		"svg/header-compact-dark.svg": "5d6ec5dcb5b4156152bcb9dfbbaa6aa558cdf12f25217787e5fdef1c5cf07612",
+		"svg/header-compact-light.svg": "07ecf70d5c3e9a357e477f87c1992ef52ea3c88545d3dbbb945e37d216569777",
+		"svg/header-dark.svg": "6b45095854e5b0a4bbb3852b7853873e293d9496f8b1836952ceefeeca249c19",
+		"svg/header-light.svg": "b9cba338ca0a7ccb1aee51054097558e5cd4c41cd2bcbf6a65ee48883541aa04",
+		"svg/project-map-compact-dark.svg": "a3322ab76d0ac2bab141ba5279b38c5445a0df33e6f2568049cfd273a1c025a2",
+		"svg/project-map-compact-light.svg": "7d5f92c20f7c040aad3a24385667bc4a58c96b1c7e93f33bd7c195b12095a7cf",
+		"svg/project-map-dark.svg": "63c6f8140c280532ef9a22861887132b459cd2880fa0ced8d4e740fc69b6074e",
+		"svg/project-map-light.svg": "5ccde1e4d557d88b9bca1de822207014a7cea73339c3a8334f7a3946245759e3",
+		"svg/timeline-compact-dark.svg": "7fabcdfe85d91b9788a0ced9035c16bb8333c9781e0b863ce65250cdd9c5e36c",
+		"svg/timeline-compact-light.svg": "10924cbc108d3c25de3c611e270bb0adde04d6774771b1cc20fe04da053e0495",
+		"svg/timeline-dark.svg": "773519fbc0b491c33ba8ec5f42a17e04daa856c27b6d21e5159b7b761cceae96",
+		"svg/timeline-light.svg": "cd4b153a50b8ba07a0d9476bc48cee5502cfac7c8e008cbae8502700b186389f",
+		"svg/upstream-ribbon-compact-dark.svg": "5520063762ae9a9bd73bebc1e324e8c51e3b1d32742f5ab2a4b6488f870c970f",
+		"svg/upstream-ribbon-compact-light.svg": "091cfb00aab5647e1733e0a238e3de66bb75438a00ea8a1e88d5141a3157dad7",
+		"svg/upstream-ribbon-dark.svg": "0be6661547c5e0fe0bda2610709b34ab835b78753a58d07dcacfba66eca3e289",
+		"svg/upstream-ribbon-light.svg": "fdffe13e557897b2c85f868bb43df07a5b89ac8a4239ab66c30db0b4077282e6"
+	}
+}

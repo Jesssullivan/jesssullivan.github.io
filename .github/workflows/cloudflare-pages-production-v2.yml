@@ -34,6 +34,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      statuses: read
     outputs:
       source_sha: ${{ steps.source.outputs.source_sha }}
       ci_url: ${{ steps.source.outputs.ci_url }}
@@ -69,33 +70,41 @@ jobs:
               }
             }
 
+            // R163 (per Jess, 2026-10-01; TIN-5260): the private CV check runs
+            // locally (scripts/post-private-cv-authority.mjs) and records a
+            // commit status on the exact SHA. Only the newest
+            // private-cv-authority status counts, it must be success, and it
+            // must have been posted by the repository owner.
+            async function latestPrivateCvStatus(sourceSha) {
+              const statuses = await github.paginate(github.rest.repos.listCommitStatusesForRef, {
+                owner,
+                repo,
+                ref: sourceSha,
+                per_page: 100,
+              });
+              const latest = statuses
+                .filter((status) => status.context === "private-cv-authority")
+                .sort((a, b) => Date.parse(b.updated_at || b.created_at) - Date.parse(a.updated_at || a.created_at))[0];
+              if (latest && (latest.creator?.login || "").toLowerCase() !== owner.toLowerCase()) {
+                throw new Error(`Private CV authority status for ${sourceSha} was not posted by ${owner}.`);
+              }
+              return latest;
+            }
+
             async function requirePrivateCvAuthority(sourceSha) {
               const deadline = Date.now() + 20 * 60 * 1_000;
               const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
               while (Date.now() < deadline) {
-                const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-                  owner,
-                  repo,
-                  workflow_id: "private-cv-authority-v2.yml",
-                  branch: "main",
-                  event: "push",
-                  per_page: 100,
-                });
-                const exact = runs.find((run) =>
-                  run.head_sha === sourceSha &&
-                  run.head_branch === "main" &&
-                  run.event === "push" &&
-                  run.head_repository?.full_name === `${owner}/${repo}`
-                );
-                if (exact?.status === "completed") {
-                  if (exact.conclusion !== "success") {
-                    throw new Error(`Private CV authority concluded ${exact.conclusion} for exact SHA ${sourceSha}.`);
+                const latest = await latestPrivateCvStatus(sourceSha);
+                if (latest && latest.state !== "pending") {
+                  if (latest.state !== "success") {
+                    throw new Error(`Private CV authority status is ${latest.state} for exact SHA ${sourceSha}.`);
                   }
                   return;
                 }
                 await delay(15_000);
               }
-              throw new Error(`No successful private CV authority run completed for exact SHA ${sourceSha} within twenty minutes.`);
+              throw new Error(`No successful private-cv-authority commit status for exact SHA ${sourceSha} within twenty minutes.`);
             }
 
             if (context.eventName === "workflow_run") {

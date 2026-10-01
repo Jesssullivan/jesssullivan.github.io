@@ -19,6 +19,24 @@ type Facts = {
 const facts: Facts = JSON.parse(readFileSync(new URL('../static/profile/facts.json', import.meta.url), 'utf8'));
 const SITE = 'https://transscendsurvival.org';
 
+// Profile v2: the map, upstream ribbon and activity rhythm read profile.v1
+// (static/profile/v2, copied from spear_resumes profile/out-v2).
+type V2 = {
+	repos: { id: string; label: string; category: string; link: string | null }[];
+	categories: { id: string; label: string }[];
+	merged_upstream: { project: string; repo: string; number: number; merged: string; relation: string }[];
+};
+const v2: V2 = JSON.parse(readFileSync(new URL('../static/profile/v2/profile.v1.json', import.meta.url), 'utf8'));
+/** Latest merge per project, as the ribbon renders it. */
+const v2Upstream = (() => {
+	const latest = new Map<string, V2['merged_upstream'][number]>();
+	for (const u of v2.merged_upstream) {
+		const seen = latest.get(u.project);
+		if (!seen || u.merged > seen.merged) latest.set(u.project, u);
+	}
+	return [...latest.values()].map((u) => ({ ...u, url: `https://github.com/${u.repo}/pull/${u.number}` }));
+})();
+
 // Facts links as the page renders them: same-site URLs root-relative, and the
 // site-root link dropped (the reader is already on the site).
 const renderedFactLinks = facts.links
@@ -119,22 +137,54 @@ test.describe('About (merged) page', () => {
 		await expect(postLinks.first()).toBeVisible();
 	});
 
-	test('facts charts present (project map, timeline, upstream, languages)', async ({ page }) => {
-		const main = page.locator('#main-content');
-		await expect(main.locator('img[src="/profile/svg/project-map-light.svg"]')).toBeVisible();
-		await expect(main.locator('img[src="/profile/svg/timeline-light.svg"]')).toHaveCount(1);
-		await expect(main.locator('img[src="/profile/svg/upstream-light.svg"]')).toHaveCount(1);
-		await expect(main.locator('img[src="/profile/svg/languages-light.svg"]')).toHaveCount(1);
+	test('server render carries the v2 map SVG and timeline, and no upstream or language-shares image', async ({ request }) => {
+		const html = await (await request.get('/about')).text();
+		expect(html).toContain('src="/profile/v2/svg/project-map-light.svg"');
+		expect(html).toContain('srcset="/profile/v2/svg/project-map-compact-light.svg"');
+		expect(html).toContain('src="/profile/svg/timeline-light.svg"');
+		expect(html).not.toContain('upstream-light.svg');
+		// R134 (per Jess, 2026-10-01): the v1 language-shares bar chart is gone.
+		expect(html).not.toMatch(/languages-(light|dark)\.svg/);
+		// R111: the language heatmap is held; nothing on the page consumes it.
+		expect(html).not.toMatch(/language-heatmap|language_months/);
 	});
 
 	test('ThemedImage swaps src on dark mode toggle', async ({ page }) => {
-		const mapImg = page.locator('#main-content').locator('img[src*="/profile/svg/project-map-"]');
-		await expect(mapImg).toHaveAttribute('src', /project-map-light\.svg/);
+		const timeline = page.locator('#main-content').locator('img[src*="/profile/svg/timeline-"]');
+		await expect(timeline).toHaveAttribute('src', /timeline-light\.svg/);
 
 		await openThemeSettings(page);
 		await page.getByRole('button', { name: 'Set color mode to dark' }).click();
 		await expect(page.locator('html')).toHaveAttribute('data-mode', 'dark');
-		await expect(mapImg).toHaveAttribute('src', /project-map-dark\.svg/);
+		await expect(timeline).toHaveAttribute('src', /timeline-dark\.svg/);
+	});
+
+	test('project map embed links to the full map and becomes interactive', async ({ page }) => {
+		const projects = page.locator('#projects');
+		await expect(projects.getByRole('link', { name: /Open the full map/ })).toHaveAttribute('href', '/projects');
+		const map = projects.locator('[data-testid="project-map"]');
+		await map.locator('.pm-stage').scrollIntoViewIfNeeded();
+		await expect(map).toHaveAttribute('data-state', 'interactive', { timeout: 15_000 });
+		await expect(map.locator('.pm-node')).toHaveCount(v2.repos.length);
+		// Scrolled into view, the clusters assemble; the embed keeps the SVG's box.
+		await expect(map).toHaveAttribute('data-assembled', 'true', { timeout: 10_000 });
+		const box = (await map.locator('.pm-stage').boundingBox())!;
+		expect(box.height / box.width).toBeCloseTo(1226 / 960, 1);
+	});
+
+	test('activity rhythm hatches unknown days and never draws them as zero', async ({ page }) => {
+		const activity = page.locator('#activity');
+		await expect(activity.getByRole('heading', { name: 'Activity' })).toBeVisible();
+		const rhythm = activity.locator('[data-testid="activity-rhythm"]');
+		await expect(rhythm.locator('svg[role="img"] desc')).toContainText('unknown days are hatched, never shown as zero');
+		const unknownCells = rhythm.locator('.ar-cell:not([data-unknown="0"])');
+		expect(await unknownCells.count()).toBeGreaterThan(0);
+		// A wholly unknown week carries no activity value and a hatch fill.
+		const allUnknown = rhythm.locator('.ar-cell[data-active=""]');
+		expect(await allUnknown.count()).toBeGreaterThan(0);
+		await expect(allUnknown.first().locator('rect')).toHaveAttribute('fill', /^url\(#/);
+		await expect(rhythm).toContainText('GitHub contribution connection cap');
+		expect(await activity.innerText()).not.toMatch(/total/i);
 	});
 
 	test('experience section renders every facts role', async ({ page }) => {
@@ -174,23 +224,60 @@ test.describe('About (merged) page', () => {
 	test('projects section renders the map table', async ({ page }) => {
 		const projects = page.locator('#projects');
 		await expect(projects.getByRole('heading', { name: 'Projects' })).toBeVisible();
-		// Exactly the facts projects, in taxonomy order, one row per distinct
-		// label within a category (the four Zig libraries share one row).
-		const expected: { label: string; category: string }[] = [];
-		for (const cat of facts.taxonomy) {
-			for (const p of facts.projects.filter((p) => p.category === cat.id)) {
-				if (!expected.some((e) => e.label === p.label && e.category === cat.label)) {
-					expected.push({ label: p.label, category: cat.label });
-				}
-			}
-		}
+		// Exactly the profile.v1 repositories, in the producer's category order,
+		// labels sorted within a category (describe-don't-name applied upstream).
+		const order = v2.categories.map((c) => c.id);
+		const label = new Map(v2.categories.map((c) => [c.id, c.label]));
+		const expected = [...v2.repos].sort(
+			(a, b) => order.indexOf(a.category) - order.indexOf(b.category) || a.label.localeCompare(b.label),
+		);
+		// Repositories sharing one label (and category) are one row.
+		const grouped = expected.filter(
+			(e, i) => i === 0 || e.label !== expected[i - 1].label || e.category !== expected[i - 1].category,
+		);
 		const table = projects.locator('[data-testid="project-table"]');
-		expect(await table.locator('.project-label').allInnerTexts()).toEqual(expected.map((e) => e.label));
-		expect(await table.locator('.project-category').allInnerTexts()).toEqual(expected.map((e) => e.category));
+		expect(await table.locator('.project-label').allInnerTexts()).toEqual(grouped.map((e) => e.label));
+		expect((await table.locator('.project-category').allInnerTexts()).map((t) => t.trim())).toEqual(
+			grouped.map((e) => label.get(e.category)),
+		);
+	});
+
+	test('each Zig library has its own table row and link (R138)', async ({ page }) => {
+		const zig = v2.repos.filter((r) => /\bin Zig\b/.test(r.label));
+		expect(zig).toHaveLength(4);
+		expect(new Set(zig.map((r) => r.label)).size).toBe(4);
+		const table = page.locator('#projects [data-testid="project-table"]');
+		for (const repo of zig) {
+			const row = table.locator('tbody tr', { has: page.locator('.project-label', { hasText: repo.label }) });
+			await expect(row).toHaveCount(1);
+			await expect(row.getByRole('link', { name: repo.label, exact: true })).toHaveAttribute('href', repo.link!);
+			// Distinct labels never take the grouped-row link list.
+			await expect(row.locator('[data-testid="project-row-links"]')).toHaveCount(0);
+		}
+		// No repository name leaks into the table (describe-don't-name).
+		expect(await table.innerText()).not.toMatch(/zig-(crypto|ctap2|keychain|notify)/);
+	});
+
+	test('embed search box keeps its keys: typing and arrows never drive the map', async ({ page }) => {
+		await page.route('https://jess.clients.xoxd.ai/**', (route) => route.abort('blockedbyclient'));
+		const map = page.locator('#projects [data-testid="project-map"]');
+		await map.locator('.pm-stage').scrollIntoViewIfNeeded();
+		await expect(map).toHaveAttribute('data-state', 'interactive', { timeout: 15_000 });
+		await expect(map).toHaveAttribute('data-assembled', 'true', { timeout: 10_000 });
+		const search = map.getByLabel('Search projects');
+		await search.click();
+		await search.pressSequentially('real-time');
+		await search.press('ArrowLeft');
+		await expect(search).toHaveValue('real-time');
+		await expect(search).toBeFocused();
+		// '-' did not zoom out and '0' was never needed: the markers did not move.
+		expect(await map.locator('.pm-node[data-state="near"]').count()).toBe(0);
+		await search.press('Escape');
+		await expect(search).toHaveValue('');
 	});
 
 	test('other upstream involvement is separate and never says "engagement"', async ({ page }) => {
-		const merged = new Set(facts.merged_upstream.map((u) => u.project));
+		const merged = new Set(v2.merged_upstream.map((u) => u.project));
 		const others = facts.relations.filter((r) => !merged.has(r.project) && r.url);
 		// R60: FFT.js now has a merged PR, so only ggplot2 is left here.
 		expect(others.map((r) => r.project).sort()).toEqual(['ggplot2']);
@@ -225,14 +312,20 @@ test.describe('About (merged) page', () => {
 		await expect(pubs.locator('li')).toHaveCount(facts.publications.length);
 	});
 
-	test('merged upstream lists every facts project with its PR link', async ({ page }) => {
+	test('merged upstream lists every profile.v1 project with its latest PR link', async ({ page }) => {
 		const upstream = page.locator('#upstream');
 		await expect(upstream.getByRole('heading', { name: 'Merged Upstream' })).toBeVisible();
-		for (const u of facts.merged_upstream) {
-			await expect(upstream.getByRole('link', { name: u.project, exact: true })).toHaveAttribute('href', u.url);
+		const list = upstream.locator('[data-testid="upstream-list"]');
+		await expect(list.locator('li')).toHaveCount(v2Upstream.length);
+		for (const u of v2Upstream) {
+			await expect(list.getByRole('link', { name: u.project, exact: true })).toHaveAttribute('href', u.url);
 		}
+		// The ribbon replaces the static upstream image; its marks are real links too.
+		await expect(upstream.locator('img')).toHaveCount(0);
+		await expect(upstream.locator('[data-testid="upstream-ribbon"] a.ur-mark')).toHaveCount(v2Upstream.length);
+		expect(await list.innerText()).not.toMatch(/engagement/i);
 		for (const name of ['llama.cpp', 'KeePassXC', 'rspamd', 'nixpkgs', 'FFT.js', 'Joplin']) {
-			await expect(upstream.getByRole('link', { name, exact: true })).toBeVisible();
+			await expect(list.getByRole('link', { name, exact: true })).toBeVisible();
 		}
 	});
 
@@ -249,7 +342,7 @@ test.describe('About (merged) page', () => {
 	test('no Tinyland venture or link, no counter badges, no RPM kernel', async ({ page }) => {
 		// Facts-driven sections and Links only: post titles in the lists above
 		// are blog content and may legitimately mention the Tinyland broker.
-		const sections = ['#profile-intro', '#experience', '#ventures', '#projects', '#upstream', '#other-upstream', '#community', '#publications', '[data-testid="profile-links"]'];
+		const sections = ['#profile-intro', '#experience', '#ventures', '#projects', '#upstream', '#other-upstream', '#activity', '#community', '#publications', '[data-testid="profile-links"]'];
 		for (const sel of sections) {
 			const section = page.locator(sel);
 			await expect(section).toHaveCount(1);
@@ -352,5 +445,33 @@ test.describe('About (merged) page', () => {
 	test('nav links work from about page', async ({ page }) => {
 		await page.getByRole('link', { name: 'Read the Blog' }).click();
 		await page.waitForURL(/\/blog/, { waitUntil: 'domcontentloaded' });
+	});
+});
+
+// Phone checks use the fixture page (no second browser context, which this
+// Chromium build can stall on while another page is open).
+test.describe('About on a phone, JavaScript off', () => {
+	test.use({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
+
+	test('the map fallback is the compact chart in its own box', async ({ page }) => {
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
+		const img = page.locator('#projects img.pm-static');
+		await img.scrollIntoViewIfNeeded();
+		await expect.poll(() => img.evaluate((e) => (e as HTMLImageElement).currentSrc)).toMatch(/project-map-compact-light\.svg$/);
+		const box = (await page.locator('#projects .pm-stage').boundingBox())!;
+		expect(box.height / box.width).toBeCloseTo(1038 / 390, 1);
+	});
+});
+
+test.describe('About on a phone', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('the upstream ribbon opens at its newest end', async ({ page }) => {
+		await page.goto('/about', { waitUntil: 'domcontentloaded' });
+		const scroller = page.locator('#upstream .ur-scroll');
+		await expect
+			.poll(() => scroller.evaluate((e) => e.scrollWidth - e.clientWidth - e.scrollLeft))
+			.toBeLessThanOrEqual(1);
+		expect(await scroller.evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
 	});
 });

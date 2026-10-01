@@ -45,6 +45,8 @@ function copyInputsToBuildRoot() {
 		copyPath(resolve(workspaceRoot, dir), resolve(buildRoot, dir));
 	}
 	copyPath(resolve(workspaceRoot, 'static', 'data'), resolve(buildRoot, 'static', 'data'));
+	// R164: the profile.v1 copy (static/profile/v2) the profile and map tests read.
+	copyPath(resolve(workspaceRoot, 'static', 'profile'), resolve(buildRoot, 'static', 'profile'));
 
 	for (const file of [
 		'.npmrc',

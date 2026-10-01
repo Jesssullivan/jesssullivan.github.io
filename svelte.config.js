@@ -354,7 +354,15 @@ const config = {
 			base: ''
 		},
 		prerender: {
-			handleHttpError: 'warn',
+			// A 5xx while prerendering (e.g. /about or /projects throwing) must
+			// fail the build; it would otherwise ship as a warning. Lower
+			// statuses (a 404 link to a held or retired path) stay warnings.
+			handleHttpError: ({ status, path, referrer, message }) => {
+				if (status >= 500) {
+					throw new Error(`prerender ${status} at ${path}${referrer ? ` (linked from ${referrer})` : ''}: ${message}`);
+				}
+				console.warn(message);
+			},
 			handleMissingId: 'warn'
 		}
 	}

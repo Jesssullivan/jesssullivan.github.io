@@ -80,9 +80,8 @@
 <text x="375.6" y="385.7" class="t-lab fade" style="animation-delay:3480ms"><tspan x="375.6" dy="0">property-based testing package for</tspan><tspan x="375.6" dy="14.5">Chapel</tspan></text>
 <path class="ld" pathLength="1" d="M317.1 359.4L306.6 359.4" style="animation-delay:3320ms"/>
 <text x="302.6" y="365.4" text-anchor="end" class="t-lab fade" style="animation-delay:3620ms"><tspan x="302.6" dy="0">provenance-clean Bessel functions</tspan><tspan x="302.6" dy="14.5">(J0, J1 and J1 roots) for Futhark</tspan></text>
-<path class="ld" pathLength="1" d="M240.8 258.2L240.8 233.9" style="animation-delay:3460ms"/>
-<path class="ld" pathLength="1" d="M223.3 248.4L223.3 233.9" style="animation-delay:3460ms"/>
-<text x="252.8" y="228.4" text-anchor="end" class="t-lab fade" style="animation-delay:3760ms"><tspan x="252.8" dy="0">Zig capability libraries with C ABIs</tspan></text>
+<path class="ld" pathLength="1" d="M247.2 269.6L294 297.9" style="animation-delay:3460ms"/>
+<text x="298" y="311.9" class="t-lab fade" style="animation-delay:3760ms"><tspan x="298" dy="0">cryptographic primitives in Zig</tspan><tspan x="298" dy="14.5">behind a stable C ABI</tspan></text>
 <path class="ld" pathLength="1" d="M289.3 210.6L335.8 210.6" style="animation-delay:3600ms"/>
 <text x="339.8" y="184.1" class="t-lab fade" style="animation-delay:3900ms"><tspan x="339.8" dy="0">in-progress encrypted sync</tspan><tspan x="339.8" dy="14.5">filesystem (Linux FUSE + macOS</tspan><tspan x="339.8" dy="14.5">FileProvider)</tspan></text>
 <path class="ld" pathLength="1" d="M518 164.1L582.2 149.9" style="animation-delay:3740ms"/>

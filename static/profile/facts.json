@@ -1,17 +1,17 @@
 {
  "community": [
-  "Ongoing engagement with the Rocky Enterprise Linux Foundation (Rocky 10 platform, real-time (PREEMPT_RT) kernel lanes, and downstream CVE backport practice).",
+  "Ongoing engagement with the Rocky Enterprise Linux Foundation: Rocky 10 platform, real-time (PREEMPT_RT) kernel lanes and downstream CVE backport practice.",
   "First Fellow, D&M Makerspace, Plymouth State University (2017–2020)",
   "Membership Chair & 3D Printing Captain, Ithaca Generator (2020–2022)"
  ],
  "generated_by": "spear_resumes profile/render/render.py (just profile)",
  "identity": {
-  "always_building": "Hey! I am always hacking, learning, building, reading, and tinkering. Day in, day out, this is what I do.",
+  "always_building": "Hey! I am always learning, building, reading and tinkering. Day in, day out, this is what I do.",
   "email": "jess@sulliwood.org",
-  "headline": "Senior Full-Stack & Systems Engineer · 8+ years",
+  "headline": "Senior Full-Stack & Systems Engineer · 10+ years",
   "location": "Lewiston, ME & Boston, MA",
   "name": "Jess Sullivan",
-  "summary": "Senior full-stack and systems engineer with 8+ years building software across TypeScript/SvelteKit, Python, Go, C++, Rust, Zig, Chapel, Haskell, and Nix-first infrastructure.",
+  "summary": "Senior full stack and systems engineer with 10+ years shipping software.",
   "taglines": [
    "Full-Stack & Product · DevSecOps · ML / Computer Vision · Compilers & HPC · Kernel & Security Research"
   ]
@@ -172,7 +172,7 @@
   {
    "merged": "2026-01-16",
    "project": "Chapel Mason registry",
-   "relation": "committer",
+   "relation": "contributor",
    "url": "https://github.com/chapel-lang/mason-registry/pull/77"
   },
   {
@@ -308,10 +308,34 @@
   {
    "category": "systems",
    "category_label": "Systems libraries & tools",
+   "label": "cross-platform desktop notifications in Zig for macOS and Linux",
+   "url": "https://github.com/Jesssullivan/zig-notify",
+   "x": 0.054,
+   "y": 0.276
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
    "label": "a cross-platform disk-cleanup daemon with graduated thresholds (Go, Nix, systemd and launchd)",
    "url": null,
    "x": 0.11,
    "y": 0.257
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "cross-platform secret storage in Zig over the macOS Keychain and Linux libsecret",
+   "url": "https://github.com/Jesssullivan/zig-keychain",
+   "x": 0.031,
+   "y": 0.271
+  },
+  {
+   "category": "systems",
+   "category_label": "Systems libraries & tools",
+   "label": "cryptographic primitives in Zig behind a stable C ABI",
+   "url": "https://github.com/Jesssullivan/zig-crypto",
+   "x": 0.034,
+   "y": 0.315
   },
   {
    "category": "systems",
@@ -324,23 +348,7 @@
   {
    "category": "systems",
    "category_label": "Systems libraries & tools",
-   "label": "an XWayland Emacs window manager experimenting with eye-gesture and XR input",
-   "url": "https://github.com/Jesssullivan/XoxdWM",
-   "x": 0.131,
-   "y": 0.184
-  },
-  {
-   "category": "systems",
-   "category_label": "Systems libraries & tools",
-   "label": "Zig capability libraries with C ABIs",
-   "url": "https://github.com/Jesssullivan/zig-crypto",
-   "x": 0.034,
-   "y": 0.315
-  },
-  {
-   "category": "systems",
-   "category_label": "Systems libraries & tools",
-   "label": "Zig capability libraries with C ABIs",
+   "label": "portable FIDO2 / WebAuthn security-key operations in Zig over USB HID",
    "url": "https://github.com/Jesssullivan/zig-ctap2",
    "x": 0.0,
    "y": 0.296
@@ -348,18 +356,10 @@
   {
    "category": "systems",
    "category_label": "Systems libraries & tools",
-   "label": "Zig capability libraries with C ABIs",
-   "url": "https://github.com/Jesssullivan/zig-keychain",
-   "x": 0.031,
-   "y": 0.271
-  },
-  {
-   "category": "systems",
-   "category_label": "Systems libraries & tools",
-   "label": "Zig capability libraries with C ABIs",
-   "url": "https://github.com/Jesssullivan/zig-notify",
-   "x": 0.054,
-   "y": 0.276
+   "label": "an XWayland Emacs window manager experimenting with eye-gesture and XR input",
+   "url": "https://github.com/Jesssullivan/XoxdWM",
+   "x": 0.131,
+   "y": 0.184
   },
   {
    "category": "build-infra",
@@ -717,7 +717,7 @@
   {
    "project": "Chapel Mason registry",
    "proof": "chapel-lang/mason-registry#77",
-   "relation": "committer"
+   "relation": "contributor"
   },
   {
    "project": "Klipper",
@@ -740,7 +740,7 @@
  "roles": [
   {
    "bullets": [
-    "Current Bates work spans enterprise authentication, SAML/LTI/Shibboleth, secret management, ACME certificate automation, OpenTelemetry, GitLab AutoDevOps, OpenTofu, RKE2/Rancher, legacy modernization, and 24/7 CVE response.",
+    "Current Bates work spans enterprise authentication, SAML/LTI/Shibboleth, secret management, ACME certificate automation, OpenTelemetry, GitLab AutoDevOps, OpenTofu, RKE2/Rancher, legacy modernization and 24/7 CVE response.",
     "Built a property-based orchestrator and instrumentation harness for 1980s-era degree-management C in Haskell + Python (QuickCheck, Cabal, podman-compose for dev parity, FPM for packaging, AutoDevOps for CI/CD); turned an unautomatable legacy codebase into a verifiable, traceable, k8s-friendly workload.",
     "Overhauled and automated the event-management lifecycle (C#, Go, Ansible).",
     "Helped lead adoption of horizontally-scalable Apache Solr instances across multiple public and private indexing and search applications.",
@@ -750,12 +750,12 @@
    "end": "present",
    "org": "Bates College",
    "start": 2024,
-   "summary": "Build and maintain enterprise systems supporting staff, faculty, and the technical ILS team. 24/7 on-call for CVE triage and mitigation; help lead IaC and dev-CI parity college-wide.",
+   "summary": "Build and maintain enterprise systems supporting staff, faculty and the technical ILS team. 24/7 on-call for CVE triage and mitigation; help lead IaC and dev-CI parity college-wide.",
    "title": "Systems Analyst (DevSecOps)"
   },
   {
    "bullets": [
-    "Led R&D on internal ML annotation tooling, model-evaluation web APIs, and end-to-end MLOps pipelines (Flask, TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with the Visipedia / iNaturalist community.",
+    "Led R&D on internal ML annotation tooling, model-evaluation web APIs and end-to-end MLOps pipelines (TypeScript, React, Vue, Docker, BitBucket CI); built real-time inference demos in React Native and Swift; contributed to novel community-science fine-grained classification research with Visipedia.",
     "Streamlined Macaulay Library MLOps and asset ingestion pipeline."
    ],
    "end": 2021,
@@ -775,13 +775,13 @@
   {
    "bullets": [
     "Developed web GIS tools used by the National Park Service, Foundation for Healthy Communities, GPRED, the Northern Border Regional Commission, presented at the 2019 AAG Annual Meeting in Washington, DC",
-    "Client work (client list on request): the entire business stack for a multi-location clinical practice, grown through four business expansions over three years; R&D for a hydraulic sawmill equipment maker; and business systems for other small firms."
+    "Client work (client list on request): R&D for a hydraulic sawmill equipment maker; business systems for other small firms."
    ],
    "end": "present",
-   "org": "Full-Stack Contracting & FOSS",
+   "org": "Engineering & Contracting",
    "start": 2017,
-   "summary": "Independent contractor; active upstream contributor and committer.",
-   "title": "Independent contractor"
+   "summary": "Operating as xoxd.ai as of 2024.",
+   "title": "Engineering & Contracting"
   }
  ],
  "schema": 1,
@@ -835,7 +835,7 @@
    "label": "GIS, fabrication & community"
   }
  ],
- "updated": "2026-09-26",
+ "updated": "2026-10-01",
  "ventures": [
   {
    "description": "Independent contractor / contributor business while in the GIS & ML space.",
@@ -850,14 +850,14 @@
    "start": 2021
   },
   {
-   "description": "Bootstrapped engineering and contracting firm: infrastructure automation, build platforms, agent orchestration for semi-autonomous infrastructure lifecycle management, and full business stacks for clients.",
+   "description": "Bootstrapped engineering and contracting firm: infrastructure automation, build platforms, agent orchestration for semi-autonomous infrastructure lifecycle management.",
    "end": "present",
    "github": "https://github.com/xoxd-ai",
    "name": "xoxd.ai",
    "product": "glorious.build",
    "product_line": "Building glorious.build, a cache-first build and CI substrate (Bazel remote cache and execution, Nix, pooled self-hosted runners); pre-launch.",
    "product_verb": "Building",
-   "role": "Founder",
+   "role": "Operating as",
    "start": 2024,
    "url": "https://xoxd.ai"
   },

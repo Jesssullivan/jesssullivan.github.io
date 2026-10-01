@@ -1,0 +1,738 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 782" width="390" height="782" role="img" aria-labelledby="activity-light-390-title" aria-describedby="activity-light-390-desc"><title id="activity-light-390-title">Activity rhythm</title><desc id="activity-light-390-desc">Boolean public contribution observations, grouped by UTC week and kind. Cell fill encodes the observed active-day count from zero to seven. Each cell title gives the observed denominator and missing days. Hatching means no observations; a slash means some observations are missing. Types overlap and are never added into a contribution total. Of 364 calendar days, 305 are observed for every activity type and 59 have at least one unknown type. Declared coverage gaps span 61 days: 1 Apr 2026 to 31 May 2026 (GitHub contribution connection cap). Inside a gap a missing observation is unknown, never zero; an observed active day remains a lower bound.</desc><style>text{font-variant-numeric:tabular-nums}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><rect x=".5" y=".5" width="389" height="781" fill="#f7f3fc" stroke="#dad5e0"/><text x="20" y="43" font-size="24" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="600" fill="#69001a" text-anchor="start">Activity rhythm</text>
+<text x="20" y="69" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Public active days per week, separated by</text>
+<text x="20" y="88" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">activity type.</text>
+<line x1="20" y1="108" x2="370" y2="108" stroke="#dad5e0"/>
+<defs><pattern id="activity-light-390-unknown" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M-1 1L1 -1M0 6L6 0M5 7L7 5" fill="none" stroke="#4a4551" stroke-width="1"/></pattern></defs>
+<text x="125" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Sep</text>
+<text x="172.115" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Nov</text>
+<text x="209.808" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Dec</text>
+<text x="256.923" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Jan</text>
+<text x="294.615" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Feb</text>
+<text x="332.308" y="142" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Mar</text>
+<text x="20" y="173" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Commits</text>
+<g data-week="2025-09-29" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-09-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="125" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-06" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-10-06: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="134.423" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-13" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-10-13: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="143.846" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-20" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-10-20: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="153.269" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-27" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-10-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="162.692" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-03" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-11-03: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="172.115" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-10" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-11-10: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="181.538" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-17" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-11-17: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="190.962" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-24" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-11-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="200.385" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-01" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-12-01: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-08" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-12-08: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-15" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-12-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-22" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-12-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-29" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2025-12-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-05" data-kind="commit" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-01-05: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="159" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-12" data-kind="commit" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-01-12: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="159" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-19" data-kind="commit" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-01-19: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="159" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-26" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-01-26: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="159" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-02" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-02-02: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="159" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-09" data-kind="commit" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-02-09: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="159" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-16" data-kind="commit" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-02-16: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="159" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-23" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-02-23: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="159" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-02" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-03-02: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="159" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-09" data-kind="commit" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-03-09: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="159" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-16" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-03-16: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="159" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-23" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-03-23: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="159" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<text x="20" y="203" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Pull requests</text>
+<g data-week="2025-09-29" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-09-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="125" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-06" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-10-06: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="134.423" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-13" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-10-13: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="143.846" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-20" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-10-20: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="153.269" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-27" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-10-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="162.692" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-03" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-11-03: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="172.115" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-10" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-11-10: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="181.538" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-17" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-11-17: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="190.962" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-24" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-11-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="200.385" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-01" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-12-01: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-08" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-12-08: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-15" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-12-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-22" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-12-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-29" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2025-12-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-05" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-01-05: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-12" data-kind="pr" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-01-12: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="189" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-19" data-kind="pr" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-01-19: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="189" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-26" data-kind="pr" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-01-26: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="189" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-02" data-kind="pr" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-02-02: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="189" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-09" data-kind="pr" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-02-09: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="189" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-16" data-kind="pr" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-02-16: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="189" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-23" data-kind="pr" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-02-23: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="189" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-02" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-03-02: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="189" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-09" data-kind="pr" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-03-09: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="189" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-16" data-kind="pr" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-03-16: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="189" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-23" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-03-23: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="189" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<text x="20" y="233" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Reviews</text>
+<g data-week="2025-09-29" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-09-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="125" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-06" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-10-06: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="134.423" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-13" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-10-13: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="143.846" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-20" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-10-20: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="153.269" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-27" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-10-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="162.692" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-03" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-11-03: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="172.115" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-10" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-11-10: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="181.538" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-17" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-11-17: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="190.962" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-24" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-11-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="200.385" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-01" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-12-01: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-08" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-12-08: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-15" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-12-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-22" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-12-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-29" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2025-12-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-05" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-01-05: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-12" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-01-12: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-19" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-01-19: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-26" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-01-26: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-02" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-02-02: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-09" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-02-09: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-16" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-02-16: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-23" data-kind="review" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-02-23: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="219" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-02" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-03-02: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-09" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-03-09: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-16" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-03-16: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-23" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-03-23: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="219" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<text x="20" y="263" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Issues</text>
+<g data-week="2025-09-29" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-09-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="125" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-06" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-10-06: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="134.423" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-13" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-10-13: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="143.846" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-20" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-10-20: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="153.269" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-10-27" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-10-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="162.692" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-03" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-11-03: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="172.115" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-10" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-11-10: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="181.538" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-17" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-11-17: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="190.962" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-11-24" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-11-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="200.385" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-01" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-12-01: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-08" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-12-08: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-15" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-12-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-22" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-12-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2025-12-29" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2025-12-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-05" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-01-05: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-12" data-kind="issue" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-01-12: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="249" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-19" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-01-19: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-01-26" data-kind="issue" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-01-26: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="249" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-02" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-02-02: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="249" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-09" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-02-09: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-16" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-02-16: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-02-23" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-02-23: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="249" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-02" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-03-02: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-09" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-03-09: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="249" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-16" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-03-16: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="249" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-03-23" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-03-23: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="249" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<text x="20" y="302" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2025-09-29 — 2026-03-29</text>
+<text x="125" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Mar</text>
+<text x="172.115" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">May</text>
+<text x="209.808" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Jun</text>
+<text x="256.923" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Jul</text>
+<text x="294.615" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Aug</text>
+<text x="341.731" y="325" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">Sep</text>
+<text x="20" y="356" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Commits</text>
+<g data-week="2026-03-30" data-kind="commit" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="5"><title>Commit activity during the week beginning 2026-03-30: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 5 inside a declared coverage gap.</title>
+<rect x="125" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M125.423 342L132.423 349" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-04-06" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-04-06: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="134.423" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-04-13" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-04-13: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="143.846" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-04-20" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-04-20: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="153.269" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-04-27" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-04-27: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="162.692" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-04" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-05-04: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="172.115" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-11" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-05-11: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="181.538" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-18" data-kind="commit" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-05-18: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="190.962" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M191.385 342L198.385 349" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-05-25" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Commit activity during the week beginning 2026-05-25: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="200.385" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-01" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-06-01: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-08" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-06-08: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-15" data-kind="commit" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-06-15: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="342" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-22" data-kind="commit" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-06-22: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="342" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-29" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-06-29: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-06" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-07-06: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-13" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-07-13: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-20" data-kind="commit" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-07-20: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="342" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-27" data-kind="commit" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-07-27: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="342" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-03" data-kind="commit" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-08-03: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="342" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-10" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-08-10: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-17" data-kind="commit" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-08-17: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="342" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-24" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-08-24: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-31" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-08-31: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-07" data-kind="commit" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-09-07: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="342" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-14" data-kind="commit" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-09-14: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="342" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-21" data-kind="commit" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Commit activity during the week beginning 2026-09-21: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="342" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<text x="20" y="386" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Pull requests</text>
+<g data-week="2026-03-30" data-kind="pr" data-active="5" data-observed="5" data-unknown="2" data-days="7" data-gap-days="5"><title>Pull-request activity during the week beginning 2026-03-30: 5 public active days among 5 observed calendar days; 2 unknown; 7 calendar days in this window; 5 inside a declared coverage gap.</title>
+<rect x="125" y="372" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+<path d="M125.423 372L132.423 379" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-04-06" data-kind="pr" data-active="5" data-observed="5" data-unknown="2" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-04-06: 5 public active days among 5 observed calendar days; 2 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="134.423" y="372" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+<path d="M134.846 372L141.846 379" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-04-13" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-04-13: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="143.846" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-04-20" data-kind="pr" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-04-20: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="153.269" y="372" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M153.692 372L160.692 379" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-04-27" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-04-27: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="162.692" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-04" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-05-04: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="172.115" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-11" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-05-11: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="181.538" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-05-18" data-kind="pr" data-active="5" data-observed="5" data-unknown="2" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-05-18: 5 public active days among 5 observed calendar days; 2 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="190.962" y="372" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+<path d="M191.385 372L198.385 379" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-05-25" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Pull-request activity during the week beginning 2026-05-25: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="200.385" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-01" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-06-01: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-08" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-06-08: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-15" data-kind="pr" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-06-15: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="372" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-22" data-kind="pr" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-06-22: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="372" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-29" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-06-29: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-06" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-07-06: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-13" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-07-13: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-20" data-kind="pr" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-07-20: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="372" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-27" data-kind="pr" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-07-27: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="372" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-03" data-kind="pr" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-08-03: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="372" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-10" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-08-10: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-17" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-08-17: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-24" data-kind="pr" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-08-24: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="372" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-31" data-kind="pr" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-08-31: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="372" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-07" data-kind="pr" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-09-07: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="372" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-14" data-kind="pr" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-09-14: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="372" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-21" data-kind="pr" data-active="6" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Pull-request activity during the week beginning 2026-09-21: 6 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="372" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+</g>
+<text x="20" y="416" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Reviews</text>
+<g data-week="2026-03-30" data-kind="review" data-active="0" data-observed="2" data-unknown="5" data-days="7" data-gap-days="5"><title>Review activity during the week beginning 2026-03-30: 0 public active days among 2 observed calendar days; 5 unknown; 7 calendar days in this window; 5 inside a declared coverage gap.</title>
+<rect x="125" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<path d="M125.423 402L132.423 409" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-04-06" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-04-06: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="134.423" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="134.423" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-04-13" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-04-13: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="143.846" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="143.846" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-04-20" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-04-20: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="153.269" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="153.269" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-04-27" data-kind="review" data-active="1" data-observed="1" data-unknown="6" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-04-27: 1 public active days among 1 observed calendar days; 6 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="162.692" y="402" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+<path d="M163.115 402L170.115 409" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-05-04" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-05-04: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="172.115" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="172.115" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-05-11" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-05-11: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="181.538" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="181.538" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-05-18" data-kind="review" data-active="0" data-observed="0" data-unknown="7" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-05-18: 0 public active days among 0 observed calendar days; 7 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="190.962" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="190.962" y="402" width="7.423" height="20" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-week="2026-05-25" data-kind="review" data-active="1" data-observed="1" data-unknown="6" data-days="7" data-gap-days="7"><title>Review activity during the week beginning 2026-05-25: 1 public active days among 1 observed calendar days; 6 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="200.385" y="402" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+<path d="M200.808 402L207.808 409" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-06-01" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-06-01: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-08" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-06-08: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-15" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-06-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-22" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-06-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-29" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-06-29: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-06" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-07-06: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-13" data-kind="review" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-07-13: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="402" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-20" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-07-20: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-27" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-07-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-03" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-08-03: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-10" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-08-10: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-17" data-kind="review" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-08-17: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="402" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-24" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-08-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-31" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-08-31: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-07" data-kind="review" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-09-07: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="402" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-14" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-09-14: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-21" data-kind="review" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Review activity during the week beginning 2026-09-21: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="402" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<text x="20" y="446" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#020103" text-anchor="start">Issues</text>
+<g data-week="2026-03-30" data-kind="issue" data-active="4" data-observed="4" data-unknown="3" data-days="7" data-gap-days="5"><title>Issue activity during the week beginning 2026-03-30: 4 public active days among 4 observed calendar days; 3 unknown; 7 calendar days in this window; 5 inside a declared coverage gap.</title>
+<rect x="125" y="432" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+<path d="M125.423 432L132.423 439" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-04-06" data-kind="issue" data-active="5" data-observed="5" data-unknown="2" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-04-06: 5 public active days among 5 observed calendar days; 2 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="134.423" y="432" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+<path d="M134.846 432L141.846 439" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-04-13" data-kind="issue" data-active="7" data-observed="7" data-unknown="0" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-04-13: 7 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="143.846" y="432" width="7.423" height="20" fill="#890024" stroke="#4a4551"/>
+</g>
+<g data-week="2026-04-20" data-kind="issue" data-active="3" data-observed="3" data-unknown="4" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-04-20: 3 public active days among 3 observed calendar days; 4 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="153.269" y="432" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+<path d="M153.692 432L160.692 439" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-04-27" data-kind="issue" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-04-27: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="162.692" y="432" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M163.115 432L170.115 439" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-05-04" data-kind="issue" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-05-04: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="172.115" y="432" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M172.538 432L179.538 439" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-05-11" data-kind="issue" data-active="2" data-observed="2" data-unknown="5" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-05-11: 2 public active days among 2 observed calendar days; 5 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="181.538" y="432" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+<path d="M181.962 432L188.962 439" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-05-18" data-kind="issue" data-active="3" data-observed="3" data-unknown="4" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-05-18: 3 public active days among 3 observed calendar days; 4 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="190.962" y="432" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+<path d="M191.385 432L198.385 439" fill="none" stroke="#020103"/>
+</g>
+<g data-week="2026-05-25" data-kind="issue" data-active="6" data-observed="6" data-unknown="1" data-days="7" data-gap-days="7"><title>Issue activity during the week beginning 2026-05-25: 6 public active days among 6 observed calendar days; 1 unknown; 7 calendar days in this window; 7 inside a declared coverage gap.</title>
+<rect x="200.385" y="432" width="7.423" height="20" fill="#ab0030" stroke="#4a4551"/>
+<path d="M200.808 432L207.808 439" fill="none" stroke="#f7f3fc"/>
+</g>
+<g data-week="2026-06-01" data-kind="issue" data-active="4" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-06-01: 4 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="209.808" y="432" width="7.423" height="20" fill="#f5184c" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-08" data-kind="issue" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-06-08: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="219.231" y="432" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-15" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-06-15: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="228.654" y="432" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-22" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-06-22: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="238.077" y="432" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-06-29" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-06-29: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="247.5" y="432" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-06" data-kind="issue" data-active="5" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-07-06: 5 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="256.923" y="432" width="7.423" height="20" fill="#cc003b" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-13" data-kind="issue" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-07-13: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="266.346" y="432" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-20" data-kind="issue" data-active="3" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-07-20: 3 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="275.769" y="432" width="7.423" height="20" fill="#ff767f" stroke="#4a4551"/>
+</g>
+<g data-week="2026-07-27" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-07-27: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="285.192" y="432" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-03" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-08-03: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="294.615" y="432" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-10" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-08-10: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="304.038" y="432" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-17" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-08-17: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="313.462" y="432" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-24" data-kind="issue" data-active="0" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-08-24: 0 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="322.885" y="432" width="7.423" height="20" fill="#ede9f3" stroke="#4a4551"/>
+</g>
+<g data-week="2026-08-31" data-kind="issue" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-08-31: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="332.308" y="432" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-07" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-09-07: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="341.731" y="432" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-14" data-kind="issue" data-active="2" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-09-14: 2 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="351.154" y="432" width="7.423" height="20" fill="#ffb4b5" stroke="#4a4551"/>
+</g>
+<g data-week="2026-09-21" data-kind="issue" data-active="1" data-observed="7" data-unknown="0" data-days="7" data-gap-days="0"><title>Issue activity during the week beginning 2026-09-21: 1 public active days among 7 observed calendar days; 0 unknown; 7 calendar days in this window.</title>
+<rect x="360.577" y="432" width="7.423" height="20" fill="#ffdfdf" stroke="#4a4551"/>
+</g>
+<g data-gap-week="2026-03-30" data-gap-days="5"><title>Week beginning 2026-03-30: 5 of 7 days inside a declared activity coverage gap.</title>
+<rect x="125" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="125" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-04-06" data-gap-days="7"><title>Week beginning 2026-04-06: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="134.423" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="134.423" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-04-13" data-gap-days="7"><title>Week beginning 2026-04-13: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="143.846" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="143.846" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-04-20" data-gap-days="7"><title>Week beginning 2026-04-20: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="153.269" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="153.269" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-04-27" data-gap-days="7"><title>Week beginning 2026-04-27: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="162.692" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="162.692" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-05-04" data-gap-days="7"><title>Week beginning 2026-05-04: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="172.115" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="172.115" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-05-11" data-gap-days="7"><title>Week beginning 2026-05-11: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="181.538" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="181.538" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-05-18" data-gap-days="7"><title>Week beginning 2026-05-18: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="190.962" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="190.962" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<g data-gap-week="2026-05-25" data-gap-days="7"><title>Week beginning 2026-05-25: 7 of 7 days inside a declared activity coverage gap.</title>
+<rect x="200.385" y="458" width="7.423" height="7" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="200.385" y="458" width="7.423" height="7" fill="url(#activity-light-390-unknown)"/>
+</g>
+<text x="20" y="485" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2026-03-30 — 2026-09-27</text>
+<text x="20" y="541" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Active days</text>
+<rect x="116" y="529" width="18" height="17" fill="#ede9f3" stroke="#4a4551"/>
+<text x="125" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">0</text>
+<rect x="139" y="529" width="18" height="17" fill="#ffdfdf" stroke="#4a4551"/>
+<text x="148" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">1</text>
+<rect x="162" y="529" width="18" height="17" fill="#ffb4b5" stroke="#4a4551"/>
+<text x="171" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2</text>
+<rect x="185" y="529" width="18" height="17" fill="#ff767f" stroke="#4a4551"/>
+<text x="194" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">3</text>
+<rect x="208" y="529" width="18" height="17" fill="#f5184c" stroke="#4a4551"/>
+<text x="217" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">4</text>
+<rect x="231" y="529" width="18" height="17" fill="#cc003b" stroke="#4a4551"/>
+<text x="240" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">5</text>
+<rect x="254" y="529" width="18" height="17" fill="#ab0030" stroke="#4a4551"/>
+<text x="263" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">6</text>
+<rect x="277" y="529" width="18" height="17" fill="#890024" stroke="#4a4551"/>
+<text x="286" y="561" font-size="13" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">7</text>
+<rect x="20" y="579" width="18" height="17" fill="#ede9f3" stroke="#4a4551"/>
+<rect x="20" y="579" width="18" height="17" fill="url(#activity-light-390-unknown)"/>
+<text x="45" y="592" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Unknown</text>
+<line x1="20" y1="609" x2="370" y2="609" stroke="#dad5e0"/>
+<text x="20" y="625" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Each cell: 0–7 observed active days. A slash</text>
+<text x="20" y="645" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">marks missing observations.</text>
+<text x="20" y="665" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Hatched strip: declared coverage gap, shown as</text>
+<text x="20" y="685" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">unknown rather than zero: 1 Apr 2026 to 31 May</text>
+<text x="20" y="705" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">2026 (GitHub contribution connection cap).</text>
+<text x="20" y="725" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Types overlap; a day may appear in several</text>
+<text x="20" y="745" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">rows. Private activity is excluded.</text></svg>

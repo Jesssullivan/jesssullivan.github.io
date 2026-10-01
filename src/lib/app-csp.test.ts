@@ -28,4 +28,10 @@ describe('app CSP', () => {
 			expect.arrayContaining(['https://hub.tinyland.dev', 'https://tinyland.dev']),
 		);
 	});
+
+	it('allows only the profile host for the live profile.v1 dataset (R78)', () => {
+		const connect = cspDirective('connect-src');
+		expect(connect).toContain('https://jess.clients.xoxd.ai');
+		expect(connect.filter((origin) => origin.includes('xoxd.ai'))).toEqual(['https://jess.clients.xoxd.ai']);
+	});
 });

@@ -57,7 +57,7 @@
 	<p class="text-sm text-surface-400 mb-6">
 		Built with XeLaTeX via <a href="https://tectonic-typesetting.github.io/" target="_blank" rel="noopener" class="hover:text-primary-500 underline">Tectonic</a>,
 		orchestrated by <a href="https://github.com/Jesssullivan/rules_tectonic" target="_blank" rel="noopener" class="hover:text-primary-500 underline">rules_tectonic</a>.
-		The TeX sources are private; the generic PDFs are refreshed by an operator-reviewed sync. A <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/.github/workflows/private-cv-authority-v2.yml" target="_blank" rel="noopener" class="hover:text-primary-500 underline">default-owned CI check</a> verifies that the committed PDFs match without writing or publishing them.
+		The TeX sources are private; the generic PDFs are refreshed by an operator-reviewed sync. A <a href="https://github.com/Jesssullivan/jesssullivan.github.io/blob/main/scripts/post-private-cv-authority.mjs" target="_blank" rel="noopener" class="hover:text-primary-500 underline">local consistency check</a> verifies that the committed PDFs match and records the result as a commit status, without writing or publishing them.
 	</p>
 
 	<!-- Tab switcher -->
@@ -91,7 +91,7 @@
 		<div class="card p-4 flex justify-center">
 			<img
 				src="/cv/build-flow.svg"
-				alt="Build flow: private XeLaTeX sources for //generic:resume, //generic:precis, and //generic:cv compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs. An operator-reviewed bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo. The private-cv-authority-v2 workflow verifies exact-main consistency without committing or publishing output."
+				alt="Build flow: private XeLaTeX sources for //generic:resume, //generic:precis, and //generic:cv compile via rules_tectonic using the Tectonic XeLaTeX engine, producing three PDFs. An operator-reviewed bazel run //static/cv:sync_pdfs writes them into static/cv/ in this repo. A local check (npm run cv:authority) verifies exact-commit consistency and posts the private-cv-authority commit status, without committing or publishing output."
 				class="max-w-full h-auto"
 				loading="lazy"
 			/>
