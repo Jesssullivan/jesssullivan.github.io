@@ -3,13 +3,11 @@ import { readFile } from 'node:fs/promises';
 
 const workflowUrl = new URL('../.github/workflows/cloudflare-pages-production-v2.yml', import.meta.url);
 const workflow = await readFile(workflowUrl, 'utf8');
-const resolverSource = extractGithubScript('Resolve and verify exact source SHA')
-	.replace('20 * 60 * 1_000', '1')
-	.replace('15_000', '0');
+const resolverSource = extractGithubScript('Resolve and verify exact source SHA');
 assert.match(resolverSource, /requireAuthorityJobs/);
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-const executeResolver = new AsyncFunction('github', 'context', 'core', 'process', resolverSource);
+const executeResolver = new AsyncFunction('github', 'context', 'core', 'process', 'Date', 'setTimeout', resolverSource);
 
 const repository = 'Jesssullivan/jesssullivan.github.io';
 const sourceSha = 'a'.repeat(40);
@@ -47,6 +45,7 @@ async function runFixture({
 	manualDeploy = 'true',
 	productionEnabled = 'false',
 	dispatchAction = 'cloudflare-pages-production-v2',
+	clock = { now: 0, sleeps: [] },
 }) {
 	const outputs = {};
 	const listJobsForWorkflowRun = async () => ({ data: { jobs } });
@@ -95,7 +94,14 @@ async function runFixture({
 		},
 	};
 
-	await executeResolver(github, context, core, processFixture);
+	const fakeDate = { now: () => clock.now };
+	const fakeSetTimeout = (resolve, milliseconds) => {
+		assert(Number.isSafeInteger(milliseconds) && milliseconds > 0, 'CV poll delay must advance the fixture clock');
+		clock.now += milliseconds;
+		clock.sleeps.push(milliseconds);
+		resolve();
+	};
+	await executeResolver(github, context, core, processFixture, fakeDate, fakeSetTimeout);
 	return outputs;
 }
 
@@ -188,11 +194,14 @@ await rejects(
 	{ eventName: 'repository_dispatch', jobs: authorityJobs({ bazel: 'skipped' }) },
 	/Required CI job bazel-remote-gates was missing or not successful/,
 );
+const missingCvClock = { now: 0, sleeps: [] };
 await rejects(
 	'missing exact-SHA private CV authority fails closed',
-	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })] },
+	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })], clock: missingCvClock },
 	/No successful private CV authority run completed for exact SHA/,
 );
+assert.equal(missingCvClock.now, 20 * 60 * 1_000, 'missing CV authority exhausts the full bounded deadline');
+assert.equal(missingCvClock.sleeps.length, 80, 'missing CV authority polls at the configured fifteen-second interval');
 await rejects(
 	'PR events cannot enter the production resolver',
 	{ eventName: 'pull_request' },
