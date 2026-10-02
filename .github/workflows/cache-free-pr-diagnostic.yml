@@ -1,0 +1,172 @@
+name: Cache-free PR Bazel diagnostic
+
+# Supplemental, reviewed-PR-code diagnostic while the shared cache is
+# unavailable. An operator applies the exact label only after source review and
+# runner-capacity coordination. This never replaces CI's bazel-remote-gates
+# required check and cannot publish or apply a shadow or production deployment.
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled]
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  resolve:
+    name: Resolve labeled exact open PR source
+    if: github.event.label.name == 'diagnostic/cache-free' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      pr_number: ${{ steps.source.outputs.pr_number }}
+    steps:
+      - name: Verify event SHA is the current same-repo main PR head
+        id: source
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const eventPr = context.payload.pull_request;
+            if (
+              context.eventName !== "pull_request" ||
+              context.payload.action !== "labeled" ||
+              context.payload.label?.name !== "diagnostic/cache-free"
+            ) {
+              throw new Error("Cache-free diagnostic requires its exact reviewed PR label event.");
+            }
+            if (!Number.isSafeInteger(eventPr?.number) || eventPr.number < 1) {
+              throw new Error("Label event has no valid PR number.");
+            }
+            const sourceSha = eventPr.head?.sha;
+            if (!/^[0-9a-f]{40}$/.test(sourceSha)) {
+              throw new Error("Label event has no exact lowercase PR head SHA.");
+            }
+            const pr = (await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: eventPr.number,
+            })).data;
+            if (
+              pr.state !== "open" ||
+              pr.base.ref !== "main" ||
+              pr.head.repo?.full_name !== `${owner}/${repo}` ||
+              eventPr.head.repo?.full_name !== `${owner}/${repo}` ||
+              eventPr.base.ref !== "main" ||
+              pr.head.sha !== sourceSha
+            ) {
+              throw new Error(`PR #${pr.number} is not a current open same-repo main PR at event head ${sourceSha}.`);
+            }
+            core.setOutput("source_sha", sourceSha);
+            core.setOutput("pr_number", String(pr.number));
+
+  diagnose:
+    name: Supplemental cache-free Bazel check, test, e2e
+    needs: resolve
+    runs-on: tinyland-dind
+    timeout-minutes: 90
+    concurrency:
+      group: blog-cache-free-pr-${{ needs.resolve.outputs.pr_number }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      GF_BAZEL_SUBSTRATE_MODE: compatibility-local-only
+      BAZEL_REMOTE_CACHE: ''
+      BAZEL_REMOTE_EXECUTOR: ''
+      BAZEL_REMOTE_EXECUTOR_CACHE: ''
+      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
+      GF_BAZEL_REMOTE_UPLOAD: 'false'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve.outputs.source_sha }}
+          persist-credentials: false
+
+      - name: Verify exact checked-out SHA
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXPECTED_SHA}"
+
+      - name: Prepare bounded runner-work scratch
+        run: bash scripts/check-cache-free-pr-diagnostic.sh prepare
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Provision package-lock-pinned Chromium
+        run: |
+          set -euo pipefail
+          export TMPDIR="${BLOG_DIAGNOSTIC_SCRATCH}/tmp"
+          npm ci --ignore-scripts
+          npx --no-install playwright install --with-deps chromium
+          chromium_path="$(node --input-type=module -e "import { chromium } from '@playwright/test'; process.stdout.write(chromium.executablePath())")"
+          if [[ "${chromium_path}" != "${PLAYWRIGHT_BROWSERS_PATH}/"* || ! -x "${chromium_path}" ]]; then
+            echo "::error::Playwright Chromium resolution produced an unusable path"
+            exit 1
+          fi
+          echo "GF_RBE_CHROMIUM_EXECUTABLE=${chromium_path}" >> "${GITHUB_ENV}"
+
+      - name: Install Bazelisk for pinned Bazel version
+        run: |
+          set -euo pipefail
+          bazelisk_path="${BLOG_DIAGNOSTIC_SCRATCH}/bin/bazel"
+          curl --retry 5 --retry-all-errors --retry-delay 3 --connect-timeout 10 \
+            -fsSL https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 \
+            -o "${bazelisk_path}"
+          chmod +x "${bazelisk_path}"
+          test "$("${bazelisk_path}" --version)" = "bazel 8.1.1"
+
+      - name: Direct public Bazel check (supplemental)
+        id: check
+        run: bash scripts/check-cache-free-pr-diagnostic.sh check
+
+      - name: Direct public Bazel test (supplemental)
+        id: tests
+        run: bash scripts/check-cache-free-pr-diagnostic.sh test
+
+      - name: Direct public Bazel e2e (supplemental)
+        id: e2e
+        run: bash scripts/check-cache-free-pr-diagnostic.sh e2e
+
+      - name: Record exact-source diagnostic receipt
+        if: always()
+        env:
+          PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
+          SOURCE_SHA: ${{ needs.resolve.outputs.source_sha }}
+          CHECK_RESULT: ${{ steps.check.outcome }}
+          TEST_RESULT: ${{ steps.tests.outcome }}
+          E2E_RESULT: ${{ steps.e2e.outcome }}
+        run: |
+          {
+            echo '## Supplemental cache-free PR Bazel diagnostic'
+            echo ''
+            echo "- Exact open PR head: #${PR_NUMBER} at \`${SOURCE_SHA}\`"
+            echo '- Runner: existing tinyland-dind; local Bazel actions, no GF remote cache or executor'
+            echo "- Scratch: \`${BLOG_DIAGNOSTIC_SCRATCH:-not-prepared}\` under resolved RUNNER_TEMP"
+            echo '- `df` reports backing filesystem availability, not the container writable-layer or Kubernetes ephemeral-storage limit'
+            echo '- Inputs: package-lock-pinned Chromium, .bazelversion, MODULE.bazel.lock, pnpm-lock.yaml'
+            echo "- Public check/test/e2e outcomes: ${CHECK_RESULT} / ${TEST_RESULT} / ${E2E_RESULT}"
+            echo '- Authority: supplemental nonproduction diagnostic only; canonical CI bazel-remote-gates remains required and unchanged'
+            echo '- Deployment authority: none'
+            if [[ -n ${BLOG_DIAGNOSTIC_SCRATCH:-} && -d ${BLOG_DIAGNOSTIC_SCRATCH} ]]; then
+              echo ''
+              echo 'Verified runner work mount (`findmnt -T`):'
+              echo '```text'
+              findmnt -n -T /home/runner/_work -o TARGET,OPTIONS
+              echo '```'
+              echo 'Backing filesystem `df -P -h` for diagnostic scratch:'
+              echo '```text'
+              df -P -h "${BLOG_DIAGNOSTIC_SCRATCH}"
+              echo '```'
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"

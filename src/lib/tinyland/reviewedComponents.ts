@@ -26,7 +26,7 @@ export type ReviewedComponentBlock = Readonly<{
 
 const INLINE_DISCLOSURE_OPEN = /<InlineDisclosure\s+([^>]*?)>/g;
 const INLINE_DISCLOSURE_CLOSE = /<\/InlineDisclosure\s*>/g;
-const RAW_TAG = /<\/?[A-Za-z][^>]*>/g;
+const RAW_TAG = /<\/?[A-Za-z][^>]*>/;
 
 function fail(message: string): never {
 	throw new Error(`reviewed component content is invalid: ${message}`);
@@ -95,7 +95,6 @@ export function validateReviewedComponentMarkdown(markdown: string): void {
 	if (RAW_TAG.test(remainingSurface)) {
 		fail('document may not contain raw HTML or unknown components');
 	}
-	RAW_TAG.lastIndex = 0;
 }
 
 /**
@@ -130,20 +129,36 @@ function escapeHtml(value: string): string {
  */
 export function renderReviewedComponentsForRuntime(markdown: string): string {
 	validateReviewedComponentMarkdown(markdown);
-	return markdown
-		.split(/(```[\s\S]*?```)/)
-		.map((segment, index) => {
-			if (index % 2 === 1) return segment;
-			INLINE_DISCLOSURE_OPEN.lastIndex = 0;
-			INLINE_DISCLOSURE_CLOSE.lastIndex = 0;
-			return segment
-				.replace(INLINE_DISCLOSURE_OPEN, (_whole, rawProps: string) => {
-					const props = parseInlineDisclosureProps(rawProps);
-					return `<details data-reviewed-component="InlineDisclosure"${props.defaultOpen ? ' open' : ''}><summary>${escapeHtml(props.label)}</summary>`;
-				})
-				.replace(INLINE_DISCLOSURE_CLOSE, '</details>');
-		})
-		.join('');
+	// The validator removes triple fences before single-backtick spans. Keep
+	// that order: a preceding inline tick must not consume a fence delimiter.
+	// Within non-fenced text, an exact multi-backtick span or a v1 single span
+	// stays literal. A real opening tag wins before backticks in its quoted label.
+	// This preserves already-admitted multi-tick examples without changing the
+	// validator's accepted grammar or its static import bookkeeping.
+	const tokens = /(?<!`)(`{2,})(?!`)[\s\S]*?(?<!`)\1(?!`)|`[^`]*`|<InlineDisclosure\s+([^>]*?)>|<\/InlineDisclosure\s*>/g;
+	let rendered = '';
+	for (const [index, segment] of markdown.split(/(```[\s\S]*?```)/).entries()) {
+		if (index % 2 === 1) {
+			rendered += segment;
+			continue;
+		}
+		let cursor = 0;
+		for (const token of segment.matchAll(tokens)) {
+			const start = token.index ?? 0;
+			rendered += segment.slice(cursor, start);
+			if (token[0].startsWith('`')) {
+				rendered += token[0];
+			} else if (token[2] !== undefined) {
+				const props = parseInlineDisclosureProps(token[2]);
+				rendered += `<details data-reviewed-component="InlineDisclosure"${props.defaultOpen ? ' open' : ''}><summary>${escapeHtml(props.label)}</summary>`;
+			} else {
+				rendered += '</details>';
+			}
+			cursor = start + token[0].length;
+		}
+		rendered += segment.slice(cursor);
+	}
+	return rendered;
 }
 
 export function reviewedComponentImportBlock(imports: readonly string[]): string {
