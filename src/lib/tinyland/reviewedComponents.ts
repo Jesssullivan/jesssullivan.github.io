@@ -26,7 +26,7 @@ export type ReviewedComponentBlock = Readonly<{
 
 const INLINE_DISCLOSURE_OPEN = /<InlineDisclosure\s+([^>]*?)>/g;
 const INLINE_DISCLOSURE_CLOSE = /<\/InlineDisclosure\s*>/g;
-const RAW_TAG = /<\/?[A-Za-z][^>]*>/g;
+const RAW_TAG = /<\/?[A-Za-z][^>]*>/;
 
 function fail(message: string): never {
 	throw new Error(`reviewed component content is invalid: ${message}`);
@@ -95,7 +95,6 @@ export function validateReviewedComponentMarkdown(markdown: string): void {
 	if (RAW_TAG.test(remainingSurface)) {
 		fail('document may not contain raw HTML or unknown components');
 	}
-	RAW_TAG.lastIndex = 0;
 }
 
 /**
