@@ -1,0 +1,90 @@
+{
+  "base": "930233d5f356a84c0c3ea6f9fa8562c24ac95e24",
+  "consumerSource": "0af9b1559de187febb3afd297f66ce291c694278",
+  "files": [
+    {
+      "path": "BUILD.bazel",
+      "sha256": "9319b05bed13d0a32839bce9e93e30d29fdb1d57429bb48e9ed6f04408b4a84f"
+    },
+    {
+      "path": "e2e/document-root.spec.ts",
+      "sha256": "191ba75a22ac7f5b5e2d4db5be9bfa84df28a50d380ee5a3c155105a256ea333"
+    },
+    {
+      "path": "package.json",
+      "sha256": "1988f59e12c3d9b78ee97f0898f9efd374711a4b480c3af97b448caa81a230ca"
+    },
+    {
+      "path": "scripts/check-shadow-reader-pair.mjs",
+      "sha256": "7fdb48bf1022e7d82647939cbdead8caefee9f80ff32a258fa40eee05f74d01a"
+    },
+    {
+      "path": "scripts/shadow-reader-pair-contract.mjs",
+      "sha256": "9cd423b9503565377104e9d83e41a193d74a80bff0c005362953ad7a2ec40b84"
+    },
+    {
+      "path": "scripts/test-shadow-reader-pair-contract.mjs",
+      "sha256": "cabb6c762d4b630eb4eddb5d4f94060629ef6ba4baf4fe653391eb80e89ecd73"
+    },
+    {
+      "path": "src/lib/components/reader/ReaderConstellation.svelte",
+      "sha256": "38b41199481338adb67a4464952b33ce52f2db053eb420046079a80aed9c88e1"
+    },
+    {
+      "path": "src/lib/components/reader/ReaderConstellation.test.ts",
+      "sha256": "34327867255780c20ba13b99a7cd4d1d32819207cb51206384ee3830c580499d"
+    },
+    {
+      "path": "src/lib/reader/homeProjection.test.ts",
+      "sha256": "66209dab05ce24805a15223ef1799cd11484696ee16021550a74290edee6fc88"
+    },
+    {
+      "path": "src/lib/reader/homeProjection.ts",
+      "sha256": "7bdee457b66f539afeed6fe2ad4bae51a1f22e5fbfc9d511913a6c4f909bd242"
+    },
+    {
+      "path": "src/lib/tinyland/blogBrokerStream.test.ts",
+      "sha256": "ec113da6a4fb0c4a4d8cbfde8a1a176bd0b68a7b26802448b91b466b1bc2f14f"
+    },
+    {
+      "path": "src/lib/tinyland/markdownFences.test.ts",
+      "sha256": "e813f65e6788d6580df5c5e2539838600c2b951812adc41e8058fe26eb377b75"
+    },
+    {
+      "path": "src/lib/tinyland/markdownFences.ts",
+      "sha256": "a788a402a99155268b2281ac00a223153e77b58111d372644425e5e72e45b362"
+    },
+    {
+      "path": "src/lib/tinyland/marked.d.ts",
+      "sha256": "a73c46b27af2a17570bca90f4bbe84d063a270238856e93694861ed587ce24e6"
+    },
+    {
+      "path": "src/lib/tinyland/reviewedComponents.test.ts",
+      "sha256": "f65acdbf193f6c2e1eb00d8829201466814340ab77a0b76c8b413cf843446493"
+    },
+    {
+      "path": "src/lib/tinyland/reviewedComponents.ts",
+      "sha256": "9feaace1ec2bd909b8f52f197db2591971871d51d61b24340b4023ab31c813d4"
+    },
+    {
+      "path": "src/lib/tinyland/runtimeMarkdown.test.ts",
+      "sha256": "d08738e0296eaea8014bc41c8e64369876a8b2b31d5997a2db70d0e8485c9f03"
+    },
+    {
+      "path": "src/lib/tinyland/runtimeMarkdown.ts",
+      "sha256": "ca1446d97cad050e7643abde9093160c14416690b9dd6a409a36bcec4db1aa47"
+    },
+    {
+      "path": "src/routes/+page.svelte",
+      "sha256": "8f67f8e27d94534926e6c5de136c82b17c448df49c646e41abc1c9bdf65afc2c"
+    },
+    {
+      "path": "src/routes/+page.ts",
+      "sha256": "50e14e4c96d828255de5895bf5884a71f83d7f986b381e2abfe1b16bc21cf685"
+    },
+    {
+      "path": "static/redirect-map.json",
+      "sha256": "6898b29999734405e6c09f38e36163069cf30d1ca75a40b080856c48e0b0e7f6"
+    }
+  ]
+}

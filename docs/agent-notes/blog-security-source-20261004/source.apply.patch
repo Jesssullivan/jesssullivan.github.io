@@ -1,0 +1,1576 @@
+*** Begin Patch
+*** Update File: BUILD.bazel
+@@
+     visibility = ["//visibility:public"],
+ )
+ 
++js_test(
++    name = "shadow_reader_pair_contract_tests",
++    copy_data_to_bin = False,
++    data = [
++        "scripts/shadow-reader-pair-contract.mjs",
++        "scripts/test-shadow-reader-pair-contract.mjs",
++    ],
++    entry_point = "scripts/test-shadow-reader-pair-contract.mjs",
++    patch_node_fs = False,
++    visibility = ["//visibility:public"],
++)
++
+ filegroup(
+     name = "pages_function_sources",
+     srcs = glob(
+*** Update File: e2e/document-root.spec.ts
+@@
+-import { test, expect } from '@playwright/test';
++import { test, expect, type BrowserContext } from '@playwright/test';
++import { reviewedLeadImageSnapshot } from '../src/lib/pulse/fixtures/reviewedLeadImageSnapshot';
+ 
+ const endpoint = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
++const pulseEndpoint = 'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v2.json';
++const reviewedPreviewUrl = 'https://hub.tinyland.dev/media/pulse/jesssullivan/notes/reviewed-lead-image.preview.webp';
++// Opaque red 1x1 PNG, generated with a stored zlib block and valid PNG chunk CRCs.
++const tinyPng = Buffer.from(
++	'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEElEQVR4AQEFAPr/AP8AAP8FAAH/+lyI0QAAAABJRU5ErkJggg==',
++	'base64',
++);
+ const brokerSlug = 'brokered-document-root-test';
+ 
+ const brokerStream = {
+@@
+ 	projectionTombstones: [],
+ };
+ 
++async function confineToLocalOrigin(context: BrowserContext, baseURL: string | undefined) {
++	if (!baseURL) throw new Error('document-root diagnostics require an explicit loopback baseURL');
++	const local = new URL(baseURL);
++	if (local.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(local.hostname) || local.username || local.password) {
++		throw new Error('document-root diagnostics may run only against an HTTP loopback origin');
++	}
++	await context.route('**/*', async (route) => {
++		const request = route.request();
++		const url = new URL(request.url());
++		if (url.origin === local.origin && !url.username && !url.password && ['GET', 'HEAD'].includes(request.method())) {
++			// Route handlers are not re-run for followed redirects. Fetch exactly
++			// one hop and reject redirects before a local URL can escape to prod.
++			const response = await route.fetch({ maxRedirects: 0, timeout: 20_000 });
++			if (response.status() >= 300 && response.status() < 400) {
++				await route.abort('blockedbyclient');
++			} else {
++				await route.fulfill({ response });
++			}
++		} else {
++			// Specific page-level broker/media fixtures take precedence. Everything
++			// else stays local: no production, live broker, comments or AP traffic.
++			await route.abort('blockedbyclient');
++		}
++	});
++}
++
++test.beforeEach(async ({ context, baseURL }) => {
++	await confineToLocalOrigin(context, baseURL);
++});
++
+ test.describe('Blog document root enhancements', () => {
++	test('keeps fenced SVX examples literal beside a reviewed runtime disclosure', async ({ page }) => {
++		const contentMarkdown = [
++			'## Literal examples',
++			'',
++			'~~~svx',
++			'<script>window.fencedSvxExecuted = true;</script>',
++			'<InlineDisclosure label="Tilde literal">{notExecutable}</InlineDisclosure>',
++			'~~~',
++			'',
++			'````svx',
++			'```',
++			'<InlineDisclosure label="Long fence literal">example</InlineDisclosure>',
++			'````',
++			'',
++			'<InlineDisclosure label="Reviewed runtime disclosure" defaultOpen={true}>',
++			'',
++			'This reviewed body remains readable.',
++			'',
++			'</InlineDisclosure>',
++		].join('\n');
++		await page.route(endpoint, async (route) => {
++			await route.fulfill({
++				status: 200,
++				contentType: 'application/json',
++				body: JSON.stringify({
++					...brokerStream,
++					posts: brokerStream.posts.map((post) => ({ ...post, contentMarkdown })),
++				}),
++			});
++		});
++		await page.goto(`/blog/${brokerSlug}`);
++		await expect(page.getByTestId('tinyland-blog-post-broker-state')).toContainText('loaded');
++		const root = page.locator('[data-document-root]');
++		await expect(root.locator('pre code')).toHaveCount(2);
++		await expect(root.locator('pre code').first()).toContainText('<script>window.fencedSvxExecuted = true;</script>');
++		await expect(root.locator('pre code').first()).toContainText('<InlineDisclosure label="Tilde literal">');
++		await expect(root.locator('pre code').last()).toContainText('<InlineDisclosure label="Long fence literal">');
++		await expect(root.locator('details[data-reviewed-component="InlineDisclosure"]')).toHaveCount(1);
++		await expect(root.locator('summary')).toHaveText('Reviewed runtime disclosure');
++		await expect(root).toContainText('This reviewed body remains readable.');
++		await expect(root.locator('script')).toHaveCount(0);
++		expect(await page.evaluate(() => Object.hasOwn(window, 'fencedSvxExecuted'))).toBe(false);
++	});
++
+ 	test('keeps static headings, controls, and TOC inside its article root', async ({ page }) => {
+ 		await page.setViewportSize({ width: 1440, height: 900 });
+ 		await page.goto('/blog/from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life');
+@@
+ 		expect(pageErrors).toEqual([]);
+ 	});
+ });
++
++test.describe('Homepage public reader enhancement', () => {
++	test('keeps checked-in article links and the reviewed Pulse fallback readable without JavaScript', async ({ browser }) => {
++		const context = await browser.newContext({
++			javaScriptEnabled: false,
++			baseURL: test.info().project.use.baseURL,
++		});
++		try {
++			await confineToLocalOrigin(context, test.info().project.use.baseURL);
++			const page = await context.newPage();
++			await page.goto('/');
++			await expect(page.locator('#latest a[href^="/blog/"]').first()).toBeVisible();
++			await expect(page.locator('#pulse')).toContainText('Pulse');
++			await expect(page.locator('.constellation')).toContainText('Browse as a list');
++		} finally {
++			await context.close();
++		}
++	});
++
++	test('shows reviewed Pulse media from a broker response without creating a dead link for a broker-only article', async ({ page }) => {
++		let reviewedPreviewFulfilled = false;
++		await page.route(reviewedPreviewUrl, async (route) => {
++			await route.fulfill({ status: 200, contentType: 'image/png', body: tinyPng });
++			reviewedPreviewFulfilled = true;
++		});
++		await page.route(endpoint, async (route) => {
++			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(brokerStream) });
++		});
++		await page.route(pulseEndpoint, async (route) => {
++			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reviewedLeadImageSnapshot) });
++		});
++		await page.goto('/');
++		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog ready; Pulse ready.');
++		await expect(page.locator('.constellation')).toContainText('A reviewed lead image accompanies this public note.');
++		const reviewedImage = page.getByRole('img', { name: 'A tawny owl resting on a cedar branch' });
++		await expect(reviewedImage).toBeVisible();
++		await reviewedImage.scrollIntoViewIfNeeded();
++		await expect.poll(() => reviewedPreviewFulfilled).toBe(true);
++		await expect(reviewedImage).toHaveJSProperty('complete', true);
++		await expect(reviewedImage).toHaveJSProperty('naturalWidth', 1);
++		await expect(page.locator('a[href="/blog/brokered-document-root-test"]')).toHaveCount(0);
++		await expect(page.getByRole('link', { name: 'Browse as a list' })).toHaveAttribute('href', '#latest');
++	});
++
++	test('keeps static articles when the blog endpoint fails and still updates Pulse', async ({ page }) => {
++		await page.route(endpoint, async (route) => {
++			await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
++		});
++		await page.route(pulseEndpoint, async (route) => {
++			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reviewedLeadImageSnapshot) });
++		});
++		await page.goto('/');
++		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse ready.');
++		await expect(page.locator('#latest a[href^="/blog/"]').first()).toBeVisible();
++		await expect(page.locator('.constellation')).toContainText('A reviewed lead image accompanies this public note.');
++	});
++
++	test('keeps checked-in Pulse when its endpoint fails independently of the blog stream', async ({ page }) => {
++		await page.route(endpoint, async (route) => {
++			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(brokerStream) });
++		});
++		await page.route(pulseEndpoint, async (route) => {
++			await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
++		});
++		await page.goto('/');
++		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog ready; Pulse unavailable.');
++		await expect(page.locator('#pulse')).toBeVisible();
++		await expect(page.locator('a[href="/blog/brokered-document-root-test"]')).toHaveCount(0);
++	});
++});
+*** Update File: package.json
+@@
+ 		"test:pulse-client": "bash scripts/bazel-cache-backed.sh test //:vitest_unit_tests //:workspace_package_checks",
+ 		"test:e2e": "npm run remote:e2e",
+ 		"test:production-health": "tsx scripts/check-production-health.mts && tsx scripts/check-public-blog-hydration.mts",
++		"test:shadow-reader-pair": "node scripts/check-shadow-reader-pair.mjs",
+ 		"test:bazel-graph-hygiene": "bash scripts/check-bazel-graph-hygiene.sh",
+ 		"preview": "vite preview",
+ 		"check": "npm run remote:check",
+ 		"icons:generate": "tsx scripts/generate-favicon-kit.mts",
+ 		"remote:check": "bash scripts/bazel-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks //static/cv:pdfs_synced_test //static/profile:profile_synced_test",
+ 		"remote:check:public": "bash scripts/bazel-public-cache-backed.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks",
+-		"remote:test": "bash scripts/bazel-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests",
+-		"remote:test:public": "bash scripts/bazel-public-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests",
++		"remote:test": "bash scripts/bazel-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests //:shadow_reader_pair_contract_tests",
++		"remote:test:public": "bash scripts/bazel-public-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests //:shadow_reader_pair_contract_tests",
+ 		"remote:e2e": "bash scripts/bazel-cache-backed.sh test //:playwright_chromium_e2e",
+ 		"remote:e2e:public": "bash scripts/bazel-public-cache-backed.sh test //:playwright_chromium_e2e",
+ 		"remote:all": "npm run remote:check && npm run remote:test && npm run remote:e2e",
+*** Add File: scripts/check-shadow-reader-pair.mjs
++#!/usr/bin/env node
++// Read-only browser acceptance for an independently deployed R producer and
++// exact static review-shadow consumer. Never run this against production.
++// Set EXPECTED_SHADOW_CONSUMER_SHA to the applied spoke commit and
++// SHADOW_PRODUCER_RECEIPT_PATH to an operator-custodied JSON file like:
++// {"sourceSha":"<deployed producer commit>","brokerContentHash":"sha256:<live output hash>",
++//  "receiptUrl":"https://<independent rollout evidence>"}
++// The probe checks the served broker hash, not the authenticity of that
++// independently supplied source/deployment receipt. Keep the receipt out of git.
++// From a runner with access to the private shadow route, invoke the repo recipe
++// `npm run test:shadow-reader-pair` with both environment variables set.
++import { existsSync, readFileSync } from 'node:fs';
++import { chromium } from '@playwright/test';
++import {
++	SHADOW_ORIGIN,
++	BLOG_BROKER_URL,
++	PULSE_BROKER_URL,
++	articleHref,
++	assertShadowNavigationUrl,
++	parseShadowPairInputs,
++	findBrokerOnlySlugs,
++	findPulseMedia,
++	isRedirectResponse,
++	shadowRequestDecision,
++	staticRouteSlugs,
++	validateBrokerEvidence,
++} from './shadow-reader-pair-contract.mjs';
++
++const receiptPath = process.env.SHADOW_PRODUCER_RECEIPT_PATH;
++if (!receiptPath) {
++	console.error('SHADOW_PRODUCER_RECEIPT_PATH is required; no producer identity can be inferred from the broker');
++	process.exit(1);
++}
++
++let browser;
++try {
++	const evidence = parseShadowPairInputs(process.env, readFileSync(receiptPath, 'utf8'));
++	const executablePath = [
++		process.env.GF_RBE_CHROMIUM_EXECUTABLE,
++		process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
++		process.env.CHROME_BIN,
++		'/bin/chromium',
++		'/usr/bin/chromium',
++		'/usr/bin/chromium-browser',
++		'/usr/bin/google-chrome',
++		'/usr/bin/google-chrome-stable',
++	].find((path) => path && existsSync(path));
++	browser = await chromium.launch({
++		...(executablePath ? { executablePath } : {}),
++		headless: true,
++		args: ['--disable-dev-shm-usage', '--no-sandbox'],
++	});
++	const blockedRequests = [];
++	const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
++	await confineBrowser(context, blockedRequests);
++	context.setDefaultTimeout(20_000);
++	const page = await context.newPage();
++	const pageErrors = [];
++	page.on('pageerror', (error) => pageErrors.push(error.message));
++
++	const homeBlogResponse = page.waitForResponse((response) => response.url() === BLOG_BROKER_URL);
++	const homePulseResponse = page.waitForResponse((response) => response.url() === PULSE_BROKER_URL);
++	await requireHttp200(page, page.goto(`${SHADOW_ORIGIN}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/');
++	await requireShadowStamp(page, evidence.consumerSourceSha);
++	await requireState(page, 'home-reader-broker-state', 'Blog ready; Pulse ready.');
++	const brokerPosts = validateBrokerEvidence(await requireJson(homeBlogResponse, 'home blog broker'), evidence.brokerContentHash);
++	const brokerSlugs = brokerPosts.map((post) => post.slug);
++	const pulseSnapshot = await requireJson(homePulseResponse, 'home Pulse broker');
++	const media = findPulseMedia(pulseSnapshot);
++	await page.locator('#latest a[href^="/blog/"]').first().waitFor({ state: 'visible' });
++	await page.locator('#pulse').waitFor({ state: 'visible' });
++	await page.locator('.constellation a[href="#latest"]').waitFor({ state: 'visible' });
++	let mediaCoverage = 'unexercised: no reviewed public lead image';
++	if (pulseSnapshot.items.length > 0) {
++		await page.locator('#pulse ol li').first().waitFor({ state: 'visible' });
++		const firstItem = pulseSnapshot.items[0];
++		const itemText = firstItem.kind === 'note'
++			? firstItem.content
++			: (firstItem.birdSighting?.commonName || firstItem.birdSighting?.scientificName);
++		if (typeof itemText !== 'string' || !itemText.trim() ||
++			!(await page.locator('#pulse').innerText()).includes(itemText)) {
++			throw new Error('live Pulse item text is absent from the hydrated homepage');
++		}
++	} else {
++		await page.locator('#pulse').getByText('No public events yet.').waitFor({ state: 'visible' });
++		mediaCoverage = 'unexercised: public Pulse snapshot is empty';
++	}
++	if (media) {
++		const mediaImage = page.locator('#pulse').getByRole('img', { name: media.alt }).first();
++		await mediaImage.scrollIntoViewIfNeeded();
++		await mediaImage.waitFor({ state: 'visible' });
++		if ((await mediaImage.getAttribute('src')) !== media.url) {
++			throw new Error('Pulse image source does not match the reviewed broker preview URL');
++		}
++		await page.waitForFunction(
++			(url) => [...document.querySelectorAll('#pulse img')].some((img) => img.src === url && img.complete && img.naturalWidth > 0),
++			media.url,
++		);
++		if (media.text && !(await page.locator('#pulse').innerText()).includes(media.text)) {
++			throw new Error('reviewed Pulse media item text is not visible on the homepage');
++		}
++		mediaCoverage = 'exercised: reviewed preview decoded';
++	}
++
++	const staticIndexUrl = `${SHADOW_ORIGIN}/search-index.json`;
++	const staticIndexResponse = await context.request.get(staticIndexUrl, { maxRedirects: 0 });
++	if (staticIndexResponse.status() !== 200 || staticIndexResponse.url() !== staticIndexUrl) {
++		throw new Error('shadow static search index is unavailable or redirected');
++	}
++	const staticIndex = await staticIndexResponse.json();
++	const routeSlugs = staticRouteSlugs(staticIndex);
++	const homeLinks = await page.locator('#latest a[href^="/blog/"]').evaluateAll((links) =>
++		links.map((link) => link.getAttribute('href')),
++	);
++	const homeBrokerSlug = brokerSlugs.find((slug) => homeLinks.includes(`/blog/${slug}`));
++	if (!homeBrokerSlug) throw new Error('no broker-listed static article link is visible; homepage link case is unqualified');
++	const homeStaticTitle = staticIndex.find((entry) => entry.slug === homeBrokerSlug)?.title;
++	if (typeof homeStaticTitle !== 'string' || !homeStaticTitle.trim()) throw new Error('homepage article lacks a static title');
++	await requireArticleNavigation(page, articleHref(`/blog/${homeBrokerSlug}`, homeBrokerSlug), evidence.consumerSourceSha, homeStaticTitle);
++	console.log(`PASS shadow homepage core: exact consumer stamp, loaded broker/Pulse, routeable broker-listed static post ${homeBrokerSlug}`);
++	console.log(`COVERAGE shadow Pulse media: ${mediaCoverage}`);
++
++	const blogPage = await context.newPage();
++	blogPage.on('pageerror', (error) => pageErrors.push(error.message));
++	const listingBrokerResponse = blogPage.waitForResponse((response) => response.url() === BLOG_BROKER_URL);
++	await requireHttp200(blogPage, blogPage.goto(`${SHADOW_ORIGIN}/blog`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/blog');
++	await requireShadowStamp(blogPage, evidence.consumerSourceSha);
++	await requireState(blogPage, 'tinyland-blog-broker-state', 'Tinyland broker stream loaded.');
++	validateBrokerEvidence(await requireJson(listingBrokerResponse, 'blog listing broker'), evidence.brokerContentHash);
++	const brokerOnlySlugs = findBrokerOnlySlugs(brokerSlugs, routeSlugs);
++	let brokerOnlyCoverage = 'unexercised: no broker-only slug in this producer corpus';
++	let brokerOnlyHref = null;
++	const estimatedPages = Math.ceil((routeSlugs.size + brokerSlugs.length) / 20);
++	const maxPages = Math.min(10, estimatedPages);
++	for (let pageNumber = 1; pageNumber <= maxPages && brokerOnlySlugs.length > 0 && !brokerOnlyHref; pageNumber++) {
++		if (pageNumber > 1) {
++			await requireHttp200(
++				blogPage,
++				blogPage.goto(`${SHADOW_ORIGIN}/blog?page=${pageNumber}`, { waitUntil: 'domcontentloaded', timeout: 30_000 }),
++				'/blog',
++				`?page=${pageNumber}`,
++			);
++			await requireState(blogPage, 'tinyland-blog-broker-state', 'Tinyland broker stream loaded.');
++		}
++		for (const slug of brokerOnlySlugs) {
++			const link = blogPage.locator(`a[href="/blog/${slug}"]`).first();
++			if (await link.count()) {
++				brokerOnlyHref = articleHref(await link.getAttribute('href'), slug);
++				break;
++			}
++		}
++	}
++	if (brokerOnlySlugs.length > 0 && !brokerOnlyHref) {
++		brokerOnlyCoverage = `unexercised: no visible broker-only link in the first ${maxPages} hydrated blog pages (held, unlisted, or outside the bounded scan)`;
++	}
++	if (brokerOnlyHref) {
++		const brokerOnlySlug = new URL(brokerOnlyHref).pathname.slice('/blog/'.length);
++		const brokerOnlyPost = brokerPosts.find((post) => post.slug === brokerOnlySlug);
++		if (!brokerOnlyPost) throw new Error('selected broker-only link lacks a matching broker post');
++		const articleResponses = [];
++		blogPage.on('response', (response) => {
++			if (response.url() === BLOG_BROKER_URL) articleResponses.push(response);
++		});
++		await requireArticleNavigation(blogPage, brokerOnlyHref, evidence.consumerSourceSha, brokerOnlyPost.title, true);
++		const articlePosts = validateBrokerEvidence(
++			await requireJson(Promise.resolve(articleResponses.at(-1)), 'broker-only article broker'),
++			evidence.brokerContentHash,
++		);
++		const articlePost = articlePosts.find((post) => post.slug === brokerOnlySlug);
++		if (!articlePost || articlePost.title !== brokerOnlyPost.title ||
++			articlePost.contentHash !== brokerOnlyPost.contentHash) {
++			throw new Error('broker-only article response does not match the selected broker post');
++		}
++		await requireReadableBody(blogPage);
++		brokerOnlyCoverage = `exercised: ${new URL(brokerOnlyHref).pathname} returned 200 and loaded matching broker body`;
++	}
++	console.log(`COVERAGE shadow broker-only article: ${brokerOnlyCoverage}`);
++
++	const noJsContext = await browser.newContext({ javaScriptEnabled: false, serviceWorkers: 'block' });
++	await confineBrowser(noJsContext, blockedRequests);
++	const noJsPage = await noJsContext.newPage();
++	await requireHttp200(noJsPage, noJsPage.goto(`${SHADOW_ORIGIN}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/');
++	await requireShadowStamp(noJsPage, evidence.consumerSourceSha);
++	await noJsPage.locator('#latest a[href^="/blog/"]').first().waitFor({ state: 'visible' });
++	await noJsPage.locator('#pulse').waitFor({ state: 'visible' });
++	await noJsPage.locator('.constellation a[href="#latest"]').waitFor({ state: 'visible' });
++	const staticHref = await noJsPage.locator('#latest a[href^="/blog/"]').first().getAttribute('href');
++	const staticSlug = new URL(staticHref, SHADOW_ORIGIN).pathname.slice('/blog/'.length);
++	if (!routeSlugs.has(staticSlug)) throw new Error('no-JS homepage points outside the prerendered static route set');
++	const staticTitle = staticIndex.find((entry) => entry.slug === staticSlug)?.title;
++	if (typeof staticTitle !== 'string' || !staticTitle.trim()) throw new Error('no-JS article lacks a static title');
++	await requireArticleNavigation(noJsPage, articleHref(staticHref, staticSlug), evidence.consumerSourceSha, staticTitle);
++	await requireHttp200(noJsPage, noJsPage.goto(`${SHADOW_ORIGIN}/blog`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/blog');
++	await noJsPage.locator('a[href^="/blog/"]').first().waitFor({ state: 'visible' });
++	console.log('PASS shadow no-JS: readable homepage, static article, and blog list');
++
++	if (pageErrors.length) throw new Error(`browser page errors: ${pageErrors.slice(0, 3).join(' | ')}`);
++	console.log(`COVERAGE shadow network confinement: ${blockedRequests.length} disallowed or redirected requests blocked`);
++	console.log(
++		`PASS shadow reader pair core: consumer ${evidence.consumerSourceSha}; producer receipt ${evidence.producerSourceSha} ${evidence.receiptUrl}; broker ${evidence.brokerContentHash}; media ${mediaCoverage}; broker-only ${brokerOnlyCoverage}`,
++	);
++} catch (error) {
++	console.error(`FAIL shadow reader pair: ${error instanceof Error ? error.message : String(error)}`);
++	process.exitCode = 1;
++} finally {
++	await browser?.close();
++}
++
++async function confineBrowser(context, blockedRequests) {
++	await context.route('**/*', async (route) => {
++		const request = route.request();
++		const decision = shadowRequestDecision(request.url(), request.method());
++		if (decision.allowed) {
++			// Playwright does not re-run a route handler for a followed redirect.
++			// Fetch one hop only, then fulfill it without allowing transport escape.
++			let response;
++			try {
++				response = await route.fetch({ maxRedirects: 0, timeout: 30_000 });
++			} catch {
++				const url = new URL(request.url());
++				blockedRequests.push(`transport failed for ${url.origin}${url.pathname}`);
++				await route.abort('failed');
++				return;
++			}
++			if (isRedirectResponse(response.status(), response.headers().location)) {
++				const url = new URL(request.url());
++				blockedRequests.push(`redirect from ${url.origin}${url.pathname}`);
++				await route.abort('blockedbyclient');
++				return;
++			}
++			await route.fulfill({ response });
++			return;
++		}
++		const url = new URL(request.url());
++		blockedRequests.push(`${request.method()} ${url.origin}${url.pathname}: ${decision.reason}`);
++		await route.abort('blockedbyclient');
++	});
++}
++
++async function requireHttp200(page, navigation, expectedPath, expectedSearch = '') {
++	const response = await navigation;
++	if (!response || response.status() !== 200) {
++		throw new Error(`${expectedPath} navigation returned HTTP ${response?.status() ?? 'no response'}, not 200`);
++	}
++	assertShadowNavigationUrl(page.url(), expectedPath, expectedSearch);
++}
++
++async function requireJson(responsePromise, label) {
++	const response = await responsePromise;
++	if (!response || response.status() !== 200) throw new Error(`${label} returned HTTP ${response?.status() ?? 'no response'}`);
++	try {
++		return await response.json();
++	} catch {
++		throw new Error(`${label} did not return JSON`);
++	}
++}
++
++async function requireShadowStamp(page, expectedSha) {
++	const stamp = page.locator('meta[name="tinyland-source-sha"][data-deploy-tier="shadow"]');
++	if ((await stamp.getAttribute('content')) !== expectedSha) throw new Error('shadow consumer source SHA stamp mismatch');
++	const robots = await page.locator('meta[name="robots"][data-deploy-tier="shadow"]').getAttribute('content');
++	if (!robots?.includes('noindex') || !robots.includes('nofollow')) {
++		throw new Error('shadow noindex,nofollow stamp is missing');
++	}
++}
++
++async function requireState(page, testId, expected) {
++	await page.waitForFunction(
++		({ testId, expected }) => document.querySelector(`[data-testid="${testId}"]`)?.textContent?.includes(expected) === true,
++		{ testId, expected },
++		{ timeout: 20_000 },
++	);
++}
++
++async function requireReadableBody(page) {
++	const body = (await page.locator('[data-document-root]').innerText()).trim();
++	if (!/[\p{L}\p{N}]/u.test(body) || /^(?:Loading post\.|Post unavailable\.)$/i.test(body)) {
++		throw new Error('article document root has no readable body');
++	}
++}
++
++async function requireArticleNavigation(page, href, expectedSha, expectedTitle, brokerOnly = false) {
++	await requireHttp200(page, page.goto(href, { waitUntil: 'domcontentloaded', timeout: 30_000 }), new URL(href).pathname);
++	await requireShadowStamp(page, expectedSha);
++	if (brokerOnly) await requireState(page, 'tinyland-blog-post-broker-state', 'Tinyland broker post loaded.');
++	await page.locator('[data-document-root]').waitFor({ state: 'visible' });
++	const actualTitle = (await page.locator('article h1').innerText()).replace(/\s+/g, ' ').trim();
++	if (actualTitle !== expectedTitle.replace(/\s+/g, ' ').trim()) {
++		throw new Error('article title does not match the selected route identity');
++	}
++	await requireReadableBody(page);
++}
+*** Add File: scripts/shadow-reader-pair-contract.mjs
++import { createHash } from 'node:crypto';
++
++const SHA = /^[0-9a-f]{40}$/;
++const HASH = /^sha256:[0-9a-f]{64}$/;
++const SLUG = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
++export const SHADOW_ORIGIN = 'https://tss.tinyland.dev';
++export const BLOG_BROKER_URL =
++	'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json';
++export const PULSE_BROKER_URL =
++	'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v2.json';
++
++/** Browser policy: only the review shadow, two display projections, and reviewed previews. */
++export function shadowRequestDecision(input, method = 'GET') {
++	let url;
++	try {
++		url = new URL(input);
++	} catch {
++		return { allowed: false, forbidden: true, reason: 'invalid URL' };
++	}
++	if (method !== 'GET' && method !== 'HEAD') {
++		return { allowed: false, forbidden: true, reason: `unexpected ${method} request` };
++	}
++	if (url.username || url.password) {
++		return { allowed: false, forbidden: true, reason: 'URL contains credentials' };
++	}
++	if (url.origin === SHADOW_ORIGIN) {
++		if (/^\/(?:ap|activitypub|actors?|inbox|outbox)(?:\/|$)|^\/\.well-known\/(?:webfinger|nodeinfo)/i.test(url.pathname)) {
++			return { allowed: false, forbidden: true, reason: 'actor or federation route' };
++		}
++		return { allowed: true, forbidden: false, reason: 'shadow route' };
++	}
++	if (url.href === BLOG_BROKER_URL || url.href === PULSE_BROKER_URL) {
++		return { allowed: true, forbidden: false, reason: 'fixed public display projection' };
++	}
++	if (
++		url.origin === 'https://hub.tinyland.dev' &&
++		/^(?:\/media\/|\/images\/).+\.preview\.[a-z0-9]+$/i.test(url.pathname) &&
++		!url.search && !url.hash
++	) {
++		return { allowed: true, forbidden: false, reason: 'reviewed public media preview' };
++	}
++	return {
++		allowed: false,
++		forbidden: ['transscendsurvival.org', 'www.transscendsurvival.org'].includes(url.hostname) ||
++			/^\/(?:ap|activitypub|actors?|inbox|outbox)(?:\/|$)/i.test(url.pathname),
++		reason: 'outside shadow display allowlist',
++	};
++}
++
++export function isRedirectResponse(status, location) {
++	return status >= 300 && status < 400 && typeof location === 'string' && location.length > 0;
++}
++
++function record(value, label) {
++	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
++		throw new Error(`${label} must be an object`);
++	}
++	return value;
++}
++
++/** The receipt is supplied independently of the browser response by the rollout owner. */
++export function parseShadowPairInputs(env, receiptText) {
++	const consumerSourceSha = env.EXPECTED_SHADOW_CONSUMER_SHA?.trim();
++	if (!SHA.test(consumerSourceSha ?? '')) {
++		throw new Error('EXPECTED_SHADOW_CONSUMER_SHA must be an exact lowercase 40-character SHA');
++	}
++	let parsed;
++	try {
++		parsed = JSON.parse(receiptText);
++	} catch {
++		throw new Error('producer receipt must be valid JSON');
++	}
++	const receipt = record(parsed, 'producer receipt');
++	if (!SHA.test(receipt.sourceSha ?? '')) {
++		throw new Error('producer receipt sourceSha must be an exact lowercase 40-character SHA');
++	}
++	if (!HASH.test(receipt.brokerContentHash ?? '')) {
++		throw new Error('producer receipt brokerContentHash must be a sha256 digest');
++	}
++	let receiptUrl;
++	try {
++		receiptUrl = new URL(receipt.receiptUrl);
++	} catch {
++		throw new Error('producer receipt receiptUrl must be an HTTPS evidence URL');
++	}
++	if (
++		receiptUrl.protocol !== 'https:' ||
++		receiptUrl.username ||
++		receiptUrl.password ||
++		receiptUrl.search ||
++		receiptUrl.hash
++	) {
++		throw new Error('producer receipt receiptUrl must be HTTPS without credentials, query, or fragment');
++	}
++	return {
++		consumerSourceSha,
++		producerSourceSha: receipt.sourceSha,
++		brokerContentHash: receipt.brokerContentHash,
++		receiptUrl: receiptUrl.href,
++	};
++}
++
++export function validateBrokerEvidence(value, expectedContentHash) {
++	const stream = record(value, 'blog broker response');
++	if (stream.schemaVersion !== 'tinyland.blog.broker-stream.v1' || stream.spokeRef !== 'jesssullivan-github-io') {
++		throw new Error('blog broker response has unexpected schema or spoke');
++	}
++	const stable = { ...stream };
++	delete stable.generatedAt;
++	delete stable.contentHash;
++	const computed = `sha256:${createHash('sha256').update(JSON.stringify({ ...stable, contentHash: '' })).digest('hex')}`;
++	if (stream.contentHash !== computed) {
++		throw new Error('live blog broker contentHash does not match its payload');
++	}
++	if (stream.contentHash !== expectedContentHash) {
++		throw new Error('live blog broker contentHash does not match the independent producer receipt');
++	}
++	if (!Array.isArray(stream.posts) || stream.posts.length === 0) {
++		throw new Error('live blog broker has no posts; article link cases are unqualified');
++	}
++	const posts = stream.posts.map((post) => record(post, 'broker post'));
++	if (posts.some((post) => typeof post.slug !== 'string' || !SLUG.test(post.slug) ||
++		typeof post.title !== 'string' || !post.title.trim() ||
++		typeof post.contentMarkdown !== 'string' || !post.contentMarkdown.trim())) {
++		throw new Error('blog broker contains an invalid slug, title, or body');
++	}
++	return posts;
++}
++
++export function staticRouteSlugs(value) {
++	if (!Array.isArray(value)) throw new Error('static search index must be an array');
++	const slugs = value
++		.filter((entry) => record(entry, 'search index entry').published !== false)
++		.map((entry) => entry.slug);
++	if (slugs.length === 0 || slugs.some((slug) => typeof slug !== 'string' || !SLUG.test(slug))) {
++		throw new Error('static search index has no valid published route slugs');
++	}
++	return new Set(slugs);
++}
++
++export function findBrokerOnlySlugs(brokerSlugs, routeSlugs) {
++	return brokerSlugs.filter((slug) => !routeSlugs.has(slug));
++}
++
++export function findPulseMedia(value) {
++	const snapshot = record(value, 'Pulse broker response');
++	if (!Array.isArray(snapshot.items)) throw new Error('live Pulse snapshot has no items array');
++	const mediaItem = snapshot.items.find((item) => item?.kind === 'note' && item.leadImage?.preview?.url);
++	if (!mediaItem) return null;
++	const image = mediaItem.leadImage;
++	let previewUrl;
++	try {
++		previewUrl = new URL(image.preview.url);
++	} catch {
++		throw new Error('Pulse lead image lacks a reviewed public preview and alt text');
++	}
++	if (
++		typeof image.alt !== 'string' || !image.alt.trim() ||
++		previewUrl.origin !== 'https://hub.tinyland.dev' ||
++		previewUrl.username || previewUrl.password ||
++		!/^(?:\/media\/|\/images\/).+\.preview\.[a-z0-9]+$/i.test(previewUrl.pathname) ||
++		previewUrl.search || previewUrl.hash
++	) {
++		throw new Error('Pulse lead image lacks a reviewed public preview and alt text');
++	}
++	return { alt: image.alt, url: image.preview.url, text: mediaItem.content || mediaItem.summary };
++}
++
++export function articleHref(href, slug) {
++	if (!SLUG.test(slug)) throw new Error('invalid article slug');
++	const parsed = new URL(href, SHADOW_ORIGIN);
++	if (
++		parsed.origin !== SHADOW_ORIGIN ||
++		parsed.username || parsed.password ||
++		parsed.pathname !== `/blog/${slug}` ||
++		parsed.search ||
++		parsed.hash
++	) {
++		throw new Error(`article link for ${slug} is not a canonical local route`);
++	}
++	return parsed.href;
++}
++
++export function assertShadowNavigationUrl(actual, expectedPath, expectedSearch = '') {
++	const url = new URL(actual);
++	if (
++		url.origin !== SHADOW_ORIGIN || url.username || url.password ||
++		url.pathname !== expectedPath || url.search !== expectedSearch || url.hash
++	) {
++		throw new Error(`${expectedPath} navigation ended at the wrong route`);
++	}
++}
+*** Add File: scripts/test-shadow-reader-pair-contract.mjs
++import assert from 'node:assert/strict';
++import { createHash } from 'node:crypto';
++import {
++	articleHref,
++	assertShadowNavigationUrl,
++	parseShadowPairInputs,
++	findBrokerOnlySlugs,
++	findPulseMedia,
++	isRedirectResponse,
++	shadowRequestDecision,
++	staticRouteSlugs,
++	validateBrokerEvidence,
++} from './shadow-reader-pair-contract.mjs';
++
++const consumerSha = 'a'.repeat(40);
++const producerSha = 'b'.repeat(40);
++const brokerContentHash = `sha256:${'c'.repeat(64)}`;
++const receipt = JSON.stringify({
++	sourceSha: producerSha,
++	brokerContentHash,
++	receiptUrl: 'https://github.com/xoxd-ai/tinyland.dev/actions/runs/12345',
++});
++const env = { EXPECTED_SHADOW_CONSUMER_SHA: consumerSha };
++
++assert.deepEqual(parseShadowPairInputs(env, receipt), {
++	consumerSourceSha: consumerSha,
++	producerSourceSha: producerSha,
++	brokerContentHash,
++	receiptUrl: 'https://github.com/xoxd-ai/tinyland.dev/actions/runs/12345',
++});
++assert.throws(() => parseShadowPairInputs({}, receipt), /EXPECTED_SHADOW_CONSUMER_SHA/);
++assert.throws(() => parseShadowPairInputs(env, '{}'), /sourceSha/);
++assert.throws(
++	() => parseShadowPairInputs(env, JSON.stringify({ sourceSha: producerSha, brokerContentHash, receiptUrl: 'https://example.com/?token=secret' })),
++	/without credentials, query, or fragment/,
++);
++
++const brokerBody = {
++	schemaVersion: 'tinyland.blog.broker-stream.v1',
++	spokeRef: 'jesssullivan-github-io',
++	generatedAt: '2026-09-25T03:00:00Z',
++	posts: [
++		{ slug: 'static-post', title: 'Static post', contentMarkdown: 'An authored static post.' },
++		{ slug: 'broker-only-post', title: 'Broker-only post', contentMarkdown: 'An authored broker-only post.' },
++	],
++};
++function hashBrokerBody(body) {
++	return `sha256:${createHash('sha256').update(JSON.stringify({ schemaVersion: body.schemaVersion,
++		spokeRef: body.spokeRef, posts: body.posts, contentHash: '' })).digest('hex')}`;
++}
++const producerHash = hashBrokerBody(brokerBody);
++const broker = { ...brokerBody, contentHash: producerHash };
++const brokerPosts = validateBrokerEvidence(broker, producerHash);
++assert.deepEqual(brokerPosts.map((post) => post.slug), ['static-post', 'broker-only-post']);
++assert.throws(() => validateBrokerEvidence(broker, `sha256:${'d'.repeat(64)}`), /independent producer receipt/);
++assert.throws(
++	() => validateBrokerEvidence({ ...broker, posts: [...broker.posts, { slug: 'extra', title: 'Extra', contentMarkdown: 'Changed.' }] }, producerHash),
++	/payload/,
++);
++const emptyBroker = { ...brokerBody, posts: [] };
++assert.throws(() => validateBrokerEvidence({ ...emptyBroker, contentHash: hashBrokerBody(emptyBroker) }, hashBrokerBody(emptyBroker)), /no posts/);
++
++const staticSlugs = staticRouteSlugs([
++	{ slug: 'static-post', published: true },
++	{ slug: 'held-post', published: false },
++]);
++assert.deepEqual([...staticSlugs], ['static-post']);
++assert.deepEqual(findBrokerOnlySlugs(brokerPosts.map((post) => post.slug), staticSlugs), ['broker-only-post']);
++assert.deepEqual(findBrokerOnlySlugs(['static-post'], staticSlugs), [], 'fully prerendered corpus leaves optional case unexercised');
++assert.throws(() => staticRouteSlugs([]), /no valid published route slugs/);
++
++const image = {
++	alt: 'A reviewed owl',
++	preview: { url: 'https://hub.tinyland.dev/media/pulse/notes/owl.preview.webp' },
++};
++assert.deepEqual(findPulseMedia({ items: [{ kind: 'note', content: 'Owl note.', leadImage: image }] }), {
++	alt: 'A reviewed owl',
++	url: image.preview.url,
++	text: 'Owl note.',
++});
++assert.equal(findPulseMedia({ items: [] }), null, 'empty public Pulse has no optional media case');
++assert.equal(findPulseMedia({ items: [{ kind: 'note', content: 'Text only.' }] }), null, 'text-only Pulse has no optional media case');
++assert.throws(
++	() => findPulseMedia({ items: [{ kind: 'note', leadImage: { ...image, preview: { url: 'https://other.invalid/owl.preview.webp' } } }] }),
++	/reviewed public preview/,
++);
++
++assert.equal(articleHref('/blog/static-post', 'static-post'), 'https://tss.tinyland.dev/blog/static-post');
++assert.throws(() => articleHref('https://transscendsurvival.org/blog/static-post', 'static-post'), /canonical local route/);
++assert.throws(() => articleHref('https://user@tss.tinyland.dev/blog/static-post', 'static-post'), /canonical local route/);
++assert.throws(() => articleHref('/blog/static-post?preview=1', 'static-post'), /canonical local route/);
++assert.doesNotThrow(() => assertShadowNavigationUrl('https://tss.tinyland.dev/blog/static-post', '/blog/static-post'));
++assert.throws(() => assertShadowNavigationUrl('https://transscendsurvival.org/blog/static-post', '/blog/static-post'), /wrong route/);
++assert.throws(() => assertShadowNavigationUrl('https://tss.tinyland.dev/blog/other', '/blog/static-post'), /wrong route/);
++assert.throws(() => assertShadowNavigationUrl('https://tss.tinyland.dev/blog/static-post?next=1', '/blog/static-post'), /wrong route/);
++assert.equal(shadowRequestDecision('https://tss.tinyland.dev/blog/static-post').allowed, true);
++assert.equal(shadowRequestDecision('https://transscendsurvival.org/blog/static-post').forbidden, true);
++assert.equal(shadowRequestDecision('https://tss.tinyland.dev/ap/actors/jesssullivan').forbidden, true);
++assert.equal(shadowRequestDecision('https://hub.tinyland.dev/.well-known/webfinger').allowed, false);
++assert.equal(shadowRequestDecision('https://user@tss.tinyland.dev/blog').allowed, false);
++assert.equal(shadowRequestDecision('https://tss.tinyland.dev/', 'POST').allowed, false);
++assert.equal(isRedirectResponse(302, 'https://transscendsurvival.org/blog'), true);
++assert.equal(isRedirectResponse(307, '/other-shadow-route'), true);
++assert.equal(isRedirectResponse(304, undefined), false);
++
++console.log('Shadow reader pair contract tests passed.');
+*** Add File: src/lib/components/reader/ReaderConstellation.svelte
++<script lang="ts">
++	import type { Post } from '$lib/posts';
++	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
++
++	let { posts, snapshot }: { posts: Post[]; snapshot: PublicPulseSnapshotAny } = $props();
++
++	const nodes = $derived([
++		...posts.slice(0, 4).map((post) => ({
++			id: `post-${post.slug}`,
++			kind: 'Post',
++			date: post.date,
++			title: post.title,
++			href: `/blog/${post.slug}`,
++		})),
++		...snapshot.items.slice(0, 2).map((item) => ({
++			id: `pulse-${item.id}`,
++			kind: item.kind === 'bird_sighting' ? 'Bird sighting' : 'Pulse note',
++			date: item.occurredAt,
++			title: item.summary || (item.kind === 'bird_sighting' ? item.birdSighting?.commonName : item.content) || 'Pulse',
++			href: '/pulse',
++		})),
++	]);
++</script>
++
++<section class="constellation" aria-labelledby="constellation-heading">
++	<div class="constellation-heading">
++		<div>
++			<p class="eyebrow">A map of what’s public</p>
++			<h2 id="constellation-heading" class="font-heading text-2xl font-bold">The constellation</h2>
++			<p class="intro">Follow a thread into the full post, or keep scrolling through the reader.</p>
++		</div>
++		<div class="controls">
++			<input id="constellation-pause" class="motion-toggle" type="checkbox" />
++			<label for="constellation-pause">Pause motion</label>
++			<a href="#latest">Browse as a list ↓</a>
++		</div>
++	</div>
++
++	{#if nodes.length > 0}
++		<ol class="constellation-field" aria-label="Recent public writing and notes">
++			{#each nodes as node (node.id)}
++				<li class="constellation-node">
++					<a href={node.href} aria-label={`${node.kind}: ${node.title}`}>
++						<span class="node-marker" aria-hidden="true"></span>
++						<span class="node-copy">
++							<span class="node-meta">{node.kind} · <time datetime={node.date}>{node.date.slice(0, 10)}</time></span>
++							<strong>{node.title}</strong>
++						</span>
++					</a>
++				</li>
++			{/each}
++		</ol>
++	{:else}
++		<p class="empty">No public writing or notes yet. The list below will appear when there is something to read.</p>
++	{/if}
++</section>
++
++<style>
++	.constellation { margin-bottom: 4rem; }
++	.constellation-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
++	.eyebrow, .node-meta { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; }
++	.eyebrow { color: var(--color-primary-500); margin-bottom: .45rem; }
++	.intro { margin-top: .35rem; opacity: .75; }
++	.controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; font-family: 'Inter', sans-serif; font-size: .78rem; }
++	.controls a { text-decoration: underline; text-underline-offset: .2em; }
++	.motion-toggle { width: 1rem; height: 1rem; accent-color: var(--color-primary-500); }
++	.motion-toggle:focus-visible, .controls a:focus-visible, .constellation-node a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
++	.motion-toggle + label { cursor: pointer; margin-left: -.7rem; }
++	.constellation-field { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1.25rem; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); isolation: isolate; }
++	.constellation-field::before { content: ''; position: absolute; inset: 1.8rem; border: 1px dashed currentColor; opacity: .2; transform: skewY(-8deg); pointer-events: none; z-index: -1; }
++	.constellation-node { min-width: 0; animation: float 6s ease-in-out infinite alternate; }
++	.constellation-node:nth-child(even) { animation-delay: -3s; }
++	.constellation-node a { display: flex; align-items: flex-start; gap: .8rem; min-height: 6.5rem; padding: 1rem; border: 1px solid currentColor; background: var(--color-surface-50); text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
++	:global([data-mode='dark']) .constellation-node a { background: var(--color-surface-950); }
++	.constellation-node a:hover { transform: translateY(-2px); border-color: var(--color-primary-500); }
++	.node-marker { flex: none; width: .65rem; height: .65rem; margin-top: .25rem; border: 2px solid var(--color-primary-500); border-radius: 50%; box-shadow: 0 0 0 .24rem color-mix(in srgb, var(--color-primary-500) 18%, transparent); }
++	.node-copy { display: grid; gap: .4rem; min-width: 0; }
++	.node-meta { opacity: .7; }
++	.node-copy strong { font-family: 'Inter', sans-serif; font-size: .95rem; line-height: 1.3; }
++	.empty { padding: 1.5rem; border: 1px solid currentColor; }
++	.constellation:has(.motion-toggle:checked) .constellation-node,
++	.constellation:has(.constellation-field:hover) .constellation-node,
++	.constellation:has(.constellation-field:focus-within) .constellation-node { animation-play-state: paused; }
++	@keyframes float { from { translate: 0 0; } to { translate: 0 -.25rem; } }
++	@media (min-width: 850px) {
++		.constellation-field { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; min-height: 20rem; }
++		.constellation-node { grid-column: span 2; }
++		.constellation-node:nth-child(4n + 2) { grid-column: 4 / span 2; }
++		.constellation-node:nth-child(4n + 3) { grid-column: 2 / span 2; }
++	}
++	@media (max-width: 600px) {
++		.constellation-field { display: block; padding: .75rem; }
++		.constellation-field::before { display: none; }
++		.constellation-node + .constellation-node { margin-top: .7rem; }
++		.constellation-node { animation: none; }
++		.constellation-node a { min-height: 4.5rem; }
++		.motion-toggle, .motion-toggle + label { display: none; }
++	}
++	@media (prefers-reduced-motion: reduce) {
++		.constellation-node { animation: none; }
++		.constellation-node a { transition: none; }
++	}
++</style>
+*** Add File: src/lib/components/reader/ReaderConstellation.test.ts
++import { describe, expect, it } from 'vitest';
++import { render } from 'svelte/server';
++import type { Post } from '$lib/posts';
++import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
++import ReaderConstellation from './ReaderConstellation.svelte';
++
++const post: Post = {
++	title: 'A real post',
++	slug: 'a-real-post',
++	date: '2026-09-22',
++	description: '',
++	tags: [],
++	published: true,
++};
++
++const snapshot: PublicPulseSnapshotAny = {
++	schemaVersion: 'tinyland.pulse.v2.PublicPulseSnapshot',
++	generatedAt: '2026-09-22T12:00:00.000Z',
++	items: [{
++		id: 'public-note',
++		kind: 'note',
++		occurredAt: '2026-09-22T11:00:00.000Z',
++		summary: 'A real note',
++		content: 'The full note lives in Pulse.',
++		tags: [],
++	}],
++	manifest: {
++		schemaVersion: 'tinyland.pulse.v2.PublicPulseSnapshot',
++		generatedAt: '2026-09-22T12:00:00.000Z',
++		sourceSnapshotId: 'test',
++		contentHash: `sha256:${'a'.repeat(64)}`,
++		itemCount: 1,
++		policyVersion: 'test',
++	},
++};
++
++describe('ReaderConstellation', () => {
++	it('renders real projected links and readable text before JavaScript', () => {
++		const { html } = render(ReaderConstellation, { props: { posts: [post], snapshot } });
++		expect(html).toContain('href="/blog/a-real-post"');
++		expect(html).toContain('A real post');
++		expect(html).toContain('A real note');
++		expect(html).toContain('href="/pulse"');
++		expect(html).toContain('Browse as a list');
++		expect(html).toContain('Pause motion');
++	});
++
++	it('does not invent a note when the reviewed snapshot is empty', () => {
++		const { html } = render(ReaderConstellation, {
++			props: { posts: [post], snapshot: { ...snapshot, items: [], manifest: { ...snapshot.manifest, itemCount: 0 } } },
++		});
++		expect(html).not.toContain('A real note');
++		expect(html).toContain('A real post');
++	});
++});
+*** Add File: src/lib/reader/homeProjection.test.ts
++import { describe, expect, it } from 'vitest';
++import type { Post } from '$lib/posts';
++import { createHomeReaderCollection } from './homeProjection';
++
++const staticPost: Post = {
++	title: 'Checked-in article',
++	slug: 'checked-in-article',
++	date: '2026-09-22',
++	description: '',
++	tags: [],
++	published: true,
++};
++
++const heldPost: Post = {
++	...staticPost,
++	title: 'Held article',
++	slug: 'held-article',
++};
++
++describe('createHomeReaderCollection', () => {
++	it('keeps only routeable static slugs, even when a valid broker stream includes a newer post', () => {
++		const collection = createHomeReaderCollection(
++			[staticPost, heldPost],
++			[
++				{ ...staticPost, feature_image: 'https://hub.tinyland.dev/images/checked-in.preview.webp' },
++				{ ...staticPost, slug: 'broker-only', title: 'Broker-only article', date: '2026-09-24' },
++				{ ...heldPost, feature_image: 'https://hub.tinyland.dev/images/held.preview.webp' },
++			],
++			new Set(['held-article']),
++		);
++
++		expect(collection.latest.map((post) => post.slug)).toEqual(['checked-in-article']);
++		expect(collection.archive.flatMap((group) => group.posts.map((post) => post.slug))).toEqual([
++			'checked-in-article',
++		]);
++		expect(collection.latest[0]?.feature_image).toBe('https://hub.tinyland.dev/images/checked-in.preview.webp');
++	});
++
++	it('retains the checked-in first-paint collection when broker data is unavailable', () => {
++		const collection = createHomeReaderCollection([staticPost, heldPost], [], new Set(['held-article']));
++		expect(collection.latest.map((post) => post.slug)).toEqual(['checked-in-article']);
++	});
++});
+*** Add File: src/lib/reader/homeProjection.ts
++import type { Post } from '$lib/posts';
++import { mergeBrokerPostsIntoStatic } from '$lib/tinyland/blogBrokerStream';
++import { createReaderCollection, type ReaderCollection } from './collection';
++
++/**
++ * Homepage article links must have a prerendered local route. The public broker
++ * may enrich checked-in posts, but its broker-only slugs are not in the static
++ * /blog/[slug] entry list and must not become dead homepage links.
++ */
++export function createHomeReaderCollection(
++	staticPosts: readonly Post[],
++	brokerPosts: readonly Post[],
++	publicationHolds: ReadonlySet<string>,
++): ReaderCollection {
++	const routeableSlugs = new Set(
++		staticPosts.filter((post) => !publicationHolds.has(post.slug)).map((post) => post.slug),
++	);
++	const routeablePosts = mergeBrokerPostsIntoStatic(staticPosts, brokerPosts, publicationHolds)
++		.filter((post) => routeableSlugs.has(post.slug));
++	return createReaderCollection(routeablePosts);
++}
+*** Update File: src/lib/tinyland/blogBrokerStream.test.ts
+@@
+ 		expect(findTinylandBlogBrokerPost(validStream, 'example')?.title).toBe('Example');
+ 		expect(findTinylandBlogBrokerPost(validStream, 'missing')).toBeNull();
+ 	});
++
++	it('preserves full broker Markdown containing tilde-fenced SVX examples', async () => {
++		const contentMarkdown = '~~~svx\n<script>{notExecutable}</script>\n<InlineDisclosure label="Literal">example</InlineDisclosure>\n~~~';
++		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse({
++			...validStream,
++			posts: validStream.posts.map((post) => ({ ...post, contentMarkdown })),
++		}));
++		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(
++			expect.objectContaining({ posts: [expect.objectContaining({ contentMarkdown })] }),
++		);
++	});
+ });
+ 
+ describe('mergeBrokerPostsIntoStatic', () => {
+*** Add File: src/lib/tinyland/markdownFences.test.ts
++import { describe, expect, it } from 'vitest';
++import { compile } from 'mdsvex';
++import { splitMarkdownFences } from './markdownFences';
++import { compileReviewedComponentMarkdown, renderReviewedComponentsForRuntime } from './reviewedComponents';
++
++describe('shared top-level Markdown fence boundaries', () => {
++	it('preserves exact bytes, including CRLF and longer closing markers', () => {
++		const before = 'Before\r\n';
++		const code = '  ~~~ts\r\nconst x = 1;\r\n ~~~~\t\r\n';
++		const after = 'After';
++		const segments = splitMarkdownFences(before + code + after);
++		expect(segments).toEqual([
++			{ markdown: before }, { markdown: code, fenceInfo: 'ts' }, { markdown: after },
++		]);
++		expect(segments.map((segment) => segment.markdown).join('')).toBe(before + code + after);
++	});
++
++	it.each(['Inline ```ts', '    ```ts', '```ts `invalid-info`'])('does not classify %s as a fence opening', (markdown) => {
++		expect(splitMarkdownFences(markdown)).toEqual([{ markdown }]);
++	});
++
++	it('does not close a code block on a fence line with trailing prose', () => {
++		const code = '~~~ts\n~~~ not a close\nconst x = 1;\n~~~\n';
++		expect(splitMarkdownFences(code + 'After')).toEqual([
++			{ markdown: code, fenceInfo: 'ts' }, { markdown: 'After' },
++		]);
++	});
++
++	it('distinguishes empty-info code from prose and accepts an EOF fence', () => {
++		expect(splitMarkdownFences('~~~\ncode')).toEqual([{ markdown: '~~~\ncode', fenceInfo: '' }]);
++		expect(splitMarkdownFences('')).toEqual([]);
++	});
++
++	it.each(['\r', '\n', '\r\n'])('preserves %j fence boundaries and exact original source bytes', (ending) => {
++		const before = `Before${ending}`;
++		const code = `~~~svx${ending}<script>{literal}</script>${ending}~~~${ending}`;
++		const after = 'After';
++		const segments = splitMarkdownFences(before + code + after);
++		expect(segments).toEqual([
++			{ markdown: before }, { markdown: code, fenceInfo: 'svx' }, { markdown: after },
++		]);
++		expect(segments.map((segment) => segment.markdown).join('')).toBe(before + code + after);
++	});
++
++	it('rejects bare-CR fence escape that the real mdsvex compiler preserves as executable source', async () => {
++		const source = '~~~\nexample\n~~~\r<script>const proof = 1;</script>\n<InlineDisclosure label="Real">Body</InlineDisclosure>';
++		const compiled = await compile(source);
++		expect(compiled?.code).toContain('<script>const proof = 1;</script>');
++		expect(compiled?.code).toContain('<InlineDisclosure label="Real">');
++		expect(() => compileReviewedComponentMarkdown(source)).toThrow('raw HTML or unknown components');
++		expect(() => renderReviewedComponentsForRuntime(source)).toThrow('raw HTML or unknown components');
++	});
++
++	it('keeps code literal but recognizes a real disclosure after a bare-CR fence close', async () => {
++		const code = '~~~svx\r<script>const proof = 1;</script>\r~~~\r';
++		const real = '<InlineDisclosure label="Real">Body</InlineDisclosure>';
++		const compiledCode = await compile(code);
++		expect(compiledCode?.code).not.toContain('<script>const proof = 1;</script>');
++		expect(compiledCode?.code).toContain('&lt;script');
++		expect(compileReviewedComponentMarkdown(code + real)).toEqual({ markdown: code + real, imports: ['InlineDisclosure'] });
++		expect(renderReviewedComponentsForRuntime(code + real)).toBe(
++			code + '<details data-reviewed-component="InlineDisclosure" open><summary>Real</summary>Body</details>',
++		);
++	});
++});
+*** Add File: src/lib/tinyland/markdownFences.ts
++/** Top-level Markdown fences shared by validation and broker rendering. */
++export type MarkdownFenceSegment = Readonly<{
++	markdown: string;
++	/** Present (possibly empty) only for a fenced code segment. */
++	fenceInfo?: string;
++}>;
++
++export function splitMarkdownFences(markdown: string): MarkdownFenceSegment[] {
++	const segments: MarkdownFenceSegment[] = [];
++	let offset = 0;
++	let proseStart = 0;
++	let fence: { start: number; marker: string; length: number; info: string } | undefined;
++	// Preserve original CR/LF/CRLF bytes and offsets. mdsvex treats bare CR as
++	// a line ending too, so LF-only splitting could hide subsequent executable SVX.
++	for (const line of markdown.match(/[^\r\n]*(?:\r\n|\r|\n)|[^\r\n]+$/g) ?? []) {
++		if (fence) {
++			const close = line.match(/^ {0,3}(`{3,}|~{3,})[\t ]*\r?\n?$/);
++			if (close && close[1][0] === fence.marker && close[1].length >= fence.length) {
++				segments.push({ markdown: markdown.slice(fence.start, offset + line.length), fenceInfo: fence.info });
++				fence = undefined;
++				proseStart = offset + line.length;
++			}
++		} else {
++			const open = line.match(/^ {0,3}(`{3,}|~{3,})([^\r\n]*)\r?\n?$/);
++			// CommonMark disallows backticks in a backtick fence's info string.
++			if (open && !(open[1][0] === '`' && open[2].includes('`'))) {
++				if (offset > proseStart) segments.push({ markdown: markdown.slice(proseStart, offset) });
++				fence = { start: offset, marker: open[1][0], length: open[1].length, info: open[2].trim() };
++			}
++		}
++		offset += line.length;
++	}
++	if (fence) {
++		// An unclosed fence is code through EOF, never executable document prose.
++		segments.push({ markdown: markdown.slice(fence.start), fenceInfo: fence.info });
++	} else if (proseStart < markdown.length) {
++		segments.push({ markdown: markdown.slice(proseStart) });
++	}
++	return segments;
++}
+*** Update File: src/lib/tinyland/marked.d.ts
+@@
+ declare module 'marked' {
++	export class Renderer {
++		code(code: string, info?: string, escaped?: boolean): string;
++	}
++
+ 	export const marked: {
+ 		parse(markdown: string, options?: Record<string, unknown>): string | Promise<string>;
+ 	};
+*** Update File: src/lib/tinyland/reviewedComponents.test.ts
+@@
+ 		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+ 	});
+ 
++	it.each(['~~~', '~~~~', '````', '  ~~~'])('keeps %s code fences literal in static and runtime projections', (fence) => {
++		const example = `${fence}svx\n<InlineDisclosure label="Literal">{notExecutable}</InlineDisclosure>\n${fence}`;
++		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
++		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
++	});
++
++	it('does not close a longer fence with a shorter or different marker', () => {
++		const example = '~~~~svx\n~~~\n```\n<script>{notExecutable}</script>\n~~~~';
++		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
++		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
++	});
++
++	it('keeps an unclosed fence literal through EOF but rejects executable prose after a closed fence', () => {
++		const example = '~~~svx\n<InlineDisclosure label="Literal">{notExecutable}';
++		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
++		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
++		expect(() => validateReviewedComponentMarkdown('~~~text\nsafe example\n~~~\n<script>danger</script>'))
++			.toThrow('raw HTML or unknown components');
++	});
++
++	it('only imports and transforms the real disclosure alongside a tilde-fenced example', () => {
++		const literal = '~~~svx\n<InlineDisclosure label="Example">{notExecutable}</InlineDisclosure>\n~~~\n';
++		const real = '<InlineDisclosure label="Real">Body</InlineDisclosure>';
++		expect(compileReviewedComponentMarkdown(literal + real).imports).toEqual(['InlineDisclosure']);
++		expect(renderReviewedComponentsForRuntime(literal + real)).toBe(
++			literal + '<details data-reviewed-component="InlineDisclosure" open><summary>Real</summary>Body</details>',
++		);
++	});
++
++	it('masks a fence before an earlier inline tick can consume its delimiter', () => {
++		const example = '`prefix\n```svx\n<InlineDisclosure label="Example">body</InlineDisclosure>\n```\nsuffix`';
++		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
++		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
++	});
++
++	it('preserves adjacent literal opening and closing tags in inline code', () => {
++		const example = 'Use `<InlineDisclosure label="Example">` `</InlineDisclosure>` literally.';
++		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
++		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
++	});
++
++	it('converts a real disclosure without rewriting inline examples or backticks in its label', () => {
++		const mixed = '<InlineDisclosure label="Use `example`">See `<InlineDisclosure label="Literal">` and `</InlineDisclosure>`.</InlineDisclosure>';
++		expect(compileReviewedComponentMarkdown(mixed).imports).toEqual(['InlineDisclosure']);
++		expect(renderReviewedComponentsForRuntime(mixed)).toBe(
++			'<details data-reviewed-component="InlineDisclosure" open><summary>Use `example`</summary>See `<InlineDisclosure label="Literal">` and `</InlineDisclosure>`.</details>',
++		);
++	});
++
++	it('does not treat multi-backtick text as a new reviewed component grammar', () => {
++		const text = 'Use ``code with `backticks` `` as prose.';
++		expect(renderReviewedComponentsForRuntime(text)).toBe(text);
++		const balanced = 'Use ``<InlineDisclosure label="Example">body</InlineDisclosure>`` literally.';
++		// The v1 validator already admits this balanced form; runtime must not
++		// turn its literal code example into an interactive disclosure.
++		expect(renderReviewedComponentsForRuntime(balanced)).toBe(balanced);
++		expect(() => validateReviewedComponentMarkdown('Use ``<InlineDisclosure label="Not admitted">`` literally.'))
++			.toThrow('InlineDisclosure has no closing tag');
++	});
++
+ 	it('converts the reviewed invocation to native disclosure markup for runtime broker enhancement', () => {
+ 		expect(renderReviewedComponentsForRuntime(reviewedDocument)).toContain(
+ 			'<details data-reviewed-component="InlineDisclosure"><summary>Show the tested command</summary>',
+@@
+ 		expect(renderReviewedComponentsForRuntime(reviewedDocument)).toContain('</details>');
+ 	});
+ 
++	it('rejects raw tags on every call, including after a valid document', () => {
++		for (let attempt = 0; attempt < 3; attempt += 1) {
++			expect(() => validateReviewedComponentMarkdown('<script>'))
++				.toThrow('raw HTML or unknown components');
++		}
++		expect(() => validateReviewedComponentMarkdown('<InlineDisclosure label="Valid">Body</InlineDisclosure>'))
++			.not.toThrow();
++		expect(() => validateReviewedComponentMarkdown('<img src="/unreviewed.png">'))
++			.toThrow('raw HTML or unknown components');
++	});
++
+ 	it.each([
+ 		['an unknown component', '<DangerButton label="nope">x</DangerButton>', 'raw HTML or unknown components'],
+ 		['component source', '<script>export let anything;</script>', 'raw HTML or unknown components'],
+*** Update File: src/lib/tinyland/reviewedComponents.ts
+@@
++import { splitMarkdownFences } from './markdownFences';
++
+ /**
+  * Portable, reviewed interactive-document syntax.
+  *
+@@
+ 
+ const INLINE_DISCLOSURE_OPEN = /<InlineDisclosure\s+([^>]*?)>/g;
+ const INLINE_DISCLOSURE_CLOSE = /<\/InlineDisclosure\s*>/g;
+-const RAW_TAG = /<\/?[A-Za-z][^>]*>/g;
++const RAW_TAG = /<\/?[A-Za-z][^>]*>/;
+ 
+ function fail(message: string): never {
+ 	throw new Error(`reviewed component content is invalid: ${message}`);
+@@
+ function documentSurface(markdown: string): string {
+ 	// Code examples are data, including examples that contain import statements
+ 	// or script tags. Only document prose/SVX surface is executable.
+-	return markdown.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '');
++	return splitMarkdownFences(markdown)
++		.map((segment) => segment.fenceInfo !== undefined ? '\n' : segment.markdown)
++		.join('')
++		.replace(/`[^`]*`/g, '');
+ }
+ 
+ /** Validate the content without changing it. Used before broker data is displayed. */
+@@
+ 	if (RAW_TAG.test(remainingSurface)) {
+ 		fail('document may not contain raw HTML or unknown components');
+ 	}
+-	RAW_TAG.lastIndex = 0;
+ }
+ 
+ /**
+@@
+  */
+ export function renderReviewedComponentsForRuntime(markdown: string): string {
+ 	validateReviewedComponentMarkdown(markdown);
+-	return markdown
+-		.split(/(```[\s\S]*?```)/)
+-		.map((segment, index) => {
+-			if (index % 2 === 1) return segment;
+-			INLINE_DISCLOSURE_OPEN.lastIndex = 0;
+-			INLINE_DISCLOSURE_CLOSE.lastIndex = 0;
+-			return segment
+-				.replace(INLINE_DISCLOSURE_OPEN, (_whole, rawProps: string) => {
+-					const props = parseInlineDisclosureProps(rawProps);
+-					return `<details data-reviewed-component="InlineDisclosure"${props.defaultOpen ? ' open' : ''}><summary>${escapeHtml(props.label)}</summary>`;
+-				})
+-				.replace(INLINE_DISCLOSURE_CLOSE, '</details>');
+-		})
+-		.join('');
++	// The validator removes Markdown fences before single-backtick spans. Keep
++	// that order: a preceding inline tick must not consume a fence delimiter.
++	// Within non-fenced text, an exact multi-backtick span or a v1 single span
++	// stays literal. A real opening tag wins before backticks in its quoted label.
++	// This preserves already-admitted multi-tick examples without changing the
++	// validator's accepted grammar or its static import bookkeeping.
++	const tokens = /(?<!`)(`{2,})(?!`)[\s\S]*?(?<!`)\1(?!`)|`[^`]*`|<InlineDisclosure\s+([^>]*?)>|<\/InlineDisclosure\s*>/g;
++	let rendered = '';
++	for (const { markdown: segment, fenceInfo } of splitMarkdownFences(markdown)) {
++		if (fenceInfo !== undefined) {
++			rendered += segment;
++			continue;
++		}
++		let cursor = 0;
++		for (const token of segment.matchAll(tokens)) {
++			const start = token.index ?? 0;
++			rendered += segment.slice(cursor, start);
++			if (token[0].startsWith('`')) {
++				rendered += token[0];
++			} else if (token[2] !== undefined) {
++				const props = parseInlineDisclosureProps(token[2]);
++				rendered += `<details data-reviewed-component="InlineDisclosure"${props.defaultOpen ? ' open' : ''}><summary>${escapeHtml(props.label)}</summary>`;
++			} else {
++				rendered += '</details>';
++			}
++			cursor = start + token[0].length;
++		}
++		rendered += segment.slice(cursor);
++	}
++	return rendered;
+ }
+ 
+ export function reviewedComponentImportBlock(imports: readonly string[]): string {
+*** Add File: src/lib/tinyland/runtimeMarkdown.test.ts
++import { describe, expect, it } from 'vitest';
++import { brokerCodeLanguage, hasHighlightableBrokerFence } from './runtimeMarkdown';
++
++describe('broker-only article code fences', () => {
++	it('recognizes the shared common code-fence languages and aliases', () => {
++		expect(brokerCodeLanguage('ts title=example.ts')).toBe('typescript');
++		expect(brokerCodeLanguage('python')).toBe('python');
++		expect(brokerCodeLanguage('nix')).toBe('nix');
++	});
++
++	it('leaves unsupported and unreviewed diagram languages as escaped source', () => {
++		expect(brokerCodeLanguage('mermaid')).toBeNull();
++		expect(brokerCodeLanguage('svx')).toBeNull();
++		expect(brokerCodeLanguage('')).toBeNull();
++	});
++
++	it('only loads the highlighter for a supported fenced language', () => {
++		expect(hasHighlightableBrokerFence('```ts\nconst x = 1;\n```')).toBe(true);
++		expect(hasHighlightableBrokerFence('```mermaid\ngraph TD\n```')).toBe(false);
++		expect(hasHighlightableBrokerFence('Here is `ts` inline.')).toBe(false);
++	});
++
++	it('recognizes tilde and longer fences without treating their contents as new openings', () => {
++		expect(hasHighlightableBrokerFence('~~~ts\nconst x = 1;\n~~~')).toBe(true);
++		expect(hasHighlightableBrokerFence('````python\nprint(1)\n````')).toBe(true);
++		expect(hasHighlightableBrokerFence('~~~text\n```ts\nconst x = 1;\n```\n~~~')).toBe(false);
++		expect(hasHighlightableBrokerFence('Inline ```ts is not a fence.')).toBe(false);
++	});
++});
+*** Update File: src/lib/tinyland/runtimeMarkdown.ts
+@@
+ import { renderReviewedComponentsForRuntime } from './reviewedComponents';
++import { splitMarkdownFences } from './markdownFences';
++
++const BROKER_CODE_LANGUAGES = [
++	'javascript', 'typescript', 'python', 'r', 'bash', 'html', 'css', 'json',
++	'yaml', 'toml', 'haskell', 'go', 'rust', 'markdown', 'shellscript',
++	'sql', 'nix', 'c', 'cpp', 'zig', 'swift',
++] as const;
++
++const LANGUAGE_ALIASES: Record<string, (typeof BROKER_CODE_LANGUAGES)[number]> = {
++	js: 'javascript', ts: 'typescript', py: 'python', sh: 'bash', shell: 'shellscript',
++	yml: 'yaml', md: 'markdown', rs: 'rust', cxx: 'cpp',
++};
++
++export function brokerCodeLanguage(info: string | undefined): (typeof BROKER_CODE_LANGUAGES)[number] | null {
++	const requested = info?.trim().split(/\s+/, 1)[0]?.toLowerCase() ?? '';
++	const language = LANGUAGE_ALIASES[requested] ?? requested;
++	return BROKER_CODE_LANGUAGES.find((candidate) => candidate === language) ?? null;
++}
++
++export function hasHighlightableBrokerFence(markdown: string): boolean {
++	return splitMarkdownFences(markdown)
++		.some((segment) => segment.fenceInfo !== undefined && brokerCodeLanguage(segment.fenceInfo) !== null);
++}
++
++function escapeHtml(value: string): string {
++	return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
++}
++
++type BrokerHighlighter = Awaited<ReturnType<typeof import('shiki')['createHighlighter']>>;
++let highlighterPromise: Promise<BrokerHighlighter> | undefined;
++
++function getBrokerHighlighter(): Promise<BrokerHighlighter> {
++	return highlighterPromise ??= import('shiki')
++		.then(({ createHighlighter }) => createHighlighter({ themes: ['github-dark'], langs: [...BROKER_CODE_LANGUAGES] }))
++		.catch((error: unknown) => {
++			highlighterPromise = undefined;
++			throw error;
++		});
++}
+ 
+ export async function renderTrustedBrokerMarkdown(markdown: string): Promise<string> {
+ 	if (typeof window === 'undefined') {
+@@
+ 	}
+ 
+ 	const [markedModule, domPurifyModule] = await Promise.all([import('marked'), import('dompurify')]);
+-	const rendered = await markedModule.marked.parse(renderReviewedComponentsForRuntime(markdown), {
++	const reviewedMarkdown = renderReviewedComponentsForRuntime(markdown);
++	// The full broker body is display data. Match the checked-in post's Shiki
++	// presentation for known fences without compiling supplied Svelte or HTML.
++	// Unsupported languages (including Mermaid, whose static SVG needs a
++	// reviewed build cache) remain readable escaped source.
++	const highlighter = hasHighlightableBrokerFence(reviewedMarkdown)
++		? await getBrokerHighlighter().catch(() => null)
++		: null;
++	const renderer = new markedModule.Renderer();
++	renderer.code = (code: string, info?: string): string => {
++		const language = brokerCodeLanguage(info);
++		if (language && highlighter) {
++			return highlighter.codeToHtml(code, { lang: language, theme: 'github-dark' });
++		}
++		return `<pre><code>${escapeHtml(code)}</code></pre>`;
++	};
++	const rendered = await markedModule.marked.parse(reviewedMarkdown, {
+ 		gfm: true,
+ 		breaks: false,
++		renderer,
+ 	});
+ 	const domPurify = domPurifyModule.default as unknown as
+ 		| { sanitize: (value: string, config?: Record<string, unknown>) => string }
+*** Update File: src/routes/+page.svelte
+@@
+ 	import ReaderArchive from '$lib/components/reader/ReaderArchive.svelte';
+ 	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
+ 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
++	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
++	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
++	import {
++		loadTinylandBlogBrokerStream,
++		TINYLAND_BLOG_BROKER_STREAM_URL,
++		tinylandBlogBrokerStreamToPosts,
++	} from '$lib/tinyland/blogBrokerStream';
++	import { loadPulsePublicBrokerSnapshot, TINYLAND_PULSE_PUBLIC_SNAPSHOT_URL } from '$lib/pulse/load';
++	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
++	import type { Post } from '$lib/posts';
++	import { onMount } from 'svelte';
+ 
+ 	let { data }: { data: PageData } = $props();
++	let brokerPosts = $state<Post[] | null>(null);
++	let brokerPulse = $state<PublicPulseSnapshotAny | null>(null);
++	let blogStatus = $state<'loading' | 'ready' | 'unavailable'>('loading');
++	let pulseStatus = $state<'loading' | 'ready' | 'unavailable'>('loading');
++	let publicationHolds = $derived(new Set(data.publicationHolds));
++	let collection = $derived(
++		brokerPosts === null
++			? data.collection
++			: createHomeReaderCollection(
++					data.collection.archive.flatMap((group) => group.posts),
++					brokerPosts,
++					publicationHolds,
++				),
++	);
++	let pulseSnapshot = $derived(brokerPulse ?? data.pulseSnapshot);
++
++	onMount(() => {
++		let cancelled = false;
++		const blogController = new AbortController();
++		const pulseController = new AbortController();
++		const blogTimer = window.setTimeout(() => blogController.abort(), 10_000);
++		const pulseTimer = window.setTimeout(() => pulseController.abort(), 10_000);
++
++		void loadTinylandBlogBrokerStream(fetch, {
++			endpoint: TINYLAND_BLOG_BROKER_STREAM_URL,
++			signal: blogController.signal,
++		})
++			.then((stream) => {
++				if (cancelled) return;
++				brokerPosts = tinylandBlogBrokerStreamToPosts(stream);
++				blogStatus = 'ready';
++			})
++			.catch(() => {
++				if (!cancelled) blogStatus = 'unavailable';
++			})
++			.finally(() => window.clearTimeout(blogTimer));
++
++		void loadPulsePublicBrokerSnapshot(fetch, {
++			endpoint: TINYLAND_PULSE_PUBLIC_SNAPSHOT_URL,
++			signal: pulseController.signal,
++		})
++			.then((snapshot) => {
++				if (cancelled) return;
++				brokerPulse = snapshot;
++				pulseStatus = 'ready';
++			})
++			.catch(() => {
++				if (!cancelled) pulseStatus = 'unavailable';
++			})
++			.finally(() => window.clearTimeout(pulseTimer));
++
++		return () => {
++			cancelled = true;
++			window.clearTimeout(blogTimer);
++			window.clearTimeout(pulseTimer);
++			blogController.abort();
++			pulseController.abort();
++		};
++	});
+ </script>
+ 
+ <svelte:head>
+@@
+ </svelte:head>
+ 
+ <div class="container mx-auto px-4 py-12 max-w-6xl" data-pagefind-body>
++	<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">
++		Blog {blogStatus}; Pulse {pulseStatus}.
++	</div>
+ 	<header class="mb-12 max-w-3xl">
+ 		<p class="text-sm text-surface-600-400 mb-2">Jess Sullivan</p>
+ 		<h1 class="font-heading text-4xl font-bold">Writing and notes.</h1>
+@@
+ 		</nav>
+ 	</header>
+ 
++	<ReaderConstellation posts={collection.latest} snapshot={pulseSnapshot} />
++
+ 	<div class="space-y-16">
+-		<ReaderLatest posts={data.collection.latest} />
+-		<ReaderPulse snapshot={data.pulseSnapshot} />
+-		<ReaderArchive archive={data.collection.archive} />
++		<ReaderLatest posts={collection.latest} />
++		<ReaderPulse snapshot={pulseSnapshot} />
++		<ReaderArchive archive={collection.archive} />
+ 	</div>
+ </div>
+*** Update File: src/routes/+page.ts
+@@
+ import { getPosts } from '$lib/posts';
+ import { loadPulseSnapshot } from '$lib/pulse/load';
+-import { createReaderCollection } from '$lib/reader/collection';
++import { createHomeReaderCollection } from '$lib/reader/homeProjection';
+ import type { PageLoad } from './$types';
++import publicationHoldsData from '../../static/blog-publication-holds.json';
+ 
+ export const prerender = true;
+ 
++const publicationHolds = new Set(publicationHoldsData as string[]);
++
+ export const load: PageLoad = async ({ fetch }) => ({
+-	collection: createReaderCollection(await getPosts()),
++	collection: createHomeReaderCollection(await getPosts(), [], publicationHolds),
+ 	pulseSnapshot: await loadPulseSnapshot(fetch),
++	publicationHolds: publicationHoldsData as string[],
+ });
+*** Update File: static/redirect-map.json
+@@
+ {
++  "/stream/": "/",
+   "/2016/12/13/example-photo-work/": "/blog/example-photo-work",
+   "/2016/12/13/required-custom-tools/": "/blog/required-custom-tools",
+   "/2016/12/13/the-audeasy-build/": "/blog/the-audeasy-build",
+*** End Patch

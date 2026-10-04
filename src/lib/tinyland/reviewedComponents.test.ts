@@ -46,11 +46,82 @@ describe('reviewed interactive SVX components', () => {
 		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
 	});
 
+	it.each(['~~~', '~~~~', '````', '  ~~~'])('keeps %s code fences literal in static and runtime projections', (fence) => {
+		const example = `${fence}svx\n<InlineDisclosure label="Literal">{notExecutable}</InlineDisclosure>\n${fence}`;
+		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('does not close a longer fence with a shorter or different marker', () => {
+		const example = '~~~~svx\n~~~\n```\n<script>{notExecutable}</script>\n~~~~';
+		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('keeps an unclosed fence literal through EOF but rejects executable prose after a closed fence', () => {
+		const example = '~~~svx\n<InlineDisclosure label="Literal">{notExecutable}';
+		expect(compileReviewedComponentMarkdown(example).imports).toEqual([]);
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+		expect(() => validateReviewedComponentMarkdown('~~~text\nsafe example\n~~~\n<script>danger</script>'))
+			.toThrow('raw HTML or unknown components');
+	});
+
+	it('only imports and transforms the real disclosure alongside a tilde-fenced example', () => {
+		const literal = '~~~svx\n<InlineDisclosure label="Example">{notExecutable}</InlineDisclosure>\n~~~\n';
+		const real = '<InlineDisclosure label="Real">Body</InlineDisclosure>';
+		expect(compileReviewedComponentMarkdown(literal + real).imports).toEqual(['InlineDisclosure']);
+		expect(renderReviewedComponentsForRuntime(literal + real)).toBe(
+			literal + '<details data-reviewed-component="InlineDisclosure" open><summary>Real</summary>Body</details>',
+		);
+	});
+
+	it('masks a fence before an earlier inline tick can consume its delimiter', () => {
+		const example = '`prefix\n```svx\n<InlineDisclosure label="Example">body</InlineDisclosure>\n```\nsuffix`';
+		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('preserves adjacent literal opening and closing tags in inline code', () => {
+		const example = 'Use `<InlineDisclosure label="Example">` `</InlineDisclosure>` literally.';
+		expect(compileReviewedComponentMarkdown(example)).toEqual({ markdown: example, imports: [] });
+		expect(renderReviewedComponentsForRuntime(example)).toBe(example);
+	});
+
+	it('converts a real disclosure without rewriting inline examples or backticks in its label', () => {
+		const mixed = '<InlineDisclosure label="Use `example`">See `<InlineDisclosure label="Literal">` and `</InlineDisclosure>`.</InlineDisclosure>';
+		expect(compileReviewedComponentMarkdown(mixed).imports).toEqual(['InlineDisclosure']);
+		expect(renderReviewedComponentsForRuntime(mixed)).toBe(
+			'<details data-reviewed-component="InlineDisclosure" open><summary>Use `example`</summary>See `<InlineDisclosure label="Literal">` and `</InlineDisclosure>`.</details>',
+		);
+	});
+
+	it('does not treat multi-backtick text as a new reviewed component grammar', () => {
+		const text = 'Use ``code with `backticks` `` as prose.';
+		expect(renderReviewedComponentsForRuntime(text)).toBe(text);
+		const balanced = 'Use ``<InlineDisclosure label="Example">body</InlineDisclosure>`` literally.';
+		// The v1 validator already admits this balanced form; runtime must not
+		// turn its literal code example into an interactive disclosure.
+		expect(renderReviewedComponentsForRuntime(balanced)).toBe(balanced);
+		expect(() => validateReviewedComponentMarkdown('Use ``<InlineDisclosure label="Not admitted">`` literally.'))
+			.toThrow('InlineDisclosure has no closing tag');
+	});
+
 	it('converts the reviewed invocation to native disclosure markup for runtime broker enhancement', () => {
 		expect(renderReviewedComponentsForRuntime(reviewedDocument)).toContain(
 			'<details data-reviewed-component="InlineDisclosure"><summary>Show the tested command</summary>',
 		);
 		expect(renderReviewedComponentsForRuntime(reviewedDocument)).toContain('</details>');
+	});
+
+	it('rejects raw tags on every call, including after a valid document', () => {
+		for (let attempt = 0; attempt < 3; attempt += 1) {
+			expect(() => validateReviewedComponentMarkdown('<script>'))
+				.toThrow('raw HTML or unknown components');
+		}
+		expect(() => validateReviewedComponentMarkdown('<InlineDisclosure label="Valid">Body</InlineDisclosure>'))
+			.not.toThrow();
+		expect(() => validateReviewedComponentMarkdown('<img src="/unreviewed.png">'))
+			.toThrow('raw HTML or unknown components');
 	});
 
 	it.each([
