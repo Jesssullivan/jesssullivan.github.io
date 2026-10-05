@@ -122,3 +122,41 @@ its different SHA was not compiled. Publication remains pending exact-byte Neo
 custody, root artifact/guard review, qualified-source main landing and owned
 existing credential/tool invocation. No production mutation occurred here.
 Public Pulse 503 remains separate, unchanged and not a default-production repair.
+
+## Actual source landing, upload and served readback
+
+After root independently reviewed the full source/publisher and reverified the
+Neo artifact and receipt hashes, fresh live main was still exact930233 and an
+ancestor check passed. Normal non-force fast-forward landed exact qualified
+0ed227c on GitHub main. GitHub reported: "Bypassed rule violations" and "3 of 3
+required status checks are expected." No protection setting or synthetic check
+status was changed. Root confirmed the user's scoped admin-merge authorization
+and documented local qualification exception cover this existing-permission
+bypass. Actual local340 proof is distinct from hosted checks not yet reported.
+
+Only the approved existing scoped Pages Write SOPS leaf was extracted into a
+new private outside-git token file, UID501/mode0400/singlelink; no token bytes
+were printed and no broad plaintext secret output was read. The explicit
+source-pinned installed Wrangler4.95 selector rehashed its full identity before
+upload. Original publisher session68355 uploaded and deployed exactly once:
+deployment `188d3171-020e-484b-98de-50e4d70f6a13`. Its canonical source/status
+guard passed, but immediate production homepage hash readback failed during
+propagation; original terminal exit1 is preserved and no original published.json
+was minted. No retry upload or source rebuild followed.
+
+Separate read-only metadata/homepage readback at 23:28:37.941 UTC confirmed
+canonical deployment success, exact source0ed227c, current GitHub main0ed227c,
+switchtrue, and production homepage byte SHA256 d865538b...f5f22 matching the
+qualified artifact. Root independently verified apex and exact deployment URL,
+both200 and matching byte identity. Homepage is 95,030 UTF-8 bytes (94,950 JS
+characters); these counts are not interchangeable. Separate original-exit-aware
+receipt: `/Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/post-propagation-readback.json`.
+
+First bounded livebrowser proof session33740 on Sting terminated exit1 solely
+on a late favicon route.fetch rejected after context close. No live acceptance
+receipt was minted. Scope heavy-node-1791243110-1059141.scope became inactive;
+browser close occurred in finally. Its logs and screenshots remain diagnostic
+under the owned producer parent. Separate evidence-source successor drains
+route callbacks before closing fresh contexts, waits no-JS networkidle, and
+bounds each public GET to15s. Deployed qualified source0ed is unchanged; any
+livebrowser retry requires fresh producer admission, not an upload retry.
