@@ -24,11 +24,13 @@ assert.equal(existsSync(receiptPath), false);
 const browser = await chromium.launch({ executablePath: browserPath, headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'] });
 async function context(javaScriptEnabled = true) {
 	const ctx = await browser.newContext({ javaScriptEnabled, viewport: { width: 1280, height: 900 } });
+	let finishing = false;
 	await ctx.route('**/*', async route => {
+		if (finishing) return route.abort();
 		const req = route.request(), url = new URL(req.url());
 		if (!['GET', 'HEAD'].includes(req.method()) || url.username || url.password || req.headers().authorization || !(url.origin === origin || brokerUrls.includes(url.href))) return route.abort();
 		if (brokerUrls.includes(url.href)) requests.push(url.href);
-		const response = await route.fetch({ maxRedirects: 0 });
+		const response = await route.fetch({ maxRedirects: 0, timeout: 15000 });
 		if (response.status() >= 300 && response.status() < 400) return route.abort();
 		if (brokerUrls.includes(url.href)) brokerResponses.push({ url: url.href, status: response.status() });
 		const relative = decodeURIComponent(url.pathname.slice(1));
@@ -38,6 +40,7 @@ async function context(javaScriptEnabled = true) {
 		}));
 		await route.fulfill({ response });
 	});
+	ctx.finishProof = async () => { finishing = true; await ctx.unrouteAll({ behavior: 'wait' }); await ctx.close(); };
 	return ctx;
 }
 try {
@@ -65,12 +68,12 @@ try {
 	await page.goto(origin, { waitUntil: 'networkidle' });
 	assert.equal(await page.locator('.constellation').count(), 0);
 	await page.screenshot({ path: join(evidenceRoot, 'live-default-off.png'), fullPage: true });
-	await ctx.close();
+	await ctx.finishProof();
 	const nojs = await context(false), plain = await nojs.newPage();
-	await plain.goto(`${origin}/?flags=constellation`);
+	await plain.goto(`${origin}/?flags=constellation`, { waitUntil: 'networkidle' });
 	assert.equal(await plain.locator('#latest').isVisible(), true);
 	assert.equal(await plain.locator('.constellation').count(), 0);
-	await nojs.close();
+	await nojs.finishProof();
 	await Promise.all(pending);
 	assert.ok(assets.length > 0);
 	const receipt = { sourceSha: manifest.sourceSha, checkedAt: new Date().toISOString(), browserPath, nodeVersion: process.version, playwrightVersion: JSON.parse(readFileSync(join(packageRoot, 'package.json'))).version,
