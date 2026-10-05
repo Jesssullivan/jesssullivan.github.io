@@ -10,10 +10,12 @@ import {
 	rmSync,
 	statSync,
 	symlinkSync,
+	writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 
 const workspaceRoot = process.cwd();
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-vite-build-'));
@@ -35,6 +37,8 @@ const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'ut
 for (const command of [
 	['tsx', 'scripts/ingest-tinyland-posts.mts', '--check'],
 	['tsx', 'scripts/generate-search-index.mts'],
+	['tsx', 'scripts/optimize-images.mts'],
+	['tsx', 'scripts/render-mermaid.mts'],
 	['tsx', 'scripts/generate-blog-stats.mts'],
 	['tsx', 'scripts/generate-tag-graph.mts'],
 	['tsx', 'scripts/generate-photo-gallery.mts'],
@@ -42,6 +46,7 @@ for (const command of [
 	['svelte-kit', 'sync'],
 	['vite', 'build'],
 	['tsx', 'scripts/generate-redirects.mts'],
+	['pagefind', '--site', 'build'],
 	['tsx', 'scripts/generate-directory-index-aliases.mts'],
 	['node', 'scripts/validate-deploy-tier-output.mjs', 'production'],
 	['tsx', 'scripts/validate-redirects.mts'],
@@ -68,6 +73,23 @@ if (!indexHtml.includes('<!doctype html>')) {
 
 assertUnpublishedPostContentExcluded();
 
+// Local release exports the exact already-validated artifact, never a rebuild.
+if (process.argv[2] === '--export-production') {
+	const destination = process.argv[3];
+	const sourceSha = process.argv[4];
+	if (!destination || !destination.startsWith('/') || existsSync(destination) || !/^[0-9a-f]{40}$/.test(sourceSha ?? '')) {
+		throw new Error('Export requires a new absolute directory and exact source SHA');
+	}
+	if (indexHtml.includes('class="constellation"') || indexHtml.includes('home-reader-broker-state')) throw new Error('Default production SSR leaked opt-in nodes');
+	const sanitizer = JSON.parse(readFileSync(join(buildRoot, 'node_modules/dompurify/package.json'), 'utf8'));
+	if (sanitizer.version !== '3.4.16') throw new Error('Local release requires actual locked DOMPurify 3.4.16');
+	const output = join(destination, 'build');
+	cpSync(join(buildRoot, 'build'), output, { recursive: true, errorOnExist: true, force: false });
+	const files = collectFiles(output).sort().map(file => ({ path: file.slice(output.length + 1), sha256: createHash('sha256').update(readFileSync(file)).digest('hex') }));
+	writeFileSync(join(destination, 'artifact.json'), JSON.stringify({ sourceSha, sanitizer: sanitizer.version, files }, null, 2) + '\n', { flag: 'wx' });
+	console.log(`Exported exact production artifact for ${sourceSha}`);
+}
+
 console.log(
 	`SvelteKit/Vite build smoke passed for ${packageJson.name}; output=${indexPath}; mermaid=${process.env.MERMAID_PRERENDER}`,
 );
@@ -92,7 +114,7 @@ function copyInputsToBuildRoot() {
 
 function assertUnpublishedPostContentExcluded() {
 	const postsDir = join(buildRoot, 'src', 'posts');
-	const appDir = join(buildRoot, 'build', '_app');
+	const appDir = join(buildRoot, 'build');
 	const posts = readdirSync(postsDir)
 		.filter((file) => /\.(?:md|svx)$/.test(file))
 		.map((file) => ({ file, source: readFileSync(join(postsDir, file), 'utf8') }));
@@ -106,7 +128,7 @@ function assertUnpublishedPostContentExcluded() {
 			file,
 			sentinel: publicationSentinel(file, source, publishedCorpus),
 		}));
-	const appAssets = collectFiles(appDir).map((file) => ({
+	const appAssets = collectFiles(appDir).filter(file => /\.(?:html|js|json|map|txt|xml|svg)$/.test(file)).map((file) => ({
 		file,
 		source: readFileSync(file, 'utf8'),
 	}));

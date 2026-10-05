@@ -19,6 +19,9 @@ import { spawnSync } from 'node:child_process';
 import { configureChromiumFontconfig } from './chromium-fontconfig.mjs';
 
 const workspaceRoot = process.cwd();
+const artifactMode = process.argv[2] === '--production-artifact';
+const artifactRoot = artifactMode ? process.argv[3] : null;
+const browserArgs = artifactMode ? process.argv.slice(4) : process.argv.slice(2);
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-playwright-e2e-'));
 const buildRoot = join(runtimeRoot, 'workspace');
 const chromiumExecutable = findChromiumExecutable();
@@ -46,7 +49,12 @@ try {
 	copyInputsToBuildRoot();
 	linkNodeModules();
 
-	for (const command of [
+	if (artifactMode) {
+		if (!artifactRoot || !artifactRoot.startsWith('/') || !existsSync(join(artifactRoot, 'artifact.json'))) throw new Error('Exact production artifact required');
+		const manifest = JSON.parse(readFileSync(join(artifactRoot, 'artifact.json'), 'utf8'));
+		if (!/^[0-9a-f]{40}$/.test(manifest.sourceSha ?? '') || manifest.sanitizer !== '3.4.16') throw new Error('Invalid production artifact identity');
+		copyPath(join(artifactRoot, 'build'), join(buildRoot, 'build'));
+	} else for (const command of [
 		['tsx', 'scripts/ingest-tinyland-posts.mts', '--check'],
 		['tsx', 'scripts/generate-search-index.mts'],
 		['tsx', 'scripts/optimize-images.mts'],
@@ -65,7 +73,7 @@ try {
 		run(command[0], command.slice(1));
 	}
 
-	run('playwright', ['test', '--config', 'playwright.bazel.config.ts', ...process.argv.slice(2)]);
+	run('playwright', ['test', '--config', 'playwright.bazel.config.ts', ...browserArgs]);
 
 	console.log(`Playwright Chromium e2e passed with ${chromiumExecutable}`);
 } finally {

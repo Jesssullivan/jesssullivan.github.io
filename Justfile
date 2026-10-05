@@ -7,6 +7,14 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 root := justfile_directory()
 
+# Explicit operator-owned local Bazel production authority, no remote/GF wait.
+production-local-qualify source_sha artifact:
+    bash scripts/qualify-local-production.sh '{{source_sha}}' '{{artifact}}'
+
+# Publishes only the exact qualified bytes; signed current-main and live switch.
+production-local-publish source_sha artifact:
+    node scripts/local-production-artifact.mjs publish '{{artifact}}' '{{source_sha}}'
+
 # List available commands
 default:
     @just --list --unsorted

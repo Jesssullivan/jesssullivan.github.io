@@ -5,6 +5,30 @@ load("@jesssullivan_github_io_npm//:defs.bzl", "npm_link_all_packages")
 
 npm_link_all_packages(name = "node_modules")
 
+js_test(
+    name = "local_production_artifact_contract",
+    entry_point = "scripts/test-local-production-artifact.mjs",
+    data = ["scripts/local-production-artifact.mjs"],
+    patch_node_fs = False,
+)
+
+# Explicit operator-owned local release binaries; never publishers in CI.
+js_binary(
+    name = "local_production_build",
+    entry_point = "scripts/run-sveltekit-vite-build-bazel.mjs",
+    data = [":node_modules", ":sveltekit_build_srcs", "@tummycrypt_tinyvectors//:pkg"],
+    env = {"TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)"},
+    patch_node_fs = False,
+)
+
+js_binary(
+    name = "local_production_browser",
+    entry_point = "scripts/run-playwright-e2e-bazel.mjs",
+    data = [":node_modules", ":playwright_e2e_srcs", ":sveltekit_build_srcs", "scripts/serve-static-build.mjs", "@tummycrypt_tinyvectors//:pkg"],
+    env = {"TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)"},
+    patch_node_fs = False,
+)
+
 filegroup(
     name = "vitest_srcs",
     srcs = glob(
