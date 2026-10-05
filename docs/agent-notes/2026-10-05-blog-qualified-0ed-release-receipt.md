@@ -186,3 +186,37 @@ Public screenshots `live-flag-on.png` (Year tree selected) and
 `live-default-off.png` sit beside it. The complete receipt, not a truncated
 terminal excerpt, is authority for asset count31. Full 340-case local proof and
 this bounded actual public proof remain distinct evidence surfaces.
+
+## Accepted release custody cleanup
+
+Root independently read the entire 31-asset live receipt and viewed both public
+screenshots, accepting the bounded default/on/off/no-JS behavior. This is not
+broad floating-graph visual QA, Pulse readiness or unflagged repair authority.
+
+Cleanup completed 2026-10-05T23:44:54Z. Immediately beforehand, exact task parent
+was physical UID501/mode0700; token copy was UID501/mode0400, regular non-symlink,
+singlelink; backing image was UID501/mode0600; OS still mapped the owned mount
+to disk8s1 and UUID E4CFED48-46D1-4809-85CE-B0FE575C43DF. A fresh `lsof +D` of
+only that mount reported no active readers (empty output, normal no-match exit1).
+Only the materialized token copy was unlinked. Existing encrypted SOPS custody
+was unchanged and remains the recovery authority; no credential value appeared
+in output. Normal, non-force `hdiutil detach` against only the exact owned mount
+ejected image-backed disk7. Token copy absent and mount detached were verified.
+
+Backing sparse image remains recoverable (139,464,704 physical file bytes) at
+`/Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/blog-0ed-case-sensitive.sparseimage`.
+Failed case-folded copy, producer original artifact/qualification/logs, both
+public proof attempts, post-propagation receipt and Neo screenshots are retained.
+Frozen qualified/main source0ed was not changed, rebuilt or republished.
+
+For read-only evidence recovery, first recheck owned image/mount-path custody
+and absence of an existing mount, then use:
+
+```sh
+hdiutil attach -readonly -nobrowse \
+  -mountpoint /Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/case-sensitive-mount \
+  /Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/blog-0ed-case-sensitive.sparseimage
+```
+
+Reverify exact manifest/qualification hashes and names after remount. Recovery
+does not authorize a new upload, credential extraction or source/main change.
