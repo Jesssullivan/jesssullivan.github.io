@@ -36,7 +36,29 @@ test('standalone seal is unavailable and fixed-success receipts are rejected', (
 	const root = fixture();
 	assert.notEqual(run('seal', root).status, 0);
 	const manifestHash = createHash('sha256').update(readFileSync(join(root, 'artifact.json'))).digest('hex');
-	writeFileSync(join(root, 'qualification.json'), JSON.stringify({ schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha, manifestHash, gates: ['pretend-success'] }));
+	writeFileSync(join(root, 'qualification.json'), JSON.stringify({ schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha, manifestHash, qualifiedArtifactRoot: root, gates: ['pretend-success'] }));
 	const result = run('publish', root); assert.notEqual(result.status, 0);
 	assert.match(result.stderr, /exact successful source\/artifact-bound required gates/);
+});
+test('transferred artifact validates original producer args but still requires publication confirmation', () => {
+	const root = fixture(), qualifiedArtifactRoot = '/producer/qualified-artifact';
+	const manifestHash = createHash('sha256').update(readFileSync(join(root, 'artifact.json'))).digest('hex');
+	const startup = ['--host_jvm_args=-Xmx1024m'];
+	const nodeOptions = '--max-old-space-size=3072';
+	const options = ['--config=local', '--lockfile_mode=error', '--remote_cache=', '--remote_executor=', '--jobs=1', '--local_test_jobs=1', `--action_env=NODE_OPTIONS=${nodeOptions}`];
+	const checks = ['//:sveltekit_check', '//:vitest_unit_tests', '//:bazel_graph_hygiene', '//:local_production_artifact_contract', '//static/cv:pdfs_synced_test'];
+	const stages = [
+		['checks-private-cv', [...startup, 'test', ...options, ...checks]],
+		['production-build-export', [...startup, 'run', ...options, '//:local_production_build', '--', '--export-production', qualifiedArtifactRoot, sourceSha]],
+		['same-artifact-browser', [...startup, 'run', ...options, '//:local_production_browser', '--', '--production-artifact', qualifiedArtifactRoot]],
+	];
+	const receipt = { schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha, manifestHash, qualifiedArtifactRoot,
+		gates: stages.map(([name, args]) => ({ name, args, status: 0, sourceSha, manifestHash, nodeOptions, command: 'bazelisk', startedAt: '2026-10-05T00:00:00Z', finishedAt: '2026-10-05T00:00:01Z' })) };
+	writeFileSync(join(root, 'qualification.json'), JSON.stringify(receipt));
+	const result = run('publish', root);
+	assert.notEqual(result.status, 0);
+	assert.match(result.stderr, /Exact-source local publication confirmation required/);
+	receipt.qualifiedArtifactRoot = '/wrong-producer-path';
+	writeFileSync(join(root, 'qualification.json'), JSON.stringify(receipt));
+	assert.match(run('publish', root).stderr, /exact successful source\/artifact-bound required gates/);
 });

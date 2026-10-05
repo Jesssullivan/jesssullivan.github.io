@@ -31,15 +31,19 @@ const manifestHash = hash(manifestBytes);
 if (operation === 'qualify') {
 	runStage('same-artifact-browser', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]);
 	if (hash(readFileSync(join(root, 'artifact.json'))) !== manifestHash || JSON.stringify(files(build).map(path => ({ path: path.slice(build.length + 1), sha256: hash(readFileSync(path)) }))) !== JSON.stringify(manifest.files)) throw new Error('Artifact changed during browser qualification');
-	writeFileSync(join(root, 'qualification.json'), JSON.stringify({ schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha: expectedSha, manifestHash, qualifiedAt: new Date().toISOString(), gates: stages.map(stage => ({ ...stage, manifestHash })) }, null, 2) + '\n', { flag: 'wx' });
+	writeFileSync(join(root, 'qualification.json'), JSON.stringify({ schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha: expectedSha, manifestHash, qualifiedArtifactRoot: root, qualifiedAt: new Date().toISOString(), gates: stages.map(stage => ({ ...stage, manifestHash })) }, null, 2) + '\n', { flag: 'wx' });
 }
 if (operation === 'publish') {
 	const qualification = JSON.parse(readFileSync(join(root, 'qualification.json'), 'utf8'));
 	if (qualification.schemaVersion !== 'tss.local-production-qualification.v1' || qualification.custody !== 'same-uid-operator' || qualification.sourceSha !== expectedSha || qualification.manifestHash !== manifestHash) throw new Error('Missing same-artifact qualification');
+	// Gate arguments describe the actual producer path, not the destination of
+	// a same-byte artifact transfer to the explicitly selected Neo publisher.
+	const qualifiedRoot = qualification.qualifiedArtifactRoot;
+	if (typeof qualifiedRoot !== 'string' || !qualifiedRoot.startsWith('/') || qualifiedRoot === '/' || resolve(qualifiedRoot) !== qualifiedRoot) throw new Error('Missing exact qualified artifact path');
 	const required = [
 		['checks-private-cv', [...bazelStartup, 'test', ...bazelOptions, ...checks]],
-		['production-build-export', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_build', '--', '--export-production', root, expectedSha]],
-		['same-artifact-browser', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]],
+		['production-build-export', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_build', '--', '--export-production', qualifiedRoot, expectedSha]],
+		['same-artifact-browser', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', qualifiedRoot]],
 	];
 	if (!Array.isArray(qualification.gates) || qualification.gates.length !== required.length || required.some(([name, args], index) => {
 		const gate = qualification.gates[index];

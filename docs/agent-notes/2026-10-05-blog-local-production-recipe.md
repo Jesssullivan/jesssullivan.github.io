@@ -90,6 +90,13 @@ source-pinned installed CLI identity, account/project ID/domain and rechecks liv
 main + switch before the sole mutation. It uses the existing Wrangler
 `pages deploy ... --branch=main --commit-hash=... --commit-dirty=false` shape.
 
+Qualification records `qualifiedArtifactRoot`, the original producer's absolute
+artifact path. Publisher gate-argument validation uses that recorded path,
+while every manifest/file hash is rechecked at the current transfer destination.
+This allows a same-byte Sting-to-Neo transfer without rebuilding or minting new
+gate successes. A focused fixture reaches only the exact-source confirmation
+guard on a transferred test artifact; a mismatched recorded path is rejected.
+
 Readback checks canonical deployment success/source SHA and exact qualified
 homepage bytes at transscendsurvival.org, then writes `published.json` outside
 git. It does not claim browser live proof. Root separately checks public browser
