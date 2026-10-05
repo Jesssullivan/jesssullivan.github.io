@@ -60,7 +60,7 @@ try {
 
 	const homeBlogResponse = page.waitForResponse((response) => response.url() === BLOG_BROKER_URL);
 	const homePulseResponse = page.waitForResponse((response) => response.url() === PULSE_BROKER_URL);
-	await requireHttp200(page, page.goto(`${SHADOW_ORIGIN}/`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/');
+	await requireHttp200(page, page.goto(`${SHADOW_ORIGIN}/?flags=constellation`, { waitUntil: 'domcontentloaded', timeout: 30_000 }), '/');
 	await requireShadowStamp(page, evidence.consumerSourceSha);
 	await requireState(page, 'home-reader-broker-state', 'Blog ready; Pulse ready.');
 	const brokerPosts = validateBrokerEvidence(await requireJson(homeBlogResponse, 'home blog broker'), evidence.brokerContentHash);
@@ -71,32 +71,33 @@ try {
 	await page.locator('#pulse').waitFor({ state: 'visible' });
 	await page.locator('.constellation a[href="#latest"]').waitFor({ state: 'visible' });
 	let mediaCoverage = 'unexercised: no reviewed public lead image';
+	await page.getByText('Reviewed public Pulse details', { exact: true }).click();
 	if (pulseSnapshot.items.length > 0) {
-		await page.locator('#pulse ol li').first().waitFor({ state: 'visible' });
+		await page.locator('#experimental-pulse ol li').first().waitFor({ state: 'visible' });
 		const firstItem = pulseSnapshot.items[0];
 		const itemText = firstItem.kind === 'note'
 			? firstItem.content
 			: (firstItem.birdSighting?.commonName || firstItem.birdSighting?.scientificName);
 		if (typeof itemText !== 'string' || !itemText.trim() ||
-			!(await page.locator('#pulse').innerText()).includes(itemText)) {
+			!(await page.locator('#experimental-pulse').innerText()).includes(itemText)) {
 			throw new Error('live Pulse item text is absent from the hydrated homepage');
 		}
 	} else {
-		await page.locator('#pulse').getByText('No public events yet.').waitFor({ state: 'visible' });
+		await page.locator('#experimental-pulse').getByText('No public events yet.').waitFor({ state: 'visible' });
 		mediaCoverage = 'unexercised: public Pulse snapshot is empty';
 	}
 	if (media) {
-		const mediaImage = page.locator('#pulse').getByRole('img', { name: media.alt }).first();
+		const mediaImage = page.locator('#experimental-pulse').getByRole('img', { name: media.alt }).first();
 		await mediaImage.scrollIntoViewIfNeeded();
 		await mediaImage.waitFor({ state: 'visible' });
 		if ((await mediaImage.getAttribute('src')) !== media.url) {
 			throw new Error('Pulse image source does not match the reviewed broker preview URL');
 		}
 		await page.waitForFunction(
-			(url) => [...document.querySelectorAll('#pulse img')].some((img) => img.src === url && img.complete && img.naturalWidth > 0),
+			(url) => [...document.querySelectorAll('#experimental-pulse img')].some((img) => img.src === url && img.complete && img.naturalWidth > 0),
 			media.url,
 		);
-		if (media.text && !(await page.locator('#pulse').innerText()).includes(media.text)) {
+		if (media.text && !(await page.locator('#experimental-pulse').innerText()).includes(media.text)) {
 			throw new Error('reviewed Pulse media item text is not visible on the homepage');
 		}
 		mediaCoverage = 'exercised: reviewed preview decoded';
@@ -183,7 +184,7 @@ try {
 	await requireShadowStamp(noJsPage, evidence.consumerSourceSha);
 	await noJsPage.locator('#latest a[href^="/blog/"]').first().waitFor({ state: 'visible' });
 	await noJsPage.locator('#pulse').waitFor({ state: 'visible' });
-	await noJsPage.locator('.constellation a[href="#latest"]').waitFor({ state: 'visible' });
+	if (await noJsPage.locator('.constellation').count()) throw new Error('no-JS default contains the opt-in experiment');
 	const staticHref = await noJsPage.locator('#latest a[href^="/blog/"]').first().getAttribute('href');
 	const staticSlug = new URL(staticHref, SHADOW_ORIGIN).pathname.slice('/blog/'.length);
 	if (!routeSlugs.has(staticSlug)) throw new Error('no-JS homepage points outside the prerendered static route set');

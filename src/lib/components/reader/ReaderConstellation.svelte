@@ -1,8 +1,11 @@
 <script lang="ts">
 	import type { Post } from '$lib/posts';
 	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	import type { ReaderCollection } from '$lib/reader/collection';
+	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
 
-	let { posts, snapshot }: { posts: Post[]; snapshot: PublicPulseSnapshotAny } = $props();
+	let { posts, snapshot, archive = [] }: { posts: Post[]; snapshot: PublicPulseSnapshotAny; archive?: ReaderCollection['archive'] } = $props();
+	let view = $state<'constellation' | 'tree'>('constellation');
 
 	const nodes = $derived([
 		...posts.slice(0, 4).map((post) => ({
@@ -10,14 +13,14 @@
 			kind: 'Post',
 			date: post.date,
 			title: post.title,
-			href: `/blog/${post.slug}`,
+				href: `/blog/${post.slug}`,
 		})),
 		...snapshot.items.slice(0, 2).map((item) => ({
 			id: `pulse-${item.id}`,
 			kind: item.kind === 'bird_sighting' ? 'Bird sighting' : 'Pulse note',
 			date: item.occurredAt,
 			title: item.summary || (item.kind === 'bird_sighting' ? item.birdSighting?.commonName : item.content) || 'Pulse',
-			href: '/pulse',
+				href: '/pulse',
 		})),
 	]);
 </script>
@@ -30,13 +33,23 @@
 			<p class="intro">Follow a thread into the full post, or keep scrolling through the reader.</p>
 		</div>
 		<div class="controls">
+			<button type="button" aria-pressed={view === 'constellation'} onclick={() => view = 'constellation'}>Constellation</button>
+			<button type="button" aria-pressed={view === 'tree'} onclick={() => view = 'tree'}>Year tree</button>
 			<input id="constellation-pause" class="motion-toggle" type="checkbox" />
 			<label for="constellation-pause">Pause motion</label>
 			<a href="#latest">Browse as a list ↓</a>
 		</div>
 	</div>
 
-	{#if nodes.length > 0}
+	{#if view === 'tree'}
+		<ul class="year-tree" aria-label="Public writing by year">
+			{#each archive as group (group.year)}
+				<li><details><summary>{group.year} · {group.posts.length} posts</summary>
+					<ul>{#each group.posts as post (post.slug)}<li><a href={`/blog/${post.slug}`}>{post.title}</a></li>{/each}</ul>
+				</details></li>
+			{/each}
+		</ul>
+	{:else if nodes.length > 0}
 		<ol class="constellation-field" aria-label="Recent public writing and notes">
 			{#each nodes as node (node.id)}
 				<li class="constellation-node">
@@ -53,6 +66,7 @@
 	{:else}
 		<p class="empty">No public writing or notes yet. The list below will appear when there is something to read.</p>
 	{/if}
+	<details class="reviewed-pulse"><summary>Reviewed public Pulse details</summary><div id="experimental-pulse"><PulseFeed {snapshot} /></div></details>
 </section>
 
 <style>
@@ -63,6 +77,13 @@
 	.intro { margin-top: .35rem; opacity: .75; }
 	.controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; font-family: 'Inter', sans-serif; font-size: .78rem; }
 	.controls a { text-decoration: underline; text-underline-offset: .2em; }
+	.controls button { border: 1px solid currentColor; padding: .35rem .6rem; border-radius: .3rem; }
+	.controls button[aria-pressed='true'] { color: var(--color-primary-500); }
+	.controls button:focus-visible, .year-tree a:focus-visible, .year-tree summary:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
+	.year-tree { padding: 1rem; border: 1px solid currentColor; }
+	.year-tree summary { cursor: pointer; padding: .5rem; }
+	.year-tree ul { margin-left: 1.25rem; border-left: 1px solid currentColor; padding-left: 1rem; }
+	.year-tree a { display: inline-block; padding: .4rem; text-decoration: underline; }
 	.motion-toggle { width: 1rem; height: 1rem; accent-color: var(--color-primary-500); }
 	.motion-toggle:focus-visible, .controls a:focus-visible, .constellation-node a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
 	.motion-toggle + label { cursor: pointer; margin-left: -.7rem; }
@@ -75,6 +96,8 @@
 	.constellation-node a:hover { transform: translateY(-2px); border-color: var(--color-primary-500); }
 	.node-marker { flex: none; width: .65rem; height: .65rem; margin-top: .25rem; border: 2px solid var(--color-primary-500); border-radius: 50%; box-shadow: 0 0 0 .24rem color-mix(in srgb, var(--color-primary-500) 18%, transparent); }
 	.node-copy { display: grid; gap: .4rem; min-width: 0; }
+	.reviewed-pulse { margin-top: 1rem; }
+	.reviewed-pulse summary { cursor: pointer; padding: .5rem; }
 	.node-meta { opacity: .7; }
 	.node-copy strong { font-family: 'Inter', sans-serif; font-size: .95rem; line-height: 1.3; }
 	.empty { padding: 1.5rem; border: 1px solid currentColor; }

@@ -215,6 +215,26 @@ test.describe('Blog document root enhancements', () => {
 });
 
 test.describe('Homepage public reader enhancement', () => {
+	test('default and explicit none add no experimental DOM or broker requests', async ({ page }) => {
+		const requests: string[] = [];
+		page.on('request', request => { if ([endpoint, pulseEndpoint].includes(request.url())) requests.push(request.url()); });
+		await page.goto('/');
+		await expect(page.locator('#latest')).toBeVisible();
+		await expect(page.locator('.constellation')).toHaveCount(0);
+		expect(requests).toEqual([]);
+		await page.goto('/?flags=constellation');
+		await expect(page.locator('.constellation')).toBeVisible();
+		await page.getByRole('button', { name: 'Year tree', exact: true }).click();
+		await expect(page.locator('.year-tree')).toBeVisible();
+		await page.locator('.year-tree summary').first().click();
+		await expect(page.locator('.year-tree a[href^="/blog/"]').first()).toBeVisible();
+		await page.getByRole('button', { name: 'Constellation', exact: true }).click();
+		await expect(page.locator('.constellation-field')).toBeVisible();
+		requests.length = 0;
+		await page.goto('/?flags=none');
+		await expect(page.locator('.constellation')).toHaveCount(0);
+		expect(requests).toEqual([]);
+	});
 	test('keeps checked-in article links and the reviewed Pulse fallback readable without JavaScript', async ({ browser }) => {
 		const context = await browser.newContext({
 			javaScriptEnabled: false,
@@ -226,7 +246,7 @@ test.describe('Homepage public reader enhancement', () => {
 			await page.goto('/');
 			await expect(page.locator('#latest a[href^="/blog/"]').first()).toBeVisible();
 			await expect(page.locator('#pulse')).toContainText('Pulse');
-			await expect(page.locator('.constellation')).toContainText('Browse as a list');
+			await expect(page.locator('.constellation')).toHaveCount(0);
 		} finally {
 			await context.close();
 		}
@@ -244,10 +264,11 @@ test.describe('Homepage public reader enhancement', () => {
 		await page.route(pulseEndpoint, async (route) => {
 			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reviewedLeadImageSnapshot) });
 		});
-		await page.goto('/');
+		await page.goto('/?flags=constellation');
 		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog ready; Pulse ready.');
 		await expect(page.locator('.constellation')).toContainText('A reviewed lead image accompanies this public note.');
 		const reviewedImage = page.getByRole('img', { name: 'A tawny owl resting on a cedar branch' });
+		await page.getByText('Reviewed public Pulse details', { exact: true }).click();
 		await expect(reviewedImage).toBeVisible();
 		await reviewedImage.scrollIntoViewIfNeeded();
 		await expect.poll(() => reviewedPreviewFulfilled).toBe(true);
@@ -264,7 +285,7 @@ test.describe('Homepage public reader enhancement', () => {
 		await page.route(pulseEndpoint, async (route) => {
 			await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(reviewedLeadImageSnapshot) });
 		});
-		await page.goto('/');
+		await page.goto('/?flags=constellation');
 		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse ready.');
 		await expect(page.locator('#latest a[href^="/blog/"]').first()).toBeVisible();
 		await expect(page.locator('.constellation')).toContainText('A reviewed lead image accompanies this public note.');
@@ -277,7 +298,7 @@ test.describe('Homepage public reader enhancement', () => {
 		await page.route(pulseEndpoint, async (route) => {
 			await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
 		});
-		await page.goto('/');
+		await page.goto('/?flags=constellation');
 		await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog ready; Pulse unavailable.');
 		await expect(page.locator('#pulse')).toBeVisible();
 		await expect(page.locator('a[href="/blog/brokered-document-root-test"]')).toHaveCount(0);
