@@ -85,6 +85,26 @@ never be published. Original producer bytes/receipt remain unchanged. No route
 renaming, source repair, reseal or rebuild is authorized to hide this transfer
 failure. Case-sensitive destination and full repeated verification are required.
 
+Root approved one owned 512 MiB sparse case-sensitive APFS image. Created with
+private umask, UID501/mode0600:
+`/Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/blog-0ed-case-sensitive.sparseimage`.
+Mounted only its explicit owned child with `nobrowse`:
+`/Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/case-sensitive-mount`.
+OS verified Case-sensitive APFS, device disk8s1, volume UUID
+`E4CFED48-46D1-4809-85CE-B0FE575C43DF`, image-backed disk7. No existing volume
+was formatted or global setting changed. The image and failed copy remain
+recoverable; detach only this owned mount after publisher completion and a fresh
+ownership/device check.
+
+Exact artifact now resides at the mounted child `artifact-0ed`. Complete
+independent Neo `verify` passed all 3777 names/hashes. Both manifest and
+qualification receipt hashes match the original producer values above.
+Publisher preflight with confirmation explicitly unset accepted exact bytes,
+receipt schema and original-producer-path gate arguments, then rejected at
+`Exact-source local publication confirmation required` before any credential
+read, external metadata access or mutation. No caller-issued success receipt
+or regenerated artifact replaced the original.
+
 ## Source/main reconciliation and pending publication
 
 At readback after qualification, live GitHub main remained exact `930233d`,
