@@ -85,6 +85,11 @@ if (process.argv[2] === '--export-production') {
 	if (sanitizer.version !== '3.4.16') throw new Error('Local release requires actual locked DOMPurify 3.4.16');
 	const output = join(destination, 'build');
 	cpSync(join(buildRoot, 'build'), output, { recursive: true, errorOnExist: true, force: false });
+	for (const pdf of ['jess_sullivan_resume.pdf', 'jess_sullivan_precis.pdf', 'jess_sullivan_cv.pdf']) {
+		const source = readFileSync(join(buildRoot, 'static', 'cv', pdf));
+		const exported = readFileSync(join(output, 'cv', pdf));
+		if (!source.equals(exported) || !exported.subarray(0, 5).equals(Buffer.from('%PDF-'))) throw new Error(`Public CV export missing or changed: ${pdf}`);
+	}
 	const files = collectFiles(output).sort().map(file => ({ path: file.slice(output.length + 1), sha256: createHash('sha256').update(readFileSync(file)).digest('hex') }));
 	writeFileSync(join(destination, 'artifact.json'), JSON.stringify({ sourceSha, sanitizer: sanitizer.version, files }, null, 2) + '\n', { flag: 'wx' });
 	console.log(`Exported exact production artifact for ${sourceSha}`);

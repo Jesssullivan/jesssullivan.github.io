@@ -84,3 +84,23 @@ present, and records any empty/unavailable projection honestly. Public Pulse
 
 No production DNS, switch value, repository setting, workflow dispatch or
 existing deployed site changed in this source implementation.
+
+## Review corrections to 0850789
+
+The source reviewer caught Bazel subpackage pruning: `static/**` does not carry
+the public CV PDFs across `static/cv/BUILD.bazel`. Both local build and browser
+binaries now explicitly include the narrow `//static/cv:public_files` group
+(exactly resume, precis and full generic CV; no targeted/private lane). Export
+requires each PDF present with its PDF header and bytes equal to its already
+private-source-qualified static input. Per-file manifest hashing includes all
+three, and verification/publishing reject an artifact missing that public lane.
+
+Standalone `seal` has been removed. The qualification orchestrator executes the
+fixed actual Bazel checks, export and same-artifact browser stages itself. It
+records each actual exit status, command/arguments, timestamps, source SHA and
+final artifact manifest hash only after all stages return success and source
+remains clean/signed. Publisher requires the receipt schema, same-UID operator
+custody and the exact successful bound stage sequence. This is operator custody
+evidence, not cryptographic remote attestation or a new signing-key framework.
+Three lightweight Node fixtures cover byte/source/symlink rejection, absent
+qualification, removed standalone seal and fabricated fixed-success rejection.
