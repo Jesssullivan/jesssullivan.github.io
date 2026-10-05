@@ -146,3 +146,24 @@ Verified shared immutable tool: Chromium138.0.7204.49 wrapper
 underlying ELF SHA256
 `bd6ba86cb6202044e6d6dbec136aa6bd8933493405913550e18237f9b0a2676f`.
 This is recorded tool compatibility, not a Playwright bundled-revision claim.
+# Second qualified-source attempt: declared CLI linkage
+
+Exact signed `cb24d7c03207bdb48e88fad7e3590fa59b0cd4a2` ran on Sting from
+22:32:45 UTC under `heavy-just-1791239565-159159.scope` (5 GiB high, 6 GiB
+maximum, CPUWeight 25). Original session 9045 terminated with exit 1 after all
+five checks/private-CV targets passed. The build target analyzed and launched,
+but strict Mermaid rendering rejected the absent Bazel `.bin/mmdc` wrapper.
+No artifact export, browser qualification, qualification receipt, or publication
+occurred. Log remains at
+`/srv/fast-local/jess/blog-c304-20261005.yQNbm5/qualification-cb24.log`.
+Peak was 5,369,233,408 bytes. Actor: this blog lane; target: owned PID 159201,
+exact cb24 workspace and output base `9be8388d39b1fc2eefc87cc1af76593a`;
+reason: settle terminated qualification; ruling: R-N11; prior state: live
+owned Bazel daemon; result: normal Bazel shutdown, PID absent and scope inactive.
+
+Successor supplies only a temporary-workspace Mermaid CLI wrapper executing
+the locked package through the Bazel Node runtime, and the existing locked
+Pagefind CLI entrypoint in the runner's resolver. No download, fallback,
+renderer policy change, or default public UI change is introduced. Strict
+Mermaid rendering and every qualification gate remain required; prior passes
+are not inherited by a new source SHA.

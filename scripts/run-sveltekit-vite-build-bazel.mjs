@@ -31,6 +31,13 @@ process.env.MERMAID_PRERENDER = process.env.MERMAID_PRERENDER ?? 'optional';
 
 copyInputsToBuildRoot();
 linkNodeModules();
+// Bazel links packages, not pnpm's .bin wrappers. The existing Mermaid
+// renderer expects that wrapper; create it only in this owned build workspace
+// and execute the already-declared package with the Bazel Node runtime.
+const binRoot = join(buildRoot, 'node_modules', '.bin');
+mkdirSync(binRoot, { recursive: true });
+const shellQuote = value => "'" + value.replaceAll("'", "'\\''") + "'";
+writeFileSync(join(binRoot, 'mmdc'), `#!/bin/sh\nexec ${shellQuote(process.execPath)} ${shellQuote(resolveBinEntrypoint('mmdc'))} "$@"\n`, { mode: 0o755 });
 
 const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'utf8'));
 
@@ -356,6 +363,8 @@ function resolveBinEntrypoint(name) {
 		'svelte-kit': ['@sveltejs/kit', 'svelte-kit.js'],
 		tsx: ['tsx', 'dist/cli.mjs'],
 		vite: ['vite', 'bin/vite.js'],
+		mmdc: ['@mermaid-js/mermaid-cli', 'src/cli.js'],
+		pagefind: ['pagefind', 'lib/runner/bin.cjs'],
 	};
 	const [packageName, relativePath] = entrypoints[name] ?? [];
 	if (!packageName) {
