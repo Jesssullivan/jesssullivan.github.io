@@ -3,8 +3,48 @@
 	import ReaderArchive from '$lib/components/reader/ReaderArchive.svelte';
 	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
+	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
+	import { resolveConstellationFlag } from '$lib/flags/constellation';
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
+	import { loadTinylandBlogBrokerStream, tinylandBlogBrokerStreamToPosts } from '$lib/tinyland/blogBrokerStream';
+	import { loadPulsePublicBrokerSnapshot } from '$lib/pulse/load';
+	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	import type { Post } from '$lib/posts';
+	import publicationHolds from '../../static/blog-publication-holds.json';
 
 	let { data }: { data: PageData } = $props();
+	let constellationEnabled = $state(false);
+	let mounted = $state(false);
+	let experimentPosts = $state<Post[] | null>(null);
+	let experimentPulse = $state<PublicPulseSnapshotAny | null>(null);
+	let blogStatus = $state('loading');
+	let pulseStatus = $state('loading');
+	let experimentalCollection = $derived(createHomeReaderCollection(data.collection.archive.flatMap(group => group.posts), experimentPosts ?? [], new Set(publicationHolds)));
+	onMount(() => { mounted = true; });
+	$effect(() => {
+		if (!mounted) return;
+		const enabled = resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
+		constellationEnabled = enabled;
+		experimentPosts = null;
+		experimentPulse = null;
+		blogStatus = 'loading';
+		pulseStatus = 'loading';
+		if (!enabled) return;
+		const controller = new AbortController();
+		let cancelled = false;
+		const timer = window.setTimeout(() => controller.abort(), 10_000);
+		void Promise.allSettled([
+			loadTinylandBlogBrokerStream(fetch, { signal: controller.signal }).then(stream => {
+				if (!cancelled) { experimentPosts = tinylandBlogBrokerStreamToPosts(stream); blogStatus = 'ready'; }
+			}).catch(() => { if (!cancelled) blogStatus = 'unavailable'; }),
+			loadPulsePublicBrokerSnapshot(fetch, { signal: controller.signal }).then(snapshot => {
+				if (!cancelled) { experimentPulse = snapshot; pulseStatus = 'ready'; }
+			}).catch(() => { if (!cancelled) pulseStatus = 'unavailable'; }),
+		]).finally(() => window.clearTimeout(timer));
+		return () => { cancelled = true; window.clearTimeout(timer); controller.abort(); };
+	});
 </script>
 
 <svelte:head>
@@ -27,6 +67,11 @@
 			<a class="text-primary-500 hover:underline" href="#archive">Archive</a>
 		</nav>
 	</header>
+
+	{#if constellationEnabled}
+		<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
+		<ReaderConstellation posts={experimentalCollection.latest} archive={experimentalCollection.archive} snapshot={experimentPulse ?? data.pulseSnapshot} />
+	{/if}
 
 	<div class="space-y-16">
 		<ReaderLatest posts={data.collection.latest} />
