@@ -120,3 +120,29 @@ the source-only bundle import. Its former c304 source remains preserved in the
 new producer checkout; qualification must import this successor exactly before
 use. Owned JVM settlement follows the actual checkout/output-base live check,
 not a broad/default-server shutdown.
+
+## First actual producer attempt — cc2
+
+Sting exact clean signed `cc2c9367c39887a5ffbd20d196eb89cfd344629c` was admitted
+2026-10-05 22:22:24 UTC under owned `heavy-just-1791238944-19063.scope`, high5GiB,
+max6GiB, CPUWeight25. All five initial locked local gates passed: type 18.6s,
+unit 9.9s, private CV 0.2s, graph 0.0s, artifact contract 0.8s. First invocation
+`15ddf18a-c034-487e-8eb1-15bda3d55f49` resolved 1143 packages/11732 targets.
+
+Build export failed at analysis, not app compilation: the new js_binary targets
+omitted `copy_data_to_bin=False`, causing Aspect to try copying cross-package
+blog-agent AGENTS.md into the root package. Both binaries now use the exact
+existing js_test runfiles setting. Original session2689 ended exit1 at22:28:32;
+no artifact, qualification receipt, browser acceptance or publication occurred.
+Scope peak4444590080B stayed below high5368709120B, and high/max/oom/oom_kill
+events were zero. Actual PID19296 output base72baa5e0a972242784b33e070c1181cf and
+workspace directory were live-checked before normal owned Bazel shutdown,
+R-N11. Source, bundle and complete log remain preserved; retry is a new exact
+successor and must rerun the declared gates, not inherit cc2's claim by inference.
+
+Producer log: `/srv/fast-local/jess/blog-c304-20261005.yQNbm5/qualification-cc2.log`.
+Verified shared immutable tool: Chromium138.0.7204.49 wrapper
+`/nix/store/7xr3qnq93srn4dgak7qw74dw836wpp1y-chromium-138.0.7204.49/bin/chromium`;
+underlying ELF SHA256
+`bd6ba86cb6202044e6d6dbec136aa6bd8933493405913550e18237f9b0a2676f`.
+This is recorded tool compatibility, not a Playwright bundled-revision claim.

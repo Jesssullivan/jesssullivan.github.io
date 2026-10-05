@@ -15,6 +15,7 @@ js_test(
 # Explicit operator-owned local release binaries; never publishers in CI.
 js_binary(
     name = "local_production_build",
+    copy_data_to_bin = False,
     entry_point = "scripts/run-sveltekit-vite-build-bazel.mjs",
     data = [":node_modules", ":sveltekit_build_srcs", "//static/cv:public_files", "@tummycrypt_tinyvectors//:pkg"],
     env = {"TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)"},
@@ -23,6 +24,7 @@ js_binary(
 
 js_binary(
     name = "local_production_browser",
+    copy_data_to_bin = False,
     entry_point = "scripts/run-playwright-e2e-bazel.mjs",
     data = [":node_modules", ":playwright_e2e_srcs", ":sveltekit_build_srcs", "//static/cv:public_files", "scripts/serve-static-build.mjs", "@tummycrypt_tinyvectors//:pkg"],
     env = {"TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)"},
