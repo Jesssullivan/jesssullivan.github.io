@@ -5,7 +5,7 @@ description: "Turning 'is this visitor on my tailnet, and are they a member' int
 tags: ["tailscale", "tsidp", "cloudflare-access", "sveltekit", "dhall", "feature-flags"]
 published: false
 slug: "tailnet-and-access-feature-flags"
-category: "systems"
+category: "devops"
 ---
 
 DRAFT. Unpublished (`published: false`). Reference repo: link when public. Measured items below carry the date 2026-10-05. Chrome Local Network Access is pending.
@@ -166,7 +166,7 @@ Placeholders only in the repo (`example.ts.net`, `you@example.com`). A denylist 
 - **Claims are login-time claims.** A `flag_member` in a token is as fresh as the login. Revoke a member in the ACL and existing sessions keep the flag until they expire.
 - **Device is not person.** The tagged-device subject says which device, not who.
 - **Public bundles are public.** Anything in a static bundle is readable by everyone. The gated content has to live behind the gated origin, which is why the e2e test checks the prerendered HTML.
-- **Revocation lag.** The probe caches its node-guard result briefly and `no-store` only protects the browser. Session lifetimes and JWKS caches set how long a revoked member lingers.
+- **Revocation lag.** The probe re-checks its node guard at most every 10 seconds and `no-store` only protects the browser. Session lifetimes and JWKS caches set how long a revoked member lingers.
 - **The tagged-device patch is not yet in the reference repo** (see above).
 
 ## Claim to evidence
