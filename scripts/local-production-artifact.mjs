@@ -6,14 +6,16 @@ import { execFileSync, spawnSync } from 'node:child_process';
 const [operation, directory, expectedSha] = process.argv.slice(2);
 if (!['verify', 'qualify', 'publish'].includes(operation) || !directory?.startsWith('/') || !/^[0-9a-f]{40}$/.test(expectedSha ?? '')) throw new Error('Usage: local-production-artifact.mjs verify|qualify|publish ABSOLUTE_ARTIFACT EXACT_SHA');
 const root = resolve(directory);
-const bazelOptions = ['--config=local', '--lockfile_mode=error', '--remote_cache=', '--remote_executor='];
+const bazelStartup = ['--host_jvm_args=-Xmx1024m'];
+const nodeOptions = '--max-old-space-size=3072';
+const bazelOptions = ['--config=local', '--lockfile_mode=error', '--remote_cache=', '--remote_executor=', '--jobs=1', '--local_test_jobs=1', `--action_env=NODE_OPTIONS=${nodeOptions}`];
 const checks = ['//:sveltekit_check', '//:vitest_unit_tests', '//:bazel_graph_hygiene', '//:local_production_artifact_contract', '//static/cv:pdfs_synced_test'];
 const stages = [];
 if (operation === 'qualify') {
 	if (existsSync(root)) throw new Error('Qualification requires a new artifact directory');
 	cleanSource();
-	runStage('checks-private-cv', ['test', ...bazelOptions, ...checks]);
-	runStage('production-build-export', ['run', ...bazelOptions, '//:local_production_build', '--', '--export-production', root, expectedSha]);
+	runStage('checks-private-cv', [...bazelStartup, 'test', ...bazelOptions, ...checks]);
+	runStage('production-build-export', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_build', '--', '--export-production', root, expectedSha]);
 }
 const manifestBytes = readFileSync(join(root, 'artifact.json'));
 const manifest = JSON.parse(manifestBytes);
@@ -26,7 +28,7 @@ for (const pdf of ['jess_sullivan_resume.pdf', 'jess_sullivan_precis.pdf', 'jess
 }
 const manifestHash = hash(manifestBytes);
 if (operation === 'qualify') {
-	runStage('same-artifact-browser', ['run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]);
+	runStage('same-artifact-browser', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]);
 	if (hash(readFileSync(join(root, 'artifact.json'))) !== manifestHash || JSON.stringify(files(build).map(path => ({ path: path.slice(build.length + 1), sha256: hash(readFileSync(path)) }))) !== JSON.stringify(manifest.files)) throw new Error('Artifact changed during browser qualification');
 	writeFileSync(join(root, 'qualification.json'), JSON.stringify({ schemaVersion: 'tss.local-production-qualification.v1', custody: 'same-uid-operator', sourceSha: expectedSha, manifestHash, qualifiedAt: new Date().toISOString(), gates: stages.map(stage => ({ ...stage, manifestHash })) }, null, 2) + '\n', { flag: 'wx' });
 }
@@ -34,13 +36,13 @@ if (operation === 'publish') {
 	const qualification = JSON.parse(readFileSync(join(root, 'qualification.json'), 'utf8'));
 	if (qualification.schemaVersion !== 'tss.local-production-qualification.v1' || qualification.custody !== 'same-uid-operator' || qualification.sourceSha !== expectedSha || qualification.manifestHash !== manifestHash) throw new Error('Missing same-artifact qualification');
 	const required = [
-		['checks-private-cv', ['test', ...bazelOptions, ...checks]],
-		['production-build-export', ['run', ...bazelOptions, '//:local_production_build', '--', '--export-production', root, expectedSha]],
-		['same-artifact-browser', ['run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]],
+		['checks-private-cv', [...bazelStartup, 'test', ...bazelOptions, ...checks]],
+		['production-build-export', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_build', '--', '--export-production', root, expectedSha]],
+		['same-artifact-browser', [...bazelStartup, 'run', ...bazelOptions, '//:local_production_browser', '--', '--production-artifact', root]],
 	];
 	if (!Array.isArray(qualification.gates) || qualification.gates.length !== required.length || required.some(([name, args], index) => {
 		const gate = qualification.gates[index];
-		return gate?.name !== name || gate.status !== 0 || gate.sourceSha !== expectedSha || gate.manifestHash !== manifestHash || gate.command !== 'bazelisk' || JSON.stringify(gate.args) !== JSON.stringify(args) || !Number.isFinite(Date.parse(gate.startedAt)) || !Number.isFinite(Date.parse(gate.finishedAt));
+		return gate?.name !== name || gate.status !== 0 || gate.sourceSha !== expectedSha || gate.manifestHash !== manifestHash || gate.nodeOptions !== nodeOptions || gate.command !== 'bazelisk' || JSON.stringify(gate.args) !== JSON.stringify(args) || !Number.isFinite(Date.parse(gate.startedAt)) || !Number.isFinite(Date.parse(gate.finishedAt));
 	})) throw new Error('Qualification lacks exact successful source/artifact-bound required gates');
 	if (process.env.CONFIRM_LOCAL_PRODUCTION !== `publish-${expectedSha}`) throw new Error('Exact-source local publication confirmation required');
 	if (output('git', ['rev-parse', 'HEAD']) !== expectedSha || output('git', ['status', '--porcelain']) || output('git', ['log', '-1', '--format=%G?']) !== 'G') throw new Error('Publisher source must be clean signed exact HEAD');
@@ -80,9 +82,9 @@ function output(command, args) { return execFileSync(command, args, { encoding: 
 function cleanSource() { if (output('git', ['rev-parse', 'HEAD']) !== expectedSha || output('git', ['status', '--porcelain']) || output('git', ['log', '-1', '--format=%G?']) !== 'G') throw new Error('Qualification requires clean signed exact source'); }
 function runStage(name, args) {
 	cleanSource(); const startedAt = new Date().toISOString();
-	const result = spawnSync('bazelisk', args, { stdio: 'inherit' });
+	const result = spawnSync('bazelisk', args, { stdio: 'inherit', env: { ...process.env, NODE_OPTIONS: nodeOptions } });
 	if (result.status !== 0) throw new Error(`Qualification stage ${name} failed: ${result.status}`);
-	cleanSource(); stages.push({ name, command: 'bazelisk', args, status: result.status, sourceSha: expectedSha, startedAt, finishedAt: new Date().toISOString() });
+	cleanSource(); stages.push({ name, command: 'bazelisk', args, nodeOptions, status: result.status, sourceSha: expectedSha, startedAt, finishedAt: new Date().toISOString() });
 }
 function hash(bytes) { return createHash('sha256').update(bytes).digest('hex'); }
 function files(path) {

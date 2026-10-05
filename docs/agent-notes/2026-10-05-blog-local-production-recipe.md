@@ -104,3 +104,19 @@ custody and the exact successful bound stage sequence. This is operator custody
 evidence, not cryptographic remote attestation or a new signing-key framework.
 Three lightweight Node fixtures cover byte/source/symlink rejection, absent
 qualification, removed standalone seal and fabricated fixed-success rejection.
+
+## Bounded producer admission
+
+Before launching on Sting, the producer review found local defaults jobs=auto
+and Node heap4096 inappropriate for the proposed high3GiB/max4GiB own scope.
+Root approved the adjusted post-Darkmap high5GiB/max6GiB slot. The local recipe
+now explicitly selects JVM1024MiB, jobs1, local-test-jobs1 and Node heap3072MiB
+for both build actions and launched binaries; inspected runners do not override
+it. Targets, pinned locks, private-CV and browser gates are
+unchanged, and receipts validate those actual bounded command arguments.
+Use the existing `tinyland-heavy -p MemoryHigh=5G -p MemoryMax=6G -p CPUWeight=25`
+wrapper only after fresh shared-parent/host admission. No heavy task ran during
+the source-only bundle import. Its former c304 source remains preserved in the
+new producer checkout; qualification must import this successor exactly before
+use. Owned JVM settlement follows the actual checkout/output-base live check,
+not a broad/default-server shutdown.
