@@ -160,3 +160,29 @@ under the owned producer parent. Separate evidence-source successor drains
 route callbacks before closing fresh contexts, waits no-JS networkidle, and
 bounds each public GET to15s. Deployed qualified source0ed is unchanged; any
 livebrowser retry requires fresh producer admission, not an upload retry.
+
+## Actual anonymous public browser acceptance
+
+After fresh producer admission, signed evidence harness f6a75a9 ran at
+23:35:09 UTC on Sting under heavy-node-1791243309-1074500.scope, high1536MiB,
+max2GiB, CPUWeight25, Node512MiB. Original session78077 terminated exit0;
+scope became inactive and fresh contexts/browser closed normally. No product
+build, upload retry, authenticated context, private profile, actor request or
+cross-session signal was introduced. Playwright1.59.1 came from the exact
+qualified Bazel runfiles; Chromium138 was the same immutable qualified tool.
+Only anonymous GET/HEAD to apex and the two exact public projection URLs were
+allowed; redirects, credentials and all other external routes were rejected.
+
+Receipt timestamp 2026-10-05T23:35:27.673Z records defaultOff,
+sameDocumentOnOff, preferenceCleared, noOffBrokerRequests, reloadOff and
+noJsOff all true. Real public blog broker returned200 and Pulse returned503;
+actual opt-in UI read "Blog ready; Pulse unavailable." This accepts the public
+flag lifecycle and honest fallback signal, NOT real Pulse readiness or a repair.
+Thirty-one served JS/CSS/font assets matched exact qualified manifest hashes.
+
+Neo evidence copied without changing artifact/source:
+`/Users/jess/git/tss-blog-qualified-0ed-20261005.lyprqI/live-browser-proof/live-browser.json`.
+Public screenshots `live-flag-on.png` (Year tree selected) and
+`live-default-off.png` sit beside it. The complete receipt, not a truncated
+terminal excerpt, is authority for asset count31. Full 340-case local proof and
+this bounded actual public proof remain distinct evidence surfaces.
