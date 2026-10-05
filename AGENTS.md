@@ -16,8 +16,11 @@ replacement of canonical CI. The existing workflow remains unchanged.
 The local publisher requires clean signed exact-current-main, a same-artifact
 qualification receipt, exact-source confirmation, the live production switch,
 existing Pages Write credential custody and verified account/project metadata.
-Declared Nix Wrangler 4.62.0 is the local tool; the existing workflow retains
-4.95.0. No download through npx is allowed. Production default behavior must
+The explicit source-pinned existing Neo Wrangler 4.95.0 package selector is
+the local publisher tool; it matches the workflow's version, not an immutable
+Nix package or independently verified upstream archive. The full installed
+tree and immutable Node are rehashed immediately before upload. No download
+through npx is allowed. Production default behavior must
 remain unchanged; ungated public runtime changes require operator check-in.
 All existing DNS/secrets/private-CV ownership boundaries continue to apply.
 

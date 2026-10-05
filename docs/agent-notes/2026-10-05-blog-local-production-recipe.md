@@ -23,13 +23,26 @@ reuse. The local publisher accepts only an operator-owned 0600/0400 regular,
 single-link `CLOUDFLARE_API_TOKEN_FILE`; it neither decrypts secrets nor prints
 token bytes. Keep the credential outside this repository.
 
-The existing xoxd Nix devShell declares Wrangler 4.62.0. Read-only evaluation
+The existing xoxd Nix devShell declares Wrangler 4.62.0. Initial read-only evaluation
 identified `/nix/store/xzc34b9vs5q4045pjz8m1q0096h29a4w-wrangler-4.62.0/bin/wrangler`
 on the current Darwin substrate; it was not executable/realized during audit.
-Use that existing declaration through the owner-managed Nix environment, or its
-platform-equivalent declared output; do not download a CLI with npm/npx.
-Workflow Wrangler remains pinned 4.95.0; AGENTS records the explicit local
-4.62.0 exception rather than claiming byte-identical tooling.
+Its realization remained unavailable; no unbounded daemon authority was
+introduced to make it available. The operator subsequently approved the already
+installed Neo Wrangler 4.95.0 package, matching the production workflow version.
+`scripts/installed-wrangler.mjs` is an exact-byte reuse of shared signed source
+`ad5cdbf` from the userspace lane, not an ambient npm/npx invocation. It pins
+the physical package root, full installed tree, immutable Node, entrypoint and
+lock hashes, owner/modes, contained symlinks and internal hardlink closure.
+It rechecks that reviewed identity immediately before upload. Source pin:
+tree SHA256 `82bc01b851caa96866365a67cfdc674edc2e6be0df95994a86eb8b58f72ffeef`,
+1864 entries / 309797833 logical bytes, at
+`/Users/jess/.npm/_npx/61e1327a8aba9411`. The original cached archive is absent:
+the lock's npm SHA512 remains a claim, not independent archive verification.
+The installed package is owner-writable, not immutable Nix package custody;
+same-UID operator custody does not eliminate a malicious concurrent owner race.
+Shared clean offline diagnostics passed actual 4.95.0 `--version` and required
+`pages deploy --help` options without inherited config/credentials or installation.
+No package download or fallback is authorized.
 
 ## Executable path
 
@@ -59,19 +72,21 @@ No lifecycle browser/tool download is introduced.
 
 After normal reviewed source landing, root verifies this SHA is live main. The
 same artifact remains in operator custody. With the owned private token file,
-declared Wrangler path and exact-source confirmation supplied in environment:
+reviewed existing Neo tool and exact-source confirmation supplied in environment:
 
 ```sh
 just production-local-publish EXACT_CURRENT_MAIN_SHA /absolute/new-blog-artifact
 ```
 
-Required environment is `LOCAL_WRANGLER_EXECUTABLE`,
-`CLOUDFLARE_API_TOKEN_FILE`, and
+The publisher runs on Neo where the exact reviewed existing package resides;
+transfer the qualified artifact without rebuilding and run `verify` against
+its exact source SHA and bytes before publication. Required environment is
+`CLOUDFLARE_API_TOKEN_FILE` and
 `CONFIRM_LOCAL_PRODUCTION=publish-EXACT_CURRENT_MAIN_SHA`. The GH CLI must be
 able to read current main and `CLOUDFLARE_PAGES_PRODUCTION_ENABLED`; a 403 is a
 closed evidence gap, not permission to bypass the switch. The script rechecks
 source cleanliness/signature, exact manifest hash, local qualification,
-declared CLI version, account/project ID/domain and immediately rechecks live
+source-pinned installed CLI identity, account/project ID/domain and rechecks live
 main + switch before the sole mutation. It uses the existing Wrangler
 `pages deploy ... --branch=main --commit-hash=... --commit-dirty=false` shape.
 

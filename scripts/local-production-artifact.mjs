@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, lstatSync, writeFileSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { publisherTool } from './installed-wrangler.mjs';
 
 const [operation, directory, expectedSha] = process.argv.slice(2);
 if (!['verify', 'qualify', 'publish'].includes(operation) || !directory?.startsWith('/') || !/^[0-9a-f]{40}$/.test(expectedSha ?? '')) throw new Error('Usage: local-production-artifact.mjs verify|qualify|publish ABSOLUTE_ARTIFACT EXACT_SHA');
@@ -46,9 +47,6 @@ if (operation === 'publish') {
 	})) throw new Error('Qualification lacks exact successful source/artifact-bound required gates');
 	if (process.env.CONFIRM_LOCAL_PRODUCTION !== `publish-${expectedSha}`) throw new Error('Exact-source local publication confirmation required');
 	if (output('git', ['rev-parse', 'HEAD']) !== expectedSha || output('git', ['status', '--porcelain']) || output('git', ['log', '-1', '--format=%G?']) !== 'G') throw new Error('Publisher source must be clean signed exact HEAD');
-	const executable = process.env.LOCAL_WRANGLER_EXECUTABLE;
-	if (!executable?.startsWith('/nix/store/') || !executable.endsWith('/bin/wrangler')) throw new Error('Use the declared Nix Wrangler executable, no npx/download');
-	if (!output(executable, ['--version']).includes('4.62.0')) throw new Error('Declared local Wrangler version must be 4.62.0');
 	const token = privateFile(process.env.CLOUDFLARE_API_TOKEN_FILE);
 	const account = 'fdcb4fb750ab79be0800e885f09ddbdc';
 	const project = 'transscendsurvival-org';
@@ -64,7 +62,8 @@ if (operation === 'publish') {
 	if (output('gh', ['api', 'repos/Jesssullivan/jesssullivan.github.io/git/ref/heads/main', '--jq', '.object.sha']) !== expectedSha) throw new Error('Refusing stale or non-main production source');
 	if (output('gh', ['api', 'repos/Jesssullivan/jesssullivan.github.io/actions/variables/CLOUDFLARE_PAGES_PRODUCTION_ENABLED', '--jq', '.value']) !== 'true') throw new Error('Production switch is not enabled');
 	if (hash(readFileSync(join(root, 'artifact.json'))) !== manifestHash || JSON.stringify(files(build).map(path => ({ path: path.slice(build.length + 1), sha256: hash(readFileSync(path)) }))) !== JSON.stringify(manifest.files)) throw new Error('Artifact changed before publish');
-	const result = spawnSync(executable, ['pages', 'deploy', build, `--project-name=${project}`, '--branch=main', `--commit-hash=${expectedSha}`, '--commit-dirty=false'], { stdio: 'inherit', env: { ...process.env, CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: account, WRANGLER_SEND_METRICS: 'false' } });
+	const tool = publisherTool(['pages', 'deploy', build, `--project-name=${project}`, '--branch=main', `--commit-hash=${expectedSha}`, '--commit-dirty=false']);
+	const result = spawnSync(tool.executable, tool.args, { stdio: 'inherit', env: { ...process.env, CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: account, WRANGLER_SEND_METRICS: 'false', WRANGLER_CHECK_FOR_UPDATES: 'false' } });
 	if (result.status !== 0) throw new Error(`Wrangler failed: ${result.status}`);
 	const live = await api(`/pages/projects/${project}`);
 	const deployment = live.canonical_deployment;
@@ -73,7 +72,7 @@ if (operation === 'publish') {
 	if (!response.ok) throw new Error(`Production homepage readback failed: ${response.status}`);
 	const html = await response.text();
 	if (hash(Buffer.from(html)) !== hash(readFileSync(join(build, 'index.html')))) throw new Error('Production homepage differs from qualified artifact');
-	writeFileSync(join(root, 'published.json'), JSON.stringify({ sourceSha: expectedSha, manifestHash, projectId, deploymentId: deployment.id, checkedAt: new Date().toISOString(), homepageHash: hash(Buffer.from(html)) }, null, 2) + '\n', { flag: 'wx' });
+	writeFileSync(join(root, 'published.json'), JSON.stringify({ sourceSha: expectedSha, manifestHash, projectId, deploymentId: deployment.id, tool: tool.identity, checkedAt: new Date().toISOString(), homepageHash: hash(Buffer.from(html)) }, null, 2) + '\n', { flag: 'wx' });
 	console.log(`Published and read back exact source ${expectedSha}; deployment ${deployment.id}`);
 }
 console.log(`${operation}: sha256:${manifestHash}`);

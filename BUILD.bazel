@@ -8,7 +8,7 @@ npm_link_all_packages(name = "node_modules")
 js_test(
     name = "local_production_artifact_contract",
     entry_point = "scripts/test-local-production-artifact.mjs",
-    data = ["scripts/local-production-artifact.mjs"],
+    data = ["scripts/local-production-artifact.mjs", "scripts/installed-wrangler.mjs"],
     patch_node_fs = False,
 )
 
