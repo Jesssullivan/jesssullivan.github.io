@@ -1,0 +1,73 @@
+# TIN-3914 spoke-ci adoption: wired here, not yet servable.
+#
+# Additive by design. `.github/workflows/ci.yml` keeps the substrate-boundary,
+# bazel-remote-gates, and build-and-test jobs exactly as they are, so every
+# required check and the exact-source production/rollback proofs that consume
+# them are untouched while this lane is proven.
+#
+# This cannot go green until a `jesssullivan-blog-nix` ARC scale set is applied
+# in Jesssullivan/jesssullivan-infra
+# (tofu/stacks/arc-runners/jesssullivan.tfvars). `tinyland-nix` is the
+# capability label those runners will carry; nothing serves it for this
+# repository today, so every job below queues until that apply lands.
+name: Spoke CI (TIN-3914)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  statuses: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    # Pinned by the v3.1.0 tag's commit rather than by the tag name:
+    # scripts/test-workflow-authority.mjs requires every non-local `uses:` in
+    # this directory to resolve to a 40-hex commit, reusable workflows
+    # included. d8d178c is `git rev-parse v3.1.0^{commit}` in
+    # tinyland-inc/ci-templates. Note this freezes the workflow body only --
+    # spoke-ci@v3.1.0 resolves its own composite actions at floating `@v3`.
+    uses: tinyland-inc/ci-templates/.github/workflows/spoke-ci.yml@d8d178c022a0f84853d53a2c8fe0fc90115f0949 # v3.1.0
+    with:
+      node_version: '22'
+      flywheel_config: flywheel
+      cache_backed: true
+      lanes_path: .github/lanes.json
+      default_runner_class: tinyland-nix
+      # This account publishes one capability class. The template default sends
+      # bazel-graph to `tinyland-nix-heavy`, which serves no repository in this
+      # forge scope, so the base label is passed here too.
+      heavy_runner_class: tinyland-nix
+      # The template default names //:sveltekit_types and //:svelte_check_test.
+      # Neither target exists in this repo; these three are its real
+      # flywheel-eligible CAS surface (BUILD.bazel).
+      cache_backed_targets: '//:node_modules //:sveltekit_check //:sveltekit_vite_build_smoke'
+    # No `secrets: inherit`, deliberately diverging from the gftb-site
+    # exemplar. This workflow carries a pull_request trigger, and this repo's
+    # standing contract is that a PR-triggered lane reaches no credential.
+    # spoke-ci declares one optional secret (ATTIC_TOKEN); the cache-backed
+    # path reads the shared Bazel cache and does not upload, so it does not
+    # need one. Revisit only with a same-repo-only guard.
+
+  merge-gate:
+    name: merge-gate
+    if: always()
+    needs: [ci]
+    # TIN-3914 retired the GitHub-hosted class. `tinyland-nix` is the label
+    # the not-yet-applied `jesssullivan-blog-nix` scale set will carry, so this
+    # job has nowhere to run until that apply lands -- which is exactly the
+    # DO-NOT-MERGE condition on this change.
+    runs-on: tinyland-nix
+    timeout-minutes: 5
+    steps:
+      - name: Require complete reusable CI
+        env:
+          REUSABLE_CI_RESULT: ${{ needs.ci.result }}
+        run: test "$REUSABLE_CI_RESULT" = success
