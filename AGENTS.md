@@ -2,6 +2,28 @@
 
 These rules apply before the writing-style guidance below.
 
+## Authorized local production exception — 2026-10-05
+
+The operator explicitly authorized a public-data-only, default-off constellation
+rollout without waiting on GloriousFlywheel. For that bounded rollout,
+`just production-local-qualify <exact-sha> <new-absolute-artifact>` and
+`just production-local-publish <exact-sha> <artifact>` are additional release
+authority. They use the pinned full Bazel graph (including private CV), actual
+DOMPurify 3.4.16, build-time private-content exclusion and browser tests against
+the same exported artifact. This is not ad hoc npm build authority or a general
+replacement of canonical CI. The existing workflow remains unchanged.
+
+The local publisher requires clean signed exact-current-main, a same-artifact
+qualification receipt, exact-source confirmation, the live production switch,
+existing Pages Write credential custody and verified account/project metadata.
+The explicit source-pinned existing Neo Wrangler 4.95.0 package selector is
+the local publisher tool; it matches the workflow's version, not an immutable
+Nix package or independently verified upstream archive. The full installed
+tree and immutable Node are rehashed immediately before upload. No download
+through npx is allowed. Production default behavior must
+remain unchanged; ungated public runtime changes require operator check-in.
+All existing DNS/secrets/private-CV ownership boundaries continue to apply.
+
 ## Production DNS, Cloudflare, And Secrets
 
 - Read [docs/runbooks/dns-cutover-and-rollback.md](docs/runbooks/dns-cutover-and-rollback.md) before changing DNS, Cloudflare Pages custom domains, redirects, or production-health checks.

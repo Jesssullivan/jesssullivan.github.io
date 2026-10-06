@@ -18,6 +18,13 @@ guards against forgetting to re-sync after a spear_resumes bump.
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@aspect_rules_js//js:defs.bzl", "js_test")
 
+# Exactly the existing generic public lane, not targeted/private resumes.
+filegroup(
+    name = "public_files",
+    srcs = ["jess_sullivan_resume.pdf", "jess_sullivan_precis.pdf", "jess_sullivan_cv.pdf"],
+    visibility = ["//visibility:public"],
+)
+
 write_source_files(
     name = "sync_pdfs",
     files = {
