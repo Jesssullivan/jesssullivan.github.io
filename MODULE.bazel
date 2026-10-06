@@ -24,7 +24,7 @@ bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 # --ignore_dev_dependency and cannot resolve the private repository. The
 # default local command and trusted private-CV workflow retain the full graph.
 bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)
-bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)
+bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)
 
 # @tummycrypt/tinyvectors is never resolved from the public npm registry
 # (versions past 0.3.0 were never published there). package.json pins the
