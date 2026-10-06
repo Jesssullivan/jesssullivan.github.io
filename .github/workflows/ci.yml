@@ -185,6 +185,13 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
+      # TIN-161. The vitest suite covers this too, but it runs in a copied
+      # sandbox with no .git, so the build-metrics provenance check is only
+      # reachable here — at a real checkout with history. Dependency-free by
+      # design: no install step required.
+      - name: Truth surfaces
+        run: node scripts/truth-surfaces.mjs
+
       - run: npm ci
 
       - name: Static production dependency audit
