@@ -220,3 +220,35 @@ hdiutil attach -readonly -nobrowse \
 
 Reverify exact manifest/qualification hashes and names after remount. Recovery
 does not authorize a new upload, credential extraction or source/main change.
+
+## Read-only Pulse follow-up and topology claim boundary
+
+Root requested optional provenance pairing after release acceptance, without
+code changes, repeat public requests, new credential requests or notes-directory
+creation. Routes owner refreshed runtime metadata at 2026-10-05T23:48:23Z:
+same live image59dc, readable `/app/content` and `users` mode775, but Jess owner
+directory/notes and live policy absent (ENOENT); bundled policy readable mode555.
+No note or secret bodies were read. Source/tests intentionally distinguish
+missing source (null/503) from readable-empty source (200, items[], itemCount0).
+An authorized real notes-writing transaction owns directory creation. Neither
+creating an empty Jess directory for a green probe nor promoting bundled demo
+notes is an authorized repair or truthful empty-source interpretation.
+
+Through the existing explicitly approved honey tunnel-scoped custody, routes
+owner read live tunnel `da3ffda2...` at 2026-10-06T00:16:03.940743Z: version52,
+42 rows. `broker-origin.tinyland.dev` Pulsev1 row8 and anchored Pulsev2 row32 both
+map to `http://sveltekit.tinyland-staging.svc.cluster.local:3000`, with no
+httpHostHeader override. Fresh Service UID9d6a3573, ClusterIP10.245.76.222,
+port3000 and EndpointSlice `sveltekit-rhrfr` pair ready endpoint10.244.1.58 with
+pod `sveltekit-5f88f4bf5c-49xwg`, UID7eb6030c, image59dc21...cc6. This establishes
+tunnel-to-Service-to-pod provenance, not the preceding hub Worker binding.
+
+The deployed hub Worker's actual `TINYLAND_PUBLIC_APP_ORIGIN` remains unproved.
+Names/metadata-only discovery of Lab's encrypted common-file key names,
+credential registry rows and admin derivation runbook did not establish an
+approved WorkersRead-specific scoped credential. Generic and optional admin
+credential existence does not prove Workers-read scope or authorization. No
+secret was decrypted for discovery; the removed Pages publishing token was not
+reused, no Worker API call or credential request occurred, and no stronger
+absence-of-all-capability claim is made. Keep this binding gap explicit until
+existing approved custody provides actual Worker version/origin metadata.
