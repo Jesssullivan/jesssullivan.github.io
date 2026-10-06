@@ -43,6 +43,8 @@ filegroup(
             "scripts/**/*.mts",
             "scripts/**/*.mjs",
             "src/posts/**/*.md",
+            # The map palette test reads the theme stage colours (R141).
+            "src/lib/styles/themes/*.css",
             "static/data/**",
         ],
         allow_empty = True,
@@ -59,6 +61,9 @@ filegroup(
         "vitest.config.ts",
         "//packages/pulse-client:srcs",
         "//packages/pulse-core:srcs",
+        # src/lib/profile and the map tests read the committed profile.v1
+        # copy; static/profile is its own package.
+        "//static/profile:public_files",
     ],
 )
 
@@ -367,11 +372,12 @@ js_test(
         ":github_workflow_sources",
         "Dockerfile.shadow",
         "package.json",
+        "scripts/post-private-cv-authority.mjs",
         "scripts/stamp-deploy-tier-output.mjs",
         "scripts/test-cloudflare-parity-resolver.mjs",
         "scripts/test-cloudflare-production-resolver.mjs",
         "scripts/test-github-pages-rollback-resolver.mjs",
-        "scripts/test-private-cv-authority-resolver.mjs",
+        "scripts/test-private-cv-authority-status.mjs",
         "scripts/test-shadow-preview-resolver.mjs",
         "scripts/test-workflow-authority.mjs",
         "scripts/validate-deploy-tier-output.mjs",

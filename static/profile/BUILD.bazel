@@ -8,7 +8,12 @@ tree:
   static/profile/img/*.png    (from //profile:images)
 
 The /about page imports facts.json at build time and shows the SVG pairs
-through ThemedImage. spear_resumes' //profile:facts is private to that
+through ThemedImage. static/profile/v2/ (profile.v1.json, the released svg/
+set, provenance.json with sha256s) is a reviewed copy of
+@spear_resumes//profile:v2 (spear profile/out-v2); /projects and the /about
+map, ribbon and rhythm read it. manifest.json (in that filegroup) is not
+copied: nothing here reads it and it lists held paths (R111).
+profile_synced_test checks the v2 copy against the filegroup too. spear_resumes' //profile:facts is private to that
 package and never a dependency here. The profile_synced_test below guards
 against forgetting to re-sync after a spear_resumes bump, the same way
 //static/cv:pdfs_synced_test guards the CV PDFs.
@@ -56,7 +61,11 @@ filegroup(
     name = "public_files",
     # Globbed, not listed: the expected set lives in facts.json ("svgs",
     # "images") and profile_synced_test fails on a missing or extra file.
-    srcs = ["facts.json"] + glob(["svg/*", "img/*"]),
+    # v2/ is the profile.v1 projection (map, upstream ribbon, activity
+    # rhythm); a reviewed copy of @spear_resumes//profile:v2 without its
+    # manifest.json (v2/provenance.json); held charts are never copied.
+    # profile_synced_test compares it against the filegroup.
+    srcs = ["facts.json"] + glob(["svg/*", "img/*", "v2/**"]),
     visibility = ["//visibility:public"],
 )
 
@@ -70,6 +79,7 @@ js_test(
         "@spear_resumes//profile:facts_json",
         "@spear_resumes//profile:images",
         "@spear_resumes//profile:svgs",
+        "@spear_resumes//profile:v2",
     ],
     entry_point = "assert_profile_synced.mjs",
     patch_node_fs = False,

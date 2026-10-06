@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Fails when static/profile/ drifts from @spear_resumes//profile (R53).
+// Fails when static/profile/ drifts from @spear_resumes//profile (R53), and
+// static/profile/v2 from @spear_resumes//profile:v2 (R80).
 // The expected file set comes from the source facts.json itself ("svgs" and
 // the "images" src/src_dark paths). The test fails on a stale file, on a file
 // the source has that static/profile lacks, and on a file static/profile still
@@ -76,6 +77,75 @@ for (const sub of ['svg', 'img']) {
 				failures += 1;
 				console.error(`${label}: ${rel} is not listed in the source facts.json (svgs/images); re-sync or remove it`);
 			}
+		}
+	}
+}
+
+// Profile v2 (R80, R111): static/profile/v2 is a reviewed copy of
+// @spear_resumes//profile:v2 (out-v2/profile.v1.json and the released
+// out-v2/svg/*.svg). manifest.json is in that filegroup but deliberately not
+// copied (it lists held paths and nothing in the blog reads it); held/ is
+// never in the filegroup and must never appear here. provenance.json must
+// carry the sha256 of every copied file.
+const v2SourcePrefixes = sourcePrefixes.map((p) => p.replace(/out\/$/, 'out-v2/'));
+const v2StaticPrefix = `${staticPrefix}v2/`;
+const v2SourceSvgDir = resolveDir(v2SourcePrefixes.map((p) => `${p}svg`));
+const v2StaticSvgDir = resolveDir([`${v2StaticPrefix}svg`]);
+if (!v2SourceSvgDir || !v2StaticSvgDir) {
+	failures += 1;
+	console.error(`v2: missing svg/ directory (source=${v2SourceSvgDir}, static=${v2StaticSvgDir})`);
+} else {
+	const v2Rel = unique([
+		'profile.v1.json',
+		...readdirSync(v2SourceSvgDir).map((n) => `svg/${n}`),
+		...readdirSync(v2StaticSvgDir).map((n) => `svg/${n}`),
+	]);
+	let provenance = { files: {} };
+	try {
+		provenance = JSON.parse(readFileSync(resolveExisting([`${v2StaticPrefix}provenance.json`]), 'utf8'));
+	} catch {
+		failures += 1;
+		console.error('v2/provenance.json: missing or unreadable');
+	}
+	for (const rel of v2Rel) {
+		let source;
+		let current;
+		try {
+			source = readFileSync(resolveExisting(v2SourcePrefixes.map((p) => `${p}${rel}`)));
+		} catch {
+			failures += 1;
+			console.error(`v2/${rel}: not in @spear_resumes//profile:v2 (a deletion or held chart upstream); remove it`);
+			continue;
+		}
+		try {
+			current = readFileSync(resolveExisting([`${v2StaticPrefix}${rel}`]));
+		} catch {
+			failures += 1;
+			console.error(`v2/${rel}: missing from static/profile/v2`);
+			continue;
+		}
+		if (!source.equals(current)) {
+			failures += 1;
+			console.error(`v2/${rel}: stale; source=${digest(source)}, static=${digest(current)}`);
+			continue;
+		}
+		if (provenance.files?.[rel] !== digest(current)) {
+			failures += 1;
+			console.error(`v2/${rel}: provenance.json sha256 is ${provenance.files?.[rel] ?? 'absent'}, file is ${digest(current)}`);
+			continue;
+		}
+		console.log(`v2/${rel}: synced (${digest(source)}, ${source.length} bytes)`);
+	}
+	const strays = Object.keys(provenance.files ?? {}).filter((rel) => !v2Rel.includes(rel));
+	for (const rel of strays) {
+		failures += 1;
+		console.error(`v2/provenance.json lists ${rel}, which is not a synced v2 file`);
+	}
+	for (const banned of ['manifest.json', 'held']) {
+		const path = resolve(dirname(v2StaticSvgDir), banned);
+		if (existsSync(path)) {
+			failures += 1;
+			console.error(`v2/${banned}: must not be copied into the blog (R111)`);
 		}
 	}
 }

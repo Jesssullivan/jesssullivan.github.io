@@ -1,34 +1,57 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import ThemedImage from '$lib/components/ThemedImage.svelte';
+	import ProjectMap from '$lib/components/profile-map/ProjectMap.svelte';
+	import UpstreamRibbon from '$lib/components/UpstreamRibbon.svelte';
+	import ActivityRhythm from '$lib/components/ActivityRhythm.svelte';
+	import { ProfileState } from '$lib/profile/profileState.svelte';
 	import {
 		profile,
 		profileAsset,
 		svgPair,
 		imageForSlot,
 		period,
-		projectGroups,
 		currentRole,
 		personSameAs,
 	} from '$lib/data/profile';
 
 	let { data }: { data: PageData } = $props();
 
+	// Profile v2 (Appendix A, R74-R80): the project map, upstream ribbon and
+	// activity rhythm read profile.v1 (static/profile/v2, prerendered), then
+	// refresh from the live host after mount. Everything else on this page
+	// stays on the facts.json sync (R53).
+	// svelte-ignore state_referenced_locally
+	const live = new ProfileState(data.profile);
+	onMount(() => {
+		void live.load();
+	});
+	const mapSvg = {
+		light: '/profile/v2/svg/project-map-light.svg',
+		dark: '/profile/v2/svg/project-map-dark.svg',
+		width: 960,
+		height: 1226,
+		compact: {
+			light: '/profile/v2/svg/project-map-compact-light.svg',
+			dark: '/profile/v2/svg/project-map-compact-dark.svg',
+			width: 390,
+			height: 1038,
+		},
+	};
+
 	// R53: every claim below comes from static/profile/facts.json (synced from
-	// spear_resumes). Hand-written in this file, and nothing else: the
+	// spear_resumes) or, for the three v2 charts, static/profile/v2/profile.v1.json.
+	// Hand-written in this file, and nothing else: the
 	// Beyond Code section, the offline-year paragraph in the intro, the
 	// meta/OG/Twitter descriptions in <svelte:head>, section headings and chart
 	// alt text, and the R54 blog-local link extras (blogLinks). The post lists
 	// are blog data from +page.ts.
 	const identity = profile.identity;
 	const role = currentRole();
-	const groups = projectGroups();
 	// Intrinsic sizes (the SVG viewBoxes) reserve layout space before load.
 	const charts = {
 		timeline: { ...svgPair('timeline'), width: 960, height: 550 },
-		projectMap: { ...svgPair('project-map'), width: 960, height: 740 },
-		languages: { ...svgPair('languages'), width: 960, height: 402 },
-		upstream: { ...svgPair('upstream'), width: 960, height: 534 },
 	};
 	// R70 (per Jess, 2026-09-26): the Great Falls Tool Bus description already
 	// says Jess built its site and member infrastructure, so its separate
@@ -37,7 +60,8 @@
 	const REPEATS_DESCRIPTION = new Set(['Great Falls Tool Bus']);
 	const learning = imageForSlot('closing');
 	const linkBadge = imageForSlot('links');
-	const upstreamProjects = new Set(profile.merged_upstream.map((u) => u.project));
+	// svelte-ignore state_referenced_locally
+	const upstreamProjects = new Set(data.profile.merged_upstream.map((u) => u.project));
 	// Relations without a merged PR here (e.g. FFT.js, ggplot2) are not merged
 	// upstream work; they get their own list. Only these relation words are
 	// shown; anything else (e.g. "engagement") renders as the bare project name.
@@ -260,57 +284,26 @@
 		</div>
 	</section>
 
-	<!-- Projects (facts project map + table) -->
+	<!-- Projects (profile.v1 map + table; interactive after mount) -->
 	<section class="mb-12" id="projects">
-		<h2 class="text-2xl font-semibold mb-4">Projects</h2>
-		<ThemedImage lightSrc={charts.projectMap.light} darkSrc={charts.projectMap.dark} alt="Project map of public repositories by category" width={charts.projectMap.width} height={charts.projectMap.height} class="w-full mb-4 h-auto" />
-		<div class="overflow-x-auto">
-			<table class="table w-full text-sm" data-testid="project-table">
-				<thead>
-					<tr>
-						<th class="text-left">Project</th>
-						<th class="text-left">Category</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each groups as g}
-						{#each g.rows as row}
-							<tr>
-								<td>
-									{#if row.urls.length > 0}
-										<a href={row.urls[0]} class="text-primary-500 hover:underline" target="_blank" rel="noopener"><span class="project-label">{row.label}</span></a>
-										{#each row.urls.slice(1) as url, i}
-											<a href={url} class="text-primary-500 hover:underline ml-1" target="_blank" rel="noopener" aria-label={`${row.label}, repository ${i + 2}`}>[{i + 2}]</a>
-										{/each}
-									{:else}
-										<span class="project-label">{row.label}</span>
-									{/if}
-								</td>
-								<td class="text-surface-500 project-category">{g.label}</td>
-							</tr>
-						{/each}
-					{/each}
-				</tbody>
-			</table>
+		<div class="flex items-baseline justify-between gap-4 mb-4">
+			<h2 class="text-2xl font-semibold">Projects</h2>
+			<a href="/projects" class="text-sm text-primary-500 hover:underline" data-testid="open-full-map">Open the full map &rarr;</a>
 		</div>
-		<div class="mt-6">
-			<ThemedImage lightSrc={charts.languages.light} darkSrc={charts.languages.dark} alt="Language mix across the mapped public repositories" width={charts.languages.width} height={charts.languages.height} class="w-full h-auto" />
-		</div>
+		<ProjectMap
+			view={live.view}
+			status={live.status}
+			source={live.source}
+			mode="embed"
+			svg={mapSvg}
+			tableHeading="All public projects"
+		/>
 	</section>
 
-	<!-- Merged upstream (facts merged_upstream + relations) -->
+	<!-- Merged upstream (profile.v1 merged_upstream; HTML ribbon + linked list) -->
 	<section class="mb-12" id="upstream">
 		<h2 class="text-2xl font-semibold mb-4">Merged Upstream</h2>
-		<ThemedImage lightSrc={charts.upstream.light} darkSrc={charts.upstream.dark} alt="Merged upstream work by project and merge date" width={charts.upstream.width} height={charts.upstream.height} class="w-full mb-4 h-auto" />
-		<ul class="space-y-1 text-surface-600-400" data-testid="upstream-list">
-			{#each profile.merged_upstream as u}
-				<li>
-					<a href={u.url} class="text-primary-500 hover:underline" target="_blank" rel="noopener">{u.project}</a>
-					{#if u.relation}<span class="text-surface-500"> ({u.relation})</span>{/if}
-					<span class="text-xs text-surface-500">&middot; merged {u.merged}</span>
-				</li>
-			{/each}
-		</ul>
+		<UpstreamRibbon rows={live.view.merged_upstream} />
 	</section>
 
 	{#if otherRelations.length > 0}
@@ -327,6 +320,12 @@
 			</ul>
 		</section>
 	{/if}
+
+	<!-- Activity rhythm (profile.v1 activity; unknown days hatched, never zero) -->
+	<section class="mb-12" id="activity">
+		<h2 class="text-2xl font-semibold mb-4">Activity</h2>
+		<ActivityRhythm view={live.view} />
+	</section>
 
 	<!-- Community (facts community) -->
 	<section class="mb-12" id="community">

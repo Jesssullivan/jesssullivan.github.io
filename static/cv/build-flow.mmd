@@ -17,7 +17,7 @@ flowchart TD
   SYNC --> STATIC
   STATIC --> PAGE
 
-  CI["private-cv-authority-v2.yml<br/>exact-main, read-only consistency check<br/>no commit or publication"]
+  CI["private-cv-authority status<br/>local exact-commit consistency check<br/>no commit or publication"]
   CI -. verifies PDFS match STATIC .-> STATIC
 
   classDef priv fill:#fde68a,stroke:#b45309,color:#1f2937;

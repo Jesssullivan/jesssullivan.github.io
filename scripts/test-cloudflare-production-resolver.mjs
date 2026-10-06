@@ -36,11 +36,24 @@ function canonicalRun(overrides = {}) {
 	};
 }
 
+function cvStatus(overrides = {}) {
+	return {
+		context: 'private-cv-authority',
+		state: 'success',
+		created_at: '2026-10-01T12:00:00Z',
+		updated_at: '2026-10-01T12:00:00Z',
+		creator: { login: 'Jesssullivan' },
+		...overrides,
+	};
+}
+
 async function runFixture({
 	eventName,
 	run = canonicalRun(),
 	runs = [canonicalRun()],
-	cvRuns = [canonicalRun({ id: 202, html_url: 'https://github.example/cv/202' })],
+	// R163: the private CV authority is a commit status on the exact SHA.
+	cvStatuses = { [sourceSha]: [cvStatus()] },
+	statusError = null,
 	jobs = authorityJobs(),
 	mainSha = sourceSha,
 	manualSha = sourceSha,
@@ -50,18 +63,22 @@ async function runFixture({
 }) {
 	const outputs = {};
 	const listJobsForWorkflowRun = async () => ({ data: { jobs } });
-	const listWorkflowRuns = async (args) => {
-		const selected = args.workflow_id === 'private-cv-authority-v2.yml' ? cvRuns : runs;
-		return { data: { workflow_runs: selected.map((run) => ({ status: 'completed', ...run })) } };
+	const listWorkflowRuns = async () => ({
+		data: { workflow_runs: runs.map((run) => ({ status: 'completed', ...run })) },
+	});
+	const listCommitStatusesForRef = async (args) => {
+		if (statusError) throw statusError;
+		return { data: cvStatuses[args.ref] ?? [] };
 	};
 	const github = {
 		rest: {
 			actions: { listJobsForWorkflowRun, listWorkflowRuns },
+			repos: { listCommitStatusesForRef },
 			git: { getRef: async () => ({ data: { object: { sha: mainSha } } }) },
 		},
 		paginate: async (method, args) => {
 			const response = await method(args);
-			return response.data.jobs ?? response.data.workflow_runs;
+			return Array.isArray(response.data) ? response.data : (response.data.jobs ?? response.data.workflow_runs);
 		},
 	};
 	const summary = {
@@ -190,8 +207,62 @@ await rejects(
 );
 await rejects(
 	'missing exact-SHA private CV authority fails closed',
-	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })] },
-	/No successful private CV authority run completed for exact SHA/,
+	{ eventName: 'repository_dispatch', cvStatuses: { [otherSha]: [cvStatus()] } },
+	/No successful private-cv-authority commit status for exact SHA/,
+);
+await rejects(
+	'a failed private CV authority status fails closed',
+	{ eventName: 'repository_dispatch', cvStatuses: { [sourceSha]: [cvStatus({ state: 'failure' })] } },
+	/Private CV authority status is failure for exact SHA/,
+);
+await rejects(
+	'the newest private CV authority status wins',
+	{
+		eventName: 'repository_dispatch',
+		cvStatuses: {
+			[sourceSha]: [
+				cvStatus(),
+				cvStatus({ state: 'error', created_at: '2026-10-01T13:00:00Z', updated_at: '2026-10-01T13:00:00Z' }),
+			],
+		},
+	},
+	/Private CV authority status is error/,
+);
+await rejects(
+	'a pending private CV authority status that never resolves times out closed',
+	{ eventName: 'repository_dispatch', cvStatuses: { [sourceSha]: [cvStatus({ state: 'pending' })] } },
+	/No successful private-cv-authority commit status for exact SHA .* within twenty minutes/,
+);
+assert.equal(
+	(
+		await runFixture({
+			eventName: 'repository_dispatch',
+			productionEnabled: 'true',
+			cvStatuses: {
+				[sourceSha]: [
+					cvStatus({ state: 'failure' }),
+					cvStatus({ created_at: '2026-10-01T14:00:00Z', updated_at: '2026-10-01T14:00:00Z' }),
+				],
+			},
+		})
+	).deploy,
+	'true',
+	'a newer success recovers an older failed private CV authority status',
+);
+await rejects(
+	'the workflow_run path also requires the private CV authority status',
+	{ eventName: 'workflow_run', cvStatuses: {} },
+	/No successful private-cv-authority commit status for exact SHA/,
+);
+await rejects(
+	'a commit-status API error fails closed',
+	{ eventName: 'repository_dispatch', statusError: new Error('statuses API unavailable') },
+	/statuses API unavailable/,
+);
+await rejects(
+	'a private CV authority status from anyone but the owner fails closed',
+	{ eventName: 'repository_dispatch', cvStatuses: { [sourceSha]: [cvStatus({ creator: { login: 'github-actions[bot]' } })] } },
+	/was not posted by Jesssullivan/,
 );
 await rejects(
 	'PR events cannot enter the production resolver',

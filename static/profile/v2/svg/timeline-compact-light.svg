@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 1068" width="390" height="1068" role="img" aria-labelledby="roles-ventures-light-390-title" aria-describedby="roles-ventures-light-390-desc"><title id="roles-ventures-light-390-title">Roles and ventures</title><desc id="roles-ventures-light-390-desc">Year-level timeline: Systems Analyst (DevSecOps), Bates College, 2024–present; Fabrication Laboratory Manager, Cornell CALS Landscape Architecture (DLA Makerspace), 2021–2022; Computer Vision Software Engineer, Macaulay Library, Cornell Lab of Ornithology, 2019–2021; Engineering &amp; Contracting, Engineering &amp; Contracting, 2017–present; Founder, Great Falls Tool Bus, 2026–present; Operating as xoxd.ai, 2024–present; Moonlight Coworking LLC, 2021–2024; Columbari.us LLC, 2017–2021; Kitten Spit Labs, ongoing · undated. Ongoing intervals stop at the snapshot year, 2026. Undated ventures have no position on the year axis.</desc><style>text{font-variant-numeric:tabular-nums}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style><rect x=".5" y=".5" width="389" height="1067" fill="#f7f3fc" stroke="#dad5e0"/><text x="24" y="44" font-size="24" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="500" fill="#69001a" text-anchor="start">Roles and ventures</text>
+<text x="24" y="69" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Year-level dates; concurrent work stays on</text>
+<text x="24" y="89" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">separate rows.</text>
+<line x1="24" y1="111" x2="366" y2="111" stroke="#dad5e0"/>
+<g data-plot="dated">
+<text x="24" y="141" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="600" fill="#4a4551" text-anchor="start">Roles</text>
+<text x="32" y="164" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2017</text>
+<text x="140.667" y="164" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2020</text>
+<text x="249.333" y="164" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2023</text>
+<text x="358" y="164" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2026</text>
+<g data-row="role" data-name="Bates College">
+<text x="24" y="186" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Bates College</text>
+<text x="24" y="205" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Systems Analyst (DevSecOps)</text>
+<text x="24" y="228" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2024–present</text>
+<line x1="32" y1="242" x2="358" y2="242" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2024" data-end="2026" data-ongoing="true">
+<line x1="285.556" y1="242" x2="358" y2="242" stroke="#cc003b" stroke-width="5"/>
+<line x1="285.556" y1="237" x2="285.556" y2="247" stroke="#cc003b" stroke-width="2"/>
+<path d="M354 237L361 242L354 247" fill="none" stroke="#cc003b" stroke-width="2"/>
+</g>
+</g>
+<g data-row="role" data-name="Cornell CALS Landscape Architecture (DLA Makerspace)">
+<text x="24" y="273" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Cornell CALS Landscape Architecture</text>
+<text x="24" y="293" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">(DLA Makerspace)</text>
+<text x="24" y="312" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Fabrication Laboratory Manager</text>
+<text x="24" y="335" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2021–2022</text>
+<line x1="32" y1="349" x2="358" y2="349" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2021" data-end="2022" data-ongoing="false">
+<line x1="176.889" y1="349" x2="213.111" y2="349" stroke="#cc003b" stroke-width="5"/>
+<line x1="176.889" y1="344" x2="176.889" y2="354" stroke="#cc003b" stroke-width="2"/>
+<line x1="213.111" y1="344" x2="213.111" y2="354" stroke="#cc003b" stroke-width="2"/>
+</g>
+</g>
+<g data-row="role" data-name="Macaulay Library, Cornell Lab of Ornithology">
+<text x="24" y="380" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Macaulay Library, Cornell Lab of</text>
+<text x="24" y="400" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Ornithology</text>
+<text x="24" y="419" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Computer Vision Software Engineer</text>
+<text x="24" y="442" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2019–2021</text>
+<line x1="32" y1="456" x2="358" y2="456" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2019" data-end="2021" data-ongoing="false">
+<line x1="104.444" y1="456" x2="176.889" y2="456" stroke="#cc003b" stroke-width="5"/>
+<line x1="104.444" y1="451" x2="104.444" y2="461" stroke="#cc003b" stroke-width="2"/>
+<line x1="176.889" y1="451" x2="176.889" y2="461" stroke="#cc003b" stroke-width="2"/>
+</g>
+</g>
+<g data-row="role" data-name="Engineering &amp; Contracting">
+<text x="24" y="487" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Engineering &amp; Contracting</text>
+<text x="24" y="506" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Engineering &amp; Contracting</text>
+<text x="24" y="529" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2017–present</text>
+<line x1="32" y1="543" x2="358" y2="543" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2017" data-end="2026" data-ongoing="true">
+<line x1="32" y1="543" x2="358" y2="543" stroke="#cc003b" stroke-width="5"/>
+<line x1="32" y1="538" x2="32" y2="548" stroke="#cc003b" stroke-width="2"/>
+<path d="M354 538L361 543L354 548" fill="none" stroke="#cc003b" stroke-width="2"/>
+</g>
+</g>
+<text x="24" y="585" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="600" fill="#4a4551" text-anchor="start">Ventures</text>
+<text x="32" y="608" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2017</text>
+<text x="140.667" y="608" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2020</text>
+<text x="249.333" y="608" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2023</text>
+<text x="358" y="608" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="middle">2026</text>
+<g data-row="venture" data-name="Great Falls Tool Bus">
+<text x="24" y="630" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Great Falls Tool Bus</text>
+<text x="24" y="649" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Founder</text>
+<text x="24" y="672" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2026–present</text>
+<line x1="32" y1="686" x2="358" y2="686" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2026" data-end="2026" data-ongoing="true">
+<rect x="354" y="682" width="8" height="8" fill="#f7f3fc" stroke="#4f7eae" stroke-width="2" data-same-year="true"/>
+<path d="M361 681L368 686L361 691" fill="none" stroke="#4f7eae" stroke-width="2"/>
+</g>
+</g>
+<g data-row="venture" data-name="xoxd.ai">
+<text x="24" y="717" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">xoxd.ai</text>
+<text x="24" y="736" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Operating as</text>
+<text x="24" y="759" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2024–present</text>
+<line x1="32" y1="773" x2="358" y2="773" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2024" data-end="2026" data-ongoing="true">
+<line x1="285.556" y1="773" x2="358" y2="773" stroke="#4f7eae" stroke-width="5"/>
+<line x1="285.556" y1="768" x2="285.556" y2="778" stroke="#4f7eae" stroke-width="2"/>
+<path d="M354 768L361 773L354 778" fill="none" stroke="#4f7eae" stroke-width="2"/>
+</g>
+</g>
+<g data-row="venture" data-name="Moonlight Coworking LLC">
+<text x="24" y="804" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Moonlight Coworking LLC</text>
+<text x="24" y="827" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2021–2024</text>
+<line x1="32" y1="841" x2="358" y2="841" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2021" data-end="2024" data-ongoing="false">
+<line x1="176.889" y1="841" x2="285.556" y2="841" stroke="#4f7eae" stroke-width="5"/>
+<line x1="176.889" y1="836" x2="176.889" y2="846" stroke="#4f7eae" stroke-width="2"/>
+<line x1="285.556" y1="836" x2="285.556" y2="846" stroke="#4f7eae" stroke-width="2"/>
+</g>
+</g>
+<g data-row="venture" data-name="Columbari.us LLC">
+<text x="24" y="872" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Columbari.us LLC</text>
+<text x="24" y="895" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">2017–2021</text>
+<line x1="32" y1="909" x2="358" y2="909" stroke="#dad5e0"/>
+<g data-interval="year" data-start="2017" data-end="2021" data-ongoing="false">
+<line x1="32" y1="909" x2="176.889" y2="909" stroke="#4f7eae" stroke-width="5"/>
+<line x1="32" y1="904" x2="32" y2="914" stroke="#4f7eae" stroke-width="2"/>
+<line x1="176.889" y1="904" x2="176.889" y2="914" stroke="#4f7eae" stroke-width="2"/>
+</g>
+</g>
+</g>
+<line x1="24" y1="947" x2="366" y2="947" stroke="#dad5e0"/>
+<g data-row="undated" data-name="Kitten Spit Labs">
+<text x="24" y="968" font-size="16" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="600" fill="#020103" text-anchor="start">Kitten Spit Labs</text>
+<text x="24" y="988" font-size="14" font-family="&apos;FiraCode Nerd Font Mono&apos;, &apos;SFMono-Regular&apos;, Menlo, Consolas, monospace" font-weight="400" fill="#4a4551" text-anchor="start">ongoing · undated</text>
+</g>
+<text x="24" y="1029" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">Arrows: ongoing through 2026. Squares:</text>
+<text x="24" y="1048" font-size="14" font-family="&apos;Inter&apos;, Arial, Helvetica, sans-serif" font-weight="400" fill="#4a4551" text-anchor="start">same-year dates. Months are unspecified.</text></svg>

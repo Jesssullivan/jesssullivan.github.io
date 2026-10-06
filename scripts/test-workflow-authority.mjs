@@ -14,10 +14,9 @@ const paths = {
 	shadowPublish: '.github/workflows/shadow-source-publish-v2.yml',
 	pagesRollback: '.github/workflows/github-pages-rollback-v2.yml',
 	productionHealth: '.github/workflows/production-health-v2.yml',
-	privateCv: '.github/workflows/private-cv-authority-v2.yml',
 };
 
-const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -128,7 +127,10 @@ requireAll(
 		'for (const requiredName of ["build-and-test", "bazel-remote-gates"])',
 		'job.conclusion !== "success"',
 		'workflow_id: "ci.yml"',
-		'workflow_id: "private-cv-authority-v2.yml"',
+		'github.rest.repos.listCommitStatusesForRef',
+		'status.context === "private-cv-authority"',
+		'latest.state !== "success"',
+		'statuses: read',
 		'mainRef.data.object.sha !== sourceSha',
 		'Successful CI SHA ${sourceSha} is stale; current main is ${mainRef.data.object.sha}.',
 		"PRODUCTION_ENABLED: ${{ vars.CLOUDFLARE_PAGES_PRODUCTION_ENABLED || 'false' }}",
@@ -219,14 +221,17 @@ requireAll(
 		'BLOG_GITHUB_PAGES_ROLLBACK_ENABLED',
 		'mainRef.data.object.sha !== sourceSha',
 		'for (const requiredName of ["build-and-test", "bazel-remote-gates"])',
-		'workflow_id: "private-cv-authority-v2.yml"',
+		'github.rest.repos.listCommitStatusesForRef',
+		'status.context === "private-cv-authority"',
+		'cvStatus.state !== "success"',
+		'statuses: read',
 		'Revalidate rollback kill switch and current main',
 	],
 	'GitHub Pages rollback workflow',
 );
 forbid(pagesRollback, /^ {2}push:|deploy-pages\.yml/m, 'Pages must remain an explicit rollback path');
 forbid(
-	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}\n${privateCv}`,
+	`${production}\n${parity}\n${shadowSource}\n${pagesRollback}`,
 	/^\s*workflow_dispatch:/m,
 	'v2 authority paths must be default-owned',
 );
@@ -249,9 +254,13 @@ for (const legacy of [
 	'shadow-image.yml',
 	'shadow-publish-apply-v2.yml',
 	'deploy-pages.yml',
+	// R163 (per Jess, 2026-10-01; TIN-5260): GitHub-hosted runners are
+	// forbidden; the private CV check is a locally posted commit status.
+	'private-cv-authority-v2.yml',
 ]) {
 	requireAbsent(`.github/workflows/${legacy}`);
 }
+forbid(`${production}\n${pagesRollback}`, /private-cv-authority-v2\.yml/, 'gates must use the private-cv-authority commit status (R163)');
 forbid(productionHealth, /github-pages|deploy-pages\.yml|pages_deployment/, 'production health must observe Cloudflare');
 forbid(themeSwitcher, /actions\/workflows\/deploy-pages\.yml/, 'UI must not link deprecated Pages CI/CD');
 
@@ -321,7 +330,7 @@ for (const fixture of [
 	'./test-cloudflare-production-resolver.mjs',
 	'./test-cloudflare-parity-resolver.mjs',
 	'./test-github-pages-rollback-resolver.mjs',
-	'./test-private-cv-authority-resolver.mjs',
+	'./test-private-cv-authority-status.mjs',
 ]) {
 	await import(fixture);
 }
