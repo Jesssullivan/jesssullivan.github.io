@@ -12,7 +12,7 @@ trap 'rm -rf "${tmp_dir}"' EXIT
 
 grep -Fq -- 'exec bash scripts/bazel-cache-backed.sh "$@" --ignore_dev_dependency --lockfile_mode=error' "${repo_root}/scripts/bazel-public-cache-backed.sh"
 grep -Fq -- 'bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)' "${repo_root}/MODULE.bazel"
-grep -Fq -- 'bazel_dep(name = "rules_tectonic", version = "0.2.1", dev_dependency = True)' "${repo_root}/MODULE.bazel"
+grep -Fq -- 'bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)' "${repo_root}/MODULE.bazel"
 grep -Fq -- 'npm run remote:check:public' "${repo_root}/.github/workflows/ci.yml"
 grep -Fq -- 'npm run remote:test:public' "${repo_root}/.github/workflows/ci.yml"
 grep -Fq -- 'npm run remote:e2e:public' "${repo_root}/.github/workflows/ci.yml"
