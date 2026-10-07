@@ -6,7 +6,7 @@ merged, and no workflow runs on it.
 - `pr-295/`: the RS9 acceptance pack for PR #295. It was captured on
   2026-10-07 from a local static build of `feat/tin-5680-posts-tsne-20261006`
   at `fe89416`, served by `vite preview` on loopback and driven by headless
-  Chrome 141+ through Playwright.
+  Google Chrome 154 (new headless) through Playwright.
   - `capture.mjs` takes the screenshots and writes `report.json`.
   - `perf-baseline.mjs` compares frame rate on `/` against
     `/?flags=constellation` and writes `perf-baseline.json`.
