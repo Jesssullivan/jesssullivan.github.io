@@ -47,7 +47,7 @@
 		"@tummycrypt/vite-plugin-a11y": "^0.2.2",
 		"@types/node": "^25.2.3",
 		"@vitest/coverage-v8": "^4.1.4",
-		"eslint": "^9.39.2",
+		"eslint": "^10.12.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.17.0",
 		"pagefind": "^1.5.2",
