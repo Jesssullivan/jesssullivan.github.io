@@ -28,7 +28,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 function recordProjectionRequests(page: Page): string[] {
 	const requests: string[] = [];
-	page.on('request', request => { if (/projection/i.test(new URL(request.url()).pathname) && !brokerUrls.includes(request.url())) requests.push(request.url()); });
+	// The projection is bundled at build time; any request for it as data is a regression.
+	page.on('request', request => { if (/posts-projection[^/]*\.json$/i.test(new URL(request.url()).pathname)) requests.push(request.url()); });
 	return requests;
 }
 

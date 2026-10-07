@@ -77,6 +77,10 @@
 			event.preventDefault();
 			const next = neighborInDirection(scene, index, direction);
 			if (next >= 0) void focusNode(next);
+		} else if (event.key === 'Enter') {
+			// Chromium does not activate a focused SVG <a> on Enter; hand the router a click.
+			event.preventDefault();
+			event.currentTarget?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 		} else if (event.key === 'Escape') {
 			event.preventDefault();
 			focusIdx = -1;
