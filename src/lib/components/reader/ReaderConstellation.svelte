@@ -286,6 +286,13 @@
 		.constellation-node { animation: none; }
 		.constellation-node a { min-height: 4.5rem; }
 		.motion-toggle, .motion-toggle + label { display: none; }
+		/* At ~360px the 1000-unit viewBox shrinks points to ~5px and hit areas to ~13px; keep a 24px target (WCAG 2.5.8). */
+		.projection-nodes .hit { r: 36; }
+		.projection-nodes .dot { r: 10; stroke-width: 4; }
+		.projection-nodes a.active .dot, .projection-nodes a:hover .dot { r: 15; }
+		.projection-edges line { stroke-width: 3; }
+		.projection-edges line.active { stroke-width: 5; }
+		.projection-nodes a:focus-visible .hit { stroke-width: 6; }
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.constellation-node { animation: none; }
