@@ -300,7 +300,8 @@
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_shell/0.6.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.1.0/MODULE.bazel": "fd7541eb2e5ee8bf67c2d3d488bee1d704780908be59a74ea66c08a553db978e",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.1/MODULE.bazel": "d27cedc62fd965088b28d3652ea5f958854e663a86627ca4b75fdaa28cf5c300",
-    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.1/source.json": "086584fbd4abfa31ddacd93d1de866c26a5bde3b141a6d3cfea570a9a168c9eb",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.3/MODULE.bazel": "f8f49686eb3feb2df91a49b6b3616c0441911fc674468950c07164aeff7b16e6",
+    "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/rules_tectonic/0.2.3/source.json": "2e99597cb591c1cdf546a959428cb226c1c74317bda7c80f07530604268997a2",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.1/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.3/MODULE.bazel": "not found",
     "https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/modules/stardoc/0.5.6/MODULE.bazel": "not found",
@@ -3340,7 +3341,7 @@
     "@@rules_tectonic+//tectonic:extensions.bzl%tectonic_toolchains_ext": {
       "general": {
         "bzlTransitiveDigest": "oErt/QW0CGr7iHs7iHFvCfmEYKHePePOt9fELKtfNhI=",
-        "usagesDigest": "09kIi0Ua3jNyEspxL1v1+Q9qbXHU8LURsUAMOnqb4h4=",
+        "usagesDigest": "gffASInnAQTis9E15+886Dt1bn57aI8CX0CODfemko8=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
