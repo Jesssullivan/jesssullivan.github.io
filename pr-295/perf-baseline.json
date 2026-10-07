@@ -1,0 +1,82 @@
+{
+ "desktop x1 /": {
+  "idle": {
+   "fps": 60.5,
+   "p95": 16.8,
+   "over50": 0
+  }
+ },
+ "desktop x1 /?flags=constellation": {
+  "idle": {
+   "fps": 60.5,
+   "p95": 16.7,
+   "over50": 0
+  },
+  "switchMs": 24.1,
+  "mapIdle": {
+   "fps": 60.5,
+   "p95": 16.8,
+   "over50": 0
+  }
+ },
+ "desktop x4 /": {
+  "idle": {
+   "fps": 59,
+   "p95": 16.8,
+   "over50": 1
+  }
+ },
+ "desktop x4 /?flags=constellation": {
+  "idle": {
+   "fps": 59,
+   "p95": 16.8,
+   "over50": 0
+  },
+  "switchMs": 67.5,
+  "mapIdle": {
+   "fps": 60.5,
+   "p95": 16.7,
+   "over50": 0
+  }
+ },
+ "phone x1 /": {
+  "idle": {
+   "fps": 60.5,
+   "p95": 16.7,
+   "over50": 0
+  }
+ },
+ "phone x1 /?flags=constellation": {
+  "idle": {
+   "fps": 61,
+   "p95": 16.7,
+   "over50": 0
+  },
+  "switchMs": 33.3,
+  "mapIdle": {
+   "fps": 60.5,
+   "p95": 16.7,
+   "over50": 0
+  }
+ },
+ "phone x4 /": {
+  "idle": {
+   "fps": 61,
+   "p95": 16.8,
+   "over50": 0
+  }
+ },
+ "phone x4 /?flags=constellation": {
+  "idle": {
+   "fps": 61,
+   "p95": 16.8,
+   "over50": 0
+  },
+  "switchMs": 73.7,
+  "mapIdle": {
+   "fps": 61,
+   "p95": 16.8,
+   "over50": 0
+  }
+ }
+}

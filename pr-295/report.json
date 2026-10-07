@@ -1,0 +1,177 @@
+{
+  "base": "http://127.0.0.1:4317",
+  "at": "2026-10-07T15:59:45.213Z",
+  "viewports": {
+    "desktop": {
+      "defaultOff": {
+        "constellationCount": 0,
+        "projectionCount": 0,
+        "storage": null,
+        "latestVisible": true
+      },
+      "motion": "svelte-sqnnpy-float",
+      "mapSwitchMs": 1607,
+      "nodes": 140,
+      "edges": 243,
+      "note": "Positions come from a t-SNE fit over post text and tags. Nearby posts share wording or tags; axes, distances and density are not measurements. Placed 140 public posts.",
+      "hitTargets": {
+        "min": 24.119964599609375,
+        "max": 24.12005615234375
+      },
+      "cluster": {
+        "center": "Fox Park #18: 4/19/17, In Class Roamings (2017-04-19)",
+        "members": [
+          "Addendum to \\\"Secret Beach Area\\\" Natural History Class Walk (2017-04-20)",
+          "Fox Park #14: 4/10/17, \\\"1 if by land, 16 if by ear\\\" (2017-04-12)",
+          "Fox Park #15: 4/12/17, “1 if by land, 17 if by ear” (2017-04-12)",
+          "Fox Park #18: 4/19/17, In Class Roamings (2017-04-19)",
+          "Fox Park to Langdon: Morning Birds! (2017-05-04)",
+          "Langdon Woods with Kurt: Plants! (2017-05-02)",
+          "MEGA LANGDON (2017-05-07)",
+          "Parking Lot/Sit Spot @ Fox Park #10: 3/31/17, Whoo's Clues (2017-03-31)",
+          "Parking Lot/Sit Spot @ Fox Park #12: 4/3/17, Owling 2 Hours Before Sunrise (2017-04-03)",
+          "Pre-dawn Fox Park Lot Walk (Birding by Ear) (2017-05-08)",
+          "The Big Len List (2017-05-03)",
+          "Wolf Pine @ Fox Park #11: 4/1/17, It Is A Snow-Show, Debunking The Melanistic Dogamount (2017-04-02)",
+          "Wolf Pine @ Fox Park #2 (2/27/17) (2017-03-02)",
+          "Wolf Pine @ Fox Park #9: 3/26/17, Everyone Is On Vacation (2017-03-28)",
+          "Wolf Pine @ Fox Park: Silence? (2017-05-12)"
+        ]
+      },
+      "hoverDetail": "Fox Park #18: 4/19/17, In Class Roamings · 2017-04-19\n\nNear: The Big Len List, Pre-dawn Fox Park Lot Walk (Birding by Ear), Wolf Pine @ Fox Park #2 (2/27/17), Addendum to \\\"Secret Beach Area\\\" Natural History Class Walk",
+      "focusOrder": [
+        "button: Similarity map",
+        "button: Similar posts",
+        "button: Year tree",
+        "input: Pause motion",
+        "a: Browse as a list ↓",
+        "a[node]: Little Zig Libraries for Fruit-Shaped Escape Hatches (2026-04-30)"
+      ],
+      "arrowWalk": [
+        "ArrowRight -> a[node]: Makerspace financial reporting w/ ipython (2022-02-06)",
+        "ArrowRight -> a[node]: Some GDAL shell macros from R instead of rgdal (2020-03-23)",
+        "ArrowDown -> a[node]: Makerspace financial reporting w/ ipython (2022-02-06)"
+      ],
+      "tabStopsInMap": 1,
+      "keyboardDetail": "Makerspace financial reporting w/ ipython · 2022-02-06\n\nNear: New App:  KML Search and Convert, Some GDAL shell macros from R instead of rgdal, naive distance measurements with opencv",
+      "focusRing": {
+        "stroke": "oklch(0.6215 0.08 79.85)",
+        "width": "4px"
+      },
+      "afterEscape": "Select a point to see the post and its nearest neighbours.",
+      "listItems": 140,
+      "unnamed": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 503 ()"
+      ],
+      "reducedMotion": {
+        "nodeAnimation": "none",
+        "linkTransition": "1e-05s"
+      }
+    },
+    "phone": {
+      "defaultOff": {
+        "constellationCount": 0,
+        "projectionCount": 0,
+        "storage": null,
+        "latestVisible": true
+      },
+      "motion": "none",
+      "mapSwitchMs": 919,
+      "nodes": 140,
+      "edges": 243,
+      "note": "Positions come from a t-SNE fit over post text and tags. Nearby posts share wording or tags; axes, distances and density are not measurements. Placed 140 public posts.",
+      "hitTargets": {
+        "min": 25.631988525390625,
+        "max": 25.63201904296875
+      },
+      "cluster": {
+        "center": "Fox Park #18: 4/19/17, In Class Roamings (2017-04-19)",
+        "members": [
+          "Addendum to \\\"Secret Beach Area\\\" Natural History Class Walk (2017-04-20)",
+          "Fox Park #14: 4/10/17, \\\"1 if by land, 16 if by ear\\\" (2017-04-12)",
+          "Fox Park #15: 4/12/17, “1 if by land, 17 if by ear” (2017-04-12)",
+          "Fox Park #18: 4/19/17, In Class Roamings (2017-04-19)",
+          "Fox Park to Langdon: Morning Birds! (2017-05-04)",
+          "Langdon Woods with Kurt: Plants! (2017-05-02)",
+          "MEGA LANGDON (2017-05-07)",
+          "Parking Lot/Sit Spot @ Fox Park #10: 3/31/17, Whoo's Clues (2017-03-31)",
+          "Parking Lot/Sit Spot @ Fox Park #12: 4/3/17, Owling 2 Hours Before Sunrise (2017-04-03)",
+          "Pre-dawn Fox Park Lot Walk (Birding by Ear) (2017-05-08)",
+          "The Big Len List (2017-05-03)",
+          "Wolf Pine @ Fox Park #11: 4/1/17, It Is A Snow-Show, Debunking The Melanistic Dogamount (2017-04-02)",
+          "Wolf Pine @ Fox Park #2 (2/27/17) (2017-03-02)",
+          "Wolf Pine @ Fox Park #9: 3/26/17, Everyone Is On Vacation (2017-03-28)",
+          "Wolf Pine @ Fox Park: Silence? (2017-05-12)"
+        ]
+      },
+      "hoverDetail": "Wolf Pine @ Fox Park #9: 3/26/17, Everyone Is On Vacation · 2017-03-28\n\nNear: Wolf Pine @ Fox Park: Silence?, The Big Len List, Wolf Pine @ Fox Park #2 (2/27/17), Wolf Pine @ Fox Park #11: 4/1/17, It Is A Snow-Show, Debunking The Melanistic Dogamount, MEGA LANGDON",
+      "focusOrder": [
+        "button: Similarity map",
+        "button: Similar posts",
+        "button: Year tree",
+        "a: Browse as a list ↓",
+        "a[node]: Little Zig Libraries for Fruit-Shaped Escape Hatches (2026-04-30)"
+      ],
+      "arrowWalk": [
+        "ArrowRight -> a[node]: Makerspace financial reporting w/ ipython (2022-02-06)",
+        "ArrowRight -> a[node]: Some GDAL shell macros from R instead of rgdal (2020-03-23)",
+        "ArrowDown -> a[node]: Makerspace financial reporting w/ ipython (2022-02-06)"
+      ],
+      "tabStopsInMap": 1,
+      "keyboardDetail": "Makerspace financial reporting w/ ipython · 2022-02-06\n\nNear: New App:  KML Search and Convert, Some GDAL shell macros from R instead of rgdal, naive distance measurements with opencv",
+      "focusRing": {
+        "stroke": "oklch(0.6215 0.08 79.85)",
+        "width": "6px"
+      },
+      "afterEscape": "Select a point to see the post and its nearest neighbours.",
+      "listItems": 140,
+      "unnamed": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 503 ()"
+      ],
+      "reducedMotion": {
+        "nodeAnimation": "none",
+        "linkTransition": "1e-05s"
+      }
+    }
+  },
+  "phoneFrameRate4xCpu": {
+    "mapSwitchMsThrottled": 1306,
+    "switchWindow": {
+      "frames": 61,
+      "fps": 33.3,
+      "p95ms": 33.4,
+      "maxms": 650,
+      "over50ms": 2
+    },
+    "idleMap": {
+      "frames": 119,
+      "fps": 59,
+      "p95ms": 16.8,
+      "maxms": 50,
+      "over50ms": 0
+    },
+    "pointerSweep": {
+      "frames": 274,
+      "fps": 49.1,
+      "p95ms": 33.3,
+      "maxms": 433.4,
+      "over50ms": 6
+    },
+    "keyboardWalk": {
+      "frames": 114,
+      "fps": 54.7,
+      "p95ms": 16.8,
+      "maxms": 166.6,
+      "over50ms": 1
+    },
+    "listScroll": {
+      "frames": 138,
+      "fps": 52.1,
+      "p95ms": 33.3,
+      "maxms": 116.5,
+      "over50ms": 4
+    }
+  }
+}
