@@ -1,4 +1,4 @@
-import { Effect, Layer, ServiceMap } from "effect"
+import { Effect, Layer, Context } from "effect"
 
 // ── Types ───────────────────────────────────────────────────
 
@@ -11,7 +11,7 @@ export interface HyperlinkSuggestion {
 
 // ── Service definition ─────────────────────────────────────
 
-export class HyperlinkService extends ServiceMap.Service<HyperlinkService, {
+export class HyperlinkService extends Context.Service<HyperlinkService, {
 	readonly findUnlinkedKeywords: (body: string) => Effect.Effect<HyperlinkSuggestion[]>
 }>()("HyperlinkService") {}
 

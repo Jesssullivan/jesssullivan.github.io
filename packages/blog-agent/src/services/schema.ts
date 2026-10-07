@@ -1,4 +1,4 @@
-import { Exit, Layer, ServiceMap } from 'effect';
+import { Exit, Layer, Context } from 'effect';
 import { Schema } from 'effect';
 import {
 	PostFrontmatter,
@@ -22,7 +22,7 @@ export interface ValidationError {
 
 // ── Service definition ─────────────────────────────────────
 
-export class SchemaService extends ServiceMap.Service<
+export class SchemaService extends Context.Service<
 	SchemaService,
 	{
 		readonly parseFrontmatter: (raw: string) => Record<string, unknown> | null;

@@ -1,4 +1,4 @@
-import { Effect, Layer, ServiceMap } from "effect"
+import { Effect, Layer, Context } from "effect"
 import Anthropic from "@anthropic-ai/sdk"
 
 // ── Types ───────────────────────────────────────────────────
@@ -19,7 +19,7 @@ export interface ProseSuggestion {
 
 // ── Service definition ─────────────────────────────────────
 
-export class ProseReviewService extends ServiceMap.Service<ProseReviewService, {
+export class ProseReviewService extends Context.Service<ProseReviewService, {
 	readonly reviewPost: (
 		frontmatter: Record<string, unknown>,
 		body: string,
