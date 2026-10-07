@@ -45,7 +45,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.2.2",
 		"@tummycrypt/vite-plugin-a11y": "^0.2.2",
-		"@types/node": "^25.2.3",
+		"@types/node": "^26.6.4",
 		"@vitest/coverage-v8": "^4.1.4",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",

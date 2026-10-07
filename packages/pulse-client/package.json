@@ -20,7 +20,7 @@
 		"@blog/pulse-core": "0.0.1"
 	},
 	"devDependencies": {
-		"@types/node": "^25.2.3",
+		"@types/node": "^26.6.4",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.4"
 	}
