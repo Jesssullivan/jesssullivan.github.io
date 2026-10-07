@@ -2,9 +2,16 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import committed from '$lib/data/posts-projection.v1.json';
-import { parseFrontmatter } from '../../../../scripts/lib/frontmatter.mts';
 import { configurationSha256, METHOD_REVISION, SCHEMA } from './embed';
 import { isProjectionDocument } from './scene';
+
+// Front matter scalar read, matching scripts/lib/frontmatter.mts for `published` and `slug`.
+function frontmatterValue(source: string, key: string): string | undefined {
+	const block = source.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1];
+	const raw = block?.match(new RegExp(`^\\s*${key}:\\s*(.*)$`, 'm'))?.[1]?.trim();
+	if (raw === undefined) return undefined;
+	return /^(["']).*\1$/.test(raw) ? raw.slice(1, -1) : raw;
+}
 
 // The same publication rule and slug derivation as scripts/generate-search-index.mts.
 function postSlugs(): { published: Set<string>; withheld: Set<string> } {
@@ -12,10 +19,10 @@ function postSlugs(): { published: Set<string>; withheld: Set<string> } {
 	const withheld = new Set<string>();
 	const dir = join(process.cwd(), 'src/posts');
 	for (const file of readdirSync(dir).filter((name) => /\.(?:md|svx)$/.test(name))) {
-		const meta = parseFrontmatter(readFileSync(join(dir, file), 'utf-8'));
-		if (!meta) continue;
-		const slug = (meta.slug as string) ?? file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
-		(meta.published === true ? published : withheld).add(slug);
+		const source = readFileSync(join(dir, file), 'utf-8');
+		if (!/^---\r?\n/.test(source)) continue;
+		const slug = frontmatterValue(source, 'slug') || file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
+		(frontmatterValue(source, 'published') === 'true' ? published : withheld).add(slug);
 	}
 	return { published, withheld };
 }
@@ -30,6 +37,8 @@ describe('committed posts projection (src/lib/data/posts-projection.v1.json)', (
 
 	it('contains only published posts and never a held or unpublished slug', () => {
 		const { published, withheld } = postSlugs();
+		expect(published.size).toBeGreaterThanOrEqual(committed.posts.length);
+		expect(withheld.has('hello-world')).toBe(true);
 		const slugs = committed.posts.map((post) => post.slug);
 		expect(new Set(slugs).size).toBe(slugs.length);
 		expect(slugs).toEqual([...slugs].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)));
