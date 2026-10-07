@@ -41,7 +41,7 @@
 		"@playwright/test": "^1.59.1",
 		"@sveltejs/adapter-node": "^5.5.7",
 		"@sveltejs/adapter-static": "^3.0.10",
-		"@sveltejs/kit": "^2.61.1",
+		"@sveltejs/kit": "^2.70.2",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.2.2",
 		"@tummycrypt/vite-plugin-a11y": "^0.2.2",
@@ -58,7 +58,7 @@
 		"rollup-plugin-visualizer": "^6.0.5",
 		"serve": "^14.2.5",
 		"sharp": "^0.34.5",
-		"svelte": "^5.55.4",
+		"svelte": "^5.56.8",
 		"svelte-check": "^4.4.5",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
@@ -73,7 +73,7 @@
 		"@fontsource/raleway": "^5.2.8",
 		"@skeletonlabs/skeleton": "5.0.1",
 		"@skeletonlabs/skeleton-svelte": "5.0.1",
-		"@tummycrypt/tinyvectors": "https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz",
+		"@tummycrypt/tinyvectors": "https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.7.tar.gz",
 		"dompurify": "^3.4.16",
 		"flexsearch": "^0.8.212",
 		"marked": "^4.3.0",
@@ -87,7 +87,8 @@
 		"packages/*"
 	],
 	"overrides": {
-		"vite": "^8.0.14"
+		"vite": "^8.0.14",
+		"devalue": "^5.9.4"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -97,6 +98,10 @@
 			"protobufjs",
 			"puppeteer",
 			"sharp"
-		]
-	}
+		],
+		"overrides": {
+			"devalue": "^5.9.4"
+		}
+	},
+	"packageManager": "npm@10.9.2"
 }

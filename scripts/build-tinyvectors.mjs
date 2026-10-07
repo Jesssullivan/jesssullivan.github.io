@@ -54,8 +54,8 @@ import { fileURLToPath } from 'node:url';
 // an unknown URL hard-fails the install. This is the frozen-lockfile analog
 // for the first install, before package-lock has recorded the tarball.
 const PINNED_INTEGRITY = {
-	'https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.5.tar.gz':
-		'sha256-hkpn28wmUctB85UqLRgpkVyYg5EwwYh74wrsrJnbwb0=',
+	'https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.7.tar.gz':
+		'sha256-U74vP8IB7fIcyK0JUSLrMDWTxRfhtIdWw7C9FDZYw28=',
 };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # package-lock.json is the npm authority. pnpm-lock.yaml is the generated
+  # rules_js lock (regenerate with pnpm 9.15.9 --lockfile-only); a Dependabot
+  # npm PR updates package-lock.json only and needs that regeneration before
+  # bazel-remote-gates can pass.
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    target-branch: 'main'
+    open-pull-requests-limit: 10
+    ignore:
+      # Framework and test-runner majors move with the estate, not per spoke
+      # (TIN-3692 DB6 / DB21; the MassageIthaca #892 and gfts #206 major leaks).
+      - dependency-name: '@sveltejs/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'vitest'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@vitest/*'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
+    groups:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    target-branch: 'main'
+    open-pull-requests-limit: 5
+    ignore:
+      # ci-templates majors are an estate re-pin decision, not a Dependabot bump
+      # (TIN-3692 DB6 / SC13).
+      - dependency-name: 'xoxd-ai/ci-templates*'
+        update-types:
+          - 'version-update:semver-major'
+    groups:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
