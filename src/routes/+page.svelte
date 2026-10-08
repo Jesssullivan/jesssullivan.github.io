@@ -70,7 +70,7 @@
 
 	{#if constellationEnabled}
 		<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
-		<ReaderConstellation posts={experimentalCollection.latest} archive={experimentalCollection.archive} snapshot={experimentPulse ?? data.pulseSnapshot} />
+		<ReaderConstellation posts={experimentalCollection.latest} archive={experimentalCollection.archive} snapshot={experimentPulse ?? data.pulseSnapshot} focusSlug={page.url.searchParams.get('focus')} />
 	{/if}
 
 	<div class="space-y-16">
