@@ -1,4 +1,4 @@
-import { Effect, Layer, ServiceMap } from 'effect';
+import { Effect, Layer, Context } from 'effect';
 import { Octokit } from '@octokit/rest';
 
 // ── Types ──────────────────────────────────────────────────
@@ -33,7 +33,7 @@ export interface FileContent {
 
 // ── Service definition ─────────────────────────────────────
 
-export class GitHubService extends ServiceMap.Service<
+export class GitHubService extends Context.Service<
 	GitHubService,
 	{
 		readonly getPR: (owner: string, repo: string, number: number) => Effect.Effect<PullRequestData, Error>;
