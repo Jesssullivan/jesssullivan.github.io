@@ -113,7 +113,10 @@ describe('loadTinylandBlogBrokerStream', () => {
 	it('fetches the hub broker stream without falling back to checked-in post snapshots', async () => {
 		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(validStream));
 
-		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(validStream);
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual({
+			...validStream,
+			quarantinedContentPostSlugs: [],
+		});
 		expect(fetchMock).toHaveBeenCalledWith(
 			TINYLAND_BLOG_BROKER_STREAM_URL,
 			expect.objectContaining({
@@ -127,7 +130,10 @@ describe('loadTinylandBlogBrokerStream', () => {
 	it('accepts the current live public display-membership broker contract', async () => {
 		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(liveDisplayStream));
 
-		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(liveDisplayStream);
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual({
+			...liveDisplayStream,
+			quarantinedContentPostSlugs: [],
+		});
 	});
 
 	it('rejects streams that try to behave like checked-in materialization', async () => {
@@ -239,11 +245,11 @@ describe('loadTinylandBlogBrokerStream', () => {
 	});
 
 	it.each([
-		['component source', '<script>export let source;</script>', 'raw HTML or unknown components'],
-		['an event handler', '<InlineDisclosure label="x" onclick={run}>x</InlineDisclosure>', 'only label and defaultOpen'],
-		['an unknown component', '<RemoteThing label="x">x</RemoteThing>', 'raw HTML or unknown components'],
-		['malformed props', '<InlineDisclosure label={value}>x</InlineDisclosure>', 'only label and defaultOpen'],
-	])('rejects broker content with %s', async (_name, contentMarkdown, expected) => {
+		['component source', '<script>export let source;</script>'],
+		['an event handler', '<InlineDisclosure label="x" onclick={run}>x</InlineDisclosure>'],
+		['an unknown component', '<RemoteThing label="x">x</RemoteThing>'],
+		['malformed props', '<InlineDisclosure label={value}>x</InlineDisclosure>'],
+	])('quarantines broker content with %s', async (_name, contentMarkdown) => {
 		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () =>
 			jsonResponse({
 				...validStream,
@@ -251,7 +257,103 @@ describe('loadTinylandBlogBrokerStream', () => {
 			}),
 		);
 
-		await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(expected);
+		await expect(loadTinylandBlogBrokerStream(fetchMock)).resolves.toEqual(
+			expect.objectContaining({ posts: [], quarantinedContentPostSlugs: ['example'] }),
+		);
+	});
+
+	it('keeps a valid live post when the preceding static legacy post has script imports and unknown components', async () => {
+		const legacyContent = `<script>
+  import GlueScaler from '$lib/components/GlueScaler.svelte';
+  import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
+</script>
+
+<GlueScaler />
+<GlueScalerPinch />`;
+		const brokerOnlyPost = {
+			...liveDisplayStream.posts[0],
+			id: 'https://hub.tinyland.dev/projections/jesssullivan-github-io/ap/objects/post/new-live',
+			slug: 'new-live',
+			url: 'https://transscendsurvival.org/blog/new-live',
+			contentMarkdown: '## New live post',
+		};
+		const stream = {
+			...liveDisplayStream,
+			counts: { publicPublishedDisplayPosts: 2 },
+			posts: [
+				{ ...liveDisplayStream.posts[0], slug: 'glue-you-can-see-in-uv', contentMarkdown: legacyContent },
+				brokerOnlyPost,
+			],
+		};
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(stream));
+
+		const loaded = await loadTinylandBlogBrokerStream(fetchMock);
+		expect(loaded.counts.publicPublishedDisplayPosts).toBe(2);
+		expect(loaded.quarantinedContentPostSlugs).toEqual(['glue-you-can-see-in-uv']);
+		expect(loaded.posts.map((post) => post.slug)).toEqual(['new-live']);
+		const staticPosts = [
+			{
+				title: 'Glue You Can See in UV',
+				slug: 'glue-you-can-see-in-uv',
+				date: '2026-06-08',
+				description: '',
+				tags: [],
+				published: true,
+			} as unknown as Post,
+		];
+		expect(
+			mergeBrokerPostsIntoStatic(staticPosts, tinylandBlogBrokerStreamToPosts(loaded)).map((post) => post.slug),
+		).toEqual(['glue-you-can-see-in-uv', 'new-live']);
+	});
+
+	it('quarantines consecutive posts with the same unknown component without admitting the second', async () => {
+		const badPost = (slug: string) => ({
+			...liveDisplayStream.posts[0],
+			slug,
+			contentMarkdown: '<RemoteThing />',
+		});
+		const stream = {
+			...liveDisplayStream,
+			counts: { publicPublishedDisplayPosts: 3 },
+			posts: [
+				badPost('first-invalid'),
+				badPost('second-invalid'),
+				{ ...liveDisplayStream.posts[0], slug: 'valid-live' },
+			],
+		};
+		const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(stream));
+
+		const loaded = await loadTinylandBlogBrokerStream(fetchMock);
+		expect(loaded.quarantinedContentPostSlugs).toEqual(['first-invalid', 'second-invalid']);
+		expect(loaded.posts.map((post) => post.slug)).toEqual(['valid-live']);
+	});
+
+	it('keeps whole-stream privacy, publication and declared-count gates when another post has invalid content', async () => {
+		const invalidContentPost = { ...liveDisplayStream.posts[0], contentMarkdown: '<RemoteThing />' };
+		const validPost = { ...liveDisplayStream.posts[0], slug: 'new-live' };
+		const base = {
+			...liveDisplayStream,
+			counts: { publicPublishedDisplayPosts: 2 },
+			posts: [invalidContentPost, validPost],
+		};
+		const cases = [
+			[{ ...base, schemaVersion: 'wrong' }, 'schemaVersion must be tinyland.blog.broker-stream.v1'],
+			[{ ...base, policy: { ...base.policy, draftContentIncluded: true } }, 'draftContentIncluded must be false'],
+			[{ ...base, counts: { publicPublishedDisplayPosts: 1 } }, 'public display post count must match posts.length'],
+			[{ ...base, posts: [invalidContentPost, { ...validPost, id: '' }] }, 'field id must be a non-empty string'],
+			[
+				{ ...base, posts: [invalidContentPost, { ...validPost, frontmatter: { visibility: 'private' } }] },
+				'must be public-published display content',
+			],
+			[
+				{ ...base, posts: [invalidContentPost, { ...validPost, apiKey: 'private' }] },
+				'contains private field-shaped data',
+			],
+		] as const;
+		for (const [payload, expected] of cases) {
+			const fetchMock = vi.fn<TinylandBlogBrokerFetch>(async () => jsonResponse(payload));
+			await expect(loadTinylandBlogBrokerStream(fetchMock)).rejects.toThrow(expected);
+		}
 	});
 
 	it('accepts the reviewed native-SVX component syntax without broker-supplied imports', async () => {

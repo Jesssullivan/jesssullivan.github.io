@@ -32,7 +32,7 @@ describe('reviewed interactive SVX components', () => {
 
 	it('permits code examples without treating their source text as document code', () => {
 		expect(() =>
-			validateReviewedComponentMarkdown('```svelte\n<script>\nimport Demo from \'./Demo.svelte\';\n</script>\n```'),
+			validateReviewedComponentMarkdown("```svelte\n<script>\nimport Demo from './Demo.svelte';\n</script>\n```"),
 		).not.toThrow();
 	});
 
@@ -56,14 +56,34 @@ describe('reviewed interactive SVX components', () => {
 	it.each([
 		['an unknown component', '<DangerButton label="nope">x</DangerButton>', 'raw HTML or unknown components'],
 		['component source', '<script>export let anything;</script>', 'raw HTML or unknown components'],
-		['an event handler', '<InlineDisclosure label="x" onclick={run}>x</InlineDisclosure>', 'only label and defaultOpen'],
-		['an import statement', 'import Danger from \'./Danger.svelte\';', 'module statements'],
+		[
+			'an event handler',
+			'<InlineDisclosure label="x" onclick={run}>x</InlineDisclosure>',
+			'only label and defaultOpen',
+		],
+		['an import statement', "import Danger from './Danger.svelte';", 'module statements'],
 		['an unsafe Svelte directive', '{@html userContent}', 'Svelte expressions or control blocks'],
 		['a malformed prop', '<InlineDisclosure label={unsafe}>x</InlineDisclosure>', 'only label and defaultOpen'],
-		['an interpolation', '<InlineDisclosure label="x">{process.env.SECRET}</InlineDisclosure>', 'Svelte expressions or control blocks'],
-		['a control block', '<InlineDisclosure label="x">{#if true}x{/if}</InlineDisclosure>', 'Svelte expressions or control blocks'],
-		['an expression attribute', '<InlineDisclosure label="x"><img src={expression}></InlineDisclosure>', 'Svelte expressions or control blocks'],
-		['an attach directive', '<InlineDisclosure label="x">{@attach handler}</InlineDisclosure>', 'Svelte expressions or control blocks'],
+		[
+			'an interpolation',
+			'<InlineDisclosure label="x">{process.env.SECRET}</InlineDisclosure>',
+			'Svelte expressions or control blocks',
+		],
+		[
+			'a control block',
+			'<InlineDisclosure label="x">{#if true}x{/if}</InlineDisclosure>',
+			'Svelte expressions or control blocks',
+		],
+		[
+			'an expression attribute',
+			'<InlineDisclosure label="x"><img src={expression}></InlineDisclosure>',
+			'Svelte expressions or control blocks',
+		],
+		[
+			'an attach directive',
+			'<InlineDisclosure label="x">{@attach handler}</InlineDisclosure>',
+			'Svelte expressions or control blocks',
+		],
 		['a spread attribute', '<InlineDisclosure {...props} label="x">x</InlineDisclosure>', 'only label and defaultOpen'],
 		['an unclosed component', '<InlineDisclosure label="x">x', 'no closing tag'],
 		[
@@ -73,5 +93,11 @@ describe('reviewed interactive SVX components', () => {
 		],
 	])('rejects %s', (_name, markdown, expected) => {
 		expect(() => validateReviewedComponentMarkdown(markdown)).toThrow(expected);
+	});
+
+	it('rejects the same unknown tag on consecutive documents', () => {
+		const markdown = '<RemoteThing />';
+		expect(() => validateReviewedComponentMarkdown(markdown)).toThrow('raw HTML or unknown components');
+		expect(() => validateReviewedComponentMarkdown(markdown)).toThrow('raw HTML or unknown components');
 	});
 });

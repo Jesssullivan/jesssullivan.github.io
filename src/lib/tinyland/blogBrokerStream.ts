@@ -85,6 +85,8 @@ export interface TinylandBlogBrokerStream {
 		readonly [key: string]: unknown;
 	};
 	readonly posts: readonly TinylandBlogBrokerPost[];
+	/** Public slugs omitted because their broker bodies cannot be rendered safely. */
+	readonly quarantinedContentPostSlugs?: readonly string[];
 	readonly projectionTombstones: readonly unknown[];
 }
 
@@ -185,9 +187,7 @@ function normalizeCategory(value: string): PostCategory | undefined {
 function normalizeEditorialTier(value: unknown, label: string): PostEditorialTier | undefined {
 	if (value === undefined || value === null || value === '') return undefined;
 	if (typeof value !== 'string' || !POST_EDITORIAL_TIERS.includes(value as PostEditorialTier)) {
-		throw new Error(
-			`blog broker stream ${label} editorial tier must be one of ${POST_EDITORIAL_TIERS.join(', ')}`,
-		);
+		throw new Error(`blog broker stream ${label} editorial tier must be one of ${POST_EDITORIAL_TIERS.join(', ')}`);
 	}
 	return value as PostEditorialTier;
 }
@@ -253,8 +253,16 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 	if (!Array.isArray(data.posts)) {
 		throw new Error('blog broker stream posts must be an array');
 	}
+	const counts = data.counts;
+	if (
+		!isRecord(counts) ||
+		(counts.reviewedStreamPosts !== data.posts.length && counts.publicPublishedDisplayPosts !== data.posts.length)
+	) {
+		throw new Error('blog broker stream public display post count must match posts.length');
+	}
 
-	const posts = data.posts.map((post, index): TinylandBlogBrokerPost => {
+	const quarantinedContentPostSlugs: string[] = [];
+	const posts = data.posts.flatMap((post, index): TinylandBlogBrokerPost[] => {
 		if (!isRecord(post)) {
 			throw new Error(`blog broker stream post ${index} must be an object`);
 		}
@@ -278,53 +286,57 @@ export function validateTinylandBlogBrokerStream(data: unknown): TinylandBlogBro
 			`post ${index} frontmatter`,
 		);
 
+		// Validate all structural and publication fields before isolating content errors.
+		// A malformed record or a visibility violation still rejects the whole feed.
+		const id = requireString(post, 'id');
+		const slug = requireString(post, 'slug');
+		const title = requireString(post, 'title');
+		const date = requireString(post, 'date');
+		const publishedAt = requireString(post, 'publishedAt');
+		const updatedAt = requireString(post, 'updatedAt');
+		const url = requireString(post, 'url');
+		const sourceRecord = requireString(post, 'sourceRecord');
 		const contentMarkdown = requireString(post, 'contentMarkdown');
 		try {
 			validateReviewedComponentMarkdown(contentMarkdown);
-		} catch (error) {
-			throw new Error(
-				`blog broker stream post ${index} ${error instanceof Error ? error.message : 'contains invalid reviewed component content'}`,
-			);
+		} catch {
+			quarantinedContentPostSlugs.push(slug);
+			return [];
 		}
 
-		return {
-			type: 'Article',
-			id: requireString(post, 'id'),
-			slug: requireString(post, 'slug'),
-			title: requireString(post, 'title'),
-			date: requireString(post, 'date'),
-			publishedAt: requireString(post, 'publishedAt'),
-			updatedAt: requireString(post, 'updatedAt'),
-			description: typeof post.description === 'string' ? post.description : '',
-			category: typeof post.category === 'string' ? post.category : 'personal',
-			tags: post.tags,
-			...(editorialTier || frontmatterEditorialTier
-				? { editorialTier: editorialTier ?? frontmatterEditorialTier }
-				: {}),
-			...(typeof post.featureImage === 'string' && post.featureImage ? { featureImage: post.featureImage } : {}),
-			url: requireString(post, 'url'),
-			sourceRecord: requireString(post, 'sourceRecord'),
-			sourceHash,
-			contentHash,
-			...displayGateFields,
-			frontmatter: post.frontmatter,
-			contentMarkdown,
-			contentFormat: 'text/markdown',
-			publicFediverseDelivery: false,
-		};
+		return [
+			{
+				type: 'Article',
+				id,
+				slug,
+				title,
+				date,
+				publishedAt,
+				updatedAt,
+				description: typeof post.description === 'string' ? post.description : '',
+				category: typeof post.category === 'string' ? post.category : 'personal',
+				tags: post.tags,
+				...(editorialTier || frontmatterEditorialTier
+					? { editorialTier: editorialTier ?? frontmatterEditorialTier }
+					: {}),
+				...(typeof post.featureImage === 'string' && post.featureImage ? { featureImage: post.featureImage } : {}),
+				url,
+				sourceRecord,
+				sourceHash,
+				contentHash,
+				...displayGateFields,
+				frontmatter: post.frontmatter,
+				contentMarkdown,
+				contentFormat: 'text/markdown',
+				publicFediverseDelivery: false,
+			},
+		];
 	});
-
-	const counts = data.counts;
-	if (
-		!isRecord(counts) ||
-		(counts.reviewedStreamPosts !== posts.length && counts.publicPublishedDisplayPosts !== posts.length)
-	) {
-		throw new Error('blog broker stream public display post count must match posts.length');
-	}
 
 	return {
 		...(data as unknown as TinylandBlogBrokerStream),
 		posts,
+		quarantinedContentPostSlugs,
 	};
 }
 
