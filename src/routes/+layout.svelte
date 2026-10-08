@@ -8,6 +8,7 @@
 	import { theme, THEMES } from '$lib/theme.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
+	import TailnetHint from '$lib/components/TailnetHint.svelte';
 
 	let { children } = $props();
 	const isShadowDeployment = __BLOG_DEPLOY_TIER__ === 'shadow';
@@ -327,6 +328,7 @@
 			<a href="/feed.json" class="hover:text-primary-500 transition-colors">JSON</a>
 			<span class="text-surface-400">|</span>
 			<a href="/THIRD-PARTY-LICENSES" class="hover:text-primary-500 transition-colors">Licenses</a>
+			<TailnetHint />
 		</div>
 		<p class="mt-2 text-xs text-surface-400">
 			Static site built with <a
