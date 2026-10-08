@@ -317,6 +317,7 @@ for (const name of workflowNames) {
 }
 
 for (const fixture of [
+	'./ci/shadow-pages-resolver.test.mjs',
 	'./test-shadow-preview-resolver.mjs',
 	'./test-cloudflare-production-resolver.mjs',
 	'./test-cloudflare-parity-resolver.mjs',
