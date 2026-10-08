@@ -17,7 +17,7 @@
     "@agentuity/core": "^1.0.43",
     "@agentuity/runtime": "^1.0.33",
     "@anthropic-ai/sdk": "^0.52.0",
-    "@octokit/rest": "^21.1.1",
+    "@octokit/rest": "^22.0.1",
     "effect": "4.0.1",
     "hono": "^4.12.8",
     "zod": "^3.25.76"
