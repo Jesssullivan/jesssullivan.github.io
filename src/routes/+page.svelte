@@ -1,17 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ReaderArchive from '$lib/components/reader/ReaderArchive.svelte';
-	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
-	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
-	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
-	import { resolveConstellationFlag } from '$lib/flags/constellation';
+	import ReaderArchive from '#lib/components/reader/ReaderArchive.svelte';
+	import ReaderLatest from '#lib/components/reader/ReaderLatest.svelte';
+	import ReaderPulse from '#lib/components/reader/ReaderPulse.svelte';
+	import ReaderConstellation from '#lib/components/reader/ReaderConstellation.svelte';
+	import { resolveConstellationFlag } from '#lib/flags/constellation.js';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
-	import { loadTinylandBlogBrokerStream, tinylandBlogBrokerStreamToPosts } from '$lib/tinyland/blogBrokerStream';
-	import { loadPulsePublicBrokerSnapshot } from '$lib/pulse/load';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
-	import type { Post } from '$lib/posts';
+	import { createHomeReaderCollection } from '#lib/reader/homeProjection.js';
+	import { loadTinylandBlogBrokerStream, tinylandBlogBrokerStreamToPosts } from '#lib/tinyland/blogBrokerStream.js';
+	import { loadPulsePublicBrokerSnapshot } from '#lib/pulse/load.js';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
+	import type { Post } from '#lib/posts.js';
 	import publicationHolds from '../../static/blog-publication-holds.json';
 
 	let { data }: { data: PageData } = $props();

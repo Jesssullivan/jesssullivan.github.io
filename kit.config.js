@@ -341,23 +341,24 @@ const adapter = useNodeAdapter
 			strict: false
 		});
 
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
+// SvelteKit 3 no longer reads svelte.config.js: project options are passed to
+// the sveltekit() Vite plugin (see vite.config.ts). Options that lived under
+// config.kit.* are top-level plugin options here.
+/** @type {import('@sveltejs/kit/vite').PluginOptions} */
+const kitOptions = {
 	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [vitePreprocess(), mdsvexSvelte5Preprocessor],
 	compilerOptions: {
 		runes: true
 	},
-	kit: {
-		adapter,
-		paths: {
-			base: ''
-		},
-		prerender: {
-			handleHttpError: 'warn',
-			handleMissingId: 'warn'
-		}
+	adapter,
+	paths: {
+		base: ''
+	},
+	prerender: {
+		handleHttpError: 'warn',
+		handleMissingId: 'warn'
 	}
 };
 
-export default config;
+export default kitOptions;

@@ -1,4 +1,4 @@
-import type { Post } from '$lib/posts';
+import type { Post } from '#lib/posts.js';
 
 export interface ReaderCollection {
 	latest: Post[];

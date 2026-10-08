@@ -1,5 +1,5 @@
-import type { Post } from '$lib/posts';
-import { mergeBrokerPostsIntoStatic } from '$lib/tinyland/blogBrokerStream';
+import type { Post } from '#lib/posts.js';
+import { mergeBrokerPostsIntoStatic } from '#lib/tinyland/blogBrokerStream.js';
 import { createReaderCollection, type ReaderCollection } from './collection';
 
 /**

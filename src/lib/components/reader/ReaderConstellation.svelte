@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Post } from '$lib/posts';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
-	import type { ReaderCollection } from '$lib/reader/collection';
-	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
+	import type { Post } from '#lib/posts.js';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
+	import type { ReaderCollection } from '#lib/reader/collection.js';
+	import PulseFeed from '#lib/components/pulse/PulseFeed.svelte';
 
 	let { posts, snapshot, archive = [] }: { posts: Post[]; snapshot: PublicPulseSnapshotAny; archive?: ReaderCollection['archive'] } = $props();
 	let view = $state<'constellation' | 'tree'>('constellation');

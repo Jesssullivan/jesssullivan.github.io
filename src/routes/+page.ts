@@ -1,6 +1,6 @@
-import { getPosts } from '$lib/posts';
-import { loadPulseSnapshot } from '$lib/pulse/load';
-import { createReaderCollection } from '$lib/reader/collection';
+import { getPosts } from '#lib/posts.js';
+import { loadPulseSnapshot } from '#lib/pulse/load.js';
+import { createReaderCollection } from '#lib/reader/collection.js';
 import type { PageLoad } from './$types';
 
 export const prerender = true;

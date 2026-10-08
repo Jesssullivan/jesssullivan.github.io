@@ -1,6 +1,6 @@
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
-import { TINYLAND_PULSE_AP_STREAM_DEMO_URL, type PulseApStreamDemoPanelState } from '$lib/pulse/apStreamDemo';
+import { TINYLAND_PULSE_AP_STREAM_DEMO_URL, type PulseApStreamDemoPanelState } from '#lib/pulse/apStreamDemo.js';
 import PulseApStreamDemoPanel from './PulseApStreamDemoPanel.svelte';
 
 const readyState: PulseApStreamDemoPanelState = {

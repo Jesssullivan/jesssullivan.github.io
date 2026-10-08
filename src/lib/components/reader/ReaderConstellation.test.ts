@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
-import type { Post } from '$lib/posts';
-import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+import type { Post } from '#lib/posts.js';
+import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
 import ReaderConstellation from './ReaderConstellation.svelte';
 
 const post: Post = {

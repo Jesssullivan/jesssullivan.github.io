@@ -1,5 +1,5 @@
 <script>
-	import InlineDisclosure from '$lib/components/InlineDisclosure.svelte';
+	import InlineDisclosure from '#lib/components/InlineDisclosure.svelte';
 </script>
 
 <InlineDisclosure label="Show the reviewed body" defaultOpen={false}>

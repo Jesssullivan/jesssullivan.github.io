@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Post } from '$lib/types';
+	import type { Post } from '#lib/types.js';
 	import { onMount } from 'svelte';
-	import { loadFlexSearch, searchFlexSearch, type SearchResult } from '$lib/search';
+	import { loadFlexSearch, searchFlexSearch, type SearchResult } from '#lib/search.js';
 
 	let {
 		recentPosts = [],

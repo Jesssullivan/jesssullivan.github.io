@@ -1,6 +1,6 @@
 import type { PageLoad, EntryGenerator } from './$types';
 import { error } from '@sveltejs/kit';
-import { publishedPostLoaders } from '$lib/data/blog-post-loaders.generated';
+import { publishedPostLoaders } from '#lib/data/blog-post-loaders.generated.js';
 import searchIndexData from '../../../../static/search-index.json';
 import publicationHoldsData from '../../../../static/blog-publication-holds.json';
 

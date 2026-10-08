@@ -1,5 +1,5 @@
-import { getPosts } from '$lib/posts';
-import { getRawPostContent } from '$lib/feed-utils';
+import { getPosts } from '#lib/posts.js';
+import { getRawPostContent } from '#lib/feed-utils.js';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;

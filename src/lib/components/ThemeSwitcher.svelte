@@ -3,7 +3,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import { Popover, Portal } from '@skeletonlabs/skeleton-svelte';
-	import { theme, THEMES } from '$lib/theme.svelte';
+	import { theme, THEMES } from '#lib/theme.svelte.js';
 
 	const NUDGE_STORAGE_KEY = 'theme-switcher-nudge-last-shown';
 	const NUDGE_DELAY_MS = 3000;

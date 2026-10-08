@@ -149,5 +149,5 @@ export function renderReviewedComponentsForRuntime(markdown: string): string {
 export function reviewedComponentImportBlock(imports: readonly string[]): string {
 	if (imports.length === 0) return '';
 	if (imports.some((name) => name !== 'InlineDisclosure')) fail('compiler received an unknown component import');
-	return `<script>\nimport InlineDisclosure from '$lib/components/InlineDisclosure.svelte';\n</script>\n\n`;
+	return `<script>\nimport InlineDisclosure from '#lib/components/InlineDisclosure.svelte';\n</script>\n\n`;
 }

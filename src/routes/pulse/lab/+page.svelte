@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { composeEvent, summarizeReadiness, type LabComposeForm, type LabFormKind } from '$lib/pulse/lab/compose';
-	import PulseActivityPubQueue from '$lib/components/pulse/PulseActivityPubQueue.svelte';
-	import PulseLabDecisionRow from '$lib/components/pulse/PulseLabDecisionRow.svelte';
+	import { composeEvent, summarizeReadiness, type LabComposeForm, type LabFormKind } from '#lib/pulse/lab/compose.js';
+	import PulseActivityPubQueue from '#lib/components/pulse/PulseActivityPubQueue.svelte';
+	import PulseLabDecisionRow from '#lib/components/pulse/PulseLabDecisionRow.svelte';
 	import { applyPolicyToEvent, type PolicyDecision } from '@blog/pulse-core/policy';
 	import type { PulseEvent, Visibility, LocationPrecision } from '@blog/pulse-core/schema';
 	import { publishPublicPulseItemsToActivityPubDemo, type ActivityPubDemoDenial } from '@blog/pulse-core/publisher';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
 	import PulseNoteCard from './PulseNoteCard.svelte';
 	import PulseBirdCard from './PulseBirdCard.svelte';
 

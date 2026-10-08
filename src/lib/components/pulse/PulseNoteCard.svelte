@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { hasLeadImage, type PublicPulseItemAny } from '$lib/pulse/snapshot';
+	import { hasLeadImage, type PublicPulseItemAny } from '#lib/pulse/snapshot.js';
 
 	let { item }: { item: PublicPulseItemAny } = $props();
 

@@ -1,4 +1,3 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 // Liveness/readiness probe for the node-backend shadow (Containerfile.node ->
@@ -7,4 +6,5 @@ import type { RequestHandler } from './$types';
 // the frozen adapter-static artifact and live only under BLOG_ADAPTER=node.
 export const prerender = false;
 
-export const GET: RequestHandler = () => json({ status: 'ok' });
+// SvelteKit 3 deprecates the json() helper in favour of Response.json().
+export const GET: RequestHandler = () => Response.json({ status: 'ok' });

@@ -93,7 +93,7 @@ function copyInputsToBuildRoot() {
 		'package.json',
 		'playwright.bazel.config.ts',
 		'pnpm-lock.yaml',
-		'svelte.config.js',
+		'kit.config.js',
 		'tsconfig.json',
 		'vite.config.ts',
 	]) {

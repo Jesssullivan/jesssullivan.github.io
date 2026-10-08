@@ -17,7 +17,7 @@ describe('Pulse v2 static projection', () => {
 		const root = mkdtempSync(join(tmpdir(), 'jess-pulse-v2-'));
 		roots.push(root);
 		for (const path of ['src', 'static']) cpSync(join(workspaceRoot, path), join(root, path), { recursive: true });
-		for (const file of ['package.json', 'svelte.config.js', 'tsconfig.json', 'vite.config.ts']) cpSync(join(workspaceRoot, file), join(root, file));
+		for (const file of ['package.json', 'kit.config.js', 'tsconfig.json', 'vite.config.ts']) cpSync(join(workspaceRoot, file), join(root, file));
 		symlinkSync(join(workspaceRoot, 'node_modules'), join(root, 'node_modules'), 'dir');
 		writeFileSync(join(root, 'static/data/pulse/public-snapshot.v2.json'), JSON.stringify(reviewedLeadImageSnapshot));
 		execFileSync(process.execPath, [resolve(workspaceRoot, 'node_modules/vite/bin/vite.js'), 'build'], { cwd: root, stdio: 'pipe', env: { ...process.env, MERMAID_PRERENDER: 'optional' } });

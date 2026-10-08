@@ -1,0 +1,51 @@
+# Upstream: https://github.com/sveltejs/kit (package @sveltejs/kit 3.0.1)
+# Files:    packages/kit/src/core/sync/ts.js
+#           packages/kit/src/core/sync/write_tsconfig/index.js
+# Reason:   RU13 (operator ruling 2026-10-08): TypeScript 7.0.2 is the
+#           `typescript` package. TS 7 ships no classic JS API (its entry point
+#           exports only `version`), so `vite build` crashed in load_tsconfig
+#           (`ts.sys` undefined). Fall back to the TypeScript team's
+#           `@typescript/typescript6` API package; write_tsconfig reuses the
+#           shared loader. Upstream-ready copy: patches/upstream/sveltejs-kit.md
+diff --git a/src/core/sync/ts.js b/src/core/sync/ts.js
+index 7f161e6..b33cc95 100644
+--- a/src/core/sync/ts.js
++++ b/src/core/sync/ts.js
+@@ -4,3 +4,15 @@ export let ts = undefined;
+ try {
+ 	ts = (await import('typescript')).default;
+ } catch {}
++
++// TypeScript 7 (the native compiler) ships no classic JavaScript API: the
++// `typescript` entry point exports only `version`. The TypeScript team
++// publishes the TypeScript 6 API as `@typescript/typescript6` for tools that
++// still need it, so fall back to that package when `typescript` lacks the API.
++// Without it, type generation is skipped exactly as if TypeScript were absent.
++if (ts && typeof ts.createSourceFile !== 'function') {
++	ts = undefined;
++	try {
++		ts = (await import('@typescript/typescript6')).default;
++	} catch {}
++}
+diff --git a/src/core/sync/write_tsconfig/index.js b/src/core/sync/write_tsconfig/index.js
+index a543762..7fc8beb 100644
+--- a/src/core/sync/write_tsconfig/index.js
++++ b/src/core/sync/write_tsconfig/index.js
+@@ -14,14 +14,9 @@ import * as e from '../../../messages/build-errors.js';
+ import * as w from '../../../messages/build-warnings.js';
+ import { posixify } from '../../../utils/os.js';
+ import { bullet_list } from '../../../utils/format.js';
+-
+-/** @type {typeof import('typescript')} */
+-let ts;
+-try {
+-	ts = await import('typescript');
+-} catch {
+-	// The user has not installed TypeScript.
+-}
++// Shared loader: `undefined` when TypeScript (or, for TypeScript 7, its
++// `@typescript/typescript6` API companion) is not installed.
++import { ts } from '../ts.js';
+ 
+ /**
+  * Generates the tsconfig that the user's tsconfig inherits from.

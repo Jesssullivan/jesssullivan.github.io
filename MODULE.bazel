@@ -38,6 +38,15 @@ bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)
 # prepare hook's PINNED_INTEGRITY in lockstep.
 bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.7")
 
+# RU9 (U4 2026-10-08): in-house packages reach the Bazel graph only through
+# their registry modules. npm_replace_package (below) swaps the npm-graph copy
+# of each house package for the module's hermetically built `pkg`, so every
+# rules_js-linked node_modules tree in this repo links the registry module.
+# The npm rail (package-lock, production `npm ci && npm run build`) keeps its
+# specifiers until the exact-SHA production lanes move onto Bazel
+# materialization (separate, operator-gated production-path change).
+bazel_dep(name = "tummycrypt_vite_plugin_a11y", version = "0.3.0")
+
 git_override(
     module_name = "spear_resumes",
     remote = "git@github.com:Jesssullivan/spear-resumes.git",
@@ -45,7 +54,8 @@ git_override(
 )
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
-node.toolchain(node_version = "22.13.1")
+# SvelteKit 3 requires Node >= 22.17.
+node.toolchain(node_version = "22.22.0")
 
 pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
 pnpm.pnpm(
@@ -55,6 +65,14 @@ pnpm.pnpm(
 use_repo(pnpm, "pnpm")
 
 npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_replace_package(
+    package = "@tummycrypt/tinyvectors@https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.7.tar.gz",
+    replacement = "@tummycrypt_tinyvectors//:pkg",
+)
+npm.npm_replace_package(
+    package = "@tummycrypt/vite-plugin-a11y@0.2.2",
+    replacement = "@tummycrypt_vite_plugin_a11y//:pkg",
+)
 npm.npm_translate_lock(
     name = "jesssullivan_github_io_npm",
     data = [
@@ -62,6 +80,9 @@ npm.npm_translate_lock(
         "//packages/blog-agent:package.json",
         "//packages/pulse-client:package.json",
         "//packages/pulse-core:package.json",
+        # pnpm patchedDependencies (RU13: TypeScript 7.0.2 as `typescript`).
+        "//:patches/@sveltejs__kit@3.0.1.patch",
+        "//:patches/svelte-check@4.7.6.patch",
     ],
     lifecycle_hooks_envs = {
         "playwright": [

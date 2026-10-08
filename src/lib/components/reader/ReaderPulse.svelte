@@ -1,6 +1,6 @@
 <script lang="ts">
-	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	import PulseFeed from '#lib/components/pulse/PulseFeed.svelte';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
 
 	let { snapshot }: { snapshot: PublicPulseSnapshotAny } = $props();
 </script>

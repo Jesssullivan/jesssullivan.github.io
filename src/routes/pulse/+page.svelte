@@ -1,11 +1,11 @@
 <script lang="ts">
-	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
+	import PulseFeed from '#lib/components/pulse/PulseFeed.svelte';
 	import {
 		TINYLAND_PULSE_PUBLIC_SNAPSHOT_URL,
 		loadPulsePublicBrokerSnapshot,
 		summarizePulseSnapshotError,
-	} from '$lib/pulse/load';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	} from '#lib/pulse/load.js';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
 	import { onMount } from 'svelte';
 
 	let { data }: { data: { snapshot: PublicPulseSnapshotAny } } = $props();

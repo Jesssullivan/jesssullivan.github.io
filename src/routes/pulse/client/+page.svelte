@@ -1,6 +1,6 @@
 <script lang="ts">
-	import PulseActivityPubQueue from '$lib/components/pulse/PulseActivityPubQueue.svelte';
-	import PulseClientOutbox from '$lib/components/pulse/PulseClientOutbox.svelte';
+	import PulseActivityPubQueue from '#lib/components/pulse/PulseActivityPubQueue.svelte';
+	import PulseClientOutbox from '#lib/components/pulse/PulseClientOutbox.svelte';
 	import {
 		draftPreviewToOutboxItem,
 		evaluatePulseClientDraft,
@@ -12,18 +12,18 @@
 		type PulseClientDraftKind,
 		type PulseClientNoteDraft,
 		type PulseClientOutboxItem,
-	} from '$lib/pulse/client/drafts';
+	} from '#lib/pulse/client/drafts.js';
 	import {
 		createBrowserPulseClientStorageAdapter,
 		createPulseClientPersistedState,
 		type PulseClientFormState,
 		type PulseClientStorageAdapter,
-	} from '$lib/pulse/client/storage';
+	} from '#lib/pulse/client/storage.js';
 	import {
 		PULSE_CLIENT_DEFAULT_IDENTITY,
 		createPulseClientIdentity,
 		type PulseClientIdentity,
-	} from '$lib/pulse/client/identity';
+	} from '#lib/pulse/client/identity.js';
 	import {
 		PULSE_CLIENT_DEFAULT_MEDIA_INTENT,
 		PULSE_CLIENT_MEDIA_LIFECYCLES,
@@ -32,7 +32,7 @@
 		mediaLifecycleLabel,
 		type PulseClientMediaIntent,
 		type PulseClientMediaLifecycle,
-	} from '$lib/pulse/client/media';
+	} from '#lib/pulse/client/media.js';
 	import { createBroker, seededIdGenerator, tickingClock } from '@blog/pulse-core/broker';
 	import type { ActivityPubDemoPublishResult } from '@blog/pulse-core/publisher';
 	import type { LocationPrecision, Visibility } from '@blog/pulse-core/schema';

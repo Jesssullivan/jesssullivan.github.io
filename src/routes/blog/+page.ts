@@ -1,4 +1,4 @@
-import { getPosts } from '$lib/posts';
+import { getPosts } from '#lib/posts.js';
 import type { PageLoad } from './$types';
 import publicationHoldsData from '../../../static/blog-publication-holds.json';
 

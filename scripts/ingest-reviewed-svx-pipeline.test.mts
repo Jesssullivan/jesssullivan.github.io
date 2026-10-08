@@ -38,7 +38,7 @@ describe('reviewed SVX static projection pipeline', () => {
 		// exact static route/build path without becoming repository content.
 		cpSync(join(workspaceRoot, 'src'), join(root, 'src'), { recursive: true });
 		cpSync(join(workspaceRoot, 'static'), join(root, 'static'), { recursive: true });
-		for (const file of ['package.json', 'svelte.config.js', 'tsconfig.json', 'vite.config.ts']) {
+		for (const file of ['package.json', 'kit.config.js', 'tsconfig.json', 'vite.config.ts']) {
 			cpSync(join(workspaceRoot, file), join(root, file));
 		}
 		symlinkSync(join(workspaceRoot, 'node_modules'), join(root, 'node_modules'), 'dir');
@@ -94,7 +94,7 @@ describe('reviewed SVX static projection pipeline', () => {
 		const post = readFileSync(join(root, 'src/posts/2026-09-22-reviewed-svx-pipeline-fixture.svx'), 'utf8');
 		const index = readFileSync(join(root, 'static/search-index.json'), 'utf8');
 		const loaders = readFileSync(join(root, 'src/lib/data/blog-post-loaders.generated.ts'), 'utf8');
-		expect(post).toContain("import InlineDisclosure from '$lib/components/InlineDisclosure.svelte';");
+		expect(post).toContain("import InlineDisclosure from '#lib/components/InlineDisclosure.svelte';");
 		expect(post).toContain('The full reviewed body reaches the static article.');
 		expect(index).toContain('reviewed-svx-pipeline-fixture');
 		expect(index).toContain('/src/posts/2026-09-22-reviewed-svx-pipeline-fixture.svx');

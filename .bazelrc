@@ -1,5 +1,10 @@
 common --enable_bzlmod
-common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main
+# RU9 (U4 2026-10-08): pin the Tinyland registry to an exact xoxd-ai commit
+# (the canonical home of the former tinyland-inc/bazel-registry), matching the
+# site.scaffold reference wiring. dab44fc carries tummycrypt_vite_plugin_a11y
+# 0.3.0 and tummycrypt_tinyvectors 0.3.7. Re-pin deliberately and regenerate
+# MODULE.bazel.lock in the same commit (CI runs --lockfile_mode=error).
+common --registry=https://raw.githubusercontent.com/xoxd-ai/bazel-registry/dab44fca60ec30df422ebc4523c45b376fadd3dd
 common --registry=https://bcr.bazel.build
 common --experimental_repository_downloader_retries=5
 common --http_timeout_scaling=2.0

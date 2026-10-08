@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ThemedImage from '$lib/components/ThemedImage.svelte';
+	import ThemedImage from '#lib/components/ThemedImage.svelte';
 	import {
 		profile,
 		profileAsset,
@@ -10,7 +10,7 @@
 		projectGroups,
 		currentRole,
 		personSameAs,
-	} from '$lib/data/profile';
+	} from '#lib/data/profile.js';
 
 	let { data }: { data: PageData } = $props();
 

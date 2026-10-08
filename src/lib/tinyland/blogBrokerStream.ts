@@ -4,7 +4,7 @@ import {
 	type Post,
 	type PostCategory,
 	type PostEditorialTier,
-} from '$lib/types';
+} from '#lib/types.js';
 import { validateReviewedComponentMarkdown } from './reviewedComponents';
 
 export const TINYLAND_BLOG_BROKER_STREAM_URL =

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Post } from '$lib/posts';
+import type { Post } from '#lib/posts.js';
 import { createHomeReaderCollection } from './homeProjection';
 
 const staticPost: Post = {

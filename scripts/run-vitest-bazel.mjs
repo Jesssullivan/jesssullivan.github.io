@@ -52,7 +52,7 @@ function copyInputsToBuildRoot() {
 		'package.json',
 		'pnpm-lock.yaml',
 		'pnpm-workspace.yaml',
-		'svelte.config.js',
+		'kit.config.js',
 		'tsconfig.json',
 		'vite.config.ts',
 		'vitest.bazel.config.ts',
