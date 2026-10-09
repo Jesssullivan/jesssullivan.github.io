@@ -7,6 +7,7 @@ export default defineConfig({
 	test: {
 		include: [
 			'src/**/*.test.ts',
+			'scripts/apply-dependency-patches.test.mts',
 			'scripts/gf-reapi-bazel-credential-helper.test.mts',
 			'scripts/wayback-utils.test.mts',
 			'packages/pulse-core/test/**/*.test.ts',

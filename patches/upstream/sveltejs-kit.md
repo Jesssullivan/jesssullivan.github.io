@@ -4,7 +4,12 @@ For the operator to file upstream (RU13: we never open PRs or issues on reposito
 
 - Repository: https://github.com/sveltejs/kit
 - Package and version patched locally: `@sveltejs/kit@3.0.1` (`patches/@sveltejs__kit@3.0.1.patch`)
-- Files: `packages/kit/src/core/sync/ts.js`, `packages/kit/src/core/sync/write_tsconfig/index.js`
+- Files: `packages/kit/src/core/sync/ts.js`, `packages/kit/src/core/sync/write_tsconfig/index.js`,
+  `packages/kit/src/core/sync/write_types/index.js`
+- Source of the patch: the shared RU13 set in xoxd-ai/site.scaffold (U1, PR #225 at 7a31cce), copied verbatim.
+  The upstream-ready diff against the kit monorepo is `sveltejs-kit-sync-typescript7.diff` in this directory.
+  Beyond the companion fallback described below, it adds `ts_installed`, so `$types` still generate when
+  TypeScript 7 is installed without the companion (the load-function proxies and tsconfig validation are skipped).
 
 ## Problem
 

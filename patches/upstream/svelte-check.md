@@ -90,3 +90,12 @@ The bundle hunk in `patches/svelte-check@4.7.6.patch` shows the loader's intende
 The default (non-`--tsgo`) svelte-check mode type-checks through the TypeScript 6 language
 service. On a TypeScript 7 project it would check with TypeScript 6 semantics, so this estate
 runs only `svelte-check --tsgo`.
+
+## Also carried: stale emit directory under `--tsgo` (adopted from site.scaffold#225, U1)
+
+`svelte-check --tsgo` without `--incremental` starts from an empty manifest but never cleared
+its emit directory, and every file there is part of the overlay program, so the svelte2tsx
+output of a deleted `.svelte` file kept being type-checked. The third hunk of
+`patches/svelte-check@4.7.6.patch` starts from an empty directory when there are no manifest
+entries to prune from. Upstream-ready diff against `packages/svelte-check/src/incremental.ts`:
+`patches/upstream/sveltejs-language-tools-svelte-check-tsgo-stale-emit.diff` (verbatim from U1).

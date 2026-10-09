@@ -53,6 +53,17 @@ git_override(
     commit = "d7e854da67bf95652fc91c326708bb087430979b",
 )
 
+# The registry yanked dsa_study_packet 0.1.0 (its source archive omits the
+# generated booklet.tex), which the pinned spear_resumes commit above still
+# requests; Bazel refuses a yanked version, so the full (private CV) graph
+# could not resolve or update MODULE.bazel.lock. spear-resumes main already
+# depends on 0.2.0; the root module selects 0.2.0 here without moving the CV
+# pin. The public graph (--ignore_dev_dependency) does not contain it.
+single_version_override(
+    module_name = "dsa_study_packet",
+    version = "0.2.0",
+)
+
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 # SvelteKit 3 requires Node >= 22.17.
 node.toolchain(node_version = "22.22.0")

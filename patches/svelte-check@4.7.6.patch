@@ -1,13 +1,24 @@
 # Upstream: https://github.com/sveltejs/language-tools (package svelte-check 4.7.6)
 # Files:    packages/svelte-check/bin/ts-version-check.js
 #           packages/svelte-check/dist/src/index.js (bundle; sources listed in
-#           patches/upstream/svelte-check.md)
+#           patches/upstream/svelte-check.md: src/tsgo.ts, src/incremental.ts
+#           and the shared `typescript` import)
 # Reason:   RU13 (operator ruling 2026-10-08): TypeScript 7.0.2 is the
-#           `typescript` package. svelte-check refused to start on TS 7 unless
-#           TS 6 was the `typescript` package. With this patch it accepts TS 7
-#           when `@typescript/typescript6` provides the classic API for
-#           svelte2tsx, and --tsgo finds TS 7 as `typescript` itself (no npm
-#           alias). Type checking runs on TS 7 via `svelte-check --tsgo`.
+#           `typescript` package.
+#           1. svelte-check refused to start on TS 7 unless TS 6 was the
+#              `typescript` package. It now accepts TS 7 when
+#              `@typescript/typescript6` provides the classic API, and loads
+#              that companion inside the bundle for svelte2tsx. The blog's
+#              production rail is `npm ci`, which cannot run a .pnpmfile.cjs
+#              peer redirect, so the redirect lives in the bundle.
+#           2. --tsgo finds TS 7 as `typescript` itself (no npm alias). Same
+#              hunk as site.scaffold#225 (U1).
+#           3. --tsgo without --incremental never cleared its emit directory,
+#              so the svelte2tsx output of a deleted .svelte file kept being
+#              type-checked (phantom errors). Adopted verbatim from U1's
+#              patch (found by the U4 xoxd.ai lane).
+# Upstream-ready diffs: patches/upstream/svelte-check.md and
+#   patches/upstream/sveltejs-language-tools-svelte-check-tsgo-stale-emit.diff
 diff --git a/bin/ts-version-check.js b/bin/ts-version-check.js
 index bf0dd7c..623bc0b 100644
 --- a/bin/ts-version-check.js
@@ -39,7 +50,7 @@ index bf0dd7c..623bc0b 100644
 +    }
 +}
 diff --git a/dist/src/index.js b/dist/src/index.js
-index 8eec917..e1b4718 100644
+index 8eec917..1914fa9 100644
 --- a/dist/src/index.js
 +++ b/dist/src/index.js
 @@ -11,7 +11,17 @@ var require$$4 = require('net');
@@ -72,3 +83,21 @@ index 8eec917..e1b4718 100644
      if (pkg &&
          (pkg.pkgJsonName === 'typescript' || pkg.pkgJsonName === '@typescript/native-preview') &&
          pkg.major >= 7) {
+@@ -129219,10 +129231,16 @@ async function emitSvelteFiles(workspacePath, filePathsToIgnore, incremental, co
+     const cacheDir = getCacheDir(workspacePath);
+     const emitDir = path__namespace.join(cacheDir, EMIT_SUBDIR);
+     const manifestPath = path__namespace.join(cacheDir, 'manifest.json');
+-    fs__namespace.mkdirSync(emitDir, { recursive: true });
+     const manifest = incremental
+         ? loadManifest(manifestPath, workspacePath)
+         : { version: MANIFEST_VERSION, entries: {} };
++    // With no manifest entries nothing can prune the outputs of deleted
++    // sources, and every file in emitDir is part of the overlay program, so
++    // start from an empty directory.
++    if (Object.keys(manifest.entries).length === 0) {
++        fs__namespace.rmSync(emitDir, { recursive: true, force: true });
++    }
++    fs__namespace.mkdirSync(emitDir, { recursive: true });
+     const kitFilesSettings = await loadKitFilesSettings(workspacePath, config);
+     const isJsOrTsFile = (filePath) => filePath.endsWith('.ts') || filePath.endsWith('.js');
+     const allRelevantFiles = await findFiles(workspacePath, filePathsToIgnore, (filePath) => filePath.endsWith('.svelte') ||

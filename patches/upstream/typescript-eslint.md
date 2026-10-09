@@ -27,3 +27,12 @@ change.
 Load the TypeScript API through one module that prefers `typescript` when it has the classic API
 and otherwise uses `@typescript/typescript6`. Widen the peer to include `^7` with the companion as
 an optional peer. svelte-check already has the same need (see svelte-check.md).
+
+## Config loading: jiti bypasses the hook
+
+ESLint 9 loads `eslint.config.ts` through jiti by default. jiti evaluates the modules it imports
+with its own resolver, so the hook above never runs for `typescript-eslint` reached from a TS
+config. Linting then fails with "typescript-eslint does not support TS 7.0". `npm run lint`
+therefore also passes `--flag unstable_native_nodejs_ts_config`, which has ESLint import the
+config natively. Node 22.18 and later strip types by default, and native imports go through the
+resolve hook. Renaming the config to `eslint.config.js` would work as well.

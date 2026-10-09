@@ -48,6 +48,11 @@ COPY packages/ ./packages/
 # npm install and builds the registry-pinned tinyvectors dist — the script
 # must be present before the install layer.
 COPY scripts/build-tinyvectors.mjs ./scripts/build-tinyvectors.mjs
+# The root `postinstall` hook (scripts/apply-dependency-patches.mjs) applies
+# patches/ (RU13: SvelteKit 3 and svelte-check on TypeScript 7) in pure Node,
+# so both must be present before the install layer too.
+COPY scripts/apply-dependency-patches.mjs ./scripts/apply-dependency-patches.mjs
+COPY patches ./patches
 
 # The source image uses the same committed package-lock authority as CI.
 # Lock drift is a build failure, not permission to resolve newer transitives.

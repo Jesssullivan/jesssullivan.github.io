@@ -1,20 +1,7 @@
-# Upstream: https://github.com/sveltejs/kit (packages/kit), tag @sveltejs/kit@3.0.1
-# Files:    src/core/sync/ts.js, src/core/sync/write_tsconfig/index.js,
-#           src/core/sync/write_types/index.js
-# Reason:   RU13 (TypeScript 7.0.2 as `typescript`). TS 7 ships no in-process
-#           compiler API (`require('typescript')` is only { version,
-#           versionMajorMinor }), so `svelte-kit sync` crashed in
-#           write_tsconfig (`ts.sys.readFile` undefined). Kit now loads the
-#           API from `typescript` when present, else from Microsoft's
-#           `@typescript/typescript6` companion; `$types` generation needs only
-#           an installed `typescript`, and the API-only steps (load-function
-#           proxies, tsconfig validation) skip cleanly when no API exists.
-# Upstream-ready diff: patches/upstream/sveltejs-kit-sync-typescript7.diff
-# Remove when Kit supports TypeScript 7 natively.
-diff --git a/src/core/sync/ts.js b/src/core/sync/ts.js
+diff --git a/packages/kit/src/core/sync/ts.js b/packages/kit/src/core/sync/ts.js
 index 7f161e6..90b9759 100644
---- a/src/core/sync/ts.js
-+++ b/src/core/sync/ts.js
+--- a/packages/kit/src/core/sync/ts.js
++++ b/packages/kit/src/core/sync/ts.js
 @@ -1,6 +1,24 @@
  /** @type {typeof import('typescript')} */
  // @ts-ignore
@@ -41,10 +28,10 @@ index 7f161e6..90b9759 100644
 +		ts = (await import('@typescript/typescript6')).default;
 +	} catch {}
 +}
-diff --git a/src/core/sync/write_tsconfig/index.js b/src/core/sync/write_tsconfig/index.js
+diff --git a/packages/kit/src/core/sync/write_tsconfig/index.js b/packages/kit/src/core/sync/write_tsconfig/index.js
 index a543762..802ea8c 100644
---- a/src/core/sync/write_tsconfig/index.js
-+++ b/src/core/sync/write_tsconfig/index.js
+--- a/packages/kit/src/core/sync/write_tsconfig/index.js
++++ b/packages/kit/src/core/sync/write_tsconfig/index.js
 @@ -14,14 +14,9 @@ import * as e from '../../../messages/build-errors.js';
  import * as w from '../../../messages/build-warnings.js';
  import { posixify } from '../../../utils/os.js';
@@ -72,10 +59,10 @@ index a543762..802ea8c 100644
  		return;
  	}
  
-diff --git a/src/core/sync/write_types/index.js b/src/core/sync/write_types/index.js
+diff --git a/packages/kit/src/core/sync/write_types/index.js b/packages/kit/src/core/sync/write_types/index.js
 index a542b76..78010dc 100644
---- a/src/core/sync/write_types/index.js
-+++ b/src/core/sync/write_types/index.js
+--- a/packages/kit/src/core/sync/write_types/index.js
++++ b/packages/kit/src/core/sync/write_types/index.js
 @@ -4,7 +4,7 @@ import MagicString from 'magic-string';
  import { walk, resolve_entry } from '../../../utils/filesystem.js';
  import { compact } from '../../../utils/array.js';
