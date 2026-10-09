@@ -2,7 +2,6 @@
 import {
 	accessSync,
 	constants,
-	cpSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
@@ -17,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { configureChromiumFontconfig } from './chromium-fontconfig.mjs';
+import { copyTreeDereferenced } from './lib/copy-tree.mjs';
 
 const workspaceRoot = process.cwd();
 const artifactMode = process.argv[2] === '--production-artifact';
@@ -107,13 +107,7 @@ function copyPath(source, destination) {
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
-	cpSync(source, destination, {
-		dereference: true,
-		errorOnExist: false,
-		force: true,
-		preserveTimestamps: false,
-		recursive: true,
-	});
+	copyTreeDereferenced(source, destination);
 }
 
 function linkNodeModules() {

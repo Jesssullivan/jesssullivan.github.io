@@ -17,5 +17,10 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "app.ts", "agentuity.config.ts"],
-  "exclude": ["node_modules", "dist", "test"]
+  // src/generated/app.ts is the Agentuity-generated Bun entry ("DO NOT EDIT", rewritten on
+  // every agentuity build) and nothing here imports it. On TypeScript 7 its HMR proxy fails
+  // TS2345: lib.dom narrows BufferSource to ArrayBuffer-backed views, so viteWs.send(Buffer)
+  // no longer type-checks. Agentuity bundles it with Bun, not tsc; the fix belongs in its
+  // codegen. Every other generated file and all package sources stay type-checked.
+  "exclude": ["node_modules", "dist", "test", "src/generated/app.ts"]
 }

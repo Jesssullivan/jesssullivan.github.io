@@ -2,7 +2,6 @@
 import {
 	accessSync,
 	constants,
-	cpSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
@@ -15,6 +14,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { copyTreeDereferenced } from './lib/copy-tree.mjs';
 
 const workspaceRoot = process.cwd();
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-check-'));
@@ -69,13 +69,7 @@ function copyPath(source, destination) {
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
-	cpSync(source, destination, {
-		dereference: true,
-		errorOnExist: false,
-		force: true,
-		preserveTimestamps: false,
-		recursive: true,
-	});
+	copyTreeDereferenced(source, destination);
 }
 
 function linkNodeModules() {

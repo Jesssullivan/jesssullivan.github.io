@@ -156,6 +156,7 @@ js_binary(
     data = [
         ":node_modules",
         "scripts/run-vitest-bazel.mjs",
+        "scripts/lib/copy-tree.mjs",
     ],
     entry_point = "scripts/run-vitest-bazel.mjs",
 )
@@ -189,6 +190,7 @@ js_test(
         ":node_modules",
         "//packages/blog-agent:node_modules",
         "scripts/run-blog-agent-tests-bazel.mjs",
+        "scripts/lib/copy-tree.mjs",
     ],
     entry_point = "scripts/run-blog-agent-tests-bazel.mjs",
     patch_node_fs = False,
@@ -211,6 +213,7 @@ js_test(
         "//packages/pulse-client:node_modules",
         "//packages/pulse-core:node_modules",
         "scripts/run-package-checks-bazel.mjs",
+        "scripts/lib/copy-tree.mjs",
     ],
     entry_point = "scripts/run-package-checks-bazel.mjs",
     patch_node_fs = False,

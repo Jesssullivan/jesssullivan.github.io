@@ -42,5 +42,6 @@ describe('Pulse v2 static projection', () => {
 			expect(await page.getByText('The full public note remains readable before JavaScript.').isVisible()).toBe(true);
 			await context.close();
 		} finally { await browser.close(); await new Promise<void>((done) => server.close(() => done())); }
-	}, 90_000);
+		// A full `vite build` runs inside this test; 90 s was too short on a loaded host.
+	}, 600_000);
 });

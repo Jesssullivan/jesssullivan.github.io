@@ -9,6 +9,15 @@ import { chromium } from '@playwright/test';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const workspaceRoot = process.cwd();
+const contentTypes: Record<string, string> = {
+	'.html': 'text/html; charset=utf-8',
+	'.js': 'text/javascript; charset=utf-8',
+	'.css': 'text/css; charset=utf-8',
+	'.json': 'application/json',
+	'.svg': 'image/svg+xml',
+};
+// Hydration can take seconds on a loaded host; vitest's default poll window is 1 s.
+const hydrated = { timeout: 30_000 };
 const ingestScript = resolve(workspaceRoot, 'scripts/ingest-tinyland-posts.mts');
 const searchIndexScript = resolve(workspaceRoot, 'scripts/generate-search-index.mts');
 const viteBinary = resolve(workspaceRoot, 'node_modules/vite/bin/vite.js');
@@ -120,7 +129,12 @@ describe('reviewed SVX static projection pipeline', () => {
 				return;
 			}
 			try {
-				response.writeHead(200).end(readFileSync(join(root, 'build', relativePath)));
+				// Chromium refuses module scripts served without a JavaScript MIME type, which would
+				// leave the page unhydrated.
+				const extension = relativePath.slice(relativePath.lastIndexOf('.'));
+				response
+					.writeHead(200, { 'content-type': contentTypes[extension] ?? 'application/octet-stream' })
+					.end(readFileSync(join(root, 'build', relativePath)));
 			} catch {
 				response.writeHead(404).end();
 			}
@@ -145,12 +159,12 @@ describe('reviewed SVX static projection pipeline', () => {
 			await page.goto(url);
 			const trigger = page.getByRole('button', { name: 'Show the reviewed body' });
 			const body = page.getByText('The full reviewed body reaches the static article.');
-			await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('false');
-			await expect.poll(() => body.isVisible()).toBe(false);
+			await expect.poll(() => trigger.getAttribute('aria-expanded'), hydrated).toBe('false');
+			await expect.poll(() => body.isVisible(), hydrated).toBe(false);
 			await trigger.focus();
 			await page.keyboard.press('Enter');
-			await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
-			await expect.poll(() => body.isVisible()).toBe(true);
+			await expect.poll(() => trigger.getAttribute('aria-expanded'), hydrated).toBe('true');
+			await expect.poll(() => body.isVisible(), hydrated).toBe(true);
 		} finally {
 			await browser.close();
 			await new Promise<void>((done) => server.close(() => done()));
