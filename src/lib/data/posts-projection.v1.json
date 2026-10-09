@@ -1,0 +1,1958 @@
+{
+	"schema": "posts-projection.v1",
+	"method": "tfidf-jaccard-exact-tsne-2/ts-port-1",
+	"configuration_sha256": "cf940ce256be672c895daac792a97a2a6228e35dc802c57ba02f7620aa9c73f5",
+	"corpus_sha256": "affcc19d7f8a2c8a888f519b8ed1f758a145f4eb5e4a28e66fd6d8c1ae2f6815",
+	"note": "Positions come from a t-SNE fit over post text and tags. Nearby posts share wording or tags; axes, distances and density are not measurements.",
+	"embedding": {
+		"algorithm": "tsne",
+		"metric": "1 - similarity",
+		"solver": "exact",
+		"seed": 20261006,
+		"perplexity": 15,
+		"iterations": 1000,
+		"initialization": "seeded-random",
+		"learning_rate": 50,
+		"early_exaggeration": 12,
+		"kl_divergence": 0.276709806
+	},
+	"frame": {
+		"mid": [
+			1.919713655,
+			1.704570055
+		],
+		"scale": 0.019750305833
+	},
+	"alignment": {
+		"applied": false,
+		"common": 0,
+		"scale": 1,
+		"reflection": false
+	},
+	"metrics": {
+		"quality_neighbors": 3,
+		"neighbor_overlap": 0.678571,
+		"common_points": 0,
+		"display_displacement_mean": null,
+		"display_displacement_max": null
+	},
+	"posts": [
+		{
+			"slug": "1607",
+			"x": 0.19904,
+			"y": 0.10202
+		},
+		{
+			"slug": "1768",
+			"x": 0.43269,
+			"y": 0.72069
+		},
+		{
+			"slug": "1784",
+			"x": 0.12817,
+			"y": 0.47482
+		},
+		{
+			"slug": "1820",
+			"x": 0.23376,
+			"y": 0.15408
+		},
+		{
+			"slug": "1984",
+			"x": 0.36566,
+			"y": 0.40296
+		},
+		{
+			"slug": "2393",
+			"x": 0.37812,
+			"y": 0.46665
+		},
+		{
+			"slug": "603",
+			"x": 0.41868,
+			"y": 0.29806
+		},
+		{
+			"slug": "840-watts-of-solar-power",
+			"x": 0.26459,
+			"y": 0.43652
+		},
+		{
+			"slug": "a-boilerplate-for-flask-react-typescript-mongodb",
+			"x": 0.22783,
+			"y": 0.20592
+		},
+		{
+			"slug": "accuwix",
+			"x": 0.15081,
+			"y": 0.20815
+		},
+		{
+			"slug": "addendum-to-secret-beach-area-natural-history-class-walk",
+			"x": 0.94716,
+			"y": 0.92265
+		},
+		{
+			"slug": "aperture-tagged-devices-and-the-tsnet-escape-hatch",
+			"x": 0.11821,
+			"y": 0.58933
+		},
+		{
+			"slug": "asynchronous-http-methods-from-typescript",
+			"x": 0.25507,
+			"y": 0.15811
+		},
+		{
+			"slug": "beaver-dam-quincy-bog-1-33017-the-world-has-gone-mad",
+			"x": 0.91715,
+			"y": 0.66278
+		},
+		{
+			"slug": "beta-how-to-build-the-phone-charger",
+			"x": 0.05821,
+			"y": 0.25214
+		},
+		{
+			"slug": "bird-observations-today-langdon-woods",
+			"x": 0.95051,
+			"y": 0.66803
+		},
+		{
+			"slug": "birding-at-plumb-island",
+			"x": 0.82306,
+			"y": 0.55007
+		},
+		{
+			"slug": "birding-beyond-binos-bird-apps-and-the-guide",
+			"x": 0.81201,
+			"y": 0.49341
+		},
+		{
+			"slug": "bits-bobs-mushstools-toadrooms",
+			"x": 0.62488,
+			"y": 0.75989
+		},
+		{
+			"slug": "boutique-everything-when-the-hobby-grows-up",
+			"x": 0.31251,
+			"y": 0.37377
+		},
+		{
+			"slug": "building-electrostatic-earspeakers",
+			"x": 0.62705,
+			"y": 0.17814
+		},
+		{
+			"slug": "chindogu-ascii-art-i-suppose",
+			"x": 0.41092,
+			"y": 0.4538
+		},
+		{
+			"slug": "clearing-canon-5b00-lock-native-key-free-megatank-reset",
+			"x": 0.24805,
+			"y": 0.75221
+		},
+		{
+			"slug": "convert-heic-png",
+			"x": 0.15059,
+			"y": 0.28056
+		},
+		{
+			"slug": "darwin-nic-docs-are-live",
+			"x": 0.10657,
+			"y": 0.60681
+		},
+		{
+			"slug": "datasets-plots-graphs-charts",
+			"x": 0.33511,
+			"y": 0.32623
+		},
+		{
+			"slug": "decentralized-pi-video-monitoring-w-motioneye-batman",
+			"x": 0.09568,
+			"y": 0.45292
+		},
+		{
+			"slug": "deploy-a-shiny-web-app-in-r-using-aws-ec2-red-hat",
+			"x": 0.07992,
+			"y": 0.31913
+		},
+		{
+			"slug": "deploy-shiny-r-apps-along-node-js",
+			"x": 0.07427,
+			"y": 0.26591
+		},
+		{
+			"slug": "develop-limitless-habitual-soithen_soicould_-ethos",
+			"x": 0.33152,
+			"y": 0.37325
+		},
+		{
+			"slug": "diy-electrostatic-amp-options",
+			"x": 0.62716,
+			"y": 0.17034
+		},
+		{
+			"slug": "dm-shields-fusion-360",
+			"x": 0.43621,
+			"y": 0.30062
+		},
+		{
+			"slug": "early-hardware-and-maker-projects",
+			"x": 0.42045,
+			"y": 0.71463
+		},
+		{
+			"slug": "early-morning-guitar-session-ala-laundry",
+			"x": 0.63373,
+			"y": 0.38527
+		},
+		{
+			"slug": "ebpp-my-epic-birding-prediction-project-in-r",
+			"x": 0.83979,
+			"y": 0.54205
+		},
+		{
+			"slug": "evening-metal-9-14-20",
+			"x": 0.61548,
+			"y": 0.40765
+		},
+		{
+			"slug": "ever-tried-to-chrome-remote-ubuntu-xd",
+			"x": 0.14546,
+			"y": 0.52742
+		},
+		{
+			"slug": "example-photo-work",
+			"x": 0.67127,
+			"y": 0.56296
+		},
+		{
+			"slug": "fox-park-14-41017-1-if-by-land-16-if-by-ear",
+			"x": 0.91656,
+			"y": 0.85077
+		},
+		{
+			"slug": "fox-park-15-41217-1-if-by-land-17-if-by-ear",
+			"x": 0.93704,
+			"y": 0.85575
+		},
+		{
+			"slug": "fox-park-16-and-17-41617big-toad-small-vireo-yay",
+			"x": 0.92549,
+			"y": 0.72309
+		},
+		{
+			"slug": "fox-park-18-41917-in-class-roamings",
+			"x": 0.90829,
+			"y": 0.90523
+		},
+		{
+			"slug": "fox-park-to-langdon-morning-birds",
+			"x": 0.93925,
+			"y": 0.88391
+		},
+		{
+			"slug": "from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life",
+			"x": 0.24657,
+			"y": 0.72521
+		},
+		{
+			"slug": "fusion-360-for-3d-printing-w-jess",
+			"x": 0.51146,
+			"y": 0.28542
+		},
+		{
+			"slug": "gallery-of-my-proper-photos-nh-warbler-research",
+			"x": 0.68305,
+			"y": 0.62052
+		},
+		{
+			"slug": "gallery-of-warblers-in-the-hand",
+			"x": 0.68268,
+			"y": 0.60636
+		},
+		{
+			"slug": "gathering-point-data-using-compass-55-on-apple-ios",
+			"x": 0.19148,
+			"y": 0.33402
+		},
+		{
+			"slug": "gdal-for-gis-on-unix-using-a-mac-or-better-linux",
+			"x": 0.23869,
+			"y": 0.22523
+		},
+		{
+			"slug": "gdal-for-r-server-on-ubuntu-kml-spatial-libraries-and-more",
+			"x": 0.06343,
+			"y": 0.32683
+		},
+		{
+			"slug": "gingersnap-cookies",
+			"x": 0.04,
+			"y": 0.14539
+		},
+		{
+			"slug": "github-update-9-12-18-shiny-apps",
+			"x": 0.14725,
+			"y": 0.42699
+		},
+		{
+			"slug": "glue-you-can-see-in-uv",
+			"x": 0.41716,
+			"y": 0.22964
+		},
+		{
+			"slug": "how-to-generate-convex-hull-polygons-and-centroids-from-kml",
+			"x": 0.18313,
+			"y": 0.34984
+		},
+		{
+			"slug": "how-to-make-a-aws-r-server",
+			"x": 0.07542,
+			"y": 0.29631
+		},
+		{
+			"slug": "how-to-query-kml-point-data-as-csv-using-qgis-and-r",
+			"x": 0.19098,
+			"y": 0.30984
+		},
+		{
+			"slug": "hunting-for-trees-birds",
+			"x": 0.93851,
+			"y": 0.69082
+		},
+		{
+			"slug": "i-wrote-a-mutual-aid-mental-health-service",
+			"x": 0.24382,
+			"y": 0.07639
+		},
+		{
+			"slug": "install-adobe-applications-on-aws-workspaces",
+			"x": 0.13287,
+			"y": 0.3229
+		},
+		{
+			"slug": "installing-chapel-language-on-mac-and-linux",
+			"x": 0.25282,
+			"y": 0.21184
+		},
+		{
+			"slug": "intro-to-the-aws-cloud-9-ide",
+			"x": 0.10347,
+			"y": 0.3514
+		},
+		{
+			"slug": "kvm-does-fruit-xcode-from-qemu",
+			"x": 0.15144,
+			"y": 0.52199
+		},
+		{
+			"slug": "langdon-woods-with-kurt-plants",
+			"x": 0.9168,
+			"y": 0.95961
+		},
+		{
+			"slug": "lets-write-a-simple-efficient-and-fast-flask-based-image-server-in-an-afternoon",
+			"x": 0.24877,
+			"y": 0.14093
+		},
+		{
+			"slug": "ligature-test-fixture",
+			"x": 0.50731,
+			"y": 0.25597
+		},
+		{
+			"slug": "makerspace-financial-reporting-w-ipython",
+			"x": 0.169,
+			"y": 0.13833
+		},
+		{
+			"slug": "mega-langdon",
+			"x": 0.88456,
+			"y": 0.95589
+		},
+		{
+			"slug": "morning-metal-4-22-21",
+			"x": 0.61593,
+			"y": 0.39351
+		},
+		{
+			"slug": "mpcnc-it-moves",
+			"x": 0.47258,
+			"y": 0.29825
+		},
+		{
+			"slug": "music-sketches-1-playing-with-rhythm-division-and-jazzy-chords",
+			"x": 0.69624,
+			"y": 0.35235
+		},
+		{
+			"slug": "music-sketches-2-rethinking-funtwos-guitar-tone-discipline",
+			"x": 0.69723,
+			"y": 0.35505
+		},
+		{
+			"slug": "naive-shenanigans-measuring-distance-to-roi-w-opencv",
+			"x": 0.20606,
+			"y": 0.09437
+		},
+		{
+			"slug": "new-app-kml-search-and-convert",
+			"x": 0.17327,
+			"y": 0.17422
+		},
+		{
+			"slug": "new-business-site-up-and-running",
+			"x": 0.43315,
+			"y": 0.4709
+		},
+		{
+			"slug": "new-photopromotional-media-business-pages-in-the-works",
+			"x": 0.64698,
+			"y": 0.57169
+		},
+		{
+			"slug": "notes-on-a-free-and-open-source-notes-app-joplin",
+			"x": 0.28325,
+			"y": 0.16811
+		},
+		{
+			"slug": "oes",
+			"x": 0.61606,
+			"y": 0.75467
+		},
+		{
+			"slug": "off-grid-file-sharing-with-samba-gl-inet",
+			"x": 0.06806,
+			"y": 0.4726
+		},
+		{
+			"slug": "open-source-collaboration-and-higher-education",
+			"x": 0.27239,
+			"y": 0.08209
+		},
+		{
+			"slug": "opportunistic-birding-14122016",
+			"x": 0.93004,
+			"y": 0.60642
+		},
+		{
+			"slug": "osselc-monday",
+			"x": 0.43007,
+			"y": 0.45212
+		},
+		{
+			"slug": "pages-fresh-from-the-book",
+			"x": 0.63984,
+			"y": 0.41258
+		},
+		{
+			"slug": "parking-lotsit-spot-fox-park-10-33117-whoos-clues",
+			"x": 0.87759,
+			"y": 0.85578
+		},
+		{
+			"slug": "parking-lotsit-spot-fox-park-12-4317-owling-2-hours-before-sunrise",
+			"x": 0.85857,
+			"y": 0.85617
+		},
+		{
+			"slug": "persistent-live-ubuntu-for-college",
+			"x": 0.05658,
+			"y": 0.49369
+		},
+		{
+			"slug": "ppe-me",
+			"x": 0.4537,
+			"y": 0.68159
+		},
+		{
+			"slug": "pre-dawn-fox-park-lot-walk-birding-by-ear",
+			"x": 0.9163,
+			"y": 0.87353
+		},
+		{
+			"slug": "prius-printers",
+			"x": 0.42975,
+			"y": 0.28294
+		},
+		{
+			"slug": "pt-1-reflecting-on-stunt-culture-theories-and-frisbee",
+			"x": 0.48318,
+			"y": 0.56336
+		},
+		{
+			"slug": "pt-2-reflecting-on-stunt-culture-scooters",
+			"x": 0.4846,
+			"y": 0.56426
+		},
+		{
+			"slug": "purple-prius-parts",
+			"x": 0.4605,
+			"y": 0.22224
+		},
+		{
+			"slug": "qemu-for-raspian-arm",
+			"x": 0.10276,
+			"y": 0.46401
+		},
+		{
+			"slug": "querying-kml-data-with-qgis-and-r",
+			"x": 0.37576,
+			"y": 0.04508
+		},
+		{
+			"slug": "quick-fix-254-character-limit-in-esri-story-map",
+			"x": 0.16332,
+			"y": 0.28671
+		},
+		{
+			"slug": "recycled-personal-cloud-computing-under-nat",
+			"x": 0.07816,
+			"y": 0.41559
+		},
+		{
+			"slug": "reproducible-host-probes-nix-chapel-dhall",
+			"x": 0.27923,
+			"y": 0.56202
+		},
+		{
+			"slug": "required-custom-tools",
+			"x": 0.59028,
+			"y": 0.195
+		},
+		{
+			"slug": "research-year-two-three-photos",
+			"x": 0.71813,
+			"y": 0.58231
+		},
+		{
+			"slug": "rugby-morning-2",
+			"x": 0.96,
+			"y": 0.70878
+		},
+		{
+			"slug": "rugby-morning-3-6",
+			"x": 0.89976,
+			"y": 0.61404
+		},
+		{
+			"slug": "running-cornells-dla-makerspace",
+			"x": 0.40046,
+			"y": 0.70703
+		},
+		{
+			"slug": "shiny-app-specific-repo-live",
+			"x": 0.16987,
+			"y": 0.19158
+		},
+		{
+			"slug": "signs-of-thoughts-of-possible-spring",
+			"x": 0.69168,
+			"y": 0.58003
+		},
+		{
+			"slug": "sit-spot-n-1-the-gho-talk",
+			"x": 0.84872,
+			"y": 0.6484
+		},
+		{
+			"slug": "small-zig-libraries-for-apple-shaped-escape-hatches",
+			"x": 0.05157,
+			"y": 0.13931
+		},
+		{
+			"slug": "solar-upgrades",
+			"x": 0.26014,
+			"y": 0.42585
+		},
+		{
+			"slug": "succession-warblers-and-gis",
+			"x": 0.38027,
+			"y": 0.04039
+		},
+		{
+			"slug": "summer-2019-update",
+			"x": 0.28833,
+			"y": 0.36318
+		},
+		{
+			"slug": "the-audeasy-build",
+			"x": 0.59351,
+			"y": 0.15942
+		},
+		{
+			"slug": "the-big-len-list",
+			"x": 0.9129,
+			"y": 0.93193
+		},
+		{
+			"slug": "the-ebird-api-regioncode",
+			"x": 0.20379,
+			"y": 0.3521
+		},
+		{
+			"slug": "this-and-that",
+			"x": 0.44324,
+			"y": 0.67854
+		},
+		{
+			"slug": "this-that-7-15",
+			"x": 0.41341,
+			"y": 0.47583
+		},
+		{
+			"slug": "tmpui-the-merlin-sound-id-project",
+			"x": 0.81478,
+			"y": 0.51082
+		},
+		{
+			"slug": "trashmonitor-tailnet-window-into-the-hardware-pile",
+			"x": 0.14648,
+			"y": 0.60249
+		},
+		{
+			"slug": "turkey-probe",
+			"x": 0.45784,
+			"y": 0.23399
+		},
+		{
+			"slug": "updated-resume-and-cv",
+			"x": 0.43208,
+			"y": 0.52062
+		},
+		{
+			"slug": "using-esri-arcgis-arcmap-in-the-aws-cloud",
+			"x": 0.12313,
+			"y": 0.41732
+		},
+		{
+			"slug": "using-esri-arcgis-arcmap-on-mac-osx-2-methods",
+			"x": 0.24218,
+			"y": 0.24882
+		},
+		{
+			"slug": "warbler-trillers-of-the-charles",
+			"x": 0.83775,
+			"y": 0.56124
+		},
+		{
+			"slug": "was110-fidium-gonetspeed-omci-personalities",
+			"x": 0.08989,
+			"y": 0.63001
+		},
+		{
+			"slug": "waxwing-audio",
+			"x": 0.59275,
+			"y": 0.18034
+		},
+		{
+			"slug": "week-notes-cyborgs-servers-and-sending",
+			"x": 0.33853,
+			"y": 0.58258
+		},
+		{
+			"slug": "week-notes-indeterminism-passkeys-and-spring",
+			"x": 0.34033,
+			"y": 0.58519
+		},
+		{
+			"slug": "week-notes-scroll-wheels-and-chasing-the-sun",
+			"x": 0.38767,
+			"y": 0.55461
+		},
+		{
+			"slug": "what-have-i-been-up-to-these-last-few-months",
+			"x": 0.46391,
+			"y": 0.5176
+		},
+		{
+			"slug": "when-it-must-be-windows",
+			"x": 0.32781,
+			"y": 0.32032
+		},
+		{
+			"slug": "while-at-a-safe-distance",
+			"x": 0.58986,
+			"y": 0.38409
+		},
+		{
+			"slug": "winrm-quotas-hidden-plugin-layers-and-why-psrp-has-been-the-answer-since-2018",
+			"x": 0.09332,
+			"y": 0.55971
+		},
+		{
+			"slug": "wolf-pine-fox-park-1-bonus-winter-birds",
+			"x": 0.90847,
+			"y": 0.69427
+		},
+		{
+			"slug": "wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount",
+			"x": 0.84391,
+			"y": 0.89416
+		},
+		{
+			"slug": "wolf-pine-fox-park-2-22717",
+			"x": 0.87567,
+			"y": 0.89176
+		},
+		{
+			"slug": "wolf-pine-fox-park-3-3317-noon-ish-time",
+			"x": 0.86976,
+			"y": 0.69071
+		},
+		{
+			"slug": "wolf-pine-fox-park-4-3517-noon-ish-time",
+			"x": 0.88879,
+			"y": 0.70247
+		},
+		{
+			"slug": "wolf-pine-fox-park-6-31017-theoretical-owls-and-real-tree-bark",
+			"x": 0.88791,
+			"y": 0.67162
+		},
+		{
+			"slug": "wolf-pine-fox-park-7-31217-surprise-its-cold",
+			"x": 0.87125,
+			"y": 0.72012
+		},
+		{
+			"slug": "wolf-pine-fox-park-8-31617-someone-bumped-the-snow-machine",
+			"x": 0.89751,
+			"y": 0.73497
+		},
+		{
+			"slug": "wolf-pine-fox-park-9-32617-everyone-is-on-vacation",
+			"x": 0.87977,
+			"y": 0.92172
+		},
+		{
+			"slug": "wolf-pine-fox-park-silence",
+			"x": 0.85286,
+			"y": 0.92244
+		},
+		{
+			"slug": "xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives",
+			"x": 0.2464,
+			"y": 0.72235
+		}
+	],
+	"edges": [
+		[
+			0,
+			3,
+			0.283
+		],
+		[
+			0,
+			65,
+			0.2877
+		],
+		[
+			0,
+			71,
+			0.4042
+		],
+		[
+			1,
+			32,
+			0.2701
+		],
+		[
+			1,
+			85,
+			0.17
+		],
+		[
+			1,
+			111,
+			0.1818
+		],
+		[
+			2,
+			26,
+			0.3167
+		],
+		[
+			2,
+			36,
+			0.285
+		],
+		[
+			2,
+			51,
+			0.3126
+		],
+		[
+			2,
+			61,
+			0.2885
+		],
+		[
+			2,
+			91,
+			0.3834
+		],
+		[
+			3,
+			12,
+			0.4256
+		],
+		[
+			3,
+			48,
+			0.3355
+		],
+		[
+			3,
+			63,
+			0.4287
+		],
+		[
+			4,
+			21,
+			0.2767
+		],
+		[
+			4,
+			29,
+			0.3177
+		],
+		[
+			4,
+			80,
+			0.2831
+		],
+		[
+			5,
+			21,
+			0.2778
+		],
+		[
+			5,
+			73,
+			0.2734
+		],
+		[
+			5,
+			112,
+			0.2961
+		],
+		[
+			6,
+			31,
+			0.4377
+		],
+		[
+			6,
+			68,
+			0.2135
+		],
+		[
+			6,
+			87,
+			0.4315
+		],
+		[
+			6,
+			90,
+			0.1691
+		],
+		[
+			6,
+			105,
+			0.2828
+		],
+		[
+			6,
+			115,
+			0.2075
+		],
+		[
+			7,
+			31,
+			0.2558
+		],
+		[
+			7,
+			87,
+			0.2695
+		],
+		[
+			7,
+			105,
+			0.3788
+		],
+		[
+			8,
+			9,
+			0.251
+		],
+		[
+			8,
+			12,
+			0.3546
+		],
+		[
+			8,
+			48,
+			0.4444
+		],
+		[
+			8,
+			59,
+			0.4126
+		],
+		[
+			8,
+			118,
+			0.3421
+		],
+		[
+			9,
+			48,
+			0.2522
+		],
+		[
+			9,
+			101,
+			0.3441
+		],
+		[
+			10,
+			41,
+			0.4578
+		],
+		[
+			10,
+			66,
+			0.4414
+		],
+		[
+			10,
+			86,
+			0.4496
+		],
+		[
+			11,
+			24,
+			0.1561
+		],
+		[
+			11,
+			36,
+			0.1547
+		],
+		[
+			12,
+			63,
+			0.4423
+		],
+		[
+			12,
+			75,
+			0.3407
+		],
+		[
+			13,
+			15,
+			0.4758
+		],
+		[
+			13,
+			79,
+			0.2729
+		],
+		[
+			13,
+			103,
+			0.3944
+		],
+		[
+			13,
+			129,
+			0.4912
+		],
+		[
+			13,
+			134,
+			0.4986
+		],
+		[
+			14,
+			28,
+			0.3386
+		],
+		[
+			14,
+			49,
+			0.219
+		],
+		[
+			14,
+			60,
+			0.2302
+		],
+		[
+			15,
+			56,
+			0.4983
+		],
+		[
+			15,
+			129,
+			0.4635
+		],
+		[
+			16,
+			17,
+			0.2787
+		],
+		[
+			16,
+			34,
+			0.435
+		],
+		[
+			16,
+			103,
+			0.3178
+		],
+		[
+			16,
+			113,
+			0.3148
+		],
+		[
+			16,
+			119,
+			0.427
+		],
+		[
+			17,
+			113,
+			0.3381
+		],
+		[
+			17,
+			119,
+			0.2845
+		],
+		[
+			18,
+			76,
+			0.1719
+		],
+		[
+			19,
+			25,
+			0.2633
+		],
+		[
+			19,
+			29,
+			0.3945
+		],
+		[
+			19,
+			107,
+			0.3599
+		],
+		[
+			19,
+			117,
+			0.3113
+		],
+		[
+			20,
+			30,
+			0.5976
+		],
+		[
+			20,
+			96,
+			0.3477
+		],
+		[
+			20,
+			121,
+			0.3898
+		],
+		[
+			21,
+			73,
+			0.4049
+		],
+		[
+			21,
+			80,
+			0.4037
+		],
+		[
+			21,
+			112,
+			0.4033
+		],
+		[
+			22,
+			43,
+			0.1746
+		],
+		[
+			22,
+			139,
+			0.1616
+		],
+		[
+			23,
+			48,
+			0.2973
+		],
+		[
+			23,
+			58,
+			0.3108
+		],
+		[
+			23,
+			93,
+			0.4108
+		],
+		[
+			25,
+			29,
+			0.3235
+		],
+		[
+			25,
+			126,
+			0.4314
+		],
+		[
+			26,
+			77,
+			0.3103
+		],
+		[
+			26,
+			91,
+			0.4413
+		],
+		[
+			26,
+			117,
+			0.3356
+		],
+		[
+			27,
+			49,
+			0.4437
+		],
+		[
+			27,
+			54,
+			0.4142
+		],
+		[
+			27,
+			58,
+			0.3495
+		],
+		[
+			27,
+			60,
+			0.3255
+		],
+		[
+			27,
+			72,
+			0.338
+		],
+		[
+			28,
+			54,
+			0.3671
+		],
+		[
+			28,
+			101,
+			0.3551
+		],
+		[
+			29,
+			107,
+			0.2979
+		],
+		[
+			29,
+			126,
+			0.3228
+		],
+		[
+			30,
+			108,
+			0.3525
+		],
+		[
+			30,
+			121,
+			0.379
+		],
+		[
+			31,
+			68,
+			0.2455
+		],
+		[
+			31,
+			87,
+			0.4247
+		],
+		[
+			31,
+			105,
+			0.2788
+		],
+		[
+			32,
+			85,
+			0.1911
+		],
+		[
+			32,
+			100,
+			0.2294
+		],
+		[
+			32,
+			111,
+			0.1779
+		],
+		[
+			33,
+			35,
+			0.4393
+		],
+		[
+			33,
+			67,
+			0.4904
+		],
+		[
+			33,
+			70,
+			0.2494
+		],
+		[
+			33,
+			81,
+			0.4043
+		],
+		[
+			33,
+			127,
+			0.305
+		],
+		[
+			34,
+			113,
+			0.3167
+		],
+		[
+			34,
+			119,
+			0.4209
+		],
+		[
+			35,
+			67,
+			0.5469
+		],
+		[
+			35,
+			69,
+			0.2398
+		],
+		[
+			35,
+			70,
+			0.2321
+		],
+		[
+			35,
+			81,
+			0.4217
+		],
+		[
+			35,
+			127,
+			0.3336
+		],
+		[
+			36,
+			61,
+			0.4033
+		],
+		[
+			36,
+			94,
+			0.2508
+		],
+		[
+			37,
+			74,
+			0.2502
+		],
+		[
+			37,
+			97,
+			0.2235
+		],
+		[
+			37,
+			102,
+			0.3262
+		],
+		[
+			38,
+			39,
+			0.6634
+		],
+		[
+			38,
+			42,
+			0.5509
+		],
+		[
+			38,
+			86,
+			0.6217
+		],
+		[
+			38,
+			131,
+			0.4906
+		],
+		[
+			39,
+			42,
+			0.5742
+		],
+		[
+			39,
+			86,
+			0.6324
+		],
+		[
+			40,
+			56,
+			0.4665
+		],
+		[
+			40,
+			129,
+			0.4919
+		],
+		[
+			40,
+			133,
+			0.4694
+		],
+		[
+			41,
+			86,
+			0.4618
+		],
+		[
+			41,
+			109,
+			0.464
+		],
+		[
+			41,
+			131,
+			0.4597
+		],
+		[
+			42,
+			66,
+			0.4621
+		],
+		[
+			42,
+			82,
+			0.4698
+		],
+		[
+			42,
+			86,
+			0.6059
+		],
+		[
+			42,
+			109,
+			0.4706
+		],
+		[
+			43,
+			139,
+			0.578
+		],
+		[
+			45,
+			46,
+			0.4121
+		],
+		[
+			45,
+			97,
+			0.2561
+		],
+		[
+			45,
+			102,
+			0.2234
+		],
+		[
+			46,
+			74,
+			0.2262
+		],
+		[
+			46,
+			97,
+			0.2496
+		],
+		[
+			46,
+			102,
+			0.3815
+		],
+		[
+			47,
+			53,
+			0.4525
+		],
+		[
+			47,
+			55,
+			0.3985
+		],
+		[
+			47,
+			110,
+			0.4207
+		],
+		[
+			48,
+			59,
+			0.4566
+		],
+		[
+			48,
+			75,
+			0.3183
+		],
+		[
+			48,
+			118,
+			0.4357
+		],
+		[
+			49,
+			54,
+			0.317
+		],
+		[
+			49,
+			72,
+			0.2722
+		],
+		[
+			51,
+			101,
+			0.2855
+		],
+		[
+			51,
+			117,
+			0.3459
+		],
+		[
+			53,
+			55,
+			0.3182
+		],
+		[
+			53,
+			58,
+			0.3128
+		],
+		[
+			53,
+			110,
+			0.4141
+		],
+		[
+			55,
+			60,
+			0.3054
+		],
+		[
+			55,
+			92,
+			0.1753
+		],
+		[
+			55,
+			93,
+			0.3509
+		],
+		[
+			55,
+			105,
+			0.3024
+		],
+		[
+			55,
+			110,
+			0.3117
+		],
+		[
+			56,
+			98,
+			0.4795
+		],
+		[
+			56,
+			132,
+			0.4861
+		],
+		[
+			58,
+			93,
+			0.31
+		],
+		[
+			59,
+			101,
+			0.3523
+		],
+		[
+			59,
+			118,
+			0.35
+		],
+		[
+			60,
+			94,
+			0.2632
+		],
+		[
+			60,
+			117,
+			0.3129
+		],
+		[
+			61,
+			91,
+			0.2469
+		],
+		[
+			62,
+			66,
+			0.4556
+		],
+		[
+			62,
+			109,
+			0.4679
+		],
+		[
+			62,
+			138,
+			0.4501
+		],
+		[
+			63,
+			71,
+			0.2812
+		],
+		[
+			63,
+			72,
+			0.3369
+		],
+		[
+			63,
+			75,
+			0.316
+		],
+		[
+			65,
+			71,
+			0.2845
+		],
+		[
+			65,
+			72,
+			0.3399
+		],
+		[
+			66,
+			137,
+			0.4652
+		],
+		[
+			67,
+			69,
+			0.245
+		],
+		[
+			67,
+			81,
+			0.4302
+		],
+		[
+			67,
+			127,
+			0.3792
+		],
+		[
+			68,
+			87,
+			0.2431
+		],
+		[
+			69,
+			70,
+			0.4819
+		],
+		[
+			72,
+			101,
+			0.4864
+		],
+		[
+			73,
+			80,
+			0.4134
+		],
+		[
+			73,
+			112,
+			0.4119
+		],
+		[
+			74,
+			102,
+			0.1684
+		],
+		[
+			77,
+			84,
+			0.2753
+		],
+		[
+			77,
+			91,
+			0.3195
+		],
+		[
+			79,
+			99,
+			0.2972
+		],
+		[
+			79,
+			135,
+			0.2689
+		],
+		[
+			80,
+			112,
+			0.4119
+		],
+		[
+			82,
+			83,
+			0.5613
+		],
+		[
+			82,
+			86,
+			0.5061
+		],
+		[
+			83,
+			86,
+			0.4644
+		],
+		[
+			83,
+			131,
+			0.4639
+		],
+		[
+			84,
+			91,
+			0.2528
+		],
+		[
+			84,
+			94,
+			0.2143
+		],
+		[
+			85,
+			111,
+			0.2401
+		],
+		[
+			86,
+			138,
+			0.4725
+		],
+		[
+			87,
+			90,
+			0.236
+		],
+		[
+			87,
+			105,
+			0.2981
+		],
+		[
+			87,
+			115,
+			0.2067
+		],
+		[
+			88,
+			89,
+			0.5231
+		],
+		[
+			88,
+			107,
+			0.1518
+		],
+		[
+			88,
+			125,
+			0.1515
+		],
+		[
+			89,
+			107,
+			0.1541
+		],
+		[
+			90,
+			115,
+			0.2776
+		],
+		[
+			91,
+			94,
+			0.2684
+		],
+		[
+			91,
+			117,
+			0.3389
+		],
+		[
+			92,
+			106,
+			0.2131
+		],
+		[
+			94,
+			117,
+			0.2796
+		],
+		[
+			96,
+			108,
+			0.3503
+		],
+		[
+			96,
+			121,
+			0.4574
+		],
+		[
+			97,
+			102,
+			0.3273
+		],
+		[
+			97,
+			103,
+			0.2617
+		],
+		[
+			98,
+			99,
+			0.3302
+		],
+		[
+			98,
+			134,
+			0.4605
+		],
+		[
+			98,
+			135,
+			0.4608
+		],
+		[
+			99,
+			132,
+			0.3164
+		],
+		[
+			99,
+			134,
+			0.3157
+		],
+		[
+			100,
+			111,
+			0.1724
+		],
+		[
+			101,
+			107,
+			0.3558
+		],
+		[
+			103,
+			119,
+			0.317
+		],
+		[
+			103,
+			134,
+			0.4099
+		],
+		[
+			103,
+			136,
+			0.3982
+		],
+		[
+			108,
+			121,
+			0.4084
+		],
+		[
+			109,
+			137,
+			0.4838
+		],
+		[
+			118,
+			126,
+			0.2959
+		],
+		[
+			122,
+			123,
+			0.1831
+		],
+		[
+			129,
+			132,
+			0.524
+		],
+		[
+			129,
+			133,
+			0.5319
+		],
+		[
+			129,
+			134,
+			0.5224
+		],
+		[
+			129,
+			135,
+			0.4956
+		],
+		[
+			129,
+			136,
+			0.4913
+		],
+		[
+			130,
+			131,
+			0.4683
+		],
+		[
+			130,
+			137,
+			0.4774
+		],
+		[
+			130,
+			138,
+			0.4668
+		],
+		[
+			131,
+			137,
+			0.4837
+		],
+		[
+			131,
+			138,
+			0.4827
+		],
+		[
+			132,
+			133,
+			0.5495
+		],
+		[
+			132,
+			134,
+			0.5344
+		],
+		[
+			132,
+			135,
+			0.5272
+		],
+		[
+			133,
+			134,
+			0.5454
+		],
+		[
+			133,
+			135,
+			0.5431
+		],
+		[
+			134,
+			136,
+			0.4825
+		],
+		[
+			135,
+			136,
+			0.4883
+		],
+		[
+			137,
+			138,
+			0.4869
+		]
+	]
+}
