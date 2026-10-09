@@ -137,20 +137,20 @@ describe('reviewed SVX static projection pipeline', () => {
 			const noJs = await browser.newContext({ javaScriptEnabled: false });
 			const noJsPage = await noJs.newPage();
 			await noJsPage.goto(url);
-			await expect(noJsPage.getByRole('button', { name: 'Show the reviewed body' })).toHaveAttribute('aria-expanded', 'true');
-			await expect(noJsPage.getByText('The full reviewed body reaches the static article.')).toBeVisible();
+			expect(await noJsPage.getByRole('button', { name: 'Show the reviewed body' }).getAttribute('aria-expanded')).toBe('true');
+			expect(await noJsPage.getByText('The full reviewed body reaches the static article.').isVisible()).toBe(true);
 			await noJs.close();
 
 			const page = await browser.newPage();
 			await page.goto(url);
 			const trigger = page.getByRole('button', { name: 'Show the reviewed body' });
 			const body = page.getByText('The full reviewed body reaches the static article.');
-			await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-			await expect(body).toBeHidden();
+			await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('false');
+			await expect.poll(() => body.isVisible()).toBe(false);
 			await trigger.focus();
 			await page.keyboard.press('Enter');
-			await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-			await expect(body).toBeVisible();
+			await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
+			await expect.poll(() => body.isVisible()).toBe(true);
 		} finally {
 			await browser.close();
 			await new Promise<void>((done) => server.close(() => done()));
