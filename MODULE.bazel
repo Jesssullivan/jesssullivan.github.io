@@ -71,7 +71,9 @@ npm.npm_replace_package(
 )
 npm.npm_replace_package(
     package = "@tummycrypt/vite-plugin-a11y@0.2.2",
-    replacement = "@tummycrypt_vite_plugin_a11y//:pkg",
+    # //:vite_plugin_a11y_pkg forwards @tummycrypt_vite_plugin_a11y//:pkg without the
+    # module's own node_modules links (see npm_house_package.bzl).
+    replacement = "//:vite_plugin_a11y_pkg",
 )
 npm.npm_translate_lock(
     name = "jesssullivan_github_io_npm",

@@ -2,8 +2,18 @@
 
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 load("@jesssullivan_github_io_npm//:defs.bzl", "npm_link_all_packages")
+load("//:npm_house_package.bzl", "npm_house_package")
 
 npm_link_all_packages(name = "node_modules")
+
+# RU9: the registry module's package, minus its own node_modules links. The
+# npm_replace_package for @tummycrypt/vite-plugin-a11y in MODULE.bazel points
+# here; see npm_house_package.bzl for the conflicting-symlink failure it avoids.
+npm_house_package(
+    name = "vite_plugin_a11y_pkg",
+    src = "@tummycrypt_vite_plugin_a11y//:pkg",
+    visibility = ["//visibility:public"],
+)
 
 js_test(
     name = "local_production_artifact_contract",
