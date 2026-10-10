@@ -112,6 +112,9 @@ function visitNodes(node, parent, visitor) {
 	}
 }
 
+// One opening, closing or self-closing tag of a capitalized (imported) Svelte component.
+const SVELTE_COMPONENT_TAG = /^\s*<\/?[A-Z][\w.]*(?:\s[^<>]*)?\/?>\s*$/;
+
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
 	extensions: ['.md', '.svx'],
@@ -312,8 +315,10 @@ const mdsvexOptions = {
 					node.value = escBraces(node.value);
 				}
 				if (node.type === 'raw' && node.value) {
-					// Skip Svelte {@html} directives (e.g. from Shiki highlighter)
-					if (!/^\s*\{@html\s/.test(node.value)) {
+					// Skip Svelte {@html} directives (e.g. from Shiki highlighter) and a raw node that is
+					// exactly one Svelte component tag (e.g. `<InlineDisclosure defaultOpen={false}>`),
+					// whose brace attributes are component props, not literal text.
+					if (!/^\s*\{@html\s/.test(node.value) && !SVELTE_COMPONENT_TAG.test(node.value)) {
 						node.value = escBraces(node.value);
 					}
 				}
