@@ -56,6 +56,16 @@ async function openThemeSettings(page: Page) {
 	await expect(darkOption).toBeVisible();
 }
 
+// The layout's scroll listener attaches at hydration. A scroll that lands before then fires no
+// event the page sees, so re-scroll and re-dispatch on every poll until the fade reads below 1.
+async function scrolledBannerOpacity(page: Page, y: number): Promise<number> {
+	await page.evaluate((top) => {
+		window.scrollTo(0, top);
+		window.dispatchEvent(new Event('scroll'));
+	}, y);
+	return Number(await page.locator('section.hero-banner').evaluate((el) => getComputedStyle(el).opacity));
+}
+
 test.describe('About (merged) page', () => {
 	test.beforeEach(async ({ page }) => {
 		await page.addInitScript(() => {
@@ -80,11 +90,7 @@ test.describe('About (merged) page', () => {
 		expect(Number(initialOpacity)).toBe(1);
 
 		// Scroll down
-		await page.evaluate(() => window.scrollBy(0, 500));
-		await page.waitForTimeout(100);
-
-		const fadedOpacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
-		expect(Number(fadedOpacity)).toBeLessThan(1);
+		await expect.poll(() => scrolledBannerOpacity(page, 500)).toBeLessThan(1);
 	});
 
 	test('banner fades even with prefers-reduced-motion (scroll-driven, not animated)', async ({ page, browserName }) => {
@@ -94,11 +100,7 @@ test.describe('About (merged) page', () => {
 		const banner = page.locator('section.hero-banner');
 		await expect(banner).toBeVisible();
 
-		await page.evaluate(() => window.scrollBy(0, 500));
-		await page.waitForTimeout(500);
-
-		const opacity = await banner.evaluate((el) => getComputedStyle(el).opacity);
-		expect(Number(opacity)).toBeLessThan(1);
+		await expect.poll(() => scrolledBannerOpacity(page, 500)).toBeLessThan(1);
 	});
 
 	test('etymology description text present', async ({ page }) => {

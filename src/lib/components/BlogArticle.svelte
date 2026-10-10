@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import GiscusComments from '$lib/components/GiscusComments.svelte';
-	import TableOfContents from '$lib/components/TableOfContents.svelte';
-	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
-	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
-	import ReadingProgressRing from '$lib/components/ReadingProgressRing.svelte';
+	import GiscusComments from '#lib/components/GiscusComments.svelte';
+	import TableOfContents from '#lib/components/TableOfContents.svelte';
+	import Breadcrumbs from '#lib/components/Breadcrumbs.svelte';
+	import ProfileSidebar from '#lib/components/ProfileSidebar.svelte';
+	import ReadingProgressRing from '#lib/components/ReadingProgressRing.svelte';
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import {
 		TINYLAND_BLOG_BROKER_STREAM_URL,
 		findTinylandBlogBrokerPost,
@@ -14,8 +14,8 @@
 		summarizeTinylandBlogBrokerError,
 		tinylandBlogBrokerPostToPost,
 		type TinylandBlogBrokerPost,
-	} from '$lib/tinyland/blogBrokerStream';
-	import { renderTrustedBrokerMarkdown } from '$lib/tinyland/runtimeMarkdown';
+	} from '#lib/tinyland/blogBrokerStream.js';
+	import { renderTrustedBrokerMarkdown } from '#lib/tinyland/runtimeMarkdown.js';
 
 	// Decoupled from the route's generated $types so this component can live in $lib.
 	// Shape mirrors the return of src/routes/blog/[slug]/+page.ts.

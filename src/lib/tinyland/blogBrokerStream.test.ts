@@ -8,7 +8,7 @@ import {
 	type TinylandBlogBrokerFetch,
 	type TinylandBlogBrokerStream,
 } from './blogBrokerStream';
-import type { Post } from '$lib/types';
+import type { Post } from '#lib/types.js';
 
 const validStream: TinylandBlogBrokerStream = {
 	schemaVersion: 'tinyland.blog.broker-stream.v1',

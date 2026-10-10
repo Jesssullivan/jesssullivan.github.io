@@ -28,12 +28,16 @@ test.describe('Reading Progress Bar', () => {
 		await page.goto('/blog/840-watts-of-solar-power');
 		await page.evaluate(() => window.scrollBy(0, 500));
 		await page.waitForTimeout(200);
-		const progressBar = page.locator('.reading-progress');
-		if ((await progressBar.count()) > 0) {
-			const style = await progressBar.evaluate((el) => {
+		// The bar is rendered only while readingProgress > 0, so read every match in one
+		// evaluation instead of count() then evaluate(), which waits forever if it unmounts between.
+		const styles = await page.locator('.reading-progress').evaluateAll((els) =>
+			els.map((el) => {
 				const cs = window.getComputedStyle(el);
 				return { position: cs.position, top: cs.top, zIndex: cs.zIndex };
-			});
+			}),
+		);
+		expect(styles.length).toBeLessThanOrEqual(1);
+		for (const style of styles) {
 			expect(style.position).toBe('fixed');
 			expect(style.top).toBe('0px');
 		}

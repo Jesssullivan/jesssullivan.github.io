@@ -12,7 +12,7 @@ thumbnail_image: "/images/posts/gingersnap-cookies.webp"
 ---
 
 <script>
-	import GingersnapScaler from '$lib/components/GingersnapScaler.svelte';
+	import GingersnapScaler from '#lib/components/GingersnapScaler.svelte';
 </script>
 
 A recipe card. Milk-free, soy-free, egg-free gingersnaps, with **"good"** written across the top in pen.

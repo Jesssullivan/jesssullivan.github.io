@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Post } from '$lib/posts';
+import type { Post } from '#lib/posts.js';
 import { buildScene, firstInReadingOrder, isProjectionDocument, neighborInDirection, neighboursOf } from './scene';
 
 const post = (slug: string, date = '2026-01-01'): Post => ({ slug, title: slug.toUpperCase(), date, description: '', tags: [], published: true });

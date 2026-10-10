@@ -1,11 +1,11 @@
 <script lang="ts">
-	import PulseApStreamDemoPanel from '$lib/components/pulse/PulseApStreamDemoPanel.svelte';
+	import PulseApStreamDemoPanel from '#lib/components/pulse/PulseApStreamDemoPanel.svelte';
 	import {
 		TINYLAND_PULSE_AP_STREAM_DEMO_URL,
 		loadPulseApStreamDemo,
 		summarizePulseApStreamError,
 		type PulseApStreamDemoPanelState,
-	} from '$lib/pulse/apStreamDemo';
+	} from '#lib/pulse/apStreamDemo.js';
 	import { onMount } from 'svelte';
 
 	const endpoint = TINYLAND_PULSE_AP_STREAM_DEMO_URL;

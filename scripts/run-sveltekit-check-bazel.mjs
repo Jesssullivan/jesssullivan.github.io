@@ -2,7 +2,6 @@
 import {
 	accessSync,
 	constants,
-	cpSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
@@ -15,6 +14,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { copyTreeDereferenced } from './lib/copy-tree.mjs';
 
 const workspaceRoot = process.cwd();
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-sveltekit-check-'));
@@ -35,7 +35,10 @@ for (const command of [
 	['tsx', 'scripts/generate-search-index.mts'],
 	['tsx', 'scripts/validate-pulse-snapshot.mts'],
 	['svelte-kit', 'sync'],
-	['svelte-check', '--tsconfig', './tsconfig.json'],
+	// TypeScript 7.0.2 is the `typescript` package (RU13). svelte-check type-checks
+	// on it through --tsgo; patches/svelte-check@4.7.6.patch lets svelte2tsx use the
+	// TypeScript team's @typescript/typescript6 API package.
+	['svelte-check', '--tsgo', '--tsconfig', './tsconfig.json'],
 ]) {
 	run(command[0], command.slice(1));
 }
@@ -52,7 +55,7 @@ function copyInputsToBuildRoot() {
 		'package-lock.json',
 		'package.json',
 		'pnpm-lock.yaml',
-		'svelte.config.js',
+		'kit.config.js',
 		'tsconfig.json',
 		'vite.config.ts',
 	]) {
@@ -66,13 +69,7 @@ function copyPath(source, destination) {
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
-	cpSync(source, destination, {
-		dereference: true,
-		errorOnExist: false,
-		force: true,
-		preserveTimestamps: false,
-		recursive: true,
-	});
+	copyTreeDereferenced(source, destination);
 }
 
 function linkNodeModules() {

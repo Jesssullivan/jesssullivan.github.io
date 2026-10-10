@@ -1,14 +1,14 @@
 <script lang="ts">
 	import '../app.css';
 	import { AppBar, Dialog, Navigation } from '@skeletonlabs/skeleton-svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { TinyVectors } from '@tummycrypt/tinyvectors';
-	import { theme, THEMES } from '$lib/theme.svelte';
-	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
-	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
-	import TailnetHint from '$lib/components/TailnetHint.svelte';
+	import { theme, THEMES } from '#lib/theme.svelte.js';
+	import ThemeSwitcher from '#lib/components/ThemeSwitcher.svelte';
+	import ProfileSidebar from '#lib/components/ProfileSidebar.svelte';
+	import TailnetHint from '#lib/components/TailnetHint.svelte';
 
 	let { children } = $props();
 	const isShadowDeployment = __BLOG_DEPLOY_TIER__ === 'shadow';
@@ -72,7 +72,7 @@
 	});
 
 	function isActive(href: string): boolean {
-		const path = $page.url.pathname;
+		const path = page.url.pathname;
 		if (href === '/blog') return path.startsWith('/blog');
 		if (href === '/photography') return path.startsWith('/photography');
 		return path === href;
@@ -295,7 +295,7 @@
 		</div>
 	</section>
 
-	{#if $page.url.pathname.startsWith('/blog')}
+	{#if page.url.pathname.startsWith('/blog')}
 		<main id="main-content" class="flex-1">
 			{@render children()}
 		</main>

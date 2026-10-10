@@ -5,6 +5,7 @@
 	"private": true,
 	"scripts": {
 		"prepare": "node scripts/build-tinyvectors.mjs",
+		"postinstall": "node scripts/apply-dependency-patches.mjs",
 		"dev": "vite dev",
 		"prebuild": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/validate-pulse-snapshot.mts",
 		"build": "vite build",
@@ -31,22 +32,23 @@
 		"ingest:tinyland-posts": "tsx scripts/ingest-tinyland-posts.mts --adopt-reviewed",
 		"security:audit:static": "npm audit --omit=dev --workspaces=false && npm audit --omit=dev --workspace @blog/pulse-core && npm audit --omit=dev --workspace @blog/pulse-client",
 		"security:audit:blog-agent": "npm audit --omit=dev --workspace @blog/agent",
-		"lint": "eslint src/lib packages/blog-agent/src packages/blog-agent/test packages/pulse-core/src packages/pulse-core/test packages/pulse-client/src packages/pulse-client/test --max-warnings 0",
+		"lint": "node --import ./scripts/typescript6-api-hook.mjs ./node_modules/eslint/bin/eslint.js --flag unstable_native_nodejs_ts_config src/lib packages/blog-agent/src packages/blog-agent/test packages/pulse-core/src packages/pulse-core/test packages/pulse-client/src packages/pulse-client/test --max-warnings 0",
 		"format": "prettier --write src/",
 		"format:check": "prettier --check src/"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.2",
 		"@mermaid-js/mermaid-cli": "^11.15.0",
-		"@playwright/test": "^1.59.1",
-		"@sveltejs/adapter-node": "^5.5.7",
-		"@sveltejs/adapter-static": "^3.0.10",
-		"@sveltejs/kit": "^2.70.2",
-		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@playwright/test": "1.64.0",
+		"@sveltejs/adapter-node": "^6.0.0",
+		"@sveltejs/adapter-static": "^4.0.0",
+		"@sveltejs/kit": "3.0.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"@tailwindcss/vite": "^4.2.2",
 		"@tummycrypt/vite-plugin-a11y": "^0.2.2",
 		"@types/node": "^25.2.3",
-		"@vitest/coverage-v8": "^4.1.4",
+		"@typescript/typescript6": "6.0.2",
+		"@vitest/coverage-v8": "5.0.3",
 		"eslint": "^9.39.2",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.17.0",
@@ -58,13 +60,13 @@
 		"rollup-plugin-visualizer": "^6.0.5",
 		"serve": "^14.2.5",
 		"sharp": "^0.34.5",
-		"svelte": "^5.56.8",
-		"svelte-check": "^4.4.5",
+		"svelte": "5.57.2",
+		"svelte-check": "4.7.6",
 		"tsx": "^4.21.0",
-		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.58.2",
-		"vite": "^8.0.14",
-		"vitest": "^4.1.4"
+		"typescript": "7.0.2",
+		"typescript-eslint": "^8.71.1",
+		"vite": "8.3.3",
+		"vitest": "5.0.3"
 	},
 	"dependencies": {
 		"@fontsource/crimson-pro": "^5.2.8",
@@ -83,11 +85,14 @@
 		"zod": "4.3.6"
 	},
 	"type": "module",
+	"imports": {
+		"#lib/*": "./src/lib/*"
+	},
 	"workspaces": [
 		"packages/*"
 	],
 	"overrides": {
-		"vite": "^8.0.14",
+		"vite": "8.3.3",
 		"devalue": "^5.9.4"
 	},
 	"pnpm": {
@@ -101,7 +106,26 @@
 		],
 		"overrides": {
 			"devalue": "^5.9.4"
+		},
+		"packageExtensions": {
+			"@sveltejs/kit@3.0.1": {
+				"dependencies": {
+					"@typescript/typescript6": "6.0.2"
+				}
+			},
+			"svelte-check@4.7.6": {
+				"dependencies": {
+					"@typescript/typescript6": "6.0.2"
+				}
+			}
+		},
+		"patchedDependencies": {
+			"@sveltejs/kit@3.0.1": "patches/@sveltejs__kit@3.0.1.patch",
+			"svelte-check@4.7.6": "patches/svelte-check@4.7.6.patch"
 		}
 	},
-	"packageManager": "npm@10.9.2"
+	"packageManager": "npm@10.9.2",
+	"engines": {
+		"node": ">=22.17"
+	}
 }

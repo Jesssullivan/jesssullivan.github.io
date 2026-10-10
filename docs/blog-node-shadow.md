@@ -6,7 +6,7 @@ live endpoints (e.g. `/healthz`) that the static artifact cannot serve.
 
 ## Adapter selection
 
-`svelte.config.js` picks the adapter from `BLOG_ADAPTER`:
+`kit.config.js` picks the adapter from `BLOG_ADAPTER`:
 
 - unset / anything else -> `@sveltejs/adapter-static` (default, production)
 - `BLOG_ADAPTER=node` -> `@sveltejs/adapter-node` (server bundle `build/index.js`)

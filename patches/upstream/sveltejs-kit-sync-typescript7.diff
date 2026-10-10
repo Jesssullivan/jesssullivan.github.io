@@ -1,0 +1,103 @@
+diff --git a/packages/kit/src/core/sync/ts.js b/packages/kit/src/core/sync/ts.js
+index 7f161e6..90b9759 100644
+--- a/packages/kit/src/core/sync/ts.js
++++ b/packages/kit/src/core/sync/ts.js
+@@ -1,6 +1,24 @@
+ /** @type {typeof import('typescript')} */
+ // @ts-ignore
+ export let ts = undefined;
++
++/**
++ * Whether a `typescript` package is installed at all. TypeScript 7 (the native
++ * port) installs as `typescript` but ships no in-process compiler API, so this
++ * can be true while `ts` stays undefined.
++ */
++export let ts_installed = false;
++
+ try {
+-	ts = (await import('typescript')).default;
++	const mod = (await import('typescript')).default;
++	ts_installed = true;
++	if (typeof mod?.createSourceFile === 'function') ts = mod;
+ } catch {}
++
++if (ts_installed && !ts) {
++	// TypeScript 7: load the TypeScript 6 API that Microsoft publishes as
++	// `@typescript/typescript6` for tools that need it beside TypeScript 7.
++	try {
++		ts = (await import('@typescript/typescript6')).default;
++	} catch {}
++}
+diff --git a/packages/kit/src/core/sync/write_tsconfig/index.js b/packages/kit/src/core/sync/write_tsconfig/index.js
+index a543762..802ea8c 100644
+--- a/packages/kit/src/core/sync/write_tsconfig/index.js
++++ b/packages/kit/src/core/sync/write_tsconfig/index.js
+@@ -14,14 +14,9 @@ import * as e from '../../../messages/build-errors.js';
+ import * as w from '../../../messages/build-warnings.js';
+ import { posixify } from '../../../utils/os.js';
+ import { bullet_list } from '../../../utils/format.js';
+-
+-/** @type {typeof import('typescript')} */
+-let ts;
+-try {
+-	ts = await import('typescript');
+-} catch {
+-	// The user has not installed TypeScript.
+-}
++// `ts` is undefined when TypeScript is not installed, or when only TypeScript 7
++// is installed without the `@typescript/typescript6` API package.
++import { ts } from '../ts.js';
+ 
+ /**
+  * Generates the tsconfig that the user's tsconfig inherits from.
+@@ -110,7 +105,7 @@ function write_parent_tsconfig(root, id, config, transform) {
+  */
+ function validate_config(dir, options) {
+ 	if (!ts) {
+-		// The user has not installed TypeScript. Skip validation of config.
++		// No TypeScript compiler API is available. Skip validation of config.
+ 		return;
+ 	}
+ 
+diff --git a/packages/kit/src/core/sync/write_types/index.js b/packages/kit/src/core/sync/write_types/index.js
+index a542b76..78010dc 100644
+--- a/packages/kit/src/core/sync/write_types/index.js
++++ b/packages/kit/src/core/sync/write_types/index.js
+@@ -4,7 +4,7 @@ import MagicString from 'magic-string';
+ import { walk, resolve_entry } from '../../../utils/filesystem.js';
+ import { compact } from '../../../utils/array.js';
+ import { posixify } from '../../../utils/os.js';
+-import { ts } from '../ts.js';
++import { ts, ts_installed } from '../ts.js';
+ import { is_page_route } from '../create_manifest_data/index.js';
+ const remove_relative_parent_traversals = (/** @type {string} */ path) =>
+ 	path.replace(/\.\.\//g, '');
+@@ -33,7 +33,7 @@ const is_whitespace = (/** @type {string} */ char) => /\s/.test(char);
+  * @param {string} root The project root directory
+  */
+ export function write_all_types(config, manifest_data, root) {
+-	if (!ts) return;
++	if (!ts_installed) return;
+ 
+ 	const types_dir = `${config.outDir}/types`;
+ 
+@@ -141,7 +141,7 @@ export function write_all_types(config, manifest_data, root) {
+  * @param {string} root The project root directory
+  */
+ export function write_types(config, manifest_data, file, root) {
+-	if (!ts) return;
++	if (!ts_installed) return;
+ 
+ 	if (!path.basename(file).startsWith('+')) {
+ 		// Not a route file
+@@ -631,6 +631,10 @@ function generate_params_type(params, outdir, config) {
+ export function tweak_types(content, is_server) {
+ 	const names = new Set(is_server ? ['load', 'actions'] : ['load']);
+ 
++	// Without a compiler API (TypeScript 7 with no `@typescript/typescript6`),
++	// skip the proxy: route types still generate, untyped `load` stays untyped.
++	if (!ts) return null;
++
+ 	try {
+ 		let modified = false;
+ 

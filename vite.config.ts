@@ -5,6 +5,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import kitOptions from './kit.config.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const deployTier = process.env.PUBLIC_DEPLOY_TIER || 'production';
@@ -28,7 +29,7 @@ export default defineConfig({
 			wcagLevel: 'AA',
 			failOnError: false,
 		}),
-		sveltekit(),
+		sveltekit(kitOptions),
 		...(process.env.BUILD_ANALYZE ? [
 			visualizer({
 				emitFile: true,

@@ -1,4 +1,4 @@
-import { getPosts } from '$lib/posts';
+import { getPosts } from '#lib/posts.js';
 import type { PageLoad } from './$types';
 
 interface GalleryPhoto {

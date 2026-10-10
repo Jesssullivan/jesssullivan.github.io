@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import Search from '$lib/components/Search.svelte';
-	import BlogCard from '$lib/components/BlogCard.svelte';
-	import BlogSidebar from '$lib/components/BlogSidebar.svelte';
-	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
-	import { page } from '$app/stores';
-	import { browser } from '$app/environment';
+	import Search from '#lib/components/Search.svelte';
+	import BlogCard from '#lib/components/BlogCard.svelte';
+	import BlogSidebar from '#lib/components/BlogSidebar.svelte';
+	import ProfileSidebar from '#lib/components/ProfileSidebar.svelte';
+	import { page } from '$app/state';
+	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 	import {
 		TINYLAND_BLOG_BROKER_STREAM_URL,
@@ -14,7 +14,7 @@
 		summarizeTinylandBlogBrokerError,
 		tinylandBlogBrokerStreamToPosts,
 		type TinylandBlogBrokerState,
-	} from '$lib/tinyland/blogBrokerStream';
+	} from '#lib/tinyland/blogBrokerStream.js';
 
 	let { data }: { data: PageData } = $props();
 
@@ -42,7 +42,7 @@
 	);
 
 	let totalPages = $derived(Math.ceil(displayPosts.length / POSTS_PER_PAGE));
-	let pageParam = $derived(browser ? parseInt($page.url.searchParams.get('page') || '1') : 1);
+	let pageParam = $derived(browser ? parseInt(page.url.searchParams.get('page') || '1') : 1);
 	let currentPage = $derived(Math.max(0, Math.min(pageParam - 1, totalPages - 1)));
 	let paginatedPosts = $derived(displayPosts.slice(currentPage * POSTS_PER_PAGE, (currentPage + 1) * POSTS_PER_PAGE));
 

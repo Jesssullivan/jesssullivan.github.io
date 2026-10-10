@@ -11,8 +11,8 @@ feature_image: "/images/posts/uv-glue-development.jpg"
 ---
 
 <script>
-	import GlueScaler from '$lib/components/GlueScaler.svelte';
-	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
+	import GlueScaler from '#lib/components/GlueScaler.svelte';
+	import GlueScalerPinch from '#lib/components/GlueScalerPinch.svelte';
 </script>
 
 

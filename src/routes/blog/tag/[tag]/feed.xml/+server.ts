@@ -1,10 +1,10 @@
-import { getPosts } from '$lib/posts';
-import { getRawPostContent } from '$lib/feed-utils';
-import type { RequestHandler } from './$types';
+import { getPosts } from '#lib/posts.js';
+import { getRawPostContent } from '#lib/feed-utils.js';
+import type { EntryGenerator, RequestHandler } from './$types';
 
 export const prerender = true;
 
-export const entries = async () => {
+export const entries: EntryGenerator = async () => {
 	const posts = await getPosts();
 	const tags = new Set<string>();
 	for (const post of posts) {

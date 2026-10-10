@@ -3,7 +3,7 @@
  * render-mermaid.mts
  *
  * Pre-renders mermaid code blocks from blog posts into SVG files.
- * The mdsvex highlighter in svelte.config.js reads these cached SVGs
+ * The mdsvex highlighter in kit.config.js reads these cached SVGs
  * and inlines them, eliminating the ~950KB client-side mermaid.js bundle.
  *
  * Output: .mermaid-cache/<hash>.svg for each unique mermaid block.

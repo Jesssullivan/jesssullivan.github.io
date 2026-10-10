@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PulseApStreamDemoPanelState } from '$lib/pulse/apStreamDemo';
+	import type { PulseApStreamDemoPanelState } from '#lib/pulse/apStreamDemo.js';
 
 	let { state }: { state: PulseApStreamDemoPanelState } = $props();
 </script>

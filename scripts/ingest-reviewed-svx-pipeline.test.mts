@@ -9,6 +9,15 @@ import { chromium } from '@playwright/test';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const workspaceRoot = process.cwd();
+const contentTypes: Record<string, string> = {
+	'.html': 'text/html; charset=utf-8',
+	'.js': 'text/javascript; charset=utf-8',
+	'.css': 'text/css; charset=utf-8',
+	'.json': 'application/json',
+	'.svg': 'image/svg+xml',
+};
+// Hydration can take seconds on a loaded host; vitest's default poll window is 1 s.
+const hydrated = { timeout: 30_000 };
 const ingestScript = resolve(workspaceRoot, 'scripts/ingest-tinyland-posts.mts');
 const searchIndexScript = resolve(workspaceRoot, 'scripts/generate-search-index.mts');
 const viteBinary = resolve(workspaceRoot, 'node_modules/vite/bin/vite.js');
@@ -38,7 +47,7 @@ describe('reviewed SVX static projection pipeline', () => {
 		// exact static route/build path without becoming repository content.
 		cpSync(join(workspaceRoot, 'src'), join(root, 'src'), { recursive: true });
 		cpSync(join(workspaceRoot, 'static'), join(root, 'static'), { recursive: true });
-		for (const file of ['package.json', 'svelte.config.js', 'tsconfig.json', 'vite.config.ts']) {
+		for (const file of ['package.json', 'kit.config.js', 'tsconfig.json', 'vite.config.ts']) {
 			cpSync(join(workspaceRoot, file), join(root, file));
 		}
 		symlinkSync(join(workspaceRoot, 'node_modules'), join(root, 'node_modules'), 'dir');
@@ -94,7 +103,7 @@ describe('reviewed SVX static projection pipeline', () => {
 		const post = readFileSync(join(root, 'src/posts/2026-09-22-reviewed-svx-pipeline-fixture.svx'), 'utf8');
 		const index = readFileSync(join(root, 'static/search-index.json'), 'utf8');
 		const loaders = readFileSync(join(root, 'src/lib/data/blog-post-loaders.generated.ts'), 'utf8');
-		expect(post).toContain("import InlineDisclosure from '$lib/components/InlineDisclosure.svelte';");
+		expect(post).toContain("import InlineDisclosure from '#lib/components/InlineDisclosure.svelte';");
 		expect(post).toContain('The full reviewed body reaches the static article.');
 		expect(index).toContain('reviewed-svx-pipeline-fixture');
 		expect(index).toContain('/src/posts/2026-09-22-reviewed-svx-pipeline-fixture.svx');
@@ -120,7 +129,12 @@ describe('reviewed SVX static projection pipeline', () => {
 				return;
 			}
 			try {
-				response.writeHead(200).end(readFileSync(join(root, 'build', relativePath)));
+				// Chromium refuses module scripts served without a JavaScript MIME type, which would
+				// leave the page unhydrated.
+				const extension = relativePath.slice(relativePath.lastIndexOf('.'));
+				response
+					.writeHead(200, { 'content-type': contentTypes[extension] ?? 'application/octet-stream' })
+					.end(readFileSync(join(root, 'build', relativePath)));
 			} catch {
 				response.writeHead(404).end();
 			}
@@ -137,20 +151,20 @@ describe('reviewed SVX static projection pipeline', () => {
 			const noJs = await browser.newContext({ javaScriptEnabled: false });
 			const noJsPage = await noJs.newPage();
 			await noJsPage.goto(url);
-			await expect(noJsPage.getByRole('button', { name: 'Show the reviewed body' })).toHaveAttribute('aria-expanded', 'true');
-			await expect(noJsPage.getByText('The full reviewed body reaches the static article.')).toBeVisible();
+			expect(await noJsPage.getByRole('button', { name: 'Show the reviewed body' }).getAttribute('aria-expanded')).toBe('true');
+			expect(await noJsPage.getByText('The full reviewed body reaches the static article.').isVisible()).toBe(true);
 			await noJs.close();
 
 			const page = await browser.newPage();
 			await page.goto(url);
 			const trigger = page.getByRole('button', { name: 'Show the reviewed body' });
 			const body = page.getByText('The full reviewed body reaches the static article.');
-			await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-			await expect(body).toBeHidden();
+			await expect.poll(() => trigger.getAttribute('aria-expanded'), hydrated).toBe('false');
+			await expect.poll(() => body.isVisible(), hydrated).toBe(false);
 			await trigger.focus();
 			await page.keyboard.press('Enter');
-			await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-			await expect(body).toBeVisible();
+			await expect.poll(() => trigger.getAttribute('aria-expanded'), hydrated).toBe('true');
+			await expect.poll(() => body.isVisible(), hydrated).toBe(true);
 		} finally {
 			await browser.close();
 			await new Promise<void>((done) => server.close(() => done()));

@@ -4,7 +4,7 @@
 	// Prerendered HTML and every failure path render nothing. Decoration only;
 	// never put private content behind it.
 	import { onMount } from 'svelte';
-	import { probeTailnetHint, resolveTailnetHintManifest, TAILNET_HINT_FLAG } from '$lib/flags/tailnet-hint';
+	import { probeTailnetHint, resolveTailnetHintManifest, TAILNET_HINT_FLAG } from '#lib/flags/tailnet-hint.js';
 
 	let { flag = TAILNET_HINT_FLAG }: { flag?: string } = $props();
 

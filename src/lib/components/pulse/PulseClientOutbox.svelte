@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PulseClientOutboxItem } from '$lib/pulse/client/drafts';
-	import { mediaLifecycleLabel } from '$lib/pulse/client/media';
+	import type { PulseClientOutboxItem } from '#lib/pulse/client/drafts.js';
+	import { mediaLifecycleLabel } from '#lib/pulse/client/media.js';
 
 	let { items }: { items: readonly PulseClientOutboxItem[] } = $props();
 

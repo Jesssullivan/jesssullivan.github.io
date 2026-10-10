@@ -9,27 +9,36 @@ updates:
     schedule:
       interval: 'weekly'
     target-branch: 'main'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     ignore:
-      # Framework and test-runner majors move with the estate, not per spoke
-      # (TIN-3692 DB6 / DB21; the MassageIthaca #892 and gfts #206 major leaks).
+      # RU5 (2026-10-08): the estate stack is pinned exactly and moves only with
+      # the estate version manifest (site.scaffold SSOT), never per spoke:
+      # Svelte, Kit, Vite, TypeScript (+ the @typescript/typescript6 API companion),
+      # vitest, Playwright, Skeleton and Effect.
+      - dependency-name: 'svelte'
+      - dependency-name: '@sveltejs/kit'
+      - dependency-name: 'vite'
+      - dependency-name: 'typescript'
+      - dependency-name: '@typescript/typescript6'
+      # Patched dependencies (patches/, RU13) move only with their patch.
+      - dependency-name: 'svelte-check'
+      - dependency-name: 'vitest'
+      - dependency-name: '@vitest/*'
+      - dependency-name: '@playwright/test'
+      - dependency-name: '@skeletonlabs/*'
+      - dependency-name: 'effect'
+      # In-house packages reach the Bazel graph through bazel_dep registry
+      # modules (RU6/RU9); their npm-rail specifiers move with MODULE.bazel.
+      - dependency-name: '@tummycrypt/*'
+      # Remaining framework majors move with the estate (TIN-3692 DB6 / DB21).
       - dependency-name: '@sveltejs/*'
         update-types:
           - 'version-update:semver-major'
-      - dependency-name: 'vitest'
-        update-types:
-          - 'version-update:semver-major'
-      - dependency-name: '@vitest/*'
-        update-types:
-          - 'version-update:semver-major'
-      - dependency-name: 'typescript'
-        update-types:
-          - 'version-update:semver-major'
     groups:
-      minor-and-patch:
-        update-types:
-          - 'minor'
-          - 'patch'
+      # RU5: one grouped weekly PR for every remaining (ranged) dependency.
+      weekly:
+        patterns:
+          - '*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

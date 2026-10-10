@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import committed from '$lib/data/posts-projection.v1.json';
+import committed from '#lib/data/posts-projection.v1.json';
 import { configurationSha256, METHOD_REVISION, SCHEMA } from './embed';
 import { isProjectionDocument } from './scene';
 

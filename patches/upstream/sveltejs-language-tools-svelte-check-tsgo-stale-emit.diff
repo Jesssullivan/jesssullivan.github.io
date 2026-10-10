@@ -1,0 +1,33 @@
+# Upstream: https://github.com/sveltejs/language-tools, packages/svelte-check,
+#           base af7c6a5 (the same code ships in svelte-check@4.7.6 dist).
+# File:     packages/svelte-check/src/incremental.ts, emitSvelteFiles()
+# Reason:   `svelte-check --tsgo` without `--incremental` starts from an empty
+#           manifest, so pruneDeletedManifestEntries() never runs, yet emitDir
+#           is never cleared. Every file in emitDir is part of the overlay
+#           tsconfig program, so the svelte2tsx output of a DELETED .svelte
+#           file keeps being type-checked and reports phantom errors. The same
+#           happens in --incremental mode when the manifest is missing,
+#           corrupt or of an old version. Fix: when there are no manifest
+#           entries to prune from, start from an empty emitDir.
+# Found by the U4 xoxd.ai lane, 2026-10-08. Applied to the bundle by
+# patches/svelte-check@4.7.6.patch. Not filed upstream (operator channel only).
+--- a/packages/svelte-check/src/incremental.ts
++++ b/packages/svelte-check/src/incremental.ts
+@@ -158,11 +158,16 @@ export async function emitSvelteFiles(
+     const cacheDir = getCacheDir(workspacePath);
+     const emitDir = path.join(cacheDir, EMIT_SUBDIR);
+     const manifestPath = path.join(cacheDir, 'manifest.json');
+-    fs.mkdirSync(emitDir, { recursive: true });
+ 
+     const manifest = incremental
+         ? loadManifest(manifestPath, workspacePath)
+         : { version: MANIFEST_VERSION, entries: {} as Record<string, ManifestEntry> };
++    // With no manifest entries nothing can prune the outputs of deleted sources, and every
++    // file in emitDir is part of the overlay program, so start from an empty directory.
++    if (Object.keys(manifest.entries).length === 0) {
++        fs.rmSync(emitDir, { recursive: true, force: true });
++    }
++    fs.mkdirSync(emitDir, { recursive: true });
+     const kitFilesSettings = await loadKitFilesSettings(workspacePath, config);
+     const isJsOrTsFile = (filePath: string) => filePath.endsWith('.ts') || filePath.endsWith('.js');
+     const allRelevantFiles = await findFiles(

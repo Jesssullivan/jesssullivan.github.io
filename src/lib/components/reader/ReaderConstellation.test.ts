@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
-import type { Post } from '$lib/posts';
-import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+import type { Post } from '#lib/posts.js';
+import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
 import ReaderConstellation from './ReaderConstellation.svelte';
-import projection from '$lib/data/posts-projection.v1.json';
+import projection from '#lib/data/posts-projection.v1.json';
 
 const post: Post = {
 	title: 'A real post',

@@ -8,7 +8,7 @@ import PulseBirdCard from './PulseBirdCard.svelte';
 import PulseClientOutbox from './PulseClientOutbox.svelte';
 import PulseLabDecisionRow from './PulseLabDecisionRow.svelte';
 import PulseNoteCard from './PulseNoteCard.svelte';
-import { reviewedLeadImageSnapshot } from '$lib/pulse/fixtures/reviewedLeadImageSnapshot';
+import { reviewedLeadImageSnapshot } from '#lib/pulse/fixtures/reviewedLeadImageSnapshot.js';
 
 const occurredAt = '2026-04-27T18:00:00.000Z';
 

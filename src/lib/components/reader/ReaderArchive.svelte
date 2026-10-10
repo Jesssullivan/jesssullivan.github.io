@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Post } from '$lib/posts';
+	import type { Post } from '#lib/posts.js';
 
 	let { archive }: { archive: ReadonlyArray<{ year: string; posts: Post[] }> } = $props();
 </script>

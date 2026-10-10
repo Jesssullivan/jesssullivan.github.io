@@ -6,7 +6,7 @@
  * not routeable (held, unpublished or broker-only) is never drawn, and a
  * routeable post the projection does not know yet is reported, not invented.
  */
-import type { Post } from '$lib/posts';
+import type { Post } from '#lib/posts.js';
 
 export interface ProjectionDocument {
 	schema: string;

@@ -58,7 +58,13 @@ test.describe('Signal Boosts Page', () => {
 		await page.setViewportSize({ width: 375, height: 900 });
 		await page.goto('/signal-boosts');
 
-		const imageBoxes = await page.locator('a.card [data-scope="avatar"][data-part="image"]').evaluateAll((nodes) =>
+		const images = page.locator('a.card [data-scope="avatar"][data-part="image"]');
+		// The avatar prerenders each image `hidden` and reveals it once hydration sees it load;
+		// measuring before that reads a 0x0 box.
+		await expect(images.first()).toBeVisible();
+		for (const image of await images.all()) await expect(image).toBeVisible();
+
+		const imageBoxes = await images.evaluateAll((nodes) =>
 			nodes.map((node) => {
 				const rect = node.getBoundingClientRect();
 				return { width: rect.width, height: rect.height };

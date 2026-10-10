@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { loadFlexSearch, searchFlexSearch, type SearchResult } from '$lib/search';
+	import { loadFlexSearch, searchFlexSearch, type SearchResult } from '#lib/search.js';
 
 	let query = $state('');
 	let results = $state.raw<SearchResult[]>([]);

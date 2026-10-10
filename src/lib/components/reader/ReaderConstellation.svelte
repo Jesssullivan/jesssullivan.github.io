@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import type { Post } from '$lib/posts';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
-	import type { ReaderCollection } from '$lib/reader/collection';
-	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
+	import type { Post } from '#lib/posts.js';
+	import type { PublicPulseSnapshotAny } from '#lib/pulse/snapshot.js';
+	import type { ReaderCollection } from '#lib/reader/collection.js';
+	import PulseFeed from '#lib/components/pulse/PulseFeed.svelte';
 	// Build-time import (TIN-5680): the projection ships in this bundle, never fetched at runtime.
-	import postsProjection from '$lib/data/posts-projection.v1.json';
+	import postsProjection from '#lib/data/posts-projection.v1.json';
 	import {
 		buildScene,
 		firstInReadingOrder,
 		neighborInDirection,
 		neighboursOf,
 		type Direction,
-	} from '$lib/reader/projection/scene';
+	} from '#lib/reader/projection/scene.js';
 
 	type View = 'constellation' | 'map' | 'similar' | 'tree';
 

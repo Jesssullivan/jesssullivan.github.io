@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import SoundCloudEmbed from '$lib/components/SoundCloudEmbed.svelte';
+	import SoundCloudEmbed from '#lib/components/SoundCloudEmbed.svelte';
 
 	let { data }: { data: PageData } = $props();
 

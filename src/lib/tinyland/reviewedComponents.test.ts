@@ -26,7 +26,7 @@ describe('reviewed interactive SVX components', () => {
 			imports: ['InlineDisclosure'],
 		});
 		expect(reviewedComponentImportBlock(['InlineDisclosure'])).toContain(
-			"import InlineDisclosure from '$lib/components/InlineDisclosure.svelte';",
+			"import InlineDisclosure from '#lib/components/InlineDisclosure.svelte';",
 		);
 	});
 

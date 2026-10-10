@@ -1,8 +1,9 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve, sep } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { startVitest } from 'vitest/node';
+import { copyTreeDereferenced } from './lib/copy-tree.mjs';
 
 const workspaceRoot = process.cwd();
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-vitest-'));
@@ -52,7 +53,7 @@ function copyInputsToBuildRoot() {
 		'package.json',
 		'pnpm-lock.yaml',
 		'pnpm-workspace.yaml',
-		'svelte.config.js',
+		'kit.config.js',
 		'tsconfig.json',
 		'vite.config.ts',
 		'vitest.bazel.config.ts',
@@ -68,14 +69,7 @@ function copyPath(source, destination) {
 	}
 
 	mkdirSync(dirname(destination), { recursive: true });
-	cpSync(source, destination, {
-		dereference: true,
-		errorOnExist: false,
-		force: true,
-		filter: (sourcePath) => !sourcePath.split(sep).includes('node_modules'),
-		preserveTimestamps: false,
-		recursive: true,
-	});
+	copyTreeDereferenced(source, destination, { skipNodeModules: true });
 }
 
 function linkNodeModules() {
