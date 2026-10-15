@@ -1,6 +1,13 @@
 common --enable_bzlmod
-common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main
+common --registry=https://raw.githubusercontent.com/xoxd-ai/bazel-registry/5e083e0de406d30d5cff3d6ae39090abcdd4bc71
 common --registry=https://bcr.bazel.build
+# dsa_study_packet@0.1.0 is reached only through the root-only dev dependency
+# spear_resumes (git_override d7e854d). The registry yanked 0.1.0 on
+# 2026-10-05 in favor of 0.2.0; the SHA-pinned lockfile now records that yank.
+# Allow exactly this already-selected version so the private CV lane keeps the
+# same module graph. Public lanes pass --ignore_dev_dependency and never see it.
+# Remove this once spear_resumes moves to dsa_study_packet 0.2.0.
+common --allow_yanked_versions=dsa_study_packet@0.1.0
 common --experimental_repository_downloader_retries=5
 common --http_timeout_scaling=2.0
 
