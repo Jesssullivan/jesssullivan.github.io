@@ -106,7 +106,8 @@ re-read immediately before their credentialed mutation.
 - `package-lock.json` is the npm authority. `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel; do not casually hand-edit it.
 - Shared-cache CI provisions the package-lock-pinned Playwright Chromium outside Bazel actions and passes its absolute path explicitly. Browser-backed RBE uses the pinned worker Chromium path; do not add lifecycle downloads or host-local browser assumptions inside the RBE action path.
 - Broad `bazel query //...` and `bazel test //...` must not traverse agent scratch trees. `.bazelignore` intentionally excludes `.claude`, `.gstack`, `.worktrees`, build outputs, caches, and `workers/dns-guard/.wrangler`.
-- If you touch Bazel structure, scratch-tree ignores, or broad query behavior, run `npm run test:bazel-graph-hygiene` and, when possible, `bazelisk --output_user_root=/tmp/jess-ghio-bazel-codex test //:bazel_graph_hygiene`.
+- If you touch Bazel structure, scratch-tree ignores, or broad query behavior, run `npm run test:bazel-graph-hygiene` and, when possible, `GF_BAZEL_REMOTE_UPLOAD=false bash scripts/bazel-cache-backed.sh test //:bazel_graph_hygiene` (the attached lane, not a raw local server, with no developer result upload).
+- Bazel client servers are bounded (TIN-5770): `.bazelrc` sets `startup --max_idle_secs=120`, `CHECK_BAZEL_QUERY=1` runs its query with `--batch`, and the first Just recipe is `default`. Use `bazelisk --version` or `.bazelversion` for version display, never `bazel version` or `bazel info`.
 
 ## Agent Scratch And Worktrees
 
