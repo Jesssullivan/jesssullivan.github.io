@@ -1,3 +1,8 @@
+# Bound the Bazel client server (TIN-5770, R470). An idle server exits after
+# 120 s instead of holding a JVM for hours. Remote cache and executor settings
+# below are unchanged.
+startup --max_idle_secs=120
+
 common --enable_bzlmod
 common --registry=https://raw.githubusercontent.com/xoxd-ai/bazel-registry/5e083e0de406d30d5cff3d6ae39090abcdd4bc71
 common --registry=https://bcr.bazel.build

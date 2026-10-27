@@ -40,7 +40,8 @@ if [[ "${CHECK_BAZEL_QUERY:-0}" == "1" ]]; then
   query_output="$(mktemp)"
   trap 'rm -f "${query_output}"' EXIT
   cd "${repo_root}"
-  "${bazel_bin}" query //... >"${query_output}"
+  # One-shot tooling call: --batch leaves no resident server (TIN-5770, R472).
+  "${bazel_bin}" --batch query //... >"${query_output}"
 
   if grep -E '^//(\.claude|\.gstack|\.worktrees)(/|:)' "${query_output}" >&2; then
     echo "ERROR: broad Bazel package discovery traversed an ignored agent scratch tree" >&2
