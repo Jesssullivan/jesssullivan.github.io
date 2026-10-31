@@ -162,7 +162,19 @@ production project. `tss.tinyland.dev` moved to the dedicated `tss-shadow` Pages
 project on 2026-07-07; the production workflow does not update it. A TSS direct
 upload must compile with `PUBLIC_DEPLOY_TIER=shadow` and an exact
 `PUBLIC_SOURCE_SHA`, then use `wrangler pages deploy build
---project-name=tss-shadow --branch=main` with the lab admin CF token.
+--project-name=tss-shadow --branch=main` with an existing Pages-scoped API token.
+Do not substitute a Global API Key or infer scope from a token's custody path.
+The source-prepared `cloudflare-pages-shadow-v2.yml` workflow makes that upload
+an explicit default-branch-owned typed dispatch, with exact artifact/proof
+binding, a freshly checked default-off TSS-only switch and the fixed project
+above. It is not the private-tailnet apply lane or a production promotion.
+Before use, independently confirm the installed workflow, credential scope,
+qualified reader pairing and exact-source browser result; source preparation
+alone establishes none of those runtime facts. Archive extraction must preserve
+case-distinct paths on a case-sensitive filesystem and select the static COPY
+layer, not unrelated files inherited from the image's nginx base.
+See [the TSS shadow direct-upload runbook](runbooks/tss-shadow-direct-upload.md)
+for the exact request, evidence boundaries and post-upload checks.
 
 The cut followed the safe order below, which stays load-bearing for any future
 rollback-and-recut. The hard rule: **NEVER flip a production hostname to the
