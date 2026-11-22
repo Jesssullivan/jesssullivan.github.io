@@ -8,6 +8,7 @@ export default defineConfig({
 			'src/**/*.test.ts',
 			'scripts/gf-reapi-bazel-credential-helper.test.mts',
 			'scripts/wayback-utils.test.mts',
+			'scripts/lib/frontmatter.test.mts',
 			'packages/pulse-core/test/**/*.test.ts',
 			'packages/pulse-client/test/**/*.test.ts',
 		],

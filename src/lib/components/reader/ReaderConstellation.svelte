@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
 	import { goto } from '$app/navigation';
-	import type { Post } from '$lib/posts';
 	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
@@ -16,16 +15,15 @@
 		type Direction,
 	} from '$lib/reader/projection/scene';
 
-	type View = 'constellation' | 'map' | 'similar' | 'tree';
+	// The section opens on the map. The list carries the same posts and neighbours for readers who cannot use the map (RM27).
+	type View = 'map' | 'list';
 
 	let {
-		posts,
 		snapshot,
 		archive = [],
 		focusSlug = null,
-		initialView = 'constellation',
+		initialView = 'map',
 	}: {
-		posts: Post[];
 		snapshot: PublicPulseSnapshotAny;
 		archive?: ReaderCollection['archive'];
 		focusSlug?: string | null;
@@ -33,23 +31,6 @@
 	} = $props();
 	// svelte-ignore state_referenced_locally
 	let view = $state<View>(initialView);
-
-	const nodes = $derived([
-		...posts.slice(0, 4).map((post) => ({
-			id: `post-${post.slug}`,
-			kind: 'Post',
-			date: post.date,
-			title: post.title,
-				href: `/blog/${post.slug}`,
-		})),
-		...snapshot.items.slice(0, 2).map((item) => ({
-			id: `pulse-${item.id}`,
-			kind: item.kind === 'bird_sighting' ? 'Bird sighting' : 'Pulse note',
-			date: item.occurredAt,
-			title: item.summary || (item.kind === 'bird_sighting' ? item.birdSighting?.commonName : item.content) || 'Pulse',
-				href: '/pulse',
-		})),
-	]);
 
 	// Similarity map: only posts the reader can already route to are drawn.
 	const scene = $derived(buildScene(postsProjection, archive.flatMap((group) => group.posts)));
@@ -60,7 +41,7 @@
 	const activeNode = $derived(scene && activeIdx >= 0 ? scene.nodes[activeIdx] : null);
 	const activeNeighbours = $derived(scene && activeIdx >= 0 ? new Set(scene.adjacency[activeIdx]) : new Set<number>());
 	const tabIndexOwner = $derived(scene ? (focusIdx >= 0 ? focusIdx : firstInReadingOrder(scene)) : -1);
-	const similarList = $derived(
+	const listOrder = $derived(
 		scene ? [...scene.nodes].sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug)) : [],
 	);
 
@@ -152,20 +133,16 @@
 			<h2 id="constellation-heading" class="font-heading text-2xl font-bold">The constellation</h2>
 			<p class="intro">Follow a thread into the full post, or keep scrolling through the reader.</p>
 		</div>
-		<div class="controls">
-			<button type="button" aria-pressed={view === 'constellation'} onclick={() => view = 'constellation'}>Constellation</button>
-			{#if scene && scene.nodes.length > 0}
-				<button type="button" aria-pressed={view === 'map'} onclick={() => view = 'map'}>Similarity map</button>
-				<button type="button" aria-pressed={view === 'similar'} onclick={() => view = 'similar'}>Similar posts</button>
-			{/if}
-			<button type="button" aria-pressed={view === 'tree'} onclick={() => view = 'tree'}>Year tree</button>
-			<input id="constellation-pause" class="motion-toggle" type="checkbox" />
-			<label for="constellation-pause">Pause motion</label>
-			<a href="#latest">Browse as a list ↓</a>
-		</div>
+		{#if scene && scene.nodes.length > 0}
+			<div class="controls">
+				<button type="button" aria-pressed={view === 'map'} onclick={() => view = 'map'}>Map</button>
+				<button type="button" aria-pressed={view === 'list'} onclick={() => view = 'list'}>List</button>
+				<a href="#latest">Skip to Latest ↓</a>
+			</div>
+		{/if}
 	</div>
 
-	{#if (view === 'map' || view === 'similar') && scene && scene.nodes.length > 0}
+	{#if scene && scene.nodes.length > 0}
 		<div class="projection" data-testid="posts-projection">
 			<p class="projection-note">
 				{scene.note} Placed {scene.nodes.length} public posts.
@@ -231,7 +208,7 @@
 				</div>
 			{:else}
 				<ol class="similar-list" aria-label="Public posts with their most similar posts">
-					{#each similarList as node (node.slug)}
+					{#each listOrder as node (node.slug)}
 						<li>
 							<a href={node.href}>{node.title}</a> <time datetime={node.date}>{node.date.slice(0, 10)}</time>
 							{#if neighboursOf(scene, node.index).length > 0}
@@ -242,30 +219,8 @@
 				</ol>
 			{/if}
 		</div>
-	{:else if view === 'tree'}
-		<ul class="year-tree" aria-label="Public writing by year">
-			{#each archive as group (group.year)}
-				<li><details><summary>{group.year} · {group.posts.length} posts</summary>
-					<ul>{#each group.posts as post (post.slug)}<li><a href={`/blog/${post.slug}`}>{post.title}</a></li>{/each}</ul>
-				</details></li>
-			{/each}
-		</ul>
-	{:else if nodes.length > 0}
-		<ol class="constellation-field" aria-label="Recent public writing and notes">
-			{#each nodes as node (node.id)}
-				<li class="constellation-node">
-					<a href={node.href} aria-label={`${node.kind}: ${node.title}`}>
-						<span class="node-marker" aria-hidden="true"></span>
-						<span class="node-copy">
-							<span class="node-meta">{node.kind} · <time datetime={node.date}>{node.date.slice(0, 10)}</time></span>
-							<strong>{node.title}</strong>
-						</span>
-					</a>
-				</li>
-			{/each}
-		</ol>
 	{:else}
-		<p class="empty">No public writing or notes yet. The list below will appear when there is something to read.</p>
+		<p class="empty">No public post is on the map yet. The Latest and Archive lists below have every public post.</p>
 	{/if}
 	<details class="reviewed-pulse"><summary>Reviewed public Pulse details</summary><div id="experimental-pulse"><PulseFeed {snapshot} /></div></details>
 </section>
@@ -273,31 +228,15 @@
 <style>
 	.constellation { margin-bottom: 4rem; }
 	.constellation-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
-	.eyebrow, .node-meta { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; }
-	.eyebrow { color: var(--color-primary-500); margin-bottom: .45rem; }
-	.intro { margin-top: .35rem; opacity: .75; }
+	.eyebrow { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; color: var(--color-primary-500); margin-bottom: .45rem; }
+	.intro { margin-top: .35rem; opacity: .75; max-width: 60ch; }
 	.controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; font-family: 'Inter', sans-serif; font-size: .78rem; }
 	.controls a { text-decoration: underline; text-underline-offset: .2em; }
 	.controls button { border: 1px solid currentColor; padding: .35rem .6rem; border-radius: .3rem; }
 	.controls button[aria-pressed='true'] { color: var(--color-primary-500); }
-	.controls button:focus-visible, .year-tree a:focus-visible, .year-tree summary:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.year-tree { padding: 1rem; border: 1px solid currentColor; }
-	.year-tree summary { cursor: pointer; padding: .5rem; }
-	.year-tree ul { margin-left: 1.25rem; border-left: 1px solid currentColor; padding-left: 1rem; }
-	.year-tree a { display: inline-block; padding: .4rem; text-decoration: underline; }
-	.motion-toggle { width: 1rem; height: 1rem; accent-color: var(--color-primary-500); }
-	.motion-toggle:focus-visible, .controls a:focus-visible, .constellation-node a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.motion-toggle + label { cursor: pointer; margin-left: -.7rem; }
-	.constellation-field { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1.25rem; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); isolation: isolate; }
-	.constellation-field::before { content: ''; position: absolute; inset: 1.8rem; border: 1px dashed currentColor; opacity: .2; transform: skewY(-8deg); pointer-events: none; z-index: -1; }
-	.constellation-node { min-width: 0; animation: float 6s ease-in-out infinite alternate; }
-	.constellation-node:nth-child(even) { animation-delay: -3s; }
-	.constellation-node a { display: flex; align-items: flex-start; gap: .8rem; min-height: 6.5rem; padding: 1rem; border: 1px solid currentColor; background: var(--color-surface-50); text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
-	:global([data-mode='dark']) .constellation-node a { background: var(--color-surface-950); }
-	.constellation-node a:hover { transform: translateY(-2px); border-color: var(--color-primary-500); }
-	.node-marker { flex: none; width: .65rem; height: .65rem; margin-top: .25rem; border: 2px solid var(--color-primary-500); border-radius: 50%; box-shadow: 0 0 0 .24rem color-mix(in srgb, var(--color-primary-500) 18%, transparent); }
-	.node-copy { display: grid; gap: .4rem; min-width: 0; }
+	.controls button:focus-visible, .controls a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
 	.reviewed-pulse { margin-top: 1rem; }
+	.reviewed-pulse summary { cursor: pointer; padding: .5rem; }
 	.projection { display: grid; gap: .75rem; }
 	.projection-note, .projection-help { font-family: 'Inter', sans-serif; font-size: .8rem; opacity: .8; max-width: 60ch; }
 	.projection-map { display: block; touch-action: manipulation; -webkit-tap-highlight-color: transparent; width: 100%; max-width: 42rem; aspect-ratio: 1 / 1; margin-inline: auto; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); }
@@ -313,35 +252,15 @@
 	.projection-nodes a.active .dot { fill: var(--color-primary-500); r: 11; }
 	.projection-nodes a:focus { outline: none; }
 	.projection-nodes a:focus-visible .hit { stroke: var(--color-primary-500); stroke-width: 4; }
-	.projection-detail { min-height: 3.5rem; padding: .75rem 1rem; border: 1px solid currentColor; font-family: 'Inter', sans-serif; font-size: .85rem; }
-	.projection-detail { overflow-wrap: anywhere; }
+	.projection-detail { min-height: 3.5rem; padding: .75rem 1rem; border: 1px solid currentColor; font-family: 'Inter', sans-serif; font-size: .85rem; overflow-wrap: anywhere; }
 	.projection-detail .open-post { display: inline-block; margin-top: .4rem; padding: .45rem .8rem; border: 1px solid var(--color-primary-500); border-radius: .3rem; font-weight: 600; text-decoration: none; }
 	.projection-detail a, .similar-list a { text-decoration: underline; text-underline-offset: .2em; }
 	.projection-detail a:focus-visible, .similar-list a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.similar-list { display: grid; gap: .6rem; padding: 1rem 1rem 1rem 2.25rem; border: 1px solid currentColor; list-style: decimal; }
+	.similar-list { display: grid; gap: .6rem; padding: 1rem 1rem 1rem 2.25rem; border: 1px solid currentColor; list-style: decimal; overflow-wrap: anywhere; }
 	.similar-list time { font-size: .75rem; opacity: .7; }
 	.similar-list .near { display: block; font-size: .8rem; opacity: .85; }
-	.reviewed-pulse summary { cursor: pointer; padding: .5rem; }
-	.node-meta { opacity: .7; }
-	.node-copy strong { font-family: 'Inter', sans-serif; font-size: .95rem; line-height: 1.3; }
 	.empty { padding: 1.5rem; border: 1px solid currentColor; }
-	.constellation:has(.motion-toggle:checked) .constellation-node,
-	.constellation:has(.constellation-field:hover) .constellation-node,
-	.constellation:has(.constellation-field:focus-within) .constellation-node { animation-play-state: paused; }
-	@keyframes float { from { translate: 0 0; } to { translate: 0 -.25rem; } }
-	@media (min-width: 850px) {
-		.constellation-field { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; min-height: 20rem; }
-		.constellation-node { grid-column: span 2; }
-		.constellation-node:nth-child(4n + 2) { grid-column: 4 / span 2; }
-		.constellation-node:nth-child(4n + 3) { grid-column: 2 / span 2; }
-	}
 	@media (max-width: 600px) {
-		.constellation-field { display: block; padding: .75rem; }
-		.constellation-field::before { display: none; }
-		.constellation-node + .constellation-node { margin-top: .7rem; }
-		.constellation-node { animation: none; }
-		.constellation-node a { min-height: 4.5rem; }
-		.motion-toggle, .motion-toggle + label { display: none; }
 		/* At ~360px the 1000-unit viewBox shrinks points to ~5px. Touch reach comes from nearest-node selection, not from larger hit circles. */
 		.projection-nodes .hit { r: 26; }
 		.projection-nodes .dot { r: 10; stroke-width: 4; }
@@ -349,9 +268,5 @@
 		.projection-edges line { stroke-width: 3; }
 		.projection-edges line.active { stroke-width: 5; }
 		.projection-nodes a:focus-visible .hit { stroke-width: 6; }
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.constellation-node { animation: none; }
-		.constellation-node a { transition: none; }
 	}
 </style>

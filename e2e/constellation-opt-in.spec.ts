@@ -39,9 +39,9 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toBeVisible();
 	await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse unavailable.');
-	await page.getByRole('button', { name: 'Year tree', exact: true }).click();
-	await page.locator('.year-tree summary').first().click();
-	await expect(page.locator('.year-tree a[href^="/blog/"]').first()).toBeVisible();
+	// The section opens on the similarity map (RM27).
+	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.locator('.projection-map a[href^="/blog/"]').first()).toBeAttached();
 	await page.evaluate(() => { const link = document.querySelector<HTMLAnchorElement>('#flag-navigation'); if (link) link.href = '/?flags=none'; });
 	requests.length = 0;
 	await page.locator('#flag-navigation').click();

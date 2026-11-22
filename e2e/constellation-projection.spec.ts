@@ -53,14 +53,13 @@ test('flag on: every routeable projected post is a keyboard-reachable map node a
 	const requests = recordProjectionRequests(page);
 	await page.goto('/?flags=constellation');
 	await expect(page.locator('.constellation')).toBeVisible();
-	await expect(page.getByTestId('posts-projection')).toHaveCount(0);
 
-	await page.getByRole('button', { name: 'Year tree', exact: true }).click();
-	const routeable = new Set(await page.locator('.year-tree a[href^="/blog/"]').evaluateAll(links => links.map(link => (link as HTMLAnchorElement).pathname.replace(/^\/blog\//, '').replace(/\/$/, ''))));
+	// The ordinary reader archive lists every routeable post.
+	const routeable = new Set(await page.locator('#archive a[href^="/blog/"]').evaluateAll(links => links.map(link => (link as HTMLAnchorElement).pathname.replace(/^\/blog\//, '').replace(/\/$/, ''))));
 	expect(routeable.has(HELD_SLUG)).toBe(false);
 
-	await page.getByRole('button', { name: 'Similarity map', exact: true }).click();
-	await expect(page.getByRole('button', { name: 'Similarity map', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	// The section opens on the map (RM27).
+	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	const nodes = page.locator('.projection-map a[data-slug]');
 	const slugs = await nodes.evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
 	expect(slugs.length).toBeGreaterThan(100);
@@ -89,19 +88,19 @@ test('flag on: every routeable projected post is a keyboard-reachable map node a
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(new RegExp(`/blog/${current}/?$`));
 
-	await page.goto('/');
-	await page.getByRole('button', { name: 'Similar posts', exact: true }).click();
+	await page.goto('/?flags=constellation');
+	await page.getByRole('button', { name: 'List', exact: true }).click();
+	await expect(page.getByRole('button', { name: 'List', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	await expect(page.locator('.similar-list > li')).toHaveCount(slugs.length);
 	expect(requests).toEqual([]);
 });
 
 test('?focus=<slug> opens the map on that post', async ({ page }) => {
 	await page.goto('/?flags=constellation');
-	await page.getByRole('button', { name: 'Similarity map', exact: true }).click();
 	const target = await page.locator('.projection-map a[data-slug]').nth(7).getAttribute('data-slug');
 	expect(target).toBeTruthy();
 	await page.goto(`/?flags=constellation&focus=${target}`);
-	await expect(page.getByRole('button', { name: 'Similarity map', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	await expect.poll(() => activeSlug(page)).toBe(target);
 	await expect(page.getByTestId('posts-projection-detail').locator(`a[href="/blog/${target}"]`)).toBeVisible();
 });
@@ -133,7 +132,6 @@ const noHorizontalScroll = (page: Page) => page.evaluate(() => document.document
 
 test('mouse: hover shows the title, a click opens the post', async ({ page }) => {
 	await page.goto('/?flags=constellation');
-	await page.getByRole('button', { name: 'Similarity map', exact: true }).click();
 	const slug = await page.locator('.projection-map a[data-slug]').nth(11).getAttribute('data-slug');
 	const centre = await nodeCentre(page, slug as string);
 	await page.mouse.move(centre.x, centre.y);
@@ -146,11 +144,11 @@ test('mouse: hover shows the title, a click opens the post', async ({ page }) =>
 test.describe('phone, touch', () => {
 	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-	test('fits 390px in every view without horizontal scroll', async ({ page }) => {
+	test('fits 390px in both views without horizontal scroll', async ({ page }) => {
 		await page.goto('/?flags=constellation');
 		await expect(page.locator('.constellation')).toBeVisible();
 		expect(await noHorizontalScroll(page)).toBe(true);
-		for (const view of ['Similarity map', 'Similar posts', 'Year tree', 'Constellation']) {
+		for (const view of ['List', 'Map']) {
 			await page.getByRole('button', { name: view, exact: true }).tap();
 			await expect(page.getByRole('button', { name: view, exact: true })).toHaveAttribute('aria-pressed', 'true');
 			expect(await noHorizontalScroll(page), view).toBe(true);
@@ -159,7 +157,6 @@ test.describe('phone, touch', () => {
 
 	test('first tap selects the nearest node in a dense cluster, a second tap opens it', async ({ page }) => {
 		await page.goto('/?flags=constellation');
-		await page.getByRole('button', { name: 'Similarity map', exact: true }).tap();
 		const { near, far } = await closestPair(page);
 		const a = await nodeCentre(page, near);
 		const b = await nodeCentre(page, far, false);
@@ -176,7 +173,6 @@ test.describe('phone, touch', () => {
 
 	test('the Open post control opens the selected post', async ({ page }) => {
 		await page.goto('/?flags=constellation');
-		await page.getByRole('button', { name: 'Similarity map', exact: true }).tap();
 		const slug = await page.locator('.projection-map a[data-slug]').nth(3).getAttribute('data-slug');
 		const centre = await nodeCentre(page, slug as string);
 		await page.touchscreen.tap(centre.x, centre.y);
@@ -185,11 +181,22 @@ test.describe('phone, touch', () => {
 	});
 });
 
-test('reduced motion stops the constellation animation', async ({ page }) => {
+// The card grid and its float animation were cut (RM27). Nothing in the section may move under reduced motion.
+test('reduced motion: nothing in the constellation animates', async ({ page }) => {
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await page.goto('/?flags=constellation');
-	await expect(page.locator('.constellation-node').first()).toBeVisible();
-	const animations = await page.locator('.constellation-node').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).animationName));
-	expect(animations.length).toBeGreaterThan(0);
-	expect(animations.every(name => name === 'none')).toBe(true);
+	const slug = await page.locator('.projection-map a[data-slug]').nth(5).getAttribute('data-slug');
+	const centre = await nodeCentre(page, slug as string);
+	await page.mouse.move(centre.x, centre.y);
+	await expect(page.locator(`.projection-map a[data-slug="${slug}"]`)).toHaveClass(/active/);
+	const moving = await page.evaluate(() => {
+		const section = document.querySelector('.constellation');
+		const running = document.getAnimations().filter(animation => {
+			const target = (animation.effect as KeyframeEffect | null)?.target;
+			return target instanceof Element && section?.contains(target);
+		}).length;
+		const styled = [...(section?.querySelectorAll('*') ?? [])].filter(element => getComputedStyle(element).animationName !== 'none').length;
+		return { running, styled };
+	});
+	expect(moving).toEqual({ running: 0, styled: 0 });
 });
