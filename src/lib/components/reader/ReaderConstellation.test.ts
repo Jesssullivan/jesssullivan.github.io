@@ -56,7 +56,8 @@ describe('ReaderConstellation', () => {
 		expect((html.match(/tabindex="0"/g) ?? []).length).toBe(1);
 		expect(html).toMatch(/aria-pressed="true"[^>]*>Map</);
 		expect(html).toMatch(/aria-pressed="false"[^>]*>List</);
-		expect(html).toContain('A real note');
+		// Pulse items stay in the reviewed details block.
+		expect(html).toContain('The full note lives in Pulse.');
 		// The card grid, the year tree and the motion toggle were cut (RM27).
 		expect(html).not.toContain('Year tree');
 		expect(html).not.toContain('Pause motion');
