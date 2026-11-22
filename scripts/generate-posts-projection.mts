@@ -11,33 +11,9 @@
  * packages. The output is committed at src/lib/data/posts-projection.v1.json and
  * imported at build time by ReaderConstellation, so the browser never fetches it.
  */
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { parseFrontmatter, parseFrontmatterRaw } from './lib/frontmatter.mts';
-import { embedPosts, serializeProjection, type PostSource } from '../src/lib/reader/projection/embed.ts';
-
-const POSTS_DIR = 'src/posts';
-const OUTPUT = 'src/lib/data/posts-projection.v1.json';
-
-function readPublishedPosts(dir = POSTS_DIR): PostSource[] {
-	const posts: PostSource[] = [];
-	for (const file of readdirSync(dir).filter((name) => /\.(?:md|svx)$/.test(name)).sort()) {
-		const content = readFileSync(join(dir, file), 'utf-8');
-		const meta = parseFrontmatter(content);
-		// Same publication rule as scripts/generate-search-index.mts: only an explicit true.
-		if (!meta || meta.published !== true) continue;
-		const slug = (meta.slug as string) ?? file.replace(/\.(?:md|svx)$/, '').replace(/^\d{4}-\d{2}-\d{2}-/, '');
-		posts.push({
-			slug,
-			title: String(meta.title ?? slug),
-			description: String(meta.description ?? meta.excerpt ?? ''),
-			tags: Array.isArray(meta.tags) ? (meta.tags as unknown[]).map(String) : [],
-			category: typeof meta.category === 'string' ? meta.category : undefined,
-			body: parseFrontmatterRaw(content)?.body ?? '',
-		});
-	}
-	return posts;
-}
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { embedPosts, serializeProjection } from '../src/lib/reader/projection/embed.ts';
+import { PROJECTION_OUTPUT as OUTPUT, readPublishedPosts } from './lib/posts-projection-sources.mts';
 
 function main(argv: string[]): number {
 	const cold = argv.includes('--cold');

@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import committed from '$lib/data/posts-projection.v1.json';
-import { configurationSha256, METHOD_REVISION, SCHEMA } from './embed';
+import { readPublishedPosts } from '../../../../scripts/lib/posts-projection-sources.mjs';
+import { canonicalCorpus, configurationSha256, corpusSha256, METHOD_REVISION, SCHEMA } from './embed';
 import { isProjectionDocument } from './scene';
 
 // Front matter scalar read, matching scripts/lib/frontmatter.mts for `published` and `slug`.
@@ -33,6 +34,15 @@ describe('committed posts projection (src/lib/data/posts-projection.v1.json)', (
 		expect(committed.schema).toBe(SCHEMA);
 		expect(committed.method).toBe(METHOD_REVISION);
 		expect(committed.configuration_sha256).toBe(configurationSha256());
+	});
+
+	// TIN-8628: a new, edited or removed published post changes the corpus, so CI fails until the map is refit.
+	it('is fresh against the published posts; otherwise run just posts-projection and commit the result', () => {
+		const posts = readPublishedPosts(join(process.cwd(), 'src/posts'));
+		const current = posts.map((post) => post.slug).sort();
+		const placed = committed.posts.map((post) => post.slug);
+		expect({ missing: current.filter((slug) => !placed.includes(slug)), extra: placed.filter((slug) => !current.includes(slug)) }).toEqual({ missing: [], extra: [] });
+		expect(committed.corpus_sha256).toBe(corpusSha256(canonicalCorpus(posts)));
 	});
 
 	it('contains only published posts and never a held or unpublished slug', () => {

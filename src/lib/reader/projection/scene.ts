@@ -172,3 +172,22 @@ export function firstInReadingOrder(scene: Scene): number {
 export function neighboursOf(scene: Scene, index: number): SceneNode[] {
 	return (scene.adjacency[index] ?? []).map((i) => scene.nodes[i]);
 }
+
+/**
+ * The node whose centre is nearest to a point, in the unit square, or -1 when
+ * none lies within `maxDistance`. Pointer and touch selection use this instead
+ * of overlapping hit circles, so a tap never picks a node farther away than
+ * another node. A tie goes to the lower index (slug order), so it is stable.
+ */
+export function nearestNode(scene: Scene, x: number, y: number, maxDistance: number): number {
+	let best = -1;
+	let bestDistance = Infinity;
+	for (const node of scene.nodes) {
+		const distance = Math.hypot(node.x - x, node.y - y);
+		if (distance < bestDistance) {
+			bestDistance = distance;
+			best = node.index;
+		}
+	}
+	return best >= 0 && bestDistance <= maxDistance ? best : -1;
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
+	import { goto } from '$app/navigation';
 	import type { Post } from '$lib/posts';
 	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { ReaderCollection } from '$lib/reader/collection';
@@ -9,6 +10,7 @@
 	import {
 		buildScene,
 		firstInReadingOrder,
+		nearestNode,
 		neighborInDirection,
 		neighboursOf,
 		type Direction,
@@ -63,6 +65,44 @@
 	);
 
 	const ARROWS: Record<string, Direction> = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
+	// Screen distance within which a pointer reaches a node. Touch gets more than a 24px target (WCAG 2.5.8).
+	const MOUSE_REACH_PX = 14;
+	const TOUCH_REACH_PX = 28;
+	let lastPointerType = 'mouse';
+
+	function openNode(index: number, newTab = false) {
+		const node = scene?.nodes[index];
+		if (!node) return;
+		if (newTab) window.open(node.href, '_blank', 'noopener');
+		else void goto(node.href);
+	}
+
+	/** The node nearest the pointer, or -1 when none is within reach. */
+	function nodeAtPointer(event: MouseEvent, reachPx: number): number {
+		const ctm = mapElement?.getScreenCTM();
+		if (!scene || !ctm || !ctm.a) return -1;
+		const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(ctm.inverse());
+		return nearestNode(scene, point.x / 1000, point.y / 1000, reachPx / (ctm.a * 1000));
+	}
+
+	function onMapPointerMove(event: PointerEvent) {
+		if (event.pointerType !== 'mouse') return;
+		hoverIdx = nodeAtPointer(event, MOUSE_REACH_PX);
+	}
+
+	// Mouse: a click opens the nearest node. Touch and pen: the first tap selects
+	// the nearest node, and a second tap on the same node opens it.
+	function onMapClick(event: MouseEvent) {
+		const mouse = lastPointerType === 'mouse';
+		const index = nodeAtPointer(event, mouse ? MOUSE_REACH_PX : TOUCH_REACH_PX);
+		if (index < 0) {
+			if (!mouse) focusIdx = -1;
+			return;
+		}
+		if (mouse) openNode(index, event.metaKey || event.ctrlKey);
+		else if (focusIdx === index) openNode(index);
+		else focusIdx = index;
+	}
 
 	async function focusNode(index: number) {
 		focusIdx = index;
@@ -78,9 +118,14 @@
 			const next = neighborInDirection(scene, index, direction);
 			if (next >= 0) void focusNode(next);
 		} else if (event.key === 'Enter') {
-			// Chromium does not activate a focused SVG <a> on Enter; hand the router a click.
+			// Chromium does not activate a focused SVG <a> on Enter.
 			event.preventDefault();
-			event.currentTarget?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+			openNode(index);
+		} else if (event.key === 'Home' || event.key === 'End') {
+			event.preventDefault();
+			const order = [...scene.nodes].sort((a, b) => a.y * 2 + a.x - (b.y * 2 + b.x));
+			const target = event.key === 'Home' ? order[0] : order[order.length - 1];
+			if (target) void focusNode(target.index);
 		} else if (event.key === 'Escape') {
 			event.preventDefault();
 			focusIdx = -1;
@@ -127,14 +172,21 @@
 				{#if scene.unplaced.length > 0}{scene.unplaced.length} newer {scene.unplaced.length === 1 ? 'post is' : 'posts are'} not on the map yet; the list below has {scene.unplaced.length === 1 ? 'it' : 'them'}.{/if}
 			</p>
 			{#if view === 'map'}
-				<p class="projection-help" id="projection-help">Tab into the map, then use the arrow keys to move between nearby posts. Enter opens a post; Escape clears the selection.</p>
+				<p class="projection-help" id="projection-help">Point at a dot to see its title and click to open the post. On a touch screen, tap a dot to select it, then tap it again or use Open post. With a keyboard, tab into the map and use the arrow keys to move between nearby posts. Home and End jump to the first and last post. Enter opens a post. Escape clears the selection.</p>
+				<!-- Pointers select by nearest centre (TIN-8628). Keyboard users get the roving tab stop on the nodes. -->
+				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 				<svg
 					bind:this={mapElement}
 					class="projection-map"
+					class:pointing={hoverIdx >= 0}
 					viewBox="0 0 1000 1000"
 					role="group"
 					aria-label="Similarity map of public posts"
 					aria-describedby="projection-help"
+					onpointerdown={(event) => (lastPointerType = event.pointerType || 'mouse')}
+					onpointermove={onMapPointerMove}
+					onpointerleave={() => (hoverIdx = -1)}
+					onclick={onMapClick}
 				>
 					<g class="projection-edges" aria-hidden="true">
 						{#each scene.edges as [a, b] (`${a}:${b}`)}
@@ -158,8 +210,6 @@
 								class:active={node.index === activeIdx}
 								class:neighbour={activeNeighbours.has(node.index)}
 								onfocus={() => (focusIdx = node.index)}
-								onpointerenter={() => (hoverIdx = node.index)}
-								onpointerleave={() => (hoverIdx = -1)}
 								onkeydown={(event) => onNodeKey(event, node.index)}
 							>
 								<circle cx={node.x * 1000} cy={node.y * 1000} r="18" class="hit" />
@@ -170,7 +220,8 @@
 				</svg>
 				<div class="projection-detail" aria-live="polite" data-testid="posts-projection-detail">
 					{#if activeNode}
-						<p><a href={activeNode.href}><strong>{activeNode.title}</strong></a> · <time datetime={activeNode.date}>{activeNode.date.slice(0, 10)}</time></p>
+						<p><strong>{activeNode.title}</strong> · <time datetime={activeNode.date}>{activeNode.date.slice(0, 10)}</time></p>
+						<p><a class="open-post" href={activeNode.href} aria-label={`Open post: ${activeNode.title}`} data-testid="posts-projection-open">Open post →</a></p>
 						{#if neighboursOf(scene, activeNode.index).length > 0}
 							<p>Near: {#each neighboursOf(scene, activeNode.index) as near, i (near.slug)}{i > 0 ? ', ' : ''}<a href={near.href}>{near.title}</a>{/each}</p>
 						{/if}
@@ -249,17 +300,22 @@
 	.reviewed-pulse { margin-top: 1rem; }
 	.projection { display: grid; gap: .75rem; }
 	.projection-note, .projection-help { font-family: 'Inter', sans-serif; font-size: .8rem; opacity: .8; max-width: 60ch; }
-	.projection-map { display: block; width: 100%; max-width: 42rem; aspect-ratio: 1 / 1; margin-inline: auto; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); }
+	.projection-map { display: block; touch-action: manipulation; -webkit-tap-highlight-color: transparent; width: 100%; max-width: 42rem; aspect-ratio: 1 / 1; margin-inline: auto; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); }
 	.projection-edges line { stroke: currentColor; stroke-opacity: .18; stroke-width: 2; }
 	.projection-edges line.active { stroke: var(--color-primary-500); stroke-opacity: .9; stroke-width: 3; }
+	/* The hit circle only draws the focus ring. The map picks the nearest node for pointers. */
 	.projection-nodes .hit { fill: transparent; }
+	.projection-nodes a { pointer-events: none; }
+	.projection-map.pointing { cursor: pointer; }
 	.projection-nodes .dot { fill: var(--color-surface-50); stroke: var(--color-primary-500); stroke-width: 3; }
 	:global([data-mode='dark']) .projection-nodes .dot { fill: var(--color-surface-950); }
 	.projection-nodes a.neighbour .dot { fill: color-mix(in srgb, var(--color-primary-500) 35%, transparent); }
-	.projection-nodes a.active .dot, .projection-nodes a:hover .dot { fill: var(--color-primary-500); r: 11; }
+	.projection-nodes a.active .dot { fill: var(--color-primary-500); r: 11; }
 	.projection-nodes a:focus { outline: none; }
 	.projection-nodes a:focus-visible .hit { stroke: var(--color-primary-500); stroke-width: 4; }
 	.projection-detail { min-height: 3.5rem; padding: .75rem 1rem; border: 1px solid currentColor; font-family: 'Inter', sans-serif; font-size: .85rem; }
+	.projection-detail { overflow-wrap: anywhere; }
+	.projection-detail .open-post { display: inline-block; margin-top: .4rem; padding: .45rem .8rem; border: 1px solid var(--color-primary-500); border-radius: .3rem; font-weight: 600; text-decoration: none; }
 	.projection-detail a, .similar-list a { text-decoration: underline; text-underline-offset: .2em; }
 	.projection-detail a:focus-visible, .similar-list a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
 	.similar-list { display: grid; gap: .6rem; padding: 1rem 1rem 1rem 2.25rem; border: 1px solid currentColor; list-style: decimal; }
@@ -286,10 +342,10 @@
 		.constellation-node { animation: none; }
 		.constellation-node a { min-height: 4.5rem; }
 		.motion-toggle, .motion-toggle + label { display: none; }
-		/* At ~360px the 1000-unit viewBox shrinks points to ~5px and hit areas to ~13px; keep a 24px target (WCAG 2.5.8). */
-		.projection-nodes .hit { r: 36; }
+		/* At ~360px the 1000-unit viewBox shrinks points to ~5px. Touch reach comes from nearest-node selection, not from larger hit circles. */
+		.projection-nodes .hit { r: 26; }
 		.projection-nodes .dot { r: 10; stroke-width: 4; }
-		.projection-nodes a.active .dot, .projection-nodes a:hover .dot { r: 15; }
+		.projection-nodes a.active .dot { r: 15; }
 		.projection-edges line { stroke-width: 3; }
 		.projection-edges line.active { stroke-width: 5; }
 		.projection-nodes a:focus-visible .hit { stroke-width: 6; }

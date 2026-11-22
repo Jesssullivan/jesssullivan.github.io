@@ -79,8 +79,9 @@ validate-frontmatter:
 ingest-tinyland-posts:
     npm run ingest:tinyland-posts
 
-# Check authority: svelte-check, build smoke, package checks, CV sync
-check:
+# Check authority: projection freshness, svelte-check, build smoke, package checks, CV sync.
+# CI enforces the same freshness rule in //:vitest_unit_tests (committed-projection.test.ts).
+check: posts-projection-check
     npm run remote:check
 
 # Test authority: graph hygiene, contracts, unit, agent, Chromium smoke

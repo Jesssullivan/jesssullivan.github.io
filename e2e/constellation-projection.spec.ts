@@ -26,6 +26,11 @@ test.beforeEach(async ({ context, baseURL }) => {
 	});
 });
 
+// Tests that end on a post page can close while its images are still routed.
+test.afterEach(async ({ context }) => {
+	await context.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 function recordProjectionRequests(page: Page): string[] {
 	const requests: string[] = [];
 	// The projection is bundled at build time; any request for it as data is a regression.
@@ -99,4 +104,92 @@ test('?focus=<slug> opens the map on that post', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Similarity map', exact: true })).toHaveAttribute('aria-pressed', 'true');
 	await expect.poll(() => activeSlug(page)).toBe(target);
 	await expect(page.getByTestId('posts-projection-detail').locator(`a[href="/blog/${target}"]`)).toBeVisible();
+});
+
+// TIN-8628: how a reader opens a post from the map, and the phone layout.
+// Pointer and touch input only reach the viewport, so scroll the node into view first.
+async function nodeCentre(page: Page, slug: string, scroll = true): Promise<{ x: number; y: number }> {
+	const dot = page.locator(`.projection-map a[data-slug="${slug}"] .dot`);
+	if (scroll) await dot.scrollIntoViewIfNeeded();
+	const box = await dot.boundingBox();
+	if (!box) throw new Error(`no box for ${slug}`);
+	return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+async function closestPair(page: Page): Promise<{ near: string; far: string }> {
+	const slugs = await page.locator('.projection-map a[data-slug]').evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
+	const centres = await Promise.all(slugs.map(slug => nodeCentre(page, slug, false)));
+	let best = { near: '', far: '', distance: Infinity };
+	for (let i = 0; i < slugs.length; i += 1) {
+		for (let j = i + 1; j < slugs.length; j += 1) {
+			const distance = Math.hypot(centres[i].x - centres[j].x, centres[i].y - centres[j].y);
+			if (distance > 0 && distance < best.distance) best = { near: slugs[i], far: slugs[j], distance };
+		}
+	}
+	return best;
+}
+
+const noHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+
+test('mouse: hover shows the title, a click opens the post', async ({ page }) => {
+	await page.goto('/?flags=constellation');
+	await page.getByRole('button', { name: 'Similarity map', exact: true }).click();
+	const slug = await page.locator('.projection-map a[data-slug]').nth(11).getAttribute('data-slug');
+	const centre = await nodeCentre(page, slug as string);
+	await page.mouse.move(centre.x, centre.y);
+	await expect(page.locator(`.projection-map a[data-slug="${slug}"]`)).toHaveClass(/active/);
+	await expect(page.getByTestId('posts-projection-open')).toHaveAttribute('href', `/blog/${slug}`);
+	await page.mouse.click(centre.x, centre.y);
+	await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
+});
+
+test.describe('phone, touch', () => {
+	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+	test('fits 390px in every view without horizontal scroll', async ({ page }) => {
+		await page.goto('/?flags=constellation');
+		await expect(page.locator('.constellation')).toBeVisible();
+		expect(await noHorizontalScroll(page)).toBe(true);
+		for (const view of ['Similarity map', 'Similar posts', 'Year tree', 'Constellation']) {
+			await page.getByRole('button', { name: view, exact: true }).tap();
+			await expect(page.getByRole('button', { name: view, exact: true })).toHaveAttribute('aria-pressed', 'true');
+			expect(await noHorizontalScroll(page), view).toBe(true);
+		}
+	});
+
+	test('first tap selects the nearest node in a dense cluster, a second tap opens it', async ({ page }) => {
+		await page.goto('/?flags=constellation');
+		await page.getByRole('button', { name: 'Similarity map', exact: true }).tap();
+		const { near, far } = await closestPair(page);
+		const a = await nodeCentre(page, near);
+		const b = await nodeCentre(page, far, false);
+		// Closer to `near` than to its nearest neighbour, inside both old overlapping hit circles.
+		const tap = { x: a.x + (b.x - a.x) * 0.3, y: a.y + (b.y - a.y) * 0.3 };
+		await page.touchscreen.tap(tap.x, tap.y);
+		await expect(page.locator(`.projection-map a[data-slug="${near}"]`)).toHaveClass(/active/);
+		await expect(page.locator(`.projection-map a[data-slug="${far}"]`)).not.toHaveClass(/active/);
+		await expect(page.getByTestId('posts-projection-open')).toHaveAttribute('href', `/blog/${near}`);
+		await expect(page).not.toHaveURL(/\/blog\//);
+		await page.touchscreen.tap(tap.x, tap.y);
+		await expect(page).toHaveURL(new RegExp(`/blog/${near}/?$`));
+	});
+
+	test('the Open post control opens the selected post', async ({ page }) => {
+		await page.goto('/?flags=constellation');
+		await page.getByRole('button', { name: 'Similarity map', exact: true }).tap();
+		const slug = await page.locator('.projection-map a[data-slug]').nth(3).getAttribute('data-slug');
+		const centre = await nodeCentre(page, slug as string);
+		await page.touchscreen.tap(centre.x, centre.y);
+		await page.getByTestId('posts-projection-open').tap();
+		await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
+	});
+});
+
+test('reduced motion stops the constellation animation', async ({ page }) => {
+	await page.emulateMedia({ reducedMotion: 'reduce' });
+	await page.goto('/?flags=constellation');
+	await expect(page.locator('.constellation-node').first()).toBeVisible();
+	const animations = await page.locator('.constellation-node').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).animationName));
+	expect(animations.length).toBeGreaterThan(0);
+	expect(animations.every(name => name === 'none')).toBe(true);
 });
