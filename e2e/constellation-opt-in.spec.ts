@@ -24,7 +24,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 test('default remains unchanged; same-route client navigation enables, disables and clears preference', async ({ page }) => {
 	const requests: string[] = [];
-	page.on('request', request => { if (brokerUrls.includes(request.url())) requests.push(request.url()); });
+	// Without the flag the page asks for neither the broker streams nor the map data.
+	page.on('request', request => { if (brokerUrls.includes(request.url()) || /constellation/i.test(new URL(request.url()).pathname)) requests.push(request.url()); });
 	await page.goto('/');
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
@@ -39,9 +40,9 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toBeVisible();
 	await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse unavailable.');
-	// The section opens on the similarity map (RM27).
-	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
-	await expect(page.locator('.projection-map a[href^="/blog/"]').first()).toBeAttached();
+	// The section opens on the map (RM27).
+	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
+	await expect(page.getByTestId('constellation-map').locator('a[href^="/blog/"]').first()).toBeAttached();
 	await page.evaluate(() => { const link = document.querySelector<HTMLAnchorElement>('#flag-navigation'); if (link) link.href = '/?flags=none'; });
 	requests.length = 0;
 	await page.locator('#flag-navigation').click();

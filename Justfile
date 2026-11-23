@@ -47,15 +47,15 @@ build:
 # Clean then build
 rebuild: clean build
 
-# Reader similarity map (TIN-5680): warm refit of the committed posts projection
+# Reader constellation (TIN-5680, TIN-8628): warm refit of the committed posts projection, then its layout and silhouette
 posts-projection:
     npx tsx scripts/generate-posts-projection.mts
 
-# Reader similarity map: explicit cold refit (reshuffles the whole map; review the diff)
+# Reader constellation: explicit cold refit (reshuffles the whole map; review the diff)
 posts-projection-cold:
     npx tsx scripts/generate-posts-projection.mts --cold
 
-# Reader similarity map: fail when the committed projection is stale
+# Reader constellation: fail when the committed projection, layout or silhouette is stale
 posts-projection-check:
     npx tsx scripts/generate-posts-projection.mts --check
 

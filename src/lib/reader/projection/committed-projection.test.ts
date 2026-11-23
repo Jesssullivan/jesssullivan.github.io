@@ -2,9 +2,12 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import committed from '$lib/data/posts-projection.v1.json';
+import committedLayout from '$lib/data/constellation.v1.json';
+import committedSilhouette from '$lib/data/constellation-silhouette.v1.json';
 import { readPublishedPosts } from '../../../../scripts/lib/posts-projection-sources.mjs';
 import { canonicalCorpus, configurationSha256, corpusSha256, METHOD_REVISION, SCHEMA } from './embed';
-import { isProjectionDocument } from './scene';
+import { layoutConstellation, serializeLayout, silhouetteOf, type ProjectionInput } from './layout';
+import { isConstellationData } from './scene';
 
 // Front matter scalar read, matching scripts/lib/frontmatter.mts for `published` and `slug`.
 function frontmatterValue(source: string, key: string): string | undefined {
@@ -30,7 +33,6 @@ function postSlugs(): { published: Set<string>; withheld: Set<string> } {
 
 describe('committed posts projection (src/lib/data/posts-projection.v1.json)', () => {
 	it('matches the current producer method and configuration; otherwise run just posts-projection-cold', () => {
-		expect(isProjectionDocument(committed)).toBe(true);
 		expect(committed.schema).toBe(SCHEMA);
 		expect(committed.method).toBe(METHOD_REVISION);
 		expect(committed.configuration_sha256).toBe(configurationSha256());
@@ -43,6 +45,20 @@ describe('committed posts projection (src/lib/data/posts-projection.v1.json)', (
 		const placed = committed.posts.map((post) => post.slug);
 		expect({ missing: current.filter((slug) => !placed.includes(slug)), extra: placed.filter((slug) => !current.includes(slug)) }).toEqual({ missing: [], extra: [] });
 		expect(committed.corpus_sha256).toBe(corpusSha256(canonicalCorpus(posts)));
+	});
+
+	// TIN-8628: the map layout and its silhouette are built from the projection and the posts. A post whose
+	// date, tags, category or length changed needs the same refit, even when the fit itself does not move.
+	it('has a current constellation layout and silhouette; otherwise run just posts-projection and commit the result', () => {
+		const layout = layoutConstellation(committed as unknown as ProjectionInput, readPublishedPosts(join(process.cwd(), 'src/posts')));
+		expect(isConstellationData(committedLayout)).toBe(true);
+		expect(serializeLayout(committedLayout as never)).toBe(serializeLayout(layout));
+		expect(serializeLayout(committedSilhouette as never)).toBe(serializeLayout(silhouetteOf(layout)));
+		expect(committedLayout.corpus_sha256).toBe(committed.corpus_sha256);
+		expect(committedLayout.stars.map((star) => star[0])).toEqual(committed.posts.map((post) => post.slug));
+		// The layout carries no title, text, date or tag: only slugs, positions and small integers.
+		for (const star of committedLayout.stars) expect(star.map((value) => typeof value)).toEqual(['string', 'number', 'number', 'number', 'number', 'number', 'number']);
+		expect(Object.keys(committedLayout).sort()).toEqual(['aspect', 'categories', 'corpus_sha256', 'figure', 'groups', 'labels', 'near', 'schema', 'stars']);
 	});
 
 	it('contains only published posts and never a held or unpublished slug', () => {

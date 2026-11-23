@@ -1,51 +1,70 @@
 #!/usr/bin/env node
 /**
- * Producer for the reader constellation similarity map (TIN-5680, child of TIN-2413).
+ * Producer for the reader constellation (TIN-5680, TIN-8628, child of TIN-2413).
  *
  *   tsx scripts/generate-posts-projection.mts          warm refit from the committed projection
  *   tsx scripts/generate-posts-projection.mts --cold   explicit cold refit (seeded random start)
- *   tsx scripts/generate-posts-projection.mts --check  exit 1 when the committed file is stale
+ *   tsx scripts/generate-posts-projection.mts --check  exit 1 when a committed file is stale
  *
  * Inputs are only published posts (`published: true`) under src/posts: title,
- * description, tags, category and body text. No network access, no numerical
- * packages. The output is committed at src/lib/data/posts-projection.v1.json and
- * imported at build time by ReaderConstellation, so the browser never fetches it.
+ * description, tags, category, date and body text. No network access, no
+ * numerical packages. Three files are committed under src/lib/data:
+ *
+ *   posts-projection.v1.json           the t-SNE fit: where each post sits
+ *   constellation.v1.json              the map layout built from it: groups, names,
+ *                                      figure lines, sizes, glows and neighbours
+ *   constellation-silhouette.v1.json   the same stars as paths, for the first paint
+ *
+ * The build does no layout work. It emits constellation.v1.json with a content
+ * hash in its name, and the section fetches it when it nears the viewport.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { embedPosts, serializeProjection } from '../src/lib/reader/projection/embed.ts';
-import { PROJECTION_OUTPUT as OUTPUT, readPublishedPosts } from './lib/posts-projection-sources.mts';
+import { layoutConstellation, serializeLayout, silhouetteOf } from '../src/lib/reader/projection/layout.ts';
+import { CONSTELLATION_OUTPUT, PROJECTION_OUTPUT, SILHOUETTE_OUTPUT, readPublishedPosts } from './lib/posts-projection-sources.mts';
+
+const read = (path: string) => (existsSync(path) ? readFileSync(path, 'utf-8') : null);
 
 function main(argv: string[]): number {
 	const cold = argv.includes('--cold');
 	const check = argv.includes('--check');
-	const previousText = existsSync(OUTPUT) ? readFileSync(OUTPUT, 'utf-8') : null;
+	const previousText = read(PROJECTION_OUTPUT);
 	const previous = previousText ? JSON.parse(previousText) : null;
 	const started = performance.now();
-	const projection = embedPosts(readPublishedPosts(), previous, { cold });
-	const text = serializeProjection(projection);
+	const posts = readPublishedPosts();
+	const projection = embedPosts(posts, previous, { cold });
+	const layout = layoutConstellation(projection, posts);
+	const outputs: Array<[string, string]> = [
+		[PROJECTION_OUTPUT, serializeProjection(projection)],
+		[CONSTELLATION_OUTPUT, serializeLayout(layout)],
+		[SILHOUETTE_OUTPUT, serializeLayout(silhouetteOf(layout))],
+	];
+	const stale = outputs.filter(([path, text]) => read(path) !== text).map(([path]) => path);
 	const summary =
 		`${projection.posts.length} posts, ${projection.edges.length} edges, ` +
 		`${projection.embedding.initialization}, ${projection.embedding.iterations} iterations, ` +
 		`KL ${projection.embedding.kl_divergence}, neighbour overlap ${projection.metrics.neighbor_overlap}, ` +
-		`displacement max ${projection.metrics.display_displacement_max} (${Math.round(performance.now() - started)} ms)`;
+		`displacement max ${projection.metrics.display_displacement_max}, ` +
+		`${layout.groups.length} constellations (${layout.groups.map((group) => group.name).join(', ')}), ` +
+		`${layout.figure.length} figure lines (${Math.round(performance.now() - started)} ms)`;
 	if (check) {
-		if (text === previousText) {
-			console.log(`Posts projection is current: ${OUTPUT}`);
+		if (stale.length === 0) {
+			console.log(`Posts projection and constellation layout are current: ${outputs.map(([path]) => path).join(', ')}`);
 			return 0;
 		}
 		const before = new Set<string>((previous?.posts ?? []).map((post: { slug: string }) => post.slug));
 		const after = new Set(projection.posts.map((post) => post.slug));
 		const added = [...after].filter((slug) => !before.has(slug)).length;
 		const removed = [...before].filter((slug) => !after.has(slug)).length;
-		console.error(`Posts projection is stale (${added} added, ${removed} removed). Run: just posts-projection`);
+		console.error(`Stale: ${stale.join(', ')} (${added} posts added, ${removed} removed). Run: just posts-projection`);
 		return 1;
 	}
-	if (text === previousText) {
+	if (stale.length === 0) {
 		console.log(`Posts projection unchanged: ${summary}`);
 		return 0;
 	}
-	writeFileSync(OUTPUT, text, 'utf-8');
-	console.log(`Posts projection -> ${OUTPUT}: ${summary}`);
+	for (const [path, text] of outputs) if (stale.includes(path)) writeFileSync(path, text, 'utf-8');
+	console.log(`Wrote ${stale.join(', ')}: ${summary}`);
 	return 0;
 }
 

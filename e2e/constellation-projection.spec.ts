@@ -1,13 +1,14 @@
 import { test, expect, type Page } from '@playwright/test';
 
-// TIN-5680: the similarity map is part of the default-off constellation experiment,
-// is drawn from a build-time projection, and never fetches anything at runtime.
+// TIN-5680, TIN-8628: the constellation is a default-off experiment. Its layout is built ahead of time.
+// The page paints a silhouette at once and fetches the interactive layer and one hashed data file later.
 const brokerUrls = [
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json',
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v2.json',
 ];
 // `published: false` in src/posts and listed in static/blog-publication-holds.json.
 const HELD_SLUG = 'hello-world';
+const DATA_FILE = /\/constellation\.v1\.[\w-]+\.json$/;
 
 test.beforeEach(async ({ context, baseURL }) => {
 	if (!baseURL) throw new Error('explicit loopback base URL required');
@@ -31,50 +32,132 @@ test.afterEach(async ({ context }) => {
 	await context.unrouteAll({ behavior: 'ignoreErrors' });
 });
 
-function recordProjectionRequests(page: Page): string[] {
+function recordDataRequests(page: Page): string[] {
 	const requests: string[] = [];
-	// The projection is bundled at build time; any request for it as data is a regression.
-	page.on('request', request => { if (/posts-projection[^/]*\.json$/i.test(new URL(request.url()).pathname)) requests.push(request.url()); });
+	page.on('request', request => { if (/constellation|posts-projection/i.test(new URL(request.url()).pathname)) requests.push(request.url()); });
 	return requests;
 }
 
+const map = (page: Page) => page.getByTestId('constellation-map');
+const stars = (page: Page) => map(page).locator('a[data-slug]');
+const star = (page: Page, slug: string) => map(page).locator(`a[data-slug="${slug}"]`);
+const card = (page: Page) => page.getByTestId('constellation-card');
+const openControl = (page: Page) => page.getByTestId('constellation-open');
 const activeSlug = (page: Page) => page.evaluate(() => (document.activeElement as Element | null)?.getAttribute('data-slug') ?? null);
+const noHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 
-test('flag off: no map DOM, no projection request, even with a focus link', async ({ page }) => {
-	const requests = recordProjectionRequests(page);
+/** Open the home page with the flag and wait for the interactive map. */
+async function openMap(page: Page, query = '') {
+	await page.goto(`/?flags=constellation${query}`);
+	await expect(stars(page).first()).toBeAttached();
+	await map(page).scrollIntoViewIfNeeded();
+	// The names appear once the sky has assembled.
+	await expect(map(page)).toHaveClass(/assembled/);
+	await expect(map(page).getByRole('button', { name: /^Go to / }).first()).toBeVisible();
+}
+
+// Each star has a link centred on it. Pointers never hit the link: the map picks the nearest star.
+async function allCentres(page: Page): Promise<Array<{ slug: string; x: number; y: number }>> {
+	return stars(page).evaluateAll(links => links.map(link => {
+		const box = link.getBoundingClientRect();
+		return { slug: link.getAttribute('data-slug') ?? '', x: box.x + box.width / 2, y: box.y + box.height / 2 };
+	}));
+}
+
+/** The star with the most room around it, away from the panel edges, so a pointer on it is unambiguous. */
+async function loneStar(page: Page): Promise<{ slug: string; x: number; y: number }> {
+	const centres = await allCentres(page);
+	const panel = await map(page).boundingBox();
+	if (!panel) throw new Error('no map box');
+	const room = (a: { x: number; y: number }) => Math.min(...centres.filter(b => b !== a).map(b => Math.hypot(a.x - b.x, a.y - b.y)));
+	const inside = centres.filter(a => a.x > panel.x + 80 && a.x < panel.x + panel.width - 80 && a.y > panel.y + 80 && a.y < panel.y + panel.height - 80);
+	if (inside.length === 0) throw new Error('no star away from the edges');
+	return inside.sort((a, b) => room(b) - room(a))[0];
+}
+
+test('flag off: no section, no silhouette, no data request, even with a focus link', async ({ page }) => {
+	const requests = recordDataRequests(page);
 	await page.goto('/?focus=some-post');
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
-	await expect(page.getByTestId('posts-projection')).toHaveCount(0);
+	await expect(page.getByTestId('constellation-panel')).toHaveCount(0);
+	await page.waitForLoadState('networkidle');
 	expect(requests).toEqual([]);
 });
 
-test('flag on: every routeable projected post is a keyboard-reachable map node and a list item', async ({ page }) => {
-	const requests = recordProjectionRequests(page);
+test('first paint is the silhouette, the panel keeps its size, and the data is one hashed file', async ({ page, context }) => {
+	// Hold the data back so the state before the interactive layer can be seen.
+	let release: () => void = () => {};
+	const held = new Promise<void>(resolve => { release = resolve; });
+	await context.route(DATA_FILE, async route => {
+		await held;
+		await route.fulfill({ response: await route.fetch() });
+	});
+	const requests = recordDataRequests(page);
 	await page.goto('/?flags=constellation');
-	await expect(page.locator('.constellation')).toBeVisible();
+	const panel = page.getByTestId('constellation-panel');
+	await expect(panel).toBeVisible();
+	const wide = page.getByTestId('constellation-silhouette-wide');
+	await expect(wide).toBeVisible();
+	const before = { panel: await panel.boundingBox(), latest: await page.locator('#latest').boundingBox() };
+	// Every star is already drawn, and nothing interactive exists yet.
+	const dots = await wide.locator('path').evaluateAll(paths => paths.reduce((sum, path) => sum + (path.getAttribute('d')?.match(/M/g)?.length ?? 0), 0));
+	expect(dots).toBeGreaterThan(100);
+	await expect(page.locator('.constellation canvas')).toHaveCount(0);
+	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
+
+	release();
+	await expect(stars(page)).toHaveCount(dots);
+	await expect(wide).toBeHidden();
+	// No layout shift: the panel and the section below it are where they were.
+	expect(await panel.boundingBox()).toEqual(before.panel);
+	expect(await page.locator('#latest').boundingBox()).toEqual(before.latest);
+	// One data file, with a content hash in its name, under the immutable directory.
+	expect(requests.filter(url => DATA_FILE.test(new URL(url).pathname))).toHaveLength(1);
+	expect(requests.every(url => new URL(url).pathname.startsWith('/_app/immutable/'))).toBe(true);
+	// The canvas draws each star where the silhouette had it.
+	const centres = await allCentres(page);
+	const field = await page.locator('.constellation .field').boundingBox();
+	if (!field) throw new Error('no field box');
+	for (const centre of centres) {
+		expect(centre.x).toBeGreaterThanOrEqual(field.x - 1);
+		expect(centre.x).toBeLessThanOrEqual(field.x + field.width + 1);
+		expect(centre.y).toBeGreaterThanOrEqual(field.y - 1);
+		expect(centre.y).toBeLessThanOrEqual(field.y + field.height + 1);
+	}
+});
+
+test('when the data does not load the silhouette stays and the reader is told where to read', async ({ page, context }) => {
+	await context.route(DATA_FILE, route => route.abort());
+	await page.goto('/?flags=constellation');
+	await expect(page.getByTestId('constellation-silhouette-wide')).toBeVisible();
+	await expect(page.getByTestId('constellation-panel')).toContainText('The map did not load.');
+	await expect(page.locator('#latest')).toBeVisible();
+});
+
+test('every routeable placed post is a keyboard-reachable star and a list item', async ({ page }) => {
+	await openMap(page);
 
 	// The ordinary reader archive lists every routeable post.
 	const routeable = new Set(await page.locator('#archive a[href^="/blog/"]').evaluateAll(links => links.map(link => (link as HTMLAnchorElement).pathname.replace(/^\/blog\//, '').replace(/\/$/, ''))));
 	expect(routeable.has(HELD_SLUG)).toBe(false);
-
-	// The section opens on the map (RM27).
-	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
-	const nodes = page.locator('.projection-map a[data-slug]');
-	const slugs = await nodes.evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
+	const slugs = await stars(page).evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
 	expect(slugs.length).toBeGreaterThan(100);
 	expect(new Set(slugs).size).toBe(slugs.length);
 	for (const slug of slugs) expect(routeable.has(slug), slug).toBe(true);
 	expect(slugs).not.toContain(HELD_SLUG);
-	await expect(page.getByTestId('posts-projection')).toContainText(`Placed ${slugs.length} public posts.`);
-	await expect(page.getByTestId('posts-projection')).toContainText('not measurements');
 
-	// One roving tab stop; arrows walk the map; the detail panel follows.
-	await expect(page.locator('.projection-map a[tabindex="0"]')).toHaveCount(1);
-	await page.locator('.projection-map a[tabindex="0"]').focus();
-	const start = await activeSlug(page);
-	expect(start).not.toBeNull();
-	const visited = new Set([start]);
+	// The map has a name and a role, and the method note is in the help.
+	await expect(page.getByRole('group', { name: 'Map of posts' })).toBeVisible();
+	await page.getByRole('button', { name: 'How it works' }).click();
+	await expect(page.locator('#constellation-help')).toContainText('not measurements');
+	await page.keyboard.press('Escape');
+	await expect(page.locator('#constellation-help')).toBeHidden();
+
+	// One roving tab stop. Arrows walk the map, and the card follows.
+	await expect(map(page).locator('a[data-slug][tabindex="0"]')).toHaveCount(1);
+	await map(page).locator('a[data-slug][tabindex="0"]').focus();
+	const visited = new Set([await activeSlug(page)]);
 	for (const key of ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowDown', 'ArrowRight']) {
 		await page.keyboard.press(key);
 		const current = await activeSlug(page);
@@ -82,113 +165,193 @@ test('flag on: every routeable projected post is a keyboard-reachable map node a
 		visited.add(current);
 	}
 	expect(visited.size).toBeGreaterThan(1);
-	const current = await activeSlug(page);
-	await expect(page.locator('.projection-map a[tabindex="0"]')).toHaveAttribute('data-slug', current as string);
-	await expect(page.getByTestId('posts-projection-detail').locator(`a[href="/blog/${current}"]`)).toBeVisible();
+	const current = await activeSlug(page) as string;
+	await expect(map(page).locator('a[data-slug][tabindex="0"]')).toHaveAttribute('data-slug', current);
+	await expect(star(page, current)).toHaveAttribute('aria-current', 'true');
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${current}`);
+	// The card names the post, its category and its date, and offers nearby posts as next steps.
+	await expect(card(page).locator('h3')).not.toBeEmpty();
+	await expect(card(page).locator('.chip')).not.toBeEmpty();
+	await expect(card(page).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/);
+	await expect(card(page).locator('.nearby button').first()).toBeVisible();
+	// Escape clears the selection.
+	await page.keyboard.press('Escape');
+	await expect(card(page)).toHaveCount(0);
+	await page.keyboard.press('ArrowRight');
+	const next = await activeSlug(page) as string;
 	await page.keyboard.press('Enter');
-	await expect(page).toHaveURL(new RegExp(`/blog/${current}/?$`));
+	await expect(page).toHaveURL(new RegExp(`/blog/${next}/?$`));
 
+	// The list is one tab stop from the start of the section, and holds the same posts.
 	await page.goto('/?flags=constellation');
-	await page.getByRole('button', { name: 'List', exact: true }).click();
-	await expect(page.getByRole('button', { name: 'List', exact: true })).toHaveAttribute('aria-pressed', 'true');
-	await expect(page.locator('.similar-list > li')).toHaveCount(slugs.length);
-	expect(requests).toEqual([]);
+	await page.getByRole('heading', { name: 'The constellation' }).click();
+	await page.keyboard.press('Tab');
+	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toBeFocused();
+	await page.keyboard.press('ArrowRight');
+	await expect(page.getByRole('tab', { name: 'List', exact: true })).toHaveAttribute('aria-selected', 'true');
+	await expect(page.getByTestId('constellation-list').locator('> li')).toHaveCount(slugs.length);
+	await expect(page.getByTestId('constellation-list').locator('> li > a').first()).toHaveAttribute('href', /^\/blog\//);
 });
 
 test('?focus=<slug> opens the map on that post', async ({ page }) => {
-	await page.goto('/?flags=constellation');
-	const target = await page.locator('.projection-map a[data-slug]').nth(7).getAttribute('data-slug');
+	await openMap(page);
+	const target = await stars(page).nth(7).getAttribute('data-slug');
 	expect(target).toBeTruthy();
 	await page.goto(`/?flags=constellation&focus=${target}`);
-	await expect(page.getByRole('button', { name: 'Map', exact: true })).toHaveAttribute('aria-pressed', 'true');
+	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
 	await expect.poll(() => activeSlug(page)).toBe(target);
-	await expect(page.getByTestId('posts-projection-detail').locator(`a[href="/blog/${target}"]`)).toBeVisible();
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${target}`);
 });
 
-// TIN-8628: how a reader opens a post from the map, and the phone layout.
-// Pointer and touch input only reach the viewport, so scroll the node into view first.
-async function nodeCentre(page: Page, slug: string, scroll = true): Promise<{ x: number; y: number }> {
-	const dot = page.locator(`.projection-map a[data-slug="${slug}"] .dot`);
-	if (scroll) await dot.scrollIntoViewIfNeeded();
-	const box = await dot.boundingBox();
-	if (!box) throw new Error(`no box for ${slug}`);
-	return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-}
-
-async function closestPair(page: Page): Promise<{ near: string; far: string }> {
-	const slugs = await page.locator('.projection-map a[data-slug]').evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
-	const centres = await Promise.all(slugs.map(slug => nodeCentre(page, slug, false)));
-	let best = { near: '', far: '', distance: Infinity };
-	for (let i = 0; i < slugs.length; i += 1) {
-		for (let j = i + 1; j < slugs.length; j += 1) {
-			const distance = Math.hypot(centres[i].x - centres[j].x, centres[i].y - centres[j].y);
-			if (distance > 0 && distance < best.distance) best = { near: slugs[i], far: slugs[j], distance };
-		}
-	}
-	return best;
-}
-
-const noHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
-
-test('mouse: hover shows the title, a click opens the post', async ({ page }) => {
-	await page.goto('/?flags=constellation');
-	const slug = await page.locator('.projection-map a[data-slug]').nth(11).getAttribute('data-slug');
-	const centre = await nodeCentre(page, slug as string);
-	await page.mouse.move(centre.x, centre.y);
-	await expect(page.locator(`.projection-map a[data-slug="${slug}"]`)).toHaveClass(/active/);
-	await expect(page.getByTestId('posts-projection-open')).toHaveAttribute('href', `/blog/${slug}`);
-	await page.mouse.click(centre.x, centre.y);
+test('mouse: hover shows the card, a click picks the star, a second click opens the post', async ({ page }) => {
+	await openMap(page);
+	const { slug, x, y } = await loneStar(page);
+	await page.mouse.move(x, y);
+	await expect(card(page).locator('h3')).toBeVisible();
+	await expect(openControl(page)).toHaveCount(0);
+	await page.mouse.click(x, y);
+	await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${slug}`);
+	await expect(page).not.toHaveURL(/\/blog\//);
+	await page.mouse.click(x, y);
 	await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
+
+	// Back returns to the same star, with its card open.
+	await page.goBack();
+	await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${slug}`);
+});
+
+test('a nearby post in the card is the next step', async ({ page }) => {
+	await openMap(page);
+	const { x, y } = await loneStar(page);
+	await page.mouse.click(x, y);
+	const step = card(page).locator('.nearby button').first();
+	const title = (await step.textContent())?.trim() ?? '';
+	await step.click();
+	await expect(card(page).locator('h3')).toHaveText(title);
+});
+
+test('a constellation name flies to it, Reset returns, and a plain wheel scrolls the page', async ({ page }) => {
+	await openMap(page);
+	const reset = map(page).getByRole('button', { name: 'Reset', exact: true });
+	await expect(reset).toBeDisabled();
+
+	// A plain wheel over the map scrolls the page and does not zoom.
+	const box = await map(page).boundingBox();
+	if (!box) throw new Error('no map box');
+	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+	const scrollBefore = await page.evaluate(() => window.scrollY);
+	await page.mouse.wheel(0, 240);
+	await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBefore);
+	await expect(reset).toBeDisabled();
+	await map(page).scrollIntoViewIfNeeded();
+
+	const before = await allCentres(page);
+	await map(page).getByRole('button', { name: /^Go to / }).first().click();
+	await expect(reset).toBeEnabled();
+	// Zoomed in: stars are farther apart than before.
+	await expect.poll(async () => {
+		const after = await allCentres(page);
+		return Math.hypot(after[0].x - after[1].x, after[0].y - after[1].y) / Math.hypot(before[0].x - before[1].x, before[0].y - before[1].y);
+	}).toBeGreaterThan(1.3);
+	await reset.click();
+	await expect(reset).toBeDisabled();
+	await expect.poll(async () => (await allCentres(page))[0].x).toBeCloseTo(before[0].x, 0);
+
+	// Ctrl and wheel zooms.
+	const here = await map(page).boundingBox();
+	if (!here) throw new Error('no map box');
+	await page.mouse.move(here.x + here.width / 2, here.y + here.height / 2);
+	await page.keyboard.down('Control');
+	await page.mouse.wheel(0, -200);
+	await page.keyboard.up('Control');
+	await expect(reset).toBeEnabled();
+});
+
+test('the legend filters the map and the list to one category', async ({ page }) => {
+	await openMap(page);
+	const chip = page.locator('.constellation .legend button').first();
+	const count = Number(await chip.locator('.count').textContent());
+	expect(count).toBeGreaterThan(0);
+	await chip.click();
+	await expect(chip).toHaveAttribute('aria-pressed', 'true');
+	await page.getByRole('tab', { name: 'List', exact: true }).click();
+	await expect(page.getByTestId('constellation-list').locator('> li')).toHaveCount(count);
+	await chip.click();
+	await expect(chip).toHaveAttribute('aria-pressed', 'false');
+	await expect(page.getByTestId('constellation-list').locator('> li')).not.toHaveCount(count);
 });
 
 test.describe('phone, touch', () => {
 	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-	test('fits 390px in both views without horizontal scroll', async ({ page }) => {
-		await page.goto('/?flags=constellation');
-		await expect(page.locator('.constellation')).toBeVisible();
+	test('fits 390px in both views without horizontal scroll, on the tall frame', async ({ page }) => {
+		await openMap(page);
 		expect(await noHorizontalScroll(page)).toBe(true);
+		const box = await map(page).boundingBox();
+		if (!box) throw new Error('no map box');
+		expect(box.height).toBeGreaterThan(box.width);
 		for (const view of ['List', 'Map']) {
-			await page.getByRole('button', { name: view, exact: true }).tap();
-			await expect(page.getByRole('button', { name: view, exact: true })).toHaveAttribute('aria-pressed', 'true');
+			await page.getByRole('tab', { name: view, exact: true }).tap();
+			await expect(page.getByRole('tab', { name: view, exact: true })).toHaveAttribute('aria-selected', 'true');
 			expect(await noHorizontalScroll(page), view).toBe(true);
 		}
 	});
 
-	test('first tap selects the nearest node in a dense cluster, a second tap opens it', async ({ page }) => {
-		await page.goto('/?flags=constellation');
-		const { near, far } = await closestPair(page);
-		const a = await nodeCentre(page, near);
-		const b = await nodeCentre(page, far, false);
-		// Closer to `near` than to its nearest neighbour, inside both old overlapping hit circles.
-		const tap = { x: a.x + (b.x - a.x) * 0.3, y: a.y + (b.y - a.y) * 0.3 };
+	test('first tap selects the nearest star in a dense cluster, a second tap opens it', async ({ page }) => {
+		await openMap(page);
+		const centres = await allCentres(page);
+		let best = { near: centres[0], far: centres[1], distance: Infinity };
+		for (let i = 0; i < centres.length; i += 1) {
+			for (let j = i + 1; j < centres.length; j += 1) {
+				const distance = Math.hypot(centres[i].x - centres[j].x, centres[i].y - centres[j].y);
+				// Closer than a finger, and far enough apart that sub-pixel layout cannot swap them.
+				if (distance >= 6 && distance < best.distance) best = { near: centres[i], far: centres[j], distance };
+			}
+		}
+		// A tap between two stars, nearer the first one, picks the first one.
+		expect(best.distance).toBeLessThan(44);
+		const tap = { x: best.near.x + (best.far.x - best.near.x) * 0.3, y: best.near.y + (best.far.y - best.near.y) * 0.3 };
 		await page.touchscreen.tap(tap.x, tap.y);
-		await expect(page.locator(`.projection-map a[data-slug="${near}"]`)).toHaveClass(/active/);
-		await expect(page.locator(`.projection-map a[data-slug="${far}"]`)).not.toHaveClass(/active/);
-		await expect(page.getByTestId('posts-projection-open')).toHaveAttribute('href', `/blog/${near}`);
+		await expect(star(page, best.near.slug)).toHaveAttribute('aria-current', 'true');
+		await expect(star(page, best.far.slug)).not.toHaveAttribute('aria-current', 'true');
+		await expect(openControl(page)).toHaveAttribute('href', `/blog/${best.near.slug}`);
 		await expect(page).not.toHaveURL(/\/blog\//);
 		await page.touchscreen.tap(tap.x, tap.y);
-		await expect(page).toHaveURL(new RegExp(`/blog/${near}/?$`));
+		await expect(page).toHaveURL(new RegExp(`/blog/${best.near.slug}/?$`));
 	});
 
-	test('the Open post control opens the selected post', async ({ page }) => {
-		await page.goto('/?flags=constellation');
-		const slug = await page.locator('.projection-map a[data-slug]').nth(3).getAttribute('data-slug');
-		const centre = await nodeCentre(page, slug as string);
-		await page.touchscreen.tap(centre.x, centre.y);
-		await page.getByTestId('posts-projection-open').tap();
+	test('a star with room beside it has a touch target of at least 44 pixels, and Open opens the post', async ({ page }) => {
+		await openMap(page);
+		const centres = await allCentres(page);
+		const box = await map(page).boundingBox();
+		if (!box) throw new Error('no map box');
+		// A point 22 pixels from a star, on a side where no other star is nearer.
+		const tries = centres.flatMap(c => [0, 1, 2, 3, 4, 5, 6, 7].map(step => ({ slug: c.slug, x: c.x + Math.cos(step * Math.PI / 4) * 22, y: c.y + Math.sin(step * Math.PI / 4) * 22 })));
+		const open = tries.filter(p => p.x > box.x + 12 && p.x < box.x + box.width - 12 && p.y > box.y + 50 && p.y < box.y + box.height - 90 && centres.every(c => c.slug === p.slug || Math.hypot(c.x - p.x, c.y - p.y) > 26));
+		// A constellation name is a control of its own, so the point must be on the map itself.
+		const onMap = await page.evaluate(points => points.map(p => document.elementFromPoint(p.x, p.y)?.tagName === 'CANVAS'), open);
+		const found = open.find((_, index) => onMap[index]);
+		if (!found) throw new Error('no star with room beside it');
+		const { slug } = found;
+		await page.touchscreen.tap(found.x, found.y);
+		await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
+		const control = await openControl(page).boundingBox();
+		expect(control?.height).toBeGreaterThanOrEqual(44);
+		await openControl(page).tap();
 		await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
 	});
 });
 
-// The card grid and its float animation were cut (RM27). Nothing in the section may move under reduced motion.
-test('reduced motion: nothing in the constellation animates', async ({ page }) => {
+test('reduced motion: the sky is complete at once and nothing animates', async ({ page }) => {
 	await page.emulateMedia({ reducedMotion: 'reduce' });
-	await page.goto('/?flags=constellation');
-	const slug = await page.locator('.projection-map a[data-slug]').nth(5).getAttribute('data-slug');
-	const centre = await nodeCentre(page, slug as string);
-	await page.mouse.move(centre.x, centre.y);
-	await expect(page.locator(`.projection-map a[data-slug="${slug}"]`)).toHaveClass(/active/);
+	await openMap(page);
+	const { x, y } = await loneStar(page);
+	await page.mouse.move(x, y);
+	await expect(card(page)).toBeVisible();
+	await map(page).getByRole('button', { name: /^Go to / }).first().click();
+	await expect(map(page).getByRole('button', { name: 'Reset', exact: true })).toBeEnabled();
 	const moving = await page.evaluate(() => {
 		const section = document.querySelector('.constellation');
 		const running = document.getAnimations().filter(animation => {
