@@ -26,16 +26,20 @@
 		archive = [],
 		focusSlug = null,
 		initialView = 'map',
+		arrives = false,
 	}: {
 		snapshot: PublicPulseSnapshotAny;
 		archive?: ReaderCollection['archive'];
 		focusSlug?: string | null;
 		initialView?: View;
+		/** True when the section is put into a page that has already painted, as the flag does today. */
+		arrives?: boolean;
 	} = $props();
 	// svelte-ignore state_referenced_locally
 	let view = $state<View>(initialView);
 	let filter = $state(-1);
 	let helpOpen = $state(false);
+	let section = $state<HTMLElement | null>(null);
 	let panel = $state<HTMLDivElement | null>(null);
 	let field = $state<HTMLDivElement | null>(null);
 	let help = $state<HTMLDivElement | null>(null);
@@ -67,7 +71,24 @@
 		}
 	}
 
+	/**
+	 * The flag is read after the page has painted, so the section cannot be in the first paint.
+	 * It opens the space it needs without a jump: what follows it starts where it was and slides
+	 * down as the section fades in. Reduced motion gets the section at once. A page that is
+	 * scrolled past this point is held still by the browser and needs nothing.
+	 */
+	function unfold() {
+		const below = section?.nextElementSibling;
+		if (!section || !(below instanceof HTMLElement) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const pushed = below.getBoundingClientRect().top - section.getBoundingClientRect().top;
+		if (pushed <= 0 || below.getBoundingClientRect().top - pushed < 0) return;
+		const timing = { duration: 320, easing: 'cubic-bezier(.2, .7, .2, 1)' };
+		below.animate([{ transform: `translateY(${-pushed}px)` }, { transform: 'translateY(0)' }], timing);
+		section.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+	}
+
 	onMount(() => {
+		if (arrives) unfold();
 		const session = readSession();
 		if (session.list && !focusSlug) view = 'list';
 		if (session.category) filter = silhouette.categories.findIndex((category) => category.id === session.category);
@@ -114,7 +135,7 @@
 	}}
 />
 
-<section class="constellation" aria-labelledby="constellation-heading">
+<section class="constellation" aria-labelledby="constellation-heading" bind:this={section}>
 	<header>
 		<div>
 			<h2 id="constellation-heading" class="font-heading text-2xl font-bold">The constellation</h2>
@@ -141,7 +162,7 @@
 		{#each silhouette.categories as category, index (category.id)}
 			<li>
 				<button type="button" aria-pressed={filter === index} onclick={() => toggleFilter(index)}>
-					<span class="dot" style={`background:var(--star-${index % 8})`} aria-hidden="true"></span>{category.label}
+					<span class="dot" style={`--dot:var(--star-${index % 8})`} aria-hidden="true"></span>{category.label}
 					<span class="count">{category.count}</span>
 				</button>
 			</li>
@@ -153,7 +174,8 @@
 			<button type="button" aria-expanded={helpOpen} aria-controls="constellation-help" onclick={() => (helpOpen = !helpOpen)}>How it works</button>
 			<div class="pop" id="constellation-help" hidden={!helpOpen}>
 				<p>Colour is the category. Bigger stars are longer posts. The newest ones glow.</p>
-				<p>Click or tap a star to pick it, then again to open it. Click a name to go there. To zoom, pinch, use the buttons, or hold Ctrl and scroll. Drag to move around.</p>
+				<p>Click or tap a star to pick it, then again to open it. Click a name to go there.</p>
+				<p>Zoom with the buttons, a pinch, or Ctrl and scroll. Drag to move the map. On a touch screen a swipe up or down scrolls the page, so move the map sideways or with two fingers.</p>
 				<p>With a keyboard, arrow keys move between nearby stars. Enter opens. Escape clears. Plus and minus zoom.</p>
 				<p class="method">Positions come from a t-SNE fit over post text and tags. Axes, distances and density are not measurements.</p>
 			</div>
@@ -178,85 +200,87 @@
 </section>
 
 <style>
-	/* Every colour derives from the active theme's tokens. Star hues turn around the wheel from the theme's primary. */
+	/* Every colour is a theme token or a mix of theme tokens. Star hues turn around the wheel from the theme's primary. */
 	.constellation {
 		--sky-dark: 0;
 		--sky-ink: var(--color-surface-950);
-		--sky-paper: color-mix(in oklab, var(--color-surface-50) 50%, white);
-		--sky-card: color-mix(in oklab, var(--color-surface-50) 25%, white);
+		--sky-paper: var(--color-root-bg-light);
+		--sky-card: var(--color-surface-100);
 		--sky-accent: var(--color-primary-700);
-		--star-l: 0.5;
-		--star-c: 0.13;
+		--star-la: 0.42;
+		--star-lb: 0.54;
+		--star-c: 0.15;
 		--star-scale: 1;
 		--star-0: var(--color-primary-700);
 		--star-1: var(--star-0); --star-2: var(--star-0); --star-3: var(--star-0);
 		--star-4: var(--star-0); --star-5: var(--star-0); --star-6: var(--star-0); --star-7: var(--star-0);
+		/* Quieter text, still well above 4.5 to 1 on the paper and on a card in every theme. */
+		--sky-soft: color-mix(in oklab, var(--sky-ink) 86%, var(--sky-paper));
+		--sky-line: color-mix(in srgb, var(--sky-ink) 24%, transparent);
+		--sky-shade: color-mix(in srgb, var(--color-surface-950) 45%, transparent);
 		margin-bottom: 4rem;
 	}
 	:global([data-mode='dark']) .constellation {
 		--sky-dark: 1;
 		--sky-ink: var(--color-surface-50);
-		--sky-paper: color-mix(in oklab, var(--color-surface-950) 72%, black);
-		--sky-card: color-mix(in oklab, var(--color-surface-900) 92%, white);
+		--sky-paper: var(--color-root-bg-dark);
+		--sky-card: var(--color-surface-900);
 		--sky-accent: var(--color-primary-300);
-		--star-l: 0.82;
-		--star-c: 0.105;
+		--star-la: 0.86;
+		--star-lb: 0.74;
+		--star-c: 0.13;
 		--star-0: var(--color-primary-300);
 	}
+	/* Neighbouring hues also differ in lightness, so two categories side by side on the wheel still tell apart. */
 	@supports (color: oklch(from red l c h)) {
 		.constellation {
-			--star-0: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) h);
-			--star-1: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 45));
-			--star-2: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 90));
-			--star-3: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 135));
-			--star-4: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 180));
-			--star-5: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 225));
-			--star-6: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 270));
-			--star-7: oklch(from var(--color-primary-500) var(--star-l) var(--star-c) calc(h + 315));
+			--star-0: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) h);
+			--star-1: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 45));
+			--star-2: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 90));
+			--star-3: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 135));
+			--star-4: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 180));
+			--star-5: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 225));
+			--star-6: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 270));
+			--star-7: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 315));
 		}
 	}
 
 	header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .75rem 1.5rem; }
-	.lede { margin-top: .3rem; max-width: 60ch; opacity: .78; }
-	.tabs { display: flex; font: 600 .78rem/1 'Inter', system-ui, sans-serif; border: 1px solid color-mix(in srgb, currentColor 28%, transparent); }
+	.lede { margin-top: .3rem; max-width: 60ch; }
+	.tabs { display: flex; font: 600 .78rem/1 'Inter', system-ui, sans-serif; border: 1px solid var(--sky-line); }
 	.tabs button { min-width: 4rem; padding: .55rem .9rem; cursor: pointer; }
 	.tabs button[aria-selected='true'] { color: var(--sky-paper); background: var(--sky-ink); }
 
-	.legend { display: flex; flex-wrap: wrap; gap: .1rem; margin: .9rem 0 .5rem -.45rem; font: 600 .72rem/1 'Inter', system-ui, sans-serif; }
+	.legend { display: flex; flex-wrap: wrap; gap: .1rem; margin: .9rem 0 .25rem -.45rem; font: 600 .72rem/1 'Inter', system-ui, sans-serif; }
 	.legend button { display: inline-flex; align-items: center; gap: .38rem; min-height: 1.75rem; padding: 0 .45rem; border: 1px solid transparent; cursor: pointer; }
-	.legend button:hover { border-color: color-mix(in srgb, currentColor 28%, transparent); }
+	.legend button:hover { border-color: var(--sky-line); }
 	.legend button[aria-pressed='true'] { border-color: currentColor; font-weight: 700; }
-	.legend:has([aria-pressed='true']) button[aria-pressed='false'] { opacity: .6; }
-	.dot { width: .6rem; height: .6rem; border-radius: 50%; flex: none; }
-	.count { opacity: .6; font-variant-numeric: tabular-nums; }
+	.dot { width: .6rem; height: .6rem; border-radius: 50%; flex: none; background: var(--dot); box-shadow: inset 0 0 0 2px var(--dot); }
+	/* While one category is picked the others keep their text and show a hollow dot. */
+	.legend:has([aria-pressed='true']) button[aria-pressed='false'] .dot { background: none; }
+	.count { font-variant-numeric: tabular-nums; }
 
 	/* The help sits in the top corner of the panel, above the map. Its text is in the body face, as the lede is. */
 	.help { position: absolute; top: .55rem; right: .75rem; z-index: 3; }
-	.help > button { min-height: 1.75rem; padding: 0 .3rem; font: 600 .72rem/1 'Inter', system-ui, sans-serif; color: color-mix(in srgb, var(--sky-ink) 78%, transparent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--sky-ink) 35%, transparent); text-underline-offset: .25em; cursor: pointer; white-space: nowrap; }
+	.help > button { min-height: 1.75rem; padding: 0 .3rem; background: var(--sky-paper); font: 600 .72rem/1 'Inter', system-ui, sans-serif; color: var(--sky-soft); text-decoration: underline; text-decoration-color: var(--sky-line); text-underline-offset: .25em; cursor: pointer; white-space: nowrap; }
 	.help > button:hover, .help > button[aria-expanded='true'] { color: var(--sky-ink); }
-	.pop { position: absolute; right: 0; top: calc(100% + .3rem); width: min(22rem, calc(100vw - 3.5rem)); padding: .9rem 1rem; display: grid; gap: .5rem; font-size: .9rem; line-height: 1.35; color: var(--sky-ink); background: var(--sky-card); border: 1px solid color-mix(in srgb, var(--sky-ink) 22%, transparent); box-shadow: 0 16px 36px -16px rgb(0 0 0 / .5); }
+	.pop { position: absolute; right: 0; top: calc(100% + .3rem); width: min(22rem, calc(100vw - 3.5rem)); padding: .9rem 1rem; display: grid; gap: .5rem; font-size: .9rem; line-height: 1.35; color: var(--sky-ink); background: var(--sky-card); border: 1px solid var(--sky-line); box-shadow: 0 16px 36px -16px var(--sky-shade); }
 	.pop[hidden] { display: none; }
-	.pop .method { padding-top: .55rem; border-top: 1px solid color-mix(in srgb, var(--sky-ink) 16%, transparent); color: color-mix(in srgb, var(--sky-ink) 78%, transparent); }
+	.pop .method { padding-top: .55rem; border-top: 1px solid var(--sky-line); color: var(--sky-soft); }
 
 	:is(.tabs, .legend, .help) button:focus-visible, .reviewed-pulse summary:focus-visible { outline: 2px solid var(--sky-accent); outline-offset: 2px; }
 
-	/* The panel has its final size before anything loads: nothing below it ever moves. */
+	/* The panel has its final size before anything loads. Nothing inside it changes that size. */
 	.panel { position: relative; height: clamp(24rem, 66vh, 40rem); color: var(--sky-ink); }
+	/* The sky has no box and no edge: two soft tints that end inside the panel, over the page itself. */
 	.panel::before {
 		content: '';
 		position: absolute;
 		inset: 0;
+		pointer-events: none;
 		background:
-			radial-gradient(120% 90% at 18% 12%, color-mix(in oklab, var(--color-primary-500) 14%, transparent), transparent 62%),
-			radial-gradient(110% 100% at 88% 92%, color-mix(in oklab, var(--color-tertiary-500) 13%, transparent), transparent 60%),
-			var(--sky-paper);
-	}
-	/* At night the sky has no edge: it fades into the page. By day it is a sheet of paper. */
-	:global([data-mode='dark']) .panel::before {
-		-webkit-mask-image: linear-gradient(to right, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent), linear-gradient(to bottom, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent);
-		-webkit-mask-composite: source-in;
-		mask-image: linear-gradient(to right, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent), linear-gradient(to bottom, transparent, #000 2.25rem, #000 calc(100% - 2.25rem), transparent);
-		mask-composite: intersect;
+			radial-gradient(closest-side ellipse at 32% 40%, color-mix(in oklab, var(--color-primary-500) 14%, transparent), transparent),
+			radial-gradient(closest-side ellipse at 70% 62%, color-mix(in oklab, var(--color-tertiary-500) 12%, transparent), transparent);
 	}
 	/* The strip under the field holds the zoom controls, so no star sits beneath them. */
 	.field { position: absolute; inset: 2.9rem 3.25rem 3.75rem; }
@@ -269,12 +293,13 @@
 	.reviewed-pulse { margin-top: 1rem; }
 	.reviewed-pulse summary { cursor: pointer; padding: .5rem; }
 
+	/* A phone: a tall panel. The controls sit above the field and the picked post below it, so nothing covers the map. */
 	@media (max-width: 720px) {
 		.constellation { --star-scale: .85; }
-		.panel { height: clamp(24rem, 125vw, 34rem); }
-		.field { inset: 2.6rem .9rem 4.4rem; }
-		.help { top: .35rem; right: .5rem; }
-		.help > button { min-height: 2rem; }
+		.panel { height: clamp(30rem, 150vw, 38rem); }
+		.field { inset: 3.6rem .9rem 10.5rem; }
+		.help { top: .4rem; right: .25rem; }
+		.help > button { min-height: 2.75rem; }
 		.silhouette.wide { display: none; }
 		.silhouette.tall { display: block; }
 		.legend button { min-height: 2rem; }

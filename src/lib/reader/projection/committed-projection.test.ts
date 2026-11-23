@@ -58,7 +58,13 @@ describe('committed posts projection (src/lib/data/posts-projection.v1.json)', (
 		expect(committedLayout.stars.map((star) => star[0])).toEqual(committed.posts.map((post) => post.slug));
 		// The layout carries no title, text, date or tag: only slugs, positions and small integers.
 		for (const star of committedLayout.stars) expect(star.map((value) => typeof value)).toEqual(['string', 'number', 'number', 'number', 'number', 'number', 'number']);
-		expect(Object.keys(committedLayout).sort()).toEqual(['aspect', 'categories', 'corpus_sha256', 'figure', 'groups', 'labels', 'near', 'schema', 'stars']);
+		expect(Object.keys(committedLayout).sort()).toEqual(['aspect', 'categories', 'corpus_sha256', 'figure', 'groups', 'labels', 'near', 'schema', 'stars', 'titles']);
+		// Titles are carried as a width and a placement code per star, never as text.
+		for (const list of Object.values(committedLayout.titles)) expect(list.every((value) => Number.isInteger(value))).toBe(true);
+		// Most posts get a title on both frames, and every figure line joins two stars of one named group.
+		expect(committedLayout.titles.wide.filter(Boolean).length).toBeGreaterThan(committedLayout.stars.length * 0.8);
+		expect(committedLayout.titles.tall.filter(Boolean).length).toBeGreaterThan(committedLayout.stars.length * 0.8);
+		for (const [a, b] of committedLayout.figure) expect(Number(committedLayout.stars[a][4]) >= 0 && committedLayout.stars[a][4] === committedLayout.stars[b][4]).toBe(true);
 	});
 
 	it('contains only published posts and never a held or unpublished slug', () => {

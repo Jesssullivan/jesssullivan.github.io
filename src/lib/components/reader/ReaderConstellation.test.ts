@@ -107,6 +107,14 @@ describe('ConstellationSky', () => {
 		expect(html).toMatch(/>Reset</);
 	});
 
+	it('draws on two canvases, one of them the glow layer, and says where a picked post shows on a phone', () => {
+		const posts = [{ ...post, slug: slugOf(0), title: 'First placed post' }];
+		const { html } = render(ConstellationSky, { props: { ...sky, posts } });
+		expect((html.match(/<canvas/g) ?? []).length).toBe(2);
+		expect(html).toMatch(/<canvas class="glow[^"]*"/);
+		expect(html).toContain('Tap a star to see its post here.');
+	});
+
 	it('offers the same posts as a list with their nearest posts', () => {
 		const from = constellation.near.findIndex((list) => list.length > 0);
 		const to = constellation.near[from][0];

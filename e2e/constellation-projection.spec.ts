@@ -127,6 +127,39 @@ test('first paint is the silhouette, the panel keeps its size, and the data is o
 	}
 });
 
+// The flag is read after the page has painted, so the section cannot be in the first paint (TIN-8628).
+// It opens its space with a slide, not a jump: nothing in the section or after it scores a layout shift.
+test('the section arrives without a layout shift', async ({ page }) => {
+	await page.addInitScript(() => {
+		const state = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
+		state.shifts = [];
+		new PerformanceObserver(list => {
+			for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean; sources?: Array<{ node: Node | null }> }>) {
+				if (!entry.hadRecentInput) state.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
+			}
+		}).observe({ type: 'layout-shift', buffered: true });
+	});
+	await page.goto('/?flags=constellation');
+	await expect(stars(page).first()).toBeAttached();
+	// The slide is over once what follows the section has no animation left.
+	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
+	await page.waitForLoadState('networkidle');
+	// Shifts of the section, of what follows it, or of anything inside either. The page above has its own and is not judged here.
+	const moved = await page.evaluate(() => {
+		const section = document.querySelector('.constellation');
+		const below = section?.nextElementSibling;
+		const ours = (node: Node) => Boolean(section?.contains(node) || below?.contains(node));
+		const { shifts } = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
+		return shifts.filter(shift => shift.nodes.some(ours)).map(shift => ({ value: shift.value, nodes: shift.nodes.map(node => node.nodeName) }));
+	});
+	expect(moved).toEqual([]);
+	// The section is in place above the reader, at its final size.
+	const panel = await page.getByTestId('constellation-panel').boundingBox();
+	const latest = await page.locator('#latest').boundingBox();
+	if (!panel || !latest) throw new Error('no boxes');
+	expect(latest.y).toBeGreaterThan(panel.y + panel.height);
+});
+
 test('when the data does not load the silhouette stays and the reader is told where to read', async ({ page, context }) => {
 	await context.route(DATA_FILE, route => route.abort());
 	await page.goto('/?flags=constellation');
@@ -255,6 +288,15 @@ test('a constellation name flies to it, Reset returns, and a plain wheel scrolls
 		const after = await allCentres(page);
 		return Math.hypot(after[0].x - after[1].x, after[0].y - after[1].y) / Math.hypot(before[0].x - before[1].x, before[0].y - before[1].y);
 	}).toBeGreaterThan(1.3);
+	// Every name that shows is whole: none is cut by the edge of the panel.
+	const cut = await map(page).getByRole('button', { name: /^Go to / }).evaluateAll(names => {
+		const panel = (names[0].closest('[data-testid="constellation-map"]') as Element).getBoundingClientRect();
+		return names.filter(name => getComputedStyle(name).visibility !== 'hidden').filter(name => {
+			const box = name.getBoundingClientRect();
+			return box.left < panel.left || box.right > panel.right;
+		}).length;
+	});
+	expect(cut).toBe(0);
 	await reset.click();
 	await expect(reset).toBeDisabled();
 	await expect.poll(async () => (await allCentres(page))[0].x).toBeCloseTo(before[0].x, 0);
@@ -274,8 +316,14 @@ test('the legend filters the map and the list to one category', async ({ page })
 	const chip = page.locator('.constellation .legend button').first();
 	const count = Number(await chip.locator('.count').textContent());
 	expect(count).toBeGreaterThan(0);
+	// No text in the heading block or the legend is dimmed, with or without a filter: state shows as a border and a hollow dot.
+	const dimmed = () => page.locator('.constellation :is(.lede, .legend button, .legend .count)').evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).opacity !== '1').length);
+	expect(await dimmed()).toBe(0);
 	await chip.click();
 	await expect(chip).toHaveAttribute('aria-pressed', 'true');
+	expect(await dimmed()).toBe(0);
+	const other = page.locator('.constellation .legend button[aria-pressed="false"] .dot').first();
+	expect(await other.evaluate(node => getComputedStyle(node).backgroundImage + getComputedStyle(node).backgroundColor)).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
 	await page.getByRole('tab', { name: 'List', exact: true }).click();
 	await expect(page.getByTestId('constellation-list').locator('> li')).toHaveCount(count);
 	await chip.click();
@@ -329,7 +377,7 @@ test.describe('phone, touch', () => {
 		if (!box) throw new Error('no map box');
 		// A point 22 pixels from a star, on a side where no other star is nearer.
 		const tries = centres.flatMap(c => [0, 1, 2, 3, 4, 5, 6, 7].map(step => ({ slug: c.slug, x: c.x + Math.cos(step * Math.PI / 4) * 22, y: c.y + Math.sin(step * Math.PI / 4) * 22 })));
-		const open = tries.filter(p => p.x > box.x + 12 && p.x < box.x + box.width - 12 && p.y > box.y + 50 && p.y < box.y + box.height - 90 && centres.every(c => c.slug === p.slug || Math.hypot(c.x - p.x, c.y - p.y) > 26));
+		const open = tries.filter(p => p.x > box.x + 12 && p.x < box.x + box.width - 12 && p.y > box.y + 60 && p.y < box.y + box.height - 90 && centres.every(c => c.slug === p.slug || Math.hypot(c.x - p.x, c.y - p.y) > 26));
 		// A constellation name is a control of its own, so the point must be on the map itself.
 		const onMap = await page.evaluate(points => points.map(p => document.elementFromPoint(p.x, p.y)?.tagName === 'CANVAS'), open);
 		const found = open.find((_, index) => onMap[index]);
@@ -339,8 +387,72 @@ test.describe('phone, touch', () => {
 		await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
 		const control = await openControl(page).boundingBox();
 		expect(control?.height).toBeGreaterThanOrEqual(44);
+		// The picked post sits in its own strip under the map: at rest the card covers no star.
+		const sheet = await card(page).boundingBox();
+		if (!sheet) throw new Error('no card box');
+		expect(centres.filter(c => c.x > sheet.x && c.x < sheet.x + sheet.width && c.y > sheet.y && c.y < sheet.y + sheet.height)).toEqual([]);
 		await openControl(page).tap();
 		await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
+	});
+});
+
+test.describe('phone, touch gestures', () => {
+	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+	// Real touch points, sent through the browser's own input path, so its scrolling takes part.
+	async function swipe(page: Page, paths: Array<{ from: [number, number]; to: [number, number] }>) {
+		const client = await page.context().newCDPSession(page);
+		const points = (t: number) => paths.map(({ from, to }, id) => ({ id, x: Math.round(from[0] + (to[0] - from[0]) * t), y: Math.round(from[1] + (to[1] - from[1]) * t) }));
+		await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: points(0) });
+		for (let step = 1; step <= 12; step += 1) {
+			await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: points(step / 12) });
+			await page.waitForTimeout(16);
+		}
+		await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+		await client.detach();
+	}
+
+	test('one finger scrolls the page over the map, at rest and zoomed in, and two fingers zoom', async ({ page }) => {
+		await openMap(page);
+		const reset = map(page).getByRole('button', { name: 'Reset', exact: true });
+		const scrollY = () => page.evaluate(() => window.scrollY);
+		const middle = async () => {
+			await page.evaluate(() => document.querySelector('[data-testid="constellation-map"]')?.scrollIntoView({ block: 'center' }));
+			const box = await map(page).boundingBox();
+			if (!box) throw new Error('no map box');
+			return { x: box.x + box.width / 2, y: box.y + box.height * 0.4 };
+		};
+
+		// At rest a swipe up scrolls the page.
+		let at = await middle();
+		let before = await scrollY();
+		await swipe(page, [{ from: [at.x, at.y + 80], to: [at.x, at.y - 120] }]);
+		await expect.poll(scrollY).toBeGreaterThan(before + 60);
+		await expect(reset).toBeDisabled();
+
+		// Two fingers moving apart zoom the map and leave the page where it is.
+		at = await middle();
+		before = await scrollY();
+		await swipe(page, [
+			{ from: [at.x, at.y - 30], to: [at.x, at.y - 130] },
+			{ from: [at.x, at.y + 30], to: [at.x, at.y + 130] },
+		]);
+		await expect(reset).toBeEnabled();
+		expect(Math.abs((await scrollY()) - before)).toBeLessThan(4);
+
+		// Zoomed in, a swipe up still scrolls the page: the map never traps it.
+		at = await middle();
+		before = await scrollY();
+		await swipe(page, [{ from: [at.x, at.y + 80], to: [at.x, at.y - 120] }]);
+		await expect.poll(scrollY).toBeGreaterThan(before + 60);
+
+		// Zoomed in, a sideways drag moves the map and not the page.
+		at = await middle();
+		before = await scrollY();
+		const start = (await allCentres(page))[0];
+		await swipe(page, [{ from: [at.x + 90, at.y], to: [at.x - 90, at.y] }]);
+		await expect.poll(async () => Math.abs((await allCentres(page))[0].x - start.x)).toBeGreaterThan(40);
+		expect(Math.abs((await scrollY()) - before)).toBeLessThan(4);
 	});
 });
 

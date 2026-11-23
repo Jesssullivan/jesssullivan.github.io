@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Post } from '$lib/posts';
 import type { ConstellationData } from './layout';
-import { Painter, backdropTransforms, type Frame, type Palette } from './paint';
+import { Painter, glowTransform, parseColour, type Frame, type Palette } from './paint';
 import { buildSky } from './scene';
 import { FIT } from './view';
 
 const post = (slug: string): Post => ({ slug, title: `Title of ${slug}`, date: '2026-01-01', description: '', tags: [], published: true });
 
+// Titles: 80 pixels wide. On the wide frame b shows on its right from scale 2 and c on its left from scale 4. a never shows.
 const data: ConstellationData = {
 	schema: 'constellation.v1',
 	corpus_sha256: 'test',
@@ -24,13 +25,14 @@ const data: ConstellationData = {
 		[1, 2],
 	],
 	near: [[1], [0, 2], [1]],
+	titles: { width: [80, 80, 80], wide: [0, 20 * 4, 40 * 4 + 1], tall: [0, 0, 0] },
 };
 
 /** A canvas context that only counts what is drawn. */
 function recorder() {
 	const calls: Record<string, number> = {};
-	const ctx = new Proxy({ measureText: () => ({ width: 80 }) } as Record<string, unknown>, {
-		get: (target, key: string) => (key in target ? target[key] : () => (calls[key] = (calls[key] ?? 0) + 1)),
+	const ctx = new Proxy({} as Record<string, unknown>, {
+		get: (_, key: string) => () => (calls[key] = (calls[key] ?? 0) + 1),
 		set: () => true,
 	});
 	return { ctx: ctx as unknown as CanvasRenderingContext2D, calls };
@@ -38,7 +40,8 @@ function recorder() {
 
 const palette: Palette = { dark: true, ink: [240, 240, 240], paper: [10, 10, 10], accent: [200, 180, 120], stars: [[1, 2, 3], [4, 5, 6]], sprites: [{}, {}] as unknown as HTMLCanvasElement[] };
 const sky = buildSky(data, ['a', 'b', 'c'].map(post))!;
-const frame = (patch: Partial<Frame> = {}): Frame => ({ size: { w: 1000, h: 500 }, field: { x: 100, y: 50, w: 800, h: 400 }, view: FIT, scale: 1, active: -1, hover: -1, ring: false, filter: -1, group: -1, intro: 1, ...patch });
+// The field is 1.25 times the reference field across and a little more than once down, so the title scale is 1.05 times the zoom.
+const frame = (patch: Partial<Frame> = {}): Frame => ({ size: { w: 1000, h: 500 }, field: { x: 100, y: 50, w: 800, h: 400 }, view: FIT, tall: false, scale: 1, active: -1, hover: -1, ring: false, filter: -1, group: -1, intro: 1, ...patch });
 
 describe('constellation painter', () => {
 	it('puts each star where the silhouette has it: inside the field, by its unit position', () => {
@@ -56,53 +59,87 @@ describe('constellation painter', () => {
 		const painter = new Painter(sky, palette);
 		const start = recorder();
 		painter.draw(start.ctx, frame({ intro: 0 }));
-		// Before the sky assembles: the three stars, no glow and no figure line.
+		// Before the sky assembles: the three stars and nothing else.
 		expect(start.calls.arc).toBe(3);
-		expect(start.calls.drawImage).toBeUndefined();
 		expect(start.calls.lineTo).toBeUndefined();
+		expect(start.calls.fillRect).toBeUndefined();
 		const end = recorder();
 		painter.draw(end.ctx, frame());
-		// Assembled: a core and a paler centre per star, a halo per star and both figure lines.
+		// Assembled: a disc and a paler centre per star, both figure lines and the dust.
 		expect(end.calls.arc).toBe(6);
-		expect(end.calls.drawImage).toBe(3);
 		expect(end.calls.lineTo).toBe(2);
+		expect(end.calls.fillRect).toBeGreaterThan(100);
 		expect(end.calls.fillText).toBeUndefined();
 	});
 
-	it('joins the active star to its nearest posts, rings it, and names stars once zoomed in', () => {
+	it('blends nothing in a frame and fills each category once', () => {
+		const painter = new Painter(sky, palette);
+		const rest = recorder();
+		painter.draw(rest.ctx, frame());
+		// No sprite and no gradient: the soft layer is drawn elsewhere, once.
+		expect(rest.calls.drawImage).toBeUndefined();
+		// Two categories and the pale centres.
+		expect(rest.calls.fill).toBe(3);
+	});
+
+	it('joins the active star to its nearest posts and rings it', () => {
 		const painter = new Painter(sky, palette);
 		const active = recorder();
 		painter.draw(active.ctx, frame({ active: 1, ring: true }));
 		// Two figure lines and two lines to the nearest posts. Six star arcs and two rings.
 		expect(active.calls.lineTo).toBe(4);
 		expect(active.calls.arc).toBe(8);
-		const zoomed = recorder();
-		painter.draw(zoomed.ctx, frame({ view: { k: 3, x: -1000, y: -500 } }));
-		expect(zoomed.calls.fillText).toBeGreaterThan(0);
 	});
 
-	it('keeps a filtered-out category on the map without a halo', () => {
+	it('draws each title from the scale the layout gave it, and never one the panel would cut', () => {
+		const painter = new Painter(sky, palette);
+		const titles = (view: Frame['view']) => {
+			const shot = recorder();
+			painter.draw(shot.ctx, frame({ view }));
+			return shot.calls.fillText ?? 0;
+		};
+		// Scale 1.9: below every title.
+		expect(titles({ k: 1.8, x: -400, y: -200 })).toBe(0);
+		// Scale 3.2: b, in the middle of the panel, shows. c waits for scale 4.
+		expect(titles({ k: 3, x: -1000, y: -500 })).toBe(1);
+		// Scale 4.7 with c near the middle: c shows. b is off the panel.
+		expect(titles({ k: 4.5, x: -3550, y: -1775 })).toBe(1);
+		// Scale 3.2 with b at the right edge: its title would be cut, so it is left out.
+		expect(titles({ k: 3, x: -520, y: -500 })).toBe(0);
+		// A strip that holds controls takes no title either.
+		const strip = recorder();
+		painter.draw(strip.ctx, frame({ view: { k: 3, x: -1000, y: -500 }, strips: [260, 0] }));
+		expect(strip.calls.fillText).toBeUndefined();
+	});
+
+	it('keeps a filtered-out category on the map without its pale centre', () => {
 		const painter = new Painter(sky, palette);
 		const filtered = recorder();
 		painter.draw(filtered.ctx, frame({ filter: 1 }));
-		// Only the hardware star keeps its halo and its paler centre. All three are still drawn.
-		expect(filtered.calls.drawImage).toBe(1);
+		// All three stars are still drawn. Only the hardware star keeps its centre.
 		expect(filtered.calls.arc).toBe(4);
 	});
 
-	it('draws the backdrop once and then only moves it', () => {
+	it('draws the glows once and then only moves them', () => {
 		const painter = new Painter(sky, palette);
 		const glow = recorder();
-		const dust = recorder();
-		painter.drawBackdrop(glow.ctx, dust.ctx, { w: 1000, h: 500 }, { x: 100, y: 50, w: 800, h: 400 }, -1);
-		expect(glow.calls.drawImage).toBe(1);
-		expect(dust.calls.fillRect).toBeGreaterThan(100);
-		// At rest nothing has moved. Zoomed in, the glow follows the map and the dust moves less.
-		expect(backdropTransforms(FIT, { w: 1000, h: 500 })).toEqual({ glow: 'translate(0.00px,0.00px) scale(1.0000)', dust: 'translate(0.00px,0.00px) scale(1.0000)' });
-		const moved = backdropTransforms({ k: 4, x: -3000, y: -1500 }, { w: 1000, h: 500 });
-		expect(moved.glow).toBe('translate(-3000.00px,-1500.00px) scale(4.0000)');
-		const dustScale = Number(moved.dust.match(/scale\(([\d.]+)\)/)?.[1]);
-		expect(dustScale).toBeGreaterThan(1);
-		expect(dustScale).toBeLessThan(4);
+		painter.drawGlow(glow.ctx, { w: 1000, h: 500 }, { x: 100, y: 50, w: 800, h: 400 }, 1, -1);
+		// One for the constellation and one halo per star.
+		expect(glow.calls.drawImage).toBe(4);
+		const filtered = recorder();
+		painter.drawGlow(filtered.ctx, { w: 1000, h: 500 }, { x: 100, y: 50, w: 800, h: 400 }, 1, 1);
+		expect(filtered.calls.drawImage).toBe(2);
+		expect(glowTransform(FIT)).toBe('translate(0.00px,0.00px) scale(1.0000)');
+		expect(glowTransform({ k: 4, x: -3000, y: -1500 })).toBe('translate(-3000.00px,-1500.00px) scale(4.0000)');
+	});
+
+	it('reads a computed colour in either form the browser gives', () => {
+		expect(parseColour('rgb(12, 34, 56)')).toEqual([12, 34, 56]);
+		expect(parseColour('rgba(12, 34, 56, 0.5)')).toEqual([12, 34, 56]);
+		expect(parseColour('color(srgb 0.5 0.25 1)')).toEqual([128, 64, 255]);
+		// A colour outside sRGB is brought to its edge.
+		expect(parseColour('color(srgb 1.2 -0.1 0.5)')).toEqual([255, 0, 128]);
+		expect(parseColour('oklch(0.5 0.1 120)')).toBeNull();
+		expect(parseColour('')).toBeNull();
 	});
 });

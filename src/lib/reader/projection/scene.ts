@@ -26,6 +26,10 @@ export interface Star {
 	size: number;
 	/** 0 to 2 by recency. */
 	glow: number;
+	/** Where the title goes and from what scale, as the layout encodes it for the frame in use. 0 when it is never drawn. */
+	label: number;
+	/** The room the title takes, in pixels. */
+	labelWidth: number;
 }
 
 export interface Group {
@@ -63,8 +67,10 @@ export function isConstellationData(value: unknown): value is ConstellationData 
 	if (!value || typeof value !== 'object') return false;
 	const doc = value as Partial<ConstellationData>;
 	if (doc.schema !== 'constellation.v1') return false;
-	const { stars, groups, figure, near, categories, labels } = doc;
+	const { stars, groups, figure, near, categories, labels, titles } = doc;
 	if (!Array.isArray(stars) || !Array.isArray(groups) || !Array.isArray(figure) || !Array.isArray(near)) return false;
+	const counts = (list: unknown) => Array.isArray(list) && list.length === stars.length && list.every((value) => Number.isInteger(value) && value >= 0);
+	if (!titles || !counts(titles.width) || !counts(titles.wide) || !counts(titles.tall)) return false;
 	if (!Array.isArray(categories) || !Array.isArray(labels) || labels.length !== categories.length || near.length !== stars.length) return false;
 	return (
 		stars.every(
@@ -107,6 +113,8 @@ export function buildSky(data: unknown, routeablePosts: readonly Post[], tall = 
 			group,
 			size,
 			glow,
+			label: (tall ? data.titles.tall : data.titles.wide)[source],
+			labelWidth: data.titles.width[source],
 		});
 	});
 	const remap = (list: readonly number[]) => list.map((index) => kept.get(index)).filter((index): index is number => index !== undefined);

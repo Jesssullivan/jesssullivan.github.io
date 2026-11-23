@@ -4,13 +4,15 @@
  * The t-SNE fit in posts-projection.v1.json only says where each post sits.
  * Everything else the map draws is decided here, once, by the generator:
  * the turn that puts the long axis across the screen, the groups and their
- * names, the figure lines, the size and glow of each star, the neighbours and
- * the label anchors. The browser applies transforms to this and nothing more.
+ * names, the figure lines, the size and glow of each star, the neighbours, the
+ * name anchors and where and from what zoom each post title shows. The browser
+ * applies transforms to this and nothing more.
  *
  * Nothing here reads the clock or a random source, so the same projection and
  * the same posts always give the same bytes.
  */
 import { codePointCompare, stripPostMarkup } from './text';
+import { LABEL_FIELD, MAX_ZOOM, STAR_GROWTH, STAR_RADIUS, TITLE_GAP, shortTitle } from './view';
 
 export const CONSTELLATION_SCHEMA = 'constellation.v1';
 export const SILHOUETTE_SCHEMA = 'constellation-silhouette.v1';
@@ -24,12 +26,12 @@ const MAX_GROUPS = 14;
 const LONG_LINE = 2.6;
 /** Two groups that earn the same name merge when this close, in median nearest-star gaps. */
 const MERGE_GAP = 6;
-/**
- * Names are placed on a small field of each kind, in pixels: the map area of a
- * narrow desktop window and of a small phone. A larger field only moves stars
- * away from a name, so a name that is clear here is clear on every larger one.
- */
-export const LABEL_FIELD = { wide: [640, 380], tall: [300, 340] } as const;
+/** A group keeps its name and figure with at least this many stars that carry the name. */
+const MIN_FIGURE = 3;
+/** Titles show from this scale of the reference field up, so the map at rest carries names only. */
+export const TITLE_FLOOR = 2.4;
+/** A title that is not clear by this scale is never drawn. */
+const TITLE_CEILING = 9;
 /** Size steps by word count: a note, a post, a long post, an essay. */
 export const SIZE_WORDS = [250, 700, 1800] as const;
 /** Glow steps by age against the newest post: within one year, within five. */
@@ -53,19 +55,25 @@ const CATEGORY_LABEL: Record<string, string> = {
 	other: 'Other',
 };
 
-/** Tags that say nothing about a subject never name a group. A string value renames a tag. */
+/**
+ * Tags that say nothing about a subject never name a group: these five are the
+ * catch-all tags of the old WordPress site. A string value renames a tag.
+ */
 const TAG_LABEL: Record<string, string | null> = {
 	featured: null,
 	reviews: null,
+	ideas: null,
+	'how-to': null,
+	diy: null,
 	maker: 'Making',
 	'3d-printing': 'Making',
 	cnc: 'Making',
-	'how-to': 'How-to',
-	diy: 'DIY',
 };
 
 export interface LayoutSource {
 	slug: string;
+	/** Only its length is used, to reserve room for the title on the map. */
+	title?: string;
 	date: string;
 	tags: string[];
 	category?: string;
@@ -106,6 +114,12 @@ export interface ConstellationData {
 	figure: Array<[number, number]>;
 	/** Per star, its nearest posts: similarity neighbours first, strongest first. */
 	near: number[][];
+	/**
+	 * Per star, the room its title takes in pixels, and for each frame where the
+	 * title goes and from what scale: `scale * 10 * 4 + side`, with side 0 right,
+	 * 1 left, 2 below and 3 above. 0 means the title is never drawn.
+	 */
+	titles: { width: number[]; wide: number[]; tall: number[] };
 }
 
 export interface Silhouette {
@@ -215,8 +229,10 @@ function sentenceCase(text: string): string {
 /**
  * Name groups from what their posts share. A label scores by how much of the
  * group carries it (squared, so a label on every post wins) times how much of
- * that label lives in the group. Two groups that earn the same name merge when
- * they touch. Otherwise the weaker one takes its next label.
+ * that label lives in the group, and it must be on at least half of the group.
+ * Two groups that earn the same name merge when they touch. Otherwise the
+ * weaker one takes its next label. A named group then keeps only the stars
+ * that carry its name, so a figure never claims a post its name is not true of.
  */
 function nameGroups(groups: number[][], points: readonly Point[], sources: readonly LayoutSource[], gap: number): Array<{ name: string; members: number[] }> {
 	const labelsOf = sources.map(subjects);
@@ -226,6 +242,7 @@ function nameGroups(groups: number[][], points: readonly Point[], sources: reado
 		const counts = new Map<string, number>();
 		for (const m of members) for (const label of labelsOf[m]) counts.set(label, (counts.get(label) ?? 0) + 1);
 		const choices = [...counts.entries()]
+			.filter(([, count]) => count * 2 >= members.length)
 			.map(([label, count]) => ({ label, score: (count / members.length) ** 2 * (count / (totals.get(label) as number)) }))
 			.sort((a, b) => b.score - a.score || codePointCompare(a.label, b.label));
 		return { members, choices };
@@ -249,7 +266,7 @@ function nameGroups(groups: number[][], points: readonly Point[], sources: reado
 			}
 		}
 	}
-	return named;
+	return named.map((group) => ({ name: group.name, members: group.members.filter((m) => labelsOf[m].includes(group.name)) })).filter((group) => group.members.length >= MIN_FIGURE);
 }
 
 /** Minimum spanning tree inside one group, without its overlong lines. */
@@ -339,7 +356,7 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 		const cy = members.reduce((sum, m) => sum + stars[m][1], 0) / members.length;
 		const halfW = (groups[g].name.length * 7.6 + 10) / 2;
 		const halfH = 8;
-		const clear = (x: number, y: number, pad: number): boolean => {
+		const clear = (x: number, y: number, pad: number, own = true): boolean => {
 			if (x - halfW < 0 || x + halfW > frame.width || y - halfH < -14 || y + halfH > frame.height + 14) return false;
 			let nearest = -1;
 			let nearestDistance = Infinity;
@@ -347,13 +364,14 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 				const dx = Math.abs(stars[s][0] - x);
 				const dy = Math.abs(stars[s][1] - y);
 				if (dx < halfW + pad && dy < halfH + pad) return false;
+				// A star outside every figure belongs to no name, so it does not decide whose spot this is.
 				const d = Math.hypot(Math.max(0, dx - halfW), Math.max(0, dy - halfH));
-				if (d < nearestDistance) {
+				if (owner.has(s) && d < nearestDistance) {
 					nearestDistance = d;
 					nearest = s;
 				}
 			}
-			if (owner.get(nearest) !== g) return false;
+			if (own && owner.get(nearest) !== g) return false;
 			if (linePoints.some(([lx, ly]) => Math.abs(lx - x) < halfW + 3 && Math.abs(ly - y) < halfH + 3)) return false;
 			return boxes.every(([bx, by, bw, bh]) => Math.abs(bx - x) >= bw + halfW + 6 || Math.abs(by - y) >= bh + halfH + 4);
 		};
@@ -369,7 +387,8 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 				break;
 			}
 		}
-		search: for (const pad of spot ? [] : [9, 5]) {
+		// A small group hemmed in by larger ones has no spot of its own: its name then takes the nearest spot that covers nothing.
+		search: for (const [pad, own] of spot ? [] : ([[9, true], [5, true], [5, false]] as const)) {
 			for (let radius = 0; radius <= 220; radius += 6) {
 				const turns = radius === 0 ? 1 : 24;
 				for (let t = 0; t < turns; t += 1) {
@@ -378,7 +397,7 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 					const angle = -Math.PI / 2 + side * Math.ceil(t / 2) * ((2 * Math.PI) / 24);
 					const x = cx + Math.cos(angle) * radius;
 					const y = cy + Math.sin(angle) * radius;
-					if (clear(x, y, pad)) {
+					if (clear(x, y, pad, own)) {
 						spot = [x, y];
 						break search;
 					}
@@ -390,6 +409,79 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 		anchors[g] = [Math.round((x / frame.width) * GRID), Math.round((y / frame.height) * GRID)];
 	}
 	return anchors;
+}
+
+/**
+ * The room a title takes at 12px Inter 600, from the width of each kind of
+ * letter, rounded up. The map squeezes a title into this width, so an
+ * estimate that runs short only narrows the letters.
+ */
+export function titleWidth(text: string): number {
+	let em = 0;
+	for (const letter of text) em += /[iljI.,:;'|! ]/.test(letter) ? 0.32 : /[ftr()[\]"/-]/.test(letter) ? 0.42 : /[mwMW@]/.test(letter) ? 0.98 : /[A-Z0-9#&]/.test(letter) ? 0.72 : /[a-z]/.test(letter) ? 0.62 : 0.85;
+	return Math.ceil(em * 12);
+}
+
+type Box = [number, number, number, number];
+
+/**
+ * The scale from which a point stays out of a box for good. The point sits at
+ * (dx, dy) from the star at scale 1 and moves straight away from it as the map
+ * grows. The box is fixed to the star. Each axis is judged alone, so the answer
+ * holds when the two axes of a real panel grow by different amounts.
+ */
+function clearFrom(dx: number, dy: number, [x0, y0, x1, y1]: Box): number {
+	const axis = (d: number, low: number, high: number) => (d > 0 ? (high > 0 ? high / d : 0) : d < 0 ? (low < 0 ? low / d : 0) : low < 0 && high > 0 ? Infinity : 0);
+	return Math.min(axis(dx, x0, x1), axis(dy, y0, y1));
+}
+
+/**
+ * Where each title goes and the scale it shows from: the side of its star that
+ * comes clear of every other star, every name and every title placed before it
+ * at the smallest scale. Longer and newer posts choose first. Nothing is
+ * searched in the browser: a title is drawn once the map reaches its scale.
+ */
+function placeTitles(widths: readonly number[], stars: readonly StarRow[], names: ReadonlyArray<{ at: [number, number]; half: number }>, frame: Frame): number[] {
+	const at = stars.map((_, index): [number, number] => {
+		const [x, y] = frame.at(index);
+		return [(x / GRID) * frame.width, (y / GRID) * frame.height];
+	});
+	// A star at its largest, so a title is clear of it at every zoom.
+	const reach = stars.map((star) => STAR_RADIUS[star[5]] * MAX_ZOOM ** STAR_GROWTH);
+	const boxOf = (index: number, side: number): Box => {
+		const far = reach[index] + TITLE_GAP + widths[index];
+		const tall = reach[index] + TITLE_GAP + 16;
+		const half = widths[index] / 2;
+		return ([[4, -8, far, 8], [-far, -8, -4, 8], [-half, 4, half, tall], [-half, -tall, half, -4]] as Box[])[side];
+	};
+	const grow = ([x0, y0, x1, y1]: Box, x: number, y: number): Box => [x0 - x, y0 - y, x1 + x, y1 + y];
+	const order = stars.map((_, index) => index).sort((a, b) => stars[b][5] - stars[a][5] || stars[b][6] - stars[a][6] || a - b);
+	const placed: Array<{ index: number; box: Box; scale: number }> = [];
+	const codes = new Array<number>(stars.length).fill(0);
+	for (const index of order) {
+		let best = { side: 0, scale: Infinity };
+		for (let side = 0; side < 4; side += 1) {
+			const box = boxOf(index, side);
+			let scale = TITLE_FLOOR;
+			for (let other = 0; other < stars.length && scale < best.scale; other += 1) {
+				if (other !== index) scale = Math.max(scale, clearFrom(at[other][0] - at[index][0], at[other][1] - at[index][1], grow(box, reach[other] + 2, reach[other] + 2)));
+			}
+			for (const name of names) scale = Math.max(scale, clearFrom(name.at[0] - at[index][0], name.at[1] - at[index][1], grow(box, name.half + 4, 12)));
+			for (const before of placed) {
+				// The two titles overlap while the other star is inside this box, grown by the other title's box.
+				const [x0, y0, x1, y1] = before.box;
+				const clear = clearFrom(at[before.index][0] - at[index][0], at[before.index][1] - at[index][1], [box[0] - x1 - 6, box[1] - y1 - 5, box[2] - x0 + 6, box[3] - y0 + 5]);
+				// Clear by the time the earlier title shows: no limit. Otherwise this one waits.
+				if (clear > before.scale) scale = Math.max(scale, clear);
+			}
+			scale = Math.ceil(scale * 10) / 10;
+			if (scale < best.scale) best = { side, scale };
+		}
+		if (best.scale > TITLE_CEILING) continue;
+		placed.push({ index, box: boxOf(index, best.side), scale: best.scale });
+		codes[index] = Math.round(best.scale * 10) * 4 + best.side;
+	}
+	return codes;
 }
 
 export function layoutConstellation(projection: ProjectionInput, sources: readonly LayoutSource[]): ConstellationData {
@@ -469,6 +561,10 @@ export function layoutConstellation(projection: ProjectionInput, sources: readon
 		};
 	});
 
+	const titleWidths = posts.map((post) => titleWidth(shortTitle(post.title ?? post.slug)));
+	// A name on the map as a box: its anchor in reference pixels and half its width as drawn on a desktop.
+	const nameBoxes = (anchors: Array<[number, number]>, [width, height]: readonly [number, number]) => named.map((group, g) => ({ at: [(anchors[g][0] / GRID) * width, (anchors[g][1] / GRID) * height] as [number, number], half: (group.name.length * 9 + 14) / 2 }));
+
 	return {
 		schema: CONSTELLATION_SCHEMA,
 		corpus_sha256: projection.corpus_sha256,
@@ -479,6 +575,11 @@ export function layoutConstellation(projection: ProjectionInput, sources: readon
 		stars,
 		figure,
 		near,
+		titles: {
+			width: titleWidths,
+			wide: placeTitles(titleWidths, stars, nameBoxes(wide, LABEL_FIELD.wide), { width: LABEL_FIELD.wide[0], height: LABEL_FIELD.wide[1], at: (i) => grid[i] }),
+			tall: placeTitles(titleWidths, stars, nameBoxes(tall, LABEL_FIELD.tall), { width: LABEL_FIELD.tall[0], height: LABEL_FIELD.tall[1], at: (i) => [grid[i][1], grid[i][0]] }),
+		},
 	};
 }
 

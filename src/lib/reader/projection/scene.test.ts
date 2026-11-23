@@ -29,6 +29,7 @@ const data: ConstellationData = {
 		[2, 3],
 	],
 	near: [[1], [2, 0, 4], [1, 3], [2], [1]],
+	titles: { width: [10, 20, 30, 40, 50], wide: [0, 81, 82, 83, 120], tall: [0, 0, 100, 0, 0] },
 };
 
 describe('constellation sky', () => {
@@ -37,6 +38,8 @@ describe('constellation sky', () => {
 		expect(sky.stars.map((star) => star.slug)).toEqual(['a', 'b', 'c', 'd']);
 		expect(sky.stars.every((star) => star.href === `/blog/${star.slug}`)).toBe(true);
 		expect(sky.stars[1]).toMatchObject({ x: 0.5, y: 0.1, category: 0, group: 0, size: 1, glow: 2, description: 'About b' });
+		// Each star carries where its title goes on the frame in use. The held post takes its entry with it.
+		expect(sky.stars.map((star) => [star.label, star.labelWidth])).toEqual([[0, 10], [81, 20], [82, 30], [120, 50]]);
 		expect(sky.unplaced.map((p) => p.slug)).toEqual(['new']);
 		// A figure line and a neighbour into the post that is not routeable go with it.
 		expect(sky.figure).toEqual([
@@ -63,6 +66,7 @@ describe('constellation sky', () => {
 			[0.6, 0.5],
 		]);
 		expect(sky.groups[0]).toMatchObject({ x: 0.05, y: 0.3, glow: [0.1, 0.3, 0.06, 0.2] });
+		expect(sky.stars.map((star) => star.label)).toEqual([0, 100]);
 	});
 
 	it('moves by arrow direction, preferring the nearest posts', () => {
@@ -84,6 +88,8 @@ describe('constellation sky', () => {
 		expect(isConstellationData({ ...data, stars: [['a', 10, 10, 5, 0, 0, 0]] })).toBe(false);
 		expect(isConstellationData({ ...data, figure: [[0, 9]] })).toBe(false);
 		expect(isConstellationData({ ...data, near: [[0]] })).toBe(false);
+		expect(isConstellationData({ ...data, titles: { ...data.titles, wide: [0] } })).toBe(false);
+		expect(isConstellationData({ ...data, titles: undefined })).toBe(false);
 		expect(isConstellationData(null)).toBe(false);
 	});
 });

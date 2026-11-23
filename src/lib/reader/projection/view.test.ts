@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FIT, MAX_ZOOM, clampView, isFit, mixView, nearestIndex, placeCard, restoreView, starRadius, storeView, viewForBox, viewToShow, zoomAt } from './view';
+import { FIT, LABEL_FIELD, MAX_ZOOM, clampView, isFit, labelScale, mixView, nearestIndex, placeCard, restoreView, shortTitle, starRadius, storeView, viewForBox, viewToShow, zoomAt } from './view';
 
 const size = { w: 1000, h: 500 };
 
@@ -33,6 +33,20 @@ describe('constellation view', () => {
 		expect(400 * shown.k + shown.y).toBeCloseTo(460);
 		// Already on screen: nothing moves.
 		expect(viewToShow({ k: 4, x: 0, y: 0 }, 100, 50, size, 40)).toEqual({ k: 4, x: 0, y: 0 });
+		// A strip at the foot of the panel is kept clear: the point comes to rest above it.
+		const above = viewToShow({ k: 4, x: 0, y: 0 }, 100, 115, size, 40, 180);
+		expect(115 * above.k + above.y).toBeCloseTo(320);
+	});
+
+	it('shortens a long title for the map and knows the scale titles were placed for', () => {
+		expect(shortTitle('Turkey Probe')).toBe('Turkey Probe');
+		expect(shortTitle('Wolf Pine @ Fox Park #3: 3/3/17, Noon-ish time')).toBe('Wolf Pine @ Fox Park #3: 3/3…');
+		expect([...shortTitle('x'.repeat(80))]).toHaveLength(29);
+		// A field the size of the reference field is scale 1. A larger one counts by its tighter axis.
+		const [width, height] = LABEL_FIELD.wide;
+		expect(labelScale(1, { w: width, h: height }, false)).toBe(1);
+		expect(labelScale(2, { w: width * 3, h: height * 1.5 }, false)).toBe(3);
+		expect(labelScale(1, { w: LABEL_FIELD.tall[0] * 2, h: LABEL_FIELD.tall[1] * 2 }, true)).toBe(2);
 	});
 
 	it('mixes two views from end to end', () => {

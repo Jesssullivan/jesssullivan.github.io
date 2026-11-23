@@ -1,14 +1,16 @@
 /**
  * Canvas painter for the constellation (TIN-8628).
  *
- * One call draws one frame: figure lines, stars, the lines to the active
- * star's nearest posts, rings and, when zoomed in, post titles. The glows and
- * the dust behind them are drawn once and then only moved. Colours come from
- * the section's CSS custom properties, which derive from the theme tokens, so
- * the canvas follows all five themes in light and dark.
+ * One call draws one frame: dust, figure lines, stars, the lines to the active
+ * star's nearest posts, rings and, when zoomed in, post titles. Every soft
+ * thing (the glow of each constellation and of each star) is drawn once into
+ * its own canvas and then only moved, so a frame fills a few hundred small
+ * shapes and blends nothing large. Colours come from the section's CSS custom
+ * properties, which derive from the theme tokens, so the canvas follows all
+ * five themes in light and dark.
  */
 import type { Sky } from './scene';
-import { starRadius, type Size, type View } from './view';
+import { TITLE_FONT, TITLE_GAP, labelScale, shortTitle, starRadius, type Size, type View } from './view';
 
 type Rgb = [number, number, number];
 
@@ -33,8 +35,12 @@ export interface Frame {
 	size: Size;
 	field: Rect;
 	view: View;
+	/** True on the tall (phone) frame. */
+	tall: boolean;
 	/** Star size multiplier: smaller on narrow panels. */
 	scale: number;
+	/** Strips at the top and the foot of the panel that hold controls or the picked post. No title is drawn there. */
+	strips?: [number, number];
 	/** Star whose card is open, star under the pointer, and whether to draw the keyboard ring. */
 	active: number;
 	hover: number;
@@ -49,9 +55,8 @@ export interface Frame {
 
 /** Opacity of the first-paint silhouette. The intro starts from it, so nothing jumps. */
 export const SILHOUETTE_ALPHA = 0.55;
-/** Titles appear beside stars from this zoom. */
-const TITLE_ZOOM = 2;
-const TITLE_FONT = "600 12px 'Inter', system-ui, sans-serif";
+/** A title fades in over this much scale past the scale it was placed for. */
+const TITLE_FADE = 0.25;
 
 const rgba = ([r, g, b]: Rgb, alpha = 1) => `rgba(${r},${g},${b},${alpha})`;
 const smooth = (t: number) => {
@@ -59,32 +64,43 @@ const smooth = (t: number) => {
 	return c * c * (3 - 2 * c);
 };
 
-/** Resolve the section's colour properties to sRGB through a one-pixel canvas. */
-export function readPalette(host: HTMLElement, categories: number): Palette {
+/** An sRGB triple from a computed colour: `rgb(r, g, b)` or `color(srgb r g b)`. Null when it is neither. */
+export function parseColour(value: string): Rgb | null {
+	const parts = value.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi)?.map(Number);
+	if (!parts || parts.length < 3 || !/^(?:rgba?|color\(srgb )/.test(value)) return null;
+	const scale = value.startsWith('color(') ? 255 : 1;
+	return [0, 1, 2].map((i) => Math.round(Math.min(255, Math.max(0, parts[i] * scale)))) as Rgb;
+}
+
+/**
+ * Resolve the section's colour properties to sRGB. The browser does the
+ * conversion: a mix in sRGB computes to an sRGB colour whatever space the
+ * token is written in. A property the browser cannot resolve takes the text
+ * colour the section inherits, so nothing here names a colour. Null when even
+ * that cannot be read: the silhouette then stays as the map.
+ */
+export function readPalette(host: HTMLElement, categories: number): Palette | null {
 	const probe = document.createElement('span');
-	probe.style.cssText = 'position:absolute;width:0;height:0;visibility:hidden';
+	// No transition, or the value read back is the one before the change. The site's reduced-motion rule gives every element a very short one.
+	probe.style.cssText = 'position:absolute;width:0;height:0;visibility:hidden;transition:none!important';
 	host.append(probe);
-	const scratch = document.createElement('canvas');
-	scratch.width = scratch.height = 1;
-	const ctx = scratch.getContext('2d', { willReadFrequently: true });
-	const resolve = (property: string, fallback: Rgb): Rgb => {
-		if (!ctx) return fallback;
-		probe.style.color = `var(${property})`;
-		ctx.clearRect(0, 0, 1, 1);
-		ctx.fillStyle = '#000';
-		ctx.fillStyle = getComputedStyle(probe).color;
-		ctx.fillRect(0, 0, 1, 1);
-		const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
-		return a ? [r, g, b] : fallback;
+	const mixed = (colour: string) => {
+		probe.style.color = '';
+		probe.style.color = `color-mix(in srgb, ${colour} 100%, transparent)`;
+		return parseColour(getComputedStyle(probe).color);
 	};
-	const dark = getComputedStyle(host).getPropertyValue('--sky-dark').trim() === '1';
-	const ink = resolve('--sky-ink', dark ? [240, 240, 240] : [20, 20, 20]);
-	const stars = Array.from({ length: categories }, (_, i) => resolve(`--star-${i % 8}`, ink));
+	const text = mixed('currentColor');
+	if (!text) {
+		probe.remove();
+		return null;
+	}
+	const resolve = (property: string): Rgb => mixed(`var(${property})`) ?? text;
+	const stars = Array.from({ length: categories }, (_, i) => resolve(`--star-${i % 8}`));
 	const palette: Palette = {
-		dark,
-		ink,
-		paper: resolve('--sky-paper', dark ? [12, 14, 20] : [250, 250, 250]),
-		accent: resolve('--sky-accent', ink),
+		dark: getComputedStyle(host).getPropertyValue('--sky-dark').trim() === '1',
+		ink: resolve('--sky-ink'),
+		paper: resolve('--sky-paper'),
+		accent: resolve('--sky-accent'),
 		stars,
 		sprites: stars.map((colour) => {
 			const sprite = document.createElement('canvas');
@@ -109,29 +125,22 @@ export function readPalette(host: HTMLElement, categories: number): Palette {
 /** A stable 0 to 1 value per index, for the stagger of the intro and the dust. */
 const jitter = (index: number) => ((Math.imul(index + 1, 2654435761) >>> 0) % 1000) / 1000;
 
-/** Faint specks behind the map. They are scenery, not posts: they move less than the stars and cannot be picked. */
-const DUST = Array.from({ length: 220 }, (_, i) => ({ x: jitter(i * 3 + 11), y: jitter(i * 7 + 5), weight: jitter(i * 13 + 2) }));
-/** Dust moves and grows at this power of the zoom, so it sits behind the stars. */
-const DUST_DEPTH = 0.55;
+/** Faint specks behind the map, brightest first. They are scenery, not posts: they ride with the map and cannot be picked. */
+const DUST = Array.from({ length: 180 }, (_, i) => ({ x: jitter(i * 3 + 11), y: jitter(i * 7 + 5), weight: jitter(i * 13 + 2) })).sort((a, b) => b.weight - a.weight);
+const BRIGHT_DUST = DUST.findIndex((speck) => speck.weight <= 0.8);
 
-/** CSS transforms that carry the two backdrop canvases along with a view. */
-export function backdropTransforms(view: View, size: Size): { glow: string; dust: string } {
-	const depth = view.k ** DUST_DEPTH;
-	const panX = view.k > 1 ? view.x / (size.w - size.w * view.k) : 0;
-	const panY = view.k > 1 ? view.y / (size.h - size.h * view.k) : 0;
-	return {
-		glow: `translate(${view.x.toFixed(2)}px,${view.y.toFixed(2)}px) scale(${view.k.toFixed(4)})`,
-		dust: `translate(${(panX * (size.w - size.w * depth)).toFixed(2)}px,${(panY * (size.h - size.h * depth)).toFixed(2)}px) scale(${depth.toFixed(4)})`,
-	};
+/** The CSS transform that carries the glow canvas along with a view. */
+export function glowTransform(view: View): string {
+	return `translate(${view.x.toFixed(2)}px,${view.y.toFixed(2)}px) scale(${view.k.toFixed(4)})`;
 }
 
 export class Painter {
 	xs = new Float32Array(0);
 	ys = new Float32Array(0);
 	private radii = new Float32Array(0);
-	private alphas = new Float32Array(0);
-	private titleWidths: number[] = [];
 	private titles: string[] = [];
+	/** Star indices by category, so one fill paints a whole category. */
+	private byCategory: number[][] = [];
 
 	constructor(
 		private sky: Sky,
@@ -145,9 +154,8 @@ export class Painter {
 		this.xs = new Float32Array(sky.stars.length);
 		this.ys = new Float32Array(sky.stars.length);
 		this.radii = new Float32Array(sky.stars.length);
-		this.alphas = new Float32Array(sky.stars.length);
-		this.titles = sky.stars.map((star) => (star.title.length > 38 ? `${star.title.slice(0, 36).trimEnd()}…` : star.title));
-		this.titleWidths = [];
+		this.titles = sky.stars.map((star) => shortTitle(star.title));
+		this.byCategory = sky.categories.map((_, category) => sky.stars.filter((star) => star.category === category).map((star) => star.index));
 	}
 
 	setPalette(palette: Palette) {
@@ -165,44 +173,54 @@ export class Painter {
 	}
 
 	/**
-	 * The scenery behind the stars: the soft glow of each constellation and the
-	 * dust. Both are drawn once, into their own canvases, at the resting view.
-	 * A frame then only moves those canvases, which costs no drawing at all.
+	 * Everything soft: the glow of each constellation and the halo of each
+	 * star, by recency. Drawn once at the resting view, at one pixel per CSS
+	 * pixel. A frame then only moves this canvas, which costs no drawing at all.
 	 */
-	drawBackdrop(glow: CanvasRenderingContext2D, dust: CanvasRenderingContext2D, size: Size, field: Rect, filter: number) {
+	drawGlow(ctx: CanvasRenderingContext2D, size: Size, field: Rect, scale: number, filter: number) {
 		const { sky, palette } = this;
-		glow.clearRect(0, 0, size.w, size.h);
+		const lit = (category: number) => filter < 0 || category === filter;
+		ctx.clearRect(0, 0, size.w, size.h);
 		for (const cluster of sky.groups) {
 			const [cx, cy, rx, ry] = cluster.glow;
 			const w = rx * field.w * 2;
 			const h = ry * field.h * 2;
-			glow.globalAlpha = (palette.dark ? 0.36 : 0.22) * (filter < 0 || cluster.category === filter ? 1 : 0.25);
-			glow.drawImage(palette.sprites[cluster.category], field.x + cx * field.w - w / 2, field.y + cy * field.h - h / 2, w, h);
+			ctx.globalAlpha = (palette.dark ? 0.36 : 0.2) * (lit(cluster.category) ? 1 : 0.25);
+			ctx.drawImage(palette.sprites[cluster.category], field.x + cx * field.w - w / 2, field.y + cy * field.h - h / 2, w, h);
 		}
-		glow.globalAlpha = 1;
-		dust.clearRect(0, 0, size.w, size.h);
-		dust.fillStyle = rgba(palette.ink);
-		for (const speck of DUST) {
-			const side = speck.weight > 0.85 ? 1.6 : 1;
-			dust.globalAlpha = palette.dark ? 0.1 + speck.weight * 0.3 : 0.05 + speck.weight * 0.12;
-			dust.fillRect(speck.x * size.w, speck.y * size.h, side, side);
+		for (const star of sky.stars) {
+			if (!lit(star.category)) continue;
+			const halo = starRadius(star.size, 1, scale) * [2.6, 3.8, 5][star.glow];
+			ctx.globalAlpha = [0.4, 0.7, 1][star.glow] * (palette.dark ? 1 : 0.5);
+			ctx.drawImage(palette.sprites[star.category], field.x + star.x * field.w - halo, field.y + star.y * field.h - halo, halo * 2, halo * 2);
 		}
-		dust.globalAlpha = 1;
+		ctx.globalAlpha = 1;
 	}
 
 	draw(ctx: CanvasRenderingContext2D, frame: Frame) {
 		const { size, field, view, scale, active, hover, filter, group, intro } = frame;
-		const { sky, palette, xs, ys } = this;
+		const { sky, palette, xs, ys, radii } = this;
 		const { stars } = sky;
 		const { dark, ink, paper, accent } = palette;
 		this.project(frame);
 		ctx.clearRect(0, 0, size.w, size.h);
 		const shown = (index: number) => filter < 0 || stars[index].category === filter;
 		const onScreen = (index: number, margin: number) => xs[index] > -margin && xs[index] < size.w + margin && ys[index] > -margin && ys[index] < size.h + margin;
-		// Figure lines, drawn from one end as the intro runs. The figure under the pointer, or of the active star, is brighter.
+		// The scenery arrives in the second half of the intro: dust, figure lines and the pale centre of each star.
 		const drawn = smooth((intro - 0.5) / 0.5);
-		const lit = group >= 0 ? group : active >= 0 ? stars[active].group : -1;
+
 		if (drawn > 0) {
+			ctx.fillStyle = rgba(ink);
+			DUST.forEach((speck, i) => {
+				if (i === 0 || i === BRIGHT_DUST) ctx.globalAlpha = drawn * (i === 0 ? (dark ? 0.38 : 0.16) : dark ? 0.2 : 0.09);
+				const x = speck.x * size.w * view.k + view.x;
+				const y = speck.y * size.h * view.k + view.y;
+				if (x > 0 && x < size.w && y > 0 && y < size.h) ctx.fillRect(x, y, i < BRIGHT_DUST ? 1.6 : 1, i < BRIGHT_DUST ? 1.6 : 1);
+			});
+			ctx.globalAlpha = 1;
+
+			// Figure lines, drawn from one end as the intro runs. The figure under the pointer, or of the active star, is brighter.
+			const lit = group >= 0 ? group : active >= 0 ? stars[active].group : -1;
 			ctx.lineCap = 'round';
 			for (const level of [0, 1, 2]) {
 				ctx.beginPath();
@@ -231,34 +249,39 @@ export class Painter {
 			ctx.stroke();
 		}
 
-		// Stars: halos first, so no halo covers a neighbour's core.
-		const { radii, alphas } = this;
-		for (let i = 0; i < stars.length; i += 1) {
-			const star = stars[i];
-			const t = intro >= 1 ? 1 : smooth((intro - 0.5 * (0.7 * star.x + 0.3 * jitter(i))) / 0.35);
-			radii[i] = starRadius(star.size, view.k, scale) * (1 + 0.35 * Math.sin(Math.PI * t));
-			alphas[i] = (SILHOUETTE_ALPHA + (1 - SILHOUETTE_ALPHA) * t) * (shown(i) ? 1 : 0.22);
-			if (!onScreen(i, 40) || !shown(i) || t <= 0) continue;
-			const halo = radii[i] * (star.glow === 2 ? 5 : star.glow === 1 ? 3.8 : 2.6);
-			ctx.globalAlpha = t * (star.glow === 2 ? 1 : star.glow === 1 ? 0.7 : 0.4) * (dark ? 1 : 0.5);
-			ctx.drawImage(palette.sprites[star.category], xs[i] - halo, ys[i] - halo, halo * 2, halo * 2);
-		}
-		for (let i = 0; i < stars.length; i += 1) {
-			if (!onScreen(i, 12)) continue;
-			ctx.globalAlpha = alphas[i];
-			ctx.fillStyle = rgba(palette.stars[stars[i].category]);
-			ctx.beginPath();
-			ctx.arc(xs[i], ys[i], radii[i], 0, Math.PI * 2);
-			ctx.fill();
-			// A paler core, so a star reads as a light and not a disc. It arrives with the star, so the first frame matches the silhouette.
-			const arrived = (alphas[i] - SILHOUETTE_ALPHA) / (1 - SILHOUETTE_ALPHA);
-			if (dark && shown(i) && arrived > 0.01) {
-				ctx.globalAlpha = 1;
-				ctx.fillStyle = `rgba(255,255,255,${(0.5 * arrived).toFixed(3)})`;
-				ctx.beginPath();
-				ctx.arc(xs[i], ys[i], radii[i] * 0.45, 0, Math.PI * 2);
-				ctx.fill();
+		// Stars. Once the sky has assembled, one fill paints a whole category.
+		for (let i = 0; i < stars.length; i += 1) radii[i] = starRadius(stars[i].size, view.k, scale);
+		const disc = (index: number, radius: number) => {
+			ctx.moveTo(xs[index] + radius, ys[index]);
+			ctx.arc(xs[index], ys[index], radius, 0, Math.PI * 2);
+		};
+		this.byCategory.forEach((members, category) => {
+			ctx.fillStyle = rgba(palette.stars[category]);
+			if (intro < 1) {
+				// Assembling: each star swells and brightens in its own time, left to right.
+				for (const i of members) {
+					if (!onScreen(i, 12)) continue;
+					const t = smooth((intro - 0.5 * (0.7 * stars[i].x + 0.3 * jitter(i))) / 0.35);
+					radii[i] *= 1 + 0.35 * Math.sin(Math.PI * t);
+					ctx.globalAlpha = (SILHOUETTE_ALPHA + (1 - SILHOUETTE_ALPHA) * t) * (shown(i) ? 1 : 0.22);
+					ctx.beginPath();
+					disc(i, radii[i]);
+					ctx.fill();
+				}
+				return;
 			}
+			ctx.globalAlpha = filter < 0 || category === filter ? 1 : 0.22;
+			ctx.beginPath();
+			for (const i of members) if (onScreen(i, 12)) disc(i, radii[i]);
+			ctx.fill();
+		});
+		// At night a paler centre, so a star reads as a light and not a disc.
+		if (dark && drawn > 0) {
+			ctx.globalAlpha = 0.5 * drawn;
+			ctx.fillStyle = rgba(ink);
+			ctx.beginPath();
+			for (let i = 0; i < stars.length; i += 1) if (shown(i) && onScreen(i, 12)) disc(i, radii[i] * 0.45);
+			ctx.fill();
 		}
 		ctx.globalAlpha = 1;
 
@@ -279,51 +302,31 @@ export class Painter {
 			if (frame.ring) ringOn(active, 3, 9.5, accent);
 		}
 
-		// Titles.
-		const titleAlpha = smooth((view.k - TITLE_ZOOM) / 0.5);
-		if (titleAlpha > 0) {
-			ctx.font = TITLE_FONT;
-			ctx.textBaseline = 'middle';
-			ctx.lineJoin = 'round';
-			if (!this.titleWidths.length) this.titleWidths = this.titles.map((title) => ctx.measureText(title).width);
-			// Titles keep clear of the constellation names, which sit on the map as buttons.
-			const boxes: Array<[number, number, number]> = sky.groups.map((cluster) => {
-				const half = cluster.name.length * 4.7 + 10;
-				return [(field.x + cluster.x * field.w) * view.k + view.x - half, (field.y + cluster.y * field.h) * view.k + view.y, half * 2];
-			});
-			const order = stars
-				.map((star) => star.index)
-				.filter((index) => shown(index) && onScreen(index, 0))
-				.sort((a, b) => Number(b === active) - Number(a === active) || stars[b].size - stars[a].size || stars[b].glow - stars[a].glow || a - b);
-			ctx.globalAlpha = titleAlpha;
-			for (const index of order) {
-				const width = this.titleWidths[index];
-				const offset = radii[index] + 7;
-				// Right of the star, then left, below and above: the first spot that covers no star and no other title.
-				const spots: Array<[number, number]> = [
-					[xs[index] + offset, ys[index]],
-					[xs[index] - offset - width, ys[index]],
-					[xs[index] - width / 2, ys[index] + offset + 8],
-					[xs[index] - width / 2, ys[index] - offset - 8],
-				];
-				const spot = spots.find(
-					([x, y]) =>
-						x >= 4 &&
-						x + width <= size.w - 4 &&
-						y >= 10 &&
-						y <= size.h - 10 &&
-						boxes.every(([bx, by, bw]) => x > bx + bw + 6 || x + width < bx - 6 || Math.abs(y - by) > 15) &&
-						stars.every((_, other) => other === index || xs[other] < x - 5 || xs[other] > x + width + 5 || Math.abs(ys[other] - y) > 9),
-				);
-				if (!spot) continue;
-				boxes.push([spot[0], spot[1], width]);
-				ctx.lineWidth = 3.5;
-				ctx.strokeStyle = rgba(paper, 0.92);
-				ctx.strokeText(this.titles[index], spot[0], spot[1]);
-				ctx.fillStyle = rgba(ink, index === active ? 1 : 0.82);
-				ctx.fillText(this.titles[index], spot[0], spot[1]);
-			}
-			ctx.globalAlpha = 1;
+		// Titles. The generator chose the side of each star and the scale it shows from. Nothing is searched here.
+		const at = labelScale(view.k, field, frame.tall);
+		const [top, foot] = frame.strips ?? [0, 0];
+		ctx.font = TITLE_FONT;
+		ctx.textBaseline = 'middle';
+		ctx.lineJoin = 'round';
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = rgba(paper, 0.9);
+		ctx.fillStyle = rgba(ink);
+		for (let i = 0; i < stars.length; i += 1) {
+			const { label, labelWidth } = stars[i];
+			const alpha = label ? smooth((at - (label >> 2) / 10) / TITLE_FADE) : 0;
+			if (alpha <= 0 || !shown(i) || !onScreen(i, 0)) continue;
+			const side = label & 3;
+			const offset = radii[i] + TITLE_GAP;
+			const x = xs[i] + (side === 0 ? offset : side === 1 ? -offset : 0);
+			const y = ys[i] + (side === 2 ? offset + 8 : side === 3 ? -offset - 8 : 0);
+			// A title the panel would cut is left out.
+			const left = side === 0 ? x : side === 1 ? x - labelWidth : x - labelWidth / 2;
+			if (left < 4 || left + labelWidth > size.w - 4 || y < top + 10 || y > size.h - foot - 10) continue;
+			ctx.textAlign = side === 0 ? 'left' : side === 1 ? 'right' : 'center';
+			ctx.globalAlpha = alpha;
+			ctx.strokeText(this.titles[i], x, y, labelWidth);
+			ctx.fillText(this.titles[i], x, y, labelWidth);
 		}
+		ctx.globalAlpha = 1;
 	}
 }

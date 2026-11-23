@@ -19,6 +19,29 @@ export const FIT: View = { k: 1, x: 0, y: 0 };
 export const MAX_ZOOM = 8;
 /** Star radius in pixels by size step, at rest. */
 export const STAR_RADIUS = [2.8, 3.8, 5.2, 7] as const;
+/** Stars grow with this power of the zoom, much more slowly than the map. */
+export const STAR_GROWTH = 0.35;
+/**
+ * The generator places names and titles on a small field of each kind, in pixels:
+ * the map area of a narrow desktop window and of a small phone. A larger field
+ * only moves stars apart, so what is clear here is clear on every larger one.
+ */
+export const LABEL_FIELD = { wide: [640, 380], tall: [300, 340] } as const;
+/** Titles are drawn in this font, this far from the edge of their star. */
+export const TITLE_FONT = "600 12px 'Inter', system-ui, sans-serif";
+export const TITLE_GAP = 7;
+
+/** The title as the map shows it beside a star. */
+export function shortTitle(title: string): string {
+	const letters = [...title];
+	return letters.length > 30 ? `${letters.slice(0, 28).join('').trimEnd()}…` : title;
+}
+
+/** The map scale the generator placed titles for: the zoom times how much larger the field is than the reference field. */
+export function labelScale(k: number, field: Size, tall: boolean): number {
+	const [width, height] = tall ? LABEL_FIELD.tall : LABEL_FIELD.wide;
+	return k * Math.min(field.w / width, field.h / height);
+}
 
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
 
@@ -44,11 +67,11 @@ export function viewForBox(box: readonly [number, number, number, number], size:
 	return clampView({ k, x: size.w / 2 - ((x0 + x1) / 2) * k, y: size.h / 2 - ((y0 + y1) / 2) * k }, size);
 }
 
-/** The view with the same zoom that puts a world point inside the panel, `margin` pixels from its edges. */
-export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48): View {
+/** The view with the same zoom that puts a world point inside the panel, `margin` pixels from its edges and `foot` pixels above its bottom edge. */
+export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48, foot = margin): View {
 	const sx = wx * view.k + view.x;
 	const sy = wy * view.k + view.y;
-	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, margin, size.h - margin) - sy }, size);
+	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, margin, size.h - Math.max(margin, foot)) - sy }, size);
 }
 
 /** Between two views: zoom moves geometrically, the centre of the panel moves in a straight line. */
@@ -64,7 +87,7 @@ export const easeOut = (t: number) => 1 - (1 - clamp(t, 0, 1)) ** 3;
 
 /** Stars grow much more slowly than the map, so zooming in pulls a dense group apart. */
 export function starRadius(size: number, k: number, scale = 1): number {
-	return STAR_RADIUS[clamp(size, 0, STAR_RADIUS.length - 1)] * scale * k ** 0.35;
+	return STAR_RADIUS[clamp(size, 0, STAR_RADIUS.length - 1)] * scale * k ** STAR_GROWTH;
 }
 
 /**

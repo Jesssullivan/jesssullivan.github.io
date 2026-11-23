@@ -5,7 +5,7 @@
 	import { goto, preloadData } from '$app/navigation';
 	import type { Post } from '$lib/posts';
 	import { buildSky, nearOf, neighborInDirection, readingOrder, type Direction } from '$lib/reader/projection/scene';
-	import { Painter, backdropTransforms, readPalette, type Rect } from '$lib/reader/projection/paint';
+	import { Painter, glowTransform, readPalette, type Rect } from '$lib/reader/projection/paint';
 	import { readSession, writeSession } from '$lib/reader/projection/session';
 	import { FIT, clampView, easeOut, isFit, mixView, nearestIndex, placeCard, restoreView, storeView, viewForBox, viewToShow, zoomAt, type View } from '$lib/reader/projection/view';
 
@@ -46,7 +46,6 @@
 	let stage = $state<HTMLDivElement | null>(null);
 	let canvas = $state<HTMLCanvasElement | null>(null);
 	let glowCanvas = $state<HTMLCanvasElement | null>(null);
-	let dustCanvas = $state<HTMLCanvasElement | null>(null);
 	let cardEl = $state<HTMLElement | null>(null);
 	let namesEl = $state<HTMLDivElement | null>(null);
 	let starsEl = $state<HTMLDivElement | null>(null);
@@ -78,10 +77,13 @@
 	let inView = false;
 	let cardSize = { w: 0, h: 0 };
 	let preloadTimer = 0;
-	let saveTimer = 0;
+	let settleTimer = 0;
 	let selectedSlug: string | null = null;
 	let namedGroup = -1;
-	let strip = 0;
+	/** Width of each constellation name as drawn, so a name can be kept inside the panel. */
+	let nameWidths: number[] = [];
+	/** Height of the strip at the foot of a phone panel that holds the picked post. */
+	let dock = 0;
 
 	const dateText = (date: string) => new Date(`${date.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 	const shown = (index: number) => filter < 0 || sky?.stars[index]?.category === filter;
@@ -106,26 +108,29 @@
 			else schedule();
 		}
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-		painter.draw(ctx, { size, field: fieldRect, view: current, scale: tall ? tallScale : 1, active: cardIdx, hover, ring: keyboard && selected >= 0, filter, group: namedGroup, intro });
-		// The backdrop is already drawn. It only moves.
-		if (glowCanvas && dustCanvas) {
-			const moved = backdropTransforms(current, size);
-			glowCanvas.style.transform = moved.glow;
-			dustCanvas.style.transform = moved.dust;
-		}
-		// Constellation names ride on the map as real buttons.
+		painter.draw(ctx, { size, field: fieldRect, view: current, tall, scale: tall ? tallScale : 1, strips: tall ? [fieldRect.y - 12, dock - 12] : [0, 0], active: cardIdx, hover, ring: keyboard && selected >= 0, filter, group: namedGroup, intro });
+		// The glows are already drawn. They only move.
+		if (glowCanvas) glowCanvas.style.transform = glowTransform(current);
+		// Constellation names ride on the map as real buttons. A name stays whole inside the panel while its place is in view.
 		const names = namesEl?.children;
 		if (names) {
 			for (let g = 0; g < names.length; g += 1) {
 				const group = sky.groups[g];
+				const half = (nameWidths[g] ?? 0) / 2;
 				const x = (fieldRect.x + group.x * fieldRect.w) * current.k + current.x;
 				const y = (fieldRect.y + group.y * fieldRect.h) * current.k + current.y;
-				(names[g] as HTMLElement).style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%)`;
+				const name = names[g] as HTMLElement;
+				name.style.visibility = x > -half && x < size.w + half && y > 12 && y < size.h - 12 ? '' : 'hidden';
+				name.style.transform = `translate(${Math.min(size.w - half - 4, Math.max(half + 4, x)).toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%)`;
 			}
 		}
 		positionCard();
 		if (zoomed === isFit(current)) zoomed = !zoomed;
-		if (!fly && !introStart) settle();
+		// The link layer and the session follow once the view has been still for a moment: no style or layout work rides on a frame.
+		if (!fly && !introStart) {
+			clearTimeout(settleTimer);
+			settleTimer = window.setTimeout(settle, 150);
+		}
 		if (!live) {
 			live = true;
 			onlive(fade);
@@ -136,15 +141,14 @@
 		if (!cardEl || cardIdx < 0 || !painter) return;
 		const x = painter.xs[cardIdx];
 		const y = painter.ys[cardIdx];
-		if (tall) {
-			// On a phone the card docks to the bottom, above the controls, unless that would cover the star.
-			cardEl.dataset.dock = y > size.h - strip - cardSize.h - 14 ? 'top' : 'bottom';
-			cardEl.style.transform = '';
-		} else {
+		// On a phone the card has its own strip under the map and never moves.
+		if (tall) cardEl.style.transform = '';
+		else {
 			// Keep the card off the lines to the nearest posts.
 			const near = sky?.near[cardIdx] ?? [];
 			const avoid = near.length ? { x: near.reduce((sum, i) => sum + painter!.xs[i], 0) / near.length, y: near.reduce((sum, i) => sum + painter!.ys[i], 0) / near.length } : null;
-			const { left, top } = placeCard(x, y, cardSize, size, avoid);
+			// The strip under the field holds the zoom controls: the card stays above it.
+			const { left, top } = placeCard(x, y, cardSize, { w: size.w, h: fieldRect.y + fieldRect.h }, avoid);
 			cardEl.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
 		}
 	}
@@ -155,8 +159,7 @@
 			starsEl.style.transform = `translate(${current.x}px,${current.y}px) scale(${current.k})`;
 			starsEl.style.setProperty('--k', String(current.k));
 		}
-		clearTimeout(saveTimer);
-		saveTimer = window.setTimeout(() => size.w && writeSession({ view: storeView(current, size) }), 200);
+		if (size.w) writeSession({ view: storeView(current, size) });
 	}
 
 	function setView(next: View) {
@@ -185,12 +188,13 @@
 		const stored = size.w ? storeView(current, size) : null;
 		size = { w: box.width, h: box.height };
 		fieldRect = { x: inner.left - box.left, y: inner.top - box.top, w: inner.width, h: inner.height };
-		dpr = Math.min(window.devicePixelRatio || 1, 3);
-		// The strip at the bottom of the panel that holds the zoom controls: 3.75rem, as in the style block.
-		strip = 3.75 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+		// Two device pixels per CSS pixel is sharp on every screen, and a 3x phone then draws less than half the pixels each frame.
+		dpr = Math.min(window.devicePixelRatio || 1, 2);
+		dock = tall ? size.h - (fieldRect.y + fieldRect.h) : 0;
+		nameWidths = Array.from(namesEl?.children ?? [], (name) => (name as HTMLElement).offsetWidth);
 		canvas.width = Math.round(size.w * dpr);
 		canvas.height = Math.round(size.h * dpr);
-		paintBackdrop();
+		paintGlow();
 		if (starsEl) {
 			for (const [name, value] of Object.entries({ '--fx': fieldRect.x, '--fy': fieldRect.y, '--fw': fieldRect.w, '--fh': fieldRect.h })) starsEl.style.setProperty(name, `${value}px`);
 		}
@@ -198,19 +202,13 @@
 		schedule();
 	}
 
-	/** Draw the glows and the dust once, for this size, theme and filter. The glows are soft, so one pixel per CSS pixel is enough. */
-	function paintBackdrop() {
-		if (!painter || !glowCanvas || !dustCanvas || !size.w) return;
-		const dustScale = Math.min(dpr, 2);
+	/** Draw the glows once, for this size, theme and filter. They are soft, so one pixel per CSS pixel is enough. */
+	function paintGlow() {
+		if (!painter || !glowCanvas || !size.w) return;
 		glowCanvas.width = Math.round(size.w);
 		glowCanvas.height = Math.round(size.h);
-		dustCanvas.width = Math.round(size.w * dustScale);
-		dustCanvas.height = Math.round(size.h * dustScale);
 		const glow = glowCanvas.getContext('2d');
-		const dust = dustCanvas.getContext('2d');
-		if (!glow || !dust) return;
-		dust.setTransform(dustScale, 0, 0, dustScale, 0, 0);
-		painter.drawBackdrop(glow, dust, size, fieldRect, filter);
+		if (glow) painter.drawGlow(glow, size, fieldRect, tall ? tallScale : 1, filter);
 	}
 
 	function select(index: number, show = false) {
@@ -222,7 +220,7 @@
 		intend(index, 0);
 		if (show) {
 			const [wx, wy] = worldOf(index);
-			const target = viewToShow(current, wx, wy, size, tall ? 40 : 72);
+			const target = viewToShow(current, wx, wy, size, tall ? 40 : 72, dock + 24);
 			if (target.x !== current.x || target.y !== current.y) flyTo(target, 360);
 		}
 		schedule();
@@ -266,14 +264,20 @@
 		const { x, y } = local(event);
 		return nearestIndex(painter.xs, painter.ys, x, y, reach, shown);
 	};
+	// A click on the card, a name or a control is not a pick. A drag or a pinch may still start on a name: only the card and the controls keep the gesture.
 	const onOverlay = (event: Event) => event.target instanceof Element && event.target.closest('.card, .names, .zoom, .stars') !== null;
+	const onControl = (event: Event) => event.target instanceof Element && event.target.closest('.card, .zoom') !== null;
+	// Two fingers on the map move and zoom it. One finger is left to the page, which scrolls.
+	const onTouchMove = (event: TouchEvent) => {
+		if (event.touches.length > 1 && event.cancelable) event.preventDefault();
+	};
 
 	function onPointerDown(event: PointerEvent) {
 		pointerType = event.pointerType || 'mouse';
 		// A reader who is touching the map is looking at it.
 		inView = true;
 		maybeIntro();
-		if (onOverlay(event) || (pointerType === 'mouse' && event.button !== 0)) return;
+		if (onControl(event) || (pointerType === 'mouse' && event.button !== 0)) return;
 		suppressClick = false;
 		pointers[event.pointerId] = local(event);
 		const held = down();
@@ -302,7 +306,7 @@
 			if (!drag.moved) {
 				drag.moved = true;
 				suppressClick = true;
-				// At rest there is nothing to pan, and a touch drag is the page scrolling.
+				// At rest there is nothing to pan. A touch that moves up or down never gets here: the browser scrolls the page with it.
 				if (isFit(current)) return;
 				dragging = true;
 				stage?.setPointerCapture(event.pointerId);
@@ -373,6 +377,8 @@
 
 	// A name can sit close to a star. A pointer that is on a star means the star.
 	function onNameClick(event: MouseEvent, g: number) {
+		// The end of a drag or a pinch that began on the name is not a click on it.
+		if (event.detail > 0 && suppressClick) return;
 		const index = event.detail > 0 ? starAt(event, pointerType === 'mouse' ? 10 : 14) : -1;
 		if (index < 0) return flyToGroup(g);
 		if (index === selected) open(index, event.metaKey || event.ctrlKey);
@@ -385,7 +391,8 @@
 		if (!points.length) return;
 		const xs = points.map((p) => p[0]);
 		const ys = points.map((p) => p[1]);
-		flyTo(viewForBox([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], size, tall ? 44 : 110));
+		// On a phone the figure is framed in the part of the panel above the picked post.
+		flyTo(viewForBox([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], { w: size.w, h: size.h - dock }, tall ? 44 : 110));
 	}
 
 	function onStarKey(event: KeyboardEvent, index: number) {
@@ -425,12 +432,12 @@
 		tall = media.matches;
 		const onMedia = () => (tall = media.matches);
 		media.addEventListener('change', onMedia);
-		void document.fonts?.load("600 12px 'Inter'").then(schedule);
+		void document.fonts?.load("600 12px 'Inter'").then(measure);
 		return () => {
 			media.removeEventListener('change', onMedia);
 			cancelAnimationFrame(frameId);
 			clearTimeout(preloadTimer);
-			clearTimeout(saveTimer);
+			clearTimeout(settleTimer);
 		};
 	});
 
@@ -441,10 +448,12 @@
 		const resize = new ResizeObserver(measure);
 		resize.observe(el);
 		el.addEventListener('wheel', onWheel, { passive: false });
+		el.addEventListener('touchmove', onTouchMove, { passive: false });
 		// A theme or mode switch changes the tokens: read them again and repaint.
 		const themes = new MutationObserver(() => {
-			if (painter && sky) painter.setPalette(readPalette(el, sky.categories.length));
-			paintBackdrop();
+			const palette = sky && readPalette(el, sky.categories.length);
+			if (painter && palette) painter.setPalette(palette);
+			paintGlow();
 			schedule();
 		});
 		themes.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-mode'] });
@@ -462,6 +471,7 @@
 			themes.disconnect();
 			seen.disconnect();
 			el.removeEventListener('wheel', onWheel);
+			el.removeEventListener('touchmove', onTouchMove);
 		};
 	});
 
@@ -479,7 +489,12 @@
 	$effect(() => {
 		if (!sky || !stage || view !== 'map') return;
 		if (painter) painter.setSky(sky);
-		else painter = new Painter(sky, readPalette(stage, sky.categories.length));
+		else {
+			// A browser that cannot give the colours keeps the silhouette as the map.
+			const palette = readPalette(stage, sky.categories.length);
+			if (!palette) return;
+			painter = new Painter(sky, palette);
+		}
 		measure();
 		if (started) {
 			// The posts changed under the map: keep the same post selected, not the same index.
@@ -526,7 +541,7 @@
 	// The filter dims the glows of the other categories.
 	$effect(() => {
 		void filter;
-		paintBackdrop();
+		paintGlow();
 	});
 
 	// A filter, a hover or a selection changes what is bright.
@@ -565,8 +580,7 @@
 			onclick={onClick}
 			ondblclick={onDoubleClick}
 		>
-			<canvas class="backdrop" bind:this={glowCanvas} aria-hidden="true"></canvas>
-			<canvas class="backdrop" bind:this={dustCanvas} aria-hidden="true"></canvas>
+			<canvas class="glow" bind:this={glowCanvas} aria-hidden="true"></canvas>
 			<canvas bind:this={canvas} aria-hidden="true"></canvas>
 			<div class="stars" bind:this={starsEl}>
 				{#each sky.stars as star (star.slug)}
@@ -628,6 +642,8 @@
 			</div>
 			{#if sky.unplaced.length > 0}
 				<p class="unplaced">{sky.unplaced.length} newer {sky.unplaced.length === 1 ? 'post is' : 'posts are'} not on the map yet. Latest has {sky.unplaced.length === 1 ? 'it' : 'them'}.</p>
+			{:else if !cardStar}
+				<p class="hint">Tap a star to see its post here.</p>
 			{/if}
 			<div class="zoom" role="group" aria-label="Zoom">
 				<button type="button" aria-label="Zoom in" onclick={() => zoomBy(1.6)}>+</button>
@@ -653,14 +669,15 @@
 {/if}
 
 <style>
+	/* One finger scrolls the page, at rest and zoomed in. The map takes a sideways drag and two fingers. */
 	.stage { position: absolute; inset: 0; overflow: hidden; touch-action: pan-y; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-	.stage.zoomed { touch-action: none; cursor: grab; }
+	.stage.zoomed { cursor: grab; }
 	.stage.dragging { cursor: grabbing; }
 	.stage.pointing { cursor: pointer; }
 	canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-	/* Glows and dust: drawn once, then moved by the compositor. They arrive with the names. */
-	.backdrop { transform-origin: 0 0; will-change: transform; opacity: 0; transition: opacity .4s ease .4s; }
-	.assembled .backdrop { opacity: 1; }
+	/* The glows: drawn once, then moved by the compositor. They arrive with the names. */
+	.glow { transform-origin: 0 0; will-change: transform; opacity: 0; transition: opacity .4s ease .4s; }
+	.assembled .glow { opacity: 1; }
 
 	/* Real links under the stars: one roving tab stop, placed where the canvas draws each star. */
 	.stars { position: absolute; inset: 0; transform-origin: 0 0; pointer-events: none; --k: 1; }
@@ -668,66 +685,74 @@
 
 	.names { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease .45s; }
 	.assembled .names { opacity: 1; }
-	.names button { position: absolute; left: 0; top: 0; padding: .3rem .45rem; pointer-events: auto; font: 600 .66rem/1 'Inter', system-ui, sans-serif; letter-spacing: .15em; text-transform: uppercase; white-space: nowrap; color: color-mix(in srgb, var(--sky-ink) 68%, transparent); cursor: pointer; transition: color .15s ease, background-color .15s ease; }
-	.names button:hover { color: var(--sky-ink); background: color-mix(in srgb, var(--sky-paper) 70%, transparent); }
+	.names button { position: absolute; left: 0; top: 0; padding: .3rem .45rem; pointer-events: auto; font: 600 .66rem/1 'Inter', system-ui, sans-serif; letter-spacing: .15em; text-transform: uppercase; white-space: nowrap; color: color-mix(in oklab, var(--sky-ink) 92%, var(--sky-paper)); text-shadow: 0 0 .3em var(--sky-paper), 0 0 .6em var(--sky-paper); cursor: pointer; transition: color .15s ease, background-color .15s ease; }
+	/* A name can sit on a glow, which lightens the night behind it: near full ink and a halo of paper keep it above 4.5 to 1. */
+	.names button:focus-visible { color: var(--sky-ink); background: var(--sky-paper); }
+	/* Only a pointer that can hover: a tapped name does not keep the look. */
+	@media (hover: hover) {
+		.names button:hover { color: var(--sky-ink); background: color-mix(in srgb, var(--sky-paper) 70%, transparent); }
+	}
 	.names button:focus-visible, .zoom button:focus-visible, .card :is(a, button):focus-visible, .list a:focus-visible { outline: 2px solid var(--sky-accent); outline-offset: 2px; }
 
 	.zoom { position: absolute; right: .75rem; bottom: .75rem; z-index: 1; display: flex; gap: .35rem; font: 600 .78rem/1 'Inter', system-ui, sans-serif; }
-	.zoom button { min-width: 2.25rem; height: 2.25rem; padding: 0 .6rem; color: var(--sky-ink); background: color-mix(in srgb, var(--sky-paper) 88%, transparent); border: 1px solid color-mix(in srgb, var(--sky-ink) 22%, transparent); cursor: pointer; }
-	.zoom button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--sky-ink) 55%, transparent); }
-	.zoom button:disabled { opacity: .38; cursor: default; }
+	/* Solid, so a star that passes under a control does not show through it. */
+	.zoom button { min-width: 2.25rem; height: 2.25rem; padding: 0 .6rem; color: var(--sky-ink); background: var(--sky-paper); border: 1px solid var(--sky-line); cursor: pointer; }
+	.zoom button:hover:not(:disabled) { border-color: var(--sky-soft); }
+	.zoom button:disabled { color: color-mix(in srgb, var(--sky-ink) 38%, var(--sky-paper)); cursor: default; }
 
-	.card { position: absolute; left: 0; top: 0; z-index: 2; width: min(19rem, calc(100% - 1.5rem)); padding: .85rem 1rem .9rem; color: var(--sky-ink); background: var(--sky-card); border: 1px solid color-mix(in srgb, var(--sky-ink) 20%, transparent); box-shadow: 0 18px 40px -16px rgb(0 0 0 / .55); pointer-events: none; user-select: text; -webkit-user-select: text; overflow-wrap: anywhere; }
+	/* A compact card beside the star: the category, the date, the title, one line about it, Open, then the nearest posts. */
+	.card { position: absolute; left: 0; top: 0; z-index: 2; width: min(16.5rem, calc(100% - 1.5rem)); padding: .7rem .85rem .75rem; color: var(--sky-ink); background: var(--sky-card); border: 1px solid var(--sky-line); box-shadow: 0 18px 40px -18px var(--sky-shade); pointer-events: none; user-select: text; -webkit-user-select: text; overflow-wrap: anywhere; }
 	/* Inter at 600 and 700 only, the weights the home page already loads. Prose stays in the body face. */
-	.card .meta, .card h3, .card .open, .card .nearby, .list .meta, .list > li > a { font-family: 'Inter', system-ui, sans-serif; font-weight: 600; }
+	.card .meta, .card h3, .card .open, .card .nearby, .list .meta, .list > li > a, .hint { font-family: 'Inter', system-ui, sans-serif; font-weight: 600; }
 	.card.pinned { pointer-events: auto; }
-	.card .meta, .list .meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; font-size: .7rem; line-height: 1.2; color: color-mix(in srgb, var(--sky-ink) 72%, transparent); }
+	.card .meta, .list .meta { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; font-size: .7rem; line-height: 1.2; color: var(--sky-soft); }
 	.chip { display: inline-flex; align-items: center; gap: .35rem; font-size: .7rem; font-weight: 600; letter-spacing: .04em; color: var(--sky-ink); }
 	.chip::before { content: ''; width: .55rem; height: .55rem; border-radius: 50%; background: var(--chip); }
-	.card h3 { margin: .4rem 0 0; font-size: 1rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-	.card .summary { margin-top: .3rem; font-size: .9rem; line-height: 1.3; color: color-mix(in srgb, var(--sky-ink) 80%, transparent); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-	.card .open { display: inline-flex; align-items: center; gap: .3rem; margin-top: .7rem; min-height: 2.25rem; padding: 0 .9rem; font-size: .82rem; font-weight: 700; text-decoration: none; color: var(--sky-paper); background: var(--sky-ink); }
-	.card .nearby { margin-top: .7rem; padding-top: .6rem; border-top: 1px solid color-mix(in srgb, var(--sky-ink) 14%, transparent); font-size: .76rem; }
-	.card .nearby > span { font-size: .62rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--sky-ink) 62%, transparent); }
-	.card .nearby > span { flex: none; white-space: nowrap; }
-	.card .nearby ul { margin-top: .25rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: .1rem; }
-	.card .nearby button { display: block; width: 100%; padding: .22rem 0; text-align: left; line-height: 1.3; color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--sky-ink) 35%, transparent); text-underline-offset: .2em; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.card h3 { margin: .35rem 0 0; font-size: .95rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+	.card .summary { margin-top: .2rem; font-size: .88rem; line-height: 1.3; color: var(--sky-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.card .open { display: inline-flex; align-items: center; gap: .3rem; margin-top: .55rem; min-height: 2rem; padding: 0 .8rem; font-size: .8rem; font-weight: 700; text-decoration: none; color: var(--sky-paper); background: var(--sky-ink); }
+	.card .nearby { margin-top: .6rem; padding-top: .5rem; border-top: 1px solid var(--sky-line); font-size: .74rem; }
+	.card .nearby > span { flex: none; font-size: .62rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; color: var(--sky-soft); }
+	.card .nearby ul { margin-top: .2rem; display: grid; grid-template-columns: minmax(0, 1fr); }
+	.card .nearby button { display: block; width: 100%; padding: .16rem 0; text-align: left; line-height: 1.3; color: inherit; text-decoration: underline; text-decoration-color: var(--sky-line); text-underline-offset: .2em; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 	.card .nearby button:hover { text-decoration-color: currentColor; }
 
 	.list { position: absolute; inset: 0; margin: 0; padding: 2.75rem 1.25rem 1.25rem 3rem; overflow-y: auto; display: grid; align-content: start; gap: .8rem; list-style: decimal; color: var(--sky-ink); font-size: .9rem; line-height: 1.35; overflow-wrap: anywhere; }
-	.list li::marker { font-size: .7rem; color: color-mix(in srgb, var(--sky-ink) 55%, transparent); }
-	.list a { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--sky-ink) 35%, transparent); text-underline-offset: .2em; }
+	.list li::marker { font-size: .7rem; color: var(--sky-soft); }
+	.list a { text-decoration: underline; text-decoration-color: var(--sky-line); text-underline-offset: .2em; }
 	.list > li > a { font-size: .88rem; }
 	.list .meta { margin-top: .15rem; }
-	.list .near { display: block; margin-top: .15rem; font-size: .88rem; color: color-mix(in srgb, var(--sky-ink) 78%, transparent); }
+	.list .near { display: block; margin-top: .15rem; font-size: .88rem; color: var(--sky-soft); }
 	.empty { position: absolute; inset: 0; display: grid; place-items: center; padding: 1.5rem; text-align: center; color: var(--sky-ink); }
 
-	.unplaced { position: absolute; left: 1rem; bottom: .9rem; max-width: calc(100% - 13rem); font-size: .82rem; line-height: 1.3; color: color-mix(in srgb, var(--sky-ink) 76%, transparent); }
+	.unplaced { position: absolute; left: 1rem; bottom: .9rem; max-width: calc(100% - 13rem); font-size: .82rem; line-height: 1.3; color: var(--sky-soft); }
+	.hint { display: none; }
 	.stage.fade canvas { animation: sky-in .25s ease both; }
-	.stage.fade .backdrop { transition: none; }
+	.stage.fade .glow { transition: none; }
 	@keyframes sky-in { from { opacity: 0; } }
 
 	/* The same width as TALL_QUERY in ReaderConstellation.svelte. */
 	@media (max-width: 720px) {
 		.names button { font-size: .58rem; letter-spacing: .12em; padding: .3rem .3rem; }
-		/* A compact card that takes well under half the panel, so the picked star stays in sight. */
-		.card { left: .5rem; right: .5rem; top: auto; bottom: 3.75rem; width: auto; padding: .65rem .8rem .7rem; display: grid; grid-template-columns: 1fr auto; column-gap: .75rem; align-items: center; }
-		.card:global([data-dock='top']) { top: .5rem; bottom: auto; }
-		.card .meta, .card .nearby { grid-column: 1 / -1; }
-		.card h3 { margin: .3rem 0 0; font-size: .95rem; -webkit-line-clamp: 2; line-clamp: 2; }
-		.card .summary { display: none; }
-		.card .open { margin-top: .3rem; min-height: 2.75rem; padding: 0 1rem; }
-		.card .nearby { margin-top: .55rem; padding-top: .45rem; display: flex; align-items: center; gap: .6rem; min-width: 0; }
-		.card .nearby ul { margin: 0; display: flex; gap: .4rem; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-		.card .nearby li { flex: none; max-width: 70%; }
-		.card .nearby button { min-height: 2.5rem; padding: 0 .65rem; text-decoration: none; border: 1px solid color-mix(in srgb, var(--sky-ink) 22%, transparent); }
-		.zoom { right: .5rem; bottom: .5rem; }
+		/* Controls above the map, the picked post in its own strip below it: the card covers no star at rest. */
+		.zoom { left: .5rem; right: auto; top: .4rem; bottom: auto; }
 		.zoom button { min-width: 2.75rem; height: 2.75rem; }
-		.unplaced { left: .6rem; bottom: .6rem; max-width: calc(100% - 12.5rem); }
-		.list { padding: 2.75rem 1rem 1rem 2.5rem; }
+		.card { left: .5rem; right: .5rem; top: auto; bottom: .5rem; width: auto; padding: .6rem .75rem .65rem; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: .75rem; align-items: center; }
+		.card .meta, .card .nearby { grid-column: 1 / -1; }
+		.card h3 { margin: .25rem 0 0; }
+		.card .summary { display: none; }
+		.card .open { margin-top: .25rem; min-height: 2.75rem; padding: 0 1rem; }
+		.card .nearby { margin-top: .5rem; padding-top: .45rem; display: flex; align-items: center; gap: .6rem; min-width: 0; }
+		/* The nearest posts sit in one row that scrolls sideways and fades out where more follows. */
+		.card .nearby ul { margin: 0; display: flex; gap: .4rem; min-width: 0; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(to right, currentColor calc(100% - 1.5rem), transparent); }
+		.card .nearby li { flex: none; max-width: 11rem; }
+		.card .nearby button { min-height: 2.75rem; padding: 0 .65rem; text-decoration: none; border: 1px solid var(--sky-line); }
+		.unplaced, .hint { position: absolute; left: .9rem; right: .9rem; bottom: 4.4rem; max-width: none; text-align: center; }
+		.hint { display: block; font-size: .7rem; letter-spacing: .04em; color: var(--sky-soft); }
+		.list { padding: 3.5rem 1rem 1rem 2.5rem; }
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.names, .names button, .backdrop { transition: none; }
+		.names, .names button, .glow { transition: none; }
 		.stage.fade canvas { animation: none; }
 	}
 </style>

@@ -12,7 +12,8 @@
  *
  *   posts-projection.v1.json           the t-SNE fit: where each post sits
  *   constellation.v1.json              the map layout built from it: groups, names,
- *                                      figure lines, sizes, glows and neighbours
+ *                                      figure lines, sizes, glows, neighbours and
+ *                                      where each title shows
  *   constellation-silhouette.v1.json   the same stars as paths, for the first paint
  *
  * The build does no layout work. It emits constellation.v1.json with a content
@@ -46,7 +47,8 @@ function main(argv: string[]): number {
 		`KL ${projection.embedding.kl_divergence}, neighbour overlap ${projection.metrics.neighbor_overlap}, ` +
 		`displacement max ${projection.metrics.display_displacement_max}, ` +
 		`${layout.groups.length} constellations (${layout.groups.map((group) => group.name).join(', ')}), ` +
-		`${layout.figure.length} figure lines (${Math.round(performance.now() - started)} ms)`;
+		`${layout.figure.length} figure lines, ${layout.stars.filter((star) => star[4] < 0).length} stars outside a figure, ` +
+		`${layout.titles.wide.filter(Boolean).length} and ${layout.titles.tall.filter(Boolean).length} titles placed (${Math.round(performance.now() - started)} ms)`;
 	if (check) {
 		if (stale.length === 0) {
 			console.log(`Posts projection and constellation layout are current: ${outputs.map(([path]) => path).join(', ')}`);
