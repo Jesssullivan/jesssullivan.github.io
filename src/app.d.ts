@@ -3,6 +3,7 @@
 declare global {
 	const __BLOG_DEPLOY_TIER__: 'production' | 'shadow';
 	const __BLOG_SOURCE_SHA__: string;
+	const __BLOG_HOME_STAGE__: boolean;
 
 	namespace App {
 		// interface Error {}

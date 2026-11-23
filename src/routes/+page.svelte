@@ -5,6 +5,7 @@
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
 	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
 	import { resolveConstellationFlag } from '$lib/flags/constellation';
+	import { homeFlag } from '$lib/flags/home-state.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
@@ -13,6 +14,8 @@
 	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { Post } from '$lib/posts';
 	import publicationHolds from '../../static/blog-publication-holds.json';
+	import type { Component } from 'svelte';
+	import type { StreamFile } from '$lib/home/stream';
 
 	let { data }: { data: PageData } = $props();
 	let constellationEnabled = $state(false);
@@ -23,9 +26,27 @@
 	let pulseStatus = $state('loading');
 	let experimentalCollection = $derived(createHomeReaderCollection(data.collection.archive.flatMap(group => group.posts), experimentPosts ?? [], new Set(publicationHolds)));
 	onMount(() => { mounted = true; });
+
+	// TIN-8657: the heading stage and the stream, behind ?flags=home. The layout resolves the flag.
+	// A preview build hands both over from the load, already prerendered. Otherwise the code and the
+	// data file are asked for only once the flag is on, so the default page loads nothing new.
+	type HomeView = Component<{ stream: StreamFile | null; archive: PageData['collection']['archive']; snapshot: PageData['pulseSnapshot'] }>;
+	// svelte-ignore state_referenced_locally
+	let Home = $state<HomeView | null>((data.home?.Home as HomeView | undefined) ?? null);
+	// svelte-ignore state_referenced_locally
+	let homeStream = $state<StreamFile | null>(data.home?.stream ?? null);
+	let homeAsked = false;
+	$effect(() => {
+		if (!homeFlag.on || homeAsked || (Home && homeStream)) return;
+		homeAsked = true;
+		void import('$lib/components/home/Home.svelte').then((module) => (Home = module.default as unknown as HomeView));
+		void import('$lib/home/load').then(({ loadHomeStream }) => loadHomeStream(fetch)).then((stream) => (homeStream = stream)).catch(() => {});
+	});
+
 	$effect(() => {
 		if (!mounted) return;
-		const enabled = resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
+		// The stage carries the constellation as its first scene, so the older flag stands down beside it.
+		const enabled = !homeFlag.on && resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
 		constellationEnabled = enabled;
 		experimentPosts = null;
 		experimentPulse = null;
@@ -48,14 +69,23 @@
 </script>
 
 <svelte:head>
-	<title>Jess Sullivan — Latest, Pulse, Archive</title>
-	<meta name="description" content="Posts and notes from Jess Sullivan." />
-	<link rel="canonical" href="https://transscendsurvival.org/" />
-	<meta property="og:title" content="Jess Sullivan — Writing and notes." />
-	<meta property="og:description" content="Posts and notes from Jess Sullivan." />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://transscendsurvival.org/" />
+	{#if !(homeFlag.on && Home)}
+		<title>Jess Sullivan — Latest, Pulse, Archive</title>
+		<meta name="description" content="Posts and notes from Jess Sullivan." />
+		<link rel="canonical" href="https://transscendsurvival.org/" />
+		<meta property="og:title" content="Jess Sullivan — Writing and notes." />
+		<meta property="og:description" content="Posts and notes from Jess Sullivan." />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://transscendsurvival.org/" />
+	{/if}
 </svelte:head>
+
+{#if homeFlag.on && Home}
+	<Home stream={homeStream} archive={data.collection.archive} snapshot={data.pulseSnapshot} />
+{:else if homeFlag.on}
+	<!-- The flag is on and the page's code is on its way: hold the stage's room so nothing jumps. -->
+	<div class="home-wait" aria-hidden="true"></div>
+{:else}
 
 <div class="container mx-auto px-4 py-12 max-w-6xl" data-pagefind-body>
 	<header class="mb-12 max-w-3xl">
@@ -79,3 +109,11 @@
 		<ReaderArchive archive={data.collection.archive} />
 	</div>
 </div>
+{/if}
+
+<style>
+	.home-wait {
+		height: clamp(30rem, calc(100vh - 7.5rem), 64rem);
+		height: clamp(30rem, calc(100svh - 7.5rem), 64rem);
+	}
+</style>

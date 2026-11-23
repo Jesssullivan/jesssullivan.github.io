@@ -244,6 +244,15 @@ pre.shiki span {
 	margin-top: 0.5rem;
 }
 
+/* TIN-8657: the slim top bar behind ?flags=home. It sits on the page's own ground and has no edge. */
+.slim-bar {
+	background: var(--color-root-bg-light);
+	box-shadow: none;
+}
+[data-mode='dark'] .slim-bar {
+	background: var(--color-root-bg-dark);
+}
+
 /* Blog prose styling for mdsvex content */
 .prose {
 	line-height: 1.75;

@@ -19,6 +19,9 @@
 		clearTimeout: typeof window.clearTimeout;
 	};
 
+	// TIN-8657: false where the welcome note must not open by itself. A click on the control still opens it.
+	let { nudge = true }: { nudge?: boolean } = $props();
+
 	let isOpen = $state(false);
 	let showNudgeContent = $state(false);
 	let pendingNudgeClose = $state(false);
@@ -65,7 +68,7 @@
 	}
 
 	function revealNudge() {
-		if (userInteracted || !shouldAutoShowNudge()) return;
+		if (!nudge || userInteracted || !shouldAutoShowNudge()) return;
 		showNudgeContent = true;
 		window.requestAnimationFrame(() => {
 			isOpen = true;
@@ -117,7 +120,7 @@
 
 		let idleCallback: number | undefined;
 		const timer = window.setTimeout(() => {
-			if (userInteracted || !shouldAutoShowNudge()) return;
+			if (!nudge || userInteracted || !shouldAutoShowNudge()) return;
 			if (idleWindow.requestIdleCallback) {
 				idleCallback = idleWindow.requestIdleCallback(revealNudge, { timeout: NUDGE_IDLE_TIMEOUT_MS });
 			} else {

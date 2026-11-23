@@ -9,6 +9,8 @@
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import TailnetHint from '$lib/components/TailnetHint.svelte';
+	import { HOME_BUILD_DEFAULT, resolveHomeFlag } from '$lib/flags/home';
+	import { homeFlag } from '$lib/flags/home-state.svelte';
 
 	let { children } = $props();
 	const isShadowDeployment = __BLOG_DEPLOY_TIER__ === 'shadow';
@@ -44,6 +46,15 @@
 	let bannerNaturalHeight = 0;
 	let scrolledPastBanner = $state(false);
 
+	// TIN-8657: with ?flags=home the site-wide banner leaves the layout, and the home page
+	// also drops the side column, the footer and the blob background. Off, nothing here changes.
+	let mounted = $state(false);
+	$effect(() => {
+		if (!mounted) return;
+		homeFlag.on = resolveHomeFlag({ search: $page.url.search, getStorage: () => window.localStorage, fallback: HOME_BUILD_DEFAULT });
+	});
+	const stageHome = $derived(homeFlag.on && $page.url.pathname === '/');
+
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
 		{ href: '/photography', label: 'Photography' },
@@ -55,6 +66,7 @@
 	];
 
 	onMount(() => {
+		mounted = true;
 		theme.init();
 
 		// Scroll-fade for hero banner
@@ -95,7 +107,7 @@
 	})}</script>`}
 </svelte:head>
 
-{#if browser}
+{#if browser && !stageHome}
 	<div class="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true" data-testid="blob-background">
 		<!-- enablePointerPhysics is new in tinyvectors 0.3.x and defaults to true;
 		     it attaches window-level pointer listeners, so the pointer-events-none
@@ -119,7 +131,7 @@
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:text-sm focus:font-semibold"
 		>Skip to content</a
 	>
-	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} shadow-sm">
+	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} {homeFlag.on ? 'slim-bar' : 'shadow-sm'}">
 		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
 			<AppBar.Lead>
 				<a
@@ -147,7 +159,7 @@
 							rel="noopener"
 							aria-label="GitHub profile">GitHub</a
 						>
-					<ThemeSwitcher />
+					<ThemeSwitcher nudge={!stageHome} />
 				</nav>
 				<!-- Mobile drawer trigger -->
 				<Dialog
@@ -260,6 +272,7 @@
 	</AppBar>
 
 	<!-- Hero banner — visible on all pages, scroll-fades -->
+	{#if !homeFlag.on}
 	<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
 		<picture>
 			<source srcset="/images/header.webp" type="image/webp" />
@@ -294,8 +307,9 @@
 			<p class="hero-banner-subtitle text-base sm:text-lg lg:text-xl">Jess Sullivan</p>
 		</div>
 	</section>
+	{/if}
 
-	{#if $page.url.pathname.startsWith('/blog')}
+	{#if $page.url.pathname.startsWith('/blog') || stageHome}
 		<main id="main-content" class="flex-1">
 			{@render children()}
 		</main>
@@ -312,6 +326,7 @@
 		</div>
 	{/if}
 
+	{#if !stageHome}
 	<footer class="bg-surface-100-900 border-t border-surface-300-700 py-6 text-center text-sm text-surface-500">
 		<div class="container mx-auto px-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
 			<p>
@@ -353,4 +368,5 @@
 			>
 		</p>
 	</footer>
+	{/if}
 </div>
