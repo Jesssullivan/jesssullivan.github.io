@@ -1,0 +1,22 @@
+{
+  "name": "@xoxd/projection",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./fetch": {
+      "types": "./src/fetch.ts",
+      "default": "./dist/fetch.js"
+    }
+  },
+  "bin": {
+    "xoxd-projection-fetch": "./dist/cli.js"
+  }
+}

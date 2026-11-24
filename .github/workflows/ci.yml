@@ -5,6 +5,9 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main]
+    # ready_for_review reruns CI when a draft is marked ready, so the
+    # temporary-override check below sees the change (TIN-8654).
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -179,6 +182,14 @@ jobs:
 
       - name: Detect secrets with gitleaks
         run: gitleaks detect --source . --no-banner --redact --verbose
+
+      # TEMPORARY (TIN-8654): fails while the draft-only xoxd_projection
+      # stand-in is present on anything but a draft pull request. Delete this
+      # step with the stand-in.
+      - name: Refuse the temporary xoxd_projection override outside a draft
+        env:
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+        run: node projection/check-no-temporary-override.mjs
 
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:

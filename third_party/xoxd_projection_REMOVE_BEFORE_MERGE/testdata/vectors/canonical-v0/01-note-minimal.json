@@ -1,0 +1,36 @@
+{
+  "rule": "canonical-v0",
+  "name": "01-note-minimal",
+  "description": "A note with every optional key omitted, one prose block, no attachments and no variants.",
+  "input": {
+    "meta": {
+      "id": "first-note",
+      "kind": "note",
+      "date": "2026-11-22",
+      "title": "First note",
+      "summary": "A short note to test the hash.",
+      "tags": [
+        "test"
+      ],
+      "byline": "owner",
+      "channels": [
+        "site",
+        "feed"
+      ]
+    },
+    "body": [
+      {
+        "prose": "Hello from the hub."
+      }
+    ],
+    "attachments": [],
+    "variants": []
+  },
+  "expected": {
+    "meta": "e7744650c6d1399daa19e879d38adf0055024bbe2b214b08d664d1284c145600",
+    "body": "6689403c1808477a723e83defaa0b02e4761f12a635fe31d9673354e14bd0c56",
+    "variants": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "attachments": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash": "7080be6bafe721bbe610d64f3cc7b9c9567b99cfd1abfdbe658ae90e7427c499"
+  }
+}

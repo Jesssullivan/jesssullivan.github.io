@@ -1,4 +1,6 @@
 import { getPosts } from '$lib/posts';
+import { noteSitemapUrl } from '$lib/notes';
+import { NOTES } from '$lib/server/notes';
 
 export const prerender = true;
 
@@ -19,17 +21,30 @@ export async function GET() {
   </url>`
 		)
 		.join('\n  ')}
-  ${posts
-		.filter((p) => p.published)
-		.map(
-			(post) => `<url>
+  ${[
+		...posts
+			.filter((p) => p.published)
+			.map(
+				(post) => `<url>
     <loc>${site}/blog/${post.slug}</loc>
     <lastmod>${new Date(post.date).toISOString().split('T')[0]}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>`
-		)
-		.join('\n  ')}
+			),
+		// The notes list and each note come after the posts, newest first.
+		// With no notes nothing is added, so the sitemap stays as it was.
+		...(NOTES.length
+			? [
+					`<url>
+    <loc>${site}/notes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`,
+					...NOTES.map(noteSitemapUrl)
+				]
+			: [])
+	].join('\n  ')}
 </urlset>`;
 
 	return new Response(xml.trim(), {

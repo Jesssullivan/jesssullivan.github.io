@@ -1,8 +1,13 @@
 name: Publish Cloudflare Pages production v2
 
 on:
+  # CI on main builds without publishing. A successful "Hub projection v2"
+  # run on main carries the hub's dispatch of a signed manifest for target
+  # "blog" and publishes it (TIN-8654). workflow_run always runs this file
+  # from the default branch, so neither carrier can choose the code that
+  # holds the Cloudflare credentials.
   workflow_run:
-    workflows: ['CI']
+    workflows: ['CI', 'Hub projection v2']
     branches: [main]
     types: [completed]
   repository_dispatch:
@@ -26,9 +31,12 @@ jobs:
       github.event_name == 'repository_dispatch' ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.event == 'push' &&
        github.event.workflow_run.head_branch == 'main' &&
-       github.event.workflow_run.head_repository.full_name == github.repository)
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       ((github.event.workflow_run.name == 'CI' &&
+         github.event.workflow_run.event == 'push') ||
+        (github.event.workflow_run.name == 'Hub projection v2' &&
+         github.event.workflow_run.event == 'workflow_dispatch')))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -38,6 +46,9 @@ jobs:
       source_sha: ${{ steps.source.outputs.source_sha }}
       ci_url: ${{ steps.source.outputs.ci_url }}
       deploy: ${{ steps.source.outputs.deploy }}
+      projection_manifest: ${{ steps.source.outputs.projection_manifest }}
+      projection_seq: ${{ steps.source.outputs.projection_seq }}
+      projection_base: ${{ steps.source.outputs.projection_base }}
     steps:
       - name: Resolve and verify exact source SHA
         id: source
@@ -52,6 +63,7 @@ jobs:
             let sourceSha;
             let ciUrl;
             let deploy;
+            let projection = { manifest: "", seq: "", base: "" };
 
             async function requireAuthorityJobs(runId) {
               const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
@@ -98,7 +110,63 @@ jobs:
               throw new Error(`No successful private CV authority run completed for exact SHA ${sourceSha} within twenty minutes.`);
             }
 
-            if (context.eventName === "workflow_run") {
+            // The hub's dispatch inputs reach this workflow as the run name
+            // of "Hub projection v2", which checked them already. They are
+            // parsed again here against the contract formats and become job
+            // outputs, then environment values. They are never shell text.
+            function projectionFromRunTitle(title) {
+              const match = /^projection blog ([0-9a-f]{64}) ([1-9][0-9]{0,15}) (https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[1-9][0-9]{0,4})?)$/.exec(title ?? "");
+              if (!match || !Number.isSafeInteger(Number(match[2]))) {
+                throw new Error("The Hub projection v2 run did not carry a well-formed manifest, seq and projection_base.");
+              }
+              return { manifest: match[1], seq: match[2], base: match[3] };
+            }
+
+            if (context.eventName === "workflow_run" && context.payload.workflow_run?.name === "Hub projection v2") {
+              const run = context.payload.workflow_run;
+              if (
+                run.conclusion !== "success" ||
+                run.event !== "workflow_dispatch" ||
+                run.head_branch !== "main" ||
+                run.path !== ".github/workflows/hub-projection-v2.yml" ||
+                run.head_repository?.full_name !== `${owner}/${repo}` ||
+                !/^[0-9a-f]{40}$/.test(run.head_sha)
+              ) {
+                throw new Error("Hub projection v2 workflow_run did not satisfy the production provenance contract.");
+              }
+              projection = projectionFromRunTitle(run.display_title);
+              sourceSha = run.head_sha;
+              const mainRef = await github.rest.git.getRef({ owner, repo, ref: "heads/main" });
+              if (mainRef.data.object.sha !== sourceSha) {
+                throw new Error(`Hub projection SHA ${sourceSha} is stale; current main is ${mainRef.data.object.sha}.`);
+              }
+              const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                owner,
+                repo,
+                workflow_id: "ci.yml",
+                branch: "main",
+                event: "push",
+                status: "completed",
+                per_page: 100,
+              });
+              const ciRun = runs.find((candidate) =>
+                candidate.head_sha === sourceSha &&
+                candidate.head_branch === "main" &&
+                candidate.event === "push" &&
+                candidate.conclusion === "success" &&
+                candidate.head_repository?.full_name === `${owner}/${repo}`
+              );
+              if (!ciRun) {
+                throw new Error(`No successful canonical CI push run found for exact SHA ${sourceSha}.`);
+              }
+              await requireAuthorityJobs(ciRun.id);
+              await requirePrivateCvAuthority(sourceSha);
+              ciUrl = ciRun.html_url;
+              if (process.env.PRODUCTION_ENABLED !== "true") {
+                throw new Error("CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true for a hub projection publish.");
+              }
+              deploy = true;
+            } else if (context.eventName === "workflow_run") {
               const run = context.payload.workflow_run;
               const expectedRepository = `${owner}/${repo}`;
               if (
@@ -170,6 +238,9 @@ jobs:
             core.setOutput("source_sha", sourceSha);
             core.setOutput("ci_url", ciUrl);
             core.setOutput("deploy", deploy ? "true" : "false");
+            core.setOutput("projection_manifest", projection.manifest);
+            core.setOutput("projection_seq", projection.seq);
+            core.setOutput("projection_base", projection.base);
             await core.summary
               .addHeading("Cloudflare Pages production provenance")
               .addRaw(`Commit: \`${sourceSha}\`\n\n`)
@@ -181,9 +252,7 @@ jobs:
   publish:
     name: Build and publish CI-proven production
     needs: resolve
-    if: >-
-      needs.resolve.result == 'success' &&
-      (github.event_name != 'workflow_run' || needs.resolve.outputs.deploy == 'false')
+    if: needs.resolve.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -212,6 +281,18 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      # Writes src/lib/projection-data, the only projection input of the
+      # build (TIN-8654). With the hub's inputs it verifies that manifest.
+      # Without them it rebuilds the receipt the live site serves, or builds
+      # no notes when the site serves none. It fails closed on any finding.
+      - name: Verify the hub projection for target blog
+        env:
+          PROJECTION_MANIFEST: ${{ needs.resolve.outputs.projection_manifest }}
+          PROJECTION_SEQ: ${{ needs.resolve.outputs.projection_seq }}
+          PROJECTION_BASE: ${{ needs.resolve.outputs.projection_base }}
+        run: bazelisk run --ignore_dev_dependency --lockfile_mode=error //projection:step
+
       - run: npm run build
       - run: node scripts/validate-deploy-tier-output.mjs production
       - run: npx tsx scripts/validate-redirects.mts
@@ -229,7 +310,7 @@ jobs:
           echo "digest=sha256:${digest}" >> "$GITHUB_OUTPUT"
 
       - name: Require Cloudflare deploy credentials
-        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        if: needs.resolve.outputs.deploy == 'true'
         env:
           CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -239,7 +320,7 @@ jobs:
           test -n "${CF_API_TOKEN}" || { echo "::error::CLOUDFLARE_API_TOKEN is required."; exit 1; }
 
       - name: Revalidate production kill switch and current main immediately before publish
-        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        if: needs.resolve.outputs.deploy == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.source_sha }}
@@ -274,7 +355,7 @@ jobs:
             }
 
       - name: Publish exact production build to Cloudflare Pages
-        if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'
+        if: needs.resolve.outputs.deploy == 'true'
         id: cloudflare
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4
         with:

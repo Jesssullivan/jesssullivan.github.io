@@ -1,0 +1,92 @@
+{
+  "rule": "canonical-v0",
+  "name": "11-every-block",
+  "description": "An article whose body holds every block type, including inline dollar math in prose and a figure caption.",
+  "input": {
+    "meta": {
+      "id": "long-article",
+      "kind": "article",
+      "date": "2026-11-22",
+      "title": "A long article",
+      "summary": "An article with an optional key to test.",
+      "tags": [
+        "test",
+        "math"
+      ],
+      "byline": "firm",
+      "channels": [
+        "site",
+        "feed",
+        "linkedin"
+      ]
+    },
+    "body": [
+      {
+        "prose": "Euler wrote $e^{i\\pi} + 1 = 0$ in prose."
+      },
+      {
+        "math": "\\int_0^1 x^2 \\, dx = \\frac{1}{3}",
+        "display": true
+      },
+      {
+        "code": "const x = 1;\nconsole.log(x);",
+        "lang": "ts"
+      },
+      {
+        "figure": "chart",
+        "alt": "A bar chart of three values",
+        "caption": "Three values."
+      },
+      {
+        "pdf": "slides",
+        "title": "The slides"
+      },
+      {
+        "video": "talk",
+        "host": "youtube",
+        "title": "The talk"
+      },
+      {
+        "event": "meetup-2026-12-01"
+      },
+      {
+        "booking": "video-call"
+      }
+    ],
+    "attachments": [
+      {
+        "id": "chart",
+        "kind": "image",
+        "path": "chart.png",
+        "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "bytes": 2048,
+        "alt": "A bar chart of three values"
+      },
+      {
+        "id": "slides",
+        "kind": "pdf",
+        "path": "slides.pdf",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "bytes": 4096,
+        "pages": 20,
+        "alt": "The slides as a PDF"
+      },
+      {
+        "id": "talk",
+        "kind": "video",
+        "path": "talk.json",
+        "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "bytes": 512,
+        "alt": "A recording of the talk"
+      }
+    ],
+    "variants": []
+  },
+  "expected": {
+    "meta": "80bcc63eb9c16758a0b86088ee7d0576393a3d82747a98b41984d5a093b8f62e",
+    "body": "3984d5f93bb6a4284d2850190eaa370aeeee04658882c70ea9e3d6f6030ee655",
+    "variants": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "attachments": "3e8b4a8540cb16c8902618daffb0692881bd3c9d64fc1b8397f1fafef7b223a6",
+    "hash": "58dd418a07160cf31c73707c75e9dae254fff91f420b1d7fbca2870d25265b88"
+  }
+}

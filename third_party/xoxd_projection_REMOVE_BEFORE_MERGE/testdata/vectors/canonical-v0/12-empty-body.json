@@ -1,0 +1,32 @@
+{
+  "rule": "canonical-v0",
+  "name": "12-empty-body",
+  "description": "A note with an empty body.",
+  "input": {
+    "meta": {
+      "id": "first-note",
+      "kind": "note",
+      "date": "2026-11-22",
+      "title": "First note",
+      "summary": "A short note to test the hash.",
+      "tags": [
+        "test"
+      ],
+      "byline": "owner",
+      "channels": [
+        "site",
+        "feed"
+      ]
+    },
+    "body": [],
+    "attachments": [],
+    "variants": []
+  },
+  "expected": {
+    "meta": "e7744650c6d1399daa19e879d38adf0055024bbe2b214b08d664d1284c145600",
+    "body": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "variants": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "attachments": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash": "6492f5ae6da41d4b31c006b028fa72a04de8bbf007f7040139d463f9e9840273"
+  }
+}

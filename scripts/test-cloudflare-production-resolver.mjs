@@ -105,7 +105,14 @@ async function rejects(label, fixture, pattern) {
 
 assert.deepEqual(
 	await runFixture({ eventName: 'workflow_run', productionEnabled: 'true' }),
-	{ source_sha: sourceSha, ci_url: 'https://github.example/ci/101', deploy: 'false' },
+	{
+		source_sha: sourceSha,
+		ci_url: 'https://github.example/ci/101',
+		deploy: 'false',
+		projection_manifest: '',
+		projection_seq: '',
+		projection_base: '',
+	},
 	'successful canonical CI run records provenance but never automatically deploys',
 );
 assert.equal(
@@ -193,6 +200,90 @@ await rejects(
 	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })] },
 	/No successful private CV authority run completed for exact SHA/,
 );
+// The hub's dispatch carrier (TIN-8654). Its run name carries the three
+// xoxd-projection/v2 dispatch inputs, already checked by the carrier.
+const manifest = 'f'.repeat(64);
+function hubRun(overrides = {}) {
+	return {
+		id: 303,
+		name: 'Hub projection v2',
+		path: '.github/workflows/hub-projection-v2.yml',
+		conclusion: 'success',
+		event: 'workflow_dispatch',
+		head_branch: 'main',
+		head_repository: { full_name: repository },
+		head_sha: sourceSha,
+		html_url: 'https://github.example/hub/303',
+		display_title: `projection blog ${manifest} 7 https://hub.example`,
+		...overrides,
+	};
+}
+assert.deepEqual(
+	await runFixture({ eventName: 'workflow_run', run: hubRun(), productionEnabled: 'true' }),
+	{
+		source_sha: sourceSha,
+		ci_url: 'https://github.example/ci/101',
+		deploy: 'true',
+		projection_manifest: manifest,
+		projection_seq: '7',
+		projection_base: 'https://hub.example',
+	},
+	'a hub dispatch on current main with canonical CI, private CV and the gate publishes its projection',
+);
+await rejects(
+	'a hub dispatch fails when the operator gate is unset',
+	{ eventName: 'workflow_run', run: hubRun() },
+	/CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true for a hub projection publish/,
+);
+for (const [label, overrides] of [
+	['a failed carrier run', { conclusion: 'failure' }],
+	['a carrier run on another branch', { head_branch: 'feature' }],
+	['a carrier run from a fork', { head_repository: { full_name: 'fork/blog' } }],
+	['a carrier run with another trigger', { event: 'push' }],
+	['a run of another workflow file with the carrier name', { path: '.github/workflows/other.yml' }],
+]) {
+	await rejects(
+		`a hub dispatch refuses ${label}`,
+		{ eventName: 'workflow_run', run: hubRun(overrides), productionEnabled: 'true' },
+		/Hub projection v2 workflow_run did not satisfy the production provenance contract/,
+	);
+}
+await rejects(
+	'a hub dispatch of a stale main SHA fails closed',
+	{ eventName: 'workflow_run', run: hubRun(), productionEnabled: 'true', mainSha: otherSha },
+	/Hub projection SHA .* is stale/,
+);
+await rejects(
+	'a hub dispatch needs a successful exact-SHA CI run',
+	{ eventName: 'workflow_run', run: hubRun(), productionEnabled: 'true', runs: [canonicalRun({ head_sha: otherSha })] },
+	/No successful canonical CI push run found for exact SHA/,
+);
+await rejects(
+	'a hub dispatch needs the exact-SHA private CV authority',
+	{ eventName: 'workflow_run', run: hubRun(), productionEnabled: 'true', cvRuns: [canonicalRun({ head_sha: otherSha })] },
+	/No successful private CV authority run completed for exact SHA/,
+);
+for (const title of [
+	`projection blog ${manifest.toUpperCase()} 7 https://hub.example`,
+	`projection blog ${manifest} 07 https://hub.example`,
+	`projection blog ${manifest} 0 https://hub.example`,
+	`projection blog ${manifest} 7 http://hub.example`,
+	`projection blog ${manifest} 7 https://hub.example/`,
+	`projection blog ${manifest} 7 https://hub.example/x`,
+	`projection blog ${manifest} 7 https://u@hub.example`,
+	`projection blog ${manifest} 7 https://hub.example $(id)`,
+	`projection firm ${manifest} 7 https://hub.example`,
+	`projection blog ${manifest} 99999999999999999 https://hub.example`,
+	`projection blog ${manifest} 7`,
+	'',
+]) {
+	await rejects(
+		`a hub dispatch refuses the run title ${JSON.stringify(title)}`,
+		{ eventName: 'workflow_run', run: hubRun({ display_title: title }), productionEnabled: 'true' },
+		/did not carry a well-formed manifest, seq and projection_base/,
+	);
+}
+
 await rejects(
 	'PR events cannot enter the production resolver',
 	{ eventName: 'pull_request' },

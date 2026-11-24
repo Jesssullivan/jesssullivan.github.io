@@ -1,0 +1,69 @@
+{
+  "rule": "canonical-v0",
+  "name": "09-attachments-order-a",
+  "description": "A formal post with a PDF, its TeX source and a page image.",
+  "input": {
+    "meta": {
+      "id": "formal-paper",
+      "kind": "formal",
+      "date": "2026-11-22",
+      "title": "A formal paper",
+      "summary": "The abstract of a paper built from TeX.",
+      "tags": [
+        "paper"
+      ],
+      "byline": "firm",
+      "channels": [
+        "site",
+        "feed"
+      ],
+      "licence": "CC-BY-4.0"
+    },
+    "body": [
+      {
+        "prose": "The abstract."
+      },
+      {
+        "pdf": "paper-pdf",
+        "title": "The paper"
+      }
+    ],
+    "attachments": [
+      {
+        "id": "paper-pdf",
+        "kind": "pdf",
+        "path": "papers/formal-paper/paper.pdf",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bytes": 120000,
+        "pages": 12,
+        "alt": "The paper as a PDF",
+        "builtBy": "tectonic",
+        "sourceOf": "paper-tex"
+      },
+      {
+        "id": "paper-tex",
+        "kind": "tex",
+        "path": "papers/formal-paper/paper.tex",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bytes": 30000,
+        "alt": "The TeX source of the paper"
+      },
+      {
+        "id": "first-page",
+        "kind": "image",
+        "path": "papers/formal-paper/page-1.png",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "bytes": 50000,
+        "alt": "The first page of the paper"
+      }
+    ],
+    "variants": []
+  },
+  "expected": {
+    "meta": "9ff79f64b47d228d820cdfd095dcec78ab4c32f3b7bd5e354c32fc8dda4a7fe0",
+    "body": "a582c1d7d0e74d9d9d5f01ce646fe65c230b805700cf817fa3d23c86a65e77ee",
+    "variants": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "attachments": "69edb4a30c8a11953e61c1ba0e70b68872e0597696d576215002447582d75ae9",
+    "hash": "d101831b7028d7242a29e382471d5722cbc3816e6f7a6d2e992d06af5e334a75"
+  }
+}

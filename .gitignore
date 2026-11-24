@@ -51,3 +51,7 @@ bundle-report.json
 packages/blog-agent/.agentuity/
 workers/dns-guard/.wrangler/
 .gstack/
+
+# The verified projection that projection/step.mjs writes before the site
+# build (TIN-8654). It is build input, never committed.
+src/lib/projection-data/

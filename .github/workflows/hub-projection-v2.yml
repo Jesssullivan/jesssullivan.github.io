@@ -1,0 +1,55 @@
+name: Hub projection v2
+
+# The hub starts a blog build through workflow_dispatch with the three inputs
+# of the xoxd-projection/v2 contract (Dispatch section). This carrier holds no
+# credential and publishes nothing. It checks the inputs against their
+# formats, the base allowlist and the pinned key in projection/, then ends.
+# On success on main, "Publish Cloudflare Pages production v2" runs from the
+# default branch through workflow_run, reads the inputs from this run's name,
+# checks them again and verifies the manifest before it builds (TIN-8654).
+run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: sha256 of the signed manifest, 64 lowercase hex characters
+        required: true
+        type: string
+      seq:
+        description: seq of that manifest, a decimal integer of 1 or more
+        required: true
+        type: string
+      projection_base:
+        description: https origin of the hub, with no path
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: hub-projection-v2
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check the dispatch inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Check the inputs against the contract and projection/config.json
+        env:
+          PROJECTION_MANIFEST: ${{ inputs.manifest }}
+          PROJECTION_SEQ: ${{ inputs.seq }}
+          PROJECTION_BASE: ${{ inputs.projection_base }}
+        run: node projection/check-dispatch.mjs

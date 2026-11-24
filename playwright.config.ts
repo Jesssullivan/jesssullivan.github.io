@@ -8,6 +8,8 @@ const testTimeout = process.env.CI ? 30_000 : 60_000;
 
 export default defineConfig({
 	testDir: 'e2e',
+	// Runs only in the Bazel notes e2e target, which builds from the contract fixture (TIN-8654).
+	testIgnore: '**/notes-present.spec.ts',
 	timeout: testTimeout,
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,

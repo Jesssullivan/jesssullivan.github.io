@@ -44,8 +44,11 @@
 	let bannerNaturalHeight = 0;
 	let scrolledPastBanner = $state(false);
 
+	// Notes appear only when the build holds a verified note, so a build
+	// without a projection has the navigation it had before notes existed.
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
+		...(__BLOG_HAS_NOTES__ ? [{ href: '/notes', label: 'Notes' }] : []),
 		{ href: '/photography', label: 'Photography' },
 		{ href: '/music', label: 'Music' },
 		{ href: '/making', label: 'Making' },
@@ -74,6 +77,7 @@
 	function isActive(href: string): boolean {
 		const path = $page.url.pathname;
 		if (href === '/blog') return path.startsWith('/blog');
+		if (href === '/notes') return path.startsWith('/notes');
 		if (href === '/photography') return path.startsWith('/photography');
 		return path === href;
 	}

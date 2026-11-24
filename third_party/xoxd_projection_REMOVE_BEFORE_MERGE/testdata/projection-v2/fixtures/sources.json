@@ -1,0 +1,163 @@
+{
+	"attachments": {
+		"497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+	},
+	"targets": [
+		{
+			"target": "blog",
+			"seq": 1,
+			"previous": null,
+			"tombstones": [
+				{
+					"id": "old-hello",
+					"retired": "2026-11-01",
+					"reason": "Replaced by a note that says the same in fewer words.",
+					"replacedBy": "first-light",
+					"formerPaths": ["/blog/old-hello"]
+				}
+			],
+			"entries": [
+				{
+					"publicationId": "pub-blog-0001",
+					"slug": "first-light",
+					"path": "/notes/first-light",
+					"placement": {},
+					"document": {
+						"meta": {
+							"id": "first-light",
+							"kind": "note",
+							"date": "2026-11-20",
+							"title": "First light",
+							"summary": "The hub published its first note to the blog.",
+							"tags": ["hub", "notes"],
+							"byline": "owner",
+							"channels": ["site", "feed", "bluesky"]
+						},
+						"body": [{ "prose": "The hub signed this note and the blog built it from the manifest." }],
+						"attachments": [],
+						"variants": [{ "bluesky": "First light from the hub.", "altTexts": [] }]
+					}
+				},
+				{
+					"publicationId": "pub-blog-0002",
+					"slug": "drawing-orbits",
+					"path": "/blog/drawing-orbits",
+					"placement": { "category": "math", "featured": true },
+					"document": {
+						"meta": {
+							"id": "drawing-orbits",
+							"kind": "article",
+							"date": "2026-11-21",
+							"title": "Drawing orbits",
+							"summary": "Kepler's third law, one figure and one display equation.",
+							"tags": ["math", "orbits"],
+							"byline": "owner",
+							"channels": ["site", "feed", "linkedin"]
+						},
+						"body": [
+							{ "prose": "Kepler found that $T^2$ grows with $a^3$." },
+							{ "math": "T^2 = \\frac{4\\pi^2}{G M} a^3", "display": true },
+							{ "figure": "orbit", "alt": "A single dot", "caption": "One orbit, drawn small." }
+						],
+						"attachments": [
+							{
+								"id": "orbit",
+								"kind": "image",
+								"path": "orbit.png",
+								"sha256": "497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581",
+								"bytes": 70,
+								"alt": "A single dot"
+							}
+						],
+						"variants": [{ "linkedin": "A short note on Kepler's third law." }]
+					}
+				},
+				{
+					"publicationId": "pub-blog-0003",
+					"slug": "office-hours",
+					"path": "/announcements/office-hours",
+					"placement": { "tier": "pinned" },
+					"document": {
+						"meta": {
+							"id": "office-hours",
+							"kind": "announcement",
+							"date": "2026-11-18",
+							"updated": "2026-11-21",
+							"title": "Office hours",
+							"summary": "Open office hours move to Thursday afternoons.",
+							"tags": [],
+							"byline": "owner",
+							"channels": ["site", "feed"]
+						},
+						"body": [{ "prose": "Office hours now run on **Thursday** afternoons." }],
+						"attachments": [],
+						"variants": []
+					}
+				}
+			]
+		},
+		{
+			"target": "firm",
+			"seq": 1,
+			"previous": null,
+			"tombstones": [],
+			"entries": [
+				{
+					"publicationId": "pub-firm-0001",
+					"slug": "projection-contract",
+					"path": "/writing/projection-contract",
+					"placement": { "category": "engineering", "legacyUrl": "https://xoxd.ai/notes/projection" },
+					"document": {
+						"meta": {
+							"id": "projection-contract",
+							"kind": "article",
+							"date": "2026-11-22",
+							"title": "A signed projection contract",
+							"summary": "How a static site checks what the hub sends it.",
+							"tags": ["engineering"],
+							"byline": "firm",
+							"channels": ["site", "feed"]
+						},
+						"body": [
+							{ "prose": "Each blob is addressed by its hash $h = H(b)$." },
+							{ "math": "h = \\operatorname{sha256}(b)", "display": true },
+							{ "figure": "diagram", "alt": "A single dot standing for a blob" }
+						],
+						"attachments": [
+							{
+								"id": "diagram",
+								"kind": "image",
+								"path": "diagram.png",
+								"sha256": "497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581",
+								"bytes": 70,
+								"alt": "A single dot standing for a blob"
+							}
+						],
+						"variants": []
+					}
+				},
+				{
+					"publicationId": "pub-firm-0002",
+					"slug": "firm-open",
+					"path": "/announcements/firm-open",
+					"placement": {},
+					"document": {
+						"meta": {
+							"id": "firm-open",
+							"kind": "announcement",
+							"date": "2026-11-22",
+							"title": "The firm site is open",
+							"summary": "xoxd.ai now builds from signed manifests.",
+							"tags": ["firm"],
+							"byline": "firm",
+							"channels": ["site"]
+						},
+						"body": [{ "prose": "Every page on this site came from a signed manifest." }],
+						"attachments": [],
+						"variants": []
+					}
+				}
+			]
+		}
+	]
+}

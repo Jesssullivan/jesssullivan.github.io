@@ -38,6 +38,19 @@ bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)
 # prepare hook's PINNED_INTEGRITY in lockstep.
 bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.7")
 
+# TEMPORARY, DRAFT ONLY (TIN-8654). The xoxd-projection/v2 consumer, the
+# xoxd_projection module 1.0.0, is not in the registry yet (TIN-8643). Until it
+# is, //projection reads it from third_party/xoxd_projection_REMOVE_BEFORE_MERGE,
+# a copy of xoxd-ai/site.scaffold public/projection at main commit
+# 206f1aced09a54770a24c0ce8e01901fea8e1419 without its MODULE.bazel and
+# .bazelversion, built as a package of this module. A local_path_override was
+# tried first: under --ignore_dev_dependency, which the public CI graph uses,
+# Bazel still looked the module up in the registry and failed. Before merge: add
+#     bazel_dep(name = "xoxd_projection", version = "1.0.0")
+# here, set XOXD_PROJECTION in projection/module.bzl to "@xoxd_projection//",
+# and delete the directory. CI runs projection/check-no-temporary-override.mjs,
+# which fails while the copy is present on anything but a draft pull request.
+
 git_override(
     module_name = "spear_resumes",
     remote = "git@github.com:Jesssullivan/spear-resumes.git",

@@ -48,6 +48,7 @@ process.env.PLAYWRIGHT_E2E_PORT = process.env.PLAYWRIGHT_E2E_PORT ?? String(awai
 try {
 	copyInputsToBuildRoot();
 	linkNodeModules();
+	if (process.env.E2E_NOTES_FIXTURE === '1') seedNotesFixture();
 
 	if (artifactMode) {
 		if (!artifactRoot || !artifactRoot.startsWith('/') || !existsSync(join(artifactRoot, 'artifact.json'))) throw new Error('Exact production artifact required');
@@ -80,6 +81,20 @@ try {
 	if (process.env.GF_KEEP_BAZEL_BROWSER_TMP !== '1') {
 		rmSync(runtimeRoot, { recursive: true, force: true });
 	}
+}
+
+// The notes e2e target (TIN-8654) builds the site from the contract's valid
+// blog fixture. The projection step verifies it in full with the fixture key
+// and writes src/lib/projection-data in the build root, as a real build does.
+function seedNotesFixture() {
+	if (artifactMode) throw new Error('The notes fixture applies to a source build, never to a production artifact');
+	const result = spawnSync(
+		process.execPath,
+		[resolve(workspaceRoot, 'projection', 'seed-fixture.mjs'), join(buildRoot, 'src', 'lib', 'projection-data')],
+		{ cwd: workspaceRoot, env: process.env, stdio: 'inherit' },
+	);
+	if (result.error) throw result.error;
+	if (result.status !== 0) throw new Error(`projection fixture seed failed with exit code ${result.status}`);
 }
 
 function copyInputsToBuildRoot() {

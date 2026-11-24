@@ -13,8 +13,14 @@ if (!chromiumExecutable) {
 	);
 }
 
+// The notes e2e target builds the site from the contract fixture and runs
+// only the notes-present spec. Every other run builds without a projection,
+// so that spec is skipped there (TIN-8654).
+const notesFixture = process.env.E2E_NOTES_FIXTURE === '1';
+
 export default defineConfig({
 	testDir: 'e2e',
+	...(notesFixture ? { testMatch: '**/notes-present.spec.ts' } : { testIgnore: '**/notes-present.spec.ts' }),
 	timeout: 30_000,
 	fullyParallel: true,
 	forbidOnly: true,

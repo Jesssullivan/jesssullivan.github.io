@@ -3,6 +3,8 @@
 declare global {
 	const __BLOG_DEPLOY_TIER__: 'production' | 'shadow';
 	const __BLOG_SOURCE_SHA__: string;
+	/** True when the verified projection holds at least one note. Set in vite.config.ts. */
+	const __BLOG_HAS_NOTES__: boolean;
 
 	namespace App {
 		// interface Error {}

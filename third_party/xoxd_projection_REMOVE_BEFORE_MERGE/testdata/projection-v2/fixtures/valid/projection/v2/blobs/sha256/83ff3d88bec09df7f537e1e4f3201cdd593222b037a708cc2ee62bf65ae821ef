@@ -1,0 +1,3 @@
+<p>Each blob is addressed by its hash <math><mrow><mi>h</mi><mo>=</mo><mi>H</mi><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi>b</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math>.</p>
+<div class="math"><math display="block" class="tml-display"><mrow><mi>h</mi><mo>=</mo><mi>sha256</mi><mo>⁡</mo><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi>b</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div>
+<figure class="embed-figure"><img src="/writing/projection-contract/diagram.png" alt="A single dot standing for a blob" loading="lazy" decoding="async" /></figure>

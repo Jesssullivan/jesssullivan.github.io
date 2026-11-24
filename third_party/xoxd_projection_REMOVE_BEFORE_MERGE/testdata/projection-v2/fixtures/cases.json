@@ -1,0 +1,141 @@
+[
+	{
+		"name": "valid-blog",
+		"description": "The blog manifest with a note, an article and an announcement. It passes.",
+		"overlay": null,
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3",
+		"expect": []
+	},
+	{
+		"name": "valid-firm",
+		"description": "The firm manifest, rebuilt at the seq the site built last. It passes.",
+		"overlay": null,
+		"target": "firm",
+		"lastSeq": 1,
+		"manifest": "7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259",
+		"expect": []
+	},
+	{
+		"name": "lower-seq",
+		"description": "The site already built a higher seq.",
+		"overlay": null,
+		"target": "blog",
+		"lastSeq": 2,
+		"manifest": "fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3",
+		"expect": [
+			"seq_regressed"
+		]
+	},
+	{
+		"name": "bad-signature",
+		"description": "The .sig is a valid signature by the right key over other bytes.",
+		"overlay": "tampered/bad-signature",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3",
+		"expect": [
+			"signature_invalid"
+		]
+	},
+	{
+		"name": "manifest-bytes-changed",
+		"description": "The manifest at its address says seq 7. Its bytes no longer hash to the address.",
+		"overlay": "tampered/manifest-bytes-changed",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3",
+		"expect": [
+			"manifest_hash_mismatch"
+		]
+	},
+	{
+		"name": "blob-bytes-changed",
+		"description": "The article HTML at its address names Brahe. Its bytes no longer hash to the address.",
+		"overlay": "tampered/blob-bytes-changed",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3",
+		"expect": [
+			"blob_hash_mismatch"
+		]
+	},
+	{
+		"name": "wrong-target",
+		"description": "The signed firm manifest, served at a blog address and dispatched to the blog.",
+		"overlay": "tampered/wrong-target",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259",
+		"expect": [
+			"target_mismatch"
+		]
+	},
+	{
+		"name": "approval-mismatch",
+		"description": "A signed manifest whose note claims an approval hash the Document does not give.",
+		"overlay": "tampered/approval-mismatch",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "a481f6d105038486de59831dc627ba6cd12ff3b5a085c27797f7cc425361fb63",
+		"expect": [
+			"approval_mismatch"
+		]
+	},
+	{
+		"name": "html-script",
+		"description": "A signed manifest whose article HTML blob holds a script element. The blob hash is right.",
+		"overlay": "tampered/html-script",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "352f9f7db88adc341b0ff79e6eb15f9a2be79ccb1a6e9a982ab7627803a3a3a4",
+		"expect": [
+			"html_script"
+		]
+	},
+	{
+		"name": "dot-segment-path",
+		"description": "A signed manifest whose note path has a segment that starts with a dot.",
+		"overlay": "tampered/dot-segment-path",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "e6dc6e0e533706cfb00f950bdc5c20b5891c0bad90af8cb5bd78f216fdddf4a5",
+		"expect": [
+			"manifest_schema"
+		]
+	},
+	{
+		"name": "entry-path-is-attachment-path",
+		"description": "A signed manifest whose announcement sits at the path of the article attachment.",
+		"overlay": "tampered/entry-path-is-attachment-path",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "5d78dc427671d0d6dbc0e81dcd37568ffa8f989fad80a0ef55ea9139c511f9dc",
+		"expect": [
+			"path_conflict"
+		]
+	},
+	{
+		"name": "redirect-conflict",
+		"description": "A signed manifest whose note claims the former path of a tombstone as its legacyUrl.",
+		"overlay": "tampered/redirect-conflict",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "709150e61694f1615cc03b6131aa31a82ac53f9b0b916fa44fca7e1c5d3491fc",
+		"expect": [
+			"redirect_conflict"
+		]
+	},
+	{
+		"name": "html-attachment-path",
+		"description": "A signed manifest that serves the article image at a path ending in .html.",
+		"overlay": "tampered/html-attachment-path",
+		"target": "blog",
+		"lastSeq": 0,
+		"manifest": "be6ab6f0441f88e332588854a0e372ab13b0126cc490fb2b4096459839b45e02",
+		"expect": [
+			"media_type_invalid"
+		]
+	}
+]

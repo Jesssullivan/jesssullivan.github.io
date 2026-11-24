@@ -1,5 +1,7 @@
 import { getPosts } from '$lib/posts';
 import { getRawPostContent } from '$lib/feed-utils';
+import { mergeNotesIntoPosts, noteJsonFeedItem } from '$lib/notes';
+import { NOTES } from '$lib/server/notes';
 
 export const prerender = true;
 
@@ -16,17 +18,24 @@ export async function GET() {
 		description: 'Blog by Jess Sullivan — full stack engineer, musician, and birdwatcher.',
 		language: 'en-US',
 		authors: [{ name: 'Jess Sullivan', url: 'https://github.com/Jesssullivan' }],
-		items: posts
-			.filter((p) => p.published)
-			.map((post) => ({
-				id: `${site}/blog/${post.slug}`,
-				url: `${site}/blog/${post.slug}`,
-				title: post.title,
-				summary: post.description,
-				content_text: rawContent.get(post.slug) ?? post.description,
-				date_published: new Date(post.date).toISOString(),
-				tags: post.tags
-			}))
+		// Notes merge in by date. Posts keep their order and their fields, so
+		// with no notes this feed is the same as before notes existed.
+		items: mergeNotesIntoPosts(
+			posts.filter((p) => p.published),
+			NOTES,
+		).map(({ kind, item: post }) =>
+			kind === 'note'
+				? noteJsonFeedItem(post)
+				: {
+						id: `${site}/blog/${post.slug}`,
+						url: `${site}/blog/${post.slug}`,
+						title: post.title,
+						summary: post.description,
+						content_text: rawContent.get(post.slug) ?? post.description,
+						date_published: new Date(post.date).toISOString(),
+						tags: post.tags
+					}
+		)
 	};
 
 	return new Response(JSON.stringify(feed, null, 2), {

@@ -1,0 +1,40 @@
+{
+  "rule": "canonical-v0",
+  "name": "06-optional-present",
+  "description": "Vector 05 with series set. Setting an optional key changes the meta hash.",
+  "differsFrom": "05-optional-omitted",
+  "input": {
+    "meta": {
+      "id": "long-article",
+      "kind": "article",
+      "date": "2026-11-22",
+      "title": "A long article",
+      "summary": "An article with an optional key to test.",
+      "tags": [
+        "test",
+        "math"
+      ],
+      "byline": "firm",
+      "channels": [
+        "site",
+        "feed",
+        "linkedin"
+      ],
+      "series": "hub notes"
+    },
+    "body": [
+      {
+        "prose": "Body text."
+      }
+    ],
+    "attachments": [],
+    "variants": []
+  },
+  "expected": {
+    "meta": "fdcfbd8f06b85f15ff2e6f1b668bb48dfdec8fc25144799f2e224fdac957ca1b",
+    "body": "0309a1a7d1938645646ba11e3f322fe9a9de168643ed7263a5fe36b7316e2b8a",
+    "variants": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "attachments": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "hash": "66b296c8f99ace659770e32acc5780eaad4c28431f61a766d756a2313dc57d55"
+  }
+}

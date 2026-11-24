@@ -1,4 +1,8 @@
 [allowlist]
   paths = [
     '''src/posts/.*\.md''',
+    # TEMPORARY (TIN-8654): the vendored xoxd_projection test key pair. It
+    # signs the contract fixtures only and protects nothing. Delete this line
+    # with third_party/xoxd_projection_REMOVE_BEFORE_MERGE before merge.
+    '''third_party/xoxd_projection_REMOVE_BEFORE_MERGE/testdata/.*''',
   ]
