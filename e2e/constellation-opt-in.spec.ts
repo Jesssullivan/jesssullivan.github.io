@@ -30,6 +30,13 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
 	expect(requests).toEqual([]);
+	// The page keeps no room for a sky: the document is not marked and the columns have the layout's own padding.
+	const room = () => page.evaluate(() => ({
+		marked: document.documentElement.hasAttribute('data-sky'),
+		main: getComputedStyle(document.querySelector('#main-content') as Element).paddingTop,
+		aside: getComputedStyle(document.querySelector('#main-content + aside') as Element).paddingTop,
+	}));
+	expect(await room()).toEqual({ marked: false, main: '0px', aside: '0px' });
 	// A real same-origin anchor exercises SvelteKit client navigation without a reload.
 	await page.evaluate(() => {
 		const link = document.createElement('a'); link.id = 'flag-navigation';
@@ -52,8 +59,8 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	requests.length = 0;
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toHaveCount(0);
-	// Turning the flag off puts the profile column back where the layout has it.
-	expect(await page.locator('#main-content + aside').evaluate(element => (element as HTMLElement).style.paddingTop)).toBe('');
+	// Turning the flag off gives the room back: both columns are where the layout has them.
+	expect(await room()).toEqual({ marked: false, main: '0px', aside: '0px' });
 	expect(await page.evaluate(() => (window as unknown as { navigationSentinel: string }).navigationSentinel)).toBe('same-document');
 	expect(await page.evaluate(() => localStorage.getItem('tss:flags:constellation'))).toBeNull();
 	expect(requests).toEqual([]);

@@ -4,6 +4,7 @@
 	// stars as a static silhouette, a legend and five small controls laid over it.
 	// The interactive sky and its data arrive on their own.
 	// Type is Inter at 600 and 700 and the body face: the files the home page already loads.
+	// The section lies in the room the page keeps for it (see +page.svelte), so nothing moves when it loads.
 	import { onMount } from 'svelte';
 	import type { Component } from 'svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
@@ -22,13 +23,10 @@
 		archive = [],
 		focusSlug = null,
 		initialView = 'map',
-		arrives = false,
 	}: {
 		archive?: ReaderCollection['archive'];
 		focusSlug?: string | null;
 		initialView?: View;
-		/** True when the section is put into a page that has already painted, as the flag does today. */
-		arrives?: boolean;
 	} = $props();
 	// svelte-ignore state_referenced_locally
 	let view = $state<View>(initialView);
@@ -78,93 +76,40 @@
 		}
 	}
 
-	/** The site header. On a phone the sky takes the height that is left below it. */
-	let bar: HTMLElement | null = null;
-
-	/** The profile column beside the page's main column, when the layout has one. */
-	const sidebar = () => {
-		const next = section?.parentElement?.nextElementSibling;
-		return next instanceof HTMLElement && next.tagName === 'ASIDE' ? next : null;
-	};
-
 	/**
 	 * Full bleed: the sky is as wide as the viewport, whatever column the page puts it in.
-	 * The legend and the controls line up with the page's own column, and the profile
-	 * column starts below the sky, so nothing lies over the stars.
+	 * The legend and the controls line up with the page's own column.
 	 */
 	function fit() {
 		const host = section?.parentElement;
 		if (!section || !host || !panel) return;
 		const width = document.documentElement.clientWidth;
-		const left = host.getBoundingClientRect().left + host.clientLeft + (parseFloat(getComputedStyle(host).paddingLeft) || 0);
+		// The section is placed against the host's padding box.
+		const left = host.getBoundingClientRect().left + host.clientLeft;
 		const below = section.nextElementSibling;
 		const edge = below instanceof HTMLElement ? below.getBoundingClientRect().left + (parseFloat(getComputedStyle(below).paddingLeft) || 0) : 16;
 		section.style.setProperty('--bleed', `${width}px`);
 		section.style.setProperty('--shift', `${-left}px`);
 		section.style.setProperty('--edge', `${Math.max(12, Math.round(edge))}px`);
-		if (bar) section.style.setProperty('--site-header', `${bar.getBoundingClientRect().height}px`);
 		scale = starScale({ w: width, h: panel.offsetHeight });
-		const aside = sidebar();
-		if (aside) aside.style.paddingTop = `${section.offsetHeight}px`;
-	}
-
-	/**
-	 * The flag is read after the page has painted, so the section cannot be in the first paint.
-	 * It takes its full size at once and what follows it must move down. Nothing a reader is
-	 * looking at jumps: what follows starts where it was and slides down as the sky fades in.
-	 * With reduced motion nothing slides: what follows fades out where it was and the sky fades
-	 * in. A page that is scrolled past this point is held still by the browser and needs nothing.
-	 */
-	function unfold() {
-		if (!section) return;
-		const rise = section.offsetHeight;
-		const top = section.getBoundingClientRect().top;
-		if (rise <= 0 || top < 0 || top >= window.innerHeight) return;
-		const moved = [section.nextElementSibling, sidebar()?.firstElementChild].filter((element): element is HTMLElement => element instanceof HTMLElement);
-		const from = `translateY(${-rise}px)`;
-		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			const timing = { duration: 260, easing: 'linear' };
-			for (const element of moved) {
-				element.animate(
-					[
-						{ transform: from, opacity: 1 },
-						{ transform: from, opacity: 0, offset: 0.45 },
-						{ transform: 'translateY(0)', opacity: 0, offset: 0.46 },
-						{ transform: 'translateY(0)', opacity: 1 },
-					],
-					timing,
-				);
-			}
-			section.animate([{ opacity: 0 }, { opacity: 0, offset: 0.46 }, { opacity: 1 }], timing);
-			return;
-		}
-		const timing = { duration: 320, easing: 'cubic-bezier(.2, .7, .2, 1)' };
-		for (const element of moved) element.animate([{ transform: from }, { transform: 'translateY(0)' }], timing);
-		section.animate([{ opacity: 0 }, { opacity: 1 }], timing);
 	}
 
 	onMount(() => {
-		bar = document.querySelector<HTMLElement>('[data-scope="app-bar"][data-part="root"]');
 		fit();
-		if (arrives) unfold();
 		const session = readSession();
 		if (session.list && !focusSlug) view = 'list';
 		if (session.category) filter = silhouette.categories.findIndex((category) => category.id === session.category);
 		const host = section?.parentElement;
 		const resized = new ResizeObserver(fit);
 		if (host) resized.observe(host);
-		// The header can change height after the fonts load.
-		if (bar) resized.observe(bar);
 		window.addEventListener('resize', fit);
 		const near = new IntersectionObserver((entries) => entries.some((entry) => entry.isIntersecting) && void load(), { rootMargin: '600px 0px' });
 		if (panel) near.observe(panel);
 		const idle = window.requestIdleCallback ? window.requestIdleCallback(() => void load(), { timeout: 4000 }) : window.setTimeout(() => void load(), 2500);
-		const aside = sidebar();
 		return () => {
 			resized.disconnect();
 			window.removeEventListener('resize', fit);
 			near.disconnect();
-			if (aside) aside.style.paddingTop = '';
 			if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
 			else window.clearTimeout(idle);
 		};
@@ -298,10 +243,13 @@
 		--sky-paper: var(--color-root-bg-light);
 		--sky-card: var(--color-surface-100);
 		--sky-accent: var(--color-primary-700);
-		--star-la: 0.42;
-		--star-lb: 0.54;
+		/* Two lightness steps for the stars. On paper both are dark enough for 3 to 1 against the sky as it is drawn, tints and moving background included. */
+		--star-la: 0.38;
+		--star-lb: 0.48;
 		--star-c: 0.15;
-		--star-0: var(--color-primary-700);
+		--sky-tint-a: 8%;
+		--sky-tint-b: 7%;
+		--star-0: var(--color-primary-800);
 		--star-1: var(--star-0); --star-2: var(--star-0); --star-3: var(--star-0);
 		--star-4: var(--star-0); --star-5: var(--star-0); --star-6: var(--star-0); --star-7: var(--star-0);
 		/* Quieter text, still well above 4.5 to 1 on the paper and on a card in every theme. */
@@ -310,10 +258,15 @@
 		--sky-shade: color-mix(in srgb, var(--color-surface-950) 45%, transparent);
 		/* The band behind the stars: the page's own paper, laid a little thicker over its moving background. */
 		--sky-night: color-mix(in srgb, var(--sky-paper) 55%, transparent);
-		/* Edge to edge of the viewport. Without a script the section keeps to its column. */
+		/* Edge to edge of the viewport, at the top of the room the page keeps for it. */
+		position: absolute;
+		top: 0;
+		left: 0;
 		width: var(--bleed, 100%);
 		margin-left: var(--shift, 0px);
 	}
+	/* The heading is for a screen reader. In the body face it asks for no font file the page does not already load. */
+	.constellation h2 { font: inherit; }
 	:global([data-mode='dark']) .constellation {
 		--sky-dark: 1;
 		--sky-ink: var(--color-surface-50);
@@ -323,6 +276,8 @@
 		--star-la: 0.86;
 		--star-lb: 0.74;
 		--star-c: 0.13;
+		--sky-tint-a: 13%;
+		--sky-tint-b: 11%;
 		--star-0: var(--color-primary-300);
 		--sky-night: color-mix(in srgb, var(--sky-paper) 70%, transparent);
 	}
@@ -342,8 +297,17 @@
 		:global([data-mode='dark']) .constellation { --sky-night: oklch(from var(--sky-paper) calc(l * 0.6) c h / 0.8); }
 	}
 
-	/* The sky has its final size before anything loads: most of the viewport's height. Nothing inside it changes that size. */
-	.sky { position: relative; isolation: isolate; height: max(31rem, 86vh); height: max(31rem, 86dvh); color: var(--sky-ink); }
+	/* The sky has its final size before anything loads: the height of the room the page keeps for it, which +page.svelte sets. Nothing inside it changes that size. */
+	.sky { position: relative; isolation: isolate; height: var(--sky-h, max(31rem, 86vh)); color: var(--sky-ink); }
+	/* With motion allowed the section fades in once, in place. With reduced motion it is there at once. */
+	@media (prefers-reduced-motion: no-preference) {
+		.constellation { animation: sky-arrive .3s ease; }
+	}
+	@keyframes sky-arrive { from { opacity: 0; } }
+	/* The site's reduced-motion rule leaves every element a transition a hundredth of a millisecond long. In the section nothing transitions at all, so with reduced motion it has no animation of any length. */
+	@media (prefers-reduced-motion: reduce) {
+		.constellation, .constellation :global(*), .constellation :global(*::before), .constellation :global(*::after) { transition-property: none !important; }
+	}
 	/* No box and no edge: one band that fades out at the top and the foot, and two soft tints that end inside it. */
 	.sky::before {
 		content: '';
@@ -352,8 +316,8 @@
 		z-index: -1;
 		pointer-events: none;
 		background:
-			radial-gradient(closest-side ellipse at 30% 42%, color-mix(in oklab, var(--color-primary-500) 13%, transparent), transparent),
-			radial-gradient(closest-side ellipse at 72% 60%, color-mix(in oklab, var(--color-tertiary-500) 11%, transparent), transparent),
+			radial-gradient(closest-side ellipse at 30% 42%, color-mix(in oklab, var(--color-primary-500) var(--sky-tint-a), transparent), transparent),
+			radial-gradient(closest-side ellipse at 72% 60%, color-mix(in oklab, var(--color-tertiary-500) var(--sky-tint-b), transparent), transparent),
 			linear-gradient(to bottom, transparent, var(--sky-night) 26%, var(--sky-night) 74%, transparent);
 	}
 	/* The stars keep clear of the strip at the foot, where the legend and the controls lie. */
@@ -405,9 +369,8 @@
 	/* Selected text takes the sky's own ink and paper. */
 	.constellation :global(::selection) { color: var(--sky-paper); background: var(--sky-ink); }
 
-	/* A phone: the sky fills the screen below the site header. The controls sit at the top, the legend at the foot, and a picked post docks over the legend. */
+	/* A phone: the sky fills the screen below the site header (+page.svelte gives the height). The controls sit at the top, the legend at the foot, and a picked post docks over the legend. */
 	@media (max-width: 880px) {
-		.sky { height: max(28rem, calc(100vh - var(--site-header, 5.25rem))); height: max(28rem, calc(100dvh - var(--site-header, 5.25rem))); }
 		.field { inset: 4rem 1rem 5.75rem; }
 		.silhouette.wide { display: none; }
 		.silhouette.tall { display: block; }

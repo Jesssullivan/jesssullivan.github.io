@@ -33,7 +33,7 @@ describe('ReaderConstellation', () => {
 		const { html } = render(ReaderConstellation, { props: {} });
 		// The landmark keeps its name for a screen reader, and nothing is printed for it.
 		expect(html).toMatch(/<section[^>]*aria-labelledby="constellation-heading"/);
-		expect(html).toMatch(/<h2 id="constellation-heading" class="sr-only">The constellation<\/h2>/);
+		expect(html).toMatch(/<h2 id="constellation-heading" class="sr-only[^"]*">The constellation<\/h2>/);
 		// What a reader sees printed before the map loads: the eight category words. No heading, no sentence, no counts, no button words.
 		expect(visible(html)).toBe(silhouette.categories.map((category) => category.label).join(' '));
 		// The card grid, the year tree, the motion toggle and the Pulse block are gone (RM27, round five).

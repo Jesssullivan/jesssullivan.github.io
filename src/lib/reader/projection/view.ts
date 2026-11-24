@@ -178,6 +178,20 @@ export function placeCard(sx: number, sy: number, card: Size, box: readonly [num
 }
 
 /**
+ * The spot a placed card keeps while the map moves: the offset `at` it took from
+ * its star, held inside `box`. No other spot is tried, so this costs nothing on
+ * a frame. Null when the box would push the card onto its star: the caller then
+ * looks for a new spot.
+ */
+export function holdCard(sx: number, sy: number, card: Size, box: readonly [number, number, number, number], at: readonly [number, number]): { left: number; top: number } | null {
+	const [x0, y0, x1, y1] = box;
+	const left = clamp(sx + at[0], x0, Math.max(x0, x1 - card.w));
+	const top = clamp(sy + at[1], y0, Math.max(y0, y1 - card.h));
+	const away = Math.hypot(Math.max(left - sx, 0, sx - left - card.w), Math.max(top - sy, 0, sy - top - card.h));
+	return away < CARD_GAP - 2 ? null : { left, top };
+}
+
+/**
  * Where a tooltip goes: beside the star and clear of it. The spots are tried in
  * order: the side in `want` (1 right, -1 left), the other side, above, below.
  * A spot that does not fit in the panel is left out. `covers` counts what a

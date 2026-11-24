@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { CONSTELLATION_STORAGE_KEY, resolveConstellationFlag } from './constellation';
 
@@ -67,5 +68,45 @@ describe('public constellation visual preference', () => {
 		} finally {
 			fetchSpy.mockRestore();
 		}
+	});
+});
+
+// The home page keeps the constellation's room from its first paint (TIN-8628). The script in app.html
+// marks the document before SvelteKit loads, so it cannot import the resolver. It must give the same answer.
+describe('first-paint mark in app.html', () => {
+	const appHtml = readFileSync(new URL('../../app.html', import.meta.url), 'utf8');
+	const source = appHtml.match(/\/\/ The constellation flag \(TIN-8628\)[\s\S]*?(\(function \(\) \{[\s\S]*?\}\)\(\);)\s*<\/script>/)?.[1];
+
+	function marked(pathname: string, search: string, stored: string | null, blocked = false): boolean {
+		if (!source) throw new Error('first-paint script not found in app.html');
+		const attributes: string[] = [];
+		const run = new Function('location', 'localStorage', 'document', source);
+		run(
+			{ pathname, search },
+			{
+				getItem: (key: string) => {
+					if (blocked) throw new Error('blocked');
+					return key === CONSTELLATION_STORAGE_KEY ? stored : null;
+				},
+			},
+			{ documentElement: { setAttribute: (name: string) => attributes.push(name) } },
+		);
+		return attributes.includes('data-sky');
+	}
+
+	it('agrees with the resolver for every query and stored preference', () => {
+		for (const search of ['', '?flags=constellation', '?flags=none', '?flags=membership', '?flags=constellation&flags=none', '?flags=constellation&flags=constellation', '?focus=a-post', '?flags=']) {
+			for (const stored of [null, 'on', 'true']) {
+				const storage = memoryStorage();
+				if (stored) storage.setItem(CONSTELLATION_STORAGE_KEY, stored);
+				expect(marked('/', search, stored), `${search} with ${stored}`).toBe(resolveConstellationFlag({ search, getStorage: () => storage }));
+			}
+		}
+	});
+
+	it('marks nothing without the flag, on another page, or when storage is blocked', () => {
+		expect(marked('/', '', null)).toBe(false);
+		expect(marked('/blog', '?flags=constellation', 'on')).toBe(false);
+		expect(marked('/', '?flags=constellation', null, true)).toBe(false);
 	});
 });

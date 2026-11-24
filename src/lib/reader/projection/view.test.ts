@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CARD_BLOCKED, FIT, LABEL_FIELD, MAX_ZOOM, STAR_SCALE, clampView, isFit, labelScale, mixView, nearestIndex, placeCard, placeTip, restoreView, shortTitle, starRadius, starScale, storeView, viewForBox, viewToShow, zoomAt, type Keep } from './view';
+import { CARD_BLOCKED, FIT, LABEL_FIELD, MAX_ZOOM, STAR_SCALE, clampView, holdCard, isFit, labelScale, mixView, nearestIndex, placeCard, placeTip, restoreView, shortTitle, starRadius, starScale, storeView, viewForBox, viewToShow, zoomAt, type Keep } from './view';
 
 const size = { w: 1000, h: 500 };
 
@@ -170,6 +170,19 @@ describe('constellation view', () => {
 		expect(placeCard(300, 240, card, box, nudge, held.at)).toEqual(held);
 		// A clearly better spot still wins over the one it has.
 		expect(placeCard(300, 240, card, box, one.map(([x, y]): Keep => [x, y, CARD_BLOCKED]), held.at).at).not.toEqual(held.at);
+	});
+
+	it('holds a placed card at its offset while the map moves, and gives it up when that would cover the star', () => {
+		const card = { w: 240, h: 200 };
+		const box = [10, 28, 990, 440] as const;
+		const placed = placeCard(300, 240, card, box);
+		// The star moved with the map: the card keeps its offset and no other spot is tried.
+		expect(holdCard(360, 200, card, box, placed.at)).toEqual({ left: placed.left + 60, top: placed.top - 40 });
+		// Near an edge the card stays inside the part of the panel it may use.
+		expect(holdCard(700, 240, card, box, placed.at)).toEqual({ left: 716, top: 140 });
+		expect(holdCard(300, 60, card, box, placed.at)).toEqual({ left: 316, top: 28 });
+		// Pushed onto its star by the edge, it gives the spot up: the caller searches again.
+		expect(holdCard(900, 240, card, box, placed.at)).toBeNull();
 	});
 
 	it('puts the tooltip beside the star, never on it, and flips it at an edge', () => {
