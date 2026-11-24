@@ -3,6 +3,7 @@
 	// in its own form, with whitespace for rhythm and no card, rule or label.
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { afterNavigate } from '$app/navigation';
 	import StreamEntry from './StreamEntry.svelte';
 	import { filterItems, filterOf, markerFor, offeredFilters, type FilterId, type StreamFile } from '$lib/home/stream';
 
@@ -38,14 +39,18 @@
 	});
 
 	function hrefFor(id: FilterId): string {
-		const params = new URLSearchParams(mounted ? page.url.search : '');
-		if (id === 'all') params.delete('show');
-		else params.set('show', id);
-		const query = params.toString();
+		const kept = mounted ? [...new URLSearchParams(page.url.search)].filter(([name]) => name !== 'show') : [];
+		const query = new URLSearchParams(id === 'all' ? kept : [...kept, ['show', id]]).toString();
 		return query ? `?${query}` : '/';
 	}
 
 	// A filter chosen from the first screen brings the stream up, so the choice shows.
+	// It waits for the address to change, because the router settles the scroll position first.
+	let chosen = false;
+	afterNavigate(() => {
+		if (chosen) reveal();
+		chosen = false;
+	});
 	function reveal() {
 		const top = flowEl?.getBoundingClientRect().top ?? 0;
 		if (top < window.innerHeight * 0.6) return;
@@ -93,7 +98,7 @@
 <section class="stream" id="stream" aria-label="Stream" data-testid="home-stream" data-pagefind-body>
 	<nav class="filters" class:ready={mounted} aria-label="Show" bind:this={filtersEl}>
 		{#each offered as option (option.id)}
-			<a href={hrefFor(option.id)} aria-current={filter === option.id ? 'true' : undefined} data-sveltekit-noscroll data-sveltekit-keepfocus data-sveltekit-replacestate onclick={reveal}>{option.label}</a>
+			<a href={hrefFor(option.id)} aria-current={filter === option.id ? 'true' : undefined} data-sveltekit-noscroll data-sveltekit-keepfocus data-sveltekit-replacestate onclick={() => (chosen = true)}>{option.label}</a>
 		{/each}
 	</nav>
 
@@ -132,6 +137,9 @@
 
 	/* Plain words. The current one is marked by weight and one underline in the accent. */
 	.filters {
+		/* The row lies over the foot of the stage, so it is lifted above it to take a press. */
+		position: relative;
+		z-index: 1;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0 1.6rem;

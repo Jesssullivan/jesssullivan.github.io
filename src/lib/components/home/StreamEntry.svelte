@@ -17,7 +17,6 @@
 	const sound = $derived(item.media.find((media): media is StreamSound => media.type === 'soundcloud'));
 	const film = $derived(item.media.find((media): media is StreamFilm => media.type === 'youtube'));
 	const count = $derived(images.length + (item.more ?? 0));
-	const outside = $derived(/^https?:/.test(item.url));
 
 	// A player is a frame from another site. It loads only when the visitor asks for it.
 	let playing = $state(false);
@@ -29,7 +28,7 @@
 
 {#if item.kind === 'note'}
 	<div class="note">
-		<p class="text">{#if item.title}<strong>{item.title}.</strong>{' '}{/if}{item.summary}</p>
+		<p class="text">{#if item.title}<strong>{`${item.title}. `}</strong>{/if}{item.summary}</p>
 		{#if images[0]}<div class="own"><Picture image={images[0]} /></div>{/if}
 		<a class="when" href={item.url}><time datetime={item.date}>{dayOf(item.date)}</time></a>
 	</div>
@@ -231,7 +230,7 @@
 	.line {
 		display: flex;
 		align-items: center;
-		gap: 0.35rem;
+		gap: 0.1rem;
 	}
 	/* The play control is the bare sign, in the page's ink, with room for a thumb around it. */
 	.play {
@@ -241,7 +240,7 @@
 		place-items: center start;
 		width: 2.75rem;
 		height: 2.75rem;
-		color: var(--ink);
+		color: var(--accent);
 		cursor: pointer;
 		transition:
 			transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
@@ -249,20 +248,20 @@
 	}
 	.play:hover:not(:disabled) {
 		transform: scale(1.12);
-		color: var(--accent);
+		color: var(--ink);
 	}
 	.play:disabled {
 		cursor: default;
 		opacity: 0.35;
 	}
 	.play svg {
-		width: 1.9rem;
-		height: 1.9rem;
-		margin-left: -0.45rem;
+		width: 2.6rem;
+		height: 2.6rem;
+		margin-left: -0.85rem;
 		fill: currentColor;
 	}
 	.recording .summary {
-		margin-left: 3.1rem;
+		margin-left: 2.85rem;
 	}
 	.player {
 		display: block;

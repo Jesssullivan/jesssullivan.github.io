@@ -266,6 +266,8 @@ test.describe('flag on: the one mixed stream', () => {
 		await expect(filters.getByRole('link', { name: 'All', exact: true })).toHaveAttribute('aria-current', 'true');
 		await filters.getByRole('link', { name: 'Photos', exact: true }).click();
 		await expect(page).toHaveURL(/show=photos/);
+		// Chosen from the first screen, the filter brings the stream up, so the choice shows.
+		await expect.poll(() => filters.evaluate(node => Math.round(node.getBoundingClientRect().top))).toBeLessThan(120);
 		await expect(filters.getByRole('link', { name: 'Photos', exact: true })).toHaveAttribute('aria-current', 'true');
 		await expect(items(page).first()).toHaveAttribute('data-kind', 'photos');
 		expect(new Set(await items(page).evaluateAll(nodes => nodes.map(node => node.getAttribute('data-kind'))))).toEqual(new Set(['photos']));

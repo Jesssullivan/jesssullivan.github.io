@@ -567,6 +567,10 @@
 		.plate::after {
 			content: none;
 		}
+		/* A placed photograph runs down to the type, however few lines the type has. */
+		.plate.side {
+			height: 78%;
+		}
 		.plate.heron {
 			inset: 0 0 auto;
 			height: 58%;
