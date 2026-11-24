@@ -101,6 +101,7 @@ js_test(
         "testing.mjs",
         ":contract_fixtures",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json",
+        XOXD_PROJECTION + ":test/helpers.ts",
         ":step_srcs",
         XOXD_PROJECTION + ":pkg",
     ],
