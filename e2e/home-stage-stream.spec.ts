@@ -25,6 +25,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 
 const stage = (page: Page) => page.getByTestId('home-stage');
 const items = (page: Page) => page.getByTestId('stream-item');
+// The site footer. The mobile drawer and the Pulse section have footers of their own.
+const siteFooter = (page: Page) => page.locator('footer').filter({ hasText: 'Dedicated to the public domain' });
 
 function recordPaths(page: Page): string[] {
 	const paths: string[] = [];
@@ -44,7 +46,7 @@ test.describe('flag off: the home page is unchanged', () => {
 		await expect(page.locator('.hero-banner')).toBeVisible();
 		await expect(page.getByRole('heading', { name: 'Writing and notes.', level: 1 })).toBeVisible();
 		for (const name of ['Latest', 'Pulse', 'Archive']) await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
-		await expect(page.locator('footer')).toBeVisible();
+		await expect(siteFooter(page)).toBeVisible();
 		await expect(page.locator('aside')).toBeVisible();
 		await expect(page.getByTestId('blob-background')).toBeAttached();
 		await expect(page).toHaveTitle('Jess Sullivan — Latest, Pulse, Archive');
@@ -53,7 +55,7 @@ test.describe('flag off: the home page is unchanged', () => {
 		await page.waitForLoadState('networkidle');
 		const off = [...paths];
 		expect(off).not.toContain(STREAM_FILE);
-		expect(off.filter(path => /constellation|\/images\/video\//i.test(path))).toEqual([]);
+		expect(off.filter(path => /constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
 		expect(await page.evaluate(() => localStorage.getItem('tss:flags:home'))).toBeNull();
 
 		// With the flag on the page asks for more. None of those files were asked for above.
@@ -71,7 +73,7 @@ test.describe('flag off: the home page is unchanged', () => {
 	test('inner pages keep the banner and the footer', async ({ page }) => {
 		await page.goto('/about');
 		await expect(page.locator('.hero-banner')).toBeVisible();
-		await expect(page.locator('footer')).toBeVisible();
+		await expect(siteFooter(page)).toBeVisible();
 	});
 
 	test('without scripts ?flags=home is the ordinary home page', async ({ browser, baseURL }) => {
@@ -94,11 +96,13 @@ test.describe('flag on: the heading stage', () => {
 		await expect(stage(page)).toBeVisible();
 		await expect(page.locator('.hero-banner')).toHaveCount(0);
 		await expect(page.getByText('Writing and notes.')).toHaveCount(0);
-		await expect(page.locator('footer')).toHaveCount(0);
+		await expect(siteFooter(page)).toHaveCount(0);
 		await expect(page.locator('aside')).toHaveCount(0);
 		await expect(page.getByTestId('blob-background')).toHaveCount(0);
 		for (const id of ['#latest', '#pulse', '#archive']) await expect(page.locator(id)).toHaveCount(0);
-		await expect(page.getByText(/Generated 1970|policy|schema/i)).toHaveCount(0);
+		// The sky component still carries its Pulse disclosure in the page. The stage keeps it out of sight and out of the reading order.
+		await expect(page.getByText(/Generated 1970|policy|schema/i).filter({ visible: true })).toHaveCount(0);
+		await expect(page.getByRole('group', { name: /Reviewed public Pulse details/ })).toHaveCount(0);
 		// One h1, one main, and the stage is as wide as the window.
 		await expect(page.locator('h1')).toHaveCount(1);
 		await expect(page.locator('h1')).toHaveText('Jess Sullivan');
@@ -130,13 +134,13 @@ test.describe('flag on: the heading stage', () => {
 	});
 
 	test('loads only the first scene at first paint', async ({ page }) => {
-		const paths = recordPaths(page);
 		await page.goto('/?flags=home&stage-pace=1');
 		await expect(stage(page)).toBeVisible();
 		await expect(page.getByTestId('scene-heron').locator('img')).toHaveCount(0);
-		expect(paths.filter(path => path.startsWith('/images/header'))).toEqual([]);
-		// The next scene's photograph comes when the browser is idle, well before its turn.
+		await expect(page.getByTestId('scene-placed').locator('img')).toHaveCount(0);
+		// The next scene's photograph comes when the browser is idle, well before its turn. The ones after it wait.
 		await expect(page.getByTestId('scene-heron').locator('img')).toHaveCount(1, { timeout: 8000 });
+		await expect(page.getByTestId('scene-placed').locator('img')).toHaveCount(0);
 		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
 	});
 
@@ -158,6 +162,8 @@ test.describe('flag on: the heading stage', () => {
 	test('a wheel over the stage stops the play and still scrolls the page', async ({ page }) => {
 		await page.goto('/?flags=home&stage-pace=4');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		// The stream gives the page somewhere to scroll to.
+		await expect(items(page).first()).toBeAttached();
 		await page.mouse.move(400, 300);
 		await page.mouse.wheel(0, 500);
 		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
@@ -227,7 +233,7 @@ test.describe('flag on: the heading stage', () => {
 		await page.goto('/about');
 		// Inner pages get the slim top bar only.
 		await expect(page.locator('.hero-banner')).toHaveCount(0);
-		await expect(page.locator('footer')).toBeVisible();
+		await expect(siteFooter(page)).toBeVisible();
 		await page.goto('/?flags=none');
 		await expect(page.locator('#latest')).toBeVisible();
 		await expect(page.locator('.hero-banner')).toBeVisible();
@@ -310,12 +316,18 @@ test.describe('flag on: the one mixed stream', () => {
 		const poster = first.locator('.frame img');
 		await expect(poster).toHaveAttribute('src', /^\/images\/video\/[A-Za-z0-9_-]{11}\.jpg$/);
 		await expect.poll(() => poster.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth)).toBeGreaterThan(0);
-		const before = await first.locator('.frame').boundingBox();
+		// The frame's place within its item, whatever the page has scrolled to.
+		const place = () => first.evaluate(node => {
+			const item = node.getBoundingClientRect();
+			const frame = node.querySelector('.frame')!.getBoundingClientRect();
+			return [frame.left - item.left, frame.top - item.top, frame.width, frame.height].map(Math.round);
+		});
+		const before = await place();
 		await page.waitForLoadState('networkidle');
 		expect(outside).toEqual([]);
 		await first.getByTestId('video-play').click();
 		await expect(first.locator('iframe')).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}\?autoplay=1$/);
-		expect(await first.locator('.frame').boundingBox()).toEqual(before);
+		expect(await place()).toEqual(before);
 		await expect.poll(() => outside.filter(url => url.startsWith('https://www.youtube-nocookie.com/')).length).toBe(1);
 		expect(outside.every(url => url.startsWith('https://www.youtube-nocookie.com/'))).toBe(true);
 	});

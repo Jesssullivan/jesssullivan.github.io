@@ -88,7 +88,8 @@
 				onchange: (state) => {
 					index = state.index;
 					playing = state.playing;
-					arm(state.index);
+					// Once the stage has moved, the scene after the one on show is made ready a whole hold ahead.
+					if (state.index > 0 || stepped) arm(state.index);
 				},
 			},
 		);
@@ -116,15 +117,20 @@
 		const options = { capture: true, passive: true };
 		for (const name of inputs) scenesEl?.addEventListener(name, stop, options);
 
-		const idle = window.requestIdleCallback ? window.requestIdleCallback(() => arm(0), { timeout: 3000 }) : window.setTimeout(() => arm(0), 1500);
+		// The first paint pays for the first scene only. The second is made ready a little later, when the browser is idle.
+		let idle: number | undefined;
+		const later = window.setTimeout(() => {
+			if (window.requestIdleCallback) idle = window.requestIdleCallback(() => arm(0), { timeout: 3000 });
+			else arm(0);
+		}, 2000);
 		return () => {
 			clock?.destroy();
 			clock = null;
 			document.removeEventListener('visibilitychange', onVisibility);
 			seen.disconnect();
 			for (const name of inputs) scenesEl?.removeEventListener(name, stop, options);
-			if (window.cancelIdleCallback) window.cancelIdleCallback(idle as number);
-			else window.clearTimeout(idle as number);
+			window.clearTimeout(later);
+			if (idle !== undefined) window.cancelIdleCallback?.(idle);
 		};
 	});
 

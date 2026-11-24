@@ -252,6 +252,11 @@ pre.shiki span {
 [data-mode='dark'] .slim-bar {
 	background: var(--color-root-bg-dark);
 }
+/* TIN-8657: the stage's room, held while the home page's code is on its way. It lives here so the page itself carries no stylesheet. */
+.home-wait {
+	height: clamp(30rem, calc(100vh - 7.5rem), 64rem);
+	height: clamp(30rem, calc(100svh - 7.5rem), 64rem);
+}
 
 /* Blog prose styling for mdsvex content */
 .prose {

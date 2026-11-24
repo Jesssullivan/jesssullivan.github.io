@@ -110,10 +110,3 @@
 	</div>
 </div>
 {/if}
-
-<style>
-	.home-wait {
-		height: clamp(30rem, calc(100vh - 7.5rem), 64rem);
-		height: clamp(30rem, calc(100svh - 7.5rem), 64rem);
-	}
-</style>

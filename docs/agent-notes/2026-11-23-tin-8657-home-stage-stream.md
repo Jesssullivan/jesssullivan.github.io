@@ -82,6 +82,9 @@ check wherever the gallery and the images are on disk.
 - **A placed item** is any stream item the data file lists under `heading`.
   The hub marks one with `heading: true`. Until it does, the builder picks the
   newest writing that has its own image and the newest photographs.
+- Only the sky is in the first paint. The heron's photograph is asked for two
+  seconds later, when the browser is idle, and each later scene one hold before
+  its turn.
 - A reload plays again. A stop is remembered until the page is reloaded.
 - A stage scrolled away, with less than a quarter of it on screen, pauses and
   resumes by itself, like a hidden tab.
@@ -124,6 +127,33 @@ check wherever the gallery and the images are on disk.
 address shows it with no swap after load. Production builds leave it off, and
 the home page then swaps in after the flag is read.
 
+### The default page
+
+A production build reads the build constant bare in `src/routes/+page.ts`, so
+the bundler drops the import of the new page from the server graph. The
+prerendered default page then links the same one stylesheet it links on main.
+An earlier draft linked four more, which the constellation specs caught.
+
+## Measured
+
+Measured on November 23, 2026 on a local production build, through one
+headless Chromium.
+
+| What | Result |
+|---|---|
+| JavaScript on the home page, flag off | 24 files, 176,414 bytes gzip |
+| JavaScript on the home page, flag on | 27 files, 193,728 bytes gzip |
+| Added by the flag | 17,314 bytes gzip: the sky's interactive layer 9,410, the stage and stream 7,662, one shared piece 250 |
+| The stream's data file | 75,942 bytes, 21,335 gzip |
+| Lowest contrast of type over a scene, 5 themes, 2 modes, 1440 and 390 wide | 7.0 to 1, pine dark. Measured over the photograph, over pure white and over pure black |
+| Lowest contrast of quiet text on the ground | 5.63 to 1, pine light |
+| Lowest contrast of the accent on the ground | 3.82 to 1, catppuccin light. It marks controls and underlines, never running text |
+| Smallest type on a scene | 14.4 pixels |
+
+The comparison is with the flag off on this same build. Main was not built
+here, so the constellation branch's own difference from main is not in these
+figures.
+
 ## Decisions for her
 
 1. The newest three posts have covers made for them that their text never uses,
@@ -137,6 +167,10 @@ the home page then swaps in after the flag is read.
    no longer has. They are on every inner page.
 5. The side column's content is on the About page, which the top bar links.
    Nothing from it was folded into the stream.
+6. The stage's pause and next share a line with the stream's filters. With the
+   stream scrolled up they stay in view for a moment beside the filters.
+7. `?flags=home` on a production build paints the old page first and swaps
+   after the flag is read. Only a preview build paints the new page first.
 
 ## Left out
 
@@ -146,6 +180,13 @@ because the committed Pulse snapshot is empty and the page fetches nothing at
 run time.
 
 ## Requests for the constellation lane
+
+Two more follow the four below. The Pulse disclosure with its schema, policy
+and "Generated 1970" lines stays in the page under the stage, hidden by a
+style rule, until the component can leave it out. And
+`e2e/constellation-projection.spec.ts` measures `#latest` while the section's
+320 millisecond unfold still moves it: on a loaded host it failed here twice
+with a different first position each time (1324 and 716 against 1429).
 
 The stage reaches into the component with four style rules, in one block in
 `HomeStage.svelte`. They can go when the component offers the same as props:
