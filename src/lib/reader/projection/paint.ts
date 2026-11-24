@@ -189,7 +189,7 @@ export class Painter {
 			const [cx, cy, rx, ry] = cluster.glow;
 			const w = rx * field.w * 2;
 			const h = ry * field.h * 2;
-			ctx.globalAlpha = (palette.dark ? 0.36 : 0.2) * (lit(cluster.category) ? 1 : 0.25);
+			ctx.globalAlpha = (palette.dark ? 0.36 : 0.15) * (lit(cluster.category) ? 1 : 0.25);
 			ctx.drawImage(palette.sprites[cluster.category], field.x + cx * field.w - w / 2, field.y + cy * field.h - h / 2, w, h);
 		}
 		for (const star of sky.stars) {

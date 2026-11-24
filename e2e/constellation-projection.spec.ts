@@ -112,8 +112,8 @@ test('flag off: no section, no silhouette, no data request, even with a focus li
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
 	await expect(sky(page)).toHaveCount(0);
-	// The profile column is where the layout puts it: nothing has moved it.
-	expect(await page.locator('#main-content + aside').evaluate(aside => (aside as HTMLElement).style.paddingTop)).toBe('');
+	// No room is kept for a sky: the document is not marked and both columns are where the layout puts them.
+	expect(await page.evaluate(() => [document.documentElement.hasAttribute('data-sky'), getComputedStyle(document.querySelector('#main-content') as Element).paddingTop, getComputedStyle(document.querySelector('#main-content + aside') as Element).paddingTop])).toEqual([false, '0px', '0px']);
 	await page.waitForLoadState('networkidle');
 	expect(requests).toEqual([]);
 });
@@ -131,8 +131,6 @@ test('first paint is the silhouette, the sky keeps its size, and the data is one
 	await expect(sky(page)).toBeVisible();
 	const wide = page.getByTestId('constellation-silhouette-wide');
 	await expect(wide).toBeVisible();
-	// The arrival is over once what follows the section has no animation left.
-	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
 	const before = { sky: await sky(page).boundingBox(), latest: await page.locator('#latest').boundingBox() };
 	// Every star is already drawn, and nothing interactive exists yet.
 	const dots = await wide.locator('path').evaluateAll(paths => paths.reduce((sum, path) => sum + (path.getAttribute('d')?.match(/M/g)?.length ?? 0), 0));
@@ -170,13 +168,13 @@ for (const viewport of [{ width: 1920, height: 1080 }, { width: 1440, height: 90
 		expect(panel.width).toBe(client.width);
 		expect(await noHorizontalScroll(page)).toBe(true);
 		const header = await page.locator('[data-scope="app-bar"][data-part="root"]').evaluate(bar => bar.getBoundingClientRect().height);
-		if (viewport.width > 880) {
-			// A desktop: 80 to 90 percent of the viewport's height.
+		if (viewport.width >= 768) {
+			// A desktop or a tablet: 80 to 90 percent of the viewport's height.
 			expect(panel.height / client.height).toBeGreaterThanOrEqual(0.8);
 			expect(panel.height / client.height).toBeLessThanOrEqual(0.9);
 		} else {
 			// A phone: the visible height below the site header, or the least height the map needs.
-			// The header gains a one pixel edge once the page has scrolled past the banner. The sky keeps the height it had and does not follow it.
+			// The page's styles carry the header's height, so the room is right before any script runs. The header gains a one pixel edge once the page has scrolled past the banner.
 			expect(Math.abs(panel.height - Math.max(448, client.height - header))).toBeLessThanOrEqual(1.5);
 		}
 		// Nothing is printed above the sky: it starts where the section starts, and the heading is for a screen reader only.
@@ -208,41 +206,212 @@ for (const viewport of [{ width: 1920, height: 1080 }, { width: 1440, height: 90
 	});
 }
 
-// The flag is read after the page has painted, so the section cannot be in the first paint (TIN-8628).
-// It takes its full size at once. What follows slides down, or with reduced motion fades out and in:
-// nothing in the section, after it or beside it scores a layout shift, in either mode.
+// The flag is read in the browser, so the section is not in the page as built (TIN-8628). The page keeps
+// the sky's room from its first paint: a script in the document head marks the document, and the page's
+// own styles pad both columns by the sky's height. The section then loads into that room. Nothing moves,
+// in either motion mode, and with reduced motion nothing fades or slides either.
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 	for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
-		test(`the section arrives without a layout shift (motion: ${reducedMotion}, ${viewport.width} wide)`, async ({ page }) => {
+		test(`the page keeps the sky's room from its first paint and the section loads into it (motion: ${reducedMotion}, ${viewport.width} wide)`, async ({ page }) => {
 			await page.setViewportSize(viewport);
 			await page.emulateMedia({ reducedMotion });
 			await page.addInitScript(() => {
-				const state = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
-				state.shifts = [];
+				type Arrival = { shifts: Array<{ value: number; nodes: Node[] }>; built: { marked: boolean; section: boolean; room: number } | null; frames: Array<{ inside: number; outside: number; opacity: string }> };
+				const state = window as unknown as { arrival: Arrival };
+				state.arrival = { shifts: [], built: null, frames: [] };
 				new PerformanceObserver(list => {
 					for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean; sources?: Array<{ node: Node | null }> }>) {
-						if (!entry.hadRecentInput) state.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
+						if (!entry.hadRecentInput) state.arrival.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
 					}
 				}).observe({ type: 'layout-shift', buffered: true });
+				const room = () => {
+					const main = document.querySelector('#main-content');
+					const column = main?.querySelector(':scope > .container');
+					return main && column ? column.getBoundingClientRect().top - main.getBoundingClientRect().top : -1;
+				};
+				// The page as built, before any module has run.
+				document.addEventListener('DOMContentLoaded', () => {
+					state.arrival.built = { marked: document.documentElement.hasAttribute('data-sky'), section: document.querySelector('.constellation') !== null, room: room() };
+				});
+				// From the frame the section is put in: the animations inside the section, the animations on the page's two columns and on the blocks that fill them, and the section's opacity.
+				const seen = new MutationObserver(() => {
+					const section = document.querySelector('.constellation');
+					if (!section) return;
+					seen.disconnect();
+					const sample = () => {
+						const targets = document.getAnimations().map(animation => (animation.effect as KeyframeEffect | null)?.target).filter((target): target is Element => target instanceof Element);
+						const inside = targets.filter(target => section.contains(target)).length;
+						const outside = targets.filter(target => target.matches('#main-content, #main-content > .container, #main-content + aside, #main-content + aside > div')).length;
+						state.arrival.frames.push({ inside, outside, opacity: getComputedStyle(section).opacity });
+						if (state.arrival.frames.length < 30) requestAnimationFrame(sample);
+					};
+					sample();
+				});
+				seen.observe(document, { childList: true, subtree: true });
 			});
 			await page.goto('/?flags=constellation');
 			await expect(stars(page).first()).toBeAttached();
-			await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
 			await page.waitForLoadState('networkidle');
-			// Shifts of the section, of what follows it, of the profile column, or of anything inside them. The banner above has its own and is not judged here.
-			const moved = await page.evaluate(() => {
-				const section = document.querySelector('.constellation');
-				const ours = [section, section?.nextElementSibling, document.querySelector('#main-content + aside')];
-				const { shifts } = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
-				return shifts.filter(shift => shift.nodes.some(node => ours.some(element => element?.contains(node)))).map(shift => ({ value: shift.value, nodes: shift.nodes.map(node => node.nodeName) }));
+			await expect.poll(() => page.evaluate(() => (window as unknown as { arrival: { frames: unknown[] } }).arrival.frames.length)).toBe(30);
+			const arrival = await page.evaluate(() => {
+				const main = document.querySelector('#main-content') as Element;
+				const aside = document.querySelector('#main-content + aside');
+				const state = (window as unknown as { arrival: { shifts: Array<{ value: number; nodes: Node[] }>; built: { marked: boolean; section: boolean; room: number } | null; frames: Array<{ inside: number; outside: number; opacity: string }> } }).arrival;
+				return {
+					built: state.built,
+					frames: state.frames,
+					// Shifts of the main column, of the profile column, or of anything inside them. The banner above has its own and is not judged here.
+					moved: state.shifts.filter(shift => shift.nodes.some(node => main.contains(node) || aside?.contains(node))).map(shift => ({ value: shift.value, nodes: shift.nodes.map(node => node.nodeName) })),
+					room: (main.querySelector(':scope > .container') as Element).getBoundingClientRect().top - main.getBoundingClientRect().top,
+				};
 			});
-			expect(moved).toEqual([]);
-			// The section is in place above the reader, at its final size.
 			const panel = await boxOf(sky(page));
-			const latest = await boxOf(page.locator('#latest'));
-			expect(latest.y).toBeGreaterThan(panel.y + panel.height);
+			// Before any module ran, the room was already there, at the height the sky then takes.
+			expect(arrival.built?.marked).toBe(true);
+			expect(arrival.built?.section).toBe(false);
+			expect(arrival.built?.room).toBeCloseTo(panel.height, 1);
+			expect(arrival.room).toBeCloseTo(panel.height, 1);
+			expect(arrival.moved).toEqual([]);
+			// The sky fills the room: it starts where the main column starts and the page's own column follows it.
+			const main = await boxOf(page.locator('#main-content'));
+			expect(panel.y).toBeCloseTo(main.y, 1);
+			expect((await boxOf(page.locator('#latest'))).y).toBeGreaterThan(panel.y + panel.height);
+			// Nothing slides: no animation ever runs on the page's two columns or on the blocks that fill them.
+			expect(arrival.frames.filter(frame => frame.outside > 0)).toEqual([]);
+			// With reduced motion there is no entrance at all: the section is there at once, at full opacity, and nothing in it animates.
+			if (reducedMotion === 'reduce') expect(arrival.frames.filter(frame => frame.inside > 0 || frame.opacity !== '1')).toEqual([]);
+			const transforms = await page.locator('#main-content, #main-content > .container, #main-content + aside, #main-content + aside > div').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).transform));
+			expect(transforms.every(value => value === 'none')).toBe(true);
 		});
 	}
+}
+
+// The section is set in Inter at 600 and 700 and in the body face, which the default page already loads.
+// A heading for a screen reader once asked for Inter at 400, a file the default page never fetches.
+test('the section asks for no font file the default page does not already load', async ({ page }) => {
+	const fonts = { off: new Set<string>(), on: new Set<string>() };
+	let flag: 'off' | 'on' = 'off';
+	page.on('request', request => { if (request.resourceType() === 'font') fonts[flag].add(new URL(request.url()).pathname); });
+	// The site's once-a-day theme hint has type of its own and shows on its own clock: it is not part of either page here.
+	await page.addInitScript(() => {
+		const now = new Date();
+		localStorage.setItem('theme-switcher-nudge-last-shown', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
+	});
+	await page.goto('/');
+	await expect(page.locator('#latest')).toBeVisible();
+	await page.waitForLoadState('networkidle');
+	await page.evaluate(() => document.fonts.ready.then(() => null));
+	expect(fonts.off.size).toBeGreaterThan(0);
+	flag = 'on';
+	await openMap(page);
+	// Everything the section can print: a tooltip, the card, the help and the list.
+	const { x, y } = await loneStar(page);
+	await page.mouse.move(x, y);
+	await expect(tip(page)).toBeVisible();
+	await page.mouse.click(x, y);
+	await expect(card(page)).toBeVisible();
+	await control(page, 'How it works').click();
+	await expect(page.locator('#constellation-help')).toBeVisible();
+	await control(page, 'Show as a list').click();
+	await expect(page.getByTestId('constellation-list')).toBeVisible();
+	await page.waitForLoadState('networkidle');
+	await page.evaluate(() => document.fonts.ready.then(() => null));
+	expect([...fonts.on].filter(font => !fonts.off.has(font))).toEqual([]);
+});
+
+/**
+ * The lowest contrast any star has against the sky as it is drawn behind it: the page, its moving
+ * background, and the sky's band and tints. The map's two canvases are hidden, the page is photographed,
+ * and the pixel behind each star is read from the picture. The colour of a star is the colour the canvas
+ * is given. A star's own halo and its constellation's glow are tints of that same colour and are left out.
+ */
+async function lowestStarContrast(page: Page): Promise<{ lowest: number; stars: number }> {
+	// The silhouette draws every star once more under the canvas until the canvas has faded in over it: wait until it is gone.
+	await expect(page.locator('.constellation')).toHaveClass(/live/);
+	await expect(page.locator('.constellation .silhouette:visible')).toHaveCount(0);
+	await page.evaluate(() => {
+		const box = (document.querySelector('.constellation') as Element).getBoundingClientRect();
+		window.scrollTo({ top: box.top + window.scrollY - (window.innerHeight - box.height), behavior: 'instant' });
+	});
+	const read = await page.evaluate(() => {
+		const section = document.querySelector('.constellation') as HTMLElement;
+		const probe = document.createElement('span');
+		probe.style.cssText = 'position:absolute;width:0;height:0;visibility:hidden;transition:none!important';
+		section.append(probe);
+		const colours: string[] = [];
+		for (let index = 0; index < 8; index += 1) {
+			probe.style.color = `color-mix(in srgb, var(--star-${index}) 100%, transparent)`;
+			colours.push(getComputedStyle(probe).color);
+		}
+		probe.remove();
+		const labels = [...section.querySelectorAll('.legend button')].map(button => button.textContent?.trim() ?? '');
+		const points = [...section.querySelectorAll('a[data-slug]')].map(link => {
+			const box = link.getBoundingClientRect();
+			return { x: box.x + box.width / 2, y: box.y + box.height / 2, category: labels.findIndex(label => link.getAttribute('aria-label')?.endsWith(`, ${label}`)) };
+		});
+		for (const canvas of section.querySelectorAll<HTMLElement>('.stage canvas')) canvas.style.visibility = 'hidden';
+		return { colours, points };
+	});
+	const picture = (await page.screenshot()).toString('base64');
+	return page.evaluate(async ({ picture, read }) => {
+		const image = new Image();
+		image.src = `data:image/png;base64,${picture}`;
+		await image.decode();
+		const canvas = document.createElement('canvas');
+		canvas.width = image.naturalWidth;
+		canvas.height = image.naturalHeight;
+		const context = canvas.getContext('2d');
+		if (!context) throw new Error('no canvas');
+		context.drawImage(image, 0, 0);
+		const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+		const ratio = canvas.width / window.innerWidth;
+		const channel = (value: number) => (value / 255 <= 0.04045 ? value / 255 / 12.92 : ((value / 255 + 0.055) / 1.055) ** 2.4);
+		const luminance = (r: number, g: number, b: number) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+		const colours = read.colours.map(value => {
+			const parts = (value.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? []).map(Number);
+			const scale = value.startsWith('color(') ? 255 : 1;
+			return luminance(parts[0] * scale, parts[1] * scale, parts[2] * scale);
+		});
+		let lowest = Infinity;
+		let stars = 0;
+		for (const point of read.points) {
+			if (point.category < 0 || point.y < 0 || point.y >= window.innerHeight) continue;
+			const at = (Math.round(point.y * ratio) * canvas.width + Math.round(point.x * ratio)) * 4;
+			const behind = luminance(pixels[at], pixels[at + 1], pixels[at + 2]);
+			const star = colours[point.category];
+			lowest = Math.min(lowest, (Math.max(behind, star) + 0.05) / (Math.min(behind, star) + 0.05));
+			stars += 1;
+		}
+		for (const drawn of document.querySelectorAll<HTMLElement>('.constellation .stage canvas')) drawn.style.visibility = '';
+		return { lowest, stars };
+	}, { picture, read });
+}
+
+// A star is a graphic: it needs 3 to 1 against what is behind it, as drawn. The figure in the design
+// note was once taken against the theme's paper colour, and the drawn sky is darker than that in a light theme.
+for (const theme of ['pine', 'catppuccin', 'rose', 'pride', 'trans']) {
+	test(`every star has at least 3 to 1 against the sky as drawn (${theme}, light and dark, desktop and phone)`, async ({ page }) => {
+		test.setTimeout(120_000);
+		await page.goto('/');
+		for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+			await page.setViewportSize(viewport);
+			for (const mode of ['light', 'dark']) {
+				await page.evaluate(([theme, mode]) => {
+					localStorage.setItem('skeleton-theme', theme);
+					localStorage.setItem('color-mode', mode);
+					// The site's once-a-day theme hint is not part of the sky.
+					const now = new Date();
+					localStorage.setItem('theme-switcher-nudge-last-shown', `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`);
+				}, [theme, mode]);
+				await openMap(page);
+				await expect(page.locator('html')).toHaveAttribute('data-mode', mode);
+				await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+				const { lowest, stars: counted } = await lowestStarContrast(page);
+				expect(counted, `${theme} ${mode} ${viewport.width}`).toBeGreaterThan(100);
+				expect(lowest, `${theme} ${mode} ${viewport.width}`).toBeGreaterThanOrEqual(3);
+			}
+		}
+	});
 }
 
 test('when the data does not load the silhouette stays and the reader is told where to read', async ({ page, context }) => {
@@ -610,10 +779,11 @@ test.describe('phone, touch', () => {
 		await control(page, 'Zoom in').tap();
 		await control(page, 'Zoom in').tap();
 		await expect(control(page, 'Reset')).toBeEnabled();
-		// The link layer follows once the map is still. A tap on a control may also have scrolled the page, so the sky is measured again.
+		// The link layer follows once the map is still: a zoom flies for 220 milliseconds and the links move 150 milliseconds after it ends,
+		// so they must hold still for longer than both. A tap on a control may also have scrolled the page, so the sky is measured again.
 		await expect.poll(async () => {
 			const first = (await allCentres(page))[0];
-			await page.waitForTimeout(250);
+			await page.waitForTimeout(450);
 			const second = (await allCentres(page))[0];
 			return first.x === second.x && first.y === second.y;
 		}).toBe(true);
@@ -622,6 +792,7 @@ test.describe('phone, touch', () => {
 		if (zoomed.length === 0) throw new Error('no star near the foot once zoomed in');
 		const low = zoomed.sort((a, b) => b.y - a.y)[0];
 		await page.touchscreen.tap(low.x, low.y);
+		await expect(openControl(page)).toBeVisible();
 		const chosen = await map(page).locator('a[aria-current="true"]').getAttribute('data-slug');
 		if (!chosen) throw new Error('no star picked once zoomed in');
 		const bar = await boxOf(card(page));
@@ -693,8 +864,6 @@ test.describe('phone, touch gestures', () => {
 test('reduced motion: the sky is complete at once and nothing animates', async ({ page }) => {
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await openMap(page);
-	// The arrival, which fades and never slides, is over.
-	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
 	const { x, y } = await loneStar(page);
 	await page.mouse.move(x, y);
 	await expect(tip(page)).toBeVisible();

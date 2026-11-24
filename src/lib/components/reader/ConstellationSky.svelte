@@ -7,7 +7,7 @@
 	import { buildSky, nearOf, neighborInDirection, readingOrder, type Direction } from '$lib/reader/projection/scene';
 	import { Painter, glowTransform, readPalette, type Rect } from '$lib/reader/projection/paint';
 	import { readSession, writeSession } from '$lib/reader/projection/session';
-	import { CARD_BLOCKED, FIT, clampView, easeOut, isFit, mixView, nearestIndex, placeCard, placeTip, restoreView, starRadius, storeView, viewForBox, viewToShow, zoomAt, type Keep, type View } from '$lib/reader/projection/view';
+	import { CARD_BLOCKED, FIT, clampView, easeOut, isFit, mixView, nearestIndex, holdCard, placeCard, placeTip, restoreView, starRadius, storeView, viewForBox, viewToShow, zoomAt, type Keep, type View } from '$lib/reader/projection/view';
 
 	let {
 		data,
@@ -96,6 +96,8 @@
 	let inView = false;
 	let cardSize = { w: 0, h: 0 };
 	let cardAt: [number, number] | null = null;
+	/** The view and the sizes the card's spot was searched for. While they differ the card rides with its star. */
+	let cardFor = '';
 	let tipSize = { w: 0, h: 0 };
 	let preloadTimer = 0;
 	let settleTimer = 0;
@@ -175,11 +177,16 @@
 		}
 	}
 
+	const cardBox = (): [number, number, number, number] => [10, head(), size.w - 10, size.h - foot()];
+	const cardState = () => `${selected} ${current.k} ${current.x} ${current.y} ${size.w} ${size.h} ${cardSize.w} ${cardSize.h} ${head()} ${foot()}`;
+
 	/**
 	 * The pinned card: docked at the foot of a phone, and in free space near its star everywhere else.
-	 * Returns the point of the card nearest the star when the card had to move away from it.
+	 * The search for free space runs when a star is pinned and each time the map comes to rest. On a
+	 * frame in between, the card keeps its offset from the star. Returns the point of the card nearest
+	 * the star when the card had to move away from it.
 	 */
-	function positionCard(): [number, number] | null {
+	function positionCard(search = false): [number, number] | null {
 		if (!cardEl || selected < 0 || !painter || !sky) return null;
 		if (tall) {
 			cardEl.style.transform = '';
@@ -188,21 +195,26 @@
 		const { xs, ys } = painter;
 		const x = xs[selected];
 		const y = ys[selected];
-		const keep: Keep[] = [];
-		// The three nearest posts are in the card and joined to the star: they and their lines stay in view. The other joined posts matter less.
-		(sky.near[selected] ?? []).forEach((index, place) => {
-			const first = place < 3;
-			keep.push([xs[index], ys[index], first ? CARD_BLOCKED : 12], [(x + xs[index]) / 2, (y + ys[index]) / 2, first ? 30 : 6], [x + (xs[index] - x) * 0.8, y + (ys[index] - y) * 0.8, first ? 30 : 6]);
-		});
-		// Every other star costs something, and a star close by costs more.
-		for (let i = 0; i < xs.length; i += 1) {
-			if (i !== selected) keep.push([xs[i], ys[i], Math.hypot(xs[i] - x, ys[i] - y) < 90 ? 7 : 4]);
+		let spot = cardAt && !search ? holdCard(x, y, cardSize, cardBox(), cardAt) : null;
+		if (!spot) {
+			const keep: Keep[] = [];
+			// The three nearest posts are in the card and joined to the star: they and their lines stay in view. The other joined posts matter less.
+			(sky.near[selected] ?? []).forEach((index, place) => {
+				const first = place < 3;
+				keep.push([xs[index], ys[index], first ? CARD_BLOCKED : 12], [(x + xs[index]) / 2, (y + ys[index]) / 2, first ? 30 : 6], [x + (xs[index] - x) * 0.8, y + (ys[index] - y) * 0.8, first ? 30 : 6]);
+			});
+			// Every other star costs something, and a star close by costs more.
+			for (let i = 0; i < xs.length; i += 1) {
+				if (i !== selected) keep.push([xs[i], ys[i], Math.hypot(xs[i] - x, ys[i] - y) < 90 ? 7 : 4]);
+			}
+			for (const place of namePlaces) {
+				if (place) for (const at of [-0.7, 0, 0.7]) keep.push([place[0] + place[2] * at, place[1], 4]);
+			}
+			const found = placeCard(x, y, cardSize, cardBox(), keep, cardAt);
+			cardAt = found.at;
+			cardFor = cardState();
+			spot = found;
 		}
-		for (const place of namePlaces) {
-			if (place) for (const at of [-0.7, 0, 0.7]) keep.push([place[0] + place[2] * at, place[1], 4]);
-		}
-		const spot = placeCard(x, y, cardSize, [10, head(), size.w - 10, size.h - foot()], keep, cardAt);
-		cardAt = spot.at;
 		cardEl.style.transform = `translate(${Math.round(spot.left)}px,${Math.round(spot.top)}px)`;
 		const px = Math.min(spot.left + cardSize.w, Math.max(spot.left, x));
 		const py = Math.min(spot.top + cardSize.h, Math.max(spot.top, y));
@@ -235,8 +247,14 @@
 		tipEl.style.transform = `translate(${Math.round(spot.left)}px,${Math.round(spot.top)}px)`;
 	}
 
-	/** Once motion stops: move the link layer under the stars and remember the view. */
+	/** Once motion stops: move the link layer under the stars, remember the view and let the card look for free space where the map now is. */
 	function settle() {
+		if (selected >= 0 && !tall && cardAt && cardFor !== cardState()) {
+			painter?.project({ field: fieldRect, view: current });
+			positionCard(true);
+			// One more frame draws the line from the card to its star.
+			schedule();
+		}
 		if (starsEl) {
 			starsEl.style.transform = `translate(${current.x}px,${current.y}px) scale(${current.k})`;
 			starsEl.style.setProperty('--k', String(current.k));
