@@ -69,9 +69,11 @@ check wherever the gallery and the images are on disk.
 
 ### The stage
 
-- **The sky** is `ReaderConstellation`, used through its props. The stage gives
-  it the room and hides three things that repeat what the stage already is: the
-  section heading, the line of copy under it, and the Pulse disclosure.
+- **The sky** is `ReaderConstellation`, used through its props, as the
+  constellation branch ships it at `0ebd70f`: full bleed, its legend and
+  controls laid over it, nothing printed above it. The stage gives it the room
+  with two style rules: it fills the stage, and its legend and controls line up
+  with the page's edge. A plain wheel and a one-finger swipe scroll the page.
 - **The heron** uses `static/images/header.png`, which is 672 by 219 pixels.
   The repository holds no larger original: every other copy on this host is the
   same file. So the photograph is drawn as wide as the window, the size the
@@ -181,18 +183,12 @@ run time.
 
 ## Requests for the constellation lane
 
-Two more follow the four below. The Pulse disclosure with its schema, policy
-and "Generated 1970" lines stays in the page under the stage, hidden by a
-style rule, until the component can leave it out. And
-`e2e/constellation-projection.spec.ts` measures `#latest` while the section's
-320 millisecond unfold still moves it: on a loaded host it failed here twice
-with a different first position each time (1324 and 716 against 1429).
-
-The stage reaches into the component with four style rules, in one block in
+The stage reaches into the component with two style rules, in one block in
 `HomeStage.svelte`. They can go when the component offers the same as props:
 
-1. A way to fill its container, with no fixed panel height.
-2. A way to hide its heading, its line of copy and the Pulse disclosure.
-3. Notices that do not name "Latest and Archive below", which the new home page
-   does not have.
+1. A way to fill its container, with no fixed height on the sky.
+2. A way to set the inset of its legend and controls. The stage overrides
+   `--edge`, which the component sets inline.
+3. A notice that does not name "Latest and Archive below", which the new home
+   page does not have.
 4. A prop that tells it when it is off show, so it can rest.
