@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Post } from '$lib/posts';
 import type { ConstellationData } from './layout';
-import { buildSky, isConstellationData, nearOf, neighborInDirection, readingOrder } from './scene';
+import { buildSky, isConstellationData, nearOf, neighborInDirection, readingOrder, summaryOf } from './scene';
 
 const post = (slug: string, date = '2026-01-01'): Post => ({ slug, title: slug.toUpperCase(), date, description: `About ${slug}`, tags: [], published: true });
 
@@ -13,8 +13,8 @@ const data: ConstellationData = {
 	categories: ['ecology', 'hardware'],
 	labels: ['Ecology', 'Hardware'],
 	groups: [
-		{ name: 'Birding', wide: [300, 50], tall: [50, 300], glow: [300, 100, 200, 60], category: 0 },
-		{ name: 'Making', wide: [700, 800], tall: [800, 700], glow: [700, 750, 150, 150], category: 1 },
+		{ name: 'Ecology', wide: [300, 50], tall: [50, 300], glow: [300, 100, 200, 60], category: 0 },
+		{ name: '', wide: [0, 0], tall: [0, 0], glow: [700, 750, 150, 150], category: 1 },
 	],
 	stars: [
 		['a', 100, 100, 0, 0, 0, 0],
@@ -48,15 +48,30 @@ describe('constellation sky', () => {
 		]);
 		expect(nearOf(sky, 1).map((star) => star.slug)).toEqual(['c', 'a', 'd']);
 		expect(nearOf(sky, 2).map((star) => star.slug)).toEqual(['b']);
+		// A constellation carries its category's name. A smaller one of the same kind has a figure and no name.
 		expect(sky.groups.map((group) => [group.name, group.members])).toEqual([
-			['Birding', [0, 1, 3]],
-			['Making', [2]],
+			['Ecology', [0, 1, 3]],
+			['', [2]],
 		]);
 		expect(sky.categories).toEqual([
 			{ id: 'ecology', label: 'Ecology', count: 3 },
 			{ id: 'hardware', label: 'Hardware', count: 1 },
 		]);
 		expect(sky.bySlug.get('d')).toBe(3);
+	});
+
+	it('never shows a summary that is only a web address', () => {
+		expect(summaryOf('https://gis.stackexchange.com/questions/75092/maximum-length https://en.wikipedia.org/wiki/GeoJSON...')).toBe('');
+		expect(summaryOf('http://example.org/a-very-long-path-that-was-cut-o...')).toBe('');
+		expect(summaryOf('GitHub Link: https://github.com/Jesssullivan/EBPP')).toBe('');
+		// An address beside real words is cut out and the words stay.
+		expect(summaryOf('http://jessphoto.example.net/ Check out my new photography site!')).toBe('Check out my new photography site!');
+		expect(summaryOf('View the tools here: http://kml.jessdev.org Three of my KML tools are now stable.')).toBe('View the tools here: Three of my KML tools are now stable.');
+		// A summary with no address is left as it is, however short.
+		expect(summaryOf('  Bird   photos. ')).toBe('Bird photos.');
+		expect(summaryOf(undefined)).toBe('');
+		const sky = buildSky(data, [{ ...post('a'), description: 'https://example.org/only' }, post('b')])!;
+		expect(sky.stars.map((star) => star.description)).toEqual(['', 'About b']);
 	});
 
 	it('transposes the frame for a tall panel', () => {

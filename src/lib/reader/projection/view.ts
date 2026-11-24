@@ -23,10 +23,13 @@ export const STAR_RADIUS = [2.8, 3.8, 5.2, 7] as const;
 export const STAR_GROWTH = 0.35;
 /**
  * The generator places names and titles on a small field of each kind, in pixels:
- * the map area of a narrow desktop window and of a small phone. A larger field
- * only moves stars apart, so what is clear here is clear on every larger one.
+ * the full-bleed map area of the narrowest desktop window and of a small phone.
+ * A larger field only moves stars apart, so what is clear here is clear on every
+ * larger one.
  */
-export const LABEL_FIELD = { wide: [640, 380], tall: [300, 340] } as const;
+export const LABEL_FIELD = { wide: [760, 360], tall: [290, 350] } as const;
+/** Stars are drawn larger on a large field and smaller on a phone, within these limits. */
+export const STAR_SCALE = [0.85, 1.3] as const;
 /** Titles are drawn in this font, this far from the edge of their star. */
 export const TITLE_FONT = "600 12px 'Inter', system-ui, sans-serif";
 export const TITLE_GAP = 7;
@@ -47,17 +50,25 @@ const clamp = (value: number, low: number, high: number) => Math.min(high, Math.
 
 export const isFit = (view: View) => view.k < 1.001;
 
-/** Keep the zoom in range and the panel covered: the sky never slides off its frame. */
-export function clampView(view: View, size: Size): View {
+/** The star size multiplier for a panel: 1 at about 900 pixels across the middle of its area. */
+export function starScale(size: Size): number {
+	return clamp(Math.round((Math.sqrt(size.w * size.h) / 900) * 100) / 100, STAR_SCALE[0], STAR_SCALE[1]);
+}
+
+/**
+ * Keep the zoom in range and the panel covered: the sky never slides off its frame.
+ * `lift` lets the map ride up by that many pixels, so a star under a docked card can come clear of it.
+ */
+export function clampView(view: View, size: Size, lift = 0): View {
 	const k = clamp(view.k, 1, MAX_ZOOM);
-	return { k, x: clamp(view.x, size.w - size.w * k, 0), y: clamp(view.y, size.h - size.h * k, 0) };
+	return { k, x: clamp(view.x, size.w - size.w * k, 0), y: clamp(view.y, size.h - size.h * k - lift, 0) };
 }
 
 /** Zoom by `factor` keeping the screen point (px, py) still. */
-export function zoomAt(view: View, px: number, py: number, factor: number, size: Size): View {
+export function zoomAt(view: View, px: number, py: number, factor: number, size: Size, lift = 0): View {
 	const k = clamp(view.k * factor, 1, MAX_ZOOM);
 	const ratio = k / view.k;
-	return clampView({ k, x: px - (px - view.x) * ratio, y: py - (py - view.y) * ratio }, size);
+	return clampView({ k, x: px - (px - view.x) * ratio, y: py - (py - view.y) * ratio }, size, lift);
 }
 
 /** The view that frames a world box [x0, y0, x1, y1] with `pad` pixels around it. */
@@ -67,11 +78,14 @@ export function viewForBox(box: readonly [number, number, number, number], size:
 	return clampView({ k, x: size.w / 2 - ((x0 + x1) / 2) * k, y: size.h / 2 - ((y0 + y1) / 2) * k }, size);
 }
 
-/** The view with the same zoom that puts a world point inside the panel, `margin` pixels from its edges and `foot` pixels above its bottom edge. */
-export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48, foot = margin): View {
+/**
+ * The view with the same zoom that puts a world point inside the panel, `margin` pixels from its edges
+ * and `foot` pixels above its bottom edge. With `lift` the map may ride up that far to do it.
+ */
+export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48, foot = margin, lift = 0): View {
 	const sx = wx * view.k + view.x;
 	const sy = wy * view.k + view.y;
-	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, margin, size.h - Math.max(margin, foot)) - sy }, size);
+	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, margin, size.h - Math.max(margin, foot)) - sy }, size, lift);
 }
 
 /** Between two views: zoom moves geometrically, the centre of the panel moves in a straight line. */
@@ -111,22 +125,86 @@ export function nearestIndex(xs: ArrayLike<number>, ys: ArrayLike<number>, x: nu
 	return best >= 0 && bestDistance <= reach ? best : -1;
 }
 
+/** Something the card should not cover: a point in panel pixels and what covering it costs. */
+export type Keep = readonly [x: number, y: number, cost: number];
+
+/** The card is never nearer to its star than this, in pixels. */
+const CARD_GAP = 16;
+/** Spots are tried on a grid of this pitch, out to this far from the star. */
+const CARD_STEP = 20;
+const CARD_RANGE = 220;
+/** A point that costs this much is never covered while any other spot exists: the picked star's nearest posts. */
+export const CARD_BLOCKED = 1000;
+
 /**
- * Where the card goes: beside the star, kept inside the panel. With `avoid`
- * (the middle of the star's nearest posts) the card takes the opposite side
- * and the opposite half, so it does not cover the lines it explains. Without
- * it, the side with more room. Returns the card's left and top in panel pixels.
+ * Where the pinned card goes: the free spot nearest the star. The card never
+ * covers the star itself. Every point in `keep` it would cover adds that
+ * point's cost, and every 30 pixels away from the star costs 1, so the card
+ * moves out only as far as it must to leave the map in view. `box` is the part
+ * of the panel the card may use, as [x0, y0, x1, y1]. `held` is the spot the
+ * card has now, as its offset from the star: it stays there unless another
+ * spot is clearly better, so a moving map does not make the card jump. Returns
+ * the card's left and top in panel pixels and the offset it took.
  */
-export function placeCard(sx: number, sy: number, card: Size, size: Size, avoid: { x: number; y: number } | null = null, gap = 18, margin = 12): { left: number; top: number } {
-	const roomRight = size.w - margin - (sx + gap + card.w);
-	const roomLeft = sx - gap - card.w - margin;
-	const wantRight = avoid ? avoid.x < sx : roomRight >= roomLeft;
-	const right = wantRight ? roomRight >= 0 || roomRight >= roomLeft : roomLeft < 0 && roomRight > roomLeft;
-	const top = !avoid ? sy - card.h / 2 : avoid.y >= sy ? sy - card.h + 30 : sy - 30;
-	return {
-		left: clamp(right ? sx + gap : sx - gap - card.w, margin, Math.max(margin, size.w - margin - card.w)),
-		top: clamp(top, margin, Math.max(margin, size.h - margin - card.h)),
+export function placeCard(sx: number, sy: number, card: Size, box: readonly [number, number, number, number], keep: readonly Keep[] = [], held: readonly [number, number] | null = null): { left: number; top: number; at: [number, number] } {
+	const [x0, y0, x1, y1] = box;
+	const maxLeft = Math.max(x0, x1 - card.w);
+	const maxTop = Math.max(y0, y1 - card.h);
+	let best = { left: clamp(sx + CARD_GAP, x0, maxLeft), top: clamp(sy - card.h / 2, y0, maxTop), at: [CARD_GAP, -card.h / 2] as [number, number], cost: Infinity };
+	const consider = (ox: number, oy: number) => {
+		const left = clamp(sx + ox, x0, maxLeft);
+		const top = clamp(sy + oy, y0, maxTop);
+		const away = Math.hypot(Math.max(left - sx, 0, sx - left - card.w), Math.max(top - sy, 0, sy - top - card.h));
+		// On the star, or crowding it.
+		if (away < CARD_GAP - 2) return;
+		// Level with the star and to its right is best when nothing else decides.
+		let cost = away / 30 + Math.abs(top + card.h / 2 - sy) / 300 + (left + card.w / 2 < sx ? 0.15 : 0) - (held && held[0] === ox && held[1] === oy ? 2.5 : 0);
+		for (const [x, y, weight] of keep) {
+			if (cost >= best.cost) return;
+			if (x > left - 6 && x < left + card.w + 6 && y > top - 6 && y < top + card.h + 6) cost += weight;
+		}
+		if (cost < best.cost) best = { left, top, at: [ox, oy], cost };
 	};
+	// Beside the star and level with it, then above and below it, then the spot it has, then the grid.
+	consider(CARD_GAP, -card.h / 2);
+	consider(-card.w - CARD_GAP, -card.h / 2);
+	consider(-card.w / 2, -card.h - CARD_GAP);
+	consider(-card.w / 2, CARD_GAP);
+	if (held) consider(held[0], held[1]);
+	for (let oy = -card.h - CARD_RANGE; oy <= CARD_RANGE; oy += CARD_STEP) {
+		for (let ox = -card.w - CARD_RANGE; ox <= CARD_RANGE; ox += CARD_STEP) consider(ox, oy);
+	}
+	return { left: best.left, top: best.top, at: best.at };
+}
+
+/**
+ * Where a tooltip goes: beside the star and clear of it. The spots are tried in
+ * order: the side in `want` (1 right, -1 left), the other side, above, below.
+ * A spot that does not fit in the panel is left out. `covers` counts what a
+ * spot would hide: the spot that hides least wins, and the earlier one wins a
+ * tie. Without it the first spot that fits is taken.
+ */
+export function placeTip(sx: number, sy: number, radius: number, tip: Size, size: Size, want: 1 | -1 = 1, covers: ((spot: { left: number; top: number }) => number) | null = null, gap = 9, margin = 8): { left: number; top: number } {
+	const off = radius + gap;
+	const level = clamp(sy - tip.h / 2, margin, Math.max(margin, size.h - margin - tip.h));
+	const centred = clamp(sx - tip.w / 2, margin, Math.max(margin, size.w - margin - tip.w));
+	const spots: Array<{ left: number; top: number }> = [];
+	for (const side of [want, -want]) {
+		if (side > 0 ? sx + off + tip.w <= size.w - margin : sx - off - tip.w >= margin) spots.push({ left: side > 0 ? sx + off : sx - off - tip.w, top: level });
+	}
+	if (sy - off - tip.h >= margin) spots.push({ left: centred, top: sy - off - tip.h });
+	if (sy + off + tip.h <= size.h - margin || spots.length === 0) spots.push({ left: centred, top: sy + off });
+	if (!covers) return spots[0];
+	let best = spots[0];
+	let least = Infinity;
+	for (const spot of spots) {
+		const hidden = covers(spot);
+		if (hidden < least) {
+			least = hidden;
+			best = spot;
+		}
+	}
+	return best;
 }
 
 /** A view as fractions of the panel, so it survives a resize and a reload. */

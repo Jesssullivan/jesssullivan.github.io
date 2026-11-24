@@ -30,7 +30,7 @@
 	// TIN-8657: the heading stage and the stream, behind ?flags=home. The layout resolves the flag.
 	// A preview build hands both over from the load, already prerendered. Otherwise the code and the
 	// data file are asked for only once the flag is on, so the default page loads nothing new.
-	type HomeView = Component<{ stream: StreamFile | null; archive: PageData['collection']['archive']; snapshot: PageData['pulseSnapshot'] }>;
+	type HomeView = Component<{ stream: StreamFile | null; archive: PageData['collection']['archive'] }>;
 	// svelte-ignore state_referenced_locally
 	let Home = $state<HomeView | null>((data.home?.Home as HomeView | undefined) ?? null);
 	// svelte-ignore state_referenced_locally
@@ -81,11 +81,17 @@
 </svelte:head>
 
 {#if homeFlag.on && Home}
-	<Home stream={homeStream} archive={data.collection.archive} snapshot={data.pulseSnapshot} />
+	<Home stream={homeStream} archive={data.collection.archive} />
 {:else if homeFlag.on}
 	<!-- The flag is on and the page's code is on its way: hold the stage's room so nothing jumps. -->
 	<div class="home-wait" aria-hidden="true"></div>
 {:else}
+
+{#if constellationEnabled}
+	<!-- Before the page's column, so the sky can run edge to edge and the page opens onto it. -->
+	<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
+	<ReaderConstellation arrives archive={experimentalCollection.archive} focusSlug={page.url.searchParams.get('focus')} />
+{/if}
 
 <div class="container mx-auto px-4 py-12 max-w-6xl" data-pagefind-body>
 	<header class="mb-12 max-w-3xl">
@@ -98,14 +104,10 @@
 		</nav>
 	</header>
 
-	{#if constellationEnabled}
-		<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
-		<ReaderConstellation arrives archive={experimentalCollection.archive} snapshot={experimentPulse ?? data.pulseSnapshot} focusSlug={page.url.searchParams.get('focus')} />
-	{/if}
-
 	<div class="space-y-16">
 		<ReaderLatest posts={data.collection.latest} />
-		<ReaderPulse snapshot={data.pulseSnapshot} />
+		<!-- With the flag on, Pulse shows the reviewed public snapshot the broker serves, when it has loaded. -->
+		<ReaderPulse snapshot={experimentPulse ?? data.pulseSnapshot} />
 		<ReaderArchive archive={data.collection.archive} />
 	</div>
 </div>

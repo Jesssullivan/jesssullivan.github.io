@@ -12,7 +12,6 @@
 	import { page } from '$app/state';
 	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
 	import Picture from './Picture.svelte';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import { HERON, type StageScene } from '$lib/home/scenes';
 	import { FrameBudget, StageClock } from '$lib/home/stageClock';
@@ -21,12 +20,10 @@
 	let {
 		scenes,
 		archive,
-		snapshot,
 		focusSlug = null,
 	}: {
 		scenes: StageScene[];
 		archive: ReaderCollection['archive'];
-		snapshot: PublicPulseSnapshotAny;
 		focusSlug?: string | null;
 	} = $props();
 
@@ -197,7 +194,7 @@
 		{#each scenes as entry, i (entry.id)}
 			<div class={`scene ${entry.type}`} class:on={i === index} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${scenes.length}`} inert={i !== index} data-testid={`scene-${entry.type}`}>
 				{#if entry.type === 'sky'}
-					<ReaderConstellation {archive} {snapshot} {focusSlug} />
+					<ReaderConstellation {archive} {focusSlug} />
 				{:else if i === index || armed[entry.id]}
 					{#if entry.type === 'heron'}
 						<div class="plate heron"><Picture image={HERON.image} lazy={false} /></div>
@@ -264,37 +261,16 @@
 			visibility 0s;
 	}
 
-	/* The sky is the first scene. It is used as its own branch ships it: the stage only gives it the room. */
+	/*
+	 * The sky is the first scene. It is used as its own branch ships it, full bleed with its legend and
+	 * controls laid over it. The stage gives it the room, and lines its legend and controls up with the page's edge.
+	 */
 	.scene.sky :global(.constellation) {
-		display: flex;
-		flex-direction: column;
 		height: 100%;
-		margin: 0;
+		--edge: var(--gutter) !important;
 	}
-	.scene.sky :global(.constellation > header),
-	.scene.sky :global(.constellation > .legend) {
-		padding-inline: var(--gutter);
-	}
-	.scene.sky :global(.constellation > header) {
-		padding-top: 0.75rem;
-	}
-	/* The stage is the heading, so the section's own heading and line of copy are read out and not shown. */
-	.scene.sky :global(.constellation > header > div:first-child) {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		overflow: hidden;
-		clip-path: inset(50%);
-		white-space: nowrap;
-	}
-	.scene.sky :global(.constellation .panel) {
-		flex: 1;
-		height: auto;
-		min-height: 0;
-	}
-	/* Notes are in the stream below. */
-	.scene.sky :global(.constellation .reviewed-pulse) {
-		display: none;
+	.scene.sky :global(.constellation .sky) {
+		height: 100%;
 	}
 
 	/* A photograph. It drifts like a slow camera: a few percent of scale and travel over most of a minute. */

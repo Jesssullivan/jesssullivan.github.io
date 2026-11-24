@@ -7,18 +7,15 @@
 	import HomeStream from './HomeStream.svelte';
 	import { buildScenes } from '$lib/home/scenes';
 	import type { StreamFile } from '$lib/home/stream';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { ReaderCollection } from '$lib/reader/collection';
 
 	let {
 		stream,
 		archive,
-		snapshot,
 	}: {
 		/** Null while the data file is on its way, in a build that does not prerender this page. */
 		stream: StreamFile | null;
 		archive: ReaderCollection['archive'];
-		snapshot: PublicPulseSnapshotAny;
 	} = $props();
 
 	const scenes = $derived(buildScenes(stream));
@@ -42,7 +39,7 @@
 
 <div class="home" data-testid="home-stage-stream">
 	<h1 class="sr-only">Jess Sullivan</h1>
-	<HomeStage bind:this={stage} {scenes} {archive} {snapshot} {focusSlug} />
+	<HomeStage bind:this={stage} {scenes} {archive} {focusSlug} />
 	{#if stream}
 		<HomeStream {stream} onsky={() => stage?.showFirst()} />
 	{/if}

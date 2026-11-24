@@ -40,13 +40,20 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toBeVisible();
 	await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse unavailable.');
-	// The section opens on the map (RM27).
-	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
+	// The section opens on the map, with the list one control away (RM27).
+	await expect(page.getByRole('button', { name: 'Show as a list', exact: true })).toBeVisible();
 	await expect(page.getByTestId('constellation-map').locator('a[href^="/blog/"]').first()).toBeAttached();
+	// With the flag on, the profile column starts below the sky.
+	const sky = await page.getByTestId('constellation-panel').boundingBox();
+	const aside = await page.locator('#main-content + aside > div').boundingBox();
+	if (!sky || !aside) throw new Error('no boxes');
+	expect(aside.y).toBeGreaterThanOrEqual(sky.y + sky.height);
 	await page.evaluate(() => { const link = document.querySelector<HTMLAnchorElement>('#flag-navigation'); if (link) link.href = '/?flags=none'; });
 	requests.length = 0;
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toHaveCount(0);
+	// Turning the flag off puts the profile column back where the layout has it.
+	expect(await page.locator('#main-content + aside').evaluate(element => (element as HTMLElement).style.paddingTop)).toBe('');
 	expect(await page.evaluate(() => (window as unknown as { navigationSentinel: string }).navigationSentinel)).toBe('same-document');
 	expect(await page.evaluate(() => localStorage.getItem('tss:flags:constellation'))).toBeNull();
 	expect(requests).toEqual([]);

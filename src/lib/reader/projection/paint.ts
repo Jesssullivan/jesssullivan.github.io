@@ -1,8 +1,8 @@
 /**
  * Canvas painter for the constellation (TIN-8628).
  *
- * One call draws one frame: dust, figure lines, stars, the lines to the active
- * star's nearest posts, rings and, when zoomed in, post titles. Every soft
+ * One call draws one frame: dust, figure lines, stars, the lines from the pinned
+ * star to its nearest posts, rings and, when zoomed in, post titles. Every soft
  * thing (the glow of each constellation and of each star) is drawn once into
  * its own canvas and then only moved, so a frame fills a few hundred small
  * shapes and blends nothing large. Colours come from the section's CSS custom
@@ -39,12 +39,14 @@ export interface Frame {
 	tall: boolean;
 	/** Star size multiplier: smaller on narrow panels. */
 	scale: number;
-	/** Strips at the top and the foot of the panel that hold controls or the picked post. No title is drawn there. */
+	/** Strips at the top and the foot of the panel that hold the controls, the legend or the picked post. No title is drawn there. */
 	strips?: [number, number];
-	/** Star whose card is open, star under the pointer, and whether to draw the keyboard ring. */
+	/** The pinned star, the star under the pointer and the star with keyboard focus. -1 for none. */
 	active: number;
 	hover: number;
-	ring: boolean;
+	focus: number;
+	/** Where the pinned star's card is, when it sits away from the star: a thin line joins the two. */
+	leader?: readonly [number, number] | null;
 	/** Category to keep bright, or -1. */
 	filter: number;
 	/** Constellation whose name is under the pointer or focused, or -1. */
@@ -137,6 +139,8 @@ export function glowTransform(view: View): string {
 export class Painter {
 	xs = new Float32Array(0);
 	ys = new Float32Array(0);
+	/** The titles the last frame drew, five numbers each: left, top, right, bottom and the star's index. A tooltip keeps off them. */
+	labelBoxes: number[] = [];
 	private radii = new Float32Array(0);
 	private titles: string[] = [];
 	/** Star indices by category, so one fill paints a whole category. */
@@ -198,7 +202,7 @@ export class Painter {
 	}
 
 	draw(ctx: CanvasRenderingContext2D, frame: Frame) {
-		const { size, field, view, scale, active, hover, filter, group, intro } = frame;
+		const { size, field, view, scale, active, hover, focus, filter, group, intro } = frame;
 		const { sky, palette, xs, ys, radii } = this;
 		const { stars } = sky;
 		const { dark, ink, paper, accent } = palette;
@@ -219,8 +223,8 @@ export class Painter {
 			});
 			ctx.globalAlpha = 1;
 
-			// Figure lines, drawn from one end as the intro runs. The figure under the pointer, or of the active star, is brighter.
-			const lit = group >= 0 ? group : active >= 0 ? stars[active].group : -1;
+			// Figure lines, drawn from one end as the intro runs. The figure under the pointer, or of the pinned star, is brighter.
+			const lit = group >= 0 ? group : hover >= 0 ? stars[hover].group : active >= 0 ? stars[active].group : -1;
 			ctx.lineCap = 'round';
 			for (const level of [0, 1, 2]) {
 				ctx.beginPath();
@@ -236,7 +240,7 @@ export class Painter {
 			}
 		}
 
-		// Lines to the active star's nearest posts.
+		// Lines from the pinned star to its nearest posts.
 		const near = active >= 0 ? (sky.near[active] ?? []) : [];
 		if (near.length) {
 			ctx.beginPath();
@@ -246,6 +250,16 @@ export class Painter {
 			}
 			ctx.lineWidth = 1.75;
 			ctx.strokeStyle = rgba(accent);
+			ctx.stroke();
+		}
+
+		// A card that had to move away from its star is tied to it by a thin line.
+		if (active >= 0 && frame.leader) {
+			ctx.beginPath();
+			ctx.moveTo(xs[active], ys[active]);
+			ctx.lineTo(frame.leader[0], frame.leader[1]);
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = rgba(ink, 0.5);
 			ctx.stroke();
 		}
 
@@ -285,7 +299,7 @@ export class Painter {
 		}
 		ctx.globalAlpha = 1;
 
-		// Rings: one on the active star, a second one outside it for the keyboard.
+		// Rings: one on the star under the pointer, one on the pinned star, and an accent ring for keyboard focus.
 		const ringOn = (index: number, width: number, gap: number, colour: Rgb) => {
 			ctx.lineWidth = width + 2;
 			ctx.strokeStyle = rgba(paper, 0.9);
@@ -297,10 +311,8 @@ export class Painter {
 			ctx.stroke();
 		};
 		if (hover >= 0 && hover !== active) ringOn(hover, 1.5, 4, ink);
-		if (active >= 0) {
-			ringOn(active, 2, 4.5, ink);
-			if (frame.ring) ringOn(active, 3, 9.5, accent);
-		}
+		if (active >= 0) ringOn(active, 2, 4.5, ink);
+		if (focus >= 0) ringOn(focus, 3, focus === active ? 9.5 : 5, accent);
 
 		// Titles. The generator chose the side of each star and the scale it shows from. Nothing is searched here.
 		const at = labelScale(view.k, field, frame.tall);
@@ -311,10 +323,12 @@ export class Painter {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = rgba(paper, 0.9);
 		ctx.fillStyle = rgba(ink);
+		this.labelBoxes.length = 0;
 		for (let i = 0; i < stars.length; i += 1) {
 			const { label, labelWidth } = stars[i];
 			const alpha = label ? smooth((at - (label >> 2) / 10) / TITLE_FADE) : 0;
-			if (alpha <= 0 || !shown(i) || !onScreen(i, 0)) continue;
+			// The tooltip or the card already names these stars.
+			if (alpha <= 0 || i === active || i === hover || i === focus || !shown(i) || !onScreen(i, 0)) continue;
 			const side = label & 3;
 			const offset = radii[i] + TITLE_GAP;
 			const x = xs[i] + (side === 0 ? offset : side === 1 ? -offset : 0);
@@ -324,6 +338,7 @@ export class Painter {
 			if (left < 4 || left + labelWidth > size.w - 4 || y < top + 10 || y > size.h - foot - 10) continue;
 			ctx.textAlign = side === 0 ? 'left' : side === 1 ? 'right' : 'center';
 			ctx.globalAlpha = alpha;
+			this.labelBoxes.push(left, y - 8, left + labelWidth, y + 8, i);
 			ctx.strokeText(this.titles[i], x, y, labelWidth);
 			ctx.fillText(this.titles[i], x, y, labelWidth);
 		}

@@ -100,9 +100,8 @@ test.describe('flag on: the heading stage', () => {
 		await expect(page.locator('aside')).toHaveCount(0);
 		await expect(page.getByTestId('blob-background')).toHaveCount(0);
 		for (const id of ['#latest', '#pulse', '#archive']) await expect(page.locator(id)).toHaveCount(0);
-		// The sky component still carries its Pulse disclosure in the page. The stage keeps it out of sight and out of the reading order.
-		await expect(page.getByText(/Generated 1970|policy|schema/i).filter({ visible: true })).toHaveCount(0);
-		await expect(page.getByRole('group', { name: /Reviewed public Pulse details/ })).toHaveCount(0);
+		await expect(page.getByText(/Generated 1970|Reviewed public Pulse details/i)).toHaveCount(0);
+		await expect(page.getByText(/policy|schema/i).filter({ visible: true })).toHaveCount(0);
 		// One h1, one main, and the stage is as wide as the window.
 		await expect(page.locator('h1')).toHaveCount(1);
 		await expect(page.locator('h1')).toHaveText('Jess Sullivan');
