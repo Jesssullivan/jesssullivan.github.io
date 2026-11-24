@@ -199,3 +199,26 @@ export class FrameBudget {
 		return this.gaveUp;
 	}
 }
+
+/**
+ * The frame budget for one arrival: a scene coming out of its blur. Three
+ * frames slower than 50 milliseconds while it arrives and the device has
+ * missed the budget. The stage then gives up the blur and the drift for the
+ * visit, and scenes change by a plain fade.
+ */
+export class ArrivalBudget {
+	#slow = 0;
+	missed = false;
+	constructor(
+		readonly limit = 3,
+		readonly slowMs = 50,
+	) {}
+
+	/** Feed the time between two frames of an arrival. Returns true once the budget is missed. */
+	frame(ms: number): boolean {
+		if (this.missed) return true;
+		if (ms > this.slowMs) this.#slow += 1;
+		if (this.#slow >= this.limit) this.missed = true;
+		return this.missed;
+	}
+}

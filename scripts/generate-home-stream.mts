@@ -2,7 +2,7 @@
 /**
  * Producer for the home stream (TIN-8657).
  *
- *   tsx scripts/generate-home-stream.mts          write static/data/home-stream.v1.json
+ *   tsx scripts/generate-home-stream.mts          write src/lib/data/home-stream.v1.json
  *   tsx scripts/generate-home-stream.mts --check  exit 1 when the committed file is stale
  *
  * One file holds every item of the stream, newest first, in one shape: posts,

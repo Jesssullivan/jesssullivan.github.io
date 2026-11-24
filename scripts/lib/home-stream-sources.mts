@@ -12,8 +12,15 @@ import { tracks, videos, shorts } from '../../src/lib/data/music';
 export const POSTS_DIR = 'src/posts';
 export const GALLERY_FILE = 'static/photo-gallery.json';
 export const PULSE_FILE = 'static/data/pulse/public-snapshot.v2.json';
-export const POSTER_DIR = 'static/images/video';
-export const STREAM_OUTPUT = 'static/data/home-stream.v1.json';
+/**
+ * Files the home page brings with it. The build gives each a content hash in its name,
+ * so a browser may keep it for good. The stream names one as `asset:<path under this folder>`.
+ */
+export const ASSET_DIR = 'src/lib/assets/home';
+export const ASSET_PREFIX = 'asset:';
+export const POSTER_DIR = `${ASSET_DIR}/video`;
+/** Under src, so the build hashes its name too. */
+export const STREAM_OUTPUT = 'src/lib/data/home-stream.v1.json';
 
 const WORDS_PER_MINUTE = 230;
 /** The widest image scripts/optimize-images.mts leaves under static/images/posts. */
@@ -102,10 +109,12 @@ const AVIF_DISABLED = new Set(['/images/posts/darwin-nic-bastion-flow.png']);
  * scripts/optimize-images.mts writes for every JPEG and PNG under
  * static/images/posts at prebuild, so their names follow from the source name.
  */
-export function imageFacts(staticDir = 'static'): ImageFacts {
+export function imageFacts(staticDir = 'static', assetDir = ASSET_DIR): ImageFacts {
 	return (src) => {
-		const path = join(staticDir, src);
-		if (!src.startsWith('/') || !existsSync(path)) return null;
+		const bundled = src.startsWith(ASSET_PREFIX);
+		const onDisk = (name: string) => (bundled ? join(assetDir, name.slice(ASSET_PREFIX.length)) : join(staticDir, name));
+		const path = onDisk(src);
+		if ((!bundled && !src.startsWith('/')) || !existsSync(path)) return null;
 		const read = imageSize(readHead(path));
 		if (!read) return null;
 		const optimized = /^\/images\/posts\/[^/]+\.(?:jpe?g|png)$/i.test(src);
@@ -116,7 +125,7 @@ export function imageFacts(staticDir = 'static'): ImageFacts {
 		const beside = src.replace(/\.(?:jpe?g|png)$/i, '.webp');
 		return {
 			...size,
-			...(optimized ? { webp: swap('.webp') } : beside !== src && existsSync(join(staticDir, beside)) ? { webp: beside } : {}),
+			...(optimized ? { webp: swap('.webp') } : beside !== src && existsSync(onDisk(beside)) ? { webp: beside } : {}),
 			...(optimized && !AVIF_DISABLED.has(src) ? { avif: swap('.avif') } : {}),
 		};
 	};
@@ -132,13 +141,13 @@ export function readSources(root = '.') {
 		tracks,
 		// The Music page lists shorts and videos apart. The stream takes both.
 		videos: [...shorts, ...videos],
-		image: imageFacts(join(root, 'static')),
-		poster: (id: string) => (existsSync(join(root, POSTER_DIR, `${id}.jpg`)) ? `/images/video/${id}.jpg` : null),
+		image: imageFacts(join(root, 'static'), join(root, ASSET_DIR)),
+		poster: (id: string) => (existsSync(join(root, POSTER_DIR, `${id}.jpg`)) ? `${ASSET_PREFIX}video/${id}.jpg` : null),
 	};
 }
 
 /** True when every input the stream is built from is on disk. A Bazel unit-test sandbox holds only part of them. */
-export const sourcesPresent = (root = '.') => [POSTS_DIR, GALLERY_FILE, PULSE_FILE, 'static/images/posts'].every((path) => existsSync(join(root, path)));
+export const sourcesPresent = (root = '.') => [POSTS_DIR, GALLERY_FILE, PULSE_FILE, 'static/images/posts', POSTER_DIR].every((path) => existsSync(join(root, path)));
 
 export const serializeStream = (file: StreamFile) => `${JSON.stringify(file)}\n`;
 

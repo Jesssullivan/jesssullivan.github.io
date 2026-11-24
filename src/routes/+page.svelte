@@ -5,7 +5,7 @@
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
 	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
 	import { resolveConstellationFlag } from '$lib/flags/constellation';
-	import { homeFlag } from '$lib/flags/home-state.svelte';
+	import { askHome, homeFlag, homeLoaded, type HomeLoaded, type HomeView } from '$lib/flags/home-state.svelte';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
@@ -14,8 +14,6 @@
 	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
 	import type { Post } from '$lib/posts';
 	import publicationHolds from '../../static/blog-publication-holds.json';
-	import type { Component } from 'svelte';
-	import type { StreamFile } from '$lib/home/stream';
 
 	let { data }: { data: PageData } = $props();
 	let constellationEnabled = $state(false);
@@ -30,17 +28,16 @@
 	// TIN-8657: the heading stage and the stream, behind ?flags=home. The layout resolves the flag.
 	// A preview build hands both over from the load, already prerendered. Otherwise the code and the
 	// data file are asked for only once the flag is on, so the default page loads nothing new.
-	type HomeView = Component<{ stream: StreamFile | null; archive: PageData['collection']['archive'] }>;
+	// A production build keeps the ordinary page whole until both have arrived, then the two change places in one step.
 	// svelte-ignore state_referenced_locally
-	let Home = $state<HomeView | null>((data.home?.Home as HomeView | undefined) ?? null);
-	// svelte-ignore state_referenced_locally
-	let homeStream = $state<StreamFile | null>(data.home?.stream ?? null);
-	let homeAsked = false;
+	const prerenderedHome = data.home ? ({ Home: data.home.Home as unknown as HomeView, stream: data.home.stream } satisfies HomeLoaded) : null;
+	const home = $derived(homeFlag.on && homeFlag.ready ? (prerenderedHome ?? homeLoaded()) : null);
 	$effect(() => {
-		if (!homeFlag.on || homeAsked || (Home && homeStream)) return;
-		homeAsked = true;
-		void import('$lib/components/home/Home.svelte').then((module) => (Home = module.default as unknown as HomeView));
-		void import('$lib/home/load').then(({ loadHomeStream }) => loadHomeStream(fetch)).then((stream) => (homeStream = stream)).catch(() => {});
+		if (!homeFlag.on || homeFlag.ready) return;
+		askHome(async () => {
+			const [module, stream] = await Promise.all([import('$lib/components/home/Home.svelte'), import('$lib/home/load').then(({ loadHomeStream }) => loadHomeStream(fetch))]);
+			return { Home: module.default as unknown as HomeView, stream };
+		});
 	});
 
 	$effect(() => {
@@ -69,7 +66,7 @@
 </script>
 
 <svelte:head>
-	{#if !(homeFlag.on && Home)}
+	{#if !home}
 		<title>Jess Sullivan — Latest, Pulse, Archive</title>
 		<meta name="description" content="Posts and notes from Jess Sullivan." />
 		<link rel="canonical" href="https://transscendsurvival.org/" />
@@ -80,11 +77,8 @@
 	{/if}
 </svelte:head>
 
-{#if homeFlag.on && Home}
-	<Home stream={homeStream} archive={data.collection.archive} />
-{:else if homeFlag.on}
-	<!-- The flag is on and the page's code is on its way: hold the stage's room so nothing jumps. -->
-	<div class="home-wait" aria-hidden="true"></div>
+{#if home}
+	<home.Home stream={home.stream} archive={data.collection.archive} arrives={!prerenderedHome} />
 {:else}
 
 {#if constellationEnabled}

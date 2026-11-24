@@ -48,12 +48,14 @@
 
 	// TIN-8657: with ?flags=home the site-wide banner leaves the layout, and the home page
 	// also drops the side column, the footer and the blob background. Off, nothing here changes.
+	// The home page changes only once its new code and stream are here, so it is never shown half stripped.
 	let mounted = $state(false);
 	$effect(() => {
 		if (!mounted) return;
 		homeFlag.on = resolveHomeFlag({ search: $page.url.search, getStorage: () => window.localStorage, fallback: HOME_BUILD_DEFAULT });
 	});
-	const stageHome = $derived(homeFlag.on && $page.url.pathname === '/');
+	const stageHome = $derived(homeFlag.on && homeFlag.ready && $page.url.pathname === '/');
+	const slimBar = $derived(homeFlag.on && (homeFlag.ready || $page.url.pathname !== '/'));
 
 	const navLinks = [
 		{ href: '/blog', label: 'Blog' },
@@ -131,7 +133,7 @@
 		class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:text-sm focus:font-semibold"
 		>Skip to content</a
 	>
-	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} {homeFlag.on ? 'slim-bar' : 'shadow-sm'}">
+	<AppBar class="{scrolledPastBanner ? 'glass-nav' : ''} {slimBar ? 'slim-bar' : 'shadow-sm'}">
 		<AppBar.Toolbar class="grid-cols-[auto_1fr_auto] px-4 py-2">
 			<AppBar.Lead>
 				<a
@@ -272,7 +274,7 @@
 	</AppBar>
 
 	<!-- Hero banner — visible on all pages, scroll-fades -->
-	{#if !homeFlag.on}
+	{#if !slimBar}
 	<section class="hero-banner" bind:this={bannerRef} style:opacity={bannerOpacity}>
 		<picture>
 			<source srcset="/images/header.webp" type="image/webp" />

@@ -107,7 +107,7 @@
 		text-decoration: underline transparent;
 		text-decoration-thickness: 2px;
 		text-underline-offset: 0.2em;
-		transition: text-decoration-color 0.2s ease;
+		transition: text-decoration-color 0.3s var(--ease-soft);
 	}
 	h2 a:hover,
 	.announcement a:hover,
@@ -180,7 +180,9 @@
 		display: block;
 		width: 100%;
 		height: auto;
-		transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+		transition:
+			transform 1.2s var(--ease),
+			opacity 0.6s var(--ease-soft);
 	}
 	@media (hover: hover) {
 		.lead:hover :global(img) {
@@ -243,12 +245,15 @@
 		color: var(--accent);
 		cursor: pointer;
 		transition:
-			transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-			color 0.2s ease;
+			transform 0.3s var(--ease),
+			color 0.3s var(--ease-soft);
 	}
 	.play:hover:not(:disabled) {
 		transform: scale(1.12);
 		color: var(--ink);
+	}
+	.play:active:not(:disabled) {
+		transform: scale(0.96);
 	}
 	.play:disabled {
 		cursor: default;
@@ -293,7 +298,9 @@
 		height: 100%;
 		border: 0;
 		object-fit: cover;
-		transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+		transition:
+			transform 1.2s var(--ease),
+			opacity 0.6s var(--ease-soft);
 	}
 	@media (hover: hover) {
 		.poster:hover :global(img) {
@@ -321,8 +328,8 @@
 		transform: translateY(0.25rem);
 		pointer-events: none;
 		transition:
-			opacity 0.15s ease,
-			transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+			opacity 0.2s var(--ease-soft),
+			transform 0.3s var(--ease);
 	}
 	[data-tip]:focus-visible::after {
 		opacity: 1;

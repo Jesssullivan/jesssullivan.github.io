@@ -7,7 +7,16 @@
 	import StreamEntry from './StreamEntry.svelte';
 	import { filterItems, filterOf, markerFor, offeredFilters, type FilterId, type StreamFile } from '$lib/home/stream';
 
-	let { stream, onsky = () => {} }: { stream: StreamFile; onsky?: () => void } = $props();
+	let {
+		stream,
+		arrives = false,
+		onsky = () => {},
+	}: {
+		stream: StreamFile;
+		/** True when the stream is put into a page that has already painted. It then fades in with the stage. */
+		arrives?: boolean;
+		onsky?: () => void;
+	} = $props();
 
 	// A screen or two is in the first paint. More comes as the reader nears the end.
 	const BATCH = 12;
@@ -58,6 +67,17 @@
 		filtersEl?.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
 	}
 
+	// The way back up: the stage shows its first scene, and the page glides to it. Focus goes with it.
+	function toSky(event: MouseEvent) {
+		onsky();
+		// With reduced motion the plain link does the work, and the page jumps.
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		event.preventDefault();
+		const sky = document.getElementById('sky');
+		sky?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		sky?.focus({ preventScroll: true });
+	}
+
 	function more(event?: MouseEvent) {
 		event?.preventDefault();
 		visible = Math.min(list.length, visible + BATCH);
@@ -95,7 +115,7 @@
 	}
 </script>
 
-<section class="stream" id="stream" aria-label="Stream" data-testid="home-stream" data-pagefind-body>
+<section class="stream" class:arrives id="stream" aria-label="Stream" data-testid="home-stream" data-pagefind-body>
 	<nav class="filters" class:ready={mounted} aria-label="Show" bind:this={filtersEl}>
 		{#each offered as option (option.id)}
 			<a href={hrefFor(option.id)} aria-current={filter === option.id ? 'true' : undefined} data-sveltekit-noscroll data-sveltekit-keepfocus data-sveltekit-replacestate onclick={() => (chosen = true)}>{option.label}</a>
@@ -118,7 +138,7 @@
 			<!-- Without scripts this is a plain link to every post. With them it shows the next part of the stream. -->
 			<a class="more" href="/blog" bind:this={moreEl} onclick={more} data-testid="stream-more">More</a>
 		{:else}
-			<a href="#sky" onclick={onsky}>Back to the sky</a>
+			<a href="#sky" onclick={toSky}>Back to the sky</a>
 			<a href="/blog">All posts</a>
 		{/if}
 	</p>
@@ -148,11 +168,14 @@
 		align-items: center;
 		font: 600 0.82rem/1 'Inter', sans-serif;
 		letter-spacing: 0.02em;
-		/* The filters need scripts. Until those run the row keeps its place and stays out of sight. */
+		/* The filters need scripts. Until those run the row keeps its place and stays out of sight. Then it fades in. */
 		visibility: hidden;
+		opacity: 0;
 	}
 	.filters.ready {
 		visibility: visible;
+		opacity: 1;
+		transition: opacity 0.6s var(--ease-soft);
 	}
 	.filters a {
 		padding: 0.9rem 0;
@@ -161,8 +184,8 @@
 		text-decoration-thickness: 2px;
 		text-underline-offset: 0.5em;
 		transition:
-			color 0.2s ease,
-			text-decoration-color 0.2s ease;
+			color 0.3s var(--ease-soft),
+			text-decoration-color 0.3s var(--ease-soft);
 	}
 	.filters a:hover {
 		color: var(--ink);
@@ -231,14 +254,31 @@
 	/* The arrival: once, short, out of a soft blur. Without scripts nothing waits. */
 	.item {
 		transition:
-			opacity 0.7s ease,
-			transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-			filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+			opacity 0.8s var(--ease-soft),
+			transform 1s var(--ease),
+			filter 0.8s var(--ease-soft);
 	}
 	.item:global(.waiting) {
 		opacity: 0;
-		transform: translateY(10px);
+		transform: translate3d(0, 0.9rem, 0);
 		filter: blur(6px);
+	}
+	/* A device that missed the stage's frame budget gets the rise and the fade with no blur. */
+	:global(.home.calm) .item:global(.waiting) {
+		filter: none;
+	}
+	/*
+	 * Put into a page that has already painted, the stream fades in with the stage. The fade is on
+	 * the flow and not on the whole section, which shares a line with the stage's controls: a section
+	 * that fades would lie over them for that second and take their presses.
+	 */
+	.stream.arrives :is(.flow, .end) {
+		animation: stream-in 0.9s var(--ease-soft) 0.15s backwards;
+	}
+	@keyframes stream-in {
+		from {
+			opacity: 0;
+		}
 	}
 
 	.end {
@@ -258,8 +298,8 @@
 		text-decoration-thickness: 1px;
 		text-underline-offset: 0.45em;
 		transition:
-			color 0.2s ease,
-			text-decoration-color 0.2s ease;
+			color 0.3s var(--ease-soft),
+			text-decoration-color 0.3s var(--ease-soft);
 	}
 	.end a:hover {
 		color: var(--ink);
@@ -285,8 +325,12 @@
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.item {
+		.item,
+		.filters.ready {
 			transition: none;
+		}
+		.stream.arrives :is(.flow, .end) {
+			animation: none;
 		}
 	}
 </style>

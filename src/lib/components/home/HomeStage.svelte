@@ -14,21 +14,29 @@
 	import Picture from './Picture.svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import { HERON, type StageScene } from '$lib/home/scenes';
-	import { FrameBudget, StageClock } from '$lib/home/stageClock';
+	import { ArrivalBudget, FrameBudget, StageClock } from '$lib/home/stageClock';
 	import { tipFor } from '$lib/home/stream';
 
 	let {
 		scenes,
 		archive,
 		focusSlug = null,
+		arrives = false,
+		onstill = () => {},
 	}: {
 		scenes: StageScene[];
 		archive: ReaderCollection['archive'];
 		focusSlug?: string | null;
+		/** True when the stage is put into a page that has already painted, as the flag does on a production build. */
+		arrives?: boolean;
+		/** Called once, when the device missed the frame budget and the stage gave up its blur and its drift. */
+		onstill?: () => void;
 	} = $props();
 
 	let index = $state(0);
 	let playing = $state(false);
+	/** True while the play waits by itself: a hidden tab, a stage scrolled away or a mouse reading a scene. It goes on by itself. */
+	let held = $state(false);
 	let reduced = $state(false);
 	let still = $state(false);
 	let stepped = $state(false);
@@ -36,6 +44,8 @@
 	let stageEl = $state<HTMLElement | null>(null);
 	let scenesEl = $state<HTMLDivElement | null>(null);
 	let clock: StageClock | null = null;
+	/** How long a mouse at rest over a scene keeps it waiting. */
+	const HOVER_REST_MS = 4000;
 
 	const scene = $derived(scenes[Math.min(index, scenes.length - 1)]);
 	const hold = $derived(scene?.hold ?? 0);
@@ -57,6 +67,12 @@
 		clock?.stop();
 	}
 
+	// The pause control shows Pause while the play runs or only waits by itself. A press then pauses it for the visitor.
+	function toggle() {
+		if (playing || held) clock?.pause('visitor');
+		else clock?.resume();
+	}
+
 	function step(delta: number) {
 		stepped = true;
 		clock?.step(delta);
@@ -76,6 +92,7 @@
 		const pace = Math.min(200, Math.max(1, Number(new URLSearchParams(page.url.search).get('stage-pace')) || 1));
 		let tabHidden = document.hidden;
 		let offScreen = false;
+		let pointerOver = false;
 		clock = new StageClock(
 			scenes.map((entry) => entry.hold / pace),
 			{ now: () => performance.now(), setTimer: (run, ms) => window.setTimeout(run, ms), clearTimer: (id) => window.clearTimeout(id as number) },
@@ -83,8 +100,10 @@
 				reduced,
 				stopped: stoppedThisVisit,
 				onchange: (state) => {
+					if (state.index !== index) watchArrival();
 					index = state.index;
 					playing = state.playing;
+					held = state.halt === 'hidden';
 					// Once the stage has moved, the scene after the one on show is made ready a whole hold ahead.
 					if (state.index > 0 || stepped) arm(state.index);
 				},
@@ -92,8 +111,27 @@
 		);
 		clock.start();
 
-		// A hidden tab or a stage scrolled away pauses the play. It resumes by itself. A pause the visitor made does not.
-		const hide = () => (tabHidden || offScreen ? clock?.pause('hidden') : clock?.resume('hidden'));
+		// A hidden tab, a stage scrolled away or a mouse moving over a scene pauses the play. It resumes by itself. A pause the visitor made does not.
+		const hide = () => (tabHidden || offScreen || pointerOver ? clock?.pause('hidden') : clock?.resume('hidden'));
+		// A mouse that moves over a scene is reading it, a tooltip on a star for one: the scene waits.
+		// It goes on when the mouse leaves, or once the mouse has been at rest for four seconds.
+		let rest = 0;
+		const onLeave = () => {
+			window.clearTimeout(rest);
+			if (!pointerOver) return;
+			pointerOver = false;
+			hide();
+		};
+		const onMove = (event: PointerEvent) => {
+			if (event.pointerType !== 'mouse') return;
+			window.clearTimeout(rest);
+			rest = window.setTimeout(onLeave, HOVER_REST_MS / pace);
+			if (pointerOver) return;
+			pointerOver = true;
+			hide();
+		};
+		scenesEl?.addEventListener('pointermove', onMove, { passive: true });
+		scenesEl?.addEventListener('pointerleave', onLeave, { passive: true });
 		const onVisibility = () => {
 			tabHidden = document.hidden;
 			hide();
@@ -126,6 +164,10 @@
 			document.removeEventListener('visibilitychange', onVisibility);
 			seen.disconnect();
 			for (const name of inputs) scenesEl?.removeEventListener(name, stop, options);
+			scenesEl?.removeEventListener('pointermove', onMove);
+			scenesEl?.removeEventListener('pointerleave', onLeave);
+			window.clearTimeout(rest);
+			cancelAnimationFrame(arrival);
 			window.clearTimeout(later);
 			if (idle !== undefined) window.cancelIdleCallback?.(idle);
 		};
@@ -136,6 +178,31 @@
 		const pace = Math.min(200, Math.max(1, Number(new URLSearchParams(page.url.search).get('stage-pace')) || 1));
 		clock?.setHolds(scenes.map((entry) => entry.hold / pace));
 	});
+
+	// A device that missed the frame budget tells the page once, so the stream gives up its blur too.
+	$effect(() => {
+		if (still) onstill();
+	});
+
+	// A scene's arrival watches its own frames for a little over a second. A device that misses
+	// the budget gets no more blur and no drift for the visit: scenes then change by a plain fade.
+	// The page's own opening is not watched: a browser is busy then for reasons a blur does not cause.
+	let arrival = 0;
+	function watchArrival() {
+		cancelAnimationFrame(arrival);
+		if (still || reduced) return;
+		const budget = new ArrivalBudget();
+		const started = performance.now();
+		let last = started;
+		arrival = requestAnimationFrame(function watch(now) {
+			if (budget.frame(now - last)) {
+				still = true;
+				return;
+			}
+			last = now;
+			if (now - started < 1200) arrival = requestAnimationFrame(watch);
+		});
+	}
 
 	// The slow drift watches its own frames. Ten slow ones in a row and the photographs stay still.
 	$effect(() => {
@@ -159,13 +226,17 @@
 <section
 	class="stage"
 	class:still={still || reduced}
+	class:arrives
+	class:moving={playing || held}
 	id="sky"
+	tabindex="-1"
 	aria-roledescription="carousel"
 	aria-label="Heading"
 	bind:this={stageEl}
 	data-testid="home-stage"
 	data-scene={scene?.id}
 	data-playing={playing}
+	data-still={still || reduced}
 >
 	<!-- The controls come first, so a keyboard reaches Pause before anything that moves. -->
 	<div class="controls" role="group" aria-label="Heading scenes">
@@ -174,9 +245,9 @@
 				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
 			</button>
 		{:else}
-			<button type="button" aria-label={playing ? 'Pause' : 'Play'} data-tip={playing ? 'Pause' : 'Play'} onclick={() => clock?.toggle()} onkeydown={onControlKey} data-testid="stage-pause">
+			<button type="button" aria-label={playing || held ? 'Pause' : 'Play'} data-tip={playing || held ? 'Pause' : 'Play'} onclick={toggle} onkeydown={onControlKey} data-testid="stage-pause">
 				<svg viewBox="0 0 24 24" aria-hidden="true">
-					{#if playing}<path d="M9 5v14M15 5v14" />{:else}<path d="M8 5l11 7-11 7z" />{/if}
+					{#if playing || held}<path d="M9 5v14M15 5v14" />{:else}<path d="M8 5l11 7-11 7z" />{/if}
 				</svg>
 			</button>
 		{/if}
@@ -192,7 +263,7 @@
 
 	<div class="scenes" bind:this={scenesEl} aria-live={stepped && !playing ? 'polite' : 'off'}>
 		{#each scenes as entry, i (entry.id)}
-			<div class={`scene ${entry.type}`} class:on={i === index} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${scenes.length}`} inert={i !== index} data-testid={`scene-${entry.type}`}>
+			<div class={`scene ${entry.type}`} class:on={i === index} class:next={i === (index + 1) % scenes.length && armed[entry.id] === true} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${scenes.length}`} inert={i !== index} data-testid={`scene-${entry.type}`}>
 				{#if entry.type === 'sky'}
 					<ReaderConstellation {archive} {focusSlug} />
 				{:else if i === index || armed[entry.id]}
@@ -229,7 +300,10 @@
 		height: clamp(30rem, calc(100vh - 7.5rem), 64rem);
 		height: clamp(30rem, calc(100svh - 7.5rem), 64rem);
 		color: var(--ink);
-		--ease: cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	/* The stage takes focus only when the link at the end of the stream brings a reader back up. It draws no ring for that. */
+	.stage:focus {
+		outline: none;
 	}
 	.scenes {
 		position: relative;
@@ -237,28 +311,152 @@
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
+		container-type: size;
+		--copy: min(27rem, calc(100cqw - 2 * var(--gutter)));
+		/* Where the type ends, a little past its last letter. The feather holds solid up to here. */
+		--copy-end: calc(var(--gutter) + var(--copy) + 1.75rem);
 	}
 
-	/* Scenes share one box, so nothing moves when one gives way to the next. A scene arrives out of a short soft blur. */
+	/*
+	 * Scenes share one box, so nothing moves when one gives way to the next. The hand-off is one
+	 * move: the type on show fades where it stands, the picture dissolves into a soft blur while
+	 * the next comes out of one, and the new type rises into place line by line, in focus all the way.
+	 * Light (a fade, a blur) takes the soft curve. Anything that travels takes the quick one.
+	 */
 	.scene {
 		position: absolute;
 		inset: 0;
 		opacity: 0;
 		visibility: hidden;
-		filter: blur(10px);
 		transition:
-			opacity 0.7s ease,
-			filter 0.9s var(--ease),
+			opacity 0.7s var(--ease-soft),
 			visibility 0s linear 0.7s;
 	}
 	.scene.on {
 		opacity: 1;
 		visibility: visible;
+		transition:
+			opacity 1s var(--ease-soft),
+			visibility 0s;
+	}
+	/*
+	 * The scene next in line is drawn ahead of its turn, unseen, so its picture is already decoded
+	 * when the hand-off starts and the two scenes truly cross. It stays inert until then.
+	 */
+	.scene.next {
+		visibility: visible;
+		will-change: opacity;
+		pointer-events: none;
+	}
+	/* The blur is on the picture and on the sky, never on type. */
+	.plate :global(img) {
+		filter: blur(12px);
+		transition:
+			filter 0.7s var(--ease-soft),
+			opacity 0.6s var(--ease-soft);
+	}
+	.scene.on .plate :global(img) {
 		filter: none;
 		transition:
-			opacity 0.9s ease,
-			filter 1.1s var(--ease),
+			filter 1.4s var(--ease-soft),
+			opacity 0.6s var(--ease-soft);
+	}
+	.scene.sky {
+		filter: blur(12px);
+		transition:
+			opacity 0.7s var(--ease-soft),
+			filter 0.7s var(--ease-soft),
+			visibility 0s linear 0.7s;
+	}
+	.scene.sky.on {
+		filter: none;
+		transition:
+			opacity 1s var(--ease-soft),
+			filter 1.4s var(--ease-soft),
 			visibility 0s;
+	}
+	/* A line of type leaves first, by fading where it stands. It arrives last, by rising a little, each line just after the one above. */
+	.copy > :global(*) {
+		opacity: 0;
+		transform: translate3d(0, 0.9rem, 0);
+		transition:
+			opacity 0.25s var(--ease-soft),
+			transform 0s linear 0.7s;
+	}
+	.scene.on .copy > :global(*) {
+		opacity: 1;
+		transform: none;
+		transition:
+			opacity 0.7s var(--ease-soft) var(--wait, 0.3s),
+			transform 1s var(--ease) var(--wait, 0.3s);
+	}
+	.copy > :global(:nth-child(2)) {
+		--wait: 0.37s;
+	}
+	.copy > :global(:nth-child(3)) {
+		--wait: 0.44s;
+	}
+	.copy > :global(:nth-child(4)) {
+		--wait: 0.51s;
+	}
+	.copy > :global(:nth-child(5)) {
+		--wait: 0.58s;
+	}
+	.copy > :global(:nth-child(n + 6)) {
+		--wait: 0.65s;
+	}
+	/* The first scene arrives too: out of the same soft blur, once, as the page opens. */
+	.scenes {
+		animation: open 1.2s var(--ease-soft);
+	}
+	@keyframes open {
+		from {
+			filter: blur(12px);
+		}
+	}
+	/* Put into a page that has already painted, the stage fades in as well. */
+	.stage.arrives .scenes {
+		animation-name: open-late;
+	}
+	.stage.arrives .controls {
+		animation: fade 0.9s var(--ease-soft) 0.2s backwards;
+	}
+	@keyframes open-late {
+		from {
+			opacity: 0;
+			filter: blur(12px);
+		}
+	}
+	@keyframes fade {
+		from {
+			opacity: 0;
+		}
+	}
+	/*
+	 * A device that missed the frame budget: a plain fade with no blur and no rise. The scene on
+	 * show goes first and the next comes after it, so two scenes' type never lie over each other.
+	 */
+	.stage.still .scenes {
+		animation: none;
+	}
+	.stage.still .scene {
+		transition:
+			opacity 0.25s var(--ease-soft),
+			visibility 0s linear 0.25s;
+	}
+	.stage.still .scene.on {
+		transition:
+			opacity 0.5s var(--ease-soft) 0.2s,
+			visibility 0s;
+	}
+	.stage.still .plate :global(img),
+	.stage.still .scene.sky {
+		filter: none;
+	}
+	.stage.still .copy > :global(*) {
+		opacity: 1;
+		transform: none;
+		transition: none;
 	}
 
 	/*
@@ -273,13 +471,10 @@
 		height: 100%;
 	}
 
-	/* A photograph. It drifts like a slow camera: a few percent of scale and travel over most of a minute. */
-	.scenes {
-		container-type: size;
-		--copy: min(27rem, calc(100cqw - 2 * var(--gutter)));
-		/* Where the type ends, a little past its last letter. The feather holds solid up to here. */
-		--copy-end: calc(var(--gutter) + var(--copy) + 1.75rem);
-	}
+	/*
+	 * A photograph. It drifts like a slow camera: a few percent of scale and travel over most of a minute.
+	 * A device that missed the frame budget stops the drift where it stands, so nothing jumps.
+	 */
 	.plate {
 		position: absolute;
 		inset: 0;
@@ -298,12 +493,8 @@
 		animation: drift 46s ease-in-out infinite alternate;
 		animation-play-state: paused;
 	}
-	.stage[data-playing='true'] .scene.on .plate :global(img) {
+	.stage.moving:not(.still) .scene.on .plate :global(img) {
 		animation-play-state: running;
-	}
-	.stage.still .plate :global(img) {
-		animation: none;
-		transform: none;
 	}
 	@keyframes drift {
 		from {
@@ -352,13 +543,16 @@
 		mask-composite: intersect;
 	}
 	/*
-	 * The heron file is 672 by 219 pixels and the repository holds no larger original.
+	 * The heron file is 672 by 219 pixels and no larger original exists in the repository.
 	 * It is drawn as wide as the window, the size the site has always drawn it, and never taller than that.
 	 */
 	.plate.heron {
 		inset: 50% 0 auto;
 		height: min(100%, calc(100cqw * 219 / 672));
 		translate: 0 -50%;
+		/* The bird's head is at the very top of this photograph. The falloff there is a little shorter, so the head keeps its light. */
+		-webkit-mask-image: linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.5) 6%, #000 16%, #000 56%, rgb(0 0 0 / 0.7) 72%, rgb(0 0 0 / 0.3) 88%, transparent 100%);
+		mask-image: linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.5) 6%, #000 16%, #000 56%, rgb(0 0 0 / 0.7) 72%, rgb(0 0 0 / 0.3) 88%, transparent 100%);
 	}
 	.plate.heron :global(img) {
 		object-position: 50% 50%;
@@ -415,7 +609,7 @@
 		text-decoration: underline transparent;
 		text-decoration-thickness: 2px;
 		text-underline-offset: 0.18em;
-		transition: text-decoration-color 0.2s ease;
+		transition: text-decoration-color 0.3s var(--ease-soft);
 	}
 	.placed-title a:hover,
 	.placed-title a:focus-visible {
@@ -459,10 +653,16 @@
 		stroke-width: 1.75;
 		stroke-linecap: round;
 		stroke-linejoin: round;
-		transition: transform 0.2s var(--ease);
+		transition:
+			transform 0.3s var(--ease),
+			color 0.3s var(--ease-soft);
 	}
 	.controls button:hover svg {
 		transform: scale(1.15);
+		color: var(--accent);
+	}
+	.controls button:active svg {
+		transform: scale(0.94);
 	}
 	.controls button:focus-visible,
 	.placed-title a:focus-visible {
@@ -512,8 +712,8 @@
 		transform: translateY(0.25rem);
 		pointer-events: none;
 		transition:
-			opacity 0.15s ease,
-			transform 0.2s var(--ease);
+			opacity 0.2s var(--ease-soft),
+			transform 0.3s var(--ease);
 	}
 	.controls [data-tip]::after {
 		left: auto;
@@ -557,9 +757,12 @@
 			inset: 0 0 auto;
 			height: 58%;
 			translate: none;
+			-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 58%, rgb(0 0 0 / 0.6) 76%, rgb(0 0 0 / 0.22) 90%, transparent 100%);
+			mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 58%, rgb(0 0 0 / 0.6) 76%, rgb(0 0 0 / 0.22) 90%, transparent 100%);
 		}
+		/* The frame shows a third of the photograph's width here: the part that holds the bird's head, its whole bill, its neck and the near wing. */
 		.plate.heron :global(img) {
-			object-position: 82% 50%;
+			object-position: 94% 50%;
 		}
 		.copy {
 			top: auto;
@@ -611,12 +814,30 @@
 		}
 	}
 
-	/* No motion: no blur, no fade, no drift. The scenes step by the controls. */
+	/* No motion: no blur, no fade, no rise, no drift. The scenes step by the controls. */
 	@media (prefers-reduced-motion: reduce) {
+		.scenes,
+		.stage.arrives .scenes,
+		.stage.arrives .controls {
+			animation: none;
+		}
 		.scene,
-		.scene.on {
-			filter: none;
+		.scene.on,
+		.scene.sky,
+		.scene.sky.on,
+		.plate :global(img),
+		.scene.on .plate :global(img),
+		.copy > :global(*),
+		.scene.on .copy > :global(*) {
 			transition: none;
+		}
+		.plate :global(img),
+		.scene.sky {
+			filter: none;
+		}
+		.copy > :global(*) {
+			opacity: 1;
+			transform: none;
 		}
 		.plate :global(img) {
 			animation: none;

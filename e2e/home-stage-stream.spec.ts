@@ -3,7 +3,9 @@ import { test, expect, type Page } from '@playwright/test';
 // The home page behind ?flags=home (TIN-8657): the heading stage and the one mixed stream.
 // Off, the home page is the one production serves today and asks for nothing new.
 
-const STREAM_FILE = '/data/home-stream.v1.json';
+// Everything the page brings with it is named by its content, so a browser may keep it.
+const STREAM_FILE = /^\/_app\/immutable\/assets\/home-stream\.v1\.[\w-]+\.json$/;
+const HERON_FILE = /^\/_app\/immutable\/assets\/heron-672\.[\w-]+\.(?:avif|webp)$/;
 const outside: string[] = [];
 
 test.beforeEach(async ({ context, baseURL }) => {
@@ -54,8 +56,7 @@ test.describe('flag off: the home page is unchanged', () => {
 		await expect(page.getByTestId('home-stream')).toHaveCount(0);
 		await page.waitForLoadState('networkidle');
 		const off = [...paths];
-		expect(off).not.toContain(STREAM_FILE);
-		expect(off.filter(path => /constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
+		expect(off.filter(path => /home-stream|heron-672|constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
 		expect(await page.evaluate(() => localStorage.getItem('tss:flags:home'))).toBeNull();
 
 		// With the flag on the page asks for more. None of those files were asked for above.
@@ -65,7 +66,8 @@ test.describe('flag off: the home page is unchanged', () => {
 		await expect(items(page).first()).toBeVisible();
 		await page.waitForLoadState('networkidle');
 		const added = paths.filter(path => !off.includes(path));
-		expect(added).toContain(STREAM_FILE);
+		expect(added.filter(path => STREAM_FILE.test(path))).toHaveLength(1);
+		expect(added).not.toContain('/data/home-stream.v1.json');
 		expect(added.filter(path => path.endsWith('.js')).length).toBeGreaterThan(0);
 		expect(outside).toEqual([]);
 	});
@@ -133,6 +135,7 @@ test.describe('flag on: the heading stage', () => {
 	});
 
 	test('loads only the first scene at first paint', async ({ page }) => {
+		const paths = recordPaths(page);
 		await page.goto('/?flags=home&stage-pace=1');
 		await expect(stage(page)).toBeVisible();
 		await expect(page.getByTestId('scene-heron').locator('img')).toHaveCount(0);
@@ -141,6 +144,95 @@ test.describe('flag on: the heading stage', () => {
 		await expect(page.getByTestId('scene-heron').locator('img')).toHaveCount(1, { timeout: 8000 });
 		await expect(page.getByTestId('scene-placed').locator('img')).toHaveCount(0);
 		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+		// The heron comes at its own size, under a name with a content hash in it.
+		await expect.poll(() => paths.filter(path => HERON_FILE.test(path)).length).toBe(1);
+		const heron = page.getByTestId('scene-heron').locator('img');
+		await expect.poll(() => heron.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(672);
+		expect(await heron.evaluate((node: HTMLImageElement) => new URL(node.currentSrc).pathname)).toMatch(HERON_FILE);
+	});
+
+	test('the ordinary page and the new one change places in one step', async ({ page }) => {
+		// What is on the page at each change: the banner, the Latest section, the stage, the stream.
+		await page.addInitScript(() => {
+			const seen: string[] = [];
+			(window as unknown as { __seen: string[] }).__seen = seen;
+			const look = () => {
+				const has = (selector: string) => (document.querySelector(selector) ? 1 : 0);
+				const state = `${has('.hero-banner')}${has('#latest')}${has('[data-testid=home-stage]')}${has('[data-testid=stream-item]')}`;
+				if (seen[seen.length - 1] !== state) seen.push(state);
+			};
+			new MutationObserver(look).observe(document, { childList: true, subtree: true });
+		});
+		await page.goto('/?flags=home');
+		await expect(stage(page)).toBeVisible();
+		const seen = await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+		// Never the ordinary page with its banner taken off, and never the stage without its stream.
+		expect(seen.slice(seen.indexOf('1100'))).toEqual(['1100', '0011']);
+		await expect(stage(page)).toHaveClass(/arrives/);
+	});
+
+	test('a mouse that moves over a scene holds it, and it goes on when the mouse leaves or rests', async ({ page }) => {
+		await page.goto('/?flags=home&stage-pace=4');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		const box = (await page.locator('.stage .scenes').boundingBox())!;
+		await page.mouse.move(box.x + 200, box.y + 30);
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		// The play only waits, so the control still offers Pause.
+		await expect(page.getByTestId('stage-pause')).toHaveAttribute('aria-label', 'Pause');
+		// Three seconds of reading, past the sky's hold at this pace.
+		for (let i = 0; i < 15; i += 1) {
+			await page.mouse.move(box.x + 200 + i * 6, box.y + 30);
+			await page.waitForTimeout(200);
+		}
+		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+		await page.mouse.move(box.x + 200, box.y + box.height + 20);
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		await expect(stage(page)).toHaveAttribute('data-scene', 'heron', { timeout: 8000 });
+		// A mouse that comes back and then rests holds the scene only for a moment.
+		await page.mouse.move(box.x + 200, box.y + 30);
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true', { timeout: 3000 });
+	});
+
+	test('a device that misses the frame budget gets a plain fade: no blur and no drift', async ({ page }) => {
+		await page.goto('/?flags=home');
+		await expect(stage(page)).toHaveAttribute('data-still', 'false');
+		await expect(items(page).first()).toBeAttached();
+		// Every frame from here on reports itself 80 milliseconds late, as a slow device would.
+		await page.evaluate(() => {
+			const real = window.requestAnimationFrame.bind(window);
+			let late = 0;
+			window.requestAnimationFrame = run => real(now => run(now + (late += 80)));
+		});
+		const next = page.getByTestId('stage-next');
+		await next.focus();
+		await page.keyboard.press('ArrowRight');
+		await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
+		await expect(stage(page)).toHaveAttribute('data-still', 'true');
+		await expect(page.getByTestId('home-stage-stream')).toHaveClass(/calm/);
+		const heron = page.getByTestId('scene-heron');
+		expect(await heron.locator('img').evaluate(node => getComputedStyle(node).filter)).toBe('none');
+		expect(await heron.locator('img').evaluate(node => getComputedStyle(node).animationPlayState)).toBe('paused');
+		// The type just shows.
+		expect(await heron.locator('.heron-title').evaluate(node => getComputedStyle(node).transform)).toBe('none');
+	});
+
+	test('every icon control has a tooltip and a focus ring', async ({ page }) => {
+		await page.goto('/?flags=home&show=recordings');
+		await expect(stage(page)).toBeVisible();
+		const controls = [...(await page.getByRole('group', { name: 'Heading scenes' }).getByRole('button').all()), page.getByTestId('recording-play').first()];
+		expect(controls.length).toBe(3);
+		for (const control of controls) {
+			await expect(control).toHaveAttribute('data-tip', /^(?:Pause|Play|Next)$/);
+			expect(await control.getAttribute('aria-label')).toContain((await control.getAttribute('data-tip'))!);
+			// Reached by keyboard, it draws a ring and shows its tooltip.
+			await control.focus();
+			await page.keyboard.press('Shift+Tab');
+			await page.keyboard.press('Tab');
+			await expect(control).toBeFocused();
+			expect(await control.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('solid');
+			await expect.poll(() => control.evaluate(node => getComputedStyle(node, '::after').opacity)).toBe('1');
+		}
 	});
 
 	test('a press on the stage stops the play for the visit, and Play starts it again', async ({ page }) => {
@@ -247,7 +339,12 @@ test.describe('flag on: the one mixed stream', () => {
 		await expect(items(page).first()).toBeVisible();
 		// Reveal the stream to its end by the real More control.
 		const more = page.getByTestId('stream-more');
-		for (let i = 0; i < 40 && (await more.count()) > 0; i += 1) await more.click();
+		// Each press is one step in the page: find the control and press it. The control moves down as a part
+		// arrives and leaves with the last part, so a press that first waits for it to rest, or to be there, can wait for good.
+		await expect.poll(async () => {
+			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+			return more.count();
+		}, { timeout: 25_000, intervals: [150] }).toBe(0);
 		const kinds = await items(page).evaluateAll(nodes => nodes.map(node => node.getAttribute('data-kind')));
 		expect(new Set(kinds)).toEqual(new Set(['article', 'photos', 'recording', 'video']));
 		expect(kinds.length).toBeGreaterThan(150);
@@ -313,7 +410,7 @@ test.describe('flag on: the one mixed stream', () => {
 		await expect(first).toHaveAttribute('data-kind', 'video');
 		await expect(page.locator('iframe')).toHaveCount(0);
 		const poster = first.locator('.frame img');
-		await expect(poster).toHaveAttribute('src', /^\/images\/video\/[A-Za-z0-9_-]{11}\.jpg$/);
+		await expect(poster).toHaveAttribute('src', /\/_app\/immutable\/assets\/[A-Za-z0-9_-]{11}\.[\w-]+\.jpg$/);
 		await expect.poll(() => poster.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth)).toBeGreaterThan(0);
 		// The frame's place within its item, whatever the page has scrolled to.
 		const place = () => first.evaluate(node => {

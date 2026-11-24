@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FrameBudget, HOLD_MAX, HOLD_MIN, StageClock, holdFor, type ClockState } from './stageClock';
+import { ArrivalBudget, FrameBudget, HOLD_MAX, HOLD_MIN, StageClock, holdFor, type ClockState } from './stageClock';
 import { HERON, buildScenes } from './scenes';
 
 /** A clock the test moves by hand: one pending timer, as the stage has. */
@@ -51,6 +51,16 @@ describe('scene holds', () => {
 			expect(holdFor(words)).toBeGreaterThanOrEqual(9_000);
 			expect(holdFor(words)).toBeLessThanOrEqual(18_000);
 		}
+	});
+
+	it('holds the sky the shortest time a scene may, so a first visit sees the stage move within ten seconds', () => {
+		const [sky] = buildScenes(null);
+		expect(sky.hold).toBe(HOLD_MIN);
+		expect(sky.hold).toBeLessThan(10_000);
+	});
+
+	it('names the heron photograph at its own size, in files the build hashes', () => {
+		expect(HERON.image).toMatchObject({ width: 672, height: 219, avif: 'asset:heron-672.avif', webp: 'asset:heron-672.webp' });
 	});
 
 	it('gives the heron heading, which has the most words, a longer hold than the sky', () => {
@@ -281,5 +291,26 @@ describe('the drift gives itself up on a slow device', () => {
 		}
 		expect(budget.gaveUp).toBe(false);
 		expect(budget.frame(120)).toBe(false);
+	});
+});
+
+describe('an arrival gives up its blur on a slow device', () => {
+	it('misses the budget at the third slow frame, in a row or not', () => {
+		const budget = new ArrivalBudget();
+		expect(budget.frame(60)).toBe(false);
+		expect(budget.frame(16)).toBe(false);
+		expect(budget.frame(80)).toBe(false);
+		expect(budget.frame(16)).toBe(false);
+		expect(budget.frame(51)).toBe(true);
+		expect(budget.missed).toBe(true);
+	});
+
+	it('stays missed, and a device that keeps up never misses', () => {
+		const slow = new ArrivalBudget();
+		for (let i = 0; i < 3; i += 1) slow.frame(120);
+		expect(slow.frame(16)).toBe(true);
+		const fast = new ArrivalBudget();
+		for (let i = 0; i < 200; i += 1) expect(fast.frame(i % 2 ? 16 : 34)).toBe(false);
+		expect(fast.frame(50)).toBe(false);
 	});
 });

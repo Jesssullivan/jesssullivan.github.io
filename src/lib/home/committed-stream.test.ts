@@ -5,7 +5,7 @@ import { STREAM_KINDS, type StreamFile } from './stream';
 
 const committed = JSON.parse(readFileSync(STREAM_OUTPUT, 'utf-8')) as StreamFile;
 
-describe('committed home stream (static/data/home-stream.v1.json)', () => {
+describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 	it('has the stream shape, newest first, with unique ids and counts that add up', () => {
 		expect(committed.version).toBe(1);
 		const ids = committed.items.map((item) => item.id);
@@ -35,11 +35,13 @@ describe('committed home stream (static/data/home-stream.v1.json)', () => {
 				if (media.type === 'soundcloud') expect(media.src).toMatch(/^https:\/\/soundcloud\.com\/jesssullivan\//);
 				if (media.type === 'youtube') expect(media.src).toMatch(/^[A-Za-z0-9_-]{11}$/);
 				if (media.type === 'image') expect(media.src.startsWith('/images/') || media.src.startsWith('https://hub.tinyland.dev/')).toBe(true);
+				// A poster is a file the page brings with it, named so the build can hash it.
+				if (media.type === 'youtube' && media.poster) expect(media.poster.src).toMatch(/^asset:video\/[A-Za-z0-9_-]{11}\.jpg$/);
 			}
 		}
 	});
 
-	// A Bazel unit-test sandbox holds src, scripts and static/data only. The whole check runs wherever the gallery and the images are on disk.
+	// A Bazel unit-test sandbox holds the code and the data files under src, scripts and static/data only. The whole check runs wherever the gallery and the images are on disk.
 	it.skipIf(!sourcesPresent())('is current with its sources; otherwise run: just home-stream', () => {
 		expect(existsSync(STREAM_OUTPUT)).toBe(true);
 		expect(readFileSync(STREAM_OUTPUT, 'utf-8')).toBe(serializeStream(buildCommittedStream()));
