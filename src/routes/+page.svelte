@@ -57,6 +57,12 @@
 	<meta property="og:url" content="https://transscendsurvival.org/" />
 </svelte:head>
 
+{#if constellationEnabled}
+	<!-- Before the page's column, so the sky can run edge to edge and the page opens onto it. -->
+	<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
+	<ReaderConstellation arrives archive={experimentalCollection.archive} focusSlug={page.url.searchParams.get('focus')} />
+{/if}
+
 <div class="container mx-auto px-4 py-12 max-w-6xl" data-pagefind-body>
 	<header class="mb-12 max-w-3xl">
 		<p class="text-sm text-surface-600-400 mb-2">Jess Sullivan</p>
@@ -68,14 +74,10 @@
 		</nav>
 	</header>
 
-	{#if constellationEnabled}
-		<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
-		<ReaderConstellation arrives archive={experimentalCollection.archive} snapshot={experimentPulse ?? data.pulseSnapshot} focusSlug={page.url.searchParams.get('focus')} />
-	{/if}
-
 	<div class="space-y-16">
 		<ReaderLatest posts={data.collection.latest} />
-		<ReaderPulse snapshot={data.pulseSnapshot} />
+		<!-- With the flag on, Pulse shows the reviewed public snapshot the broker serves, when it has loaded. -->
+		<ReaderPulse snapshot={experimentPulse ?? data.pulseSnapshot} />
 		<ReaderArchive archive={data.collection.archive} />
 	</div>
 </div>

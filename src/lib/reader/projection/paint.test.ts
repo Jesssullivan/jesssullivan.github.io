@@ -14,7 +14,7 @@ const data: ConstellationData = {
 	aspect: 1.5,
 	categories: ['ecology', 'hardware'],
 	labels: ['Ecology', 'Hardware'],
-	groups: [{ name: 'Birding', wide: [300, 50], tall: [50, 300], glow: [300, 300, 200, 200], category: 0 }],
+	groups: [{ name: 'Ecology', wide: [300, 50], tall: [50, 300], glow: [300, 300, 200, 200], category: 0 }],
 	stars: [
 		['a', 0, 0, 0, 0, 0, 0],
 		['b', 500, 500, 0, 0, 1, 2],
@@ -41,7 +41,7 @@ function recorder() {
 const palette: Palette = { dark: true, ink: [240, 240, 240], paper: [10, 10, 10], accent: [200, 180, 120], stars: [[1, 2, 3], [4, 5, 6]], sprites: [{}, {}] as unknown as HTMLCanvasElement[] };
 const sky = buildSky(data, ['a', 'b', 'c'].map(post))!;
 // The field is 1.25 times the reference field across and a little more than once down, so the title scale is 1.05 times the zoom.
-const frame = (patch: Partial<Frame> = {}): Frame => ({ size: { w: 1000, h: 500 }, field: { x: 100, y: 50, w: 800, h: 400 }, view: FIT, tall: false, scale: 1, active: -1, hover: -1, ring: false, filter: -1, group: -1, intro: 1, ...patch });
+const frame = (patch: Partial<Frame> = {}): Frame => ({ size: { w: 1000, h: 500 }, field: { x: 100, y: 50, w: 800, h: 400 }, view: FIT, tall: false, scale: 1, active: -1, hover: -1, focus: -1, filter: -1, group: -1, intro: 1, ...patch });
 
 describe('constellation painter', () => {
 	it('puts each star where the silhouette has it: inside the field, by its unit position', () => {
@@ -82,13 +82,32 @@ describe('constellation painter', () => {
 		expect(rest.calls.fill).toBe(3);
 	});
 
-	it('joins the active star to its nearest posts and rings it', () => {
+	it('joins the pinned star to its nearest posts and rings it', () => {
 		const painter = new Painter(sky, palette);
 		const active = recorder();
-		painter.draw(active.ctx, frame({ active: 1, ring: true }));
+		painter.draw(active.ctx, frame({ active: 1, focus: 1 }));
 		// Two figure lines and two lines to the nearest posts. Six star arcs and two rings.
 		expect(active.calls.lineTo).toBe(4);
 		expect(active.calls.arc).toBe(8);
+	});
+
+	it('ties a card that sits away from its star to the star with one more line', () => {
+		const painter = new Painter(sky, palette);
+		const tied = recorder();
+		painter.draw(tied.ctx, frame({ active: 1, leader: [700, 300] }));
+		expect(tied.calls.lineTo).toBe(5);
+		// A leader with nothing pinned is not drawn.
+		const loose = recorder();
+		painter.draw(loose.ctx, frame({ leader: [700, 300] }));
+		expect(loose.calls.lineTo).toBe(2);
+	});
+
+	it('rings the star under the pointer and the star the keyboard is on, without joining them to anything', () => {
+		const painter = new Painter(sky, palette);
+		const pointed = recorder();
+		painter.draw(pointed.ctx, frame({ hover: 0, focus: 2 }));
+		expect(pointed.calls.lineTo).toBe(2);
+		expect(pointed.calls.arc).toBe(8);
 	});
 
 	it('draws each title from the scale the layout gave it, and never one the panel would cut', () => {
@@ -102,6 +121,11 @@ describe('constellation painter', () => {
 		expect(titles({ k: 1.8, x: -400, y: -200 })).toBe(0);
 		// Scale 3.2: b, in the middle of the panel, shows. c waits for scale 4.
 		expect(titles({ k: 3, x: -1000, y: -500 })).toBe(1);
+		// The painter says where it drew that title, so a tooltip can keep off it: b is at 500, 250 and its title is 80 wide, to its right.
+		expect(painter.labelBoxes).toHaveLength(5);
+		expect(painter.labelBoxes[0]).toBeGreaterThan(500);
+		expect(painter.labelBoxes[2] - painter.labelBoxes[0]).toBe(80);
+		expect([painter.labelBoxes[1], painter.labelBoxes[3], painter.labelBoxes[4]]).toEqual([242, 258, 1]);
 		// Scale 4.7 with c near the middle: c shows. b is off the panel.
 		expect(titles({ k: 4.5, x: -3550, y: -1775 })).toBe(1);
 		// Scale 3.2 with b at the right edge: its title would be cut, so it is left out.
@@ -110,6 +134,13 @@ describe('constellation painter', () => {
 		const strip = recorder();
 		painter.draw(strip.ctx, frame({ view: { k: 3, x: -1000, y: -500 }, strips: [260, 0] }));
 		expect(strip.calls.fillText).toBeUndefined();
+		// A star with a tooltip or a card is already named: its title is not drawn a second time.
+		for (const patch of [{ hover: 1 }, { focus: 1 }, { active: 1 }]) {
+			const named = recorder();
+			painter.draw(named.ctx, frame({ view: { k: 3, x: -1000, y: -500 }, ...patch }));
+			expect(named.calls.fillText).toBeUndefined();
+			expect(painter.labelBoxes).toEqual([]);
+		}
 	});
 
 	it('keeps a filtered-out category on the map without its pale centre', () => {

@@ -11,7 +11,7 @@
  * numerical packages. Three files are committed under src/lib/data:
  *
  *   posts-projection.v1.json           the t-SNE fit: where each post sits
- *   constellation.v1.json              the map layout built from it: groups, names,
+ *   constellation.v1.json              the map layout built from it: constellations, names,
  *                                      figure lines, sizes, glows, neighbours and
  *                                      where each title shows
  *   constellation-silhouette.v1.json   the same stars as paths, for the first paint
@@ -46,7 +46,8 @@ function main(argv: string[]): number {
 		`${projection.embedding.initialization}, ${projection.embedding.iterations} iterations, ` +
 		`KL ${projection.embedding.kl_divergence}, neighbour overlap ${projection.metrics.neighbor_overlap}, ` +
 		`displacement max ${projection.metrics.display_displacement_max}, ` +
-		`${layout.groups.length} constellations (${layout.groups.map((group) => group.name).join(', ')}), ` +
+		`${layout.groups.filter((group) => group.name).length} named constellations (${layout.groups.map((group) => group.name).filter(Boolean).join(', ')}), ` +
+		`${layout.groups.filter((group) => !group.name).length} figures without a name, ` +
 		`${layout.figure.length} figure lines, ${layout.stars.filter((star) => star[4] < 0).length} stars outside a figure, ` +
 		`${layout.titles.wide.filter(Boolean).length} and ${layout.titles.tall.filter(Boolean).length} titles placed (${Math.round(performance.now() - started)} ms)`;
 	if (check) {

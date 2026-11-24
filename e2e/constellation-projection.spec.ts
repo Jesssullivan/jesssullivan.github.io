@@ -2,12 +2,16 @@ import { test, expect, type Page } from '@playwright/test';
 
 // TIN-5680, TIN-8628: the constellation is a default-off experiment. Its layout is built ahead of time.
 // The page paints a silhouette at once and fetches the interactive layer and one hashed data file later.
+// The sky runs edge to edge of the viewport, with nothing printed above it.
 const brokerUrls = [
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/blog/broker-stream.v1.json',
 	'https://hub.tinyland.dev/projections/jesssullivan-github-io/pulse/public-snapshot.v2.json',
 ];
 // `published: false` in src/posts and listed in static/blog-publication-holds.json.
 const HELD_SLUG = 'hello-world';
+// Two published posts whose own summary is a web address, alone and before real words.
+const ADDRESS_ONLY_SLUG = 'quick-fix-254-character-limit-in-esri-story-map';
+const ADDRESS_FIRST_SLUG = 'new-business-site-up-and-running';
 const DATA_FILE = /\/constellation\.v1\.[\w-]+\.json$/;
 
 test.beforeEach(async ({ context, baseURL }) => {
@@ -38,13 +42,25 @@ function recordDataRequests(page: Page): string[] {
 	return requests;
 }
 
+type Box = { x: number; y: number; width: number; height: number };
 const map = (page: Page) => page.getByTestId('constellation-map');
+const sky = (page: Page) => page.getByTestId('constellation-panel');
 const stars = (page: Page) => map(page).locator('a[data-slug]');
 const star = (page: Page, slug: string) => map(page).locator(`a[data-slug="${slug}"]`);
+const names = (page: Page) => map(page).locator('.names button');
 const card = (page: Page) => page.getByTestId('constellation-card');
+const tip = (page: Page) => page.getByTestId('constellation-tip');
 const openControl = (page: Page) => page.getByTestId('constellation-open');
+const control = (page: Page, name: string) => page.getByRole('toolbar', { name: 'Map controls' }).getByRole('button', { name, exact: true });
+const legend = (page: Page) => page.getByRole('toolbar', { name: 'Show one category' }).getByRole('button');
 const activeSlug = (page: Page) => page.evaluate(() => (document.activeElement as Element | null)?.getAttribute('data-slug') ?? null);
 const noHorizontalScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+const inside = (box: Box, x: number, y: number, pad = 0) => x > box.x - pad && x < box.x + box.width + pad && y > box.y - pad && y < box.y + box.height + pad;
+const boxOf = async (locator: ReturnType<typeof map>): Promise<Box> => {
+	const box = await locator.boundingBox();
+	if (!box) throw new Error('no box');
+	return box;
+};
 
 /** Open the home page with the flag and wait for the interactive map. */
 async function openMap(page: Page, query = '') {
@@ -53,7 +69,7 @@ async function openMap(page: Page, query = '') {
 	await map(page).scrollIntoViewIfNeeded();
 	// The names appear once the sky has assembled.
 	await expect(map(page)).toHaveClass(/assembled/);
-	await expect(map(page).getByRole('button', { name: /^Go to / }).first()).toBeVisible();
+	await expect(names(page).first()).toBeVisible();
 }
 
 // Each star has a link centred on it. Pointers never hit the link: the map picks the nearest star.
@@ -64,15 +80,30 @@ async function allCentres(page: Page): Promise<Array<{ slug: string; x: number; 
 	}));
 }
 
-/** The star with the most room around it, away from the panel edges, so a pointer on it is unambiguous. */
+/** The star with the most room around it, away from the edges of the sky, so a pointer on it is unambiguous. */
 async function loneStar(page: Page): Promise<{ slug: string; x: number; y: number }> {
 	const centres = await allCentres(page);
-	const panel = await map(page).boundingBox();
-	if (!panel) throw new Error('no map box');
+	const panel = await boxOf(map(page));
 	const room = (a: { x: number; y: number }) => Math.min(...centres.filter(b => b !== a).map(b => Math.hypot(a.x - b.x, a.y - b.y)));
-	const inside = centres.filter(a => a.x > panel.x + 80 && a.x < panel.x + panel.width - 80 && a.y > panel.y + 80 && a.y < panel.y + panel.height - 80);
-	if (inside.length === 0) throw new Error('no star away from the edges');
-	return inside.sort((a, b) => room(b) - room(a))[0];
+	const within = centres.filter(a => a.x > panel.x + 80 && a.x < panel.x + panel.width - 80 && a.y > panel.y + 80 && a.y < panel.y + panel.height - 120);
+	if (within.length === 0) throw new Error('no star away from the edges');
+	return within.sort((a, b) => room(b) - room(a))[0];
+}
+
+/** A point on the map itself with no star within a finger of it: a tap there picks nothing. */
+async function emptySpot(page: Page): Promise<{ x: number; y: number }> {
+	const centres = await allCentres(page);
+	const panel = await boxOf(map(page));
+	const points: Array<{ x: number; y: number }> = [];
+	for (let y = panel.y + 80; y < panel.y + panel.height - 140; y += 24) {
+		for (let x = panel.x + 40; x < panel.x + panel.width - 40; x += 24) {
+			if (centres.every(centre => Math.hypot(centre.x - x, centre.y - y) > 48)) points.push({ x, y });
+		}
+	}
+	const onMap = await page.evaluate(candidates => candidates.map(point => document.elementFromPoint(point.x, point.y)?.tagName === 'CANVAS'), points);
+	const found = points.find((_, index) => onMap[index]);
+	if (!found) throw new Error('no empty spot on the map');
+	return found;
 }
 
 test('flag off: no section, no silhouette, no data request, even with a focus link', async ({ page }) => {
@@ -80,12 +111,14 @@ test('flag off: no section, no silhouette, no data request, even with a focus li
 	await page.goto('/?focus=some-post');
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
-	await expect(page.getByTestId('constellation-panel')).toHaveCount(0);
+	await expect(sky(page)).toHaveCount(0);
+	// The profile column is where the layout puts it: nothing has moved it.
+	expect(await page.locator('#main-content + aside').evaluate(aside => (aside as HTMLElement).style.paddingTop)).toBe('');
 	await page.waitForLoadState('networkidle');
 	expect(requests).toEqual([]);
 });
 
-test('first paint is the silhouette, the panel keeps its size, and the data is one hashed file', async ({ page, context }) => {
+test('first paint is the silhouette, the sky keeps its size, and the data is one hashed file', async ({ page, context }) => {
 	// Hold the data back so the state before the interactive layer can be seen.
 	let release: () => void = () => {};
 	const held = new Promise<void>(resolve => { release = resolve; });
@@ -95,76 +128,128 @@ test('first paint is the silhouette, the panel keeps its size, and the data is o
 	});
 	const requests = recordDataRequests(page);
 	await page.goto('/?flags=constellation');
-	const panel = page.getByTestId('constellation-panel');
-	await expect(panel).toBeVisible();
+	await expect(sky(page)).toBeVisible();
 	const wide = page.getByTestId('constellation-silhouette-wide');
 	await expect(wide).toBeVisible();
-	const before = { panel: await panel.boundingBox(), latest: await page.locator('#latest').boundingBox() };
+	// The arrival is over once what follows the section has no animation left.
+	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
+	const before = { sky: await sky(page).boundingBox(), latest: await page.locator('#latest').boundingBox() };
 	// Every star is already drawn, and nothing interactive exists yet.
 	const dots = await wide.locator('path').evaluateAll(paths => paths.reduce((sum, path) => sum + (path.getAttribute('d')?.match(/M/g)?.length ?? 0), 0));
 	expect(dots).toBeGreaterThan(100);
 	await expect(page.locator('.constellation canvas')).toHaveCount(0);
-	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
+	// The list is on offer before the map is live, and the zoom controls say they cannot act yet.
+	await expect(control(page, 'Show as a list')).toBeEnabled();
+	await expect(control(page, 'Zoom in')).toBeDisabled();
 
 	release();
 	await expect(stars(page)).toHaveCount(dots);
 	await expect(wide).toBeHidden();
-	// No layout shift: the panel and the section below it are where they were.
-	expect(await panel.boundingBox()).toEqual(before.panel);
+	await expect(control(page, 'Zoom in')).toBeEnabled();
+	// No layout shift: the sky and the section below it are where they were.
+	expect(await sky(page).boundingBox()).toEqual(before.sky);
 	expect(await page.locator('#latest').boundingBox()).toEqual(before.latest);
 	// One data file, with a content hash in its name, under the immutable directory.
 	expect(requests.filter(url => DATA_FILE.test(new URL(url).pathname))).toHaveLength(1);
 	expect(requests.every(url => new URL(url).pathname.startsWith('/_app/immutable/'))).toBe(true);
 	// The canvas draws each star where the silhouette had it.
 	const centres = await allCentres(page);
-	const field = await page.locator('.constellation .field').boundingBox();
-	if (!field) throw new Error('no field box');
-	for (const centre of centres) {
-		expect(centre.x).toBeGreaterThanOrEqual(field.x - 1);
-		expect(centre.x).toBeLessThanOrEqual(field.x + field.width + 1);
-		expect(centre.y).toBeGreaterThanOrEqual(field.y - 1);
-		expect(centre.y).toBeLessThanOrEqual(field.y + field.height + 1);
-	}
+	const field = await boxOf(page.locator('.constellation .field'));
+	for (const centre of centres) expect(inside(field, centre.x, centre.y, 1), centre.slug).toBe(true);
 });
 
+// Her words on round three: the constellation is full bleed. The sky runs edge to edge of the viewport,
+// takes most of its height, has no box of its own, and the stars use the whole width.
+for (const viewport of [{ width: 1920, height: 1080 }, { width: 1440, height: 900 }, { width: 1024, height: 768 }, { width: 768, height: 1024 }, { width: 390, height: 844 }, { width: 320, height: 568 }]) {
+	test(`full bleed at ${viewport.width} by ${viewport.height}: edge to edge, no box, no horizontal scroll`, async ({ page }) => {
+		await page.setViewportSize(viewport);
+		await openMap(page);
+		const client = await page.evaluate(() => ({ width: document.documentElement.clientWidth, height: window.innerHeight }));
+		const panel = await boxOf(sky(page));
+		expect(panel.x).toBe(0);
+		expect(panel.width).toBe(client.width);
+		expect(await noHorizontalScroll(page)).toBe(true);
+		const header = await page.locator('[data-scope="app-bar"][data-part="root"]').evaluate(bar => bar.getBoundingClientRect().height);
+		if (viewport.width > 880) {
+			// A desktop: 80 to 90 percent of the viewport's height.
+			expect(panel.height / client.height).toBeGreaterThanOrEqual(0.8);
+			expect(panel.height / client.height).toBeLessThanOrEqual(0.9);
+		} else {
+			// A phone: the visible height below the site header, or the least height the map needs.
+			// The header gains a one pixel edge once the page has scrolled past the banner. The sky keeps the height it had and does not follow it.
+			expect(Math.abs(panel.height - Math.max(448, client.height - header))).toBeLessThanOrEqual(1.5);
+		}
+		// Nothing is printed above the sky: it starts where the section starts, and the heading is for a screen reader only.
+		const section = await boxOf(page.locator('.constellation'));
+		expect(panel.y).toBeCloseTo(section.y, 0);
+		const heading = page.getByRole('heading', { name: 'The constellation' });
+		await expect(heading).toHaveCount(1);
+		expect((await boxOf(heading)).width).toBeLessThanOrEqual(1);
+		// No box: nothing in the section draws a border, an outline or a solid fill around the sky.
+		const boxed = await page.locator('.constellation, .constellation .sky, .constellation .field, .constellation .stage, .constellation canvas').evaluateAll(nodes => nodes.filter(node => {
+			const style = getComputedStyle(node);
+			return style.borderTopWidth !== '0px' || style.borderLeftWidth !== '0px' || style.boxShadow !== 'none' || style.outlineStyle !== 'none' || !/rgba\(0, 0, 0, 0\)|transparent/.test(style.backgroundColor);
+		}).map(node => node.className));
+		expect(boxed).toEqual([]);
+		// The stars use the whole width: the outermost ones are close to both edges of the viewport.
+		const xs = (await allCentres(page)).map(centre => centre.x);
+		expect(Math.min(...xs)).toBeLessThan(client.width * 0.08 + 8);
+		expect(Math.max(...xs)).toBeGreaterThan(client.width * 0.92 - 8);
+		// The profile column, where the layout shows one, starts below the sky and covers none of it.
+		const aside = page.locator('#main-content + aside > div');
+		if (await aside.isVisible()) expect((await boxOf(aside)).y).toBeGreaterThanOrEqual(panel.y + panel.height);
+		// The legend and the controls lie over the sky, not above it, and cover no star.
+		const centres = await allCentres(page);
+		for (const overlay of [page.getByRole('toolbar', { name: 'Map controls' }), page.getByRole('toolbar', { name: 'Show one category' })]) {
+			const box = await boxOf(overlay);
+			expect(inside(panel, box.x + 1, box.y + 1) && inside(panel, box.x + box.width - 1, box.y + box.height - 1)).toBe(true);
+			expect(centres.filter(centre => inside(box, centre.x, centre.y))).toEqual([]);
+		}
+	});
+}
+
 // The flag is read after the page has painted, so the section cannot be in the first paint (TIN-8628).
-// It opens its space with a slide, not a jump: nothing in the section or after it scores a layout shift.
-test('the section arrives without a layout shift', async ({ page }) => {
-	await page.addInitScript(() => {
-		const state = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
-		state.shifts = [];
-		new PerformanceObserver(list => {
-			for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean; sources?: Array<{ node: Node | null }> }>) {
-				if (!entry.hadRecentInput) state.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
-			}
-		}).observe({ type: 'layout-shift', buffered: true });
-	});
-	await page.goto('/?flags=constellation');
-	await expect(stars(page).first()).toBeAttached();
-	// The slide is over once what follows the section has no animation left.
-	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
-	await page.waitForLoadState('networkidle');
-	// Shifts of the section, of what follows it, or of anything inside either. The page above has its own and is not judged here.
-	const moved = await page.evaluate(() => {
-		const section = document.querySelector('.constellation');
-		const below = section?.nextElementSibling;
-		const ours = (node: Node) => Boolean(section?.contains(node) || below?.contains(node));
-		const { shifts } = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
-		return shifts.filter(shift => shift.nodes.some(ours)).map(shift => ({ value: shift.value, nodes: shift.nodes.map(node => node.nodeName) }));
-	});
-	expect(moved).toEqual([]);
-	// The section is in place above the reader, at its final size.
-	const panel = await page.getByTestId('constellation-panel').boundingBox();
-	const latest = await page.locator('#latest').boundingBox();
-	if (!panel || !latest) throw new Error('no boxes');
-	expect(latest.y).toBeGreaterThan(panel.y + panel.height);
-});
+// It takes its full size at once. What follows slides down, or with reduced motion fades out and in:
+// nothing in the section, after it or beside it scores a layout shift, in either mode.
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+	for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+		test(`the section arrives without a layout shift (motion: ${reducedMotion}, ${viewport.width} wide)`, async ({ page }) => {
+			await page.setViewportSize(viewport);
+			await page.emulateMedia({ reducedMotion });
+			await page.addInitScript(() => {
+				const state = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
+				state.shifts = [];
+				new PerformanceObserver(list => {
+					for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean; sources?: Array<{ node: Node | null }> }>) {
+						if (!entry.hadRecentInput) state.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
+					}
+				}).observe({ type: 'layout-shift', buffered: true });
+			});
+			await page.goto('/?flags=constellation');
+			await expect(stars(page).first()).toBeAttached();
+			await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
+			await page.waitForLoadState('networkidle');
+			// Shifts of the section, of what follows it, of the profile column, or of anything inside them. The banner above has its own and is not judged here.
+			const moved = await page.evaluate(() => {
+				const section = document.querySelector('.constellation');
+				const ours = [section, section?.nextElementSibling, document.querySelector('#main-content + aside')];
+				const { shifts } = window as unknown as { shifts: Array<{ value: number; nodes: Node[] }> };
+				return shifts.filter(shift => shift.nodes.some(node => ours.some(element => element?.contains(node)))).map(shift => ({ value: shift.value, nodes: shift.nodes.map(node => node.nodeName) }));
+			});
+			expect(moved).toEqual([]);
+			// The section is in place above the reader, at its final size.
+			const panel = await boxOf(sky(page));
+			const latest = await boxOf(page.locator('#latest'));
+			expect(latest.y).toBeGreaterThan(panel.y + panel.height);
+		});
+	}
+}
 
 test('when the data does not load the silhouette stays and the reader is told where to read', async ({ page, context }) => {
 	await context.route(DATA_FILE, route => route.abort());
 	await page.goto('/?flags=constellation');
 	await expect(page.getByTestId('constellation-silhouette-wide')).toBeVisible();
-	await expect(page.getByTestId('constellation-panel')).toContainText('The map did not load.');
+	await expect(sky(page)).toContainText('The map did not load.');
 	await expect(page.locator('#latest')).toBeVisible();
 });
 
@@ -180,16 +265,18 @@ test('every routeable placed post is a keyboard-reachable star and a list item',
 	for (const slug of slugs) expect(routeable.has(slug), slug).toBe(true);
 	expect(slugs).not.toContain(HELD_SLUG);
 
-	// The map has a name and a role, and the method note is in the help.
+	// The map has a name and a role, and the how-to and the method note are in the help.
 	await expect(page.getByRole('group', { name: 'Map of posts' })).toBeVisible();
-	await page.getByRole('button', { name: 'How it works' }).click();
+	await control(page, 'How it works').click();
+	await expect(page.locator('#constellation-help')).toContainText('Each star is a post.');
 	await expect(page.locator('#constellation-help')).toContainText('not measurements');
 	await page.keyboard.press('Escape');
 	await expect(page.locator('#constellation-help')).toBeHidden();
 
-	// One roving tab stop. Arrows walk the map, and the card follows.
+	// One roving tab stop. Arrows walk the map, and a tooltip beside the star names it.
 	await expect(map(page).locator('a[data-slug][tabindex="0"]')).toHaveCount(1);
 	await map(page).locator('a[data-slug][tabindex="0"]').focus();
+	await page.keyboard.press('ArrowRight');
 	const visited = new Set([await activeSlug(page)]);
 	for (const key of ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowDown', 'ArrowRight']) {
 		await page.keyboard.press(key);
@@ -200,14 +287,25 @@ test('every routeable placed post is a keyboard-reachable star and a list item',
 	expect(visited.size).toBeGreaterThan(1);
 	const current = await activeSlug(page) as string;
 	await expect(map(page).locator('a[data-slug][tabindex="0"]')).toHaveAttribute('data-slug', current);
+	// The tooltip is a real one, and the star's accessible name carries the same words: the title, the date, the category.
+	await expect(tip(page)).toHaveRole('tooltip');
+	const title = (await tip(page).locator('strong').textContent()) ?? '';
+	const meta = (await tip(page).locator('span').textContent()) ?? '';
+	expect(title.length).toBeGreaterThan(0);
+	expect(meta).toMatch(/^[A-Z][a-z]{2} \d{1,2}, \d{4} · [A-Za-z]+$/);
+	await expect(star(page, current)).toHaveAttribute('aria-label', `${title}. ${meta.replace(' · ', ', ')}`);
+	// Focus alone pins nothing.
+	await expect(card(page)).toHaveCount(0);
+	await expect(star(page, current)).not.toHaveAttribute('aria-current', 'true');
+	// Space pins the star: the small card names the post and offers Open and the nearest posts as next steps.
+	await page.keyboard.press('Space');
 	await expect(star(page, current)).toHaveAttribute('aria-current', 'true');
 	await expect(openControl(page)).toHaveAttribute('href', `/blog/${current}`);
-	// The card names the post, its category and its date, and offers nearby posts as next steps.
-	await expect(card(page).locator('h3')).not.toBeEmpty();
-	await expect(card(page).locator('.chip')).not.toBeEmpty();
+	await expect(card(page).locator('h3')).toHaveText(title);
 	await expect(card(page).locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}/);
-	await expect(card(page).locator('.nearby button').first()).toBeVisible();
-	// Escape clears the selection.
+	await expect(card(page).getByRole('list', { name: 'Nearby posts' }).getByRole('button').first()).toBeVisible();
+	await expect(tip(page)).toHaveCount(0);
+	// Escape clears the pin.
 	await page.keyboard.press('Escape');
 	await expect(card(page)).toHaveCount(0);
 	await page.keyboard.press('ArrowRight');
@@ -215,15 +313,21 @@ test('every routeable placed post is a keyboard-reachable star and a list item',
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(new RegExp(`/blog/${next}/?$`));
 
-	// The list is one tab stop from the start of the section, and holds the same posts.
+	// The list is the first tab stop of the section, and holds the same posts.
 	await page.goto('/?flags=constellation');
-	await page.getByRole('heading', { name: 'The constellation' }).click();
-	await page.keyboard.press('Tab');
-	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toBeFocused();
+	await expect(stars(page).first()).toBeAttached();
+	expect(await page.locator('.constellation').evaluate(section => section.querySelector('button, a[href], [tabindex="0"]')?.getAttribute('data-testid'))).toBe('constellation-view');
+	await control(page, 'Show as a list').focus();
+	// Arrow keys move inside the controls, which are one tab stop.
 	await page.keyboard.press('ArrowRight');
-	await expect(page.getByRole('tab', { name: 'List', exact: true })).toHaveAttribute('aria-selected', 'true');
+	await expect(control(page, 'Zoom in')).toBeFocused();
+	await page.keyboard.press('ArrowLeft');
+	await page.keyboard.press('Enter');
+	await expect(control(page, 'Show the map')).toBeFocused();
 	await expect(page.getByTestId('constellation-list').locator('> li')).toHaveCount(slugs.length);
 	await expect(page.getByTestId('constellation-list').locator('> li > a').first()).toHaveAttribute('href', /^\/blog\//);
+	await page.keyboard.press('Enter');
+	await expect(stars(page).first()).toBeAttached();
 });
 
 test('?focus=<slug> opens the map on that post', async ({ page }) => {
@@ -231,21 +335,52 @@ test('?focus=<slug> opens the map on that post', async ({ page }) => {
 	const target = await stars(page).nth(7).getAttribute('data-slug');
 	expect(target).toBeTruthy();
 	await page.goto(`/?flags=constellation&focus=${target}`);
-	await expect(page.getByRole('tab', { name: 'Map', exact: true })).toHaveAttribute('aria-selected', 'true');
+	await expect(control(page, 'Show as a list')).toBeVisible();
 	await expect.poll(() => activeSlug(page)).toBe(target);
 	await expect(openControl(page)).toHaveAttribute('href', `/blog/${target}`);
 });
 
-test('mouse: hover shows the card, a click picks the star, a second click opens the post', async ({ page }) => {
+test('mouse: hover shows a tooltip beside the star, a click pins a small card, a second click opens the post', async ({ page }) => {
 	await openMap(page);
 	const { slug, x, y } = await loneStar(page);
 	await page.mouse.move(x, y);
-	await expect(card(page).locator('h3')).toBeVisible();
+	// The tooltip is there at once, beside the star and never on it.
+	await expect(tip(page)).toBeVisible();
+	await expect(tip(page)).toHaveRole('tooltip');
+	const label = (await star(page, slug).getAttribute('aria-label')) ?? '';
+	expect(label.startsWith(`${await tip(page).locator('strong').textContent()}. `)).toBe(true);
+	const beside = await boxOf(tip(page));
+	expect(inside(beside, x, y, 4)).toBe(false);
+	// Right beside it: to one side, above or below, with a small gap and no more.
+	expect(Math.hypot(Math.max(beside.x - x, 0, x - beside.x - beside.width), Math.max(beside.y - y, 0, y - beside.y - beside.height))).toBeLessThan(40);
+	expect(await tip(page).evaluate(node => getComputedStyle(node).transitionDuration + getComputedStyle(node).animationName)).toBe('0snone');
 	await expect(openControl(page)).toHaveCount(0);
+	await expect(card(page)).toHaveCount(0);
+
 	await page.mouse.click(x, y);
 	await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
 	await expect(openControl(page)).toHaveAttribute('href', `/blog/${slug}`);
+	await expect(tip(page)).toHaveCount(0);
 	await expect(page).not.toHaveURL(/\/blog\//);
+	// The card is small, and it covers neither the star nor the nearest posts it names.
+	const pinned = await boxOf(card(page));
+	const panel = await boxOf(sky(page));
+	expect((pinned.width * pinned.height) / (panel.width * panel.height)).toBeLessThan(0.08);
+	expect(inside(pinned, x, y, 6)).toBe(false);
+	const centres = await allCentres(page);
+	const nearTitles = await card(page).getByRole('list', { name: 'Nearby posts' }).getByRole('button').allTextContents();
+	expect(nearTitles.length).toBeGreaterThan(0);
+	expect(nearTitles.length).toBeLessThanOrEqual(3);
+	const labels = await stars(page).evaluateAll(links => links.map(link => ({ slug: link.getAttribute('data-slug') ?? '', label: link.getAttribute('aria-label') ?? '' })));
+	for (const title of nearTitles) {
+		const near = labels.find(entry => entry.label.startsWith(`${title.trim()}. `));
+		const centre = centres.find(entry => entry.slug === near?.slug);
+		if (!centre) throw new Error(`no star for ${title}`);
+		expect(inside(pinned, centre.x, centre.y), title).toBe(false);
+	}
+	// No caption explains the card: the nearby posts have a name for a screen reader only.
+	await expect(card(page)).not.toContainText(/nearby/i);
+
 	await page.mouse.click(x, y);
 	await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
 
@@ -255,24 +390,67 @@ test('mouse: hover shows the card, a click picks the star, a second click opens 
 	await expect(openControl(page)).toHaveAttribute('href', `/blog/${slug}`);
 });
 
+test('a card never shows a summary that is only a web address', async ({ page }) => {
+	await openMap(page, `&focus=${ADDRESS_ONLY_SLUG}`);
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${ADDRESS_ONLY_SLUG}`);
+	await expect(card(page).locator('.summary')).toHaveCount(0);
+	await expect(card(page)).not.toContainText(/https?:|www\./);
+	// An address before real words is cut out, and the words stay.
+	await openMap(page, `&focus=${ADDRESS_FIRST_SLUG}`);
+	await expect(openControl(page)).toHaveAttribute('href', `/blog/${ADDRESS_FIRST_SLUG}`);
+	await expect(card(page).locator('.summary')).toContainText('Check out my new');
+	await expect(card(page)).not.toContainText(/https?:|www\./);
+});
+
 test('a nearby post in the card is the next step', async ({ page }) => {
 	await openMap(page);
 	const { x, y } = await loneStar(page);
 	await page.mouse.click(x, y);
-	const step = card(page).locator('.nearby button').first();
+	const step = card(page).getByRole('list', { name: 'Nearby posts' }).getByRole('button').first();
 	const title = (await step.textContent())?.trim() ?? '';
 	await step.click();
 	await expect(card(page).locator('h3')).toHaveText(title);
 });
 
+test('one naming system: every name on the sky is a category in the legend, and says how many posts it holds', async ({ page }) => {
+	await openMap(page);
+	const words = (await legend(page).allTextContents()).map(text => text.trim());
+	const onSky = (await names(page).allTextContents()).map(text => text.trim());
+	expect(onSky.length).toBeGreaterThan(3);
+	expect(new Set(onSky).size).toBe(onSky.length);
+	for (const name of onSky) expect(words).toContain(name);
+	// A name says its count on hover and on focus, and carries the same words for a screen reader.
+	const first = names(page).first();
+	const told = await first.getAttribute('data-tip');
+	// A constellation that holds only some of its category's posts says so: the legend counts them all.
+	expect(told).toMatch(/^(\d+ of )?\d+ posts?$/);
+	await expect(first).toHaveAttribute('aria-label', `${onSky[0]}, ${told}`);
+	const inLegend = await page.getByRole('toolbar', { name: 'Show one category' }).getByRole('button', { name: new RegExp(`^${onSky[0]}, `) }).getAttribute('data-tip');
+	expect(told?.endsWith(inLegend ?? 'none')).toBe(true);
+	await first.hover();
+	expect(await first.evaluate(node => getComputedStyle(node, '::after').display + getComputedStyle(node, '::after').content)).toBe(`block"${told}"`);
+	// Every icon control has a tooltip with its name.
+	for (const name of ['Show as a list', 'Zoom in', 'Zoom out', 'Reset', 'How it works']) {
+		await control(page, name).hover();
+		expect(await control(page, name).evaluate(node => getComputedStyle(node, '::after').display + getComputedStyle(node, '::after').content), name).toBe(`block"${name}"`);
+	}
+	// The legend prints a dot and one word. The count is in its name, not on the page.
+	for (const text of words) expect(text).toMatch(/^[A-Za-z]+$/);
+	await expect(legend(page).first()).toHaveAttribute('aria-label', /^[A-Za-z]+, \d+ posts?$/);
+	// Its tooltip says the count, as a name on the sky does.
+	const counted = await legend(page).first().getAttribute('data-tip');
+	expect(counted).toMatch(/^\d+ posts?$/);
+	await legend(page).first().hover();
+	expect(await legend(page).first().evaluate(node => getComputedStyle(node, '::after').display + getComputedStyle(node, '::after').content)).toBe(`block"${counted}"`);
+});
+
 test('a constellation name flies to it, Reset returns, and a plain wheel scrolls the page', async ({ page }) => {
 	await openMap(page);
-	const reset = map(page).getByRole('button', { name: 'Reset', exact: true });
+	const reset = control(page, 'Reset');
 	await expect(reset).toBeDisabled();
 
 	// A plain wheel over the map scrolls the page and does not zoom.
-	const box = await map(page).boundingBox();
-	if (!box) throw new Error('no map box');
+	const box = await boxOf(map(page));
 	await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
 	const scrollBefore = await page.evaluate(() => window.scrollY);
 	await page.mouse.wheel(0, 240);
@@ -281,17 +459,17 @@ test('a constellation name flies to it, Reset returns, and a plain wheel scrolls
 	await map(page).scrollIntoViewIfNeeded();
 
 	const before = await allCentres(page);
-	await map(page).getByRole('button', { name: /^Go to / }).first().click();
+	await names(page).first().click();
 	await expect(reset).toBeEnabled();
 	// Zoomed in: stars are farther apart than before.
 	await expect.poll(async () => {
 		const after = await allCentres(page);
 		return Math.hypot(after[0].x - after[1].x, after[0].y - after[1].y) / Math.hypot(before[0].x - before[1].x, before[0].y - before[1].y);
 	}).toBeGreaterThan(1.3);
-	// Every name that shows is whole: none is cut by the edge of the panel.
-	const cut = await map(page).getByRole('button', { name: /^Go to / }).evaluateAll(names => {
-		const panel = (names[0].closest('[data-testid="constellation-map"]') as Element).getBoundingClientRect();
-		return names.filter(name => getComputedStyle(name).visibility !== 'hidden').filter(name => {
+	// Every name that shows is whole: none is cut by the edge of the sky.
+	const cut = await names(page).evaluateAll(buttons => {
+		const panel = (buttons[0].closest('[data-testid="constellation-map"]') as Element).getBoundingClientRect();
+		return buttons.filter(name => getComputedStyle(name).visibility !== 'hidden').filter(name => {
 			const box = name.getBoundingClientRect();
 			return box.left < panel.left || box.right > panel.right;
 		}).length;
@@ -301,9 +479,13 @@ test('a constellation name flies to it, Reset returns, and a plain wheel scrolls
 	await expect(reset).toBeDisabled();
 	await expect.poll(async () => (await allCentres(page))[0].x).toBeCloseTo(before[0].x, 0);
 
-	// Ctrl and wheel zooms.
-	const here = await map(page).boundingBox();
-	if (!here) throw new Error('no map box');
+	// The zoom buttons zoom, and Ctrl and wheel zooms.
+	await control(page, 'Zoom in').click();
+	await expect(reset).toBeEnabled();
+	await expect(control(page, 'Zoom out')).toBeEnabled();
+	await reset.click();
+	await expect(reset).toBeDisabled();
+	const here = await boxOf(map(page));
 	await page.mouse.move(here.x + here.width / 2, here.y + here.height / 2);
 	await page.keyboard.down('Control');
 	await page.mouse.wheel(0, -200);
@@ -313,18 +495,18 @@ test('a constellation name flies to it, Reset returns, and a plain wheel scrolls
 
 test('the legend filters the map and the list to one category', async ({ page }) => {
 	await openMap(page);
-	const chip = page.locator('.constellation .legend button').first();
-	const count = Number(await chip.locator('.count').textContent());
+	const chip = legend(page).first();
+	const count = Number(((await chip.getAttribute('aria-label')) ?? '').match(/, (\d+) posts?$/)?.[1]);
 	expect(count).toBeGreaterThan(0);
-	// No text in the heading block or the legend is dimmed, with or without a filter: state shows as a border and a hollow dot.
-	const dimmed = () => page.locator('.constellation :is(.lede, .legend button, .legend .count)').evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).opacity !== '1').length);
+	// No text in the legend is dimmed, with or without a filter: state shows as an underline and a hollow dot.
+	const dimmed = () => legend(page).evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).opacity !== '1').length);
 	expect(await dimmed()).toBe(0);
 	await chip.click();
 	await expect(chip).toHaveAttribute('aria-pressed', 'true');
 	expect(await dimmed()).toBe(0);
 	const other = page.locator('.constellation .legend button[aria-pressed="false"] .dot').first();
 	expect(await other.evaluate(node => getComputedStyle(node).backgroundImage + getComputedStyle(node).backgroundColor)).toMatch(/rgba\(0, 0, 0, 0\)|transparent/);
-	await page.getByRole('tab', { name: 'List', exact: true }).click();
+	await control(page, 'Show as a list').click();
 	await expect(page.getByTestId('constellation-list').locator('> li')).toHaveCount(count);
 	await chip.click();
 	await expect(chip).toHaveAttribute('aria-pressed', 'false');
@@ -337,25 +519,31 @@ test.describe('phone, touch', () => {
 	test('fits 390px in both views without horizontal scroll, on the tall frame', async ({ page }) => {
 		await openMap(page);
 		expect(await noHorizontalScroll(page)).toBe(true);
-		const box = await map(page).boundingBox();
-		if (!box) throw new Error('no map box');
+		const box = await boxOf(map(page));
 		expect(box.height).toBeGreaterThan(box.width);
-		for (const view of ['List', 'Map']) {
-			await page.getByRole('tab', { name: view, exact: true }).tap();
-			await expect(page.getByRole('tab', { name: view, exact: true })).toHaveAttribute('aria-selected', 'true');
-			expect(await noHorizontalScroll(page), view).toBe(true);
+		await control(page, 'Show as a list').tap();
+		await expect(page.getByTestId('constellation-list')).toBeVisible();
+		expect(await noHorizontalScroll(page)).toBe(true);
+		await control(page, 'Show the map').tap();
+		await expect(stars(page).first()).toBeAttached();
+		expect(await noHorizontalScroll(page)).toBe(true);
+		// Every control and every legend entry is a target of at least 24 pixels.
+		for (const target of [...(await page.getByRole('toolbar', { name: 'Map controls' }).getByRole('button').all()), ...(await legend(page).all())]) {
+			const size = await boxOf(target);
+			expect(Math.min(size.width, size.height)).toBeGreaterThanOrEqual(24);
 		}
 	});
 
 	test('first tap selects the nearest star in a dense cluster, a second tap opens it', async ({ page }) => {
 		await openMap(page);
 		const centres = await allCentres(page);
+		const panel = await boxOf(map(page));
 		let best = { near: centres[0], far: centres[1], distance: Infinity };
 		for (let i = 0; i < centres.length; i += 1) {
 			for (let j = i + 1; j < centres.length; j += 1) {
 				const distance = Math.hypot(centres[i].x - centres[j].x, centres[i].y - centres[j].y);
-				// Closer than a finger, and far enough apart that sub-pixel layout cannot swap them.
-				if (distance >= 6 && distance < best.distance) best = { near: centres[i], far: centres[j], distance };
+				// Closer than a finger, far enough apart that sub-pixel layout cannot swap them, and high enough that the docked card does not move the map.
+				if (distance >= 6 && distance < best.distance && Math.max(centres[i].y, centres[j].y) < panel.y + panel.height * 0.6) best = { near: centres[i], far: centres[j], distance };
 			}
 		}
 		// A tap between two stars, nearer the first one, picks the first one.
@@ -365,6 +553,8 @@ test.describe('phone, touch', () => {
 		await expect(star(page, best.near.slug)).toHaveAttribute('aria-current', 'true');
 		await expect(star(page, best.far.slug)).not.toHaveAttribute('aria-current', 'true');
 		await expect(openControl(page)).toHaveAttribute('href', `/blog/${best.near.slug}`);
+		// A touch has no hover: the first tap shows the card, never a tooltip.
+		await expect(tip(page)).toHaveCount(0);
 		await expect(page).not.toHaveURL(/\/blog\//);
 		await page.touchscreen.tap(tap.x, tap.y);
 		await expect(page).toHaveURL(new RegExp(`/blog/${best.near.slug}/?$`));
@@ -373,11 +563,10 @@ test.describe('phone, touch', () => {
 	test('a star with room beside it has a touch target of at least 44 pixels, and Open opens the post', async ({ page }) => {
 		await openMap(page);
 		const centres = await allCentres(page);
-		const box = await map(page).boundingBox();
-		if (!box) throw new Error('no map box');
+		const box = await boxOf(map(page));
 		// A point 22 pixels from a star, on a side where no other star is nearer.
 		const tries = centres.flatMap(c => [0, 1, 2, 3, 4, 5, 6, 7].map(step => ({ slug: c.slug, x: c.x + Math.cos(step * Math.PI / 4) * 22, y: c.y + Math.sin(step * Math.PI / 4) * 22 })));
-		const open = tries.filter(p => p.x > box.x + 12 && p.x < box.x + box.width - 12 && p.y > box.y + 60 && p.y < box.y + box.height - 90 && centres.every(c => c.slug === p.slug || Math.hypot(c.x - p.x, c.y - p.y) > 26));
+		const open = tries.filter(p => p.x > box.x + 12 && p.x < box.x + box.width - 12 && p.y > box.y + 70 && p.y < box.y + box.height * 0.6 && centres.every(c => c.slug === p.slug || Math.hypot(c.x - p.x, c.y - p.y) > 26));
 		// A constellation name is a control of its own, so the point must be on the map itself.
 		const onMap = await page.evaluate(points => points.map(p => document.elementFromPoint(p.x, p.y)?.tagName === 'CANVAS'), open);
 		const found = open.find((_, index) => onMap[index]);
@@ -385,14 +574,58 @@ test.describe('phone, touch', () => {
 		const { slug } = found;
 		await page.touchscreen.tap(found.x, found.y);
 		await expect(star(page, slug)).toHaveAttribute('aria-current', 'true');
-		const control = await openControl(page).boundingBox();
-		expect(control?.height).toBeGreaterThanOrEqual(44);
-		// The picked post sits in its own strip under the map: at rest the card covers no star.
-		const sheet = await card(page).boundingBox();
-		if (!sheet) throw new Error('no card box');
-		expect(centres.filter(c => c.x > sheet.x && c.x < sheet.x + sheet.width && c.y > sheet.y && c.y < sheet.y + sheet.height)).toEqual([]);
+		const target = await boxOf(openControl(page));
+		expect(target.height).toBeGreaterThanOrEqual(44);
 		await openControl(page).tap();
 		await expect(page).toHaveURL(new RegExp(`/blog/${slug}/?$`));
+	});
+
+	test('the picked post docks as a slim bar that covers no star, and the map moves only when zoomed in', async ({ page }) => {
+		await openMap(page);
+		const panel = await boxOf(map(page));
+		const before = await allCentres(page);
+		// The lowest star on the map: the one a bar at the foot would cover first.
+		const lowest = [...before].sort((a, b) => b.y - a.y)[0];
+		await page.touchscreen.tap(lowest.x, lowest.y - 3);
+		await expect(openControl(page)).toBeVisible();
+		const picked = await map(page).locator('a[aria-current="true"]').getAttribute('data-slug');
+		if (!picked) throw new Error('no star picked');
+		const dock = await boxOf(card(page));
+		// Slim: one row across the foot, about a tenth of the map, with no list in it.
+		expect(dock.height).toBeLessThan(panel.height * 0.12);
+		expect(dock.y + dock.height).toBeGreaterThan(panel.y + panel.height - 20);
+		await expect(card(page).getByRole('list')).toBeHidden();
+		// At rest it covers no star, the picked one least of all, and nothing has moved: a second tap lands on the same star.
+		const after = await allCentres(page);
+		expect(after.filter(centre => inside(dock, centre.x, centre.y, 4))).toEqual([]);
+		expect(after.find(centre => centre.slug === picked)?.y).toBeCloseTo(before.find(centre => centre.slug === picked)?.y ?? 0, 0);
+		// The legend gives its place to the bar and comes back when the star is let go.
+		await expect(legend(page).first()).toBeHidden();
+		const empty = await emptySpot(page);
+		await page.touchscreen.tap(empty.x, empty.y);
+		await expect(card(page)).toHaveCount(0);
+		await expect(legend(page).first()).toBeVisible();
+
+		// Zoomed in, a star picked near the foot is brought into view above the bar.
+		await control(page, 'Zoom in').tap();
+		await control(page, 'Zoom in').tap();
+		await expect(control(page, 'Reset')).toBeEnabled();
+		// The link layer follows once the map is still. A tap on a control may also have scrolled the page, so the sky is measured again.
+		await expect.poll(async () => {
+			const first = (await allCentres(page))[0];
+			await page.waitForTimeout(250);
+			const second = (await allCentres(page))[0];
+			return first.x === second.x && first.y === second.y;
+		}).toBe(true);
+		const now = await boxOf(map(page));
+		const zoomed = (await allCentres(page)).filter(centre => centre.x > now.x + 40 && centre.x < now.x + now.width - 40 && centre.y < now.y + now.height - 88 && centre.y > now.y + now.height - 130);
+		if (zoomed.length === 0) throw new Error('no star near the foot once zoomed in');
+		const low = zoomed.sort((a, b) => b.y - a.y)[0];
+		await page.touchscreen.tap(low.x, low.y);
+		const chosen = await map(page).locator('a[aria-current="true"]').getAttribute('data-slug');
+		if (!chosen) throw new Error('no star picked once zoomed in');
+		const bar = await boxOf(card(page));
+		await expect.poll(async () => (await allCentres(page)).find(centre => centre.slug === chosen)?.y ?? Infinity).toBeLessThan(bar.y - 12);
 	});
 });
 
@@ -414,14 +647,14 @@ test.describe('phone, touch gestures', () => {
 
 	test('one finger scrolls the page over the map, at rest and zoomed in, and two fingers zoom', async ({ page }) => {
 		await openMap(page);
-		const reset = map(page).getByRole('button', { name: 'Reset', exact: true });
+		const reset = control(page, 'Reset');
 		const scrollY = () => page.evaluate(() => window.scrollY);
 		const middle = async () => {
 			await page.evaluate(() => document.querySelector('[data-testid="constellation-map"]')?.scrollIntoView({ block: 'center' }));
-			const box = await map(page).boundingBox();
-			if (!box) throw new Error('no map box');
+			const box = await boxOf(map(page));
 			return { x: box.x + box.width / 2, y: box.y + box.height * 0.4 };
 		};
+		expect(await map(page).evaluate(node => getComputedStyle(node).touchAction)).toBe('pan-y');
 
 		// At rest a swipe up scrolls the page.
 		let at = await middle();
@@ -439,6 +672,7 @@ test.describe('phone, touch gestures', () => {
 		]);
 		await expect(reset).toBeEnabled();
 		expect(Math.abs((await scrollY()) - before)).toBeLessThan(4);
+		expect(await map(page).evaluate(node => getComputedStyle(node).touchAction)).toBe('pan-y');
 
 		// Zoomed in, a swipe up still scrolls the page: the map never traps it.
 		at = await middle();
@@ -459,11 +693,13 @@ test.describe('phone, touch gestures', () => {
 test('reduced motion: the sky is complete at once and nothing animates', async ({ page }) => {
 	await page.emulateMedia({ reducedMotion: 'reduce' });
 	await openMap(page);
+	// The arrival, which fades and never slides, is over.
+	await expect.poll(() => page.evaluate(() => document.querySelector('.constellation')?.nextElementSibling?.getAnimations().length)).toBe(0);
 	const { x, y } = await loneStar(page);
 	await page.mouse.move(x, y);
-	await expect(card(page)).toBeVisible();
-	await map(page).getByRole('button', { name: /^Go to / }).first().click();
-	await expect(map(page).getByRole('button', { name: 'Reset', exact: true })).toBeEnabled();
+	await expect(tip(page)).toBeVisible();
+	await names(page).first().click();
+	await expect(control(page, 'Reset')).toBeEnabled();
 	const moving = await page.evaluate(() => {
 		const section = document.querySelector('.constellation');
 		const running = document.getAnimations().filter(animation => {

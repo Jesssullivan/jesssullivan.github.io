@@ -3,8 +3,8 @@
  *
  * The t-SNE fit in posts-projection.v1.json only says where each post sits.
  * Everything else the map draws is decided here, once, by the generator:
- * the turn that puts the long axis across the screen, the groups and their
- * names, the figure lines, the size and glow of each star, the neighbours, the
+ * the turn that puts the long axis across the screen, the constellations and
+ * their names, the figure lines, the size and glow of each star, the neighbours, the
  * name anchors and where and from what zoom each post title shows. The browser
  * applies transforms to this and nothing more.
  *
@@ -12,21 +12,18 @@
  * the same posts always give the same bytes.
  */
 import { codePointCompare, stripPostMarkup } from './text';
-import { LABEL_FIELD, MAX_ZOOM, STAR_GROWTH, STAR_RADIUS, TITLE_GAP, shortTitle } from './view';
+import { LABEL_FIELD, MAX_ZOOM, STAR_GROWTH, STAR_RADIUS, STAR_SCALE, TITLE_GAP, shortTitle } from './view';
 
 export const CONSTELLATION_SCHEMA = 'constellation.v1';
 export const SILHOUETTE_SCHEMA = 'constellation-silhouette.v1';
 
 /** Coordinates are integers on this grid, each axis filled edge to edge. */
 export const GRID = 1000;
-/** About this many posts per group before names are settled. */
-const POSTS_PER_GROUP = 12;
-const MAX_GROUPS = 14;
-/** A figure line longer than this many median lines of its group is not drawn. */
+/** A figure line longer than this many median lines of its constellation is not drawn. */
 const LONG_LINE = 2.6;
-/** Two groups that earn the same name merge when this close, in median nearest-star gaps. */
-const MERGE_GAP = 6;
-/** A group keeps its name and figure with at least this many stars that carry the name. */
+/** Two stars of one category belong to one constellation when this close, in median nearest-star gaps. */
+const LINK_GAP = 6;
+/** Fewer stars than this make no figure: they stay single stars. */
 const MIN_FIGURE = 3;
 /** Titles show from this scale of the reference field up, so the map at rest carries names only. */
 export const TITLE_FLOOR = 2.4;
@@ -55,21 +52,6 @@ const CATEGORY_LABEL: Record<string, string> = {
 	other: 'Other',
 };
 
-/**
- * Tags that say nothing about a subject never name a group: these five are the
- * catch-all tags of the old WordPress site. A string value renames a tag.
- */
-const TAG_LABEL: Record<string, string | null> = {
-	featured: null,
-	reviews: null,
-	ideas: null,
-	'how-to': null,
-	diy: null,
-	maker: 'Making',
-	'3d-printing': 'Making',
-	cnc: 'Making',
-};
-
 export interface LayoutSource {
 	slug: string;
 	/** Only its length is used, to reserve room for the title on the map. */
@@ -86,17 +68,18 @@ export interface ProjectionInput {
 	edges: ReadonlyArray<readonly [number, number, number]>;
 }
 
-/** [slug, x, y, category, group, size, glow]. Group is -1 for a star outside every group. */
+/** [slug, x, y, category, group, size, glow]. Group is -1 for a star outside every constellation. */
 export type StarRow = [string, number, number, number, number, number, number];
 
 export interface GroupRow {
+	/** The category's label, on the largest constellation of that category. Empty on a smaller one: it has a figure and no name. */
 	name: string;
 	/** Label centre on the wide frame and on the tall (transposed) frame. */
 	wide: [number, number];
 	tall: [number, number];
 	/** Soft glow behind the group on the wide frame: centre and radii. */
 	glow: [number, number, number, number];
-	/** Category most of its stars share, for the glow tint. */
+	/** The category every star in it has. */
 	category: number;
 }
 
@@ -169,36 +152,33 @@ function turn(points: ReadonlyArray<{ x: number; y: number }>): Point[] {
 
 const distance = (a: Point, b: Point) => Math.hypot(a.u - b.u, a.v - b.v);
 
-/** Ward agglomerative clustering down to `k` groups. Ties go to the lower indices. */
-function ward(points: readonly Point[], k: number): number[][] {
-	let clusters = points.map((p, i) => ({ members: [i], u: p.u, v: p.v }));
-	while (clusters.length > k) {
-		let bestI = 0;
-		let bestJ = 1;
-		let best = Infinity;
-		for (let i = 0; i < clusters.length; i += 1) {
-			for (let j = i + 1; j < clusters.length; j += 1) {
-				const a = clusters[i];
-				const b = clusters[j];
-				const cost = ((a.members.length * b.members.length) / (a.members.length + b.members.length)) * ((a.u - b.u) ** 2 + (a.v - b.v) ** 2);
-				if (cost < best) {
-					best = cost;
-					bestI = i;
-					bestJ = j;
-				}
-			}
+/**
+ * Constellations: the stars of one category that sit together. Two stars of a
+ * category are joined when they are within `gap` of each other, and each joined
+ * set of at least MIN_FIGURE stars is a constellation. So every star in a
+ * figure has the figure's category, and a name on the map is the same word and
+ * colour as its entry in the legend. The largest constellation of a category
+ * carries the name. A smaller one keeps its figure and gets no name.
+ */
+function constellations(points: readonly Point[], categoryOf: readonly number[], labels: readonly string[], gap: number): Array<{ name: string; category: number; members: number[] }> {
+	const parent = points.map((_, index) => index);
+	const find = (index: number): number => (parent[index] === index ? index : (parent[index] = find(parent[index])));
+	for (let a = 0; a < points.length; a += 1) {
+		for (let b = a + 1; b < points.length; b += 1) {
+			if (categoryOf[a] === categoryOf[b] && distance(points[a], points[b]) <= gap) parent[find(b)] = find(a);
 		}
-		const a = clusters[bestI];
-		const b = clusters[bestJ];
-		const size = a.members.length + b.members.length;
-		clusters[bestI] = {
-			members: [...a.members, ...b.members].sort((p, q) => p - q),
-			u: (a.u * a.members.length + b.u * b.members.length) / size,
-			v: (a.v * a.members.length + b.v * b.members.length) / size,
-		};
-		clusters = clusters.filter((_, index) => index !== bestJ);
 	}
-	return clusters.map((cluster) => cluster.members);
+	const sets = new Map<number, number[]>();
+	points.forEach((_, index) => sets.set(find(index), [...(sets.get(find(index)) ?? []), index]));
+	// Largest first, so group numbers are stable against small edits. A tie goes to the lower category, then the lower star.
+	const found = [...sets.values()].filter((members) => members.length >= MIN_FIGURE).sort((a, b) => b.length - a.length || categoryOf[a[0]] - categoryOf[b[0]] || a[0] - b[0]);
+	const named = new Set<number>();
+	return found.map((members) => {
+		const category = categoryOf[members[0]];
+		const first = !named.has(category);
+		named.add(category);
+		return { name: first ? labels[category] : '', category, members };
+	});
 }
 
 function median(values: number[]): number {
@@ -207,66 +187,9 @@ function median(values: number[]): number {
 	return sorted[Math.floor(sorted.length / 2)];
 }
 
-/** Subject labels one post can lend a group: its category and its tags. */
-function subjects(source: LayoutSource): string[] {
-	const out = new Set<string>();
-	const category = source.category?.trim().toLowerCase();
-	if (category) out.add(CATEGORY_LABEL[category] ?? sentenceCase(category));
-	for (const tag of source.tags) {
-		const key = tag.trim().toLowerCase();
-		if (!key) continue;
-		const label = key in TAG_LABEL ? TAG_LABEL[key] : sentenceCase(tag.trim());
-		if (label) out.add(label);
-	}
-	return [...out];
-}
-
 function sentenceCase(text: string): string {
 	const spaced = text.replace(/-/g, ' ');
 	return spaced.charAt(0).toUpperCase() + spaced.slice(1).toLowerCase();
-}
-
-/**
- * Name groups from what their posts share. A label scores by how much of the
- * group carries it (squared, so a label on every post wins) times how much of
- * that label lives in the group, and it must be on at least half of the group.
- * Two groups that earn the same name merge when they touch. Otherwise the
- * weaker one takes its next label. A named group then keeps only the stars
- * that carry its name, so a figure never claims a post its name is not true of.
- */
-function nameGroups(groups: number[][], points: readonly Point[], sources: readonly LayoutSource[], gap: number): Array<{ name: string; members: number[] }> {
-	const labelsOf = sources.map(subjects);
-	const totals = new Map<string, number>();
-	for (const labels of labelsOf) for (const label of labels) totals.set(label, (totals.get(label) ?? 0) + 1);
-	const ranked = groups.map((members) => {
-		const counts = new Map<string, number>();
-		for (const m of members) for (const label of labelsOf[m]) counts.set(label, (counts.get(label) ?? 0) + 1);
-		const choices = [...counts.entries()]
-			.filter(([, count]) => count * 2 >= members.length)
-			.map(([label, count]) => ({ label, score: (count / members.length) ** 2 * (count / (totals.get(label) as number)) }))
-			.sort((a, b) => b.score - a.score || codePointCompare(a.label, b.label));
-		return { members, choices };
-	});
-	const order = ranked.map((_, index) => index).sort((a, b) => (ranked[b].choices[0]?.score ?? 0) - (ranked[a].choices[0]?.score ?? 0) || a - b);
-	const named: Array<{ name: string; members: number[] }> = [];
-	for (const index of order) {
-		const { members, choices } = ranked[index];
-		// A group that runs out of labels stays unnamed: its stars are drawn without a figure.
-		for (const { label } of choices) {
-			const owner = named.find((group) => group.name === label);
-			if (!owner) {
-				named.push({ name: label, members: [...members] });
-				break;
-			}
-			let closest = Infinity;
-			for (const a of members) for (const b of owner.members) closest = Math.min(closest, distance(points[a], points[b]));
-			if (closest <= gap) {
-				owner.members = [...owner.members, ...members].sort((p, q) => p - q);
-				break;
-			}
-		}
-	}
-	return named.map((group) => ({ name: group.name, members: group.members.filter((m) => labelsOf[m].includes(group.name)) })).filter((group) => group.members.length >= MIN_FIGURE);
 }
 
 /** Minimum spanning tree inside one group, without its overlong lines. */
@@ -350,6 +273,11 @@ function placeLabels(groups: Array<{ name: string; members: number[] }>, figure:
 	const anchors: Array<[number, number]> = new Array(groups.length);
 	const order = groups.map((_, g) => g).sort((a, b) => groups[b].members.length - groups[a].members.length || a - b);
 	for (const g of order) {
+		// A constellation without a name has no label to place.
+		if (!groups[g].name) {
+			anchors[g] = [0, 0];
+			continue;
+		}
 		// The name belongs to the main figure of the group, not to a stray pair off to one side.
 		const members = mainFigure(groups[g].members, figure);
 		const cx = members.reduce((sum, m) => sum + stars[m][0], 0) / members.length;
@@ -446,8 +374,8 @@ function placeTitles(widths: readonly number[], stars: readonly StarRow[], names
 		const [x, y] = frame.at(index);
 		return [(x / GRID) * frame.width, (y / GRID) * frame.height];
 	});
-	// A star at its largest, so a title is clear of it at every zoom.
-	const reach = stars.map((star) => STAR_RADIUS[star[5]] * MAX_ZOOM ** STAR_GROWTH);
+	// A star at its largest, on the largest field, so a title is clear of it at every zoom.
+	const reach = stars.map((star) => STAR_RADIUS[star[5]] * STAR_SCALE[1] * MAX_ZOOM ** STAR_GROWTH);
 	const boxOf = (index: number, side: number): Box => {
 		const far = reach[index] + TITLE_GAP + widths[index];
 		const tall = reach[index] + TITLE_GAP + 16;
@@ -505,11 +433,9 @@ export function layoutConstellation(projection: ProjectionInput, sources: readon
 	const categories = [...CATEGORY_ORDER.filter((id) => present.has(id)), ...[...present].filter((id) => !CATEGORY_ORDER.includes(id)).sort(codePointCompare)];
 	const categoryOf = posts.map((post) => categories.indexOf(post.category?.trim().toLowerCase() || 'other'));
 
+	const labels = categories.map((id) => CATEGORY_LABEL[id] ?? sentenceCase(id));
 	const nearestGap = median(points.map((p, i) => Math.min(...points.map((q, j) => (i === j ? Infinity : distance(p, q))))));
-	const k = Math.max(1, Math.min(MAX_GROUPS, n, Math.round(n / POSTS_PER_GROUP)));
-	const named = n ? nameGroups(ward(points, k), points, posts, nearestGap * MERGE_GAP) : [];
-	// Largest group first, so group numbers are stable against small edits.
-	named.sort((a, b) => b.members.length - a.members.length || codePointCompare(a.name, b.name));
+	const named = n > 1 ? constellations(points, categoryOf, labels, nearestGap * LINK_GAP) : [];
 	const groupOf = new Array<number>(n).fill(-1);
 	named.forEach((group, g) => group.members.forEach((m) => (groupOf[m] = g)));
 
@@ -549,28 +475,26 @@ export function layoutConstellation(projection: ProjectionInput, sources: readon
 		const cx = group.members.reduce((sum, m) => sum + grid[m][0], 0) / group.members.length;
 		const cy = group.members.reduce((sum, m) => sum + grid[m][1], 0) / group.members.length;
 		const spread = (axis: 0 | 1, centre: number) => Math.sqrt(group.members.reduce((sum, m) => sum + (grid[m][axis] - centre) ** 2, 0) / group.members.length);
-		const counts = new Map<number, number>();
-		for (const m of group.members) counts.set(categoryOf[m], (counts.get(categoryOf[m]) ?? 0) + 1);
-		const category = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
 		return {
 			name: group.name,
 			wide: wide[g],
 			tall: tall[g],
 			glow: [Math.round(cx), Math.round(cy), Math.round(spread(0, cx) * 2 + 30), Math.round(spread(1, cy) * 2 + 30)],
-			category,
+			category: group.category,
 		};
 	});
 
 	const titleWidths = posts.map((post) => titleWidth(shortTitle(post.title ?? post.slug)));
 	// A name on the map as a box: its anchor in reference pixels and half its width as drawn on a desktop.
-	const nameBoxes = (anchors: Array<[number, number]>, [width, height]: readonly [number, number]) => named.map((group, g) => ({ at: [(anchors[g][0] / GRID) * width, (anchors[g][1] / GRID) * height] as [number, number], half: (group.name.length * 9 + 14) / 2 }));
+	const nameBoxes = (anchors: Array<[number, number]>, [width, height]: readonly [number, number]) =>
+		named.flatMap((group, g) => (group.name ? [{ at: [(anchors[g][0] / GRID) * width, (anchors[g][1] / GRID) * height] as [number, number], half: (group.name.length * 9 + 14) / 2 }] : []));
 
 	return {
 		schema: CONSTELLATION_SCHEMA,
 		corpus_sha256: projection.corpus_sha256,
 		aspect,
 		categories,
-		labels: categories.map((id) => CATEGORY_LABEL[id] ?? sentenceCase(id)),
+		labels,
 		groups,
 		stars,
 		figure,

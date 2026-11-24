@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FIT, LABEL_FIELD, MAX_ZOOM, clampView, isFit, labelScale, mixView, nearestIndex, placeCard, restoreView, shortTitle, starRadius, storeView, viewForBox, viewToShow, zoomAt } from './view';
+import { CARD_BLOCKED, FIT, LABEL_FIELD, MAX_ZOOM, STAR_SCALE, clampView, isFit, labelScale, mixView, nearestIndex, placeCard, placeTip, restoreView, shortTitle, starRadius, starScale, storeView, viewForBox, viewToShow, zoomAt, type Keep } from './view';
 
 const size = { w: 1000, h: 500 };
 
@@ -10,6 +10,18 @@ describe('constellation view', () => {
 		expect(clampView({ k: 2, x: 400, y: -900 }, size)).toEqual({ k: 2, x: 0, y: -500 });
 		expect(isFit(FIT)).toBe(true);
 		expect(isFit({ k: 1.5, x: 0, y: 0 })).toBe(false);
+	});
+
+	it('lets the map ride up under a docked card, and no farther', () => {
+		// At rest the map cannot move. With a card docked over its foot it may ride up by the height of the card.
+		expect(clampView({ k: 1, x: 0, y: -120 }, size)).toEqual(FIT);
+		expect(clampView({ k: 1, x: 0, y: -120 }, size, 90)).toEqual({ k: 1, x: 0, y: -90 });
+		expect(clampView({ k: 2, x: 0, y: -900 }, size, 90)).toEqual({ k: 2, x: 0, y: -590 });
+		// A star under the card comes to rest above it.
+		const shown = viewToShow(FIT, 500, 480, size, 36, 108, 90);
+		expect(480 + shown.y).toBeCloseTo(500 - 108);
+		// Zooming keeps the lift it was given.
+		expect(zoomAt({ k: 1, x: 0, y: -90 }, 500, 250, 1, size, 90).y).toBe(-90);
 	});
 
 	it('zooms about the pointer', () => {
@@ -60,6 +72,14 @@ describe('constellation view', () => {
 		expect(mixView(a, b, 0.5, size).k).toBeCloseTo(2);
 	});
 
+	it('draws stars larger on a large sky and smaller on a phone', () => {
+		expect(starScale({ w: 1000, h: 810 })).toBe(1);
+		expect(starScale({ w: 390, h: 760 })).toBe(STAR_SCALE[0]);
+		expect(starScale({ w: 1920, h: 929 })).toBe(STAR_SCALE[1]);
+		expect(starScale({ w: 1440, h: 774 })).toBeGreaterThan(1);
+		expect(starScale({ w: 1440, h: 774 })).toBeLessThan(STAR_SCALE[1]);
+	});
+
 	it('grows stars more slowly than the map', () => {
 		expect(starRadius(0, 1)).toBe(2.8);
 		expect(starRadius(3, 1)).toBeGreaterThan(starRadius(0, 1));
@@ -96,19 +116,89 @@ describe('constellation view', () => {
 		expect(nearestIndex(xs, ys, 204, 200, reach, (index) => index !== 1)).toBe(0);
 	});
 
-	it('puts the card beside the star, inside the panel', () => {
-		const card = { w: 300, h: 160 };
-		expect(placeCard(200, 250, card, size)).toEqual({ left: 218, top: 170 });
-		// No room on the right: the card goes to the left of the star.
-		expect(placeCard(900, 250, card, size)).toEqual({ left: 582, top: 170 });
-		// Near the top and bottom edges it stays inside.
-		expect(placeCard(200, 10, card, size).top).toBe(12);
-		expect(placeCard(200, 495, card, size).top).toBe(500 - 12 - 160);
-		// The card keeps away from the star's nearest posts: they are down and to the right, so it goes up and to the left.
-		expect(placeCard(500, 250, card, size, { x: 560, y: 300 })).toEqual({ left: 500 - 18 - 300, top: 250 - 160 + 30 });
-		expect(placeCard(500, 250, card, size, { x: 440, y: 200 })).toEqual({ left: 518, top: 220 });
-		// No room on the wanted side: the other side.
-		expect(placeCard(100, 250, card, size, { x: 160, y: 250 }).left).toBe(118);
+	it('puts the pinned card in free space near the star, never over the star or its nearest posts', () => {
+		const card = { w: 240, h: 200 };
+		const box = [10, 28, 990, 440] as const;
+		const inside = (spot: { left: number; top: number }, x: number, y: number, pad = 0) => x > spot.left - pad && x < spot.left + card.w + pad && y > spot.top - pad && y < spot.top + card.h + pad;
+		const covered = (spot: { left: number; top: number }, keep: readonly Keep[]) => keep.filter(([x, y]) => inside(spot, x, y, 4)).length;
+		// Nothing in the way: beside the star, on the right, level with it.
+		expect(placeCard(300, 240, card, box)).toMatchObject({ left: 316, top: 140 });
+		// No room on the right: the left.
+		expect(placeCard(900, 240, card, box)).toMatchObject({ left: 900 - 16 - 240, top: 140 });
+		// It stays inside the part of the panel it may use, and off the star.
+		for (const [x, y] of [[300, 430], [20, 40], [980, 430], [500, 30]] as const) {
+			const spot = placeCard(x, y, card, box);
+			expect(spot.left).toBeGreaterThanOrEqual(10);
+			expect(spot.left + card.w).toBeLessThanOrEqual(990);
+			expect(spot.top).toBeGreaterThanOrEqual(28);
+			expect(spot.top + card.h).toBeLessThanOrEqual(440);
+			expect(inside(spot, x, y, 12), `${x},${y}`).toBe(false);
+		}
+		// The star's nearest posts are to its right: the card goes where it covers none of them.
+		const near: Keep[] = [
+			[360, 230, CARD_BLOCKED],
+			[420, 300, CARD_BLOCKED],
+			[380, 150, CARD_BLOCKED],
+		];
+		const clear = placeCard(300, 240, card, box, near);
+		expect(covered(clear, near)).toBe(0);
+		expect(inside(clear, 300, 240, 12)).toBe(false);
+		// Hemmed in on every side by its nearest posts, it moves out past them and still never covers the star.
+		const ring: Keep[] = Array.from({ length: 12 }, (_, step): Keep => [500 + Math.cos((step * Math.PI) / 6) * 90, 240 + Math.sin((step * Math.PI) / 6) * 90, CARD_BLOCKED]);
+		const hemmed = placeCard(500, 240, card, box, ring);
+		expect(inside(hemmed, 500, 240, 12)).toBe(false);
+		expect(covered(hemmed, ring)).toBe(0);
+		// Other stars cost a little: a crowded side loses to an empty one, and the card stays close.
+		const crowd: Keep[] = [
+			[400, 200, 4],
+			[450, 260, 4],
+			[380, 290, 4],
+		];
+		const quiet = placeCard(300, 240, card, box, crowd);
+		expect(covered(quiet, crowd)).toBe(0);
+		expect(quiet.left + card.w).toBeLessThan(300);
+		expect(300 - quiet.left - card.w).toBeLessThan(40);
+		// One star in the way is not worth a long move: the card slides clear of it and stays beside its own star.
+		const one: Keep[] = [[330, 250, 4]];
+		const slid = placeCard(300, 240, card, box, one);
+		expect(covered(slid, one)).toBe(0);
+		expect(Math.hypot(Math.max(slid.left - 300, 0, 300 - slid.left - card.w), Math.max(slid.top - 240, 0, 240 - slid.top - card.h))).toBeLessThan(60);
+		// A card that is already placed stays put when another spot is only a little better.
+		const held = placeCard(300, 240, card, box);
+		const nudge: Keep[] = [[330, 250, 1]];
+		expect(placeCard(300, 240, card, box, nudge).at).not.toEqual(held.at);
+		expect(placeCard(300, 240, card, box, nudge, held.at)).toEqual(held);
+		// A clearly better spot still wins over the one it has.
+		expect(placeCard(300, 240, card, box, one.map(([x, y]): Keep => [x, y, CARD_BLOCKED]), held.at).at).not.toEqual(held.at);
+	});
+
+	it('puts the tooltip beside the star, never on it, and flips it at an edge', () => {
+		const tip = { w: 200, h: 44 };
+		// Right of the star, level with it, clear of its edge.
+		expect(placeTip(300, 200, 8, tip, size)).toEqual({ left: 317, top: 178 });
+		// Near the right edge it flips to the left.
+		expect(placeTip(900, 200, 8, tip, size)).toEqual({ left: 900 - 17 - 200, top: 178 });
+		// Asked for the left first, it takes the left, and flips right at the left edge.
+		expect(placeTip(500, 200, 8, tip, size, -1).left).toBe(500 - 17 - 200);
+		expect(placeTip(100, 200, 8, tip, size, -1).left).toBe(117);
+		// At the top and the foot it stays inside and still beside the star.
+		expect(placeTip(300, 6, 8, tip, size).top).toBe(8);
+		expect(placeTip(300, 496, 8, tip, size).top).toBe(500 - 8 - 44);
+		// A panel too narrow for either side: above the star, or below it at the top.
+		const narrow = { w: 300, h: 500 };
+		expect(placeTip(150, 200, 8, tip, narrow)).toEqual({ left: 50, top: 200 - 17 - 44 });
+		expect(placeTip(150, 30, 8, tip, narrow).top).toBe(47);
+		// Told what each spot would hide, it takes the spot that hides least: here the one above the star. A tie keeps the first spot.
+		expect(placeTip(500, 200, 8, tip, size, 1, (spot) => (spot.top + tip.h <= 200 - 17 ? 0 : 3))).toEqual({ left: 400, top: 200 - 17 - 44 });
+		expect(placeTip(500, 200, 8, tip, size, 1, (spot) => (spot.top >= 200 + 17 ? 0 : 3))).toEqual({ left: 400, top: 217 });
+		expect(placeTip(500, 200, 8, tip, size, 1, () => 1)).toEqual({ left: 517, top: 178 });
+		// It never covers the star it describes.
+		for (const x of [20, 150, 480, 700, 980]) {
+			for (const y of [10, 250, 490]) {
+				for (const spot of [placeTip(x, y, 8, tip, size), placeTip(x, y, 8, tip, size, -1, (at) => at.left + at.top)])
+				expect(x > spot.left - 8 && x < spot.left + tip.w + 8 && y > spot.top - 8 && y < spot.top + tip.h + 8, `${x},${y}`).toBe(false);
+			}
+		}
 	});
 
 	it('stores a view as fractions and restores it at another size', () => {

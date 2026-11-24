@@ -14,6 +14,7 @@ export interface Star {
 	slug: string;
 	title: string;
 	date: string;
+	/** One line about the post, without web addresses. Empty when the post's own summary is only an address. */
 	description: string;
 	href: string;
 	/** Position in the unit square of the frame in use (wide, or transposed for tall). */
@@ -33,6 +34,7 @@ export interface Star {
 }
 
 export interface Group {
+	/** The category's label, or empty for a constellation that has a figure and no name. */
 	name: string;
 	/** Label centre, unit square. */
 	x: number;
@@ -90,6 +92,22 @@ export function isConstellationData(value: unknown): value is ConstellationData 
 	);
 }
 
+/**
+ * A post's summary as the map shows it. Many old summaries open with a web
+ * address or are nothing else. An address is cut out, and what is left around
+ * it is shown only when it still says something.
+ */
+export function summaryOf(description: string | undefined): string {
+	const whole = (description ?? '').replace(/\s+/g, ' ').trim();
+	const text = whole
+		.replace(/\b(?:https?:\/\/|www\.)\S+/gi, ' ')
+		.replace(/\s+/g, ' ')
+		.replace(/^[\s.,:;…-]+/, '')
+		.trim();
+	if (text === whole) return whole;
+	return (text.match(/[\p{L}\p{N}]{2,}/gu) ?? []).length >= 3 ? text : '';
+}
+
 /** Join the layout with routeable posts. Stars keep the layout's slug order. */
 export function buildSky(data: unknown, routeablePosts: readonly Post[], tall = false): Sky | null {
 	if (!isConstellationData(data)) return null;
@@ -105,7 +123,7 @@ export function buildSky(data: unknown, routeablePosts: readonly Post[], tall = 
 			slug,
 			title: post.title,
 			date: post.date,
-			description: post.description ?? '',
+			description: summaryOf(post.description),
 			href: `/blog/${slug}`,
 			x: (tall ? y : x) / GRID,
 			y: (tall ? x : y) / GRID,

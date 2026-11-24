@@ -50,27 +50,49 @@ describe('constellation layout', () => {
 		expect(data.stars.map((star) => star[0])).toEqual(projection.posts.map((post) => post.slug));
 	});
 
-	it('names each group from what its posts share, never from a generic tag', () => {
-		expect(data.groups.map((group) => group.name).sort()).toEqual(['Birding', 'Making', 'Music']);
-		for (const [slug, , , , group] of data.stars) expect(data.groups[group].name).toBe({ g0: 'Birding', g1: 'Making', g2: 'Music' }[slug.slice(0, 2)]);
-		// Categories keep the legend order, and each group is tinted by the category most of it shares.
+	it('makes a constellation of each category that sits together, and names it as the legend does', () => {
+		// The middle group holds two categories in turn, so it is two constellations in one place.
 		expect(data.categories).toEqual(CATEGORY_ORDER.filter((id) => ['ecology', 'hardware', 'music', 'software'].includes(id)));
 		expect(data.labels).toEqual(['Ecology', 'Music', 'Hardware', 'Software']);
-		expect(data.groups.find((group) => group.name === 'Music')?.category).toBe(data.categories.indexOf('music'));
+		expect(data.groups.map((group) => group.name).sort()).toEqual(['Ecology', 'Hardware', 'Music', 'Software']);
+		// Every name on the map is a word in the legend, in the colour of its stars.
+		for (const group of data.groups) expect(group.name).toBe(data.labels[group.category]);
+		// Every star in a figure has the figure's category: no name is wrong for any of its stars.
+		for (const [, , , category, group] of data.stars) expect(data.groups[group].category).toBe(category);
+		expect(data.stars.filter((star) => star[4] < 0)).toEqual([]);
 	});
 
-	it('never names a group from a catch-all tag, and keeps a post out of a figure whose name is not true of it', () => {
-		// One recipe sits in the middle of the birding group, and the music group carries only the old Ideas tag.
-		const posts = [...projection.posts, { slug: 'stray', x: 0.15, y: 0.2 }];
-		const mixed = [...sources.map((source) => (source.slug.startsWith('g2') ? { ...source, tags: ['Ideas', 'How-To', 'DIY'] } : source)), { slug: 'stray', date: '2012-01-01', tags: ['recipe'], category: 'tutorial', body: 'word '.repeat(300) }];
-		const laid = layoutConstellation({ corpus_sha256: 'fixture', posts, edges: projection.edges }, mixed);
-		expect(laid.groups.map((group) => group.name).sort()).toEqual(['Birding', 'Making', 'Music']);
-		const row = laid.stars.findIndex((star) => star[0] === 'stray');
-		expect(laid.stars[row][4]).toBe(-1);
-		expect(laid.figure.flat()).not.toContain(row);
-		// It is still a star, with its own colour and its neighbours.
-		expect(laid.categories[laid.stars[row][3]]).toBe('tutorial');
-		expect(laid.near[row].length).toBeGreaterThanOrEqual(2);
+	it('gives the name to the largest constellation of a category, and no name to a smaller one or to a stray star', () => {
+		// Four more music posts far from the music group, one tutorial inside the ecology group and one hardware post on its own.
+		const extra = [
+			{ slug: 'm1', x: 0.84, y: 0.16 },
+			{ slug: 'm2', x: 0.86, y: 0.17 },
+			{ slug: 'm3', x: 0.85, y: 0.19 },
+			{ slug: 'm4', x: 0.87, y: 0.15 },
+			{ slug: 'stray', x: 0.15, y: 0.2 },
+			{ slug: 'alone', x: 0.2, y: 0.85 },
+		];
+		const source = (slug: string, category: string): LayoutSource => ({ slug, date: '2012-01-01', tags: ['Featured', 'Ideas'], category, body: 'word '.repeat(300) });
+		const mixed = [...sources, ...extra.slice(0, 4).map((post) => source(post.slug, 'music')), source('stray', 'tutorial'), source('alone', 'hardware')];
+		const laid = layoutConstellation({ corpus_sha256: 'fixture', posts: [...projection.posts, ...extra], edges: projection.edges }, mixed);
+		const music = laid.categories.indexOf('music');
+		const ofMusic = laid.groups.filter((group) => group.category === music);
+		expect(ofMusic.map((group) => group.name)).toEqual(['Music', '']);
+		// The smaller one still has its figure.
+		const small = laid.groups.indexOf(ofMusic[1]);
+		const members = laid.stars.map((star, index) => (star[4] === small ? index : -1)).filter((index) => index >= 0);
+		expect(members.map((index) => laid.stars[index][0])).toEqual(['m1', 'm2', 'm3', 'm4']);
+		expect(laid.figure.filter(([a, b]) => members.includes(a) && members.includes(b)).length).toBeGreaterThanOrEqual(2);
+		// A name is never a tag, and never one a group did not earn.
+		expect(laid.groups.map((group) => group.name).filter(Boolean).sort()).toEqual(['Ecology', 'Hardware', 'Music', 'Software']);
+		for (const slug of ['stray', 'alone']) {
+			const row = laid.stars.findIndex((star) => star[0] === slug);
+			expect(laid.stars[row][4]).toBe(-1);
+			expect(laid.figure.flat()).not.toContain(row);
+			// It is still a star, with its own colour and its neighbours.
+			expect(laid.categories[laid.stars[row][3]]).toBe(slug === 'stray' ? 'tutorial' : 'hardware');
+			expect(laid.near[row].length).toBeGreaterThanOrEqual(2);
+		}
 	});
 
 	it('gives each title a side and a scale, and no two titles or a title and a star ever meet', () => {
@@ -142,7 +164,7 @@ describe('constellation layout', () => {
 	it('keeps every label clear of every star on both frames', () => {
 		for (const frame of ['wide', 'tall'] as const) {
 			const [width, height] = LABEL_FIELD[frame];
-			for (const group of data.groups) {
+			for (const group of data.groups.filter((entry) => entry.name)) {
 				const [lx, ly] = group[frame];
 				const halfW = (group.name.length * 7.6 + 10) / 2;
 				for (const [, x, y] of data.stars) {
