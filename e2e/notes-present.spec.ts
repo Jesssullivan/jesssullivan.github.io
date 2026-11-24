@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // TIN-8654: runs only in //:playwright_notes_e2e, which builds the site from
 // the xoxd-projection/v2 valid blog fixture after the projection step
-// verified it with the contract's fixture key. The fixture holds one note
+// verified it with the contract's fixture public key. The fixture holds one note
 // (/notes/first-light), one article (/blog/drawing-orbits) and one
 // announcement (/announcements/office-hours).
 
@@ -13,6 +13,7 @@ test('the navigation links to Notes and /notes lists the note', async ({ page })
 	await expect(page.locator('nav a[href="/notes"]').first()).toBeVisible();
 	await page.goto('/notes');
 	await expect(page.getByRole('heading', { level: 1, name: 'Notes' })).toBeVisible();
+	await expect(page.getByText('1 note', { exact: true })).toBeVisible();
 	const list = page.getByTestId('notes-list');
 	await expect(list.locator('a[href="/notes/first-light"]')).toContainText('First light');
 	await expect(list).toContainText('The hub published its first note to the blog.');

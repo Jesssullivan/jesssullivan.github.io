@@ -38,7 +38,7 @@
 <div class="container mx-auto px-4 py-12 max-w-5xl">
 	<div class="flex flex-wrap items-baseline justify-between gap-3 mb-8">
 		<h1 class="font-heading text-3xl font-bold">Notes</h1>
-		<p class="text-sm text-surface-500">{data.notes.length} notes</p>
+		<p class="text-sm text-surface-500">{data.notes.length} {data.notes.length === 1 ? 'note' : 'notes'}</p>
 	</div>
 
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
