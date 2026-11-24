@@ -42,9 +42,32 @@ No file is committed for this and no verification is skipped. The hub needs
 only Actions write to start the carrier. A dispatch also reads the live
 receipt first and refuses a lower `seq` before it fetches from the hub.
 
-While the pinned key is the placeholder, the step refuses every dispatch,
-fetches nothing without inputs, and the site builds with no notes. The build
-log says so.
+## The pinned key and the hub origin
+
+`projection/hub-ed25519.pub` holds the hub's projection signing public key:
+the 32 raw ed25519 bytes as standard base64. Its fingerprint, the sha256 of
+the SPKI DER, is `SHA256:Of2yGf0oxWtl3/FgFX1V1etRLKqCNFZZNeSav9dnJAs=`. It is
+a public key. The private half is held by the hub only.
+
+`allowedBases` and `recoveryBase` in `projection/config.json` are
+`https://social.transscendsurvival.org`. That is the hub's planned public
+origin for target `blog`. It does not answer until the hub is deployed. Until
+then a dispatch fails when it fetches from the hub, and a build with no inputs still
+reads the live receipt and builds no notes on a 404.
+
+`projection/step.mjs` still refuses a placeholder key: with it, the step
+refuses every dispatch, fetches nothing without inputs, and the site builds
+with no notes.
+
+## The module
+
+`xoxd_projection` 1.0.0 comes from the registry pinned in `.bazelrc`, as a
+normal `bazel_dep` in `MODULE.bazel`, so the public graph
+(`--ignore_dev_dependency`) resolves it too. Every `//projection` label
+reaches it through `XOXD_PROJECTION` in `projection/module.bzl`. The CI step
+"Refuse a stand-in for the xoxd_projection registry module" runs
+`projection/check-no-temporary-override.mjs`. It fails if a vendored copy, an
+override or another label comes back.
 
 ## What a projection can and cannot change
 
@@ -63,10 +86,12 @@ log says so.
 
 ## Tests
 
-- `//projection:step_test`: the step against the contract fixtures with the
-  contract's fixture key. A tampered manifest, a wrong signature, a lower
-  `seq` and the firm target's manifest each fail closed and leave the
-  previous output untouched.
+- `//projection:step_test`: the step against the contract fixtures that the
+  `xoxd_projection` module ships, with the contract's fixture public key. The
+  module leaves out the key pair file, which also holds the private half.
+  A tampered manifest, a wrong signature, a lower `seq` and the firm
+  target's manifest each fail closed and leave the previous output
+  untouched.
 - `//:playwright_notes_e2e`: the site built from the valid blog fixture.
   `/notes` lists the note and `/notes/first-light` renders it.
 - `e2e/notes-absent.spec.ts` in `//:playwright_chromium_e2e`: the default
@@ -77,32 +102,7 @@ log says so.
 
 ## Before merge
 
-`xoxd_projection` 1.0.0 is not in the registry yet (TIN-8643), and the hub is
-not deployed. This change stays a draft until both are done.
-
-1. In `MODULE.bazel`, delete the comment block that starts with
-   `# TEMPORARY, DRAFT ONLY (TIN-8654).` and add in its place:
-
-   ```starlark
-   bazel_dep(name = "xoxd_projection", version = "1.0.0")
-   ```
-
-   If the registry pin in `.bazelrc` predates the release, move it to the
-   registry commit that adds `modules/xoxd_projection/1.0.0`.
-2. In `projection/module.bzl`, replace
-   `XOXD_PROJECTION = "//third_party/xoxd_projection_REMOVE_BEFORE_MERGE"`
-   with `XOXD_PROJECTION = "@xoxd_projection//"` and drop the TEMPORARY
-   comment above it.
-3. Delete the directory `third_party/xoxd_projection_REMOVE_BEFORE_MERGE`.
-4. Delete its line and the comment above it in `.gitleaks.toml`.
-5. Delete `projection/check-no-temporary-override.mjs` and the CI step
-   "Refuse the temporary xoxd_projection override outside a draft" in
-   `.github/workflows/ci.yml`.
-6. Refresh `MODULE.bazel.lock` with `bazel mod deps --lockfile_mode=update`,
-   once with and once without `--ignore_dev_dependency`.
-7. Replace `projection/hub-ed25519.pub` with the hub's real ed25519 public
-   key: 44 characters of standard base64, one line.
-8. Set `allowedBases` and `recoveryBase` in `projection/config.json` to the
-   hub's real https origin.
-9. Point the hub's dispatch for target `blog` at
+1. Confirm when the hub answers at `https://social.transscendsurvival.org`
+   that it serves `projection/v2/blog/` signed by the pinned key.
+2. Point the hub's dispatch for target `blog` at
    `.github/workflows/hub-projection-v2.yml` on `main`.
