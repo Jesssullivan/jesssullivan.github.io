@@ -1,8 +1,0 @@
-xoxd projection
-
-The consumer side of the xoxd-projection/v2 contract, Copyright (c) 2026
-Jess Sullivan, under the MIT License. The verifier follows the hub's
-reference verifier and the canonical-v0 approval hash rule. testdata/ holds
-the contract fixtures and canonical-v0 vectors, copied byte for byte from
-the same author under the same terms. It has no runtime dependency. No
-telemetry, authentication, or application lifecycle is supplied here.

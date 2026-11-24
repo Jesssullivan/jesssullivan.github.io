@@ -5,6 +5,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { FIXTURE_KEY } from './step.mjs';
 
 /** The hub base the fixture fetch answers for. It is never a real host. */
 export const FIXTURE_BASE = 'https://hub.fixtures.invalid';
@@ -22,10 +23,14 @@ export function fixturesRoot(env = process.env) {
 	return dirname(isAbsolute(cases) ? cases : resolve(process.cwd(), cases));
 }
 
-/** The fixture key pair's public half, read from the fixtures, never from the repo pin. */
-export async function fixturePublicKey(root) {
-	const pair = JSON.parse(await readFile(join(root, 'TEST-ONLY-ed25519-key.json'), 'utf8'));
-	return pair.publicKey;
+/**
+ * The public half of the contract's test key pair, never the repo pin. The
+ * released module leaves out the pair's file, which also holds the private
+ * half, so this is FIXTURE_KEY from step.mjs. The valid fixtures verify only
+ * against it, and step.test.mjs checks the module's own copy of it.
+ */
+export function fixturePublicKey() {
+	return FIXTURE_KEY;
 }
 
 function answer(status, bytes = new Uint8Array()) {

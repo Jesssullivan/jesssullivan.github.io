@@ -1,3 +1,0 @@
-<p>Kepler found that <math><msup><mi>T</mi><mn class="tml-med-pad">2</mn></msup></math> grows with <math><msup><mi>a</mi><mn>3</mn></msup></math>.</p>
-<div class="math"><math display="block" class="tml-display"><mrow><msup><mi>T</mi><mn class="tml-med-pad">2</mn></msup><mo>=</mo><mfrac><mrow><mn>4</mn><msup><mi>π</mi><mn>2</mn></msup></mrow><mrow><mi>G</mi><mi>M</mi></mrow></mfrac><msup><mi>a</mi><mn>3</mn></msup></mrow></math></div>
-<figure class="embed-figure"><img src="/blog/drawing-orbits/orbit.png" alt="A single dot" loading="lazy" decoding="async" /><figcaption>One orbit, drawn small.</figcaption></figure><script>alert(1)</script>

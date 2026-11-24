@@ -31,7 +31,7 @@ const result = await runProjectionStep({
 			recoveryBase: FIXTURE_BASE,
 		}),
 	),
-	key: { placeholder: false, key: await fixturePublicKey(root) },
+	key: { placeholder: false, key: fixturePublicKey() },
 	inputs: { base: FIXTURE_BASE, ...VALID_BLOG },
 	outDir: resolve(outDir),
 	projection: await loadProjectionModule(),

@@ -24,7 +24,7 @@ import { checkDispatch } from './check-dispatch.mjs';
 
 const projection = await loadProjectionModule();
 const root = fixturesRoot();
-const fixtureKey = { placeholder: false, key: await fixturePublicKey(root) };
+const fixtureKey = { placeholder: false, key: fixturePublicKey() };
 const placeholder = { placeholder: true, key: null };
 const config = parseConfig(
 	JSON.stringify({
@@ -36,7 +36,7 @@ const config = parseConfig(
 		recoveryBase: FIXTURE_BASE,
 	}),
 );
-const FIRM_MANIFEST = '7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259';
+const FIRM_MANIFEST = 'e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f';
 
 async function scratch() {
 	return mkdtemp(join(tmpdir(), 'projection-step-'));
@@ -273,6 +273,13 @@ test('dispatch inputs are all three or none, each in its contract format', () =>
 		{ ...good, PROJECTION_BASE: 'https://localhost' },
 	];
 	for (const env of bad) assert.throws(() => readInputs(env), (error) => error instanceof StepError && error.code === 2);
+});
+
+test("the fixture key is the one the module's own tests verify the fixtures with", async () => {
+	const helpers = process.env.XOXD_PROJECTION_HELPERS;
+	assert.ok(helpers, 'XOXD_PROJECTION_HELPERS is not set');
+	const text = await readFile(helpers, 'utf8');
+	assert.ok(text.includes(`export const FIXTURE_PUBLIC_KEY = '${FIXTURE_KEY}';`), 'test/helpers.ts carries another fixture key');
 });
 
 test('the key parser refuses the contract test key and anything that is not a key', () => {

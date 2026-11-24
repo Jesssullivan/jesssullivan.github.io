@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * TEMPORARY (TIN-8654). Fails CI while the draft-only stand-in for the
- * xoxd_projection registry release is present on anything but a draft pull
- * request: the vendored package third_party/xoxd_projection_REMOVE_BEFORE_MERGE
- * or projection/module.bzl pointing at it. Delete this file and its CI step
- * together with the stand-in, once xoxd_projection 1.0.0 resolves from the
- * registry (TIN-8643).
- *
- * CI passes GITHUB_EVENT_NAME and PR_DRAFT (the pull request's draft flag).
+ * Keeps //projection on the registry release of xoxd_projection (TIN-8654).
+ * The draft of this change ran on a vendored copy until the module was
+ * released (TIN-8643). This check fails CI if any stand-in comes back:
+ * - the vendored package third_party/xoxd_projection_REMOVE_BEFORE_MERGE,
+ * - XOXD_PROJECTION in projection/module.bzl naming anything but the
+ *   registry repository @xoxd_projection//,
+ * - MODULE.bazel without a bazel_dep on xoxd_projection, or with an
+ *   override of that module.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -15,17 +15,30 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const STAND_IN = 'third_party/xoxd_projection_REMOVE_BEFORE_MERGE';
-const present = [];
-if (readFileSync(join(root, 'projection', 'module.bzl'), 'utf8').includes(STAND_IN)) {
-	present.push('projection/module.bzl pointing at the vendored copy');
-}
-if (existsSync(join(root, ...STAND_IN.split('/')))) present.push(STAND_IN);
+const found = [];
 
-if (present.length === 0) {
-	console.log('projection: no temporary xoxd_projection override is present');
-} else if (process.env.GITHUB_EVENT_NAME === 'pull_request' && process.env.PR_DRAFT === 'true') {
-	console.log(`projection: allowed on a draft pull request only: ${present.join(' and ')}`);
+if (existsSync(join(root, ...STAND_IN.split('/')))) found.push(STAND_IN);
+
+const moduleBzl = readFileSync(join(root, 'projection', 'module.bzl'), 'utf8');
+const label = moduleBzl.match(/^XOXD_PROJECTION = "([^"]*)"$/m)?.[1];
+if (label !== '@xoxd_projection//') {
+	found.push(`XOXD_PROJECTION in projection/module.bzl is ${label === undefined ? 'missing' : `"${label}"`}`);
+}
+
+const moduleBazel = readFileSync(join(root, 'MODULE.bazel'), 'utf8')
+	.split('\n')
+	.filter((line) => !line.trimStart().startsWith('#'))
+	.join('\n');
+if (!/bazel_dep\(\s*name\s*=\s*"xoxd_projection"/.test(moduleBazel)) {
+	found.push('MODULE.bazel has no bazel_dep on xoxd_projection');
+}
+if (/_override\([^)]*module_name\s*=\s*"xoxd_projection"/s.test(moduleBazel)) {
+	found.push('MODULE.bazel overrides xoxd_projection');
+}
+
+if (found.length === 0) {
+	console.log('projection: xoxd_projection comes from the registry, with no stand-in');
 } else {
-	console.error(`projection: remove before merge: ${present.join(' and ')}. See "Before merge" in docs/notes-from-projection.md.`);
+	console.error(`projection: take xoxd_projection from the registry only: ${found.join('; ')}.`);
 	process.exitCode = 1;
 }

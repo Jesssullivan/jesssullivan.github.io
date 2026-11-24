@@ -1,6 +1,0 @@
-{
-	"warning": "TEST KEY. It signs the projection-v2 fixtures only. It protects nothing. Never use it in production and never pin it in a site.",
-	"algorithm": "Ed25519",
-	"publicKey": "Wjm7prpw08+jKXNn2uO49GlsuB2p61fDad8MeU0/vVs=",
-	"privateKeyPkcs8": "MC4CAQAwBQYDK2VwBCIEIDlxZ5XFkWuQW4Wat27s2neSAmEvmBItIcu7nbCu0FQu"
-}

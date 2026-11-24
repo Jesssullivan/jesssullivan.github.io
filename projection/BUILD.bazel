@@ -5,13 +5,17 @@ load("//projection:module.bzl", "XOXD_PROJECTION")
 
 package(default_visibility = ["//visibility:public"])
 
-# The contract fixtures as the xoxd_projection module vendors them, byte for
-# byte from the hub contract. Tests and the e2e notes build use them, with the
-# fixture key they carry. Nothing here is the pinned key.
+# The contract fixtures as the released xoxd_projection module ships them,
+# byte for byte from the hub contract. Tests and the e2e notes build use them.
+# The module leaves out the hub's test key pair file, since it also holds the
+# private half. The fixtures verify against the pair's public half, which
+# step.mjs holds as FIXTURE_KEY. step_test checks that the module's
+# test/helpers.ts carries the same key. Nothing here is the pinned key.
 filegroup(
     name = "contract_fixtures",
     testonly = True,
     srcs = [
+        XOXD_PROJECTION + ":test/helpers.ts",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/sources.json",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/approval-mismatch/projection/v2/blog/manifests/a481f6d105038486de59831dc627ba6cd12ff3b5a085c27797f7cc425361fb63.json",
@@ -30,9 +34,8 @@ filegroup(
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/manifest-bytes-changed/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.json",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/redirect-conflict/projection/v2/blog/manifests/709150e61694f1615cc03b6131aa31a82ac53f9b0b916fa44fca7e1c5d3491fc.json",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/redirect-conflict/projection/v2/blog/manifests/709150e61694f1615cc03b6131aa31a82ac53f9b0b916fa44fca7e1c5d3491fc.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/TEST-ONLY-ed25519-key.json",
+        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.json",
+        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.sig",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/0637e42a7f6e75cf123b87d0ec944eca52150f6564fe60559dcf434c26819bbf",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/0fb259e1d3cab246527ad49f1ee366395d0dcc1ab233e01a93bd2131ae2dde85",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/2e0d76e4a20c6b425fac6b3ce5a39c12049a813e178c8f5fa561a8bd11e37f62",
@@ -48,8 +51,8 @@ filegroup(
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.json",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.sig",
         XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/head.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/7e605f3e948516b6873cd0794ccb83f8a3d5a2632fbcaa33fc505edd80bab259.sig",
+        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.json",
+        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.sig",
     ],
 )
 
@@ -104,6 +107,7 @@ js_test(
     entry_point = "step.test.mjs",
     env = {
         "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json)",
+        "XOXD_PROJECTION_HELPERS": "$(rootpath " + XOXD_PROJECTION + ":test/helpers.ts)",
         "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
     },
     timeout = "short",
