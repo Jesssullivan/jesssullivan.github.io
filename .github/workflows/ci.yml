@@ -69,8 +69,12 @@ jobs:
       - name: Report runner resources
         run: |
           echo "nproc: $(nproc)"
-          cat /sys/fs/cgroup/memory.max 2>/dev/null | sed 's/^/cgroup memory.max: /' || true
-          cat /sys/fs/cgroup/cpu.max 2>/dev/null | sed 's/^/cgroup cpu.max: /' || true
+          # nproc and free show the node. The pod limit lives in the cgroup
+          # (v2 first, then v1).
+          for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/cpu.max \
+            /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/cpu/cpu.cfs_quota_us; do
+            if [ -r "${f}" ]; then echo "${f}: $(cat "${f}")"; fi
+          done
           free -m || true
           df -h "${GITHUB_WORKSPACE}" || true
 
