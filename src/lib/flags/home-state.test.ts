@@ -52,6 +52,15 @@ describe('the home page changes places in one step (TIN-8657)', () => {
 		askHome(() => Promise.reject(new Error('offline')));
 		await settle();
 		expect(homeFlag.ready).toBe(false);
+		expect(homeFlag.failed).toBe(true);
 		expect(homeLoaded()).toBeNull();
+	});
+
+	it('hands the layout one object to put in its context, so the home page imports no file for the flag', async () => {
+		const { HOME_CONTEXT, askHome, homeContext, homeFlag, homeLoaded } = await fresh();
+		// The page reads the key as this same text.
+		expect(HOME_CONTEXT).toBe('tss:home');
+		expect(homeContext).toEqual({ flag: homeFlag, ask: askHome, loaded: homeLoaded });
+		expect(homeContext.flag).toBe(homeFlag);
 	});
 });

@@ -9,12 +9,11 @@
 	// Only the first scene is in the first paint. The others arrive when the browser is
 	// idle or one hold before they show.
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
 	import Picture from './Picture.svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import { HERON, type StageScene } from '$lib/home/scenes';
-	import { ArrivalBudget, FrameBudget, StageClock } from '$lib/home/stageClock';
+	import { ArrivalBudget, FrameBudget, StageClock, inputStops } from '$lib/home/stageClock';
 	import { tipFor } from '$lib/home/stream';
 
 	let {
@@ -43,7 +42,10 @@
 	let armed = $state<Record<string, boolean>>({});
 	let stageEl = $state<HTMLElement | null>(null);
 	let scenesEl = $state<HTMLDivElement | null>(null);
+	let controlsEl = $state<HTMLDivElement | null>(null);
 	let clock: StageClock | null = null;
+	/** ?stage-pace=20 runs the holds twenty times faster, for tests. It is read once, when the stage comes up. */
+	let pace = 1;
 	/** How long a mouse at rest over a scene keeps it waiting. */
 	const HOVER_REST_MS = 4000;
 
@@ -68,13 +70,17 @@
 	}
 
 	// The pause control shows Pause while the play runs or only waits by itself. A press then pauses it for the visitor.
+	// Play is the visitor's own word, so it also lifts a stop for the rest of the visit.
 	function toggle() {
-		if (playing || held) clock?.pause('visitor');
-		else clock?.resume();
+		if (playing || held) return clock?.pause('visitor');
+		stoppedThisVisit = false;
+		clock?.resume();
 	}
 
+	// A step is the visitor taking over: the play stops, and Play starts it again.
 	function step(delta: number) {
 		stepped = true;
+		stop();
 		clock?.step(delta);
 	}
 
@@ -88,8 +94,7 @@
 
 	onMount(() => {
 		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		// ?stage-pace=20 runs the holds twenty times faster, for tests.
-		const pace = Math.min(200, Math.max(1, Number(new URLSearchParams(page.url.search).get('stage-pace')) || 1));
+		pace = Math.min(200, Math.max(1, Number(new URLSearchParams(window.location.search).get('stage-pace')) || 1));
 		let tabHidden = document.hidden;
 		let offScreen = false;
 		let pointerOver = false;
@@ -147,10 +152,16 @@
 		);
 		if (stageEl) seen.observe(stageEl);
 
-		// Any press, key, wheel or touch on the scenes stops the play for the visit. The page still scrolls: nothing is cancelled.
+		// Any press, key, wheel or touch on the stage stops the play for the visit, on its controls as on its scenes.
+		// The page still scrolls: nothing is cancelled. A control answers for its own press, as inputStops says.
 		const inputs = ['pointerdown', 'keydown', 'wheel', 'touchstart', 'focusin'] as const;
 		const options = { capture: true, passive: true };
-		for (const name of inputs) scenesEl?.addEventListener(name, stop, options);
+		const onInput = (event: Event) => {
+			const target = event.target instanceof Element ? event.target : null;
+			const onControl = target?.closest('button')?.parentElement === controlsEl;
+			if (inputStops({ type: event.type, key: (event as KeyboardEvent).key, onControl, inScenes: scenesEl?.contains(target) === true })) stop();
+		};
+		for (const name of inputs) stageEl?.addEventListener(name, onInput, options);
 
 		// The first paint pays for the first scene only. The second is made ready a little later, when the browser is idle.
 		let idle: number | undefined;
@@ -163,7 +174,7 @@
 			clock = null;
 			document.removeEventListener('visibilitychange', onVisibility);
 			seen.disconnect();
-			for (const name of inputs) scenesEl?.removeEventListener(name, stop, options);
+			for (const name of inputs) stageEl?.removeEventListener(name, onInput, options);
 			scenesEl?.removeEventListener('pointermove', onMove);
 			scenesEl?.removeEventListener('pointerleave', onLeave);
 			window.clearTimeout(rest);
@@ -175,7 +186,6 @@
 
 	// The hub can add a scene after the page is up: the clock learns the new holds.
 	$effect(() => {
-		const pace = Math.min(200, Math.max(1, Number(new URLSearchParams(page.url.search).get('stage-pace')) || 1));
 		clock?.setHolds(scenes.map((entry) => entry.hold / pace));
 	});
 
@@ -239,7 +249,7 @@
 	data-still={still || reduced}
 >
 	<!-- The controls come first, so a keyboard reaches Pause before anything that moves. -->
-	<div class="controls" role="group" aria-label="Heading scenes">
+	<div class="controls" role="group" aria-label="Heading scenes" bind:this={controlsEl}>
 		{#if reduced}
 			<button type="button" aria-label="Previous" data-tip="Previous" onclick={() => step(-1)} onkeydown={onControlKey} data-testid="stage-previous">
 				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
@@ -543,8 +553,8 @@
 		mask-composite: intersect;
 	}
 	/*
-	 * The heron file is 672 by 219 pixels and no larger original exists in the repository.
-	 * It is drawn as wide as the window, the size the site has always drawn it, and never taller than that.
+	 * The heron keeps the frame the site's banner has always shown: 672 by 219, as wide as the window and never taller than that.
+	 * The file is that same frame cut from the 1200 pixel photograph, so a window wider than 1200 pixels still spreads it.
 	 */
 	.plate.heron {
 		inset: 50% 0 auto;

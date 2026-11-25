@@ -2,7 +2,7 @@
 	import '../app.css';
 	import { AppBar, Dialog, Navigation } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import { browser } from '$app/environment';
 	import { TinyVectors } from '@tummycrypt/tinyvectors';
 	import { theme, THEMES } from '$lib/theme.svelte';
@@ -10,7 +10,7 @@
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import TailnetHint from '$lib/components/TailnetHint.svelte';
 	import { HOME_BUILD_DEFAULT, resolveHomeFlag } from '$lib/flags/home';
-	import { homeFlag } from '$lib/flags/home-state.svelte';
+	import { HOME_CONTEXT, homeContext, homeFlag } from '$lib/flags/home-state.svelte';
 
 	let { children } = $props();
 	const isShadowDeployment = __BLOG_DEPLOY_TIER__ === 'shadow';
@@ -49,6 +49,8 @@
 	// TIN-8657: with ?flags=home the site-wide banner leaves the layout, and the home page
 	// also drops the side column, the footer and the blob background. Off, nothing here changes.
 	// The home page changes only once its new code and stream are here, so it is never shown half stripped.
+	// The home page reads the flag from this context, so the layout is the only file that imports it.
+	setContext(HOME_CONTEXT, homeContext);
 	let mounted = $state(false);
 	$effect(() => {
 		if (!mounted) return;

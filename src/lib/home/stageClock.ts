@@ -5,7 +5,7 @@
  *
  * - A pause the visitor made holds until the visitor resumes.
  * - A pause a hidden tab or an off-screen stage caused resumes by itself.
- * - Input on the stage stops the play for the visit.
+ * - Input on the stage stops the play for the visit, on its controls as on its scenes.
  * - With reduced motion the stage never plays. The scenes step by the controls.
  */
 
@@ -176,6 +176,30 @@ export class StageClock {
 	#emit() {
 		this.#onchange(this.state);
 	}
+}
+
+/** One input on the stage, as the stage's listener sees it. */
+export interface StageInput {
+	/** The event's name: pointerdown, keydown, wheel, touchstart or focusin. */
+	type: string;
+	key?: string;
+	/** It landed on Pause, Play, Previous or Next. */
+	onControl: boolean;
+	/** It landed inside the scenes. */
+	inScenes: boolean;
+}
+
+/**
+ * Whether an input on the stage stops the play for the visit. A press, a key, a wheel or a touch does,
+ * anywhere on the stage. A control answers for its own press, and for Enter or Space, by its own
+ * handler: Pause pauses, Play resumes, and Previous and Next stop the play as they step.
+ * Focus stops the play only when it lands in a scene, so Tab can reach Pause while the play still runs.
+ */
+export function inputStops(input: StageInput): boolean {
+	if (input.type === 'focusin') return input.inScenes;
+	if (!input.onControl) return true;
+	if (input.type === 'pointerdown' || input.type === 'touchstart') return false;
+	return !(input.type === 'keydown' && (input.key === 'Enter' || input.key === ' '));
 }
 
 /**

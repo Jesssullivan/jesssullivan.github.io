@@ -12,10 +12,12 @@ export const HERON = {
 	title: 'Trans Scend Survival',
 	name: 'Jess Sullivan',
 	/**
-	 * The only copy of this photograph is 672 by 219 pixels. It is served at that size and never as an
-	 * enlarged file. The AVIF and the WebP are made from the PNG and carry a content hash in their built names.
+	 * The frame the site's banner shows, cut from the photograph the repository holds at 1200 by 1000 pixels
+	 * (static/images/posts/img_8694.jpg): all 1200 columns, rows 214 to 604. No larger copy exists, so a window
+	 * wider than 1200 pixels still spreads it. The AVIF and the WebP carry a content hash in their built names.
+	 * The banner's own PNG, the same frame at 672 pixels, is what a browser with neither format falls back to.
 	 */
-	image: { src: '/images/header.png', avif: 'asset:heron-672.avif', webp: 'asset:heron-672.webp', width: 672, height: 219, alt: 'Great Blue Heron' },
+	image: { src: '/images/header.png', avif: 'asset:heron-1200.avif', webp: 'asset:heron-1200.webp', width: 1200, height: 391, alt: 'Great Blue Heron' },
 	definitions: [
 		{ term: 'Trans:', text: 'Latin prefix implying “across” or “Beyond”, often used in gender nonconforming situations' },
 		{ term: 'Scend:', text: 'Archaic word describing a strong “surge” or “wave”, originating with 15th century english sailors' },

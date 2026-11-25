@@ -2,17 +2,19 @@
 	// The one mixed stream of the home page (TIN-8657, ruling RM48): newest first, every kind
 	// in its own form, with whitespace for rhythm and no card, rule or label.
 	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
 	import StreamEntry from './StreamEntry.svelte';
 	import { filterItems, filterOf, markerFor, offeredFilters, type FilterId, type StreamFile } from '$lib/home/stream';
 
 	let {
 		stream,
+		search = '',
 		arrives = false,
 		onsky = () => {},
 	}: {
 		stream: StreamFile;
+		/** The query of the address, handed down by the page. */
+		search?: string;
 		/** True when the stream is put into a page that has already painted. It then fades in with the stage. */
 		arrives?: boolean;
 		onsky?: () => void;
@@ -39,7 +41,7 @@
 	// The filter lives in the address, so a filtered stream can be shared.
 	$effect(() => {
 		if (!mounted) return;
-		const next = filterOf(new URLSearchParams(page.url.search).get('show'));
+		const next = filterOf(new URLSearchParams(search).get('show'));
 		const wanted = offered.some((candidate) => candidate.id === next) ? next : 'all';
 		if (wanted !== filter) {
 			filter = wanted;
@@ -48,7 +50,7 @@
 	});
 
 	function hrefFor(id: FilterId): string {
-		const kept = mounted ? [...new URLSearchParams(page.url.search)].filter(([name]) => name !== 'show') : [];
+		const kept = mounted ? [...new URLSearchParams(search)].filter(([name]) => name !== 'show') : [];
 		const query = new URLSearchParams(id === 'all' ? kept : [...kept, ['show', id]]).toString();
 		return query ? `?${query}` : '/';
 	}

@@ -4,8 +4,8 @@
 	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
 	import { resolveConstellationFlag } from '$lib/flags/constellation';
-	import { askHome, homeFlag, homeLoaded, type HomeLoaded, type HomeView } from '$lib/flags/home-state.svelte';
-	import { onMount, type Component } from 'svelte';
+	import type { HomeContext, HomeLoaded, HomeView } from '$lib/flags/home-state.svelte';
+	import { getContext, onMount, type Component } from 'svelte';
 	import { page } from '$app/state';
 	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
 	import { loadTinylandBlogBrokerStream, tinylandBlogBrokerStreamToPosts } from '$lib/tinyland/blogBrokerStream';
@@ -34,6 +34,8 @@
 	// A preview build hands both over from the load, already prerendered. Otherwise the code and the
 	// data file are asked for only once the flag is on, so the default page loads nothing new.
 	// A production build keeps the ordinary page whole until both have arrived, then the two change places in one step.
+	// The layout owns the flag and hands it over in its context. Importing it here would split it into a file of its own, which every page would then ask for.
+	const { flag: homeFlag, ask: askHome, loaded: homeLoaded } = getContext<HomeContext>('tss:home');
 	// svelte-ignore state_referenced_locally
 	const prerenderedHome = data.home ? ({ Home: data.home.Home as unknown as HomeView, stream: data.home.stream } satisfies HomeLoaded) : null;
 	const home = $derived(homeFlag.on && homeFlag.ready ? (prerenderedHome ?? homeLoaded()) : null);
@@ -51,7 +53,9 @@
 		const enabled = !homeFlag.on && resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
 		constellationEnabled = enabled;
 		// The sky's room is part of the page while the flag is on. On a fresh load the first-paint script in app.html has already set this.
-		document.documentElement.toggleAttribute('data-sky', enabled);
+		// While the new home page is still on its way, the room the first paint kept is left as it is, so the ordinary page does not move before the two change places.
+		const waiting = homeFlag.on && !homeFlag.ready && !homeFlag.failed;
+		if (!waiting) document.documentElement.toggleAttribute('data-sky', enabled);
 		experimentPosts = null;
 		experimentPulse = null;
 		blogStatus = 'loading';
@@ -93,7 +97,8 @@
 </svelte:head>
 
 {#if home}
-	<home.Home stream={home.stream} archive={data.collection.archive} arrives={!prerenderedHome} />
+	<!-- The address query is read only once the page is up: a prerender has none to read. -->
+	<home.Home stream={home.stream} archive={data.collection.archive} search={mounted ? page.url.search : ''} arrives={!prerenderedHome} />
 {:else}
 
 {#if constellationEnabled}

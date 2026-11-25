@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ArrivalBudget, FrameBudget, HOLD_MAX, HOLD_MIN, StageClock, holdFor, type ClockState } from './stageClock';
+import { ArrivalBudget, FrameBudget, HOLD_MAX, HOLD_MIN, StageClock, holdFor, inputStops, type ClockState } from './stageClock';
 import { HERON, buildScenes } from './scenes';
 
 /** A clock the test moves by hand: one pending timer, as the stage has. */
@@ -59,8 +59,10 @@ describe('scene holds', () => {
 		expect(sky.hold).toBeLessThan(10_000);
 	});
 
-	it('names the heron photograph at its own size, in files the build hashes', () => {
-		expect(HERON.image).toMatchObject({ width: 672, height: 219, avif: 'asset:heron-672.avif', webp: 'asset:heron-672.webp' });
+	it('names the heron photograph at the size of its 1200 pixel original, in the banner\'s frame, in files the build hashes', () => {
+		expect(HERON.image).toMatchObject({ width: 1200, height: 391, avif: 'asset:heron-1200.avif', webp: 'asset:heron-1200.webp' });
+		// The frame is the banner's: 672 by 219, to within a pixel row of the larger file.
+		expect(Math.abs(HERON.image.width / HERON.image.height - 672 / 219)).toBeLessThan(0.002);
 	});
 
 	it('gives the heron heading, which has the most words, a longer hold than the sky', () => {
@@ -216,6 +218,35 @@ describe('input stops it', () => {
 		time.advance(60_000);
 		expect(clock.index).toBe(2);
 		expect(clock.playing).toBe(false);
+	});
+});
+
+describe('which input stops it', () => {
+	const onScene = { onControl: false, inScenes: true };
+	const onControl = { onControl: true, inScenes: false };
+	const onFoot = { onControl: false, inScenes: false };
+
+	it('stops on a press, a key, a wheel or a touch on a scene, and on focus landing in one', () => {
+		for (const type of ['pointerdown', 'keydown', 'wheel', 'touchstart', 'focusin']) expect(inputStops({ type, key: 'a', ...onScene })).toBe(true);
+	});
+
+	it('stops on any key pressed with a control in focus, the arrows and Tab included', () => {
+		for (const key of ['a', 'Tab', 'ArrowRight', 'ArrowLeft', 'Escape', 'Shift']) expect(inputStops({ type: 'keydown', key, ...onControl })).toBe(true);
+		expect(inputStops({ type: 'wheel', ...onControl })).toBe(true);
+	});
+
+	it('leaves a control to answer for its own press, and for Enter and Space', () => {
+		for (const type of ['pointerdown', 'touchstart']) expect(inputStops({ type, ...onControl })).toBe(false);
+		for (const key of ['Enter', ' ']) expect(inputStops({ type: 'keydown', key, ...onControl })).toBe(false);
+	});
+
+	it('lets Tab reach a control while the play runs: focus stops it only in a scene', () => {
+		expect(inputStops({ type: 'focusin', ...onControl })).toBe(false);
+		expect(inputStops({ type: 'focusin', ...onFoot })).toBe(false);
+	});
+
+	it('stops on input beside the controls, on the line they stand on', () => {
+		for (const type of ['pointerdown', 'keydown', 'wheel', 'touchstart']) expect(inputStops({ type, key: 'a', ...onFoot })).toBe(true);
 	});
 });
 

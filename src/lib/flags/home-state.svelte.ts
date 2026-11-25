@@ -11,10 +11,11 @@ import { HOME_BUILD_DEFAULT } from './home';
  * `ready` is true once the new home page's code and its stream are here to show.
  * A production build paints the ordinary page first. That page stays whole until
  * then, and the two change places in one step, with nothing half shown between.
+ * `failed` is true when they could not be had. The ordinary page then stays for good.
  */
-export const homeFlag = $state({ on: HOME_BUILD_DEFAULT, ready: HOME_BUILD_DEFAULT });
+export const homeFlag = $state({ on: HOME_BUILD_DEFAULT, ready: HOME_BUILD_DEFAULT, failed: false });
 
-export type HomeView = Component<{ stream: StreamFile | null; archive: ReaderCollection['archive']; arrives?: boolean }>;
+export type HomeView = Component<{ stream: StreamFile | null; archive: ReaderCollection['archive']; search?: string; arrives?: boolean }>;
 export interface HomeLoaded {
 	Home: HomeView;
 	stream: StreamFile;
@@ -35,5 +36,20 @@ export function askHome(load: () => Promise<HomeLoaded>): void {
 			loaded = view;
 			homeFlag.ready = true;
 		})
-		.catch(() => {});
+		.catch(() => {
+			homeFlag.failed = true;
+		});
 }
+
+/**
+ * The layout is the one file that imports this module. It hands the flag to the home page through
+ * Svelte's context under this key, so the two share no file of their own and the default page asks
+ * for nothing it does not ask for today. The page reads the key as the same text.
+ */
+export const HOME_CONTEXT = 'tss:home';
+export interface HomeContext {
+	flag: typeof homeFlag;
+	ask: typeof askHome;
+	loaded: typeof homeLoaded;
+}
+export const homeContext: HomeContext = { flag: homeFlag, ask: askHome, loaded: homeLoaded };

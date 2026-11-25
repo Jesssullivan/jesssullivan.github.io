@@ -5,7 +5,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 // Everything the page brings with it is named by its content, so a browser may keep it.
 const STREAM_FILE = /^\/_app\/immutable\/assets\/home-stream\.v1\.[\w-]+\.json$/;
-const HERON_FILE = /^\/_app\/immutable\/assets\/heron-672\.[\w-]+\.(?:avif|webp)$/;
+const HERON_FILE = /^\/_app\/immutable\/assets\/heron-1200\.[\w-]+\.(?:avif|webp)$/;
 const outside: string[] = [];
 
 test.beforeEach(async ({ context, baseURL }) => {
@@ -56,8 +56,13 @@ test.describe('flag off: the home page is unchanged', () => {
 		await expect(page.getByTestId('home-stream')).toHaveCount(0);
 		await page.waitForLoadState('networkidle');
 		const off = [...paths];
-		expect(off.filter(path => /home-stream|heron-672|constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
+		expect(off.filter(path => /home-stream|heron-|constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
 		expect(await page.evaluate(() => localStorage.getItem('tss:flags:home'))).toBeNull();
+		// No file of its own for the flag, and none of the sky's or the stage's code: the page asks for the scripts it asks for on main.
+		const scripts = [...new Set(off.filter(path => path.endsWith('.js')))];
+		const texts = await Promise.all(scripts.map(async path => ({ path, text: await (await page.request.get(path)).text() })));
+		expect(texts.filter(file => file.text.includes('tss:flags:home')).map(file => file.path.replace(/\.[\w-]+\.js$/, ''))).toEqual(['/_app/immutable/nodes/0']);
+		expect(texts.filter(file => /constellation-panel|home-stage-stream|stage-pace/.test(file.text)).map(file => file.path)).toEqual([]);
 
 		// With the flag on the page asks for more. None of those files were asked for above.
 		paths.length = 0;
@@ -147,7 +152,7 @@ test.describe('flag on: the heading stage', () => {
 		// The heron comes at its own size, under a name with a content hash in it.
 		await expect.poll(() => paths.filter(path => HERON_FILE.test(path)).length).toBe(1);
 		const heron = page.getByTestId('scene-heron').locator('img');
-		await expect.poll(() => heron.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(672);
+		await expect.poll(() => heron.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(1200);
 		expect(await heron.evaluate((node: HTMLImageElement) => new URL(node.currentSrc).pathname)).toMatch(HERON_FILE);
 	});
 
@@ -280,18 +285,60 @@ test.describe('flag on: the heading stage', () => {
 		await page.goto('/?flags=home');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
 		const pause = page.getByTestId('stage-pause');
+		// Focus alone leaves the play running, so Tab can reach Pause, and Enter on it pauses.
 		await pause.focus();
 		await expect(pause).toHaveAttribute('aria-label', 'Pause');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		await page.keyboard.press('Enter');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		await expect(pause).toHaveAttribute('aria-label', 'Play');
 		await page.keyboard.press('ArrowRight');
 		await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
 		await page.keyboard.press('ArrowLeft');
 		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
-		await page.keyboard.press('Enter');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
-		await expect(pause).toHaveAttribute('aria-label', 'Play');
 		for (const button of await stage(page).getByRole('group', { name: 'Heading scenes' }).getByRole('button').all()) expect(await button.getAttribute('aria-label')).toBeTruthy();
 		// Scenes that are not on show cannot take focus.
 		await expect(page.getByTestId('scene-heron')).toHaveAttribute('inert', '');
+	});
+
+	test('a key pressed on a control stops the play for the visit, and so does a step', async ({ page }) => {
+		// Any key with a control in focus.
+		await page.goto('/?flags=home&stage-pace=20');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		const pause = page.getByTestId('stage-pause');
+		await pause.focus();
+		await page.keyboard.press('a');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		await expect(pause).toHaveAttribute('aria-label', 'Play');
+		const stoppedOn = await stage(page).getAttribute('data-scene');
+		// Four seconds at this pace is more than every scene's hold.
+		await page.waitForTimeout(4000);
+		await expect(stage(page)).toHaveAttribute('data-scene', stoppedOn!);
+		// Play is the visitor's word: the stage moves again.
+		await page.keyboard.press('Enter');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		await expect(stage(page)).not.toHaveAttribute('data-scene', stoppedOn!, { timeout: 8000 });
+
+		// An arrow on Next steps one scene and the play stops there.
+		await page.goto('/?flags=home&stage-pace=20');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		await page.getByTestId('stage-next').focus();
+		await page.keyboard.press('ArrowRight');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		const steppedTo = await stage(page).getAttribute('data-scene');
+		await page.waitForTimeout(4000);
+		await expect(stage(page)).toHaveAttribute('data-scene', steppedTo!);
+
+		// A press on Next does the same.
+		await page.goto('/?flags=home&stage-pace=20');
+		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
+		await page.getByTestId('stage-next').click();
+		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		const pressedTo = await stage(page).getAttribute('data-scene');
+		await page.waitForTimeout(4000);
+		await expect(stage(page)).toHaveAttribute('data-scene', pressedTo!);
+		await expect(page.getByTestId('stage-pause')).toHaveAttribute('aria-label', 'Play');
 	});
 
 	test('with reduced motion nothing plays: the sky shows still and the controls step', async ({ browser, baseURL }) => {
@@ -313,6 +360,32 @@ test.describe('flag on: the heading stage', () => {
 		} finally {
 			await context.close();
 		}
+	});
+
+	test('a visitor who also kept the older sky flag sees the page move once: the sky\'s room goes as the two pages change places', async ({ page }) => {
+		await page.addInitScript(() => {
+			localStorage.setItem('tss:flags:constellation', 'on');
+			localStorage.setItem('tss:flags:home', 'on');
+			const seen: string[] = [];
+			(window as unknown as { __seen: string[] }).__seen = seen;
+			const look = () => {
+				const room = document.documentElement.hasAttribute('data-sky') ? 'room' : 'none';
+				// Until the ordinary page's own sections are in the document there is nothing to move.
+				const state = `${room}:${document.querySelector('[data-testid=home-stage]') ? 'stage' : document.querySelector('#latest') ? 'old' : 'empty'}`;
+				if (seen[seen.length - 1] !== state) seen.push(state);
+			};
+			new MutationObserver(look).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-sky'] });
+		});
+		await page.goto('/');
+		await expect(stage(page)).toBeVisible();
+		await expect(page.locator('html')).not.toHaveAttribute('data-sky');
+		const seen = await page.evaluate(() => (window as unknown as { __seen: string[] }).__seen);
+		// The ordinary page never loses the room it painted with while it waits.
+		expect(seen).not.toContain('none:old');
+		expect(await page.locator('#main-content').evaluate(node => getComputedStyle(node).paddingTop)).toBe('0px');
+		// The older flag stands down: its section is not on the page, and it asks no other host for anything.
+		await expect(page.getByTestId('home-reader-broker-state')).toHaveCount(0);
+		expect(outside).toEqual([]);
 	});
 
 	test('?flags=none brings the ordinary home page back and forgets the preference', async ({ page }) => {
