@@ -25,6 +25,8 @@ describe('the home page changes places in one step (TIN-8657)', () => {
 		const { askHome, homeFlag, homeLoaded } = await fresh();
 		expect(homeFlag.on).toBe(false);
 		expect(homeFlag.ready).toBe(false);
+		// Nothing has read the flag in a browser yet.
+		expect(homeFlag.known).toBe(false);
 		expect(homeLoaded()).toBeNull();
 		let release: (loaded: HomeLoaded) => void = () => {};
 		askHome(() => new Promise<HomeLoaded>((resolve) => (release = resolve)));

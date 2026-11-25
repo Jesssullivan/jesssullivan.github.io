@@ -55,6 +55,7 @@
 	$effect(() => {
 		if (!mounted) return;
 		homeFlag.on = resolveHomeFlag({ search: $page.url.search, getStorage: () => window.localStorage, fallback: HOME_BUILD_DEFAULT });
+		homeFlag.known = true;
 	});
 	const stageHome = $derived(homeFlag.on && homeFlag.ready && $page.url.pathname === '/');
 	const slimBar = $derived(homeFlag.on && (homeFlag.ready || $page.url.pathname !== '/'));

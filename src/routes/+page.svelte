@@ -48,7 +48,8 @@
 	});
 
 	$effect(() => {
-		if (!mounted) return;
+		// The layout reads the home flag after this page has mounted. The older flag waits for its answer, so it never starts work the new page is about to replace.
+		if (!mounted || !homeFlag.known) return;
 		// The stage carries the constellation as its first scene, so the older flag stands down beside it.
 		const enabled = !homeFlag.on && resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
 		constellationEnabled = enabled;

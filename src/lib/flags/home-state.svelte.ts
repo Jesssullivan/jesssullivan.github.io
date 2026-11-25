@@ -12,8 +12,10 @@ import { HOME_BUILD_DEFAULT } from './home';
  * A production build paints the ordinary page first. That page stays whole until
  * then, and the two change places in one step, with nothing half shown between.
  * `failed` is true when they could not be had. The ordinary page then stays for good.
+ * `known` is true once the layout has read the flag in the browser. The home page waits for it
+ * before it acts on the older sky flag, so that flag never starts work this one is about to replace.
  */
-export const homeFlag = $state({ on: HOME_BUILD_DEFAULT, ready: HOME_BUILD_DEFAULT, failed: false });
+export const homeFlag = $state({ on: HOME_BUILD_DEFAULT, ready: HOME_BUILD_DEFAULT, failed: false, known: false });
 
 export type HomeView = Component<{ stream: StreamFile | null; archive: ReaderCollection['archive']; search?: string; arrives?: boolean }>;
 export interface HomeLoaded {
