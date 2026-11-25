@@ -20,7 +20,7 @@
     "validate:proto": "tsx scripts/validate-proto-reservations.mts"
   },
   "dependencies": {
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",

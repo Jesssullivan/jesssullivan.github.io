@@ -63,6 +63,16 @@ build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024
 # Keep them serial so concurrent Chromium processes cannot OOM the runner.
 test:ci-cached --local_test_jobs=1
 
+# TIN-8703: the CI gate runs on the blog's own small runner with local
+# execution only. scripts/local-bazel-gate.sh selects this config and passes
+# the disk cache, the repository cache and the job count on the command line.
+# Each Node action keeps the 1024 MiB heap the runner already proved, and
+# browser tests stay serial so two Chromium processes never share the pod.
+build:local-gate --config=ci
+build:local-gate --action_env=NODE_OPTIONS=--max-old-space-size=1024
+build:local-gate --experimental_disk_cache_gc_max_size=3G
+test:local-gate --local_test_jobs=1
+
 build:executor-backed --config=ci-remote-base
 build:executor-backed --action_env=HOME=/var/lib/gf-reapi-cell/home
 build:executor-backed --action_env=TMPDIR=/tmp
