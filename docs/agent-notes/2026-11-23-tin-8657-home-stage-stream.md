@@ -11,8 +11,7 @@ behaves as it does on main.
 
 ## Her words
 
-Her direction, verbatim. The elision is the name of another site of hers,
-whose feathering and motion she asked to be studied:
+Her direction, verbatim, with one name left out:
 
 > please explore the deeply featerhed and 3d workin in flight by [...] and the goals are heading, carusel, blog as pise de rssistance of my work where my pulse, posts, announcenets, articles etc flow along with media, recordings, photos etc (from the mothership)
 
@@ -61,7 +60,7 @@ Her taste, from her design reviews, as binding rules:
 | The stage | `src/lib/components/home/HomeStage.svelte` |
 | The stream and the one renderer per kind | `HomeStream.svelte`, `StreamEntry.svelte` |
 | The page behind the flag | `src/lib/components/home/Home.svelte` |
-| Files the page brings with it: the heron at its own size, posters of her four dated videos | `src/lib/assets/home/`, resolved by `src/lib/home/assets.ts` |
+| Files the page brings with it: the heron in the banner's frame, posters of her four dated videos | `src/lib/assets/home/`, resolved by `src/lib/home/assets.ts` |
 | What the layout and the page share: the flag, and the new page once it has loaded | `src/lib/flags/home-state.svelte.ts` |
 
 Recipes: `just home-stream` rewrites the data file, and `just home-stream-check`
@@ -75,12 +74,14 @@ check wherever the gallery and the images are on disk.
   controls laid over it, nothing printed above it. The stage gives it the room
   with two style rules: it fills the stage, and its legend and controls line up
   with the page's edge. A plain wheel and a one-finger swipe scroll the page.
-- **The heron** uses `static/images/header.png`, which is 672 by 219 pixels.
-  The repository holds no larger original: every other copy on this host is the
-  same file. So the photograph is drawn as wide as the window, the size the
-  site has always drawn it, and never taller than that shape. On a phone it is
-  cropped to the bird. The brightness filter is gone. Round two serves it as an
-  AVIF and a WebP made from that PNG at 672 pixels. No enlarged copy is shipped.
+- **The heron** shows the frame of `static/images/header.png`, which is 672 by
+  219 pixels. Rounds one and two said the repository held no larger original.
+  That was wrong, and round three corrects it: `static/images/posts/img_8694.jpg`
+  is the same photograph at 1200 by 1000 pixels, and the stage now serves the
+  banner's frame cut from it. See "The heron photograph" under round three. The
+  photograph is drawn as wide as the window, the size the site has always drawn
+  it, and never taller than that shape. On a phone it is cropped to the bird.
+  The brightness filter is gone.
 - Her rainbow stays as the one thin rule under the title. As text on a light
   ground it could not hold contrast.
 - **A placed item** is any stream item the data file lists under `heading`.
@@ -239,7 +240,7 @@ builds show was measured, 87 to 206 blocks a picture. The largest shift is
 | File names | The stream's data, the heron and the posters had plain names | Each has a content hash in its name |
 | The stream's data on a prerendered page | Written into the page's HTML, 21 kilobytes on every visit | Asked for once by its hashed name, with a preload |
 | Type on a prerendered page | Loaded after the stylesheet | The three type files of the first screen are preloaded with it |
-| The heron file | A lossy WebP of 32 kilobytes | An AVIF and a WebP made from the PNG at 672 by 219 pixels |
+| The heron file | A lossy WebP of 32 kilobytes | An AVIF and a WebP made from the PNG at 672 by 219 pixels. Round three replaced both |
 | The heron on a phone | The bill ran off the frame | The frame holds the head, the whole bill, the neck and the near wing |
 | The heron's top falloff | The head, at the very top of the photograph, was half faded | A little shorter, so the head keeps its light |
 
@@ -249,11 +250,11 @@ The fade is on the flow now.
 
 ### The heron photograph
 
-`static/images/header.png` is 672 by 219 pixels. No larger original is in the
-repository or anywhere on this host. A wide screen draws it at up to 2.9 times
-its size, and a phone at up to 1.8 times before the screen's own density. It is
-soft at those sizes, and no encoding can add detail. No enlarged copy is
-shipped. With the original photograph the stage would be sharp at every width.
+Round two wrote here that no larger original was in the repository or on this
+host. That was wrong. The verifier found `static/images/posts/img_8694.jpg`,
+the same photograph at 1200 by 1000 pixels, and round three uses it. The
+figures of round two, for the record: the 672 pixel file was drawn at up to 2.9
+times its size on a wide screen and up to 1.8 times on a phone.
 
 ### Measured
 
@@ -352,10 +353,203 @@ arrive.
 3. A preview built with `BLOG_HOME_STAGE=on` paints the new page first, as a
    launch will. The preview she saw was a production build, which paints the
    old page for about a second first.
-4. The heron needs its original photograph to be sharp.
+4. Answered in round three: the heron is served from the 1200 pixel
+   photograph the repository holds.
 5. A visitor who only watches gets a largest paint of about eleven seconds in
    Chrome's field figures, because the first scene has nothing Chrome counts.
    The fix belongs in the sky. Say whether it must land before launch.
+
+## Round three: the verifier's findings
+
+Authority: her words on the restart, typed on November 25, 2026, verbatim:
+"please fully reattach" and "(please reassert the extant lanes / dialogs /
+reattach all worktrees, workstreams, subagents ...)  usage has been reset".
+Receipt under R-HOOK-CONVERGENCE-20261004 (R-N13). The layout stays frozen at
+`3fdff87`: no fix here moves a block.
+
+An independent verifier read the head `e419602` and found five faults. All five
+were real.
+
+| Finding | Cause | Fix |
+|---|---|---|
+| The heron used a 672 pixel file while a 1200 pixel original sat in the repository | The photograph is in the repository under its camera name, and the earlier rounds did not find it | The stage serves the banner's frame cut from `static/images/posts/img_8694.jpg` |
+| With the flag off every route asked for one more script, and the home page for three | The layout and the home page both imported the flag, so the bundler gave it a file of its own. The new page and the ordinary page both imported `$app/state`, so the bundler put it in one file with the sky | The layout alone imports the flag and hands it to the page in its context. The new page takes the address query as a prop |
+| A key pressed on Pause or Next did not stop the play, and a step left it running | The stage listened for input on its scenes only | The stage listens on itself. A step stops the play |
+| One constellation spec failed on a production build | Not traced. This branch held the sky as of `7cc315d` | It passes after the merge at `fafbe6c`, with no code changed for it |
+| The constellation branch had moved and was not merged | The earlier run stopped on a usage limit before the merge was pushed | The signed merge `08f78f5` is pushed |
+
+### The heron photograph
+
+`static/images/posts/img_8694.jpg` is the photograph at 1200 by 1000 pixels.
+The banner is that photograph scaled to 672 pixels wide and cut to 219 rows.
+The cut was found by laying the banner over the scaled photograph at every
+offset: the best match is 120 rows down, with a root-mean-square difference of
+8.0 on a scale of 255. In the original that is all 1200 columns and rows 214 to
+604.
+
+| File | Size | Made with |
+|---|---|---|
+| `src/lib/assets/home/heron-1200.avif` | 1200 by 391 pixels, 52,375 bytes | sharp 0.34.5, quality 58, full chroma |
+| `src/lib/assets/home/heron-1200.webp` | 1200 by 391 pixels, 58,240 bytes | sharp 0.34.5, quality 78 |
+
+The two files of round two were 60,671 and 56,548 bytes, so the page is no
+heavier. The frame and the focal point are the banner's, on a wide screen and
+on a phone. `static/images/header.png` stays the fallback for a browser with
+neither format.
+
+No copy larger than 1200 pixels is in the repository. So the photograph is
+still spread on a wide window, less than before:
+
+| Window | Before | Now |
+|---|---|---|
+| 1440 pixels wide | 2.21 times | 1.24 times |
+| 1920 pixels wide | 2.94 times | 1.65 times |
+| A phone 390 pixels wide, density one | 1.86 times | 1.04 times |
+
+The figures hold the drift's starting scale of 1.03. A phone screen of density
+two or three spreads the file two or three times more.
+
+### The flag off
+
+Measured on November 25, 2026 in one headless Chromium, flag off, against a
+production build of main at `7743096` and of the constellation branch at
+`fafbe6c`. Requests, and scripts among them:
+
+| Route | Main | Constellation branch | This head |
+|---|---|---|---|
+| `/` | 42, 20 scripts | 43, 21 scripts | 43, 21 scripts |
+| `/blog` | 42, 18 scripts | 43, 19 scripts | 43, 19 scripts |
+| `/music` | 32, 16 scripts | 33, 17 scripts | 33, 17 scripts |
+| `/about` | 34, 16 scripts | 35, 17 scripts | 35, 17 scripts |
+| `/photography` | 61, 16 scripts | 62, 17 scripts | 62, 17 scripts |
+
+This lane now adds no request to any of the five. The one script both branches
+ask for above main is an empty file of 22 bytes that the bundler writes for the
+constellation branch: its whole text is one import of the router's own file.
+The error page's code and the two constellation files name it. It comes with
+the constellation branch and is request 10 at the end of this note.
+
+JavaScript on the home page, gzip, counted from the files each load asked for:
+
+| Load | Files | Bytes gzip |
+|---|---|---|
+| Main, flag off | 20 | 178,315 |
+| This head, flag off | 21 | 170,256 |
+| This head, flag on | 25 | 197,406 |
+
+The flag on is 19,091 bytes above main. The limit was 40 kilobytes. The flag
+off is 8,059 bytes below main, because the constellation branch moves the sky
+out of the home page's own file.
+
+An e2e test now reads every script the default home page asks for. It fails if
+the flag's code is in any file but the layout's, or if a file holds the sky's
+or the stage's code.
+
+### Input on the stage
+
+The stage now listens on itself, so its controls count as the stage.
+
+| Input | Result |
+|---|---|
+| A press, a wheel or a touch on a scene | The play stops for the visit |
+| Any key while a scene or a control has focus | The play stops for the visit |
+| An arrow key on a control | Steps one scene, and the play stops there |
+| A press on Next or Previous | Steps one scene, and the play stops there |
+| A press on Pause, or Enter or Space on it | Pauses until Play |
+| A press on Play, or Enter or Space on it | Plays again, and lifts a stop |
+| Tab reaching a control | Nothing. The play runs on, so a keyboard can reach Pause |
+| A mouse moving over a scene | Holds the scene, as before. See decision 1 of round two |
+
+The rule is one function with no DOM, `inputStops` in
+`src/lib/home/stageClock.ts`, with its own unit tests.
+
+### Found on the way
+
+- **A visitor who kept the older sky flag as well.** The constellation branch
+  now keeps the sky's room from the first paint, by a script in the page head
+  that reads the older flag. With both flags kept, a production build painted
+  the ordinary page with that room, took the room away, and then changed pages:
+  two moves. It also asked the hub for the older flag's two files before the
+  layout had read this flag. Now the home page waits for the layout's answer,
+  the room stays until the two pages change places, and the new page keeps no
+  room above it. A preview build never shows the room. An e2e test holds this.
+- **Play after a stop.** A visitor who stopped the stage, pressed Play, read a
+  post and came back found the stage stopped. Play now lifts the stop for the
+  rest of the visit.
+
+### Measured
+
+Measured on November 25, 2026 on a production build of the final tree, in one
+headless Chromium.
+
+| What | Result |
+|---|---|
+| Layout against the frozen build | 15 comparisons: the four scenes and the whole stream at 1440, 1920 and 390 pixels wide. 120 to 1,306 blocks each. Largest difference 0.00 pixels |
+| Lowest contrast of the heron's type over what lies under it, glyphs and halo taken off | 10.54 to 1, pine light at 1440 and 1920. 30 measurements: 5 themes, 2 modes, 3 widths |
+| Sideways scroll at 1440, 1920 and 390 pixels | None |
+| A visitor with both flags kept | The room stays until the pages change places. No request leaves the site |
+
+The frozen build is `e419602`, which the verifier measured at 0.0 pixels
+against `3fdff87`. The compare ran with reduced motion, so no arrival offset or
+drift is in the boxes. The sky's own insides are the constellation lane's and
+are not compared. The contrast figure is the verifier's own for the same theme
+and mode, so the sharper file changed nothing under the type.
+
+### Proof
+
+Each step ran through the host's gates on November 25, 2026, one at a time, on
+the tree as committed.
+
+| Step | Exit | Result |
+|---|---|---|
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 45 files, 451 tests |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
+| The stream's data file against its sources | 0 | Current, 160 items |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | |
+| e2e with one worker: this lane's spec and the two constellation specs | 0 | 60 passed |
+
+The e2e step ran twice on the final build. The first run ended 59 of 60 with
+exit 1: the constellation spec at line 215 waits five seconds for 30 animation
+frames and saw 17, while the host's load stood above 60. The second run, with
+the load near 20, passed all 60. That spec passed in the two runs before it as
+well.
+
+The spec the verifier saw fail, "the picked post docks as a slim bar", passed
+in all four runs after the merge. No code changed for it.
+
+On the way, the new test of the two flags failed once and was right to: the
+ordinary page read the older flag before the layout had read this one, and
+asked the hub for the older flag's two files. The page now waits for the
+layout's answer.
+
+### The verifier's notes on the look
+
+| Note | What was done |
+|---|---|
+| The heron is soft | Fixed, as above |
+| The sky's legend and controls sit straight above the stage's own line of filters, progress, Pause and Next, so the stage's foot carries two rows | Not changed. Both rows were there at `3fdff87`, which she called beautiful, and the upper row is the sky's own. See request 9 at the end of this note |
+| The stream opens with ten titles before its first picture | Not changed. It follows from the cover rule: none of those posts uses its cover in its own text. See decision 1 of round one |
+| "Morning Metal 4.22.21" shows three times in a row: the post, its video and its recording | Not changed. Folding the three into one would move every block below them |
+| Each set of photographs carries "N photographs" | Not changed. The count says the post holds more photographs than the row shows, and taking it off would move blocks |
+
+### Decisions for her, round three
+
+1. A press on Next now stops the play, as a key does. Say so if Next should
+   step and let the play run on.
+2. Tab reaching Pause leaves the play running. Many carousels stop when focus
+   arrives. Say so if this one should.
+3. The photograph is 1200 by 1000 pixels and the heading shows a band of it
+   391 rows tall. The heron scene could show far more of the bird and fill the
+   stage. That would change the layout she froze, so it waits on her word.
+4. A larger original of the heron, if she has one, would be sharp at every
+   width. The stage takes it with no code change beyond the file.
+5. Whether a post, its video and its recording with one title should fold into
+   one item in the stream.
+6. Whether the count under a set of photographs should go.
+
+Two more requests for the constellation lane are at the end of this note, as
+9 and 10.
 
 ## Requests for the constellation lane
 
@@ -389,3 +583,11 @@ The stage reaches into the component with two style rules, in one block in
    showed once on this branch, three times at `3fdff87` and twice on the
    constellation branch's own preview at `3319f4b`. It passed in this round's
    proof. Nothing in this lane touches those nodes.
+9. On a wide screen, place the sky's own controls at its head, as on a phone,
+   or offer a prop for it. At its foot they sit straight above the stage's
+   Pause and Next.
+10. With the flag off, the constellation branch asks for one more script than
+    main on every route: an empty 22 byte file, named by the error page's code
+    and by the two constellation files. In a build of the constellation
+    branch at `fafbe6c` it is `chunks/DTKcyXcV.js`. The name changes with each
+    build.
