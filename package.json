@@ -27,6 +27,9 @@
 		"remote:test:public": "bash scripts/bazel-public-cache-backed.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests //projection:step_test",
 		"remote:e2e": "bash scripts/bazel-cache-backed.sh test //:playwright_chromium_e2e //:playwright_notes_e2e",
 		"remote:e2e:public": "bash scripts/bazel-public-cache-backed.sh test //:playwright_chromium_e2e //:playwright_notes_e2e",
+		"gate:check": "bash scripts/local-bazel-gate.sh test //:sveltekit_check //:sveltekit_vite_build_smoke //:workspace_package_checks",
+		"gate:test": "bash scripts/local-bazel-gate.sh test //:bazel_graph_hygiene //:bazel_cache_backed_contract //:workflow_authority_tests //:held_post_edge_404_contract //:vitest_unit_tests //:blog_agent_node_tests //:puppeteer_chromium_smoke //:production_health_probe_tests //projection:step_test",
+		"gate:e2e": "bash scripts/local-bazel-gate.sh test //:playwright_chromium_e2e //:playwright_notes_e2e",
 		"remote:all": "npm run remote:check && npm run remote:test && npm run remote:e2e",
 		"ingest:tinyland-posts": "tsx scripts/ingest-tinyland-posts.mts --adopt-reviewed",
 		"security:audit:static": "npm audit --omit=dev --workspaces=false && npm audit --omit=dev --workspace @blog/pulse-core && npm audit --omit=dev --workspace @blog/pulse-client",
@@ -74,13 +77,13 @@
 		"@skeletonlabs/skeleton": "5.0.1",
 		"@skeletonlabs/skeleton-svelte": "5.0.1",
 		"@tummycrypt/tinyvectors": "https://github.com/tinyland-inc/tinyvectors/archive/refs/tags/v0.3.7.tar.gz",
-		"dompurify": "^3.4.16",
+		"dompurify": "^3.4.17",
 		"flexsearch": "^0.8.212",
 		"marked": "^4.3.0",
 		"mdsvex": "^0.12.7",
 		"shiki": "^4.2.0",
 		"tailwindcss": "^4.2.2",
-		"zod": "4.3.6"
+		"zod": "4.6.7"
 	},
 	"type": "module",
 	"workspaces": [

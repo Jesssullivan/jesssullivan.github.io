@@ -30,38 +30,53 @@ jobs:
           python3 scripts/validate-substrate-boundary.py --self-test
           python3 scripts/validate-substrate-boundary.py
 
+  # TIN-8703: this job is the blog's Bazel gate. It now runs every target on
+  # the repository's own runner with local Bazel execution: no remote cache,
+  # no remote executor, no token and no credential helper. The name still
+  # says "remote" only because branch protection requires a check with this
+  # exact name. Renaming it is a later step that needs a branch protection
+  # change.
   bazel-remote-gates:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     # Per-ref dedupe only: a newer push to the same ref supersedes its own
     # stale gates run without canceling unrelated pull requests.
     concurrency:
-      group: gf-reapi-tenant-gates-${{ github.ref }}
+      group: blog-local-gate-${{ github.ref }}
       cancel-in-progress: true
     permissions:
       contents: read
-      # A PR gets only a signed, tenant-scoped GF cache-read profile. The GF
-      # exchange policy denies PR cache-write and executor grants for this
-      # shared-cache-backed consumer even if PR code requests an upgrade.
-      id-token: write
     runs-on: tinyland-dind
-    # Shared-cache actions execute locally inside a fleet-managed ARC pod.
-    # Keep the repo process envelope bounded independently of fleet sizing.
-    timeout-minutes: 90
+    # A cold run builds the whole public graph on a small runner with an empty
+    # Bazel cache. Warm runs restore the disk cache and finish much sooner.
+    timeout-minutes: 120
     env:
-      GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
-      GF_BAZEL_REMOTE_UPLOAD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
-      GF_BAZEL_HOST_JVM_MAX_HEAP_MB: '2560'
-      GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'cache-write' || 'cache-read' }}
-      GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
-      # The GF consumer registry records this repo as shared-cache-backed.
-      # Clear any executor endpoint inherited from the generic ARC pod.
+      # The runner pod may still inject old remote endpoints. Clear them so a
+      # stale value cannot route the build. scripts/local-bazel-gate.sh also
+      # unsets every BAZEL_REMOTE_*, GF_REAPI_* and GF_BAZEL_* variable.
+      BAZEL_REMOTE_CACHE: ''
       BAZEL_REMOTE_EXECUTOR: ''
       BAZEL_REMOTE_EXECUTOR_CACHE: ''
+      BAZEL_REMOTE_INSTANCE_NAME: ''
+      GF_BAZEL_SUBSTRATE_MODE: ''
+      BLOG_GATE_JOBS: '2'
+      BLOG_GATE_JVM_HEAP_MB: '2048'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Report runner resources
+        run: |
+          echo "nproc: $(nproc)"
+          # nproc and free show the node. The pod limit lives in the cgroup
+          # (v2 first, then v1).
+          for f in /sys/fs/cgroup/memory.max /sys/fs/cgroup/cpu.max \
+            /sys/fs/cgroup/memory/memory.limit_in_bytes /sys/fs/cgroup/cpu/cpu.cfs_quota_us; do
+            if [ -r "${f}" ]; then echo "${f}: $(cat "${f}")"; fi
+          done
+          free -m || true
+          df -h "${GITHUB_WORKSPACE}" || true
 
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
@@ -78,8 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           # Install the revision pinned by @playwright/test outside Bazel,
-          # before token minting, then pass its absolute path
-          # into browser tests.
+          # then pass its absolute path into browser tests.
           npm ci --ignore-scripts
           npx --no-install playwright install --with-deps chromium
           chromium_path="$(node --input-type=module -e "import { chromium } from '@playwright/test'; process.stdout.write(chromium.executablePath())")"
@@ -89,33 +103,22 @@ jobs:
           fi
           echo "GF_RBE_CHROMIUM_EXECUTABLE=${chromium_path}" >> "${GITHUB_ENV}"
 
-      - name: Require shared-cache-backed GloriousFlywheel lane
-        run: |
-          set -euo pipefail
-          if [ -z "${BAZEL_REMOTE_CACHE:-}" ]; then
-            echo "::error::BAZEL_REMOTE_CACHE is missing. This job must run on the GloriousFlywheel ARC lane with cache hints attached."
-            exit 1
-          fi
-
-          if [ -n "${BAZEL_REMOTE_EXECUTOR:-}" ]; then
-            echo "::error::BAZEL_REMOTE_EXECUTOR must be empty for this shared-cache-backed consumer."
-            exit 1
-          fi
-
-      - name: Mint GloriousFlywheel REAPI token
-        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
-
-      - name: Validate GloriousFlywheel cache attachment
-        run: bash scripts/cache-attachment-contract.sh --strict
-
-      # Bazel outputs are shared through the tenant-scoped remote cache above.
-      # Keep only Bazelisk's tool download in the local Actions cache; restoring
-      # ~/.cache/bazel duplicated several GiB before validation could start.
       - name: Cache Bazelisk
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.cache/bazelisk
           key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+
+      # Content-addressed Bazel disk and repository caches. A stale entry is
+      # safe: Bazel keys every action by its inputs. Keyed on the lockfiles so
+      # dependency actions stay warm; source actions rebuild as needed.
+      - name: Cache Bazel disk and repository caches
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: ~/.cache/bazel-blog-gate
+          key: blog-local-gate-${{ runner.os }}-${{ hashFiles('.bazelversion', 'MODULE.bazel.lock', 'package-lock.json', 'pnpm-lock.yaml') }}
+          restore-keys: |
+            blog-local-gate-${{ runner.os }}-
 
       - name: Install bazelisk
         run: |
@@ -131,29 +134,20 @@ jobs:
             sudo mv "${tmp}" /usr/local/bin/bazel
           fi
 
-      - name: Refresh cache token for remote check
-        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
-
-      - name: Remote check
+      - name: Local check
         run: |
-          npm run remote:check:public
-          bash scripts/bazel-cache-backed.sh shutdown
+          npm run gate:check
+          bash scripts/local-bazel-gate.sh shutdown
 
-      - name: Refresh cache token for remote test
-        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
-
-      - name: Remote test
+      - name: Local test
         run: |
-          npm run remote:test:public
-          bash scripts/bazel-cache-backed.sh shutdown
+          npm run gate:test
+          bash scripts/local-bazel-gate.sh shutdown
 
-      - name: Refresh cache token for remote e2e
-        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
-
-      - name: Remote e2e
+      - name: Local e2e
         run: |
-          npm run remote:e2e:public
-          bash scripts/bazel-cache-backed.sh shutdown
+          npm run gate:e2e
+          bash scripts/local-bazel-gate.sh shutdown
 
   build-and-test:
     runs-on: ubuntu-latest
@@ -209,7 +203,7 @@ jobs:
       - name: Test authority
         run: |
           echo "check/test/e2e are intentionally owned by bazel-remote-gates."
-          echo "The GloriousFlywheel shared-cache lane runs remote:check, remote:test, and remote:e2e."
+          echo "That job runs gate:check, gate:test and gate:e2e with local Bazel on the blog's own runner."
 
       - name: Blog agent production dependency audit (report-only)
         run: |

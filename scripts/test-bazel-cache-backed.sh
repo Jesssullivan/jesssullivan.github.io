@@ -13,9 +13,17 @@ trap 'rm -rf "${tmp_dir}"' EXIT
 grep -Fq -- 'exec bash scripts/bazel-cache-backed.sh "$@" --ignore_dev_dependency --lockfile_mode=error' "${repo_root}/scripts/bazel-public-cache-backed.sh"
 grep -Fq -- 'bazel_dep(name = "spear_resumes", version = "0.2.0", dev_dependency = True)' "${repo_root}/MODULE.bazel"
 grep -Fq -- 'bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)' "${repo_root}/MODULE.bazel"
-grep -Fq -- 'npm run remote:check:public' "${repo_root}/.github/workflows/ci.yml"
-grep -Fq -- 'npm run remote:test:public' "${repo_root}/.github/workflows/ci.yml"
-grep -Fq -- 'npm run remote:e2e:public' "${repo_root}/.github/workflows/ci.yml"
+# TIN-8703: the CI gate runs the public graph with local execution on the
+# blog's own runner. It must not mint a token or require a remote cache.
+grep -Fq -- 'npm run gate:check' "${repo_root}/.github/workflows/ci.yml"
+grep -Fq -- 'npm run gate:test' "${repo_root}/.github/workflows/ci.yml"
+grep -Fq -- 'npm run gate:e2e' "${repo_root}/.github/workflows/ci.yml"
+if grep -Eq 'mint-gf-reapi-token|cache-attachment-contract|bazel-(public-)?cache-backed\.sh|id-token: write' "${repo_root}/.github/workflows/ci.yml"; then
+  echo "ERROR: the CI gate still depends on the remote cache lane" >&2
+  exit 1
+fi
+grep -Fx -- "      BAZEL_REMOTE_CACHE: ''" "${repo_root}/.github/workflows/ci.yml" >/dev/null
+grep -Fx -- "      BAZEL_REMOTE_EXECUTOR: ''" "${repo_root}/.github/workflows/ci.yml" >/dev/null
 if grep -Eq 'SPEAR_RESUMES_DEPLOY_KEY|webfactory/ssh-agent|@spear_resumes|static/cv:pdfs_synced_test' "${repo_root}/.github/workflows/ci.yml"; then
   echo "ERROR: PR-capable CI still carries private CV authority" >&2
   exit 1
@@ -25,12 +33,9 @@ grep -Fx -- "build:ci-remote-base --remote_max_connections=1" "${repo_root}/.baz
 grep -Fx -- "build:ci-cached --jobs=1" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "build:ci-cached --action_env=NODE_OPTIONS=--max-old-space-size=1024" "${repo_root}/.bazelrc" >/dev/null
 grep -Fx -- "test:ci-cached --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
-grep -Fx -- "      GF_REAPI_TOKEN_EXCHANGE_TTL: 45m" "${repo_root}/.github/workflows/ci.yml" >/dev/null
-mint_count="$(grep -c -F -- "run: bash scripts/mint-gf-reapi-token-from-exchange.sh" "${repo_root}/.github/workflows/ci.yml")"
-if [[ ${mint_count} -ne 4 ]]; then
-  echo "ERROR: CI must mint once for attachment validation and refresh before all three public Bazel phases; found ${mint_count}." >&2
-  exit 1
-fi
+grep -Fx -- "build:local-gate --config=ci" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "build:local-gate --action_env=NODE_OPTIONS=--max-old-space-size=1024" "${repo_root}/.bazelrc" >/dev/null
+grep -Fx -- "test:local-gate --local_test_jobs=1" "${repo_root}/.bazelrc" >/dev/null
 
 fake_bazel="${tmp_dir}/bazel"
 cat >"${fake_bazel}" <<'EOF'
@@ -283,5 +288,68 @@ if [[ $(wc -l <"${quota_success_calls}") -ne 2 || $(wc -l <"${quota_success_slee
 fi
 if [[ $(grep -Fc -- "tenant quota exhausted (exit 34)" "${quota_success_stderr}") -ne 1 ]]; then
   echo "ERROR: quota-then-success retry was not reported accurately" >&2
+  exit 1
+fi
+
+# TIN-8703: the local gate wrapper must ignore stale remote endpoints that the
+# runner pod injects, and must pass empty remote flags to Bazel.
+local_args="${tmp_dir}/local-gate.args"
+BAZEL_BIN="${fake_bazel}" \
+  BAZEL_REMOTE_CACHE="grpc://stale-cache.example:8980" \
+  BAZEL_REMOTE_EXECUTOR="grpc://stale-executor.example:8980" \
+  GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
+  GF_REAPI_TOKEN_EXCHANGE_ENDPOINT="http://stale-exchange.example" \
+  BLOG_GATE_CACHE_DIR="${tmp_dir}/gate-cache" \
+  BLOG_GATE_JOBS=2 \
+  BLOG_GATE_JVM_HEAP_MB=2048 \
+  FAKE_BAZEL_ARGS="${local_args}" \
+  bash "${repo_root}/scripts/local-bazel-gate.sh" test //:fake_target >/dev/null
+for expected in \
+  "--host_jvm_args=-Xmx2048m" \
+  "test" \
+  "--config=local-gate" \
+  "--remote_cache=" \
+  "--remote_executor=" \
+  "--disk_cache=${tmp_dir}/gate-cache/disk" \
+  "--repository_cache=${tmp_dir}/gate-cache/repos" \
+  "--jobs=2" \
+  "--ignore_dev_dependency" \
+  "--lockfile_mode=error" \
+  "//:fake_target"; do
+  grep -Fx -- "${expected}" "${local_args}" >/dev/null || {
+    echo "ERROR: local gate wrapper did not pass ${expected}" >&2
+    exit 1
+  }
+done
+if grep -Eq 'stale-|credential_helper|ci-cached|executor-backed' "${local_args}"; then
+  echo "ERROR: local gate wrapper leaked a remote setting into Bazel" >&2
+  exit 1
+fi
+
+env_probe="${tmp_dir}/env-probe"
+cat >"${env_probe}" <<'EOF'
+#!/usr/bin/env bash
+env | grep -E '^(BAZEL_REMOTE_|GF_REAPI_|GF_BAZEL_)' >"${FAKE_BAZEL_ARGS}" || true
+EOF
+chmod +x "${env_probe}"
+env_args="${tmp_dir}/local-gate.env"
+BAZEL_BIN="${env_probe}" \
+  BAZEL_REMOTE_CACHE="grpc://stale-cache.example:8980" \
+  GF_REAPI_TOKEN_EXCHANGE_ENDPOINT="http://stale-exchange.example" \
+  GF_BAZEL_SUBSTRATE_MODE="shared-cache-backed" \
+  BLOG_GATE_CACHE_DIR="${tmp_dir}/gate-cache" \
+  FAKE_BAZEL_ARGS="${env_args}" \
+  bash "${repo_root}/scripts/local-bazel-gate.sh" test //:fake_target >/dev/null
+if [[ -s ${env_args} ]]; then
+  echo "ERROR: local gate wrapper passed remote variables to Bazel:" >&2
+  cat "${env_args}" >&2
+  exit 1
+fi
+
+if BAZEL_BIN="${fake_bazel}" \
+  BLOG_GATE_CACHE_DIR="relative/cache" \
+  FAKE_BAZEL_ARGS="${tmp_dir}/relative-gate.args" \
+  bash "${repo_root}/scripts/local-bazel-gate.sh" test //:fake_target >/dev/null 2>&1; then
+  echo "ERROR: relative BLOG_GATE_CACHE_DIR unexpectedly succeeded" >&2
   exit 1
 fi
