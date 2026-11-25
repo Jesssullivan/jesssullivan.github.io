@@ -64,8 +64,9 @@ Her taste, from her design reviews, as binding rules:
 | What the layout and the page share: the flag, and the new page once it has loaded | `src/lib/flags/home-state.svelte.ts` |
 
 Recipes: `just home-stream` rewrites the data file, and `just home-stream-check`
-fails when it is stale. The unit test `committed-stream.test.ts` runs the same
-check wherever the gallery and the images are on disk.
+fails when it is stale. Since round four the prebuild of `npm run build` rewrites
+it too, and CI checks the committed copy. See "The stream at build time" under
+round four.
 
 ### The stage
 
@@ -563,6 +564,139 @@ the layout's answer.
 
 Two more requests for the constellation lane are at the end of this note, as
 9 and 10.
+
+## Round four: the second verifier's findings
+
+Authority: her words on the restart, typed on November 25, 2026, verbatim:
+"please fully reattach" and "(please reassert the extant lanes / dialogs /
+reattach all worktrees, workstreams, subagents ...)  usage has been reset".
+Receipt under R-HOOK-CONVERGENCE-20261004 (R-N13). The layout stays frozen at
+`3fdff87`.
+
+A second independent verifier read the head `d464102`. Of its eleven checks
+eight passed and two failed. Both faults were real. The eleventh was the proof
+run, where one e2e test timed out once on a busy host.
+
+| Finding | Cause | Fix |
+|---|---|---|
+| The stream was not built when the site builds | The data file was a committed snapshot. The prebuild never ran its generator. The one test of its freshness is skipped in the sandbox CI uses | The prebuild runs the generator. The CI build gate checks the committed file first. A unit test that runs in every sandbox checks the file against the posts |
+| "N photographs" showed under sets whose photographs are all on screen | The count showed under every set of two or more | The count shows only where the post holds more photographs than the set shows |
+| One e2e test hit its 30 second limit while the host's load was 85 | It held three page loads and three waits of four seconds | It is three tests, each with its own 30 seconds |
+
+The constellation branch had not moved: it is at `d641158`, which `cb4e6d9`
+already merged. No merge was needed.
+
+### The stream at build time
+
+| Where | What runs |
+|---|---|
+| `npm run build` | The prebuild rewrites the data file from the posts, the gallery, the Pulse snapshot and the Music page, after the gallery step. The production, parity and rollback workflows all build this way |
+| The CI build gate, `//:sveltekit_vite_build_smoke` | The generator with `--check` runs before any step that writes a file, so a committed file that is not what the committed sources give fails the gate. The rewrite then runs before the build |
+| The CI e2e gate, `//:playwright_chromium_e2e` | The same rewrite before its build |
+| Unit tests, in every sandbox | Every published post is in the committed file with its date, title, summary and reading time, and no other post is |
+| Unit tests where the gallery and the images are on disk | The whole file, byte for byte, as before |
+
+So a built site never ships a stale stream, and a stale committed copy fails
+CI. The gate was shown working: with one published post added to `src/posts`,
+the generator's `--check` exited 1 and the unit test exited 1. With the post
+removed both passed.
+
+A new, withdrawn, renamed, redated or retitled post now needs
+`just home-stream` and a commit of the data file. The constellation branch
+asks the same for its projection with `just posts-projection`. See decision 1.
+
+The two Bazel targets were not run on this host. Their runner scripts gained
+the steps above, and CI runs them on the pull request.
+
+### The count under photographs
+
+Nine sets hold two or more photographs.
+
+| Sets | Count before | Count now |
+|---|---|---|
+| Six whose photographs are all on screen: `research-year-two-three-photos`, `solar-upgrades`, `840-watts-of-solar-power`, `birding-at-plumb-island`, `gallery-of-warblers-in-the-hand`, `mega-langdon` | "3 photographs", "3", "3", "4", "3" and "2" | None |
+| Three whose post holds more than the five on screen: `gallery-of-my-proper-photos-nh-warbler-research`, `rugby-morning-2`, `example-photo-work` | "22 photographs", "9" and "9" | The same |
+
+The rule is one function, `setTotal` in `src/lib/home/stream.ts`, with a unit
+test. An e2e test reads every set under the Photos filter: a count is always
+larger than the number of photographs on screen.
+
+Under its own writing a set's caption held only the count. The room that
+caption took, 26 pixels, stays as blank space under those six sets, so no
+block below them moved. See decision 2.
+
+Under the Photos filter a caption also holds the post's title. On a phone two
+captions had wrapped the count onto a second row. That row went with the
+count, so the filtered page at 390 pixels wide is 36 pixels shorter. Nothing
+else moved.
+
+### The layout check
+
+Measured on November 25, 2026 on the final build, with reduced motion, in one
+headless Chromium. Every block outside the sky's own insides and outside a
+set's caption was measured.
+
+| Compared with | Views | Result |
+|---|---|---|
+| The frozen build `3fdff87` | The four scenes and the whole stream at 1440, 1920 and 390 pixels wide: 15 views, 120 to 1,288 blocks each | Largest difference 0.00 pixels. Every page height is the same |
+| The last head `d464102` | The same 15 views | Largest difference 0.00 pixels. Every page height is the same |
+| Both | The Photos filter at 1440 and 1920 pixels, 165 blocks | Largest difference 0.00 pixels |
+| Both | The Photos filter at 390 pixels, 157 blocks | The page is 36 pixels shorter, as said above |
+
+### The verifier's notes on the look
+
+| Note | What was done |
+|---|---|
+| On a wide screen the stream is one narrow column, about 40 percent of the width is empty, and ten titles come before the first picture | Not changed. This is the layout she saw and called beautiful. Decision 3 |
+| The heron at 1920 pixels is a soft strip 391 rows tall, with bare ground above and below | Not changed. This round's direction keeps the banner's frame. Decision 3 of round three |
+| The sky's own legend and controls sit above the stage's filters and controls | Not changed. They are the sky's own. Request 9 |
+| A post, its video and its recording with one title run back to back | Not changed. Folding them moves every block below. Decision 5 of round three |
+| On a production build with the flag on, the layout shift is 0.03 to 0.06 and the largest paint is the old banner | Not changed. The ordinary page paints first, and it scores the same shift with the flag off. A preview build paints the new page first. Decision 7 of round one |
+| The heron falls back to the 672 pixel `header.png` | Only in a browser with neither AVIF nor WebP. Not changed |
+
+### Measured
+
+| What | Result |
+|---|---|
+| JavaScript on the home page, flag on | 25 scripts, 192,397 bytes gzip: 28,398 above the branch point with the flag off, and 27,209 above this head with the flag off |
+| JavaScript on the home page, flag off | 21 scripts, 165,188 bytes gzip. The branch point has 21 scripts and 163,999 bytes |
+| Requests the flag-off home page makes | 44, the same as the branch point. None leaves the site |
+| The stream's data file | 160 items: 140 writing, 13 sets of photographs, 3 recordings and 4 videos. The build left it unchanged |
+
+The branch point is the constellation branch at `d641158`, built by the
+verifier. The limit for the flag on was 40 kilobytes above the flag off.
+
+### Proof
+
+Each step ran through the host's gates on November 25, 2026, one at a time, on
+the final tree.
+
+| Step | Exit | Result |
+|---|---|---|
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 45 files, 453 tests |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
+| The stream's data file against its sources | 0 | Current, 160 items |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | The prebuild ran the generator and left the file unchanged |
+| e2e with one worker: this lane's spec and the two constellation specs | 0 | 63 passed in 4.0 minutes |
+
+The e2e step ran twice. The first run stopped moving at test 18 of 63, a
+constellation spec. It was stopped by hand 28 minutes later, with no test
+failed and none passed after that point. Another lane's Bazel build held 5.5 GiB in the host's shared slice for
+heavy jobs, which slows every job in it at 6 GiB. The second run waited for
+room in that slice and passed all 63. The count is 63 where round three had
+60: one test became three, and one is new.
+
+### Decisions for her, round four
+
+1. A post that is new or changed now fails CI until `just home-stream` is run
+   and the data file committed. The built site is right either way, because
+   the build rewrites the file. Say so if this gate should go and the build
+   alone should keep the stream current.
+2. The 26 pixels of room under six sets of photographs can close. It stays
+   only so that nothing she saw moved.
+3. Whether the stream on a wide screen should use more of the width, or bring
+   a picture into its first screen. Either changes the layout she froze.
 
 ## Requests for the constellation lane
 
