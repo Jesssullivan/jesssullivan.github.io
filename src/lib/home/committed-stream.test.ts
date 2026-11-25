@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { STREAM_OUTPUT, buildCommittedStream, imageSize, serializeStream, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
-import { STREAM_KINDS, type StreamFile } from './stream';
+import { STREAM_OUTPUT, buildCommittedStream, imageSize, readPosts, serializeStream, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
+import { STREAM_KINDS, isDated, type StreamFile } from './stream';
 
 const committed = JSON.parse(readFileSync(STREAM_OUTPUT, 'utf-8')) as StreamFile;
 
@@ -41,8 +41,19 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 		}
 	});
 
-	// A Bazel unit-test sandbox holds the code and the data files under src, scripts and static/data only. The whole check runs wherever the gallery and the images are on disk.
-	it.skipIf(!sourcesPresent())('is current with its sources; otherwise run: just home-stream', () => {
+	// The posts are in every sandbox, so this runs everywhere. A post that is new, withdrawn, renamed,
+	// redated or retitled fails here until the file is rebuilt, as the constellation's projection does.
+	it('holds every published post and no other; otherwise run: just home-stream', () => {
+		const facts = (rows: (string | number | undefined)[][]) => rows.map((row) => row.join(' | ')).sort();
+		const posts = readPosts().filter((post) => isDated(post.date));
+		const writing = committed.items.filter((item) => item.source === 'posts');
+		expect(facts(writing.map((item) => [item.id, item.date, item.title, item.summary, item.minutes]))).toEqual(facts(posts.map((post) => [`post:${post.slug}`, post.date, post.title, post.description, post.minutes])));
+	});
+
+	// The whole file, byte for byte. It needs the gallery, the images and the posters on disk. A Bazel unit-test
+	// sandbox holds only the code and the data under src, scripts and static/data, so there the build gate does this
+	// check instead: scripts/run-sveltekit-vite-build-bazel.mjs runs the generator with --check before it builds.
+	it.skipIf(!sourcesPresent())('is current with all its sources; otherwise run: just home-stream', () => {
 		expect(existsSync(STREAM_OUTPUT)).toBe(true);
 		expect(readFileSync(STREAM_OUTPUT, 'utf-8')).toBe(serializeStream(buildCommittedStream()));
 	});

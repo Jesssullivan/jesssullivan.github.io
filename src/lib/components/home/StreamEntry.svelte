@@ -2,7 +2,7 @@
 	// One item of the home stream, in the form its kind has (TIN-8657, ruling RM48).
 	// Every kind is drawn here and nowhere else. The kind shows by form: there is no label, card or rule.
 	import Picture from './Picture.svelte';
-	import { dayOf, tipFor, type StreamFilm, type StreamImage, type StreamItem, type StreamSound } from '$lib/home/stream';
+	import { dayOf, setTotal, tipFor, type StreamFilm, type StreamImage, type StreamItem, type StreamSound } from '$lib/home/stream';
 
 	let {
 		item,
@@ -16,7 +16,10 @@
 	const images = $derived(item.media.filter((media): media is StreamImage => media.type === 'image'));
 	const sound = $derived(item.media.find((media): media is StreamSound => media.type === 'soundcloud'));
 	const film = $derived(item.media.find((media): media is StreamFilm => media.type === 'youtube'));
-	const count = $derived(images.length + (item.more ?? 0));
+	// The count shows only when the post holds more photographs than are on screen here.
+	const total = $derived(setTotal(item));
+	// A set under its own writing, all on screen, has no caption. The room one took stays, so nothing below it moves.
+	const spare = $derived(follows && images.length > 1 && total === 0);
 
 	// A player is a frame from another site. It loads only when the visitor asks for it.
 	let playing = $state(false);
@@ -42,7 +45,7 @@
 {:else if item.kind === 'announcement'}
 	<p class="announcement"><a href={item.url} data-tip={dayOf(item.date)}>{item.title}</a></p>
 {:else if item.kind === 'photos' && images[0]}
-	<figure class="photos" class:portrait={images[0].height > images[0].width} style={`--ar:${(images[0].width / images[0].height).toFixed(4)}`}>
+	<figure class="photos" class:portrait={images[0].height > images[0].width} class:spare style={`--ar:${(images[0].width / images[0].height).toFixed(4)}`}>
 		<a class="lead" href={item.url} aria-label={item.title}><Picture image={images[0]} /></a>
 		{#if images.length > 1}
 			<div class="rest" aria-hidden="true">
@@ -51,10 +54,10 @@
 				{/each}
 			</div>
 		{/if}
-		{#if !follows || count > 1}
+		{#if !follows || total}
 			<figcaption>
 				{#if !follows}<a href={item.url} data-tip={dayOf(item.date)}>{item.title}</a>{/if}
-				{#if count > 1}<span>{count} photographs</span>{/if}
+				{#if total}<span data-testid="set-total">{total} photographs</span>{/if}
 			</figcaption>
 		{/if}
 	</figure>
@@ -226,6 +229,13 @@
 		font-size: 0.72rem;
 		letter-spacing: 0.04em;
 		color: var(--quiet);
+	}
+	/* The room of a caption that held only a count: its margin and its one line, as two lengths, so they round as the caption's did. */
+	.photos.spare::after {
+		content: '';
+		display: block;
+		height: calc(0.72rem * 1.3);
+		margin-top: 0.7rem;
 	}
 
 	/* A recording: its title and a play control. The player comes only on a press. */

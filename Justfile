@@ -59,11 +59,11 @@ posts-projection-cold:
 posts-projection-check:
     npx tsx scripts/generate-posts-projection.mts --check
 
-# Home stream (TIN-8657): rebuild the one data file of the home page stream from posts, Pulse, the gallery and the Music page
+# Home stream (TIN-8657): rebuild the one data file of the home page stream from posts, Pulse, the gallery and the Music page. The prebuild of `npm run build` runs the same step
 home-stream:
     npx tsx scripts/generate-home-stream.mts
 
-# Home stream: fail when the committed data file is stale
+# Home stream: fail when the committed data file is stale. The CI build gate runs this before it builds
 home-stream-check:
     npx tsx scripts/generate-home-stream.mts --check
 

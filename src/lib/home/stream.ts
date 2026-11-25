@@ -137,6 +137,15 @@ export interface StreamSources {
 /** How many photographs of a set travel in the data file. The rest are counted in `more`. */
 export const SET_SIZE = 5;
 
+/**
+ * The count a set of photographs shows under it: every photograph of the post, and only when the
+ * post holds more than the set shows. A set that is all on screen says nothing, because the reader sees it.
+ */
+export function setTotal(item: Pick<StreamItem, 'media' | 'more'>): number {
+	const unseen = item.more ?? 0;
+	return unseen > 0 ? item.media.filter((media) => media.type === 'image').length + unseen : 0;
+}
+
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}(?:T[\d:.]+(?:Z|[+-]\d{2}:\d{2})?)?$/;
 export const isDated = (date: string) => ISO_DATE.test(date) && !Number.isNaN(Date.parse(date.length === 10 ? `${date}T00:00:00Z` : date));
 

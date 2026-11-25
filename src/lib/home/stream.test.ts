@@ -12,6 +12,7 @@ import {
 	monthOf,
 	offeredFilters,
 	ownsImage,
+	setTotal,
 	tipFor,
 	type GalleryInput,
 	type ImageFacts,
@@ -164,6 +165,17 @@ describe('items left out and counted', () => {
 		const set = items.find((item) => item.id === 'photos:plain')!;
 		expect(set.media).toHaveLength(SET_SIZE);
 		expect(set.more).toBe(4);
+	});
+
+	it('counts a set of photographs only when the post holds more than the set shows', () => {
+		const set = (shown: number, slug: string) => buildStream({ ...sources(), gallery: Array.from({ length: shown }, (_, index) => photo(`DSC_${index}`, slug)) }).items.find((item) => item.id === `photos:${slug}`)!;
+		// Nine in the post, five on screen: the count says there are more.
+		expect(setTotal(set(9, 'plain'))).toBe(9);
+		// Every photograph is on screen: the reader sees how many, so nothing is said.
+		expect(setTotal(set(SET_SIZE, 'plain'))).toBe(0);
+		expect(setTotal(set(3, 'plain'))).toBe(0);
+		expect(setTotal(set(1, 'plain'))).toBe(0);
+		expect(setTotal({ media: [], more: 0 })).toBe(0);
 	});
 });
 

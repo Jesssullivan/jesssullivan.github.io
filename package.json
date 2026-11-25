@@ -6,7 +6,7 @@
 	"scripts": {
 		"prepare": "node scripts/build-tinyvectors.mjs",
 		"dev": "vite dev",
-		"prebuild": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/validate-pulse-snapshot.mts",
+		"prebuild": "tsx scripts/ingest-tinyland-posts.mts --check && tsx scripts/generate-search-index.mts && tsx scripts/optimize-images.mts && tsx scripts/render-mermaid.mts && tsx scripts/generate-blog-stats.mts && tsx scripts/generate-tag-graph.mts && tsx scripts/generate-photo-gallery.mts && tsx scripts/validate-pulse-snapshot.mts && tsx scripts/generate-home-stream.mts",
 		"build": "vite build",
 		"postbuild": "tsx scripts/generate-redirects.mts && pagefind --site build && tsx scripts/generate-directory-index-aliases.mts && node scripts/stamp-deploy-tier-output.mjs",
 		"test:redirects": "bash scripts/bazel-cache-backed.sh test //:sveltekit_vite_build_smoke",

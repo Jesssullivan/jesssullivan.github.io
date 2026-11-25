@@ -63,6 +63,7 @@ try {
 		['tsx', 'scripts/generate-tag-graph.mts'],
 		['tsx', 'scripts/generate-photo-gallery.mts'],
 		['tsx', 'scripts/validate-pulse-snapshot.mts'],
+		['tsx', 'scripts/generate-home-stream.mts'],
 		['svelte-kit', 'sync'],
 		['vite', 'build'],
 		['tsx', 'scripts/generate-redirects.mts'],

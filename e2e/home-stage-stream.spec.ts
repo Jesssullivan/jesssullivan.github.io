@@ -302,7 +302,8 @@ test.describe('flag on: the heading stage', () => {
 		await expect(page.getByTestId('scene-heron')).toHaveAttribute('inert', '');
 	});
 
-	test('a key pressed on a control stops the play for the visit, and so does a step', async ({ page }) => {
+	// Three loads and three waits of four seconds are three tests, so a busy host has thirty seconds for each.
+	test('a key pressed on a control stops the play for the visit, and Play starts it again', async ({ page }) => {
 		// Any key with a control in focus.
 		await page.goto('/?flags=home&stage-pace=20');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
@@ -319,8 +320,9 @@ test.describe('flag on: the heading stage', () => {
 		await page.keyboard.press('Enter');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
 		await expect(stage(page)).not.toHaveAttribute('data-scene', stoppedOn!, { timeout: 8000 });
+	});
 
-		// An arrow on Next steps one scene and the play stops there.
+	test('an arrow key on Next steps one scene and the play stops there', async ({ page }) => {
 		await page.goto('/?flags=home&stage-pace=20');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
 		await page.getByTestId('stage-next').focus();
@@ -329,8 +331,9 @@ test.describe('flag on: the heading stage', () => {
 		const steppedTo = await stage(page).getAttribute('data-scene');
 		await page.waitForTimeout(4000);
 		await expect(stage(page)).toHaveAttribute('data-scene', steppedTo!);
+	});
 
-		// A press on Next does the same.
+	test('a press on Next steps one scene and the play stops there', async ({ page }) => {
 		await page.goto('/?flags=home&stage-pace=20');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
 		await page.getByTestId('stage-next').click();
@@ -459,6 +462,25 @@ test.describe('flag on: the one mixed stream', () => {
 		await filters.getByRole('link', { name: 'All', exact: true }).click();
 		await expect(page).not.toHaveURL(/show=/);
 		await expect(items(page).first()).toHaveAttribute('data-kind', 'article');
+	});
+
+	test('a set of photographs is counted only when the post holds more than the set shows', async ({ page }) => {
+		await page.goto('/?flags=home&show=photos');
+		await expect(items(page).first()).toHaveAttribute('data-kind', 'photos');
+		await expect.poll(async () => {
+			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+			return page.getByTestId('stream-more').count();
+		}, { timeout: 25_000, intervals: [150] }).toBe(0);
+		const sets = await items(page).evaluateAll(nodes => nodes.map(node => ({
+			shown: node.querySelectorAll('figure.photos img').length,
+			total: Number(node.querySelector('[data-testid=set-total]')?.textContent?.match(/^(\d+) photographs$/)?.[1] ?? 0),
+		})));
+		expect(sets.length).toBeGreaterThan(8);
+		// A count says there are more photographs in the post than on screen. It never says what the reader can see.
+		for (const set of sets) expect(set.total === 0 || set.total > set.shown, JSON.stringify(set)).toBe(true);
+		expect(sets.some(set => set.total > set.shown)).toBe(true);
+		expect(sets.some(set => set.total === 0 && set.shown > 1)).toBe(true);
+		await expect(page.getByTestId('home-stream').getByText(/^\d+ photographs$/)).toHaveCount(sets.filter(set => set.total).length);
 	});
 
 	test('a recording loads its SoundCloud player only on a press', async ({ page }) => {
