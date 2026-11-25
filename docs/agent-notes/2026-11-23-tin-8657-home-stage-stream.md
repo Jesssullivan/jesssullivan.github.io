@@ -376,7 +376,7 @@ were real.
 | With the flag off every route asked for one more script, and the home page for three | The layout and the home page both imported the flag, so the bundler gave it a file of its own. The new page and the ordinary page both imported `$app/state`, so the bundler put it in one file with the sky | The layout alone imports the flag and hands it to the page in its context. The new page takes the address query as a prop |
 | A key pressed on Pause or Next did not stop the play, and a step left it running | The stage listened for input on its scenes only | The stage listens on itself. A step stops the play |
 | One constellation spec failed on a production build | Not traced. This branch held the sky as of `7cc315d` | It passes after the merge at `fafbe6c`, with no code changed for it |
-| The constellation branch had moved and was not merged | The earlier run stopped on a usage limit before the merge was pushed | The signed merge `08f78f5` is pushed |
+| The constellation branch had moved and was not merged | The earlier run stopped on a usage limit before the merge was pushed | The signed merge `08f78f5` is pushed. The branch moved again during this round, to `d641158`, which takes in main at `8ae5ff2`. That is merged too, as `cb4e6d9` |
 
 ### The heron photograph
 
@@ -412,8 +412,9 @@ two or three spreads the file two or three times more.
 ### The flag off
 
 Measured on November 25, 2026 in one headless Chromium, flag off, against a
-production build of main at `7743096` and of the constellation branch at
-`fafbe6c`. Requests, and scripts among them:
+production build of main at `8ae5ff2` and of the constellation branch at
+`fafbe6c`. The same counts were measured earlier that day against main at
+`7743096`. Requests, and scripts among them:
 
 | Route | Main | Constellation branch | This head |
 |---|---|---|---|
@@ -433,11 +434,11 @@ JavaScript on the home page, gzip, counted from the files each load asked for:
 
 | Load | Files | Bytes gzip |
 |---|---|---|
-| Main, flag off | 20 | 178,315 |
-| This head, flag off | 21 | 170,256 |
-| This head, flag on | 25 | 197,406 |
+| Main at `8ae5ff2`, flag off | 20 | 173,238 |
+| This head, flag off | 21 | 165,179 |
+| This head, flag on | 25 | 192,328 |
 
-The flag on is 19,091 bytes above main. The limit was 40 kilobytes. The flag
+The flag on is 19,090 bytes above main. The limit was 40 kilobytes. The flag
 off is 8,059 bytes below main, because the constellation branch moves the sky
 out of the home page's own file.
 
@@ -479,8 +480,9 @@ The rule is one function with no DOM, `inputStops` in
 
 ### Measured
 
-Measured on November 25, 2026 on a production build of the final tree, in one
-headless Chromium.
+Measured on November 25, 2026 on a production build of the final tree, after
+the second merge, in one headless Chromium. The contrast was measured one
+build earlier, before a merge that changed two dependencies and no style.
 
 | What | Result |
 |---|---|
@@ -498,7 +500,7 @@ and mode, so the sharper file changed nothing under the type.
 ### Proof
 
 Each step ran through the host's gates on November 25, 2026, one at a time, on
-the tree as committed.
+the merged head `cb4e6d9`, after a fresh `npm ci`.
 
 | Step | Exit | Result |
 |---|---|---|
@@ -507,21 +509,32 @@ the tree as committed.
 | svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
 | The stream's data file against its sources | 0 | Current, 160 items |
 | Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | |
-| e2e with one worker: this lane's spec and the two constellation specs | 0 | 60 passed |
+| e2e with one worker: this lane's spec and the two constellation specs, first run | 1 | 58 of 60 passed |
+| The same, second run | 0 | 60 passed |
 
-The e2e step ran twice on the final build. The first run ended 59 of 60 with
-exit 1: the constellation spec at line 215 waits five seconds for 30 animation
-frames and saw 17, while the host's load stood above 60. The second run, with
-the load near 20, passed all 60. That spec passed in the two runs before it as
-well.
+The e2e step ran six times in this round, and the failures are told here in
+full.
+
+| Run | Tree | Result | What failed |
+|---|---|---|---|
+| 1 | The fixes, before the test of the two flags | 59 of 59, exit 0 | |
+| 2 | With that test | 59 of 60, exit 1 | The new test, and it was right. See below |
+| 3 | With the fix it asked for | 59 of 60, exit 1 | The constellation spec at line 215: it waits five seconds for 30 animation frames and saw 17 |
+| 4 | The same tree | 60 of 60, exit 0 | |
+| 5 | The merged head | 58 of 60, exit 1 | Line 215 again, with 27 frames of 30, and the constellation spec at line 425, where the test read the star in focus before focus had come back to the map |
+| 6 | The merged head | 60 of 60, exit 0 | |
+
+Runs 3 and 5 took 4.7 and 6.9 minutes with the host's load between 35 and 60.
+The runs that passed took 3.6 to 3.9. Both specs are the constellation lane's
+and time the sky's own frames and focus. This lane's 25 tests passed in every
+run but run 2. The cause is not proven beyond that timing.
 
 The spec the verifier saw fail, "the picked post docks as a slim bar", passed
-in all four runs after the merge. No code changed for it.
+in all six runs. No code changed for it.
 
-On the way, the new test of the two flags failed once and was right to: the
-ordinary page read the older flag before the layout had read this one, and
-asked the hub for the older flag's two files. The page now waits for the
-layout's answer.
+Run 2: the ordinary page read the older flag before the layout had read this
+one, and asked the hub for the older flag's two files. The page now waits for
+the layout's answer.
 
 ### The verifier's notes on the look
 
