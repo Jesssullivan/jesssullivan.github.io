@@ -111,8 +111,9 @@ round four.
 - **The cover rule.** A post shows a cover only when its own text uses that
   image file, in any format. Most covers come from a small pool of photographs
   shared between posts, and those are left off.
-- A post that has photographs in the gallery shows them as their own item
-  straight after it, and its title is not repeated under them.
+- A post that has photographs in the gallery holds them: the post and its
+  photographs are one item. Until round five the photographs were an item of
+  their own straight after the post. See "The join rule" under round five.
 - **Dates.** A gallery photograph takes the date of the post that uses it. A
   video takes a date only when its title states the day.
 - A player loads only on a press: SoundCloud for a recording, YouTube no-cookie
@@ -124,8 +125,11 @@ round four.
   address as `?show=photos`. The filters share one line with the stage's
   controls, so the stage and the stream join with no seam. A filter chosen from
   the first screen scrolls the stream up, so the choice shows.
-- The play control of a recording or a video is the bare sign in the page's
-  ink, with no filled square behind it.
+- The play control of a recording is the bare sign in the accent, with no
+  filled square behind it. Since round five a video's poster is its play
+  control, with the same sign lying on it.
+- Since round five the stream runs on two lines from 1100 pixels wide. See
+  "The wide screen" under round five.
 - Twelve items are in the first paint. More show as the reader nears the end.
   Without scripts, More is a plain link to `/blog`.
 
@@ -698,6 +702,266 @@ room in that slice and passed all 63. The count is 63 where round three had
 3. Whether the stream on a wide screen should use more of the width, or bring
    a picture into its first screen. Either changes the layout she froze.
 
+## Round five: fold duplicates and the wide screen
+
+Authority: ruling RM66, Linear TIN-8594, the comment headed "Rulings from the
+tenth interview" (`f3addd06`), November 26, 2026. Ruling RM64, in the comment
+headed "Rulings from the ninth interview" (`08b21293`), lifts the layout
+freeze: her praise was for another page. Receipt under
+R-HOOK-CONVERGENCE-20261004 (R-N13).
+
+Her words, verbatim:
+
+| Id | The question, as put | Her answer |
+|---|---|---|
+| RM66 | Which of four things should home page round three change, pick any | "One row of controls, Fold duplicates, Use the wide screen" |
+| RM64 | Which page "in chrome, the layout is beautiful!" meant | "The xoxd.ai sky" |
+| On the restart, November 26, 2026 | | "(please reassert the extant lanes / dialogs / reattach all worktrees, workstreams, subagents, review the current ouputs and states and plans and goals etc)  usage has been reset, apologies for the interuption/status" |
+
+She did not pick the fourth choice, "More of the heron". The heron scene is as
+it was.
+
+This round did two of her three picks. The third, one row of controls in the
+sky scene, needs changes inside the sky's own files, which another lane holds.
+The two rows are as they were. Request 11 at the end of this note lists the
+props it needs.
+
+The interview calls this round three. It is the fifth section of this note,
+after two rounds of verifier fixes, so it is round five here.
+
+An earlier run of this round stopped on an account usage limit. It left the
+join rule half built and three sketches drawn. This run went on from both.
+
+### The join rule
+
+A post, its photographs, its video and its recording show as one item. The
+stream builder joins them at build time, in `foldStream` in
+`src/lib/home/stream.ts`, from data the site has.
+
+1. A set of photographs joins the post whose address it carries. The set is
+   built from that post's own text, so the link is certain.
+2. A recording or a video joins a post when three things hold. Both titles
+   open with the same words before a day written in the title. The day its
+   title states is its own date. That day is the post's date or the day the
+   post's title states. If two posts answer, it joins neither.
+3. Recordings and videos that no post answers join each other when their
+   titles state the same words and the same day.
+
+A title that states no day joins nothing by rules 2 and 3, so a shared series
+name joins nothing. The words must be the same words: "Shortest Morning Metal"
+is not "Morning Metal". A day is month, day and year with one separator used
+twice, and the year has two digits or lies from 1990 to 2099.
+
+The folded item keeps the post's title, summary, address and date. Each
+recording and video keeps its own title, day, address and note on its media,
+so its play control and its tooltip name it.
+
+Every group the rule forms today:
+
+| Lead | Holds | Why |
+|---|---|---|
+| `post:morning-metal-4-22-21`, "Morning Metal 4.22.21 “Sleepish”", April 23, 2021 | The recording `track:morning-metal-42221` and the video `video:JVusudpKTF8` | Rule 2. The recording's title states April 22, the day the post's title states. The video's title states April 23, the post's date |
+| `video:jrxJHwmtwak`, "Shortest Morning Metal 7 8 20" | The video `video:nVkjCMmpUII` | Rule 3. One title, one day, and no post answers |
+| 13 posts | Each its own set of photographs | Rule 1 |
+
+The 13 posts: `week-notes-indeterminism-passkeys-and-spring`,
+`week-notes-cyborgs-servers-and-sending`,
+`xram-injection-bypassing-usb-bridge-whitelists-to-recover-nvme-drives`,
+`research-year-two-three-photos`, `solar-upgrades`,
+`840-watts-of-solar-power`, `birding-at-plumb-island`,
+`signs-of-thoughts-of-possible-spring`,
+`gallery-of-my-proper-photos-nh-warbler-research`,
+`gallery-of-warblers-in-the-hand`, `rugby-morning-2`, `mega-langdon` and
+`example-photo-work`.
+
+So 16 parts fold into 15 items: 13 sets of photographs, 1 recording and 2
+videos.
+
+| | Items | Writing | Photographs | Recordings | Video |
+|---|---|---|---|---|---|
+| Before | 160 | 140 | 13 | 3 | 4 |
+| After | 144 | 140 | 13 | 3 | 3 |
+
+After the fold a count says how many items hold that kind, so a folded item is
+counted under each kind it holds. The counts add up to 159 for 144 items. The
+video count falls by one because two videos are now one item.
+
+A filter shows the whole folded item under every kind it holds. Under
+Recordings the post "Morning Metal 4.22.21 “Sleepish”" shows with its title,
+its recording and its video. The generator prints every group it forms, so a
+wrong join shows in the log of the run that made it.
+
+Unit tests hold the near misses:
+
+| Case | Result |
+|---|---|
+| The same words with another year in the title | Not joined |
+| The very same title on a recording whose own date is another day | Not joined |
+| A title with no day, the same on a post and a recording of one date | Not joined |
+| A video whose title only contains a post's title, before or after it | Not joined |
+| Two posts that both answer | Joined to neither |
+| Two videos of one title and one day, beside one of the next day | The two joined, the third not |
+| The sources in reverse order | The same bytes |
+
+Left alone, and why:
+
+- "...In other news..." links the recording "Evening Metal 9.14.20" in its
+  text, and "some boilerplate code, ?, etc" links "Morning Metal 12.17.20".
+  Neither title shares words and a day with its recording, so neither is
+  joined. See decision 2.
+- The video "Morning Metal 10/28/20" has the date of the post "...In other
+  news...". The post's title states no day, so they are not joined.
+
+### The wide screen
+
+Three compositions were drawn first as one page of plain HTML over the real
+stream data, and shot at 1440 and 1920 pixels wide, light and dark.
+
+| Sketch | The idea | What the screenshots showed |
+|---|---|---|
+| A, two lines | Words on a first line down the page. What there is to see starts on a second line and runs to the edge of the screen. A piece with nothing to show sets its summary on the second line | Every photograph whole. A run of posts with no picture still fills the width, as title and summary side by side. One order, top to bottom |
+| B, two banks | Pieces step from the left bank to the right and back, each a little lower | Titles start at four different places. Pictures change sides. Two posts side by side read as tiles, and the order is hard to follow |
+| C, plates | One column of large type. A picture comes in from the right, and its near edge dissolves into the page under the type | The largest type and the deepest feather. But a third of every photograph fades away, and a title ran onto a busy picture. A run of posts with no picture still left half the screen empty |
+
+A was built. It is the only one that answers the plain list: 115 of the 140
+posts have no picture of their own, and A gives those a form that uses the
+width. It keeps her photographs whole. It keeps one reading order. From C it
+takes the larger type and the feather, used only where type does lie on a
+picture, which is a video's poster.
+
+What was built, from 1100 pixels wide:
+
+- Two lines run down the stream. Every title starts on the first. The second
+  starts at the same place for every item.
+- A piece with nothing to show sets its summary on the second line. The
+  summary's first line stands on the baseline of the title's first line.
+- A picture, a set of photographs or a video starts on the second line, level
+  with the top of its title, and runs out to the right edge of the screen.
+- A picture is never drawn wider than its file. Its lead is never taller than
+  72 percent of the screen, so a tall or square one is narrower.
+- The summary keeps a measure of 29 ems, about 70 characters. The title is
+  larger on a wider screen, up to 40 pixels.
+- A run of words alone sits close. Something to see takes more room above and
+  below it, and a new month takes the most. There is no rule and no box.
+- A video's poster is its play control. The sign, and the day when the video
+  is held by a post, lie straight on the poster on a feather of the page's
+  ground: near solid as far as they reach, then a long falloff.
+- A recording a post holds has its play control and its own day under the
+  post's words. A recording of its own hangs its play control in the month's
+  rail, so its title starts where every title starts.
+- A tooltip on a held play control gives the name of what plays.
+- The first picture is in the first screen of the stream. See "Measured".
+
+Below 1100 pixels the stream is one column, as before, with the picture under
+the words. What changed on a phone:
+
+- A post and its photographs were two items, 1.5 rems apart. They are one
+  item, 1.1 rems apart.
+- A summary above a picture may run four lines where it ran two.
+- A video's play control lies on its poster. It sat under it.
+- A picture is not drawn wider than its file. Two small ones in old posts
+  were.
+
+Gone with the freeze: the 26 pixels of spare room under six sets of
+photographs, and the separate form a set of photographs had.
+
+The new motion is one thing: a player fades in out of a short blur where it
+lands, on the page's soft curve. With reduced motion it just shows.
+
+### Three passes
+
+Each pass was a production build, shot whole and in parts through one
+headless Chromium, then read.
+
+| Pass | Shot | Seen | Changed |
+|---|---|---|---|
+| 1 | 1440 pine light and catppuccin dark, 1920 rose light and pine dark, 390 pine light and rose dark | A summary stood on its title's last line, not its first. A square lead filled a 1080 pixel screen. The first picture showed only 130 pixels in the first screen | The summary stands on the first baseline. Every lead is capped at 72 percent of the screen's height. The month's room is a rem less |
+| 2 | The same six | On a phone the feather covered half a poster and the day wrapped onto two lines. The summary sat a little low | A smaller feather below 1100 pixels, and the day on one line. The rise corrected |
+| 3 | The six, and 1440 rose dark, 1920 catppuccin light, 390 catppuccin dark, 1100 and 1024 pine light | 1100 pixels, the first width with two lines, and 1024, the widest with one column, both hold. On a poster with no day the feather reached far past the sign | A smaller feather where the sign stands alone |
+
+The screenshots of the three passes and of the sketches are on the build host
+under `/srv/fast-local/jess/previews/blog-home/shots-work/round3/`.
+
+### Measured
+
+Measured on November 26, 2026 on a production build of this round's tree, in
+one headless Chromium.
+
+| What | Result |
+|---|---|
+| The first picture of the stream, with the stream's top at the top of the screen | 649 pixels down a 900 pixel screen at 1440 wide, and 758 down a 1,080 pixel screen at 1920. Before, it was below ten titles |
+| The same on a phone of 390 by 844 pixels | 949 pixels down, as before. The newest three posts have no picture of their own |
+| Sideways scroll at 1440, 1920, 1100, 1024 and 390 pixels wide | None |
+| Layout shift down the whole stream, every part pressed open, at 1440, 1920 and 390 pixels wide, in three themes | 0 |
+| The page's height with every part pressed open | 39,586 pixels at 1440 wide, 46,605 at 1920 and 38,532 at 390 |
+| JavaScript on the home page, flag on | 25 scripts, 193,109 bytes gzip |
+| JavaScript on the home page, flag off | 21 scripts, 165,523 bytes gzip |
+| The flag's cost | 27,586 bytes above the flag off on this build. 19,871 above main's 173,238, measured in round three at `8ae5ff2`, where main still is. The limit is 40 kilobytes |
+| Requests on the home page | 44 with the flag off, as at round four. 54 with it on. None leaves the site |
+| The stream's data file | 73,197 bytes, 21,212 gzip. Round one measured 75,942 and 21,335 |
+| Lowest contrast of a video's day over its poster, with the glyphs and their halo taken off | 9.39 to 1, pine dark. 30 measurements: 5 themes, 2 modes, 3 widths |
+| Lowest contrast of the play sign over its poster | 3.81 to 1, catppuccin light. It is the accent, as in round one, and a sign needs 3 to 1 |
+
+The first contrast run found a fault. On a phone the day's last letter stood
+where the feather had begun to fall off: 4.80 to 1 over a white poster in pine
+dark. The ground now holds further on a small poster, and the figure above is
+the second run's.
+
+The throttled load figures of round two were not measured again. The first
+screen's code, type and pictures are the same files.
+
+### Proof
+
+Each step ran through the host's gates on November 26, 2026, one at a time.
+
+| Step | Exit | Result |
+|---|---|---|
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 45 files, 463 tests. Ten are new, for the join rule |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
+| The stream's data file against its sources | 0 | Current, 144 items |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | The prebuild ran the generator and left the file unchanged |
+| e2e with one worker: this lane's spec and the two constellation specs, first run | 1 | 63 of 65 passed |
+| The same, second run | 0 | 65 passed in 4.6 minutes |
+
+The first e2e run failed two of this lane's own tests, and both were right to
+fail. One still asked every play control for the tooltip "Play", where a held
+recording now names what plays. The other found no heading by its name: a
+title's tooltip is drawn by the style sheet, and the browser counted it in
+the link's name. The tooltip now carries empty alternative text, and the test
+finds a title by its text. The 40 constellation tests passed in both runs.
+
+Lint, the unit tests and the data check ran before the last two style
+changes. Lint and svelte-check ran again after them, with the build.
+
+Two tests are new. One reads a post, its video and its recording as one item
+under each of its three filters, and presses each player. One reads the two
+lines at 1440 and 1920 pixels wide: one start for every title, one for every
+picture and summary, a picture in the first screen, and no summary wider than
+640 pixels.
+
+The hosted gate is red on this branch for constellation tests that another
+lane is fixing. This lane did not wait for hosted checks.
+
+### Decisions for her, round five
+
+1. The video "Morning Metal 04.23.21" is folded into the post "Morning Metal
+   4.22.21 “Sleepish”" because the day in its title is the post's date. If
+   that video is of another morning, say so, and the rule will ask for the
+   same day in both titles.
+2. Two posts link a recording in their text and are not joined to it:
+   "...In other news..." and "some boilerplate code, ?, etc". A rule that
+   joins a recording to any post that links it would join both, and would put
+   a recording of September under a post of October.
+3. The two videos named "Shortest Morning Metal 7 8 20" are one item with two
+   posters.
+4. On a wide screen a picture runs to the right edge of the screen, and the
+   left margin stays.
+5. The newest three posts still show no cover, by the cover rule. So the
+   first picture of the stream is the fourth item's.
+6. One row of controls in the sky scene is not done. It waits on the
+   constellation lane and request 11.
+
 ## Requests for the constellation lane
 
 The stage reaches into the component with two style rules, in one block in
@@ -738,3 +1002,21 @@ The stage reaches into the component with two style rules, in one block in
     and by the two constellation files. In a build of the constellation
     branch at `fafbe6c` it is `chunks/DTKcyXcV.js`. The name changes with each
     build.
+11. For one row of controls in the sky scene (RM66). Today the sky draws its
+    legend and its five controls in a row at its foot, and the stage draws the
+    stream's filters, the progress line, Pause and Next in a second row under
+    it. The stage needs three props:
+    - `legend: 'foot' | 'head' | 'none'`, default `'foot'`. `'head'` draws the
+      legend along the top edge of the sky at the same inset.
+    - `controls: 'own' | 'none'`, default `'own'`. With `'none'` the sky draws
+      no control of its own and gives its actions to the stage: the exported
+      functions `toggleList()`, `zoomIn()`, `zoomOut()`, `resetView()` and
+      `toggleHelp()`, and a callback
+      `onviewstate(state: { canZoomIn: boolean; canZoomOut: boolean; canReset: boolean; listOpen: boolean; helpOpen: boolean })`
+      called whenever one of the five changes. The names and tooltips of the
+      five as exported constants, so both rows say the same words.
+    - `inset: string`, the length that request 2 asks for, in place of the
+      stage's override of `--edge`.
+    The stage then draws one row: the filters at one end, and at the other the
+    sky's five while the sky is on show, the progress line, Pause and Next.
+    Zoom out and Reset show only while they can act, as request 5 asks.
