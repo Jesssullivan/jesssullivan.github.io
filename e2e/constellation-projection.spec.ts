@@ -491,10 +491,15 @@ test('every routeable placed post is a keyboard-reachable star and a list item',
 	const next = await activeSlug(page) as string;
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(new RegExp(`/blog/${next}/?$`));
+});
 
-	// The list is the first tab stop of the section, and holds the same posts.
+// Its own test, so each test loads the page at most twice. With the map test above it made three
+// page loads, more than the 30 second budget holds on the two-CPU gate runner (TIN-8867).
+test('the list is the first tab stop of the section, and holds the same posts as the map', async ({ page }) => {
 	await page.goto('/?flags=constellation');
 	await expect(stars(page).first()).toBeAttached();
+	const slugs = await stars(page).evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
+	expect(slugs.length).toBeGreaterThan(100);
 	expect(await page.locator('.constellation').evaluate(section => section.querySelector('button, a[href], [tabindex="0"]')?.getAttribute('data-testid'))).toBe('constellation-view');
 	await control(page, 'Show as a list').focus();
 	// Arrow keys move inside the controls, which are one tab stop.
