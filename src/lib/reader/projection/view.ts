@@ -57,11 +57,15 @@ export function starScale(size: Size): number {
 
 /**
  * Keep the zoom in range and the panel covered: the sky never slides off its frame.
- * `lift` lets the map ride up by that many pixels, so a star under a docked card can come clear of it.
+ * `lift` lets a zoomed map ride up by that many pixels, so a star under a docked card can come clear of it.
+ * At rest the map fills its frame and never moves, with or without a card: the stars already keep clear of
+ * the strip the card docks in. The lift is never more than the height the zoom has added, so it grows from
+ * nothing as the map leaves rest.
  */
 export function clampView(view: View, size: Size, lift = 0): View {
 	const k = clamp(view.k, 1, MAX_ZOOM);
-	return { k, x: clamp(view.x, size.w - size.w * k, 0), y: clamp(view.y, size.h - size.h * k - lift, 0) };
+	const ride = Math.min(lift, size.h * (k - 1));
+	return { k, x: clamp(view.x, size.w - size.w * k, 0), y: clamp(view.y, size.h - size.h * k - ride, 0) };
 }
 
 /** Zoom by `factor` keeping the screen point (px, py) still. */

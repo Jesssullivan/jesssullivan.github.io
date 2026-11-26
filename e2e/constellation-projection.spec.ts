@@ -210,15 +210,19 @@ for (const viewport of [{ width: 1920, height: 1080 }, { width: 1440, height: 90
 // the sky's room from its first paint: a script in the document head marks the document, and the page's
 // own styles pad both columns by the sky's height. The section then loads into that room. Nothing moves,
 // in either motion mode, and with reduced motion nothing fades or slides either.
+// The case reads every frame the page draws while the section arrives: from the frame it is put in until
+// the sky is live, its fade has ended and half a second has passed. How many frames that is depends on the
+// machine: with no graphics card the site's moving background alone holds a 1440 wide page to two to four
+// frames a second, with or without the sky. What each frame shows is the page's.
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 	for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
 		test(`the page keeps the sky's room from its first paint and the section loads into it (motion: ${reducedMotion}, ${viewport.width} wide)`, async ({ page }) => {
 			await page.setViewportSize(viewport);
 			await page.emulateMedia({ reducedMotion });
 			await page.addInitScript(() => {
-				type Arrival = { shifts: Array<{ value: number; nodes: Node[] }>; built: { marked: boolean; section: boolean; room: number } | null; frames: Array<{ inside: number; outside: number; opacity: string }> };
+				type Arrival = { shifts: Array<{ value: number; nodes: Node[] }>; built: { marked: boolean; section: boolean; room: number } | null; frames: Array<{ inside: number; outside: number; opacity: string }>; arrived: boolean };
 				const state = window as unknown as { arrival: Arrival };
-				state.arrival = { shifts: [], built: null, frames: [] };
+				state.arrival = { shifts: [], built: null, frames: [], arrived: false };
 				new PerformanceObserver(list => {
 					for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean; sources?: Array<{ node: Node | null }> }>) {
 						if (!entry.hadRecentInput) state.arrival.shifts.push({ value: entry.value, nodes: (entry.sources ?? []).map(source => source.node).filter((node): node is Node => node !== null) });
@@ -233,17 +237,21 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 				document.addEventListener('DOMContentLoaded', () => {
 					state.arrival.built = { marked: document.documentElement.hasAttribute('data-sky'), section: document.querySelector('.constellation') !== null, room: room() };
 				});
-				// From the frame the section is put in: the animations inside the section, the animations on the page's two columns and on the blocks that fill them, and the section's opacity.
+				// From the frame the section is put in, in every frame: the animations inside the section, the animations on the page's two columns and on the blocks that fill them, and the section's opacity.
+				// It ends on what a visitor sees, not on a count: the sky is live and the section's fade has ended. Half a second is the least it reads, which is 30 frames where a screen gives 60 a second.
 				const seen = new MutationObserver(() => {
 					const section = document.querySelector('.constellation');
 					if (!section) return;
 					seen.disconnect();
+					const put = performance.now();
 					const sample = () => {
 						const targets = document.getAnimations().map(animation => (animation.effect as KeyframeEffect | null)?.target).filter((target): target is Element => target instanceof Element);
 						const inside = targets.filter(target => section.contains(target)).length;
 						const outside = targets.filter(target => target.matches('#main-content, #main-content > .container, #main-content + aside, #main-content + aside > div')).length;
-						state.arrival.frames.push({ inside, outside, opacity: getComputedStyle(section).opacity });
-						if (state.arrival.frames.length < 30) requestAnimationFrame(sample);
+						const opacity = getComputedStyle(section).opacity;
+						state.arrival.frames.push({ inside, outside, opacity });
+						if (section.classList.contains('live') && opacity === '1' && performance.now() - put >= 500) state.arrival.arrived = true;
+						else requestAnimationFrame(sample);
 					};
 					sample();
 				});
@@ -252,7 +260,7 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 			await page.goto('/?flags=constellation');
 			await expect(stars(page).first()).toBeAttached();
 			await page.waitForLoadState('networkidle');
-			await expect.poll(() => page.evaluate(() => (window as unknown as { arrival: { frames: unknown[] } }).arrival.frames.length)).toBe(30);
+			await expect.poll(() => page.evaluate(() => (window as unknown as { arrival: { arrived: boolean } }).arrival.arrived)).toBe(true);
 			const arrival = await page.evaluate(() => {
 				const main = document.querySelector('#main-content') as Element;
 				const aside = document.querySelector('#main-content + aside');
@@ -276,6 +284,8 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 			const main = await boxOf(page.locator('#main-content'));
 			expect(panel.y).toBeCloseTo(main.y, 1);
 			expect((await boxOf(page.locator('#latest'))).y).toBeGreaterThan(panel.y + panel.height);
+			// The frame the section was put in was read, and at least one frame after it.
+			expect(arrival.frames.length).toBeGreaterThan(1);
 			// Nothing slides: no animation ever runs on the page's two columns or on the blocks that fill them.
 			expect(arrival.frames.filter(frame => frame.outside > 0)).toEqual([]);
 			// With reduced motion there is no entrance at all: the section is there at once, at full opacity, and nothing in it animates.
@@ -755,6 +765,28 @@ test.describe('phone, touch', () => {
 		const before = await allCentres(page);
 		// The lowest star on the map: the one a bar at the foot would cover first.
 		const lowest = [...before].sort((a, b) => b.y - a.y)[0];
+		// Where the map is drawn, in every frame from before the tap. The glows are drawn once and ride with the map, so their place is the map's place in that frame.
+		// The star links follow only once the map has been still for a moment, so a read of them straight after the tap says nothing about a move that is still to come.
+		await page.evaluate(() => {
+			type Rest = { places: string[]; still: boolean };
+			const state = window as unknown as { rest: Rest };
+			state.rest = { places: [], still: false };
+			const stage = document.querySelector('[data-testid="constellation-map"]') as Element;
+			const glow = stage.querySelector('canvas.glow') as Element;
+			let docked = 0;
+			let since = 0;
+			const sample = () => {
+				const frame = stage.getBoundingClientRect();
+				const drawn = glow.getBoundingClientRect();
+				state.rest.places.push([drawn.left - frame.left, drawn.top - frame.top, drawn.width / frame.width].map(value => Math.round(value * 100) / 100 + 0).join(' '));
+				if (!docked && stage.querySelector('[data-testid="constellation-card"]')) docked = performance.now();
+				if (docked) since += 1;
+				// A move starts in the frame after the bar shows and takes a third of a second. Three frames and more than half a second have then shown it on any machine.
+				if (since >= 3 && performance.now() - docked >= 600) state.rest.still = true;
+				else requestAnimationFrame(sample);
+			};
+			sample();
+		});
 		await page.touchscreen.tap(lowest.x, lowest.y - 3);
 		await expect(openControl(page)).toBeVisible();
 		const picked = await map(page).locator('a[aria-current="true"]').getAttribute('data-slug');
@@ -764,7 +796,12 @@ test.describe('phone, touch', () => {
 		expect(dock.height).toBeLessThan(panel.height * 0.12);
 		expect(dock.y + dock.height).toBeGreaterThan(panel.y + panel.height - 20);
 		await expect(card(page).getByRole('list')).toBeHidden();
-		// At rest it covers no star, the picked one least of all, and nothing has moved: a second tap lands on the same star.
+		// At rest nothing moves: in every frame the map is drawn where it was before the tap.
+		await expect.poll(() => page.evaluate(() => (window as unknown as { rest: { still: boolean } }).rest.still)).toBe(true);
+		const places = await page.evaluate(() => (window as unknown as { rest: { places: string[] } }).rest.places);
+		expect(places.length).toBeGreaterThan(3);
+		expect([...new Set(places)]).toEqual([places[0]]);
+		// The bar covers no star, the picked one least of all, and the star links are where they were: a second tap lands on the same star.
 		const after = await allCentres(page);
 		expect(after.filter(centre => inside(dock, centre.x, centre.y, 4))).toEqual([]);
 		expect(after.find(centre => centre.slug === picked)?.y).toBeCloseTo(before.find(centre => centre.slug === picked)?.y ?? 0, 0);
@@ -776,17 +813,21 @@ test.describe('phone, touch', () => {
 		await expect(legend(page).first()).toBeVisible();
 
 		// Zoomed in, a star picked near the foot is brought into view above the bar.
-		await control(page, 'Zoom in').tap();
+		// The link layer follows once the map is still, and then carries the map's whole zoom: 1.6 times for one step, and 1.6 times that for two.
+		// Links that hold still prove nothing: on a slow machine they also hold still before they have followed, and a tap then goes to where a star was.
+		// So each step waits for the links to be as far apart as its zoom puts them.
+		const [one, other] = [before[0], [...before].sort((a, b) => Math.hypot(b.x - before[0].x, b.y - before[0].y) - Math.hypot(a.x - before[0].x, a.y - before[0].y))[0]];
+		const apart = (centres: Array<{ slug: string; x: number; y: number }>) => {
+			const [a, b] = [centres.find(centre => centre.slug === one.slug), centres.find(centre => centre.slug === other.slug)];
+			return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+		};
+		const zoom = async () => apart(await allCentres(page)) / apart(before);
 		await control(page, 'Zoom in').tap();
 		await expect(control(page, 'Reset')).toBeEnabled();
-		// The link layer follows once the map is still: a zoom flies for 220 milliseconds and the links move 150 milliseconds after it ends,
-		// so they must hold still for longer than both. A tap on a control may also have scrolled the page, so the sky is measured again.
-		await expect.poll(async () => {
-			const first = (await allCentres(page))[0];
-			await page.waitForTimeout(450);
-			const second = (await allCentres(page))[0];
-			return first.x === second.x && first.y === second.y;
-		}).toBe(true);
+		await expect.poll(zoom).toBeCloseTo(1.6, 2);
+		await control(page, 'Zoom in').tap();
+		await expect.poll(zoom).toBeCloseTo(1.6 * 1.6, 2);
+		// A tap on a control may also have scrolled the page, so the sky is measured again.
 		const now = await boxOf(map(page));
 		const zoomed = (await allCentres(page)).filter(centre => centre.x > now.x + 40 && centre.x < now.x + now.width - 40 && centre.y < now.y + now.height - 88 && centre.y > now.y + now.height - 130);
 		if (zoomed.length === 0) throw new Error('no star near the foot once zoomed in');

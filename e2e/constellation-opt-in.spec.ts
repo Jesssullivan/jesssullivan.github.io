@@ -22,6 +22,11 @@ test.beforeEach(async ({ context, baseURL }) => {
 	});
 });
 
+// The first case ends on a fresh home page, which can close while its images are still routed.
+test.afterEach(async ({ context }) => {
+	await context.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 test('default remains unchanged; same-route client navigation enables, disables and clears preference', async ({ page }) => {
 	const requests: string[] = [];
 	// Without the flag the page asks for neither the broker streams nor the map data.
