@@ -367,6 +367,10 @@
 			transparent 100%
 		);
 	}
+	/* With no day beside it, the sign alone needs less ground under it. */
+	.on:not(:has(.when)) {
+		padding: 3rem 4rem 0.2rem 0.7rem;
+	}
 	.on .when {
 		color: var(--ink);
 		/* A halo of the ground under every letter, as a backstop for the feather. */
@@ -466,6 +470,9 @@
 		}
 		.on {
 			padding: 5.5rem 13rem 0.55rem 1.1rem;
+		}
+		.on:not(:has(.when)) {
+			padding: 4.5rem 6.5rem 0.55rem 1.1rem;
 		}
 	}
 
