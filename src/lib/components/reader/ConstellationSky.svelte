@@ -107,7 +107,7 @@
 	let nameWidths: number[] = [];
 	/** Where each name is this frame, as [x, y, half width], or null when it is out of view. The card keeps off them. */
 	let namePlaces: Array<[number, number, number] | null> = [];
-	/** How far the map may ride up so its stars come clear of the card docked at the foot of a phone. */
+	/** How far a zoomed map may ride up so its stars come clear of the card docked at the foot of a phone. At rest the map never moves: see clampView. */
 	let lift = 0;
 	/** The height the docked card takes at the foot of a phone, with its margin. */
 	let dock = 0;
@@ -683,7 +683,7 @@
 		cardSize = { w: cardEl.offsetWidth, h: cardEl.offsetHeight };
 		if (tall && selected >= 0) {
 			dock = cardSize.h + 16;
-			// A card taller than the strip lets the map ride up by the difference, and only when the star needs it.
+			// A card taller than the strip lets a zoomed map ride up by the difference, and only when the star needs it. At rest nothing moves.
 			lift = Math.max(0, dock - strip());
 			reveal(selected);
 		} else lift = dock = 0;

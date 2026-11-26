@@ -12,16 +12,29 @@ describe('constellation view', () => {
 		expect(isFit({ k: 1.5, x: 0, y: 0 })).toBe(false);
 	});
 
-	it('lets the map ride up under a docked card, and no farther', () => {
-		// At rest the map cannot move. With a card docked over its foot it may ride up by the height of the card.
-		expect(clampView({ k: 1, x: 0, y: -120 }, size)).toEqual(FIT);
-		expect(clampView({ k: 1, x: 0, y: -120 }, size, 90)).toEqual({ k: 1, x: 0, y: -90 });
+	it('lets a zoomed map ride up under a docked card, and no farther', () => {
+		// Zoomed in, with a card docked over its foot, the map may ride up by the lift it is given.
+		expect(clampView({ k: 2, x: 0, y: -900 }, size)).toEqual({ k: 2, x: 0, y: -500 });
 		expect(clampView({ k: 2, x: 0, y: -900 }, size, 90)).toEqual({ k: 2, x: 0, y: -590 });
 		// A star under the card comes to rest above it.
-		const shown = viewToShow(FIT, 500, 480, size, 36, 108, 90);
-		expect(480 + shown.y).toBeCloseTo(500 - 108);
+		const shown = viewToShow({ k: 2, x: 0, y: -500 }, 500, 490, size, 36, 108, 90);
+		expect(490 * shown.k + shown.y).toBeCloseTo(500 - 108);
 		// Zooming keeps the lift it was given.
-		expect(zoomAt({ k: 1, x: 0, y: -90 }, 500, 250, 1, size, 90).y).toBe(-90);
+		expect(zoomAt({ k: 2, x: 0, y: -590 }, 500, 250, 1, size, 90).y).toBe(-590);
+	});
+
+	it('never moves the map at rest, with or without a docked card', () => {
+		// The stars keep clear of the strip the card docks in, so at rest nothing has to move (TIN-8628).
+		// A card 4 pixels taller than the strip once slid the whole sky up by those 4 pixels.
+		expect(clampView({ k: 1, x: 0, y: -120 }, size)).toEqual(FIT);
+		expect(clampView({ k: 1, x: 0, y: -120 }, size, 90)).toEqual(FIT);
+		expect(clampView({ k: 1, x: 0, y: -4 }, size, 4)).toEqual(FIT);
+		expect(viewToShow(FIT, 500, 480, size, 36, 108, 90)).toEqual(FIT);
+		expect(zoomAt({ k: 2, x: 0, y: -590 }, 500, 250, 0.01, size, 90)).toEqual(FIT);
+		// The lift comes in with the zoom: never more than the height the zoom has added.
+		expect(clampView({ k: 1.01, x: 0, y: -900 }, size, 90).y).toBeCloseTo(-10);
+		expect(clampView({ k: 1.18, x: 0, y: -900 }, size, 90).y).toBeCloseTo(-180);
+		expect(clampView({ k: 1.5, x: 0, y: -900 }, size, 90).y).toBeCloseTo(-340);
 	});
 
 	it('zooms about the pointer', () => {
