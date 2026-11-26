@@ -135,6 +135,26 @@ test.describe('Dark Mode', () => {
 		expect(stored).toBe(today);
 	});
 
+	// TIN-8867: the nudge opens on its own, so closing it with Escape keeps focus where the reader has it.
+	test('an Escape that closes the nudge leaves keyboard focus where it was', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.addInitScript((key) => {
+			localStorage.removeItem(key);
+		}, NUDGE_STORAGE_KEY);
+
+		// The nudge waits 3 seconds after the page starts, so the reader is on a link before it opens.
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		const link = page.locator('main a[href^="/blog/"]').first();
+		await link.focus();
+		await expect(page.getByTestId('theme-welcome-nudge')).toBeVisible({ timeout: 8000 });
+		await expect(link).toBeFocused();
+
+		await page.keyboard.press('Escape');
+		await expect(page.getByTestId('theme-welcome-nudge')).not.toBeVisible();
+		await expect(page.getByTestId('theme-switcher-trigger')).toHaveAttribute('aria-expanded', 'false');
+		await expect(link).toBeFocused();
+	});
+
 	test('theme welcome nudge uses Skeleton/Zag popover parts', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.addInitScript((key) => {
