@@ -123,8 +123,17 @@ test.describe('flag on: the heading stage', () => {
 	});
 
 	test('opens on the sky and plays itself through the heron and a placed item, with no input', async ({ page }) => {
+		// Every scene the stage shows is written down as it changes. At this pace the sky is on for three quarters of a second, which a look once a second can miss.
+		await page.addInitScript(() => {
+			const shown: string[] = [];
+			(window as unknown as { __shown: string[] }).__shown = shown;
+			new MutationObserver(() => {
+				const scene = document.querySelector('[data-testid=home-stage]')?.getAttribute('data-scene');
+				if (scene && shown[shown.length - 1] !== scene) shown.push(scene);
+			}).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-scene'] });
+		});
 		await page.goto('/?flags=home&stage-pace=12');
-		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+		await expect.poll(() => page.evaluate(() => (window as unknown as { __shown: string[] }).__shown[0])).toBe('sky');
 		await expect(stage(page)).toHaveAttribute('data-playing', 'true');
 		await expect(page.getByTestId('constellation-panel')).toBeVisible();
 		await expect(stage(page)).toHaveAttribute('data-scene', 'heron', { timeout: 8000 });
@@ -135,8 +144,15 @@ test.describe('flag on: the heading stage', () => {
 		await expect(stage(page)).not.toHaveAttribute('data-scene', 'heron', { timeout: 8000 });
 		const placed = page.getByTestId('scene-placed').first();
 		await expect(placed.getByRole('link')).toHaveAttribute('href', /^\/blog\//);
-		// And round again to the sky.
-		await expect(stage(page)).toHaveAttribute('data-scene', 'sky', { timeout: 15000 });
+		// And round again to the sky, after every scene has had its turn in order.
+		await expect.poll(() => page.evaluate(() => (window as unknown as { __shown: string[] }).__shown.indexOf('sky', 1)), { timeout: 15000 }).toBeGreaterThan(0);
+		const shown = await page.evaluate(() => (window as unknown as { __shown: string[] }).__shown);
+		// One round: the sky, the heron, each placed item once, and the sky again.
+		const round = shown.slice(0, shown.indexOf('sky', 1) + 1);
+		expect(round[0]).toBe('sky');
+		expect(round[1]).toBe('heron');
+		expect(round.length).toBeGreaterThanOrEqual(4);
+		expect(new Set(round).size).toBe(round.length - 1);
 	});
 
 	test('loads only the first scene at first paint', async ({ page }) => {
@@ -971,7 +987,8 @@ test.describe('flag on: one row of controls on a phone', () => {
 				expect(box.x + box.width).toBeLessThanOrEqual(390);
 				expect(box.y).toBe(line.y);
 			}
-			for (let i = 1; i < boxes.length; i += 1) expect(boxes[i].x).toBeGreaterThanOrEqual(boxes[i - 1].x + boxes[i - 1].width);
+			// Two controls side by side may round to share one pixel.
+			for (let i = 1; i < boxes.length; i += 1) expect(boxes[i].x).toBeGreaterThanOrEqual(boxes[i - 1].x + boxes[i - 1].width - 1);
 			return boxes;
 		};
 		const atRest = await check(shown);
