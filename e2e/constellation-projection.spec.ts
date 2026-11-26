@@ -13,6 +13,11 @@ const HELD_SLUG = 'hello-world';
 const ADDRESS_ONLY_SLUG = 'quick-fix-254-character-limit-in-esri-story-map';
 const ADDRESS_FIRST_SLUG = 'new-business-site-up-and-running';
 const DATA_FILE = /\/constellation\.v1\.[\w-]+\.json$/;
+// How long the interactive map may take to appear after a page load (TIN-8867). The site's animated
+// background has an SVG filter. Without a graphics card each frame of it is about half a second of
+// main-thread work at 1920 by 1080. Under a two-CPU limit on sting the first star then came 3 to 4.7
+// seconds after load, against 1 second at 390 wide. The gate runner is slower still.
+const LIVE = { timeout: 15_000 };
 
 test.beforeEach(async ({ context, baseURL }) => {
 	if (!baseURL) throw new Error('explicit loopback base URL required');
@@ -65,7 +70,7 @@ const boxOf = async (locator: ReturnType<typeof map>): Promise<Box> => {
 /** Open the home page with the flag and wait for the interactive map. */
 async function openMap(page: Page, query = '') {
 	await page.goto(`/?flags=constellation${query}`);
-	await expect(stars(page).first()).toBeAttached();
+	await expect(stars(page).first()).toBeAttached(LIVE);
 	await map(page).scrollIntoViewIfNeeded();
 	// The names appear once the sky has assembled.
 	await expect(map(page)).toHaveClass(/assembled/);
@@ -141,7 +146,7 @@ test('first paint is the silhouette, the sky keeps its size, and the data is one
 	await expect(control(page, 'Zoom in')).toBeDisabled();
 
 	release();
-	await expect(stars(page)).toHaveCount(dots);
+	await expect(stars(page)).toHaveCount(dots, LIVE);
 	await expect(wide).toBeHidden();
 	await expect(control(page, 'Zoom in')).toBeEnabled();
 	// No layout shift: the sky and the section below it are where they were.
@@ -258,7 +263,7 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
 				seen.observe(document, { childList: true, subtree: true });
 			});
 			await page.goto('/?flags=constellation');
-			await expect(stars(page).first()).toBeAttached();
+			await expect(stars(page).first()).toBeAttached(LIVE);
 			await page.waitForLoadState('networkidle');
 			await expect.poll(() => page.evaluate(() => (window as unknown as { arrival: { arrived: boolean } }).arrival.arrived)).toBe(true);
 			const arrival = await page.evaluate(() => {
@@ -491,10 +496,15 @@ test('every routeable placed post is a keyboard-reachable star and a list item',
 	const next = await activeSlug(page) as string;
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(new RegExp(`/blog/${next}/?$`));
+});
 
-	// The list is the first tab stop of the section, and holds the same posts.
+// Its own test, so each test loads the page at most twice. With the map test above it made three
+// page loads, more than the 30 second budget holds on the two-CPU gate runner (TIN-8867).
+test('the list is the first tab stop of the section, and holds the same posts as the map', async ({ page }) => {
 	await page.goto('/?flags=constellation');
-	await expect(stars(page).first()).toBeAttached();
+	await expect(stars(page).first()).toBeAttached(LIVE);
+	const slugs = await stars(page).evaluateAll(links => links.map(link => link.getAttribute('data-slug') ?? ''));
+	expect(slugs.length).toBeGreaterThan(100);
 	expect(await page.locator('.constellation').evaluate(section => section.querySelector('button, a[href], [tabindex="0"]')?.getAttribute('data-testid'))).toBe('constellation-view');
 	await control(page, 'Show as a list').focus();
 	// Arrow keys move inside the controls, which are one tab stop.

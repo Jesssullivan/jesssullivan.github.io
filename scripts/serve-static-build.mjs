@@ -32,8 +32,16 @@ const server = createServer((request, response) => {
 	createReadStream(filePath).pipe(response);
 });
 
+// The server never closes an idle keep-alive connection (TIN-8867). Node closes one after about
+// five seconds idle by default. Playwright's route.fetch keeps its sockets with no idle limit of
+// its own. On a busy two-CPU runner the client can write a request into a socket the server has
+// just closed, and route.fetch fails with "socket hang up". Every client of this loopback server
+// is the test run, and the run ends by stopping the server, so an idle socket costs nothing.
+server.keepAliveTimeout = 0;
+
 server.listen(port, '127.0.0.1', () => {
-	console.log(`Serving ${root} at http://127.0.0.1:${port}`);
+	// Port 0 asks for any free port: print the one the server got.
+	console.log(`Serving ${root} at http://127.0.0.1:${server.address().port}`);
 });
 
 function candidatePaths(pathname) {
