@@ -18,13 +18,20 @@ export interface StreamImage {
 	webp?: string;
 	avif?: string;
 }
+/** What a recording or a video keeps of its own when it is folded into another item. */
+interface OwnWords {
+	title?: string;
+	date?: string;
+	url?: string;
+	note?: string;
+}
 /** A SoundCloud track. `src` is the track page. */
-export interface StreamSound {
+export interface StreamSound extends OwnWords {
 	type: 'soundcloud';
 	src: string;
 }
 /** A YouTube video. `src` is the video id. */
-export interface StreamFilm {
+export interface StreamFilm extends OwnWords {
 	type: 'youtube';
 	src: string;
 	poster?: StreamImage;
@@ -48,13 +55,16 @@ export interface StreamItem {
 	more?: number;
 	/** Placed in the heading stage. The publishing hub sets this. */
 	heading?: boolean;
+	/** Items with the same subject, folded into this one. Their media is in `media`. See `foldStream`. */
+	holds?: { id: string; kind: StreamKind }[];
 }
 
 export interface StreamFile {
 	version: 1;
 	items: StreamItem[];
-	/** Ids of the items shown as scenes in the heading, in order. */
+	/** Ids of the items shown as scenes in the heading, in order. An id may be one an item holds. */
 	heading: string[];
+	/** How many items hold each kind. A folded item counts under every kind it holds. */
 	counts: Record<StreamKind, number>;
 	leftOut: {
 		/** Gallery photographs that no public post uses, so they have no date. */
@@ -187,10 +197,108 @@ function picture(src: string, alt: string, image: ImageFacts, fallback?: { width
 	};
 }
 
+/** True when an item has something to see: a picture or a video. A recording alone is heard, so it has not. */
+export const shows = (item: Pick<StreamItem, 'media'>): boolean => item.media.some((media) => media.type !== 'soundcloud');
+
+/** Every kind an item holds: its own, and the kinds folded into it. */
+export const kindsOf = (item: Pick<StreamItem, 'kind' | 'holds'>): StreamKind[] => [...new Set([item.kind, ...(item.holds ?? []).map((part) => part.kind)])];
+
+/**
+ * What a title says it is about: the words before a day written in it, and that day.
+ * "Morning Metal 04.23.21" is ("morning metal", 2021-04-23). The day is month, day, year, as she writes it,
+ * with one separator used twice: a full stop, a slash, a hyphen or a space. The year has two digits, or four from 1990 to 2099.
+ * A title with no day has no subject.
+ */
+export function subjectOf(title: string): { name: string; day: string } | null {
+	const match = /(^|[^\d])(\d{1,2})([./ -])(\d{1,2})\3(\d{4}|\d{2})(?!\d)/.exec(title);
+	if (!match) return null;
+	const [month, day, year] = [Number(match[2]), Number(match[4]), Number(match[5].length === 2 ? `20${match[5]}` : match[5])];
+	if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1990 || year > 2099) return null;
+	const name = title
+		.slice(0, match.index + match[1].length)
+		.toLowerCase()
+		.replace(/[^\p{L}\p{N}]+/gu, ' ')
+		.trim();
+	if (!name) return null;
+	const two = (value: number) => String(value).padStart(2, '0');
+	return { name, day: `${year}-${two(month)}-${two(day)}` };
+}
+
+const MEDIA_RANK: Record<StreamMedia['type'], number> = { image: 0, youtube: 1, soundcloud: 2 };
+
+/** Puts `part` into `lead`. A recording or a video keeps its own title, day, address and note on its media. */
+function hold(lead: StreamItem, part: StreamItem): void {
+	const own = (media: StreamMedia): StreamMedia => (media.type === 'image' ? media : { ...media, title: media.title ?? part.title, date: media.date ?? part.date, url: media.url ?? part.url, ...(part.summary && !media.note ? { note: part.summary } : {}) });
+	const seen = new Set(lead.media.map((media) => media.src));
+	lead.media = [...lead.media, ...part.media.filter((media) => !seen.has(media.src)).map(own)].sort((a, b) => MEDIA_RANK[a.type] - MEDIA_RANK[b.type]);
+	lead.holds = [...(lead.holds ?? []), { id: part.id, kind: part.kind }, ...(part.holds ?? [])];
+	if (part.more) lead.more = (lead.more ?? 0) + part.more;
+}
+
+/**
+ * The join rule. Things with one subject show as one item, and the rule joins only what the data states.
+ *
+ * 1. A set of photographs joins the post whose address it carries: the set is built from that post's own text.
+ * 2. A recording or a video joins a post when both titles open with the same words before a day written
+ *    in the title, the day its title states is its own date, and that day is the post's date or the day
+ *    the post's title states. If two posts answer, it joins neither.
+ * 3. Recordings and videos that no post answers join each other when their titles state the same words and the same day.
+ *
+ * A title that states no day never joins by rule 2 or 3, so a shared series name alone joins nothing.
+ * The words must be the same words, not words that hold them: "Shortest Morning Metal" is not "Morning Metal".
+ */
+export function foldStream(placed: Placed[]): Placed[] {
+	const gone = new Set<StreamItem>();
+	const articles = placed.filter((entry) => entry.item.kind === 'article');
+
+	const byUrl = new Map(articles.map((entry) => [entry.item.url, entry.item]));
+	for (const { item } of placed) {
+		const post = item.kind === 'photos' ? byUrl.get(item.url) : undefined;
+		if (!post) continue;
+		hold(post, item);
+		gone.add(item);
+	}
+
+	const key = (name: string, day: string) => `${name}\n${day}`;
+	const posts = new Map<string, Set<StreamItem>>();
+	for (const { item } of articles) {
+		const subject = subjectOf(item.title);
+		if (!subject) continue;
+		for (const day of new Set([subject.day, item.date.slice(0, 10)])) {
+			const at = key(subject.name, day);
+			posts.set(at, (posts.get(at) ?? new Set()).add(item));
+		}
+	}
+	const loose = new Map<string, Placed[]>();
+	for (const entry of placed) {
+		const { item } = entry;
+		if (item.kind !== 'recording' && item.kind !== 'video') continue;
+		const subject = subjectOf(item.title);
+		if (!subject || subject.day !== item.date.slice(0, 10)) continue;
+		const at = key(subject.name, subject.day);
+		const answers = posts.get(at);
+		if (answers?.size === 1) {
+			hold([...answers][0], item);
+			gone.add(item);
+		} else if (!answers) {
+			loose.set(at, [...(loose.get(at) ?? []), entry]);
+		}
+	}
+	for (const group of loose.values()) {
+		if (group.length < 2) continue;
+		const [lead, ...rest] = [...group].sort(compareStream);
+		for (const { item } of rest) {
+			hold(lead.item, item);
+			gone.add(item);
+		}
+	}
+	return placed.filter((entry) => !gone.has(entry.item));
+}
+
 // At the same date an item stays beside the post it belongs to, with the writing first.
 const RANK: Record<StreamKind, number> = { announcement: 0, note: 1, article: 2, photos: 3, recording: 4, video: 5 };
 
-interface Placed {
+export interface Placed {
 	item: StreamItem;
 	anchor: string;
 }
@@ -212,6 +320,7 @@ export function buildStream(sources: StreamSources): StreamFile {
 	const posts = new Map(sources.posts.map((post) => [post.slug, post]));
 
 	// Photographs: one set per post, in the order the post shows them. A photograph no public post uses has no date.
+	// Each set is made as its own item here and folded into its post at the end, by the one join rule.
 	const sets = new Map<string, GalleryInput[]>();
 	for (const photo of sources.gallery) {
 		const post = photo.post_slug ? posts.get(photo.post_slug) : undefined;
@@ -228,7 +337,7 @@ export function buildStream(sources: StreamSources): StreamFile {
 			continue;
 		}
 		const media: StreamMedia[] = [];
-		// The photographs of a post run as their own item, so the article does not repeat one of them.
+		// The photographs of a post are its pictures, so the article does not also show a cover.
 		if (!sets.has(post.slug) && post.featureImage) {
 			const own = ownsImage(post.body, post.featureImage) ? picture(post.featureImage, altIn(post.body, post.featureImage), sources.image) : null;
 			if (own) media.push(own);
@@ -337,9 +446,10 @@ export function buildStream(sources: StreamSources): StreamFile {
 		placed.push({ anchor: entry.url.startsWith('/blog/') ? entry.url.slice('/blog/'.length) : entry.id, item });
 	}
 
-	placed.sort(compareStream);
-	const items = placed.map((entry) => entry.item);
-	const counts = Object.fromEntries(STREAM_KINDS.map((kind) => [kind, items.filter((item) => item.kind === kind).length])) as Record<StreamKind, number>;
+	const items = foldStream(placed)
+		.sort(compareStream)
+		.map((entry) => entry.item);
+	const counts = Object.fromEntries(STREAM_KINDS.map((kind) => [kind, items.filter((item) => kindsOf(item).includes(kind)).length])) as Record<StreamKind, number>;
 	return { version: 1, items, heading: headingOf(items), counts, leftOut };
 }
 
@@ -352,9 +462,21 @@ export function headingOf(items: readonly StreamItem[]): string[] {
 	const marked = items.filter((item) => item.heading);
 	if (marked.length) return marked.map((item) => item.id);
 	const withImage = (item: StreamItem) => item.media[0]?.type === 'image';
-	const writing = items.find((item) => item.kind === 'article' && withImage(item));
-	const photographs = items.find((item) => item.kind === 'photos' && withImage(item));
-	return [writing, photographs].filter((item): item is StreamItem => item !== undefined).map((item) => item.id);
+	const set = (item: StreamItem) => (item.kind === 'photos' ? item.id : item.holds?.find((part) => part.kind === 'photos')?.id);
+	const writing = items.find((item) => item.kind === 'article' && withImage(item) && !set(item));
+	const photographs = items.find((item) => withImage(item) && set(item));
+	return [writing?.id, photographs && set(photographs)].filter((id): id is string => typeof id === 'string');
+}
+
+/**
+ * The item a heading id names. An id an item holds, as a set of photographs folded into its post is,
+ * gives that item under the held id with no summary: the set has no words of its own.
+ */
+export function headingItem(items: readonly StreamItem[], id: string): StreamItem | undefined {
+	const own = items.find((item) => item.id === id);
+	if (own) return own;
+	const lead = items.find((item) => item.holds?.some((part) => part.id === id));
+	return lead && { ...lead, id, summary: '' };
 }
 
 /** The plain-word filters above the stream. Announcements show under All only. */
@@ -375,9 +497,10 @@ export function offeredFilters(counts: Record<StreamKind, number>) {
 	return FILTERS.filter((filter) => filter.id === 'all' || filter.kinds.some((kind) => counts[kind] > 0));
 }
 
+/** A folded item shows under every kind it holds. */
 export function filterItems(items: readonly StreamItem[], filter: FilterId): StreamItem[] {
 	const kinds: readonly StreamKind[] = FILTERS.find((candidate) => candidate.id === filter)?.kinds ?? STREAM_KINDS;
-	return items.filter((item) => kinds.includes(item.kind));
+	return items.filter((item) => kindsOf(item).some((kind) => kinds.includes(kind)));
 }
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];

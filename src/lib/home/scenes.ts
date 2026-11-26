@@ -5,7 +5,7 @@
  * with no code change.
  */
 import { holdFor } from './stageClock';
-import type { StreamFile, StreamImage, StreamItem } from './stream';
+import { headingItem, type StreamFile, type StreamImage, type StreamItem } from './stream';
 
 /** The heron heading, word for word as the site has carried it. */
 export const HERON = {
@@ -42,9 +42,8 @@ export function buildScenes(stream: Pick<StreamFile, 'items' | 'heading'> | null
 		{ id: 'heron', type: 'heron', hold: holdFor(heronWords) },
 	];
 	if (!stream) return scenes;
-	const byId = new Map(stream.items.map((item) => [item.id, item]));
 	for (const id of stream.heading) {
-		const item = byId.get(id);
+		const item = headingItem(stream.items, id);
 		const image = item?.media.find((media): media is StreamImage => media.type === 'image');
 		// A placed item stands on its photograph. One with no image stays in the stream.
 		if (item && image) scenes.push({ id: item.id, type: 'placed', hold: holdFor(words(item.title) + words(item.summary)), item, image });

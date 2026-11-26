@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { STREAM_OUTPUT, buildCommittedStream, imageSize, readPosts, serializeStream, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
-import { STREAM_KINDS, isDated, type StreamFile } from './stream';
+import { STREAM_KINDS, isDated, kindsOf, type StreamFile } from './stream';
 
 const committed = JSON.parse(readFileSync(STREAM_OUTPUT, 'utf-8')) as StreamFile;
 
@@ -12,8 +12,10 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 		expect(new Set(ids).size).toBe(ids.length);
 		const days = committed.items.map((item) => item.date.slice(0, 10));
 		expect(days).toEqual([...days].sort().reverse());
-		for (const kind of STREAM_KINDS) expect(committed.counts[kind]).toBe(committed.items.filter((item) => item.kind === kind).length);
-		for (const id of committed.heading) expect(ids).toContain(id);
+		const held = committed.items.flatMap((item) => (item.holds ?? []).map((part) => part.id));
+		expect(new Set([...ids, ...held]).size).toBe(ids.length + held.length);
+		for (const kind of STREAM_KINDS) expect(committed.counts[kind]).toBe(committed.items.filter((item) => kindsOf(item).includes(kind)).length);
+		for (const id of committed.heading) expect([...ids, ...held]).toContain(id);
 	});
 
 	it('gives every image a size, and no item a clock or a developer string', () => {

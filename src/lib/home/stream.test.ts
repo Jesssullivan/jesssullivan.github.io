@@ -6,17 +6,23 @@ import {
 	dayOf,
 	filterItems,
 	filterOf,
+	foldStream,
+	headingItem,
 	headingOf,
 	isDated,
+	kindsOf,
 	markerFor,
 	monthOf,
 	offeredFilters,
 	ownsImage,
 	setTotal,
+	subjectOf,
 	tipFor,
 	type GalleryInput,
 	type ImageFacts,
 	type PostInput,
+	type Placed,
+	type StreamItem,
 	type StreamSources,
 } from './stream';
 import { buildScenes } from './scenes';
@@ -72,7 +78,7 @@ describe('ordering', () => {
 		const { items } = buildStream(sources());
 		const dates = items.map((item) => item.date.slice(0, 10));
 		expect(dates).toEqual([...dates].sort().reverse());
-		expect(items.map((item) => item.kind)).toEqual(['note', 'article', 'article', 'article', 'article', 'video', 'recording', 'article', 'article', 'photos']);
+		expect(items.map((item) => item.kind)).toEqual(['note', 'article', 'article', 'article', 'article', 'video', 'recording', 'article', 'article']);
 	});
 
 	it('settles a shared day the same way whatever order the sources arrive in', () => {
@@ -91,10 +97,10 @@ describe('ordering', () => {
 		expect(once).not.toContain(String(new Date().getFullYear() + 1));
 	});
 
-	it('puts the photographs of a post straight after its writing', () => {
+	it('shows a post and its photographs as one item, at the post\'s place', () => {
 		const { items } = buildStream(sources());
-		const at = items.findIndex((item) => item.id === 'post:birds');
-		expect(items[at + 1].id).toBe('photos:birds');
+		expect(items.some((item) => item.id === 'photos:birds')).toBe(false);
+		expect(items.at(-1)).toMatchObject({ id: 'post:birds', kind: 'article', holds: [{ id: 'photos:birds', kind: 'photos' }] });
 	});
 });
 
@@ -116,15 +122,14 @@ describe('the cover rule', () => {
 		expect(leftOut.coversNotOwn).toBe(1);
 	});
 
-	it('does not repeat a photograph on the writing when the post has a photo set', () => {
+	it('does not repeat a photograph when the post has a photo set: the set is its pictures', () => {
 		const { items } = buildStream(sources());
-		expect(items.find((item) => item.id === 'post:birds')!.media).toEqual([]);
-		const set = items.find((item) => item.id === 'photos:birds')!;
-		// In the order the post shows them, with the alt text the post gives.
-		expect(set.media.map((media) => media.src)).toEqual(['/images/posts/IMG_2.jpg', '/images/posts/IMG_1.jpg']);
-		expect(set.media[0]).toMatchObject({ alt: 'A wood duck', webp: '/images/posts/IMG_2.webp', width: 1200, height: 800 });
-		expect(set.url).toBe('/blog/birds');
-		expect(set.date).toBe('2020-05-01');
+		const birds = items.find((item) => item.id === 'post:birds')!;
+		// In the order the post shows them, with the alt text the post gives. The cover, IMG_1, shows once.
+		expect(birds.media.map((media) => media.src)).toEqual(['/images/posts/IMG_2.jpg', '/images/posts/IMG_1.jpg']);
+		expect(birds.media[0]).toMatchObject({ alt: 'A wood duck', webp: '/images/posts/IMG_2.webp', width: 1200, height: 800 });
+		expect(birds.url).toBe('/blog/birds');
+		expect(birds.date).toBe('2020-05-01');
 	});
 
 	it('drops a cover whose file is not on disk instead of guessing a size', () => {
@@ -146,7 +151,9 @@ describe('items left out and counted', () => {
 		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, undated: 0 });
 		expect(items.some((item) => item.id.includes('undated001'))).toBe(false);
 		expect(counts).toEqual({ note: 1, article: 6, announcement: 0, photos: 1, recording: 1, video: 1 });
-		expect(Object.values(counts).reduce((sum, count) => sum + count, 0)).toBe(items.length);
+		// One post holds its photographs, so it is counted under both kinds: nine items, ten in the counts.
+		expect(items).toHaveLength(9);
+		expect(Object.values(counts).reduce((sum, count) => sum + count, 0)).toBe(10);
 	});
 
 	it('leaves out and counts anything with no usable date', () => {
@@ -162,13 +169,13 @@ describe('items left out and counted', () => {
 	it('keeps five photographs of a long set and counts the rest', () => {
 		const many = Array.from({ length: 9 }, (_, index) => photo(`DSC_${index}`, 'plain'));
 		const { items } = buildStream({ ...sources(), gallery: many });
-		const set = items.find((item) => item.id === 'photos:plain')!;
+		const set = items.find((item) => item.id === 'post:plain')!;
 		expect(set.media).toHaveLength(SET_SIZE);
 		expect(set.more).toBe(4);
 	});
 
 	it('counts a set of photographs only when the post holds more than the set shows', () => {
-		const set = (shown: number, slug: string) => buildStream({ ...sources(), gallery: Array.from({ length: shown }, (_, index) => photo(`DSC_${index}`, slug)) }).items.find((item) => item.id === `photos:${slug}`)!;
+		const set = (shown: number, slug: string) => buildStream({ ...sources(), gallery: Array.from({ length: shown }, (_, index) => photo(`DSC_${index}`, slug)) }).items.find((item) => item.id === `post:${slug}`)!;
 		// Nine in the post, five on screen: the count says there are more.
 		expect(setTotal(set(9, 'plain'))).toBe(9);
 		// Every photograph is on screen: the reader sees how many, so nothing is said.
@@ -234,6 +241,10 @@ describe('the heading', () => {
 		const scenes = buildScenes(stream);
 		expect(scenes.map((scene) => scene.type)).toEqual(['sky', 'heron', 'placed', 'placed']);
 		expect(scenes[2]).toMatchObject({ id: 'post:own-cover', image: { src: '/images/posts/bench.png' } });
+		// The photographs are held by their post. The scene keeps their id and the post's title, with no summary.
+		expect(scenes[3]).toMatchObject({ id: 'photos:birds', item: { title: 'Title of birds', summary: '', url: '/blog/birds' }, image: { src: '/images/posts/IMG_2.jpg' } });
+		expect(headingItem(stream.items, 'post:own-cover')?.summary).toBe('About own-cover.');
+		expect(headingItem(stream.items, 'photos:nothing')).toBeUndefined();
 	});
 
 	it('shows what the hub marks for the heading, with no code change', () => {
@@ -261,7 +272,9 @@ describe('filters and markers', () => {
 
 	it('filters by kind and falls back to All for an unknown value', () => {
 		const { items } = buildStream(sources());
-		expect(filterItems(items, 'photos').map((item) => item.kind)).toEqual(['photos']);
+		// A post that holds its photographs shows under Photos and under Writing.
+		expect(filterItems(items, 'photos').map((item) => item.id)).toEqual(['post:birds']);
+		expect(filterItems(items, 'writing').map((item) => item.id)).toContain('post:birds');
 		expect(filterItems(items, 'writing').every((item) => item.kind === 'article')).toBe(true);
 		expect(filterItems(items, 'all')).toHaveLength(items.length);
 		expect(filterOf('photos')).toBe('photos');
@@ -278,5 +291,120 @@ describe('filters and markers', () => {
 		expect(markers[3]).toBe('January 2023');
 		expect(monthOf('2026-06-08')).toBe('June 2026');
 		expect(dayOf('2026-06-08T23:59:59.000Z')).toBe('Jun 8, 2026');
+	});
+});
+
+describe('folding: things with one subject show as one item', () => {
+	// Her own titles: the post, its recording and its video.
+	const POST = 'Morning Metal 4.22.21 \u201cSleepish\u201d';
+	const metal = (extra: Partial<StreamSources> = {}): StreamSources => ({
+		...sources(),
+		posts: [post('morning-metal-4-22-21', '2021-04-23', { title: POST, description: 'The usual racket.' }), post('plain', '2023-01-15')],
+		gallery: [],
+		pulse: [],
+		tracks: [{ title: 'Morning Metal 4.22.21 "Sleepish"', url: 'https://soundcloud.com/jesssullivan/morning-metal-42221', iso: '2021-04-22', note: 'The usual racket...' }],
+		videos: [{ id: 'JVusudpKTF8', title: 'Morning Metal 04.23.21', iso: '2021-04-23' }],
+		...extra,
+	});
+	const ids = (stream: { items: StreamItem[] }) => stream.items.map((item) => item.id);
+
+	it('reads the words and the day a title states', () => {
+		expect(subjectOf('Morning Metal 04.23.21')).toEqual({ name: 'morning metal', day: '2021-04-23' });
+		expect(subjectOf(POST)).toEqual({ name: 'morning metal', day: '2021-04-22' });
+		expect(subjectOf('Morning Metal 10/28/20')).toEqual({ name: 'morning metal', day: '2020-10-28' });
+		expect(subjectOf('Shortest Morning Metal 7 8 20')).toEqual({ name: 'shortest morning metal', day: '2020-07-08' });
+		expect(subjectOf('Evening Metal 9-14-2020')).toEqual({ name: 'evening metal', day: '2020-09-14' });
+		// No day, a day that is no day, a day with nothing before it, and two different separators.
+		expect(subjectOf('Morning Metal')).toBeNull();
+		expect(subjectOf('Drop A for Activities')).toBeNull();
+		expect(subjectOf('Morning Metal 13.40.21')).toBeNull();
+		expect(subjectOf('4.22.21')).toBeNull();
+		expect(subjectOf('Morning Metal 4.22/21')).toBeNull();
+		expect(subjectOf('Version 1.2.3456 of a thing')).toBeNull();
+	});
+
+	it('folds a post, its recording and its video into the post, and keeps what each calls itself', () => {
+		const stream = buildStream(metal());
+		expect(ids(stream)).toEqual(['post:plain', 'post:morning-metal-4-22-21']);
+		const item = stream.items[1];
+		expect(item).toMatchObject({ kind: 'article', title: POST, summary: 'The usual racket.', url: '/blog/morning-metal-4-22-21', date: '2021-04-23' });
+		expect(item.holds).toEqual([
+			{ id: 'track:morning-metal-42221', kind: 'recording' },
+			{ id: 'video:JVusudpKTF8', kind: 'video' },
+		]);
+		// The video before the recording, each with its own title, day, address and note.
+		expect(item.media).toEqual([
+			{ type: 'youtube', src: 'JVusudpKTF8', poster: expect.objectContaining({ src: '/images/video/JVusudpKTF8.jpg' }), title: 'Morning Metal 04.23.21', date: '2021-04-23', url: 'https://www.youtube.com/watch?v=JVusudpKTF8' },
+			{ type: 'soundcloud', src: 'https://soundcloud.com/jesssullivan/morning-metal-42221', title: 'Morning Metal 4.22.21 "Sleepish"', date: '2021-04-22', url: 'https://soundcloud.com/jesssullivan/morning-metal-42221', note: 'The usual racket...' },
+		]);
+		expect(kindsOf(item)).toEqual(['article', 'recording', 'video']);
+	});
+
+	it('counts a folded item under every kind it holds, and shows it under each filter', () => {
+		const { items, counts } = buildStream(metal());
+		expect(counts).toEqual({ note: 0, article: 2, announcement: 0, photos: 0, recording: 1, video: 1 });
+		for (const filter of ['writing', 'recordings', 'video'] as const) expect(filterItems(items, filter).map((item) => item.id)).toContain('post:morning-metal-4-22-21');
+		expect(filterItems(items, 'recordings')).toHaveLength(1);
+		expect(filterItems(items, 'photos')).toHaveLength(0);
+		expect(offeredFilters(counts).map((filter) => filter.label)).toEqual(['All', 'Writing', 'Recordings', 'Video']);
+	});
+
+	it('does not join the same title on a different date', () => {
+		// The same words and another year in the title.
+		const year = buildStream(metal({ tracks: [{ title: 'Morning Metal 4.22.20', url: 'https://soundcloud.com/jesssullivan/morning-metal-42220', iso: '2020-04-22', note: '' }], videos: [] }));
+		expect(ids(year)).toEqual(['post:plain', 'post:morning-metal-4-22-21', 'track:morning-metal-42220']);
+		// The very same title, on a recording whose own date is another day.
+		const other = buildStream(metal({ tracks: [{ title: 'Morning Metal 4.22.21 "Sleepish"', url: 'https://soundcloud.com/jesssullivan/morning-metal-42221', iso: '2021-06-01', note: '' }], videos: [] }));
+		expect(ids(other)).toEqual(['post:plain', 'track:morning-metal-42221', 'post:morning-metal-4-22-21']);
+		expect(other.items.every((item) => !item.holds)).toBe(true);
+		// A title with no day, the same on a post and a recording of one date: a shared name alone joins nothing.
+		const bare = buildStream(metal({ posts: [post('evening-metal', '2020-09-14', { title: 'Evening Metal' })], tracks: [{ title: 'Evening Metal', url: 'https://soundcloud.com/jesssullivan/evening-metal', iso: '2020-09-14', note: '' }], videos: [] }));
+		expect(ids(bare)).toEqual(['post:evening-metal', 'track:evening-metal']);
+	});
+
+	it('does not join a video whose title only contains a post\'s title', () => {
+		const stream = buildStream(metal({ videos: [{ id: 'short00001', title: 'Shortest Morning Metal 4.22.21', iso: '2021-04-22' }, { id: 'again00001', title: 'Morning Metal Again 04.23.21', iso: '2021-04-23' }] }));
+		expect(ids(stream)).toEqual(['post:plain', 'post:morning-metal-4-22-21', 'video:again00001', 'video:short00001']);
+		expect(stream.items[1].holds).toEqual([{ id: 'track:morning-metal-42221', kind: 'recording' }]);
+		expect(stream.counts.video).toBe(2);
+	});
+
+	it('joins neither post when two answer', () => {
+		const stream = buildStream(metal({ posts: [post('morning-metal-4-22-21', '2021-04-23', { title: POST }), post('morning-metal-again', '2021-04-22', { title: 'Morning Metal 4.22.21' })], videos: [] }));
+		expect(stream.items.every((item) => !item.holds)).toBe(true);
+		expect(stream.items).toHaveLength(3);
+	});
+
+	it('joins two videos of one title and one day that no post answers, and nothing else', () => {
+		const stream = buildStream(
+			metal({
+				posts: [],
+				tracks: [],
+				videos: [
+					{ id: 'nVkjCMmpUII', title: 'Shortest Morning Metal 7 8 20', iso: '2020-07-08' },
+					{ id: 'jrxJHwmtwak', title: 'Shortest Morning Metal 7 8 20', iso: '2020-07-08' },
+					{ id: 'zCrrzdaBCsw', title: 'Morning Metal 10/28/20', iso: '2020-10-28' },
+					{ id: 'other00001', title: 'Shortest Morning Metal 7 9 20', iso: '2020-07-09' },
+				],
+			}),
+		);
+		expect(ids(stream)).toEqual(['video:zCrrzdaBCsw', 'video:other00001', 'video:jrxJHwmtwak']);
+		const pair = stream.items[2];
+		expect(pair.holds).toEqual([{ id: 'video:nVkjCMmpUII', kind: 'video' }]);
+		expect(pair.media.map((media) => media.src)).toEqual(['jrxJHwmtwak', 'nVkjCMmpUII']);
+		expect(stream.counts.video).toBe(3);
+	});
+
+	it('gives the same bytes whatever order the sources arrive in', () => {
+		const base = metal({ gallery: [photo('IMG_1', 'plain'), photo('IMG_2', 'plain')] });
+		const forward = buildStream(base);
+		const backward = buildStream({ ...base, posts: [...base.posts].reverse(), gallery: [...base.gallery].reverse() });
+		expect(JSON.stringify(backward)).toBe(JSON.stringify(forward));
+		expect(forward.items[0].holds).toEqual([{ id: 'photos:plain', kind: 'photos' }]);
+	});
+
+	it('leaves a list with nothing to join as it is', () => {
+		const placed: Placed[] = buildStream(metal({ tracks: [], videos: [] })).items.map((item) => ({ item, anchor: item.id }));
+		expect(foldStream(placed)).toEqual(placed);
 	});
 });
