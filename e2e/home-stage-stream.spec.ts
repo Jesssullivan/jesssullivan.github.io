@@ -691,6 +691,12 @@ const boxOf = async (locator: ReturnType<Page['locator']>) => {
 };
 /** A control comes to rest at a place. The page's gutter is a fraction of the window, so a place may round one pixel either way. */
 const comesTo = (locator: ReturnType<Page['locator']>, x: number) => expect.poll(async () => Math.abs((await boxOf(locator)).x - x)).toBeLessThanOrEqual(1);
+/**
+ * The controls slide as they come and go. A place is read, and a control that slid is pressed, only once the row is at rest:
+ * a press on a control that still moves is tried again by the browser driver, which scrolls the page to do it.
+ */
+const rowAtRest = (page: Page) =>
+	expect.poll(() => row(page).evaluate(node => node.getAnimations({ subtree: true }).filter(motion => motion.playState === 'running' && !((motion.effect as KeyframeEffect | null)?.target as Element | null)?.closest('.progress')).length)).toBe(0);
 /** The sky scene, live and held, so nothing changes under a test. */
 async function openSky(page: Page, query = '') {
 	await page.goto(`/?flags=home${query}`);
@@ -699,8 +705,7 @@ async function openSky(page: Page, query = '') {
 	await expect(page.locator('[data-testid=stage-sky-zoomIn].can')).toHaveCount(1);
 	await page.getByTestId('stage-pause').click();
 	await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
-	// The controls slide in as they arrive. A place is read only once each has come to rest.
-	await expect.poll(() => page.getByTestId('stage-sky-controls').locator('button.can').evaluateAll(nodes => nodes.every(node => new DOMMatrix(getComputedStyle(node).transform).e === 0))).toBe(true);
+	await rowAtRest(page);
 }
 const pickStar = async (page: Page, slug: string) => {
 	const at = await page.locator(`.stars a[data-slug="${slug}"]`).evaluate(node => {
@@ -778,6 +783,7 @@ test.describe('flag on: one row of controls', () => {
 		await expect(skyControl(page, 'reset')).toBeVisible();
 		await expect(skyControl(page, 'zoomOut')).toBeHidden();
 		await comesTo(skyControl(page, 'reset'), atRest[0].x - 44);
+		await rowAtRest(page);
 		expect(await places()).toEqual(atRest);
 		// Zoomed in: Reset, Zoom out, Zoom in, from left to right.
 		await skyControl(page, 'zoomIn').click();
@@ -792,7 +798,11 @@ test.describe('flag on: one row of controls', () => {
 		expect(await places()).toEqual(atRest);
 		await noSidewaysScroll(page);
 		// Reset: the map is at rest, nothing is picked, and both are gone.
+		await rowAtRest(page);
 		await skyControl(page, 'reset').click();
+		await expect(skyControl(page, 'reset')).toBeHidden();
+		await rowAtRest(page);
+		expect(await page.evaluate(() => window.scrollY)).toBe(0);
 		await expect(skyControl(page, 'reset')).toBeHidden();
 		await expect(skyControl(page, 'zoomOut')).toBeHidden();
 		await expect(page.getByTestId('constellation-card')).toHaveCount(0);
@@ -1011,6 +1021,7 @@ test.describe('flag on: one row of controls on a phone', () => {
 		await comesTo(skyControl(page, 'reset'), atRest[1].x - 44);
 		expect((await check([pick, skyControl(page, 'reset'), ...shown.slice(1)])).slice(2)).toEqual(atRest.slice(1));
 		await noSidewaysScroll(page);
+		await rowAtRest(page);
 		await skyControl(page, 'reset').click();
 		await expect(skyControl(page, 'reset')).toBeHidden();
 	});
