@@ -962,10 +962,254 @@ lane is fixing. This lane did not wait for hosted checks.
 6. One row of controls in the sky scene is not done. It waits on the
    constellation lane and request 11.
 
+## Round six: one row of controls
+
+Authority: ruling RM66, Linear TIN-8594, the comment headed "Rulings from the
+tenth interview" (`f3addd06`), November 26, 2026. Receipt under
+R-HOOK-CONVERGENCE-20261004 (R-N13). The workflow that ran this round calls it
+round four, and its screenshots are in a folder named `round4`. It is the sixth
+section of this note.
+
+Her words, verbatim:
+
+| Id | The question, as put | Her answer |
+|---|---|---|
+| RM66 | Which of four things should home page round three change, pick any | "One row of controls, Fold duplicates, Use the wide screen" |
+| RM59 | Which model does design work on the home page and the constellation | "fable is back.  execute UX, devlpoment ooin human facing "wow" woth fable andopus for non UX" |
+| RM46, as this lane's brief quotes it | What the constellation needed | "full bleed, tooltips, and removing undeeded headers / descirioptions  / labining thngs that are self ev eident" |
+
+Round five did "Fold duplicates" and "Use the wide screen". This round does
+"One row of controls". She did not pick "More of the heron", and the heron
+scene is as it was.
+
+The constellation merged to main as pull request 323, at `759c1e80`. No other
+lane holds its files now, so this round changes them. The branch took main
+first, in the signed merge `c2464fbb`.
+
+### The design in ten lines
+
+1. One row at the foot of the stage, in every scene, on the page's ground.
+2. The stream's filters stand at its left end, on the page's left edge.
+3. At its right end stand the progress line, Pause and Next. They never move.
+4. While the sky shows, the sky's controls stand just before them: Zoom in,
+   the list and the help.
+5. Reset and Zoom out are there only while they can act. They stand to the
+   left of Zoom in, outside the run of the row, so nothing else moves.
+6. The sky draws no control of its own on this page. Its legend lies along the
+   top edge of the stage, under the site bar, as one quiet line.
+7. The stars take the room the legend and the controls left at the foot.
+8. The help and the list open from the row. The help opens just above it.
+9. On a narrow screen the filters show as the current word. On a phone the
+   zoom pair is in the help and the progress line lies under Pause and Next.
+10. The constellation's own page is the same pixels as on main.
+
+### What the sky offers now
+
+Four props on `ReaderConstellation.svelte`. Each default leaves the
+constellation's own page and its `?flags=constellation` view as they are.
+
+| Prop | Values | What it does |
+|---|---|---|
+| `legend` | `'foot'`, the default, `'head'` or `'none'` | `'head'` lays the legend along the top edge at the same inset. The strip the stars keep clear of moves to the head with it, and the map fades out under it there. On a phone a picked post docks at the top, over the legend, as it docks over it at the foot today |
+| `controls` | `'own'`, the default, or `'none'` | `'none'` draws no control. The page calls `toggleList()`, `zoomIn()`, `zoomOut()`, `resetView()` and `toggleHelp()`, and `onviewstate` reports `canZoomIn`, `canZoomOut`, `canReset`, `listOpen` and `helpOpen` when one of them changes |
+| `inset` | A CSS length, or left out | The inset of the legend and the controls from the sides. It replaces the stage's style rule that overrode `--edge` |
+| `lists` | `true`, the default, or `false` | `false` on a page with no Latest and Archive under the sky. No notice then points at them |
+
+`SKY_CONTROLS`, exported from the same file, holds the name and the icon of
+each control: "Show as a list", "Show the map", "Zoom in", "Zoom out", "Reset"
+and "How it works". The sky draws its own five from it, and the stage draws
+its row from it, so both say the same words as label and as tooltip.
+
+`helpActions` is a snippet the page may hand over. The sky draws it at the head
+of the help. The stage uses it for the zoom pair on a phone.
+
+Opened from a control outside the sky, the help takes focus, and Escape or a
+second press gives focus back to that control. The list does the same: focus
+lands at its head, Tab reaches its first post, and Escape goes back to the
+control. Both are for a keyboard: the row comes after the list in the page.
+
+With the legend at the head and no control of its own, nothing lies along the
+foot of the sky. The field keeps its size and moves down one and a half rems
+on a wide screen, so the stars are the size they are on the constellation's
+own page.
+
+### The row
+
+| Width | The left end | The right end, in the sky scene |
+|---|---|---|
+| Above 900 pixels | The five words | Reset and Zoom out while they can act, Zoom in, the list, the help, the progress line, Pause, Next |
+| 561 to 900 pixels | The current word. A press lays the five words out across the row, in place of the controls | The same |
+| Up to 560 pixels | The same | Reset while it can act, the list, the help, Pause, Next. The progress line lies under Pause and Next |
+| Up to 350 pixels | The same | The list, the help, Pause, Next. Reset is in the help |
+
+In the heron scene and in a placed scene the sky's controls are not there. The
+filters, the progress line, Pause and Next stand where they stood: a test
+holds their places to the pixel.
+
+Reset alone stands next to Zoom in. When Zoom out joins it, Reset moves one
+place out, by a transform. Both arrive from under Zoom in, on the stage's
+quick curve, in half a second. With reduced motion they just show. No control
+is greyed: one that cannot act is not drawn, cannot take focus and has no
+tooltip. If focus was on it as it left, focus goes to a control beside it that
+still can act.
+
+What is folded on a phone, and why. At 390 pixels the row has 361 pixels
+between its paddings. The five words alone need 351, and seven controls need
+308. So two things fold:
+
+- The filters fold to the current word, at every width up to 900 pixels. The
+  words are one press away, they fill the row, and each is a target 44 pixels
+  high and at least 44 wide.
+- Zoom in and Zoom out fold behind the help, up to 560 pixels. They are the
+  least used there: two fingers zoom on a touch screen, and the help says so.
+  They are in the help by name, 44 pixels high, so one finger can still zoom.
+  Reset stays in the row, because one press of it is the quickest way back
+  to the whole map.
+
+At 390 pixels the legend is two lines at the top, not one. Eight words with
+their dots are 520 pixels wide at their size, and no control may ask for a
+sideways scroll.
+
+### Earlier claims this round changes
+
+- The row comes after the scenes in the page. So Tab reaches the legend and
+  the map before Pause in the sky scene, and focus that lands in a scene stops
+  the play, as it did. In the heron scene Tab still reaches Pause with the
+  play running.
+- Up to 900 pixels wide the filters were a second row of words under Pause and
+  Next. They are in the row, and the stream starts 44 pixels higher.
+- The two style rules by which the stage reached into the sky are one rule
+  now. It gives the sky its height.
+- A press on a filter word does not stop the play. It did not before either,
+  when the filters were the stream's.
+
+### Two small fixes in the same files
+
+- The notice "The map did not load. Latest and Archive below have every
+  post." reads "The map did not load." on the home stage. The two other
+  notices lose their pointer to Latest the same way.
+- The star "Succession, Warblers, and GIS." is the first star Tab reaches. Its
+  ring was drawn on the canvas only, so its link had no outline of its own.
+  The link now draws a real outline exactly on that ring: the same centre,
+  radius, width and colour. While the keyboard is on a star, its link follows
+  the map frame by frame. Every star has it, on both pages.
+
+### The passes
+
+Each pass was a production build, shot through one headless Chromium and
+read. The sky scene, each other scene and the join were shot whole and in
+parts at 1440, 1920 and 390 pixels wide, light and dark, in pine, rose and
+catppuccin. The states were shot too: a star picked, zoomed in, the help open,
+the list open, a tooltip, a star reached by Tab, the words open on a phone.
+
+| Pass | Shot | Seen | Changed |
+|---|---|---|---|
+| 1 | 1440 and 390 pine light, every state | The legend's first dot stood 8 pixels right of the first filter word: the site's style sheet pads anything named `legend`. A control's tooltip lay over the open help | With an inset given the legend has no padding of its own. An open help has no tooltip. The star's outline went in with these |
+| 2 | 1440 pine light and catppuccin dark, 1920 rose light and pine dark, 390 pine light and rose dark | The legend's words were darker than the filter words under them, so the top line was the louder of the two. On a phone the sky's pair and the stage's pair stood evenly, as one run of four | Along the top edge the legend's words step back to 72 percent ink until one is pointed at or picked. The two pairs stand 6 pixels apart |
+| 3 | The six, and 768, 1024 and 320 pixels wide and 390 catppuccin light. The row, the legend, the focus ring and a tooltip cut out and enlarged | The row holds at every width. The outline and the canvas's ring read as one ring. The icons of the sky and of the stage are one weight | Nothing |
+
+Up to 350 pixels Reset is in the help by arithmetic, not by a look: at 320
+pixels the row has 301 pixels, and Reset beside the word "Recordings" would
+need 316.
+
+The screenshots are on the build host under
+`/srv/fast-local/jess/previews/blog-home/shots-work/round4/`.
+
+### Measured
+
+Measured on November 26, 2026 on a production build of this round's tree and
+on a build of main at `759c1e80`, in one headless Chromium.
+
+| What | Result |
+|---|---|
+| The constellation's own view at rest, `?flags=constellation`, main against this head | The same pixels. Eight cases a run: 1440 by 900 and 390 by 844, light and dark, with motion allowed and with it reduced. The sky's own picture was identical in all 48 comparisons of six runs. Its markup and the place, size and colour of every control, legend word and name were the same too |
+| The whole screen in those runs | Identical in 46 of 48. See the two below the table |
+| The site's moving background in that comparison | Taken out of both pictures. It is drawn afresh on every load. In the first run, with it in, main against main differed in 207,442 to 566,951 pixels of the sky's picture |
+| The row | 44 pixels high at every width. One line. Every icon control in it is 44 pixels square, and every word is 44 pixels high and at least 44 wide |
+| Sideways scroll at 320, 390, 768, 1024, 1440 and 1920 pixels wide, in the sky scene | None |
+| The row on a phone of 390 pixels | 361 pixels between its paddings. The one word "All", the list, the help, Pause and Next take 244 with the room between the two pairs, and 288 with Reset |
+| Lowest contrast of a legend word along the top edge | 5.77 to 1, pine light on a phone. 20 pages: 5 themes, 2 modes, 1440 and 390 pixels wide, with the glyphs and their halos taken off |
+| Lowest contrast of a filter word that is not the current one | 5.63 to 1, pine light |
+| Lowest contrast of a row icon and of the current filter word | 11.59 to 1, pine light |
+| The home page, flag off, on main | 44 requests, 21 scripts, 164,340 bytes of script gzip |
+| The home page, flag off, on this head | 44 requests, 21 scripts, 165,552 bytes. The same count as main, and 1,212 bytes more, which is the cost of reading the flag since round one |
+| The home page, flag on | 54 requests, 25 scripts, 195,810 bytes. That is 31,470 above main with the flag off. The limit is 40 kilobytes. Round five measured 193,109, so the row cost 2,701 |
+| `?flags=constellation` on main and on this head | 46 requests and 24 scripts at 182,248 bytes on main. 45 requests and 23 scripts at 184,432 bytes here. One request fewer, and 2,184 bytes more for the props |
+| `/blog` on main and on this head | 43 requests and 19 scripts on both |
+| Requests that leave the site, flag on | None |
+
+The two whole-screen differences. In one run 12 pixels differed by 2 steps at
+most. A later run, which records the place, found the same 12 pixels in main
+against main: columns 1101 and 1102, rows 4 to 11, in the site bar. In another
+run 133,004 pixels differed by 8 steps at most at 1440 pixels wide, dark, with
+motion reduced. The sky's own picture, taken a moment earlier in that run, was
+identical. Where those pixels lay was not recorded, and the three runs after
+it showed none.
+
+The throttled load figures of round two were not measured again. The first
+screen's pictures and type are the same files.
+
+### Proof
+
+Each step ran through the host's gates on November 26, 2026, one at a time.
+
+| Step | Exit | Result |
+|---|---|---|
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 45 files, 470 tests. Seven are new, for the sky's props, and one has two new lines for the view helper |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added, and no warning added |
+| The stream's data file against its sources | 0 | Current, 144 items |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | The prebuild ran the generator and left the file unchanged |
+| e2e with one worker: this lane's spec and the two constellation specs | 0 | 78 passed in 3.9 minutes, twice in a row, at `4fc2b999`. The runs before those are in the table below |
+
+Lint, the unit tests, svelte-check, the data check and the build ran at
+`68a1cd90`. The commits after it change only this lane's e2e spec and this
+note. The e2e runs below used that build.
+
+Both constellation specs are as main has them: no line of either changed.
+Thirteen e2e tests are new, all in this lane's spec. They hold the one row,
+the legend's place, Reset and Zoom out coming and going with nothing else
+moving, the order of focus, the help and the list by keyboard, the other
+scenes, the star's outline on both pages, the notice on both pages, the
+constellation's own five controls and legend, and three for a phone.
+
+The e2e step ran seven times. The first five failed and the last two
+passed. Each failure is named here.
+
+| Run | Result | What failed, and why |
+|---|---|---|
+| 1, this lane's spec alone | 38 of 43 passed | Five new tests. Three for a phone waited to see Zoom in, which is not in the phone's row. One read two places while a control still slid. One opened the home flag before the constellation's own page, and the flag is remembered |
+| 2 | 77 of 78 passed | One new test read Zoom in's place in the last frames of its slide, one pixel off |
+| 3 | 75 of 78 passed | A constellation test, "every star has at least 3 to 1 against the sky as drawn": the map's links were not in the page after five seconds on one of its four loads. It passed in the five other runs that held it. This lane's older self-play test: at twelve times the pace the sky shows for three quarters of a second, and a look once a second missed it twice. It now writes each scene down as the stage changes it. One new phone test: two controls side by side rounded to share a pixel |
+| 4 | 77 of 78 passed | The same new test as run 2, at a later line |
+| 5 | 77 of 78 passed | The same test. The browser driver tries a press again when its target still moves, and on the third try it scrolls the target to the middle of the screen. Reset was pressed in the tail of its slide, and the page scrolled 298 pixels. The tests now wait for the row's transitions to end before such a press |
+| 6 | 78 passed in 3.9 minutes | |
+| 7 | 78 passed in 3.9 minutes | |
+
+The hosted gate fails now and then for a dropped local file fetch that
+another lane is fixing under TIN-8867. This lane did not wait for hosted
+checks.
+
+### Decisions for her, round six
+
+1. On a phone the filters show as one word, and a press lays the five out.
+   The other way to fit 390 pixels is two rows.
+2. On a phone Zoom in and Zoom out are in the help. Reset is in the row.
+3. Reset stands to the left of Zoom out, and both to the left of Zoom in:
+   Reset, Zoom out, Zoom in, the list, the help.
+4. The legend along the top edge is quieter than at the foot of the
+   constellation's own page: 72 percent ink until pointed at.
+5. A star reached by Tab draws a real outline on the constellation's own page
+   too. It lies on the canvas's ring, so the page looks the same.
+
 ## Requests for the constellation lane
 
-The stage reaches into the component with two style rules, in one block in
-`HomeStage.svelte`. They can go when the component offers the same as props:
+The constellation is on main since `759c1e80`, and round six did requests 2,
+3, 5, 9 and 11 below in the sky's own files. The others stand.
+
+
+The stage reached into the component with two style rules, in one block in
+`HomeStage.svelte`. One is left, for request 1:
 
 1. A way to fill its container, with no fixed height on the sky.
 2. A way to set the inset of its legend and controls. The stage overrides
