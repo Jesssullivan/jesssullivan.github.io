@@ -1202,6 +1202,350 @@ checks.
 5. A star reached by Tab draws a real outline on the constellation's own page
    too. It lies on the canvas's ring, so the page looks the same.
 
+## Round seven: the wide stream, with pictures
+
+Authority: ruling RM70, Linear TIN-8594, the comment headed "Rulings from the
+eleventh interview" (`33157987`), November 26, 2026. Receipt under
+R-HOOK-CONVERGENCE-20261004 (R-N13). The workflow that ran this round calls it
+round five, and its screenshots are in a folder named `round5`. It is the
+seventh section of this note.
+
+Her words, verbatim:
+
+| Id | The question, as put | Her answer |
+|---|---|---|
+| RM70 | Which weak points should the next home page round take on? | "Wide stream with pictures,  lets try to remove dated / gated blockers to motor ahead!  I think a larer original is available somewhere" |
+
+She did not pick sharpening the heron by capping its size, a change to what
+paints first, or stopping here. The stage, its four scenes and its one row of
+controls are as they were. The heron scene is as it was.
+
+The problem, in the last verifier's words: below the stage, on a wide screen,
+the stream reads as a typeset index of mostly text-only rows, with long runs of
+old excerpts that begin with stray marks, and few pictures to break them.
+
+### The design in ten lines
+
+1. Every picture a post's own text shows joins its item, in the post's order.
+   The cover rule stays.
+2. From 1100 pixels wide a picture takes its form from what it is and how it is
+   shaped. Nothing is placed by hand, and nothing by chance.
+3. One of her photographs, wide, is a plate. It starts on the first line, where
+   every title starts, and runs toward the right edge of the screen.
+4. A plate carries its title, at its foot, on a feather of the page's ground:
+   near solid exactly as far as the title reaches, then a long falloff.
+5. Any other picture stays beside its words on the second line, as before: a
+   tall or square one, a drawing, a screenshot, a video's poster.
+6. A post's other pictures stand in one row under the lead, at one height. No
+   picture is drawn larger than its file.
+7. Words stay words. A title set as words is a step smaller than a title on a
+   plate, and a run of words sits closer.
+8. An excerpt is her own text cut shorter, or it is absent. It is cut where
+   the stream is built, at a sentence end.
+9. A plate's photograph drifts a little inside its frame as it crosses the
+   screen. The browser reads the scroll for it. With reduced motion it is
+   still.
+10. Pictures load lazily, with their sizes set, in AVIF and WebP, and a small
+    size serves a row, a picture beside its words and a narrow screen.
+
+### The pictures
+
+The builder reads every picture a post's own text shows: a Markdown image or an
+image tag, in the order of the text, each once. A picture named inside a code
+block is not shown by the post, so it is not read.
+
+| Rule | What it does today |
+|---|---|
+| The cover rule, kept | A cover shows only when the post's text uses that file. 115 posts show no cover |
+| A drawing the text shows as SVG counts for its cover | Two posts gain their drawing, in the format the site serves: "Little Zig Libraries for Fruit-Shaped Escape Hatches" and "Smol DarwinNicUtil Has Docs and installers now, yay" |
+| A moving picture stays out | One GIF of 1.2 megabytes, in the newest post. It would play on this page with no way to stop it |
+| A picture another site holds stays out | Three pictures. This page asks no other site for anything |
+| A picture file that more than one post shows stays out of all of them | One file, `unnamed.jpg`. See below |
+| Five pictures of a post at most | The rest are in the post. A set of photographs still says how many it holds |
+
+The file `unnamed.jpg` is a photograph of 3D printers. Three posts show it:
+"Purple Prius Parts" of August 2020, "This, That, etc" of July 2020 and "Wolf
+Pine @ Fox Park #11" of April 2017. The old export gave three uploads one name,
+and one file is left. It cannot be the picture of a walk in the snow in 2017.
+The builder cannot tell whose it is, so it shows it with none of them, as it
+does a shared cover. Before this round it showed twice.
+
+What the stream has to show now:
+
+| | Before this round | Now |
+|---|---|---|
+| Items that show a picture of their own | 25 | 26 |
+| Items that show a video and no picture | 3 | 3 |
+| Items that are words alone | 116 | 115 |
+| Pictures in all | 49 | 71 |
+
+Three posts gained a picture and two lost the shared one. Seven posts show more
+of their own pictures than before: 22 more in all.
+
+So 115 of 144 items stay words. The pictures are not there to show: 37 of the
+113 posts that are words alone carry a note from the export that a picture or
+a file of theirs was lost, such as "Some images from the original WordPress
+post are no longer available." The others never had one. The builder reads the
+posts' text, so a picture that comes back into a post shows in the stream with
+no change here.
+
+Not read, and why:
+
+- Videos that a post embeds from YouTube: 13 in 5 posts. No poster for them is
+  in this repository, and the page fetches none.
+- The 13 gallery photographs that no public post uses, as before.
+
+### The forms on a wide screen
+
+Two lines run down the stream, as in round five. Every title set as words
+starts on the first. From 1100 pixels wide:
+
+| Form | What takes it | Where it stands | Today |
+|---|---|---|---|
+| Plate | One of her photographs: a picture the photo gallery holds, 900 pixels wide or more, at least 1.2 times as wide as it is tall | From the first line toward the right edge of the screen, with its title on it | 9 |
+| Beside | A tall or square picture, a smaller one, a drawing, a screenshot, a picture from elsewhere, a video's poster | From the second line to the right edge of the screen, beside its words | 19 |
+| Small | Pictures under 600 pixels wide | One row of them on the second line, none larger than its file | 1 |
+| Words | Nothing to see | The title on the first line, the excerpt on the second | 115 |
+
+The photo gallery's own rule tells a photograph from a screenshot or a
+drawing, so the stream asks the gallery and does not guess. No title is laid on
+a screenshot, a drawing or a picture she did not take.
+
+A plate:
+
+- It is as wide as the room from the first line to the right edge, as its file
+  and as 80 percent of the screen's height allow. At 1440 by 900 pixels a
+  photograph of three to two is 1,080 pixels wide. Round five drew it 654 wide.
+- Its title is set a step larger than a title set as words, at its lower left.
+- Behind the title lies the page's ground at 94 percent, exactly as far as the
+  title reaches. From there it falls off into the photograph, up and across,
+  over 5.5 to 9.5 rems. A halo of the ground lies under every letter as well.
+- The lead is the first picture at least 600 pixels wide, so a small first
+  picture does not decide the form.
+- Under it stand the row of its other pictures, the count of a set, and her
+  excerpt.
+
+The row under a lead: every other picture at one height, each as wide as its
+shape asks. The row is as wide as the lead when its files allow, and never
+taller than 17 rems or the shortest file in it.
+
+A title set as words went from 1.7 to 2.5 rems to 1.55 to 2.2 rems. The room
+between two items of words went from 3.75 to 3 rems, and before a new month
+from 7.5 to 4.5 rems. The rail for the month went from 9.5 to 10.25 rems: at
+1100 pixels "SEPTEMBER 2020" touched the play control that hangs there.
+
+Below 1100 pixels the stream is one column, as before, and it gains the new
+pictures and the clean excerpts. A phone shows an excerpt whole. Before, it
+cut every excerpt at two lines, in the middle of a sentence.
+
+### The excerpts
+
+An excerpt is her own text cut shorter, or it is absent. The builder writes no
+word, joins no two sentences that stood apart and mends none. The code is
+`src/lib/home/excerpt.ts`.
+
+The posts have two kinds of summary:
+
+- One she wrote. It stands whole when it is short, and is cut at a sentence
+  end when it is over 240 characters.
+- One the old export cut from the top of the post, by count of letters, with
+  three dots. It runs headings, list items and link words together. The
+  builder knows it because it stands at the top of the post letter for letter.
+  It is not used. Her first whole sentences of prose are read from the post
+  itself.
+
+Reading a post, the builder passes over a heading, a list, a table, code, a
+picture, a frame and a link that stands alone. Then:
+
+| What goes | Example from her posts |
+|---|---|
+| Stray marks at the start of a sentence | "?:Organization for Flask + React..." and "…Despite being a chilly & wintery March..." |
+| A sentence that only points at a link that is gone, or at the day of an edit | "Find this project on my github here!" and "Edit 07/26/2020: Check out the expanded GIS notes page here!" |
+| The same before a colon | "Check out this project here: Tetrahedron.gay is..." keeps what follows the colon |
+| A sentence that holds an address | "View the tools here: http://..." |
+| The trace of a player | "Jess S. · Morning Metal 12.17.20" |
+| A sentence that is cut off | Anything that does not end as a sentence ends |
+| A note the export wrote where something was lost | "This image has been lost to time. The original was hosted on WordPress." It is not her text. The export set these in asterisks, in about twenty wordings |
+| A quotation that runs over sentences or paragraphs | The post "Addendum to "Secret Beach Area"..." opens with a classmate's words. The excerpt is her answer to them |
+| A label set whole in italics | "In other tangents..." |
+| A line of code that stands as a paragraph | `REPO_PATH="./" OVMF_DIR="."` |
+| The title, set again above the text | "Solar upgrades! Incredibly, the hut..." |
+
+A row of dots is her pause and ends no sentence: "If you happened to be working
+with.... KML data". An initial and a short form end none either: "Dr. Leonard
+Reitsma", "Jess S. photography".
+
+What is kept is one run of whole sentences that stand next to each other in
+her text, up to 240 characters. A first sentence may run to 300. An excerpt
+that tells a reader of the title nothing more is absent.
+
+| The excerpts of the 140 posts | Posts |
+|---|---|
+| Her summary, whole | 22 |
+| Her summary, cut at a sentence end | 3 |
+| Her first sentences, read from the post | 101 |
+| Absent | 14 |
+
+A test reads the committed stream and holds four things for every excerpt. It
+starts with a letter, a figure or an opening quote. It ends where a sentence
+ends, or as her own summary ends. It holds no address, markup, export note or
+trace of a player. It stands word for word in her summary or in her post.
+
+### Depth by light and motion
+
+- The feather under a plate's title, as on the stage.
+- A plate's photograph is drawn 4.5 percent larger than its frame and travels
+  1.9 percent of its height up and down as it crosses the screen. The browser
+  reads the scroll for it with `animation-timeline: view()`, so no script
+  runs. The frame is that much narrower than the file, so no pixel is
+  stretched. A browser without scroll timelines shows the photograph still.
+- With reduced motion, and on a device that missed the stage's frame budget,
+  the photograph is still.
+- The arrival out of a short blur is as it was.
+
+### The small size
+
+The site keeps each picture of a post at one size, 1200 pixels wide at most.
+The stream draws many far smaller. `scripts/generate-home-pictures.mts` writes
+each picture of the stream that is 880 pixels wide or more again at 720
+pixels, under `static/images/home`: 57 pictures, 101 files,
+3,719,931 bytes, committed like the site's other sizes. It uses `sharp`,
+which the site already has. The build gate fails when one is missing, stale or
+of no use.
+
+Each picture names both sizes and how wide it is drawn, so the browser takes
+the file the layout needs. 720 pixels is as wide as a picture beside its words
+on a screen up to about 1550 pixels wide.
+
+### The tooltip after a touch
+
+At 390 pixels the Next tooltip stayed up after a tap and covered the end of
+the scene's headline. A tooltip is for a mouse over a control and for a
+control reached by keyboard. The page now keeps what the visitor last used: a
+mouse, the keyboard or a finger. After a touch no tooltip shows. After a press
+with a mouse, one shows only while the mouse is over its control.
+
+### The passes
+
+Each pass was a production build, shot whole through one headless Chromium and
+read as sheets of screens.
+
+| Pass | Shot | Seen | Changed |
+|---|---|---|---|
+| 1 | 1440 pine light, 1920 pine dark, 390 rose light | A meme, a screenshot and a product rendering were plates, with a title laid on them. The printer photograph stood as a plate under two posts. A row of small screenshots broke into three lines. On a phone every excerpt was cut at two lines, in the middle of a sentence. A plate's drift drew its photograph past its file | A plate is a photograph the gallery holds. A shared file shows with no post. Small pictures stand in one row. An excerpt shows whole. The frame is narrower than the file by the drift |
+| 2 | 1440 pine light and catppuccin dark, 1920 rose light, 1100 catppuccin light, 768 pine light, 390 pine dark | At 1440 the first three screenfuls fetched whole files where the small size would do. At 1100 "SEPTEMBER 2020" touched a play control. An excerpt read "See a need, fill a need! \| An exciting new venture!", the cells of a table. Her opening sentence in italics was passed over | The small size is 720 pixels. The rail is wider. Table cells and a quotation over paragraphs are not shown. Her own sentence in italics is kept, a label in italics is not |
+| 3 | The same, and 1920 pine dark | The forms hold at every width. Layout shift down the whole stream is 0. One new e2e test did not wait for a cold page | The test waits. The sizes a plate states match its frame |
+| Final | All ten sets below | See "Measured" | Nothing |
+
+The ten sets: 1440 by 900 in pine light and catppuccin dark, 1920 by 1080 in
+rose light and pine dark, 1100 by 800 in catppuccin light and rose dark, 768
+by 1024 in pine light and catppuccin dark, 390 by 844 in rose light and pine
+dark. The screenshots are on the build host under
+`/srv/fast-local/jess/previews/blog-home/shots-work/round5/`.
+
+A stranger landing on the page meets a picture in every screenful for the
+first eight screens at 1440 pixels wide, and again through 2018 and 2017,
+where her bird photographs are. Two stretches are words alone: about three
+screens of posts from 2019 and 2020, and the last five screens, the Fox Park
+field notes of spring 2017. Those posts have no picture in this repository.
+
+### Measured
+
+Measured on November 26, 2026 on a production build of `69ab1235`, in one
+headless Chromium, with no graphics card.
+
+| What | Result |
+|---|---|
+| Image bytes in the first three screenfuls of the stream at 1440 by 900 | 5 pictures of the stream, 134,664 bytes, all in the small size. With the stage and the site's own files, 671,340 bytes over 17 files, of which 536,676 arrive before any scrolling |
+| The same at 1920 by 1080 | 5 pictures, 270,511 bytes: at that width four of them are drawn wider than 720 pixels, so the whole files are right. 807,187 bytes in all |
+| The same at 1440 by 900 at two device pixels | 5 pictures, 276,604 bytes, all whole files |
+| The same on a phone of 390 by 844 at three device pixels | 5 pictures, 134,568 bytes. 586,480 bytes in all |
+| The longest way down the stream with no picture | 5.4 screens at 1440 wide, 5.2 at 1920, 7.5 at 1100, 6 at 768 and 10 on a phone. It is the last stretch, the field notes of spring 2017 |
+| The page's height with every part shown | 38,887 pixels at 1440 wide, 44,598 at 1920, 38,572 at 1100, 43,566 at 768 and 43,192 at 390 |
+| Layout shift down the whole stream, in ten sets | 0 |
+| Layout shift at load, flag on | 0.0620 at 1440 wide, 0.0321 at 1920, 0 at 390. It is the ordinary page's own, before the two change places: main measured 0.0621 to 0.0686 with the flag off in round six |
+| Sideways scroll at 1440, 1920, 1100, 768 and 390 pixels wide | None |
+| A picture drawn larger than its file, in ten sets | None |
+| JavaScript on the home page, flag off | 21 scripts, 165,558 bytes gzip. Round six measured 165,552 |
+| JavaScript on the home page, flag on | 25 scripts, 196,957 bytes gzip: 32,617 above main's 164,340 with the flag off. The limit is 40 kilobytes. This round cost 1,147 bytes |
+| Requests on the home page | 44 with the flag off and 54 with it on, as before. None leaves the site |
+| The stream's data file | 79,397 bytes, 20,864 gzip. It was 73,197 and 21,212: it names more pictures, and its excerpts are shorter |
+| Lowest contrast of a plate's title over its photograph, with the letters and their halo taken off | 9.24 to 1, pine dark at 1920 wide, on "XRAM Injection". 270 titles: 9 plates in 5 themes, 2 modes and 3 widths |
+| A tooltip after a tap on Next and on Pause, at 390 pixels with touch | Not shown |
+| A tooltip with a mouse | Shown over the control, and gone once the mouse has left after a press. Shown again on a control reached by keyboard |
+| A plate's drift at 1440 by 900 | The photograph is drawn 1,033 pixels wide in a frame of 989, from a file of 1,200. With reduced motion it is 989 wide and still |
+
+The flag off: all 770 prerendered pages of this build were compared with the
+build of the verified head `4974c948`. 768 are the same byte for byte once the
+names the build gives its own files are set aside. The other two are the two
+copies of `/pulse/lab`, which print the time of the build on main too. The home
+page names 21 script and style files with the flag off. 15 are the same bytes
+as before. The other 6 are the same but for the build's own stamp and the
+names that follow from it.
+
+One fault was found by that comparison and fixed. The site's stylesheet build
+scans every source file for class names. It read a negated variable in the
+excerpt code as a style class and added eight rules, 966 bytes, to the
+stylesheet every page loads. The variables have other names now.
+
+One thing was not explained. In the third pass one screenshot set, 1100 pixels
+wide in rose dark, did not finish in 25 minutes and was stopped. The same set
+ran in 45 seconds in the final pass, and the script that drives it had a fault
+of its own in between. The page was not shown to be at fault, or cleared.
+
+### Proof
+
+Each step ran through the host's gates on November 26, 2026, one at a time, on
+the tree of `69ab1235`.
+
+| Step | Exit | Result |
+|---|---|---|
+| The stream's data file against its sources | 0 | Current, 144 items |
+| The small pictures against the stream | 0 | 57 pictures, none missing, stale or of no use |
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 47 files, 506 tests. Round six had 470 |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | The prebuild ran both generators and changed no file |
+| e2e with one worker: this lane's spec and the two constellation specs | 0 | 83 passed in 5.9 minutes. Five are new |
+
+An earlier e2e run on the third pass's build passed 82 of 83. The one that
+failed was a new test of this round, which looked for a plate five seconds
+after opening a fresh browser context on a busy host. It now waits for the
+stream first.
+
+The 36 new unit tests: 17 for the excerpt, 7 for the forms, and the rest for
+the pictures a post shows, the shared file, and the excerpts and small sizes
+of the committed stream. The new e2e tests: no picture larger than its file
+and none twice, every excerpt, the drift with and without reduced motion, and
+the tooltip after a touch and with a mouse. The test of the two lines on a
+wide screen is rewritten for the plate.
+
+The hosted gate was not waited for.
+
+### The heron
+
+Not changed. No larger original of the photograph was found in this
+repository while working: the files named for it are the 1200 by 1000 pixel
+`static/images/posts/img_8694.jpg` and its other formats, and the two cuts
+under `src/lib/assets/home`.
+
+### Decisions for her, round seven
+
+1. A plate is one of her photographs, 900 pixels wide or more and wider than
+   tall. Nine posts have one. A lower bar would add the three photographs of
+   "Research Year Two" at 734 pixels wide, drawn small.
+2. `unnamed.jpg` shows with none of its three posts. If she says which post it
+   belongs to, the two other posts lose the line and it shows again.
+3. A moving picture stays out of the stream. The newest post has one, and so
+   has no picture here.
+4. The 13 videos that five posts embed have no poster in this repository. One
+   fetch at build time would get them. It is not done: nothing here fetches.
+5. Fourteen posts show no excerpt, where no whole sentence of hers stands near
+   the top. "This and That!" and "...In other news..." are two.
+6. The small pictures add 3.7 megabytes to the repository and to each deploy.
+7. Below 1100 pixels the stream is still one column. A plate there would lay a
+   title over a photograph 336 pixels wide.
+
 ## Requests for the constellation lane
 
 The constellation is on main since `759c1e80`, and round six did requests 2,
