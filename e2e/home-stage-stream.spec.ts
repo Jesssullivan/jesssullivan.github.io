@@ -699,6 +699,8 @@ async function openSky(page: Page, query = '') {
 	await expect(page.locator('[data-testid=stage-sky-zoomIn].can')).toHaveCount(1);
 	await page.getByTestId('stage-pause').click();
 	await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+	// The controls slide in as they arrive. A place is read only once each has come to rest.
+	await expect.poll(() => page.getByTestId('stage-sky-controls').locator('button.can').evaluateAll(nodes => nodes.every(node => new DOMMatrix(getComputedStyle(node).transform).e === 0))).toBe(true);
 }
 const pickStar = async (page: Page, slug: string) => {
 	const at = await page.locator(`.stars a[data-slug="${slug}"]`).evaluate(node => {
