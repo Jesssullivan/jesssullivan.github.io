@@ -36,12 +36,15 @@
 	});
 	const ratio = (image: StreamImage) => (image.width / image.height).toFixed(4);
 	// How wide each picture is drawn, as the browser reads it, so it asks for the size of file the layout needs.
-	const LINE_ONE = '(100vw - 7vw - 9.5rem)';
+	// From the first line to the right edge of the screen, and the words' own column: as HomeStream sets them.
+	const LINE_ONE = '(100vw - clamp(1.25rem, 7vw, 11rem) - 10.25rem)';
+	const SAY = 'clamp(27rem, 37vw, 42rem)';
 	const leadSizes = $derived.by(() => {
 		if (!lead) return undefined;
-		const own = `${lead.width}px, calc(${form === 'plate' ? 80 : 72}vh * ${ratio(lead)})`;
-		const room = form === 'plate' ? `calc${LINE_ONE}` : `calc(${LINE_ONE} - 37vw)`;
-		return `(min-width: 1100px) min(${room}, ${own}), (min-width: 901px) min(calc(100vw - 14vw - 9.5rem), ${own}), min(92vw, ${own})`;
+		// A plate's photograph is drawn a little larger than its frame, for its drift, and never larger than its file.
+		const own = form === 'plate' ? `${lead.width}px, calc(83.6vh * ${ratio(lead)})` : `${lead.width}px, calc(72vh * ${ratio(lead)})`;
+		const room = form === 'plate' ? `calc(1.045 * ${LINE_ONE})` : `calc(${LINE_ONE} - ${SAY})`;
+		return `(min-width: 1100px) min(${room}, ${own}), (min-width: 901px) min(calc(${LINE_ONE} - clamp(1.25rem, 7vw, 11rem)), ${own}), min(calc(100vw - 2 * clamp(1.25rem, 7vw, 11rem)), ${own})`;
 	});
 	const rowSizes = (image: StreamImage) => `min(calc(17rem * ${ratio(image)}), ${image.width}px, ${Math.ceil((100 * image.width) / image.height / (row?.sum ?? 1))}vw)`;
 

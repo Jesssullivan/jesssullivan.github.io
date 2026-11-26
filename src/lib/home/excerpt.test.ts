@@ -71,6 +71,7 @@ describe('a summary the export cut by count', () => {
 		expect(of('', 'Add a button for the car- wiring reference: http://example.org/a.pdf\n\nBig shiny button in the car!')).toBe('Big shiny button in the car!');
 		expect(of('', '🎵: Jess S. · Evening Metal 9.14.20')).toBe('');
 		expect(of('', 'Guitar Practice:')).toBe('');
+		expect(of('', 'See a need, fill a need! | An exciting new venture! | Chemicals and experiments oh my!')).toBe('');
 		expect(of('', 'REPO_PATH="./" OVMF_DIR="."')).toBe('');
 	});
 
@@ -82,10 +83,16 @@ describe('a summary the export cut by count', () => {
 	});
 
 	it('does not show the words of someone else, a quotation that runs on, or a note the export wrote', () => {
-		const body = '_"by Christopher - Thursday, 5:38 PM_\n\n_Bomber day in the woods. We saw a frog._\n\n...This is a brilliant depiction. Best of luck rearing the kiddos.';
+		const body = '_"by Christopher - Thursday, 5:38 PM_\n\n_Bomber day in the woods. We saw a frog."_\n\n...This is a brilliant depiction. Best of luck rearing the kiddos.';
 		expect(of('', body)).toBe('This is a brilliant depiction. Best of luck rearing the kiddos.');
 		expect(of('', '"First, we build the reactor. Then we wait. Soon it glows." So said the plan. I made the tools myself in the dorm.')).toBe('So said the plan. I made the tools myself in the dorm.');
 		expect(of('', '*This image has been lost to time. The original was hosted on WordPress.*\n\nWith the app now working, the repo is live. Check it out!***This space once held an image. The WordPress CDN has since gone quiet.***')).toBe('With the app now working, the repo is live. Check it out!');
+	});
+
+	it('keeps her sentence set in italics, and passes over a label set in italics', () => {
+		expect(of('', '_A spur-of-the moment turkey thermometer with dubious accuracy._\n\nUses an equation to estimate the temperature.')).toBe('A spur-of-the moment turkey thermometer with dubious accuracy. Uses an equation to estimate the temperature.');
+		expect(of('', '_In other tangents..._\n\nThe enclosure is moving into its new home.')).toBe('The enclosure is moving into its new home.');
+		expect(of('', "_Jess's Monday:_\n\nThe enclosure is moving into its new home.")).toBe('The enclosure is moving into its new home.');
 	});
 
 	it('takes off the title where the export set it again above the text', () => {

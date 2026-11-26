@@ -12,7 +12,9 @@
  * clock and no network, so the same sources always give the same bytes.
  */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { STREAM_OUTPUT, buildCommittedStream, serializeStream } from './lib/home-stream-sources.mjs';
+import { STREAM_OUTPUT, buildCommittedStream, readPosts, serializeStream } from './lib/home-stream-sources.mjs';
+import { isCutFromBody, plainText } from '../src/lib/home/excerpt';
+import { formOf } from '../src/lib/home/forms';
 
 const check = process.argv.includes('--check');
 const stream = buildCommittedStream();
@@ -36,6 +38,21 @@ const withPicture = stream.items.filter((item) => item.media.some((media) => med
 const withVideo = stream.items.filter((item) => !item.media.some((media) => media.type === 'image') && item.media.some((media) => media.type === 'youtube')).length;
 const withSummary = stream.items.filter((item) => item.kind === 'article' && item.summary).length;
 console.log(`To see: ${withPicture} items show a picture of their own, ${withVideo} more show a video, ${stream.items.length - withPicture - withVideo} are words alone. ${withSummary} of ${stream.counts.article} posts have an excerpt.`);
+const pictures = stream.items.reduce((sum, item) => sum + item.media.filter((media) => media.type === 'image').length, 0);
+const forms = stream.items.reduce<Record<string, number>>((count, item) => ({ ...count, [formOf(item)]: (count[formOf(item)] ?? 0) + 1 }), {});
+console.log(`Pictures: ${pictures} in all. On a wide screen: ${forms.plate ?? 0} plates, ${forms.beside ?? 0} beside their words, ${forms.small ?? 0} rows of small pictures, ${forms.words ?? 0} words alone.`);
+// Where each excerpt comes from: her own summary, whole or cut at a sentence end, or her first sentences read from the post.
+const posts = new Map(readPosts().map((post) => [`post:${post.slug}`, post]));
+const from = { whole: 0, cut: 0, post: 0, absent: 0 };
+for (const item of stream.items) {
+	const post = posts.get(item.id);
+	if (!post) continue;
+	if (!item.summary) from.absent += 1;
+	else if (post.description.trim() === '' || isCutFromBody(post.description, post.body)) from.post += 1;
+	else if (item.summary === plainText(post.description)) from.whole += 1;
+	else from.cut += 1;
+}
+console.log(`Excerpts: ${from.whole} are her summary whole, ${from.cut} her summary cut at a sentence end, ${from.post} her first sentences read from the post, ${from.absent} absent.`);
 
 if (check) {
 	if (current !== next) {

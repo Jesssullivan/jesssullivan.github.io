@@ -650,7 +650,7 @@ test.describe('flag on: the one mixed stream', () => {
 		}, { timeout: 25_000, intervals: [150] }).toBe(0);
 		const pictures = await page.locator('[data-testid=stream-item] :is(.lead, .rest) img').evaluateAll(nodes => nodes.map(node => {
 			const img = node as HTMLImageElement;
-			const small = [...(img.parentElement?.querySelectorAll('source') ?? [])].some(source => /\/images\/home\/[^ ]+-640\.(?:avif|webp) 640w/.test(source.srcset) && source.sizes !== '');
+			const small = [...(img.parentElement?.querySelectorAll('source') ?? [])].some(source => /\/images\/home\/[^ ]+-720\.(?:avif|webp) 720w/.test(source.srcset) && source.sizes !== '');
 			return { src: img.getAttribute('src')!, drawn: img.getBoundingClientRect().width, file: Number(img.getAttribute('width')), inRow: img.closest('.rest') !== null, small, lazy: img.loading, sized: img.hasAttribute('width') && img.hasAttribute('height') };
 		}));
 		expect(pictures.length).toBeGreaterThan(50);
@@ -660,8 +660,8 @@ test.describe('flag on: the one mixed stream', () => {
 			expect(picture.drawn, picture.src).toBeLessThanOrEqual(picture.file + 1);
 			expect(picture.lazy, picture.src).toBe('lazy');
 			expect(picture.sized, picture.src).toBe(true);
-			// A picture 800 pixels wide or more has a small size for a row and a narrow screen.
-			expect(picture.small, picture.src).toBe(picture.file >= 800 && picture.src.startsWith('/images/posts/'));
+			// A picture 880 pixels wide or more has a small size for a row and a narrow screen.
+			expect(picture.small, picture.src).toBe(picture.file >= 880 && picture.src.startsWith('/images/posts/'));
 		}
 		expect(pictures.some(picture => picture.inRow && picture.small)).toBe(true);
 	});
@@ -686,6 +686,8 @@ test.describe('flag on: the one mixed stream', () => {
 			const context = await browser.newContext({ baseURL, viewport: { width: 1440, height: 900 }, reducedMotion: motion });
 			const page = await context.newPage();
 			await page.goto('/?flags=home&show=photos');
+			// A new browser context has nothing kept, so the page takes longer to come alive than in the tests above.
+			await expect(page.getByTestId('stream-item').first()).toHaveAttribute('data-kinds', /\bphotos\b/, { timeout: 20_000 });
 			const picture = page.locator('.piece.plate .lead img').first();
 			await expect(picture).toBeAttached();
 			const drift = await picture.evaluate(node => getComputedStyle(node).animationName);

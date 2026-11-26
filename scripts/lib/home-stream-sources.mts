@@ -24,9 +24,13 @@ export const POSTER_DIR = `${ASSET_DIR}/video`;
  * writes them. A picture has one when it is wide enough to gain from it. Its name follows from the source name.
  */
 export const SMALL_DIR = '/images/home';
-export const SMALL_WIDTH = 640;
+/**
+ * 720 pixels: a picture beside its words is that wide or less on a screen up to about 1550 pixels wide,
+ * and a picture in a row is under half of it, so one small size serves both at one and at two device pixels.
+ */
+export const SMALL_WIDTH = 720;
 /** The narrowest picture that gets a small size. Below this the small file would save little. */
-export const SMALL_FROM = 800;
+export const SMALL_FROM = 880;
 export const smallNames = (src: string) => {
 	const name = (src.split('/').pop() ?? '').replace(/\.[a-z0-9]+$/i, '');
 	return { webp: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.webp`, avif: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.avif` };

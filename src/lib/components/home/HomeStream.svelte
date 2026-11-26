@@ -145,7 +145,8 @@
 	.stream {
 		padding: 0 var(--gutter) 6rem;
 		color: var(--ink);
-		--rail: 9.5rem;
+		/* Wide enough for the longest month and its year, with room before a play control that hangs in the rail. */
+		--rail: 10.25rem;
 		--measure: 38rem;
 	}
 	/* A wide screen: the words keep a column of their own, and what there is to see starts on a second line beside it. */

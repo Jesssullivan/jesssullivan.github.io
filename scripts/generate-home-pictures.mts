@@ -7,7 +7,7 @@
  *
  * The site keeps each picture of a post at one size, 1200 pixels wide at most. The home stream
  * draws many of them far smaller: in a row under a lead, and on a phone. For every picture the
- * stream shows that is wide enough to gain from it, this writes the same picture 640 pixels wide
+ * stream shows that is wide enough to gain from it, this writes the same picture 720 pixels wide
  * under static/images/home, as WebP and, where the site serves AVIF for it, as AVIF.
  *
  * The files are committed, like the other sizes the site serves, so a build makes none. A file is

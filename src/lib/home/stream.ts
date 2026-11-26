@@ -18,7 +18,7 @@ export interface StreamImage {
 	alt: string;
 	webp?: string;
 	avif?: string;
-	/** The same picture at a smaller size, for a row of pictures and a narrow screen. See scripts/generate-home-pictures.mts. */
+	/** The same picture at a smaller size, for a row of pictures, a picture beside its words and a narrow screen. See scripts/generate-home-pictures.mts. */
 	small?: { width: number; webp?: string; avif?: string };
 }
 /** What a recording or a video keeps of its own when it is folded into another item. */

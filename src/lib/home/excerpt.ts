@@ -30,8 +30,8 @@ const BOUNDARY = new RegExp(`((?:(?<![.…])\\.(?![.…])|[!?]+)${AFTER})\\s+(?=
 /** A word with a full stop that does not end a sentence. A single letter is an initial. */
 const SHORT_FORMS = new Set(['e.g', 'i.e', 'vs', 'w', 'pt', 'dr', 'mr', 'mrs', 'ms', 'st', 'no', 'fig', 'approx', 'ca', 'cf', 'inc', 'jr', 'sr']);
 const ADDRESS = /https?:\/\/|\bwww\.\S/i;
-/** What a player leaves in the text where it stood: a name, a middle dot, a title. */
-const PLAYER = /\s·\s/;
+/** What a player leaves in the text where it stood: a name, a middle dot, a title. And what a table leaves: its cells, with bars between. */
+const PLAYER = /\s[·|]\s/;
 /** A sentence that only points: at a link that is gone, or at the day the post was changed. */
 const POINTS = /\bhere\b[\s\p{P}\p{S}]*$|^(?:post\s+)?(?:updated?|edit(?:ed)?|pinned)\b/iu;
 /** The same at the head of a sentence that goes on after a colon: "Check out this project here: ...". */
@@ -73,6 +73,8 @@ export interface Prose {
 	text: string;
 	/** True when something that is not prose stands between this paragraph and the one before it. */
 	apart: boolean;
+	/** True when a quotation opened above this paragraph and has not closed. */
+	quoted?: boolean;
 }
 
 const NOT_PROSE = /^(?:#{1,6}(?:\s|$)|[-*+]\s|\d+[.)]\s|>|\||\{|import\s|export\s|<(?:div|iframe|img|figure|table|script|style|video|audio|blockquote|pre|ul|ol|details|svg|object|embed|p|h[1-6]|hr|br|center|form|section|article)\b)/i;
@@ -86,8 +88,14 @@ const LOST_THING = /image|photo|audio|recording|pdf|file|download|wordpress|migr
 const LOST_HOW = /no longer|lost|surviv|vanish|disappear|gone quiet|once|was here|moves on|journey|remains|impermanent|forever/i;
 const withoutNotes = (text: string) => text.replace(/(?<!\*)(\*{3}|\*)(?!\*)([^*\n]+)\1(?!\*)/g, (whole, _mark: string, inner: string) => (LOST_THING.test(inner) && LOST_HOW.test(inner) ? ' ' : whole));
 
-/** A paragraph set whole in italics or bold is an aside, a label or someone else's words, not her prose. */
-const ALL_EMPHASIS = /^(\*{1,3}|_{1,3})(?=\S)[\s\S]*\S\1[.!?:]*$/;
+/**
+ * A paragraph set whole in italics or bold that does not end as a sentence ends is a label or a lead-in: "In other tangents...".
+ * One that ends with a full stop is her sentence, set in italics.
+ */
+const ALL_EMPHASIS = /^(\*{1,3}|_{1,3})(?=\S)[\s\S]*\S\1[:…]*$/;
+const ENDS_IN_EMPHASIS = /(?:(?<![.…])\.|[!?])["'”’)\]]*(?:\*{1,3}|_{1,3})$/;
+
+const leftOpenQuotes = (text: string) => (text.split('"').length - 1) % 2 === 1 || text.split('“').length !== text.split('”').length;
 
 /** The paragraphs of a post that are prose: no heading, list, table, picture, code, frame or link standing alone. */
 export function proseOf(body: string): Prose[] {
@@ -98,6 +106,8 @@ export function proseOf(body: string): Prose[] {
 		.replace(/<!--[\s\S]*?-->/g, ' ');
 	const prose: Prose[] = [];
 	let apart = false;
+	// A quotation may open in one paragraph and close in a later one. What stands between is not her text.
+	let quoted = false;
 	for (const raw of text.split(/\n[ \t]*\n+/)) {
 		const block = raw.trim();
 		if (!block) continue;
@@ -106,11 +116,14 @@ export function proseOf(body: string): Prose[] {
 		const underlined = lines.length > 1 && /^(?:=+|-+)\s*$/.test(lines[lines.length - 1]);
 		const code = /^(?: {4}|\t)/.test(raw.replace(/^\n+/, ''));
 		const words = plainText(block.replace(/\n/g, ' '));
-		if (block === '\uE002' || code || table || underlined || NOT_PROSE.test(block) || COMPONENT.test(block) || LONE_LINK.test(block) || ALL_EMPHASIS.test(block) || !/\p{L}/u.test(words)) {
+		const label = ALL_EMPHASIS.test(block) && !ENDS_IN_EMPHASIS.test(block);
+		const within = quoted;
+		if (block !== '\uE002' && !code && !table && leftOpenQuotes(words)) quoted = !quoted;
+		if (block === '\uE002' || code || table || underlined || NOT_PROSE.test(block) || COMPONENT.test(block) || LONE_LINK.test(block) || label || !/\p{L}/u.test(words)) {
 			apart = true;
 			continue;
 		}
-		prose.push({ text: words, apart });
+		prose.push({ text: words, apart, ...(within ? { quoted: true } : {}) });
 		apart = false;
 	}
 	return prose;
@@ -167,7 +180,7 @@ function unitsOf(prose: Prose[], cutAtEnd?: boolean): Unit[] {
 	const units: Unit[] = [];
 	for (const [n, paragraph] of prose.entries()) {
 		const parts = sentencesOf(paragraph.text);
-		let inside = false;
+		let inside = paragraph.quoted === true;
 		for (const [i, part] of parts.entries()) {
 			const open = leftOpen(part) > 0;
 			// A quotation that runs over several sentences: none of them is shown, from where it opens to where it closes.
