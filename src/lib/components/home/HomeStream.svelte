@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import StreamEntry from './StreamEntry.svelte';
-	import { filterItems, filterOf, markerFor, offeredFilters, type FilterId, type StreamFile } from '$lib/home/stream';
+	import { filterItems, filterOf, kindsOf, markerFor, offeredFilters, shows, type FilterId, type StreamFile } from '$lib/home/stream';
 
 	let {
 		stream,
@@ -127,10 +127,9 @@
 	<ol class="flow" bind:this={flowEl}>
 		{#each shown as item, i (item.id)}
 			{@const marker = markerFor(list, i)}
-			{@const follows = item.kind === 'photos' && i > 0 && shown[i - 1].kind === 'article' && shown[i - 1].url === item.url}
-			<li class={`item ${item.kind}`} class:month={marker !== null} class:follows use:arrive data-testid="stream-item" data-kind={item.kind}>
+			<li class={`item ${item.kind}`} class:month={marker !== null} class:pic={shows(item)} use:arrive data-testid="stream-item" data-kind={item.kind} data-kinds={kindsOf(item).join(' ')}>
 				{#if marker}<p class="marker">{marker}</p>{/if}
-				<div class="entry"><StreamEntry {item} {follows} /></div>
+				<div class="entry"><StreamEntry {item} /></div>
 			</li>
 		{/each}
 	</ol>
@@ -155,6 +154,14 @@
 		color: var(--ink);
 		--rail: 9.5rem;
 		--measure: 38rem;
+	}
+	/* A wide screen: the words keep a column of their own, and what there is to see starts on a second line beside it. */
+	@media (min-width: 1100px) {
+		.stream {
+			--say: clamp(27rem, 37vw, 42rem);
+			--between: clamp(3rem, 4.4vw, 5.5rem);
+			--title: clamp(1.7rem, 2.05vw, 2.5rem);
+		}
 	}
 
 	/* Plain words. The current one is marked by weight and one underline in the accent. */
@@ -208,7 +215,7 @@
 	/* Whitespace sets the rhythm. A new month takes more of it. */
 	.item {
 		display: grid;
-		grid-template-columns: var(--rail) minmax(0, var(--measure)) minmax(0, 1fr);
+		grid-template-columns: var(--rail) minmax(0, 1fr);
 		margin-top: clamp(3.25rem, 6.5vw, 5.5rem);
 	}
 	.item:first-child {
@@ -217,40 +224,43 @@
 	.item.month:not(:first-child) {
 		margin-top: clamp(5rem, 10vw, 8.5rem);
 	}
-	/* Photographs that follow their own writing sit close under it. */
-	.item.follows {
-		margin-top: 1.5rem;
-	}
 	.entry {
 		grid-column: 2;
 		min-width: 0;
-	}
-	/* A photograph or a video runs wide: from the date rail across the column and beyond it. */
-	.item.photos .entry {
-		grid-column: 1 / -1;
-		max-width: 72rem;
-	}
-	.item.video .entry {
-		grid-column: 2 / -1;
-		max-width: 52rem;
+		max-width: 44rem;
 	}
 	/* The month, once, small and quiet, in the rail beside the first item of that month. */
 	.marker {
 		grid-column: 1;
 		grid-row: 1;
 		align-self: start;
-		padding-top: 0.55rem;
+		padding-top: calc(var(--title, 1.9rem) * 0.6 - 0.55rem);
 		font: 600 0.72rem/1.2 'Inter', sans-serif;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 		color: var(--quiet);
 	}
-	.item.photos .marker,
-	.item.photos .entry {
-		grid-row: auto;
-	}
-	.item.photos .marker {
-		padding: 0 0 0.9rem;
+	/*
+	 * A wide screen. Words alone sit close, as a run. Something to see takes room above and below it,
+	 * and a new month takes the most. Whitespace is the only rule there is.
+	 */
+	@media (min-width: 1100px) {
+		.entry {
+			max-width: none;
+		}
+		.item {
+			margin-top: 3.75rem;
+		}
+		.item.pic:not(:first-child),
+		.item.pic + .item {
+			margin-top: 6.5rem;
+		}
+		.item.month:not(:first-child) {
+			margin-top: 7.5rem;
+		}
+		.flow {
+			margin-top: 2.75rem;
+		}
 	}
 
 	/* The arrival: once, short, out of a soft blur. Without scripts nothing waits. */

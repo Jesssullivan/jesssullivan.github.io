@@ -422,8 +422,14 @@ test.describe('flag on: the one mixed stream', () => {
 			return more.count();
 		}, { timeout: 25_000, intervals: [150] }).toBe(0);
 		const kinds = await items(page).evaluateAll(nodes => nodes.map(node => node.getAttribute('data-kind')));
-		expect(new Set(kinds)).toEqual(new Set(['article', 'photos', 'recording', 'video']));
-		expect(kinds.length).toBeGreaterThan(150);
+		expect(new Set(kinds)).toEqual(new Set(['article', 'recording', 'video']));
+		expect(kinds.length).toBeGreaterThan(140);
+		// A post holds its own photographs, its recording and its video, so every kind is here though no item is only photographs.
+		const held = await items(page).evaluateAll(nodes => nodes.flatMap(node => (node.getAttribute('data-kinds') ?? '').split(' ')));
+		expect(new Set(held)).toEqual(new Set(['article', 'photos', 'recording', 'video']));
+		// One subject shows once: no title is in the stream twice.
+		const titles = await items(page).evaluateAll(nodes => nodes.map(node => node.querySelector('h2')?.textContent?.trim() ?? ''));
+		expect(titles.filter((title, index) => titles.indexOf(title) !== index)).toEqual([]);
 		// Nothing in the stream draws a border or a filled panel behind an item.
 		const boxed = await items(page).evaluateAll(nodes => nodes.filter(node => {
 			const style = getComputedStyle(node);
@@ -447,8 +453,9 @@ test.describe('flag on: the one mixed stream', () => {
 		// Chosen from the first screen, the filter brings the stream up, so the choice shows.
 		await expect.poll(() => filters.evaluate(node => Math.round(node.getBoundingClientRect().top))).toBeLessThan(120);
 		await expect(filters.getByRole('link', { name: 'Photos', exact: true })).toHaveAttribute('aria-current', 'true');
-		await expect(items(page).first()).toHaveAttribute('data-kind', 'photos');
-		expect(new Set(await items(page).evaluateAll(nodes => nodes.map(node => node.getAttribute('data-kind'))))).toEqual(new Set(['photos']));
+		await expect(items(page).first()).toHaveAttribute('data-kinds', /\bphotos\b/);
+		// Every item under the filter holds photographs, and shows them with its title.
+		expect(await items(page).evaluateAll(nodes => nodes.every(node => (node.getAttribute('data-kinds') ?? '').split(' ').includes('photos') && node.querySelector('.show img') && node.querySelector('h2')))).toBe(true);
 		const lead = items(page).first().locator('a.lead');
 		await expect(lead).toHaveAttribute('href', /^\/blog\//);
 		const image = lead.locator('img');
@@ -466,13 +473,13 @@ test.describe('flag on: the one mixed stream', () => {
 
 	test('a set of photographs is counted only when the post holds more than the set shows', async ({ page }) => {
 		await page.goto('/?flags=home&show=photos');
-		await expect(items(page).first()).toHaveAttribute('data-kind', 'photos');
+		await expect(items(page).first()).toHaveAttribute('data-kinds', /\bphotos\b/);
 		await expect.poll(async () => {
 			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
 			return page.getByTestId('stream-more').count();
 		}, { timeout: 25_000, intervals: [150] }).toBe(0);
 		const sets = await items(page).evaluateAll(nodes => nodes.map(node => ({
-			shown: node.querySelectorAll('figure.photos img').length,
+			shown: node.querySelectorAll('.show img').length,
 			total: Number(node.querySelector('[data-testid=set-total]')?.textContent?.match(/^(\d+) photographs$/)?.[1] ?? 0),
 		})));
 		expect(sets.length).toBeGreaterThan(8);
@@ -487,7 +494,7 @@ test.describe('flag on: the one mixed stream', () => {
 		const paths = recordPaths(page);
 		await page.goto('/?flags=home&show=recordings');
 		const first = items(page).first();
-		await expect(first).toHaveAttribute('data-kind', 'recording');
+		await expect(first).toHaveAttribute('data-kinds', /\brecording\b/);
 		await expect(page.locator('iframe')).toHaveCount(0);
 		await page.waitForLoadState('networkidle');
 		expect(outside).toEqual([]);
@@ -502,7 +509,7 @@ test.describe('flag on: the one mixed stream', () => {
 	test('a video shows its poster and loads the YouTube no-cookie frame only on a press, in the same box', async ({ page }) => {
 		await page.goto('/?flags=home&show=video');
 		const first = items(page).first();
-		await expect(first).toHaveAttribute('data-kind', 'video');
+		await expect(first).toHaveAttribute('data-kinds', /\bvideo\b/);
 		await expect(page.locator('iframe')).toHaveCount(0);
 		const poster = first.locator('.frame img');
 		await expect(poster).toHaveAttribute('src', /\/_app\/immutable\/assets\/[A-Za-z0-9_-]{11}\.[\w-]+\.jpg$/);
@@ -521,6 +528,69 @@ test.describe('flag on: the one mixed stream', () => {
 		expect(await place()).toEqual(before);
 		await expect.poll(() => outside.filter(url => url.startsWith('https://www.youtube-nocookie.com/')).length).toBe(1);
 		expect(outside.every(url => url.startsWith('https://www.youtube-nocookie.com/'))).toBe(true);
+	});
+
+	test('a post, its video and its recording show as one item, under each kind it holds', async ({ page }) => {
+		const title = 'Morning Metal 4.22.21 \u201cSleepish\u201d';
+		for (const show of ['video', 'recordings', 'writing']) {
+			await page.goto(`/?flags=home&show=${show}`);
+			await expect(items(page).first()).toBeVisible();
+			if (show === 'writing') {
+				await expect.poll(async () => {
+					await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+					return page.getByTestId('stream-more').count();
+				}, { timeout: 25_000, intervals: [150] }).toBe(0);
+			}
+			const item = items(page).filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+			await expect(item, show).toHaveCount(1);
+			await expect(item).toHaveAttribute('data-kinds', 'article recording video');
+			// One title and one summary, with a play control for the video and one for the recording, each under its own name.
+			await expect(item.getByRole('heading')).toHaveCount(1);
+			await expect(item.getByRole('button', { name: 'Play Morning Metal 04.23.21' })).toHaveCount(1);
+			await expect(item.getByRole('button', { name: 'Play Morning Metal 4.22.21 "Sleepish"' })).toHaveCount(1);
+			await expect(item.locator('iframe')).toHaveCount(0);
+		}
+		// Each player loads on its own press, and the other stays as it was.
+		const item = items(page).filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+		await item.getByTestId('recording-play').click();
+		await expect(item.locator('iframe')).toHaveCount(1);
+		await expect(item.locator('iframe')).toHaveAttribute('src', /^https:\/\/w\.soundcloud\.com\/player\//);
+		await item.getByTestId('video-play').click();
+		await expect(item.locator('iframe')).toHaveCount(2);
+		await expect(item.locator('.frame iframe')).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/JVusudpKTF8\?autoplay=1$/);
+		// Two videos of one title and one day are one item with two posters.
+		await page.goto('/?flags=home&show=video');
+		await expect(items(page)).toHaveCount(3);
+		const pair = items(page).filter({ has: page.getByRole('heading', { name: 'Shortest Morning Metal 7 8 20', exact: true }) });
+		await expect(pair).toHaveCount(1);
+		await expect(pair.getByTestId('video-play')).toHaveCount(2);
+	});
+
+	test('on a wide screen the words and what there is to see start on two lines, and a picture is in the first screen of the stream', async ({ page }) => {
+		for (const [width, height] of [[1440, 900], [1920, 1080]]) {
+			await page.setViewportSize({ width, height });
+			await page.goto('/?flags=home');
+			await expect(items(page).first()).toBeVisible();
+			await page.getByTestId('home-stream').evaluate(node => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
+			const seen = await items(page).evaluateAll(nodes => nodes.map(node => {
+				const box = (selector: string) => node.querySelector(selector)?.getBoundingClientRect();
+				const [title, summary, show] = [box('h2'), box('.summary'), box('.show')];
+				return { title: title && Math.round(title.left), summary: summary && Math.round(summary.left), show: show && { left: Math.round(show.left), right: Math.round(show.right), top: Math.round(show.top) }, measure: summary ? Math.round(summary.width) : 0 };
+			}));
+			// Every title starts on one line.
+			expect(new Set(seen.map(item => item.title)).size, `${width}`).toBe(1);
+			// What there is to see starts on a second line, and so does the summary of a piece with nothing to show.
+			const second = new Set([...seen.filter(item => item.show).map(item => item.show!.left), ...seen.filter(item => !item.show && item.summary).map(item => item.summary!)]);
+			expect(second.size, `${width}`).toBe(1);
+			expect([...second][0]).toBeGreaterThan(width * 0.45);
+			// A wide picture runs out to the edge of the screen. Nothing runs past it.
+			expect(Math.max(...seen.filter(item => item.show).map(item => item.show!.right))).toBeGreaterThan(width - 20);
+			await noSidewaysScroll(page);
+			// The first picture is in the first screen of the stream.
+			expect(Math.min(...seen.filter(item => item.show).map(item => item.show!.top))).toBeLessThan(height - 120);
+			// Text keeps a readable measure.
+			for (const item of seen.filter(item => item.measure)) expect(item.measure).toBeLessThanOrEqual(640);
+		}
 	});
 
 	test('a title shows its day and reading time on focus', async ({ page }) => {
