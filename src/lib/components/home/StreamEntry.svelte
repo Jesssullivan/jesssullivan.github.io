@@ -356,14 +356,17 @@
 		padding: 3.4rem 7rem 0.2rem 0.7rem;
 		text-align: left;
 		white-space: nowrap;
+		/* How far the ground holds before it falls off. On a small poster it holds further, so the day's last letter is on it. */
+		--hold: 64%;
+		--fall: calc(100% - var(--hold));
 		background: radial-gradient(
 			ellipse farthest-side at 0 100%,
 			color-mix(in oklch, var(--ground) 95%, transparent) 0,
-			color-mix(in oklch, var(--ground) 93%, transparent) 50%,
-			color-mix(in oklch, var(--ground) 80%, transparent) 59%,
-			color-mix(in oklch, var(--ground) 56%, transparent) 70%,
-			color-mix(in oklch, var(--ground) 30%, transparent) 81%,
-			color-mix(in oklch, var(--ground) 10%, transparent) 92%,
+			color-mix(in oklch, var(--ground) 93%, transparent) var(--hold),
+			color-mix(in oklch, var(--ground) 80%, transparent) calc(var(--hold) + var(--fall) * 0.18),
+			color-mix(in oklch, var(--ground) 56%, transparent) calc(var(--hold) + var(--fall) * 0.4),
+			color-mix(in oklch, var(--ground) 30%, transparent) calc(var(--hold) + var(--fall) * 0.62),
+			color-mix(in oklch, var(--ground) 10%, transparent) calc(var(--hold) + var(--fall) * 0.84),
 			transparent 100%
 		);
 	}
@@ -382,6 +385,8 @@
 	/* A tooltip: the day and the reading time of a title, or the name of a control. */
 	[data-tip]::after {
 		content: attr(data-tip);
+		/* The tooltip is for the eye. With empty alternative text it stays out of the name a screen reader gives the link. */
+		content: attr(data-tip) / '';
 		position: absolute;
 		left: 0;
 		bottom: calc(100% + 0.3rem);
@@ -469,6 +474,7 @@
 			margin-top: 0;
 		}
 		.on {
+			--hold: 50%;
 			padding: 5.5rem 13rem 0.55rem 1.1rem;
 		}
 		.on:not(:has(.when)) {

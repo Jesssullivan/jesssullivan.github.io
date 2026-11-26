@@ -225,19 +225,33 @@ test.describe('flag on: the heading stage', () => {
 	test('every icon control has a tooltip and a focus ring', async ({ page }) => {
 		await page.goto('/?flags=home&show=recordings');
 		await expect(stage(page)).toBeVisible();
-		const controls = [...(await page.getByRole('group', { name: 'Heading scenes' }).getByRole('button').all()), page.getByTestId('recording-play').first()];
-		expect(controls.length).toBe(3);
-		for (const control of controls) {
-			await expect(control).toHaveAttribute('data-tip', /^(?:Pause|Play|Next)$/);
-			expect(await control.getAttribute('aria-label')).toContain((await control.getAttribute('data-tip'))!);
-			// Reached by keyboard, it draws a ring and shows its tooltip.
+		const plays = page.getByTestId('recording-play');
+		const controls = [...(await page.getByRole('group', { name: 'Heading scenes' }).getByRole('button').all()), plays.first(), plays.last()];
+		expect(controls.length).toBe(4);
+		// A stage control and a recording of its own say what they do. A recording a post holds says what plays.
+		for (const control of controls.slice(0, 2)) await expect(control).toHaveAttribute('data-tip', /^(?:Pause|Play|Next)$/);
+		await expect(controls[2]).toHaveAttribute('data-tip', 'Morning Metal 4.22.21 "Sleepish"');
+		await expect(controls[3]).toHaveAttribute('data-tip', 'Play');
+		// Reached by keyboard, a control draws a ring and shows its tooltip.
+		const reach = async (control: (typeof controls)[number]) => {
 			await control.focus();
 			await page.keyboard.press('Shift+Tab');
 			await page.keyboard.press('Tab');
 			await expect(control).toBeFocused();
 			expect(await control.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('solid');
+		};
+		for (const control of controls) {
+			expect(await control.getAttribute('aria-label')).toContain((await control.getAttribute('data-tip'))!);
+			await reach(control);
 			await expect.poll(() => control.evaluate(node => getComputedStyle(node, '::after').opacity)).toBe('1');
 		}
+		// A video's poster is its play control: the ring is on the poster, and the tooltip on the sign that lies on it.
+		const poster = page.getByTestId('video-play').first();
+		const sign = poster.locator('[data-tip]');
+		await expect(sign).toHaveAttribute('data-tip', 'Morning Metal 04.23.21');
+		expect(await poster.getAttribute('aria-label')).toBe('Play Morning Metal 04.23.21');
+		await reach(poster);
+		await expect.poll(() => sign.evaluate(node => getComputedStyle(node, '::after').opacity)).toBe('1');
 	});
 
 	test('a press on the stage stops the play for the visit, and Play starts it again', async ({ page }) => {
@@ -531,6 +545,7 @@ test.describe('flag on: the one mixed stream', () => {
 	});
 
 	test('a post, its video and its recording show as one item, under each kind it holds', async ({ page }) => {
+		// A title is found by its text. Its tooltip is drawn by the style sheet, and a role's name would count it.
 		const title = 'Morning Metal 4.22.21 \u201cSleepish\u201d';
 		for (const show of ['video', 'recordings', 'writing']) {
 			await page.goto(`/?flags=home&show=${show}`);
@@ -541,7 +556,7 @@ test.describe('flag on: the one mixed stream', () => {
 					return page.getByTestId('stream-more').count();
 				}, { timeout: 25_000, intervals: [150] }).toBe(0);
 			}
-			const item = items(page).filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+			const item = items(page).filter({ has: page.locator('h2', { hasText: title }) });
 			await expect(item, show).toHaveCount(1);
 			await expect(item).toHaveAttribute('data-kinds', 'article recording video');
 			// One title and one summary, with a play control for the video and one for the recording, each under its own name.
@@ -551,7 +566,7 @@ test.describe('flag on: the one mixed stream', () => {
 			await expect(item.locator('iframe')).toHaveCount(0);
 		}
 		// Each player loads on its own press, and the other stays as it was.
-		const item = items(page).filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+		const item = items(page).filter({ has: page.locator('h2', { hasText: title }) });
 		await item.getByTestId('recording-play').click();
 		await expect(item.locator('iframe')).toHaveCount(1);
 		await expect(item.locator('iframe')).toHaveAttribute('src', /^https:\/\/w\.soundcloud\.com\/player\//);
@@ -561,7 +576,7 @@ test.describe('flag on: the one mixed stream', () => {
 		// Two videos of one title and one day are one item with two posters.
 		await page.goto('/?flags=home&show=video');
 		await expect(items(page)).toHaveCount(3);
-		const pair = items(page).filter({ has: page.getByRole('heading', { name: 'Shortest Morning Metal 7 8 20', exact: true }) });
+		const pair = items(page).filter({ has: page.locator('h2', { hasText: 'Shortest Morning Metal 7 8 20' }) });
 		await expect(pair).toHaveCount(1);
 		await expect(pair.getByTestId('video-play')).toHaveCount(2);
 	});
