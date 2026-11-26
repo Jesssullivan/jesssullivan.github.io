@@ -80,6 +80,8 @@ export interface StreamFile {
 		picturesMoving: number;
 		/** Pictures in a post's text that another site holds. This page asks no other site for anything. */
 		picturesElsewhere: number;
+		/** Picture files that more than one post's text shows. Such a file is no one post's own, so none shows it. */
+		picturesShared: number;
 		/** Items from any source with no usable date. */
 		undated: number;
 	};
@@ -349,8 +351,17 @@ export function compareStream(a: Placed, b: Placed): number {
 
 export function buildStream(sources: StreamSources): StreamFile {
 	const placed: Placed[] = [];
-	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, picturesMoving: 0, picturesElsewhere: 0, undated: 0 };
+	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, undated: 0 };
 	const posts = new Map(sources.posts.map((post) => [post.slug, post]));
+
+	// A picture file that the text of more than one post shows is no one post's own. The old export gave several
+	// uploads one name, so one file now stands in posts years apart. It is shown with none of them, as a shared cover is.
+	const shownBy = new Map<string, number>();
+	for (const post of sources.posts) {
+		for (const name of new Set(picturesIn(post.body).filter((shown) => shown.src.startsWith('/')).map((shown) => stem(shown.src)))) shownBy.set(name, (shownBy.get(name) ?? 0) + 1);
+	}
+	const shared = new Set([...shownBy].filter(([, count]) => count > 1).map(([name]) => name));
+	leftOut.picturesShared = shared.size;
 
 	// Photographs: one set per post, in the order the post shows them. A photograph no public post uses has no date.
 	// Each set is made as its own item here and folded into its post at the end, by the one join rule.
@@ -361,6 +372,7 @@ export function buildStream(sources: StreamSources): StreamFile {
 			leftOut.photographsWithoutPost += 1;
 			continue;
 		}
+		if (shared.has(stem(photo.src))) continue;
 		sets.set(post.slug, [...(sets.get(post.slug) ?? []), photo]);
 	}
 
@@ -370,13 +382,13 @@ export function buildStream(sources: StreamSources): StreamFile {
 			continue;
 		}
 		// A post's pictures are the ones its own text shows, in its order. The cover is one of them only when the text uses it.
-		const cover = post.featureImage && ownsImage(post.body, post.featureImage) ? post.featureImage : undefined;
+		const cover = post.featureImage && ownsImage(post.body, post.featureImage) && !shared.has(stem(post.featureImage)) ? post.featureImage : undefined;
 		if (post.featureImage && !cover) leftOut.coversNotOwn += 1;
 		const media: StreamImage[] = [];
 		const seen = new Set<string>();
 		for (const shown of picturesIn(post.body)) {
 			const name = stem(shown.src);
-			if (seen.has(name)) continue;
+			if (seen.has(name) || shared.has(name)) continue;
 			seen.add(name);
 			if (!shown.src.startsWith('/')) {
 				if (/^https?:/i.test(shown.src)) leftOut.picturesElsewhere += 1;

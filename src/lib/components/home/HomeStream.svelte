@@ -204,14 +204,14 @@
 			max-width: none;
 		}
 		.item {
-			margin-top: 3.1rem;
+			margin-top: 3rem;
 		}
 		.item.month:not(:first-child) {
-			margin-top: 5rem;
+			margin-top: 4.5rem;
 		}
 		.item.pic:not(:first-child),
 		.item.pic + .item {
-			margin-top: 6.5rem;
+			margin-top: 6rem;
 		}
 		/* Beside a plate the month stands level with the head of the photograph. */
 		.item.plate .marker {

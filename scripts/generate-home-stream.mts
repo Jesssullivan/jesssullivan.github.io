@@ -30,7 +30,7 @@ const sets = groups.filter((item) => item.holds!.every((part) => part.kind === '
 console.log(`Folded: ${groups.reduce((sum, item) => sum + item.holds!.length, 0)} items into ${groups.length}. ${sets.length} posts hold their own photographs.`);
 for (const item of groups.filter((group) => !sets.includes(group))) console.log(`  ${item.id} holds ${item.holds!.map((part) => part.id).join(', ')}`);
 console.log(`Left out: ${left.photographsWithoutPost} photographs no public post uses, ${left.videosWithoutDate} videos with no date, ${left.undated} undated. ${left.coversNotOwn} posts show no cover, because their text never uses it.`);
-console.log(`Left out of posts: ${left.picturesMoving} moving pictures, ${left.picturesElsewhere} pictures another site holds.`);
+console.log(`Left out of posts: ${left.picturesMoving} moving pictures, ${left.picturesElsewhere} pictures another site holds, ${left.picturesShared} picture files that more than one post shows.`);
 // How much of the stream there is to look at, and how much of it is words alone.
 const withPicture = stream.items.filter((item) => item.media.some((media) => media.type === 'image')).length;
 const withVideo = stream.items.filter((item) => !item.media.some((media) => media.type === 'image') && item.media.some((media) => media.type === 'youtube')).length;

@@ -181,6 +181,19 @@ describe('every picture a post shows', () => {
 		expect(leftOut).toMatchObject({ picturesMoving: 1, picturesElsewhere: 1 });
 	});
 
+	it('shows a picture file with no post when the text of more than one post shows it', () => {
+		const base = sources();
+		// The old export gave three uploads one name. The one file left is not the picture of all three posts.
+		const posts = [
+			post('printers', '2020-08-23', { body: '![](/images/posts/unnamed.jpg) ![](/images/posts/unnamed-1.jpg)' }),
+			post('snow', '2017-04-02', { body: '![](/images/posts/unnamed.jpg)', featureImage: '/images/posts/unnamed.jpg' }),
+		];
+		const { items, leftOut } = buildStream({ ...base, posts, gallery: [photo('unnamed', 'snow')] });
+		expect(items.find((item) => item.id === 'post:printers')!.media.map((media) => media.src)).toEqual(['/images/posts/unnamed-1.jpg']);
+		expect(items.find((item) => item.id === 'post:snow')!.media).toEqual([]);
+		expect(leftOut.picturesShared).toBe(1);
+	});
+
 	it('shows five pictures at most, and a set of photographs of the same files adds none', () => {
 		const base = sources();
 		const names = ['IMG_1', 'IMG_2', 'IMG_3', 'IMG_4', 'IMG_5', 'IMG_6', 'IMG_7'];
@@ -200,7 +213,7 @@ describe('every picture a post shows', () => {
 describe('items left out and counted', () => {
 	it('leaves out photographs no public post uses, and videos with no date', () => {
 		const { items, leftOut, counts } = buildStream(sources());
-		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, picturesMoving: 0, picturesElsewhere: 0, undated: 0 });
+		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, undated: 0 });
 		expect(items.some((item) => item.id.includes('undated001'))).toBe(false);
 		expect(counts).toEqual({ note: 1, article: 6, announcement: 0, photos: 1, recording: 1, video: 1 });
 		// One post holds its photographs, so it is counted under both kinds: nine items, ten in the counts.

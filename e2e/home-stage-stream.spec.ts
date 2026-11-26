@@ -56,7 +56,7 @@ test.describe('flag off: the home page is unchanged', () => {
 		await expect(page.getByTestId('home-stream')).toHaveCount(0);
 		await page.waitForLoadState('networkidle');
 		const off = [...paths];
-		expect(off.filter(path => /home-stream|heron-|constellation|\/images\/video\/|\/assets\/Home\./i.test(path))).toEqual([]);
+		expect(off.filter(path => /home-stream|heron-|constellation|\/images\/video\/|\/images\/home\/|\/assets\/Home\./i.test(path))).toEqual([]);
 		expect(await page.evaluate(() => localStorage.getItem('tss:flags:home'))).toBeNull();
 		// No file of its own for the flag, and none of the sky's or the stage's code: the page asks for the scripts it asks for on main.
 		const scripts = [...new Set(off.filter(path => path.endsWith('.js')))];
@@ -596,30 +596,105 @@ test.describe('flag on: the one mixed stream', () => {
 		await expect(pair.getByTestId('video-play')).toHaveCount(2);
 	});
 
-	test('on a wide screen the words and what there is to see start on two lines, and a picture is in the first screen of the stream', async ({ page }) => {
+	test('on a wide screen every title starts on one line and a picture on one of two, and a picture is in the first screen of the stream', async ({ page }) => {
 		for (const [width, height] of [[1440, 900], [1920, 1080]]) {
 			await page.setViewportSize({ width, height });
 			await page.goto('/?flags=home');
 			await expect(items(page).first()).toBeVisible();
 			await page.getByTestId('home-stream').evaluate(node => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
+			// Two parts of the stream, so a plate is among them.
+			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+			await expect.poll(() => page.locator('.piece.plate').count()).toBeGreaterThan(0);
+			await page.getByTestId('home-stream').evaluate(node => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
 			const seen = await items(page).evaluateAll(nodes => nodes.map(node => {
 				const box = (selector: string) => node.querySelector(selector)?.getBoundingClientRect();
-				const [title, summary, show] = [box('h2'), box('.summary'), box('.show')];
-				return { title: title && Math.round(title.left), summary: summary && Math.round(summary.left), show: show && { left: Math.round(show.left), right: Math.round(show.right), top: Math.round(show.top) }, measure: summary ? Math.round(summary.width) : 0 };
+				const [title, summary, show, lead] = [box('h2 a'), box('.summary'), box('.show'), box('.lead')];
+				const round = (rect: DOMRect | undefined) => rect && { left: Math.round(rect.left), right: Math.round(rect.right), top: Math.round(rect.top), bottom: Math.round(rect.bottom) };
+				return { plate: node.querySelector('.piece.plate') !== null, title: round(title), summary: round(summary), show: round(show), lead: round(lead), measure: summary ? Math.round(summary.width) : 0 };
 			}));
-			// Every title starts on one line.
-			expect(new Set(seen.map(item => item.title)).size, `${width}`).toBe(1);
-			// What there is to see starts on a second line, and so does the summary of a piece with nothing to show.
-			const second = new Set([...seen.filter(item => item.show).map(item => item.show!.left), ...seen.filter(item => !item.show && item.summary).map(item => item.summary!)]);
+			const plates = seen.filter(item => item.plate);
+			const others = seen.filter(item => !item.plate);
+			// Every title set as words starts on one line, and so does every plate.
+			const first = new Set([...others.map(item => item.title!.left), ...plates.map(item => item.lead!.left)]);
+			expect(first.size, `${width}`).toBe(1);
+			// A plate carries its title: the title lies inside the photograph, at its foot.
+			for (const plate of plates) {
+				expect(plate.title!.left, `${width}`).toBeGreaterThan(plate.lead!.left);
+				expect(plate.title!.right).toBeLessThan(plate.lead!.right);
+				expect(plate.title!.top).toBeGreaterThan(plate.lead!.top);
+				expect(plate.title!.bottom).toBeLessThanOrEqual(plate.lead!.bottom);
+				expect(plate.lead!.bottom - plate.title!.bottom).toBeLessThan(40);
+			}
+			// Any other picture starts on a second line, beside its words, and so does the excerpt of a piece with nothing to show.
+			const second = new Set([...others.filter(item => item.show).map(item => item.show!.left), ...others.filter(item => !item.show && item.summary).map(item => item.summary!.left)]);
 			expect(second.size, `${width}`).toBe(1);
 			expect([...second][0]).toBeGreaterThan(width * 0.45);
 			// A wide picture runs out to the edge of the screen. Nothing runs past it.
-			expect(Math.max(...seen.filter(item => item.show).map(item => item.show!.right))).toBeGreaterThan(width - 20);
+			expect(Math.max(...others.filter(item => item.show).map(item => item.show!.right))).toBeGreaterThan(width - 20);
 			await noSidewaysScroll(page);
 			// The first picture is in the first screen of the stream.
-			expect(Math.min(...seen.filter(item => item.show).map(item => item.show!.top))).toBeLessThan(height - 120);
+			const pictureOf = (item: (typeof seen)[number]) => (item.plate ? item.lead : item.show);
+			expect(Math.min(...seen.filter(pictureOf).map(item => pictureOf(item)!.top))).toBeLessThan(height - 120);
 			// Text keeps a readable measure.
 			for (const item of seen.filter(item => item.measure)) expect(item.measure).toBeLessThanOrEqual(640);
+		}
+	});
+
+	test('no picture is drawn larger than its file, none shows twice, and a row of pictures asks for the small size', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 });
+		await page.goto('/?flags=home');
+		await expect(items(page).first()).toBeVisible();
+		await expect.poll(async () => {
+			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+			return page.getByTestId('stream-more').count();
+		}, { timeout: 25_000, intervals: [150] }).toBe(0);
+		const pictures = await page.locator('[data-testid=stream-item] :is(.lead, .rest) img').evaluateAll(nodes => nodes.map(node => {
+			const img = node as HTMLImageElement;
+			const small = [...(img.parentElement?.querySelectorAll('source') ?? [])].some(source => /\/images\/home\/[^ ]+-640\.(?:avif|webp) 640w/.test(source.srcset) && source.sizes !== '');
+			return { src: img.getAttribute('src')!, drawn: img.getBoundingClientRect().width, file: Number(img.getAttribute('width')), inRow: img.closest('.rest') !== null, small, lazy: img.loading, sized: img.hasAttribute('width') && img.hasAttribute('height') };
+		}));
+		expect(pictures.length).toBeGreaterThan(50);
+		// No picture stands in two places: a file that more than one post shows is shown with none of them.
+		expect(pictures.map(picture => picture.src).filter((src, index, all) => all.indexOf(src) !== index)).toEqual([]);
+		for (const picture of pictures) {
+			expect(picture.drawn, picture.src).toBeLessThanOrEqual(picture.file + 1);
+			expect(picture.lazy, picture.src).toBe('lazy');
+			expect(picture.sized, picture.src).toBe(true);
+			// A picture 800 pixels wide or more has a small size for a row and a narrow screen.
+			expect(picture.small, picture.src).toBe(picture.file >= 800 && picture.src.startsWith('/images/posts/'));
+		}
+		expect(pictures.some(picture => picture.inRow && picture.small)).toBe(true);
+	});
+
+	test('an excerpt starts with a word, never with a stray mark, and holds no address', async ({ page }) => {
+		await page.goto('/?flags=home&show=writing');
+		await expect(items(page).first()).toBeVisible();
+		await expect.poll(async () => {
+			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+			return page.getByTestId('stream-more').count();
+		}, { timeout: 25_000, intervals: [150] }).toBe(0);
+		const excerpts = await page.locator('[data-testid=stream-item] .summary').allTextContents();
+		expect(excerpts.length).toBeGreaterThan(100);
+		for (const excerpt of excerpts) {
+			expect(excerpt).toMatch(/^[\p{L}\p{N}"“'‘(]/u);
+			expect(excerpt).not.toMatch(/https?:\/\/|\s·\s|WordPress/);
+		}
+	});
+
+	test('a plate drifts as it crosses the screen, and stands still with reduced motion', async ({ browser, baseURL }) => {
+		for (const motion of ['no-preference', 'reduce'] as const) {
+			const context = await browser.newContext({ baseURL, viewport: { width: 1440, height: 900 }, reducedMotion: motion });
+			const page = await context.newPage();
+			await page.goto('/?flags=home&show=photos');
+			const picture = page.locator('.piece.plate .lead img').first();
+			await expect(picture).toBeAttached();
+			const drift = await picture.evaluate(node => getComputedStyle(node).animationName);
+			if (motion === 'reduce') expect(drift).toBe('none');
+			else if (await page.evaluate(() => CSS.supports('animation-timeline: view()'))) expect(drift).not.toBe('none');
+			// With or without the drift, the photograph is never drawn larger than its file.
+			const { drawn, file } = await picture.evaluate(node => ({ drawn: node.getBoundingClientRect().width, file: Number(node.getAttribute('width')) }));
+			expect(drawn).toBeLessThanOrEqual(file + 1);
+			await context.close();
 		}
 	});
 
@@ -676,6 +751,43 @@ test.describe('flag on: a phone', () => {
 			const box = await button.boundingBox();
 			expect(Math.min(box!.width, box!.height)).toBeGreaterThanOrEqual(44);
 		}
+	});
+});
+
+test.describe('flag on: a touch screen', () => {
+	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+	test('a tooltip never shows after a touch', async ({ page }) => {
+		await page.goto('/?flags=home');
+		await expect(stage(page)).toBeVisible();
+		const tip = (testId: string) => page.getByTestId(testId).evaluate(node => getComputedStyle(node, '::after').opacity);
+		for (const control of ['stage-next', 'stage-pause']) {
+			await page.getByTestId(control).tap();
+			// Long enough for a tooltip to have faded in, had one been coming.
+			await page.waitForTimeout(700);
+			expect(await tip(control), control).toBe('0');
+		}
+		// The headline of the scene is not covered: nothing of a tooltip is painted over the stage.
+		await expect(page.locator('.home')).toHaveClass(/\btouch\b/);
+	});
+});
+
+test.describe('flag on: a mouse', () => {
+	test('a tooltip shows while the mouse is over a control, and goes when the mouse leaves after a press', async ({ page }) => {
+		await page.goto('/?flags=home');
+		await expect(stage(page)).toBeVisible();
+		const next = page.getByTestId('stage-next');
+		const tip = () => next.evaluate(node => getComputedStyle(node, '::after').opacity);
+		await next.hover();
+		await expect.poll(tip).toBe('1');
+		await next.click();
+		await page.mouse.move(300, 300);
+		await expect.poll(tip).toBe('0');
+		// Reached by keyboard it shows again.
+		await page.keyboard.press('Shift+Tab');
+		await page.keyboard.press('Tab');
+		await expect(next).toBeFocused();
+		await expect.poll(tip).toBe('1');
 	});
 });
 

@@ -26,6 +26,8 @@
 	const held = $derived(lone ? sounds.slice(1) : sounds);
 	// What is to see sets its own width: never wider than its file, and a tall picture never taller than most of the screen.
 	const shape = $derived.by(() => {
+		// Small pictures in a row: the row is as wide as they are together at the height of the shortest.
+		if (form === 'small' && row) return `--natural:${Math.round(row.sum * row.cap)}px;--ar:${row.sum.toFixed(4)}`;
 		const first = lead ?? films[0]?.poster;
 		if (!first) return undefined;
 		// A row of posters is as wide as its posters together, and counts as one wide shape.
@@ -167,22 +169,11 @@
 		line-height: 1.5;
 		color: var(--quiet);
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
+		/* An excerpt is cut at a sentence end where the stream is built, so it is short. The clamp is only a floor under that. */
+		-webkit-line-clamp: 8;
+		line-clamp: 8;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-	}
-	/* An excerpt is cut at a sentence end where the stream is built, so it is short. The clamp is only a floor under that. */
-	@media (min-width: 1100px) {
-		.summary {
-			-webkit-line-clamp: 5;
-			line-clamp: 5;
-		}
-	}
-	.recording .summary,
-	.piece.pic .summary {
-		-webkit-line-clamp: 5;
-		line-clamp: 5;
 	}
 
 	/* A note: a few lines set plainly, its date small and quiet. */
@@ -262,17 +253,12 @@
 		height: 100%;
 		object-fit: cover;
 	}
-	/* Small pictures have no lead. They stand in a row at their own size, and the row may break. */
+	/* Small pictures have no lead. They are the row: one line of them, none larger than its file. */
 	.small .show {
-		width: auto;
-		max-width: var(--room);
+		width: min(var(--room), var(--natural));
 	}
 	.small .rest {
-		flex-wrap: wrap;
 		margin-top: 0;
-	}
-	.small .rest a {
-		height: min(var(--cap), 11rem);
 	}
 	.count {
 		margin-top: 0.7rem;
@@ -463,8 +449,9 @@
 
 	/*
 	 * A wide screen. Two lines run down the stream. The words start on the first. On the second starts
-	 * what there is to see, and it runs out to the edge of the screen. A piece with nothing to show
-	 * sets its summary on the second line, on the baseline of its title.
+	 * what there is to see beside its words, and it runs out to the edge of the screen. A piece with nothing
+	 * to show sets its excerpt on the second line, on the baseline of its title. One of her photographs, wide,
+	 * is a plate: it starts on the first line and carries its title.
 	 */
 	@media (min-width: 1100px) {
 		.piece {
@@ -550,7 +537,7 @@
 		 */
 		.plate h2 {
 			--fall-x: clamp(7rem, 13vw, 14rem);
-			--fall-y: clamp(4.5rem, 7vw, 7rem);
+			--fall-y: clamp(5.5rem, 9vw, 9.5rem);
 			position: relative;
 			z-index: 1;
 			align-self: end;
@@ -599,17 +586,17 @@
 	 */
 	@supports (animation-timeline: view()) {
 		@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
-			.plate .lead :global(img) {
-				scale: 1.07;
-				animation: passes linear both;
-				animation-timeline: view();
-				transition:
-					scale 1.2s var(--ease),
-					opacity 0.6s var(--ease-soft);
+			/* The photograph is drawn a little larger than its frame, so the frame is that much narrower than the file: no pixel is stretched. */
+			.piece.plate {
+				width: min(calc(100% + var(--gutter)), calc(var(--natural) / 1.045), calc(80vh * var(--ar)));
+				width: min(calc(100% + var(--gutter)), calc(var(--natural) / 1.045), calc(80svh * var(--ar)));
 			}
+			.plate .lead :global(img),
 			.plate .lead:hover :global(img) {
 				transform: none;
-				scale: 1.085;
+				scale: 1.045;
+				animation: passes linear both;
+				animation-timeline: view();
 			}
 			/* A device that missed the stage's frame budget gets the photograph still. */
 			:global(.home.calm) .plate .lead :global(img) {
@@ -620,10 +607,10 @@
 	}
 	@keyframes passes {
 		from {
-			translate: 0 -2.6%;
+			translate: 0 -1.9%;
 		}
 		to {
-			translate: 0 2.6%;
+			translate: 0 1.9%;
 		}
 	}
 

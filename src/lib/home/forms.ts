@@ -2,17 +2,17 @@
  * The form a stream item takes on a wide screen (TIN-8657, ruling RM70). A picture sets its own form
  * by its shape and its file, so no item is placed by hand and none is placed by chance.
  */
-import type { StreamImage, StreamItem } from './stream';
+import { kindsOf, type StreamImage, type StreamItem } from './stream';
 
 /** The narrowest picture that leads a post's pictures. A smaller one is shown at its own size, in a row. */
 export const LEAD_MIN = 600;
 /** The narrowest photograph that is set as a plate, and the least wide shape of one. */
-export const PLATE_MIN = 1000;
+export const PLATE_MIN = 900;
 export const PLATE_SHAPE = 1.2;
 
 /**
  * words: nothing to see. The title on the first line, the excerpt on the second.
- * plate: a wide photograph. It starts on the first line and its title lies on it.
+ * plate: one of her photographs, wide. It starts on the first line and its title lies on it.
  * beside: a tall or square picture, a drawing, a smaller picture, a video. It starts on the second line, beside its words.
  * small: pictures under `LEAD_MIN` wide. A row of them at their own size, on the second line.
  */
@@ -23,15 +23,19 @@ export function leadOf<T extends Pick<StreamImage, 'width'>>(images: readonly T[
 	return images.find((image) => image.width >= LEAD_MIN) ?? images[0];
 }
 
-/** A JPEG or a WebP is a photograph. A PNG is a drawing or a screenshot, and no type is laid on one. */
-const isPhotograph = (src: string) => /\.(?:jpe?g|webp|avif)$/i.test(src);
+/**
+ * Her photographs are the pictures the photo gallery holds: the gallery's own rule tells a photograph from a screenshot,
+ * a drawing or a picture from elsewhere, and an item that holds a set of photographs has them from there.
+ * A PNG is a drawing or a screenshot whatever holds it. No type is laid on any of those.
+ */
+const isPhotograph = (item: Pick<StreamItem, 'kind' | 'holds'>, src: string) => kindsOf(item).includes('photos') && /\.(?:jpe?g|webp|avif)$/i.test(src);
 
-export function formOf(item: Pick<StreamItem, 'media'>): Form {
+export function formOf(item: Pick<StreamItem, 'kind' | 'holds' | 'media'>): Form {
 	const images = item.media.filter((media): media is StreamImage => media.type === 'image');
 	const lead = leadOf(images);
 	if (!lead) return item.media.some((media) => media.type === 'youtube') ? 'beside' : 'words';
 	if (lead.width < LEAD_MIN) return 'small';
-	return isPhotograph(lead.src) && lead.width >= PLATE_MIN && lead.width / lead.height >= PLATE_SHAPE ? 'plate' : 'beside';
+	return isPhotograph(item, lead.src) && lead.width >= PLATE_MIN && lead.width / lead.height >= PLATE_SHAPE ? 'plate' : 'beside';
 }
 
 /**
