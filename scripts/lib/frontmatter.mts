@@ -13,9 +13,17 @@ export const POST_EDITORIAL_TIERS = [
 	"less-noteworthy", "noteworthy",
 ] as const;
 
+/**
+ * Remove YAML scalar quotes and undo their escapes (TIN-8628).
+ * A double-quoted scalar escapes `"` and `\` with a backslash.
+ * A single-quoted scalar escapes `'` by doubling it.
+ */
 export function stripQuotes(s: string): string {
-	if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-		return s.slice(1, -1);
+	if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+		return s.slice(1, -1).replace(/\\(["\\])/g, '$1');
+	}
+	if (s.length >= 2 && s.startsWith("'") && s.endsWith("'")) {
+		return s.slice(1, -1).replace(/''/g, "'");
 	}
 	return s;
 }

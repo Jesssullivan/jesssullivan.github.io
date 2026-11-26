@@ -1,57 +1,110 @@
 import { describe, expect, it } from 'vitest';
 import type { Post } from '$lib/posts';
-import { buildScene, firstInReadingOrder, isProjectionDocument, neighborInDirection, neighboursOf } from './scene';
+import type { ConstellationData } from './layout';
+import { buildSky, isConstellationData, nearOf, neighborInDirection, readingOrder, summaryOf } from './scene';
 
-const post = (slug: string, date = '2026-01-01'): Post => ({ slug, title: slug.toUpperCase(), date, description: '', tags: [], published: true });
+const post = (slug: string, date = '2026-01-01'): Post => ({ slug, title: slug.toUpperCase(), date, description: `About ${slug}`, tags: [], published: true });
 
-const projection = {
-	schema: 'posts-projection.v1',
-	note: 'Not a measurement.',
-	posts: [
-		{ slug: 'a', x: 0.1, y: 0.1 },
-		{ slug: 'b', x: 0.5, y: 0.1 },
-		{ slug: 'c', x: 0.5, y: 0.6 },
-		{ slug: 'held', x: 0.9, y: 0.9 },
-		{ slug: 'd', x: 0.9, y: 0.1 },
+// Stars: [slug, x, y, category, group, size, glow] on the 0 to 1000 grid.
+const data: ConstellationData = {
+	schema: 'constellation.v1',
+	corpus_sha256: 'test',
+	aspect: 1.5,
+	categories: ['ecology', 'hardware'],
+	labels: ['Ecology', 'Hardware'],
+	groups: [
+		{ name: 'Ecology', wide: [300, 50], tall: [50, 300], glow: [300, 100, 200, 60], category: 0 },
+		{ name: '', wide: [0, 0], tall: [0, 0], glow: [700, 750, 150, 150], category: 1 },
 	],
-	edges: [
-		[0, 1, 0.4],
-		[1, 2, 0.9],
-		[2, 3, 0.8],
-		[1, 4, 0.2],
+	stars: [
+		['a', 100, 100, 0, 0, 0, 0],
+		['b', 500, 100, 0, 0, 1, 2],
+		['c', 500, 600, 1, 1, 2, 1],
+		['held', 900, 900, 1, 1, 3, 0],
+		['d', 900, 100, 0, 0, 0, 0],
 	],
+	figure: [
+		[0, 1],
+		[1, 4],
+		[2, 3],
+	],
+	near: [[1], [2, 0, 4], [1, 3], [2], [1]],
+	titles: { width: [10, 20, 30, 40, 50], wide: [0, 81, 82, 83, 120], tall: [0, 0, 100, 0, 0] },
 };
 
-describe('posts projection scene', () => {
-	it('draws only routeable posts and reports routeable posts the projection has not placed', () => {
-		const scene = buildScene(projection, [post('a'), post('b'), post('c'), post('d'), post('new')]);
-		expect(scene?.nodes.map((node) => node.slug)).toEqual(['a', 'b', 'c', 'd']);
-		expect(scene?.nodes.every((node) => node.href === `/blog/${node.slug}`)).toBe(true);
-		expect(scene?.unplaced.map((p) => p.slug)).toEqual(['new']);
-		// The edge into the non-routeable post disappears with it.
-		expect(scene?.edges).toEqual([
+describe('constellation sky', () => {
+	it('draws only routeable posts and reports routeable posts the layout has not placed', () => {
+		const sky = buildSky(data, [post('a'), post('b'), post('c'), post('d'), post('new')])!;
+		expect(sky.stars.map((star) => star.slug)).toEqual(['a', 'b', 'c', 'd']);
+		expect(sky.stars.every((star) => star.href === `/blog/${star.slug}`)).toBe(true);
+		expect(sky.stars[1]).toMatchObject({ x: 0.5, y: 0.1, category: 0, group: 0, size: 1, glow: 2, description: 'About b' });
+		// Each star carries where its title goes on the frame in use. The held post takes its entry with it.
+		expect(sky.stars.map((star) => [star.label, star.labelWidth])).toEqual([[0, 10], [81, 20], [82, 30], [120, 50]]);
+		expect(sky.unplaced.map((p) => p.slug)).toEqual(['new']);
+		// A figure line and a neighbour into the post that is not routeable go with it.
+		expect(sky.figure).toEqual([
 			[0, 1],
-			[1, 2],
 			[1, 3],
 		]);
-		expect(neighboursOf(scene!, 1).map((node) => node.slug)).toEqual(['c', 'a', 'd']);
+		expect(nearOf(sky, 1).map((star) => star.slug)).toEqual(['c', 'a', 'd']);
+		expect(nearOf(sky, 2).map((star) => star.slug)).toEqual(['b']);
+		// A constellation carries its category's name. A smaller one of the same kind has a figure and no name.
+		expect(sky.groups.map((group) => [group.name, group.members])).toEqual([
+			['Ecology', [0, 1, 3]],
+			['', [2]],
+		]);
+		expect(sky.categories).toEqual([
+			{ id: 'ecology', label: 'Ecology', count: 3 },
+			{ id: 'hardware', label: 'Hardware', count: 1 },
+		]);
+		expect(sky.bySlug.get('d')).toBe(3);
 	});
 
-	it('moves by arrow direction, preferring similarity neighbours', () => {
-		const scene = buildScene(projection, [post('a'), post('b'), post('c'), post('d')])!;
-		expect(firstInReadingOrder(scene)).toBe(0);
-		expect(neighborInDirection(scene, 0, 'right')).toBe(1);
-		expect(neighborInDirection(scene, 1, 'down')).toBe(2);
-		expect(neighborInDirection(scene, 1, 'right')).toBe(3);
-		expect(neighborInDirection(scene, 0, 'left')).toBe(-1);
-		expect(neighborInDirection(scene, 99, 'left')).toBe(-1);
+	it('never shows a summary that is only a web address', () => {
+		expect(summaryOf('https://gis.stackexchange.com/questions/75092/maximum-length https://en.wikipedia.org/wiki/GeoJSON...')).toBe('');
+		expect(summaryOf('http://example.org/a-very-long-path-that-was-cut-o...')).toBe('');
+		expect(summaryOf('GitHub Link: https://github.com/Jesssullivan/EBPP')).toBe('');
+		// An address beside real words is cut out and the words stay.
+		expect(summaryOf('http://jessphoto.example.net/ Check out my new photography site!')).toBe('Check out my new photography site!');
+		expect(summaryOf('View the tools here: http://kml.jessdev.org Three of my KML tools are now stable.')).toBe('View the tools here: Three of my KML tools are now stable.');
+		// A summary with no address is left as it is, however short.
+		expect(summaryOf('  Bird   photos. ')).toBe('Bird photos.');
+		expect(summaryOf(undefined)).toBe('');
+		const sky = buildSky(data, [{ ...post('a'), description: 'https://example.org/only' }, post('b')])!;
+		expect(sky.stars.map((star) => star.description)).toEqual(['', 'About b']);
+	});
+
+	it('transposes the frame for a tall panel', () => {
+		const sky = buildSky(data, [post('a'), post('c')], true)!;
+		expect(sky.stars.map((star) => [star.x, star.y])).toEqual([
+			[0.1, 0.1],
+			[0.6, 0.5],
+		]);
+		expect(sky.groups[0]).toMatchObject({ x: 0.05, y: 0.3, glow: [0.1, 0.3, 0.06, 0.2] });
+		expect(sky.stars.map((star) => star.label)).toEqual([0, 100]);
+	});
+
+	it('moves by arrow direction, preferring the nearest posts', () => {
+		const sky = buildSky(data, [post('a'), post('b'), post('c'), post('d')])!;
+		expect(readingOrder(sky)).toEqual([0, 1, 3, 2]);
+		expect(neighborInDirection(sky, 0, 'right')).toBe(1);
+		expect(neighborInDirection(sky, 1, 'down')).toBe(2);
+		expect(neighborInDirection(sky, 1, 'right')).toBe(3);
+		expect(neighborInDirection(sky, 0, 'left')).toBe(-1);
+		expect(neighborInDirection(sky, 99, 'left')).toBe(-1);
+		// A filtered-out star is skipped.
+		expect(neighborInDirection(sky, 0, 'right', 1, (index) => index !== 1)).toBe(3);
 	});
 
 	it('rejects malformed documents', () => {
-		expect(isProjectionDocument(projection)).toBe(true);
-		expect(buildScene({ ...projection, schema: 'other' }, [post('a')])).toBeNull();
-		expect(isProjectionDocument({ ...projection, posts: [{ slug: 'a', x: 2, y: 0 }] })).toBe(false);
-		expect(isProjectionDocument({ ...projection, edges: [[1, 0, 0.5]] })).toBe(false);
-		expect(isProjectionDocument({ ...projection, edges: [[0, 9, 0.5]] })).toBe(false);
+		expect(isConstellationData(data)).toBe(true);
+		expect(buildSky({ ...data, schema: 'other' }, [post('a')])).toBeNull();
+		expect(isConstellationData({ ...data, stars: [['a', 2000, 0, 0, 0, 0, 0]] })).toBe(false);
+		expect(isConstellationData({ ...data, stars: [['a', 10, 10, 5, 0, 0, 0]] })).toBe(false);
+		expect(isConstellationData({ ...data, figure: [[0, 9]] })).toBe(false);
+		expect(isConstellationData({ ...data, near: [[0]] })).toBe(false);
+		expect(isConstellationData({ ...data, titles: { ...data.titles, wide: [0] } })).toBe(false);
+		expect(isConstellationData({ ...data, titles: undefined })).toBe(false);
+		expect(isConstellationData(null)).toBe(false);
 	});
 });

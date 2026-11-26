@@ -1,301 +1,390 @@
 <script lang="ts">
-	import { tick } from 'svelte';
-	import type { Post } from '$lib/posts';
-	import type { PublicPulseSnapshotAny } from '$lib/pulse/snapshot';
+	// The constellation section (TIN-8628). This shell is all the page loads up front:
+	// a sky that already has its final size, edge to edge of the viewport, with the
+	// stars as a static silhouette, a legend and five small controls laid over it.
+	// The interactive sky and its data arrive on their own.
+	// Type is Inter at 600 and 700 and the body face: the files the home page already loads.
+	// The section lies in the room the page keeps for it (see +page.svelte), so nothing moves when it loads.
+	import { onMount } from 'svelte';
+	import type { Component } from 'svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
-	import PulseFeed from '$lib/components/pulse/PulseFeed.svelte';
-	// Build-time import (TIN-5680): the projection ships in this bundle, never fetched at runtime.
-	import postsProjection from '$lib/data/posts-projection.v1.json';
-	import {
-		buildScene,
-		firstInReadingOrder,
-		neighborInDirection,
-		neighboursOf,
-		type Direction,
-	} from '$lib/reader/projection/scene';
+	import silhouette from '$lib/data/constellation-silhouette.v1.json';
+	// A content hash is in the emitted file name, so the data can be cached for good.
+	import dataUrl from '$lib/data/constellation.v1.json?url';
+	import { readSession, writeSession } from '$lib/reader/projection/session';
+	import { STAR_RADIUS, starScale } from '$lib/reader/projection/view';
 
-	type View = 'constellation' | 'map' | 'similar' | 'tree';
+	// The section opens on the map. The list carries the same posts and neighbours for readers who cannot use the map (RM27).
+	type View = 'map' | 'list';
+	// Up to this width the map is drawn transposed, as a tall panel, and the picked post docks at the foot. Both style blocks repeat the width.
+	const TALL_QUERY = '(max-width: 880px)';
 
 	let {
-		posts,
-		snapshot,
 		archive = [],
 		focusSlug = null,
-		initialView = 'constellation',
+		initialView = 'map',
 	}: {
-		posts: Post[];
-		snapshot: PublicPulseSnapshotAny;
 		archive?: ReaderCollection['archive'];
 		focusSlug?: string | null;
 		initialView?: View;
 	} = $props();
 	// svelte-ignore state_referenced_locally
 	let view = $state<View>(initialView);
+	let filter = $state(-1);
+	let helpOpen = $state(false);
+	let section = $state<HTMLElement | null>(null);
+	let panel = $state<HTMLDivElement | null>(null);
+	let field = $state<HTMLDivElement | null>(null);
+	let controls = $state<HTMLDivElement | null>(null);
+	let help = $state<HTMLDivElement | null>(null);
+	let scale = $state(1);
 
-	const nodes = $derived([
-		...posts.slice(0, 4).map((post) => ({
-			id: `post-${post.slug}`,
-			kind: 'Post',
-			date: post.date,
-			title: post.title,
-				href: `/blog/${post.slug}`,
-		})),
-		...snapshot.items.slice(0, 2).map((item) => ({
-			id: `pulse-${item.id}`,
-			kind: item.kind === 'bird_sighting' ? 'Bird sighting' : 'Pulse note',
-			date: item.occurredAt,
-			title: item.summary || (item.kind === 'bird_sighting' ? item.birdSighting?.commonName : item.content) || 'Pulse',
-				href: '/pulse',
-		})),
-	]);
+	const posts = $derived(archive.flatMap((group) => group.posts));
+	const countText = (count: number) => `${count} ${count === 1 ? 'post' : 'posts'}`;
+	const frames = [
+		{ name: 'wide', paths: silhouette.wide as Array<[number, number, string]> },
+		{ name: 'tall', paths: silhouette.tall as Array<[number, number, string]> },
+	];
 
-	// Similarity map: only posts the reader can already route to are drawn.
-	const scene = $derived(buildScene(postsProjection, archive.flatMap((group) => group.posts)));
-	let focusIdx = $state(-1);
-	let hoverIdx = $state(-1);
-	let mapElement = $state<SVGSVGElement | null>(null);
-	const activeIdx = $derived(hoverIdx >= 0 ? hoverIdx : focusIdx);
-	const activeNode = $derived(scene && activeIdx >= 0 ? scene.nodes[activeIdx] : null);
-	const activeNeighbours = $derived(scene && activeIdx >= 0 ? new Set(scene.adjacency[activeIdx]) : new Set<number>());
-	const tabIndexOwner = $derived(scene ? (focusIdx >= 0 ? focusIdx : firstInReadingOrder(scene)) : -1);
-	const similarList = $derived(
-		scene ? [...scene.nodes].sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug)) : [],
-	);
-
-	const ARROWS: Record<string, Direction> = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
-
-	async function focusNode(index: number) {
-		focusIdx = index;
-		await tick();
-		mapElement?.querySelector<SVGAElement>(`[data-node-index="${index}"]`)?.focus();
+	// The interactive layer: code and data, fetched once the sky is near the viewport or the browser is idle.
+	interface SkyApi {
+		zoomBy: (factor: number) => void;
+		reset: () => void;
 	}
+	type SkyComponent = Component<Record<string, unknown>, SkyApi, 'zoomed' | 'picked'>;
+	let Sky = $state<SkyComponent | null>(null);
+	let api = $state<SkyApi | null>(null);
+	let data = $state<unknown>(null);
+	let live = $state(false);
+	let ready = $state(false);
+	let zoomed = $state(false);
+	let picked = $state(false);
+	let failed = $state(false);
+	let requested = false;
+	const onMap = $derived(ready && view === 'map');
 
-	function onNodeKey(event: KeyboardEvent, index: number) {
-		if (!scene) return;
-		const direction = ARROWS[event.key];
-		if (direction) {
-			event.preventDefault();
-			const next = neighborInDirection(scene, index, direction);
-			if (next >= 0) void focusNode(next);
-		} else if (event.key === 'Enter') {
-			// Chromium does not activate a focused SVG <a> on Enter; hand the router a click.
-			event.preventDefault();
-			event.currentTarget?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-		} else if (event.key === 'Escape') {
-			event.preventDefault();
-			focusIdx = -1;
-			hoverIdx = -1;
+	async function load() {
+		if (requested) return;
+		requested = true;
+		try {
+			const [module, response] = await Promise.all([import('./ConstellationSky.svelte'), fetch(dataUrl)]);
+			if (!response.ok) throw new Error(`constellation data: ${response.status}`);
+			data = await response.json();
+			Sky = module.default as unknown as SkyComponent;
+		} catch {
+			failed = true;
 		}
 	}
 
-	// ?focus=<slug> opens the map on that post once, as on the #288 project map.
-	let appliedFocus: string | null = null;
+	/**
+	 * Full bleed: the sky is as wide as the viewport, whatever column the page puts it in.
+	 * The legend and the controls line up with the page's own column.
+	 */
+	function fit() {
+		const host = section?.parentElement;
+		if (!section || !host || !panel) return;
+		const width = document.documentElement.clientWidth;
+		// The section is placed against the host's padding box.
+		const left = host.getBoundingClientRect().left + host.clientLeft;
+		const below = section.nextElementSibling;
+		const edge = below instanceof HTMLElement ? below.getBoundingClientRect().left + (parseFloat(getComputedStyle(below).paddingLeft) || 0) : 16;
+		section.style.setProperty('--bleed', `${width}px`);
+		section.style.setProperty('--shift', `${-left}px`);
+		section.style.setProperty('--edge', `${Math.max(12, Math.round(edge))}px`);
+		scale = starScale({ w: width, h: panel.offsetHeight });
+	}
+
+	onMount(() => {
+		fit();
+		const session = readSession();
+		if (session.list && !focusSlug) view = 'list';
+		if (session.category) filter = silhouette.categories.findIndex((category) => category.id === session.category);
+		const host = section?.parentElement;
+		const resized = new ResizeObserver(fit);
+		if (host) resized.observe(host);
+		window.addEventListener('resize', fit);
+		const near = new IntersectionObserver((entries) => entries.some((entry) => entry.isIntersecting) && void load(), { rootMargin: '600px 0px' });
+		if (panel) near.observe(panel);
+		const idle = window.requestIdleCallback ? window.requestIdleCallback(() => void load(), { timeout: 4000 }) : window.setTimeout(() => void load(), 2500);
+		return () => {
+			resized.disconnect();
+			window.removeEventListener('resize', fit);
+			near.disconnect();
+			if (window.cancelIdleCallback) window.cancelIdleCallback(idle);
+			else window.clearTimeout(idle);
+		};
+	});
+
+	function show(next: View) {
+		view = next;
+		writeSession({ list: next === 'list' });
+	}
+
+	function toggleFilter(index: number) {
+		filter = filter === index ? -1 : index;
+		writeSession({ category: filter < 0 ? null : silhouette.categories[filter].id });
+	}
+
+	// The controls and the legend are each one tab stop. Arrow keys move inside them.
+	function rove(event: KeyboardEvent) {
+		const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+		if (!step) return;
+		const items = Array.from((event.currentTarget as HTMLElement).querySelectorAll<HTMLButtonElement>('button'));
+		const at = items.indexOf(document.activeElement as HTMLButtonElement);
+		if (at < 0) return;
+		event.preventDefault();
+		items[(at + step + items.length) % items.length].focus();
+	}
+
+	function stop(event: FocusEvent) {
+		for (const button of (event.currentTarget as HTMLElement).querySelectorAll('button')) button.tabIndex = button === event.target ? 0 : -1;
+	}
+
+	// ?focus=<slug> always opens on the map.
 	$effect(() => {
-		if (!scene || !focusSlug || appliedFocus === focusSlug) return;
-		const index = scene.bySlug.get(focusSlug);
-		if (index === undefined) return;
-		appliedFocus = focusSlug;
-		view = 'map';
-		void focusNode(index);
+		if (focusSlug) view = 'map';
 	});
 </script>
 
-<section class="constellation" aria-labelledby="constellation-heading">
-	<div class="constellation-heading">
-		<div>
-			<p class="eyebrow">A map of what’s public</p>
-			<h2 id="constellation-heading" class="font-heading text-2xl font-bold">The constellation</h2>
-			<p class="intro">Follow a thread into the full post, or keep scrolling through the reader.</p>
-		</div>
-		<div class="controls">
-			<button type="button" aria-pressed={view === 'constellation'} onclick={() => view = 'constellation'}>Constellation</button>
-			{#if scene && scene.nodes.length > 0}
-				<button type="button" aria-pressed={view === 'map'} onclick={() => view = 'map'}>Similarity map</button>
-				<button type="button" aria-pressed={view === 'similar'} onclick={() => view = 'similar'}>Similar posts</button>
-			{/if}
-			<button type="button" aria-pressed={view === 'tree'} onclick={() => view = 'tree'}>Year tree</button>
-			<input id="constellation-pause" class="motion-toggle" type="checkbox" />
-			<label for="constellation-pause">Pause motion</label>
-			<a href="#latest">Browse as a list ↓</a>
-		</div>
-	</div>
+<svelte:window
+	onclick={(event) => {
+		if (helpOpen && event.target instanceof Node && !help?.contains(event.target) && !controls?.contains(event.target)) helpOpen = false;
+	}}
+	onkeydown={(event) => {
+		if (helpOpen && event.key === 'Escape') helpOpen = false;
+	}}
+/>
 
-	{#if (view === 'map' || view === 'similar') && scene && scene.nodes.length > 0}
-		<div class="projection" data-testid="posts-projection">
-			<p class="projection-note">
-				{scene.note} Placed {scene.nodes.length} public posts.
-				{#if scene.unplaced.length > 0}{scene.unplaced.length} newer {scene.unplaced.length === 1 ? 'post is' : 'posts are'} not on the map yet; the list below has {scene.unplaced.length === 1 ? 'it' : 'them'}.{/if}
-			</p>
-			{#if view === 'map'}
-				<p class="projection-help" id="projection-help">Tab into the map, then use the arrow keys to move between nearby posts. Enter opens a post; Escape clears the selection.</p>
-				<svg
-					bind:this={mapElement}
-					class="projection-map"
-					viewBox="0 0 1000 1000"
-					role="group"
-					aria-label="Similarity map of public posts"
-					aria-describedby="projection-help"
-				>
-					<g class="projection-edges" aria-hidden="true">
-						{#each scene.edges as [a, b] (`${a}:${b}`)}
-							<line
-								class:active={a === activeIdx || b === activeIdx}
-								x1={scene.nodes[a].x * 1000}
-								y1={scene.nodes[a].y * 1000}
-								x2={scene.nodes[b].x * 1000}
-								y2={scene.nodes[b].y * 1000}
-							/>
-						{/each}
-					</g>
-					<g class="projection-nodes">
-						{#each scene.nodes as node (node.slug)}
-							<a
-								href={node.href}
-								data-node-index={node.index}
-								data-slug={node.slug}
-								tabindex={node.index === tabIndexOwner ? 0 : -1}
-								aria-label={`${node.title} (${node.date.slice(0, 10)})`}
-								class:active={node.index === activeIdx}
-								class:neighbour={activeNeighbours.has(node.index)}
-								onfocus={() => (focusIdx = node.index)}
-								onpointerenter={() => (hoverIdx = node.index)}
-								onpointerleave={() => (hoverIdx = -1)}
-								onkeydown={(event) => onNodeKey(event, node.index)}
-							>
-								<circle cx={node.x * 1000} cy={node.y * 1000} r="18" class="hit" />
-								<circle cx={node.x * 1000} cy={node.y * 1000} r="7" class="dot" />
-							</a>
-						{/each}
-					</g>
-				</svg>
-				<div class="projection-detail" aria-live="polite" data-testid="posts-projection-detail">
-					{#if activeNode}
-						<p><a href={activeNode.href}><strong>{activeNode.title}</strong></a> · <time datetime={activeNode.date}>{activeNode.date.slice(0, 10)}</time></p>
-						{#if neighboursOf(scene, activeNode.index).length > 0}
-							<p>Near: {#each neighboursOf(scene, activeNode.index) as near, i (near.slug)}{i > 0 ? ', ' : ''}<a href={near.href}>{near.title}</a>{/each}</p>
-						{/if}
-					{:else}
-						<p>Select a point to see the post and its nearest neighbours.</p>
-					{/if}
-				</div>
-			{:else}
-				<ol class="similar-list" aria-label="Public posts with their most similar posts">
-					{#each similarList as node (node.slug)}
-						<li>
-							<a href={node.href}>{node.title}</a> <time datetime={node.date}>{node.date.slice(0, 10)}</time>
-							{#if neighboursOf(scene, node.index).length > 0}
-								<span class="near">Near: {#each neighboursOf(scene, node.index) as near, i (near.slug)}{i > 0 ? ', ' : ''}<a href={near.href}>{near.title}</a>{/each}</span>
-							{/if}
-						</li>
-					{/each}
-				</ol>
-			{/if}
+{#snippet glyph(name: string)}
+	<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+		{#if name === 'list'}
+			<path d="M6 4h7.5M6 8h7.5M6 12h7.5" /><path class="dots" d="M2.6 4h.01M2.6 8h.01M2.6 12h.01" />
+		{:else if name === 'map'}
+			<path d="M3 12 7.2 4l5.8 4.6" /><path class="dots" d="M3 12h.01M7.2 4h.01M13 8.6h.01" />
+		{:else if name === 'in'}
+			<path d="M8 3v10M3 8h10" />
+		{:else if name === 'out'}
+			<path d="M3 8h10" />
+		{:else if name === 'reset'}
+			<path d="M3.4 8.6a4.6 4.6 0 1 0 1.2-3.7M3 2.6v2.8h2.8" />
+		{:else}
+			<path d="M5.9 6.1a2.1 2.1 0 1 1 3.2 1.8c-.7.45-1.1.9-1.1 1.7" /><path class="dots" d="M8 12.4h.01" />
+		{/if}
+	</svg>
+{/snippet}
+
+<section class="constellation" class:live class:listing={view === 'list' && Sky !== null} class:picked aria-labelledby="constellation-heading" bind:this={section} style:--star-scale={scale}>
+	<!-- The landmark keeps its name. Nothing is printed above the sky. -->
+	<h2 id="constellation-heading" class="sr-only">The constellation</h2>
+	<div class="sky" id="constellation-panel" bind:this={panel} data-testid="constellation-panel">
+		<!-- First in the tab order, so the list is one tab stop away. A control that cannot act yet stays focusable and says so. -->
+		<div class="controls" role="toolbar" aria-label="Map controls" tabindex="-1" bind:this={controls} onkeydown={rove} onfocusin={stop}>
+			<button type="button" tabindex="0" aria-label={view === 'map' ? 'Show as a list' : 'Show the map'} aria-controls="constellation-panel" data-testid="constellation-view" onclick={() => show(view === 'map' ? 'list' : 'map')}>{@render glyph(view === 'map' ? 'list' : 'map')}</button>
+			<button type="button" class="apart" tabindex="-1" aria-label="Zoom in" aria-disabled={!onMap} onclick={() => onMap && api?.zoomBy(1.6)}>{@render glyph('in')}</button>
+			<button type="button" tabindex="-1" aria-label="Zoom out" aria-disabled={!onMap || !zoomed} onclick={() => onMap && zoomed && api?.zoomBy(1 / 1.6)}>{@render glyph('out')}</button>
+			<button type="button" tabindex="-1" aria-label="Reset" aria-disabled={!onMap || (!zoomed && !picked)} onclick={() => onMap && api?.reset()}>{@render glyph('reset')}</button>
+			<button type="button" class="apart" tabindex="-1" aria-label="How it works" aria-expanded={helpOpen} aria-controls="constellation-help" onclick={() => (helpOpen = !helpOpen)}>{@render glyph('help')}</button>
 		</div>
-	{:else if view === 'tree'}
-		<ul class="year-tree" aria-label="Public writing by year">
-			{#each archive as group (group.year)}
-				<li><details><summary>{group.year} · {group.posts.length} posts</summary>
-					<ul>{#each group.posts as post (post.slug)}<li><a href={`/blog/${post.slug}`}>{post.title}</a></li>{/each}</ul>
-				</details></li>
+		<div class="pop" id="constellation-help" hidden={!helpOpen} bind:this={help}>
+			<p id="constellation-about">Each star is a post. Posts that share words or tags sit together.</p>
+			<p>Colour is the category. Bigger stars are longer posts. The newest ones glow.</p>
+			<p>Click or tap a star to pick it, then again to open it. Click a name to go there.</p>
+			<p>Zoom with the buttons, a pinch, or Ctrl and scroll. Drag to move the map. On a touch screen a swipe up or down scrolls the page, so move the map sideways or with two fingers.</p>
+			<p>With a keyboard, arrow keys move between nearby stars. Enter opens. Space picks. Escape clears. Plus and minus zoom.</p>
+			<p class="method">Positions come from a t-SNE fit over post text and tags. Axes, distances and density are not measurements.</p>
+		</div>
+		<!-- The legend is the filter: the same eight words and colours as the names on the sky. -->
+		<div class="legend" role="toolbar" aria-label="Show one category" tabindex="-1" onkeydown={rove} onfocusin={stop}>
+			{#each silhouette.categories as category, index (category.id)}
+				<button type="button" tabindex={index === 0 ? 0 : -1} aria-pressed={filter === index} aria-label={`${category.label}, ${countText(category.count)}`} data-tip={countText(category.count)} onclick={() => toggleFilter(index)}>
+					<span class="dot" style={`--dot:var(--star-${index % 8})`} aria-hidden="true"></span>{category.label}
+				</button>
 			{/each}
-		</ul>
-	{:else if nodes.length > 0}
-		<ol class="constellation-field" aria-label="Recent public writing and notes">
-			{#each nodes as node (node.id)}
-				<li class="constellation-node">
-					<a href={node.href} aria-label={`${node.kind}: ${node.title}`}>
-						<span class="node-marker" aria-hidden="true"></span>
-						<span class="node-copy">
-							<span class="node-meta">{node.kind} · <time datetime={node.date}>{node.date.slice(0, 10)}</time></span>
-							<strong>{node.title}</strong>
-						</span>
-					</a>
-				</li>
+		</div>
+		<div class="field" bind:this={field}>
+			{#each frames as frame (frame.name)}
+				<svg class={`silhouette ${frame.name}`} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false" data-testid={`constellation-silhouette-${frame.name}`}>
+					{#each frame.paths as [category, size, d] (`${category}:${size}`)}
+						<path {d} style={`stroke:var(--star-${category % 8});stroke-width:calc(var(--star-scale) * ${STAR_RADIUS[size] * 2}px)`} />
+					{/each}
+				</svg>
 			{/each}
-		</ol>
-	{:else}
-		<p class="empty">No public writing or notes yet. The list below will appear when there is something to read.</p>
-	{/if}
-	<details class="reviewed-pulse"><summary>Reviewed public Pulse details</summary><div id="experimental-pulse"><PulseFeed {snapshot} /></div></details>
+		</div>
+		{#if Sky}
+			<Sky
+				bind:this={api}
+				bind:zoomed
+				bind:picked
+				{data}
+				{posts}
+				{field}
+				{view}
+				{filter}
+				{focusSlug}
+				{scale}
+				tallQuery={TALL_QUERY}
+				onlive={(fade: boolean) => {
+					ready = true;
+					if (fade) window.setTimeout(() => (live = true), 280);
+					else live = true;
+				}}
+			/>
+		{:else if failed}
+			<p class="notice">The map did not load. Latest and Archive below have every post.</p>
+		{/if}
+	</div>
 </section>
 
 <style>
-	.constellation { margin-bottom: 4rem; }
-	.constellation-heading { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
-	.eyebrow, .node-meta { font-family: 'Inter', sans-serif; font-size: .7rem; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; }
-	.eyebrow { color: var(--color-primary-500); margin-bottom: .45rem; }
-	.intro { margin-top: .35rem; opacity: .75; }
-	.controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; font-family: 'Inter', sans-serif; font-size: .78rem; }
-	.controls a { text-decoration: underline; text-underline-offset: .2em; }
-	.controls button { border: 1px solid currentColor; padding: .35rem .6rem; border-radius: .3rem; }
-	.controls button[aria-pressed='true'] { color: var(--color-primary-500); }
-	.controls button:focus-visible, .year-tree a:focus-visible, .year-tree summary:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.year-tree { padding: 1rem; border: 1px solid currentColor; }
-	.year-tree summary { cursor: pointer; padding: .5rem; }
-	.year-tree ul { margin-left: 1.25rem; border-left: 1px solid currentColor; padding-left: 1rem; }
-	.year-tree a { display: inline-block; padding: .4rem; text-decoration: underline; }
-	.motion-toggle { width: 1rem; height: 1rem; accent-color: var(--color-primary-500); }
-	.motion-toggle:focus-visible, .controls a:focus-visible, .constellation-node a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.motion-toggle + label { cursor: pointer; margin-left: -.7rem; }
-	.constellation-field { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1.25rem; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); isolation: isolate; }
-	.constellation-field::before { content: ''; position: absolute; inset: 1.8rem; border: 1px dashed currentColor; opacity: .2; transform: skewY(-8deg); pointer-events: none; z-index: -1; }
-	.constellation-node { min-width: 0; animation: float 6s ease-in-out infinite alternate; }
-	.constellation-node:nth-child(even) { animation-delay: -3s; }
-	.constellation-node a { display: flex; align-items: flex-start; gap: .8rem; min-height: 6.5rem; padding: 1rem; border: 1px solid currentColor; background: var(--color-surface-50); text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
-	:global([data-mode='dark']) .constellation-node a { background: var(--color-surface-950); }
-	.constellation-node a:hover { transform: translateY(-2px); border-color: var(--color-primary-500); }
-	.node-marker { flex: none; width: .65rem; height: .65rem; margin-top: .25rem; border: 2px solid var(--color-primary-500); border-radius: 50%; box-shadow: 0 0 0 .24rem color-mix(in srgb, var(--color-primary-500) 18%, transparent); }
-	.node-copy { display: grid; gap: .4rem; min-width: 0; }
-	.reviewed-pulse { margin-top: 1rem; }
-	.projection { display: grid; gap: .75rem; }
-	.projection-note, .projection-help { font-family: 'Inter', sans-serif; font-size: .8rem; opacity: .8; max-width: 60ch; }
-	.projection-map { display: block; width: 100%; max-width: 42rem; aspect-ratio: 1 / 1; margin-inline: auto; border: 1px solid currentColor; background: color-mix(in srgb, currentColor 3%, transparent); }
-	.projection-edges line { stroke: currentColor; stroke-opacity: .18; stroke-width: 2; }
-	.projection-edges line.active { stroke: var(--color-primary-500); stroke-opacity: .9; stroke-width: 3; }
-	.projection-nodes .hit { fill: transparent; }
-	.projection-nodes .dot { fill: var(--color-surface-50); stroke: var(--color-primary-500); stroke-width: 3; }
-	:global([data-mode='dark']) .projection-nodes .dot { fill: var(--color-surface-950); }
-	.projection-nodes a.neighbour .dot { fill: color-mix(in srgb, var(--color-primary-500) 35%, transparent); }
-	.projection-nodes a.active .dot, .projection-nodes a:hover .dot { fill: var(--color-primary-500); r: 11; }
-	.projection-nodes a:focus { outline: none; }
-	.projection-nodes a:focus-visible .hit { stroke: var(--color-primary-500); stroke-width: 4; }
-	.projection-detail { min-height: 3.5rem; padding: .75rem 1rem; border: 1px solid currentColor; font-family: 'Inter', sans-serif; font-size: .85rem; }
-	.projection-detail a, .similar-list a { text-decoration: underline; text-underline-offset: .2em; }
-	.projection-detail a:focus-visible, .similar-list a:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
-	.similar-list { display: grid; gap: .6rem; padding: 1rem 1rem 1rem 2.25rem; border: 1px solid currentColor; list-style: decimal; }
-	.similar-list time { font-size: .75rem; opacity: .7; }
-	.similar-list .near { display: block; font-size: .8rem; opacity: .85; }
-	.reviewed-pulse summary { cursor: pointer; padding: .5rem; }
-	.node-meta { opacity: .7; }
-	.node-copy strong { font-family: 'Inter', sans-serif; font-size: .95rem; line-height: 1.3; }
-	.empty { padding: 1.5rem; border: 1px solid currentColor; }
-	.constellation:has(.motion-toggle:checked) .constellation-node,
-	.constellation:has(.constellation-field:hover) .constellation-node,
-	.constellation:has(.constellation-field:focus-within) .constellation-node { animation-play-state: paused; }
-	@keyframes float { from { translate: 0 0; } to { translate: 0 -.25rem; } }
-	@media (min-width: 850px) {
-		.constellation-field { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; min-height: 20rem; }
-		.constellation-node { grid-column: span 2; }
-		.constellation-node:nth-child(4n + 2) { grid-column: 4 / span 2; }
-		.constellation-node:nth-child(4n + 3) { grid-column: 2 / span 2; }
+	/* Every colour is a theme token or a mix of theme tokens. Star hues turn around the wheel from the theme's primary. */
+	.constellation {
+		--sky-dark: 0;
+		--sky-ink: var(--color-surface-950);
+		--sky-paper: var(--color-root-bg-light);
+		--sky-card: var(--color-surface-100);
+		--sky-accent: var(--color-primary-700);
+		/* Two lightness steps for the stars. On paper both are dark enough for 3 to 1 against the sky as it is drawn, tints and moving background included. */
+		--star-la: 0.38;
+		--star-lb: 0.48;
+		--star-c: 0.15;
+		--sky-tint-a: 8%;
+		--sky-tint-b: 7%;
+		--star-0: var(--color-primary-800);
+		--star-1: var(--star-0); --star-2: var(--star-0); --star-3: var(--star-0);
+		--star-4: var(--star-0); --star-5: var(--star-0); --star-6: var(--star-0); --star-7: var(--star-0);
+		/* Quieter text, still well above 4.5 to 1 on the paper and on a card in every theme. */
+		--sky-soft: color-mix(in oklab, var(--sky-ink) 86%, var(--sky-paper));
+		--sky-line: color-mix(in srgb, var(--sky-ink) 24%, transparent);
+		--sky-shade: color-mix(in srgb, var(--color-surface-950) 45%, transparent);
+		/* The band behind the stars: the page's own paper, laid a little thicker over its moving background. */
+		--sky-night: color-mix(in srgb, var(--sky-paper) 55%, transparent);
+		/* Edge to edge of the viewport, at the top of the room the page keeps for it. */
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: var(--bleed, 100%);
+		margin-left: var(--shift, 0px);
 	}
-	@media (max-width: 600px) {
-		.constellation-field { display: block; padding: .75rem; }
-		.constellation-field::before { display: none; }
-		.constellation-node + .constellation-node { margin-top: .7rem; }
-		.constellation-node { animation: none; }
-		.constellation-node a { min-height: 4.5rem; }
-		.motion-toggle, .motion-toggle + label { display: none; }
-		/* At ~360px the 1000-unit viewBox shrinks points to ~5px and hit areas to ~13px; keep a 24px target (WCAG 2.5.8). */
-		.projection-nodes .hit { r: 36; }
-		.projection-nodes .dot { r: 10; stroke-width: 4; }
-		.projection-nodes a.active .dot, .projection-nodes a:hover .dot { r: 15; }
-		.projection-edges line { stroke-width: 3; }
-		.projection-edges line.active { stroke-width: 5; }
-		.projection-nodes a:focus-visible .hit { stroke-width: 6; }
+	/* The heading is for a screen reader. In the body face it asks for no font file the page does not already load. */
+	.constellation h2 { font: inherit; }
+	:global([data-mode='dark']) .constellation {
+		--sky-dark: 1;
+		--sky-ink: var(--color-surface-50);
+		--sky-paper: var(--color-root-bg-dark);
+		--sky-card: var(--color-surface-900);
+		--sky-accent: var(--color-primary-300);
+		--star-la: 0.86;
+		--star-lb: 0.74;
+		--star-c: 0.13;
+		--sky-tint-a: 13%;
+		--sky-tint-b: 11%;
+		--star-0: var(--color-primary-300);
+		--sky-night: color-mix(in srgb, var(--sky-paper) 70%, transparent);
 	}
+	/* Neighbouring hues also differ in lightness, so two categories side by side on the wheel still tell apart. */
+	@supports (color: oklch(from red l c h)) {
+		.constellation {
+			--star-0: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) h);
+			--star-1: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 45));
+			--star-2: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 90));
+			--star-3: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 135));
+			--star-4: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 180));
+			--star-5: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 225));
+			--star-6: oklch(from var(--color-primary-500) var(--star-la) var(--star-c) calc(h + 270));
+			--star-7: oklch(from var(--color-primary-500) var(--star-lb) var(--star-c) calc(h + 315));
+		}
+		/* At night the band is the page's own dark, deepened. */
+		:global([data-mode='dark']) .constellation { --sky-night: oklch(from var(--sky-paper) calc(l * 0.6) c h / 0.8); }
+	}
+
+	/* The sky has its final size before anything loads: the height of the room the page keeps for it, which +page.svelte sets. Nothing inside it changes that size. */
+	.sky { position: relative; isolation: isolate; height: var(--sky-h, max(31rem, 86vh)); color: var(--sky-ink); }
+	/* With motion allowed the section fades in once, in place. With reduced motion it is there at once. */
+	@media (prefers-reduced-motion: no-preference) {
+		.constellation { animation: sky-arrive .3s ease; }
+	}
+	@keyframes sky-arrive { from { opacity: 0; } }
+	/* The site's reduced-motion rule leaves every element a transition a hundredth of a millisecond long. In the section nothing transitions at all, so with reduced motion it has no animation of any length. */
 	@media (prefers-reduced-motion: reduce) {
-		.constellation-node { animation: none; }
-		.constellation-node a { transition: none; }
+		.constellation, .constellation :global(*), .constellation :global(*::before), .constellation :global(*::after) { transition-property: none !important; }
+	}
+	/* No box and no edge: one band that fades out at the top and the foot, and two soft tints that end inside it. */
+	.sky::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background:
+			radial-gradient(closest-side ellipse at 30% 42%, color-mix(in oklab, var(--color-primary-500) var(--sky-tint-a), transparent), transparent),
+			radial-gradient(closest-side ellipse at 72% 60%, color-mix(in oklab, var(--color-tertiary-500) var(--sky-tint-b), transparent), transparent),
+			linear-gradient(to bottom, transparent, var(--sky-night) 26%, var(--sky-night) 74%, transparent);
+	}
+	/* The stars keep clear of the strip at the foot, where the legend and the controls lie. */
+	.field { position: absolute; inset: 3.5rem clamp(1.5rem, 4vw, 5rem) 5rem; }
+	.silhouette { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; opacity: .55; }
+	.silhouette.tall { display: none; }
+	.silhouette path { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+	.live .silhouette, .listing .silhouette { visibility: hidden; }
+	.notice { position: absolute; left: var(--edge, 1rem); right: var(--edge, 1rem); bottom: 4rem; font-size: .9rem; line-height: 1.3; }
+
+	/* Five small controls in one corner, in line with the page's column. Each says its name on hover and on focus. */
+	.controls { position: absolute; z-index: 3; right: var(--edge, 1rem); bottom: 1rem; display: flex; gap: 1px; }
+	.controls button { position: relative; display: grid; place-items: center; width: 2rem; height: 2rem; color: var(--sky-soft); cursor: pointer; }
+	.controls .apart { margin-left: .4rem; }
+	/* No box behind an icon: a halo of paper keeps it legible over a star, as it does for the legend. */
+	.controls svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 2px var(--sky-paper)) drop-shadow(0 0 4px var(--sky-paper)); }
+	.controls .dots { stroke-width: 2.6; }
+	.controls button[aria-expanded='true'] svg, .controls button:hover svg { filter: none; }
+	.controls button[aria-disabled='true'] { color: color-mix(in srgb, var(--sky-ink) 40%, var(--sky-paper)); cursor: default; }
+	.controls button[aria-expanded='true'] { color: var(--sky-paper); background: var(--sky-ink); }
+	/* A tooltip for each control, with its name, and for each legend entry, with its count of posts. */
+	.controls button::after, .legend button::after { position: absolute; bottom: calc(100% + .4rem); display: none; padding: .32rem .45rem; font: 600 .68rem/1 'Inter', system-ui, sans-serif; white-space: nowrap; text-shadow: none; color: var(--sky-paper); background: var(--sky-ink); pointer-events: none; }
+	.controls button::after { content: attr(aria-label); right: 0; }
+	.legend button::after { content: attr(data-tip); left: .45rem; bottom: calc(100% + .1rem); }
+	.controls button:focus-visible:not([aria-expanded='true'])::after, .legend button:focus-visible::after { display: block; }
+	@media (hover: hover) {
+		.controls button:not([aria-disabled='true'], [aria-expanded='true']):hover { color: var(--sky-ink); background: var(--sky-paper); }
+		.controls button:not([aria-expanded='true']):hover::after, .legend button:hover::after { display: block; }
+	}
+
+	/* The help holds what the page no longer prints: how the map reads, how to use it and what it does not measure. */
+	.pop { position: absolute; z-index: 5; right: var(--edge, 1rem); bottom: 3.5rem; width: min(22rem, calc(100% - 1rem)); max-height: calc(100% - 4.5rem); overflow-y: auto; padding: .9rem 1rem; display: grid; gap: .5rem; font-size: .9rem; line-height: 1.35; color: var(--sky-ink); background: var(--sky-card); border: 1px solid var(--sky-line); box-shadow: 0 16px 36px -16px var(--sky-shade); }
+	.pop[hidden] { display: none; }
+	.pop { scrollbar-width: thin; scrollbar-color: var(--sky-line) transparent; }
+	.pop .method { padding-top: .55rem; border-top: 1px solid var(--sky-line); color: var(--sky-soft); }
+
+	/* A dot and one word for each category, along the foot of the sky. A halo of paper keeps a word legible over a star. */
+	.legend { position: absolute; z-index: 3; left: calc(var(--edge, 1rem) - .45rem); bottom: 1rem; max-width: calc(100% - 2 * var(--edge, 1rem) - 11rem); display: flex; flex-wrap: wrap; gap: 0 .1rem; font: 600 .7rem/1 'Inter', system-ui, sans-serif; }
+	.legend button { position: relative; display: inline-flex; align-items: center; gap: .36rem; height: 2rem; padding: 0 .45rem; color: var(--sky-soft); text-shadow: 0 0 .3em var(--sky-paper), 0 0 .6em var(--sky-paper); cursor: pointer; }
+	.legend button[aria-pressed='true'] { color: var(--sky-ink); box-shadow: inset 0 -2px 0 currentColor; }
+	@media (hover: hover) {
+		.legend button:hover { color: var(--sky-ink); }
+	}
+	.dot { width: .55rem; height: .55rem; border-radius: 50%; flex: none; background: var(--dot); box-shadow: inset 0 0 0 2px var(--dot); }
+	/* While one category is picked the others keep their text and show a hollow dot. */
+	.legend:has([aria-pressed='true']) button[aria-pressed='false'] .dot { background: none; }
+
+	:is(.controls, .legend) button:focus-visible { outline: 2px solid var(--sky-accent); outline-offset: 2px; }
+	/* Selected text takes the sky's own ink and paper. */
+	.constellation :global(::selection) { color: var(--sky-paper); background: var(--sky-ink); }
+
+	/* A phone: the sky fills the screen below the site header (+page.svelte gives the height). The controls sit at the top, the legend at the foot, and a picked post docks over the legend. */
+	@media (max-width: 880px) {
+		.field { inset: 4rem 1rem 5.75rem; }
+		.silhouette.wide { display: none; }
+		.silhouette.tall { display: block; }
+		.controls { top: .5rem; right: .5rem; bottom: auto; }
+		.controls button { width: 2.5rem; height: 2.5rem; }
+		.controls .apart { margin-left: .25rem; }
+		.controls button::after { top: calc(100% + .4rem); bottom: auto; }
+		.pop { top: 3.4rem; right: .5rem; bottom: auto; }
+		.legend { left: .5rem; right: .5rem; bottom: .5rem; max-width: none; }
+		.legend button { height: 1.9rem; padding: 0 .4rem; }
+		.picked:not(.listing) .legend { visibility: hidden; }
+	}
+	/* A narrow phone: the legend takes three rows, and the stars keep clear of all three. ConstellationSky.svelte repeats the width. */
+	@media (max-width: 350px) {
+		.field { inset: 4rem .75rem 7.75rem; }
 	}
 </style>

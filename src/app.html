@@ -39,6 +39,17 @@
 				var t = localStorage.getItem('skeleton-theme');
 				if (t) document.documentElement.setAttribute('data-theme', t);
 			})();
+			// The constellation flag (TIN-8628). With the flag on, the home page keeps the sky's room from its first paint.
+			// Without the flag this sets nothing. It repeats resolveConstellationFlag, which still decides after mount.
+			(function () {
+				try {
+					if (location.pathname !== '/') return;
+					var f = new URLSearchParams(location.search).getAll('flags');
+					var s = localStorage.getItem('tss:flags:constellation');
+					if (f.length > 1 || f[0] === 'none') return;
+					if (f[0] === 'constellation' || s === 'on') document.documentElement.setAttribute('data-sky', '');
+				} catch (e) {}
+			})();
 		</script>
 		%sveltekit.head%
 	</head>
