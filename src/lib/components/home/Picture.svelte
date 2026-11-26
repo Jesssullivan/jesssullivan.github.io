@@ -5,9 +5,25 @@
 	import { assetUrl } from '$lib/home/assets';
 	import type { StreamImage } from '$lib/home/stream';
 
-	let { image, lazy = true, alt = image.alt }: { image: Pick<StreamImage, 'src' | 'width' | 'height' | 'alt' | 'webp' | 'avif'>; lazy?: boolean; alt?: string } = $props();
+	let {
+		image,
+		lazy = true,
+		alt = image.alt,
+		sizes,
+	}: {
+		image: Pick<StreamImage, 'src' | 'width' | 'height' | 'alt' | 'webp' | 'avif' | 'small'>;
+		lazy?: boolean;
+		alt?: string;
+		/** How wide the picture is drawn, as the browser reads it. With it, a picture that has a small size is asked for in the size the layout needs. */
+		sizes?: string;
+	} = $props();
 	const avif = $derived(assetUrl(image.avif));
 	const webp = $derived(assetUrl(image.webp));
+	// Two sizes of one picture, in one format: the small one and the whole one. The browser takes the one the layout needs.
+	const small = $derived(sizes ? image.small : undefined);
+	// A picture kept as WebP has no other format beside it. Its small size is WebP too, so the two make one set.
+	const webpWhole = $derived(webp ?? (small?.webp && /\.webp$/i.test(image.src) ? assetUrl(image.src) : undefined));
+	const set = (whole: string | undefined, little: string | undefined) => (whole && little && small ? `${little} ${small.width}w, ${whole} ${image.width}w` : whole);
 
 	// A picture still on its way when the page comes alive fades in as it lands, so nothing pops.
 	// One that is already here, and any picture without scripts, just shows.
@@ -29,8 +45,8 @@
 </script>
 
 <picture>
-	{#if avif}<source srcset={avif} type="image/avif" />{/if}
-	{#if webp}<source srcset={webp} type="image/webp" />{/if}
+	{#if avif}<source srcset={set(avif, small?.avif)} sizes={small?.avif ? sizes : undefined} type="image/avif" />{/if}
+	{#if webpWhole}<source srcset={set(webpWhole, small?.webp)} sizes={small?.webp ? sizes : undefined} type="image/webp" />{/if}
 	<img src={assetUrl(image.src)} {alt} width={image.width} height={image.height} loading={lazy ? 'lazy' : 'eager'} decoding="async" use:land />
 </picture>
 

@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
 	import StreamEntry from './StreamEntry.svelte';
+	import { formOf } from '$lib/home/forms';
 	import { filterItems, filterOf, kindsOf, markerFor, offeredFilters, shows, type FilterId, type StreamFile } from '$lib/home/stream';
 
 	let {
@@ -121,7 +122,7 @@
 	<ol class="flow" bind:this={flowEl}>
 		{#each shown as item, i (item.id)}
 			{@const marker = markerFor(list, i)}
-			<li class={`item ${item.kind}`} class:month={marker !== null} class:pic={shows(item)} use:arrive data-testid="stream-item" data-kind={item.kind} data-kinds={kindsOf(item).join(' ')}>
+			<li class={`item ${item.kind}`} class:month={marker !== null} class:pic={shows(item)} class:plate={formOf(item) === 'plate'} use:arrive data-testid="stream-item" data-kind={item.kind} data-kinds={kindsOf(item).join(' ')}>
 				{#if marker}<p class="marker">{marker}</p>{/if}
 				<div class="entry"><StreamEntry {item} /></div>
 			</li>
@@ -152,7 +153,9 @@
 		.stream {
 			--say: clamp(27rem, 37vw, 42rem);
 			--between: clamp(3rem, 4.4vw, 5.5rem);
-			--title: clamp(1.7rem, 2.05vw, 2.5rem);
+			/* A title set as words is a step smaller than a title that lies on its photograph. */
+			--title: clamp(1.55rem, 1.8vw, 2.2rem);
+			--plate-title: clamp(1.75rem, 2.3vw, 2.75rem);
 		}
 	}
 
@@ -201,14 +204,18 @@
 			max-width: none;
 		}
 		.item {
-			margin-top: 3.75rem;
+			margin-top: 3.1rem;
+		}
+		.item.month:not(:first-child) {
+			margin-top: 5rem;
 		}
 		.item.pic:not(:first-child),
 		.item.pic + .item {
 			margin-top: 6.5rem;
 		}
-		.item.month:not(:first-child) {
-			margin-top: 7.5rem;
+		/* Beside a plate the month stands level with the head of the photograph. */
+		.item.plate .marker {
+			padding-top: 0.15rem;
 		}
 		.flow {
 			margin-top: 2.75rem;

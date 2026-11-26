@@ -1,9 +1,11 @@
 <script lang="ts">
-	// One item of the home stream, in the form its kind has (TIN-8657, rulings RM48 and RM66).
+	// One item of the home stream, in the form its kind has (TIN-8657, rulings RM48, RM66 and RM70).
 	// Every kind is drawn here and nowhere else. The kind shows by form: there is no label, card or rule.
-	// An item has words and it may have something to see. On a wide screen the two sit on two lines
-	// that run down the whole stream: the words on the first, and what there is to see on the second.
+	// An item has words and it may have something to see. On a wide screen two lines run down the whole
+	// stream. Every title starts on the first. A picture starts on one of the two, by its own shape:
+	// a wide photograph on the first, with its title lying on it, and any other picture on the second, beside its words.
 	import Picture from './Picture.svelte';
+	import { formOf, leadOf, rowOf } from '$lib/home/forms';
 	import { dayOf, setTotal, shows, tipFor, type StreamFilm, type StreamImage, type StreamItem, type StreamSound } from '$lib/home/stream';
 
 	let { item }: { item: StreamItem } = $props();
@@ -14,17 +16,32 @@
 	// The count shows only when the post holds more photographs than are on screen here.
 	const total = $derived(setTotal(item));
 	const pic = $derived(shows(item));
+	const form = $derived(formOf(item));
+	// One picture leads. The others stand in a row under it, at one height. Small pictures have no lead: they are all the row.
+	const lead = $derived(form === 'small' ? undefined : leadOf(images));
+	const others = $derived(images.filter((image) => image !== lead));
+	const row = $derived(rowOf(others));
 	// A recording of its own carries its play control beside its title. One a post holds sits under the post's words.
 	const lone = $derived(item.kind === 'recording' && sounds.length > 0);
 	const held = $derived(lone ? sounds.slice(1) : sounds);
 	// What is to see sets its own width: never wider than its file, and a tall picture never taller than most of the screen.
 	const shape = $derived.by(() => {
-		const lead = images[0] ?? films[0]?.poster;
-		if (!lead) return '';
+		const first = lead ?? films[0]?.poster;
+		if (!first) return undefined;
 		// A row of posters is as wide as its posters together, and counts as one wide shape.
-		const across = images[0] ? 1 : films.length;
-		return `--natural:${lead.width * across}px;--ar:${((lead.width * across) / lead.height).toFixed(4)}`;
+		const across = lead ? 1 : films.length;
+		return `--natural:${first.width * across}px;--ar:${((first.width * across) / first.height).toFixed(4)}`;
 	});
+	const ratio = (image: StreamImage) => (image.width / image.height).toFixed(4);
+	// How wide each picture is drawn, as the browser reads it, so it asks for the size of file the layout needs.
+	const LINE_ONE = '(100vw - 7vw - 9.5rem)';
+	const leadSizes = $derived.by(() => {
+		if (!lead) return undefined;
+		const own = `${lead.width}px, calc(${form === 'plate' ? 80 : 72}vh * ${ratio(lead)})`;
+		const room = form === 'plate' ? `calc${LINE_ONE}` : `calc(${LINE_ONE} - 37vw)`;
+		return `(min-width: 1100px) min(${room}, ${own}), (min-width: 901px) min(calc(100vw - 14vw - 9.5rem), ${own}), min(92vw, ${own})`;
+	});
+	const rowSizes = (image: StreamImage) => `min(calc(17rem * ${ratio(image)}), ${image.width}px, ${Math.ceil((100 * image.width) / image.height / (row?.sum ?? 1))}vw)`;
 
 	// A player is a frame from another site. It loads only when the visitor asks for it.
 	let playing = $state<string[]>([]);
@@ -42,7 +59,7 @@
 {#if item.kind === 'announcement'}
 	<p class="announcement"><a href={item.url} data-tip={dayOf(item.date)}>{item.title}</a></p>
 {:else}
-	<article class={`piece ${item.kind}`} class:pic>
+	<article class={`piece ${item.kind} ${form}`} class:pic style={shape}>
 		<div class="say">
 			{#if item.kind === 'note'}
 				<p class="text">{#if item.title}<strong>{`${item.title}. `}</strong>{/if}{item.summary}</p>
@@ -79,19 +96,19 @@
 			{/if}
 		</div>
 		{#if pic}
-			<div class="show" style={shape}>
-				{#if images[0]}
+			<div class="show">
+				{#if lead}
 					<!-- The title is the link a keyboard reaches. The picture is a second way in for a pointer. -->
-					<a class="lead" href={item.url} tabindex="-1" aria-hidden={images[0].alt ? undefined : 'true'}><Picture image={images[0]} /></a>
-					{#if images.length > 1}
-						<div class="rest" aria-hidden="true">
-							{#each images.slice(1) as image (image.src)}
-								<a href={item.url} tabindex="-1" style={`--ar:${(image.width / image.height).toFixed(4)}`}><Picture {image} alt="" /></a>
-							{/each}
-						</div>
-					{/if}
-					{#if total}<p class="count" data-testid="set-total">{total} photographs</p>{/if}
+					<a class="lead" href={item.url} tabindex="-1" aria-hidden={lead.alt ? undefined : 'true'}><Picture image={lead} sizes={leadSizes} /></a>
 				{/if}
+				{#if row}
+					<div class="rest" aria-hidden="true" style={`--sum:${row.sum.toFixed(4)};--cap:${row.cap}px;--gaps:${others.length - 1}`}>
+						{#each others as image (image.src)}
+							<a href={item.url} tabindex="-1" style={`--ar:${ratio(image)}`}><Picture {image} alt="" sizes={rowSizes(image)} /></a>
+						{/each}
+					</div>
+				{/if}
+				{#if total}<p class="count" data-testid="set-total">{total} photographs</p>{/if}
 				{#if films.length}
 					<div class="films">
 						{#each films as film, n (film.src)}
@@ -155,10 +172,17 @@
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
+	/* An excerpt is cut at a sentence end where the stream is built, so it is short. The clamp is only a floor under that. */
+	@media (min-width: 1100px) {
+		.summary {
+			-webkit-line-clamp: 5;
+			line-clamp: 5;
+		}
+	}
 	.recording .summary,
 	.piece.pic .summary {
-		-webkit-line-clamp: 4;
-		line-clamp: 4;
+		-webkit-line-clamp: 5;
+		line-clamp: 5;
 	}
 
 	/* A note: a few lines set plainly, its date small and quiet. */
@@ -195,9 +219,11 @@
 		width: min(var(--room), var(--natural), calc(72vh * var(--ar)));
 		width: min(var(--room), var(--natural), calc(72svh * var(--ar)));
 	}
+	/* The frame cuts what moves inside it, and is not itself a thing that scrolls: the drift below reads the screen. */
 	.lead {
 		display: block;
 		overflow: hidden;
+		overflow: clip;
 	}
 	.lead :global(img) {
 		display: block;
@@ -213,23 +239,40 @@
 			transform: scale(1.015);
 		}
 	}
-	/* The others in the set share one row at one height, each as wide as its shape asks. */
+	/*
+	 * The others share one row at one height, each as wide as its shape asks. The row is as wide as the lead
+	 * when its files allow it, and no picture in it is drawn larger than its file or taller than a hand of rems.
+	 */
 	.rest {
+		--gap: clamp(0.3rem, 0.6vw, 0.5rem);
+		container-type: inline-size;
 		display: flex;
-		gap: clamp(0.3rem, 0.6vw, 0.5rem);
-		margin-top: clamp(0.3rem, 0.6vw, 0.5rem);
+		gap: var(--gap);
+		margin-top: var(--gap);
 	}
 	.rest a {
-		flex: var(--ar) 1 0%;
-		min-width: 0;
+		flex: none;
+		height: min(var(--cap), 17rem, calc((100cqw - var(--gaps) * var(--gap)) / var(--sum)));
+		aspect-ratio: var(--ar);
 		overflow: hidden;
 	}
 	.rest :global(img) {
 		display: block;
 		width: 100%;
-		height: auto;
-		aspect-ratio: var(--ar);
+		height: 100%;
 		object-fit: cover;
+	}
+	/* Small pictures have no lead. They stand in a row at their own size, and the row may break. */
+	.small .show {
+		width: auto;
+		max-width: var(--room);
+	}
+	.small .rest {
+		flex-wrap: wrap;
+		margin-top: 0;
+	}
+	.small .rest a {
+		height: min(var(--cap), 11rem);
 	}
 	.count {
 		margin-top: 0.7rem;
@@ -448,8 +491,6 @@
 		/* The summary's first line stands on the baseline of the title's first line: each face's own rise, from its own top. */
 		.piece:not(.pic) .summary {
 			padding-top: calc(var(--title) * 0.94 - 1.099em);
-			-webkit-line-clamp: 3;
-			line-clamp: 3;
 		}
 		.piece.recording:not(.pic) .summary {
 			padding-top: 0;
@@ -473,12 +514,116 @@
 			grid-column: 2;
 			margin-top: 0;
 		}
+
+		/*
+		 * A plate: a wide photograph. It starts on the first line, where every title starts, and runs toward the
+		 * right edge of the screen: as wide as its file allows, and never taller than most of the screen.
+		 * Its title lies on it, at its foot. The row of its other pictures and its excerpt follow under it.
+		 */
+		.piece.plate {
+			grid-template-columns: minmax(0, 1fr);
+			width: min(calc(100% + var(--gutter)), var(--natural), calc(80vh * var(--ar)));
+			width: min(calc(100% + var(--gutter)), var(--natural), calc(80svh * var(--ar)));
+		}
+		.plate :is(.say, .show) {
+			display: contents;
+		}
+		.plate :is(.lead, h2) {
+			grid-area: 1 / 1;
+		}
+		.plate :is(.rest, .count, .summary, .heard, .player) {
+			grid-column: 1;
+		}
+		.plate .count {
+			order: 1;
+		}
+		.plate .summary {
+			order: 2;
+			margin-top: 1.1rem;
+		}
+		.plate :is(.heard, .player) {
+			order: 3;
+		}
+		/*
+		 * The deep feather, as on the stage. Behind the title lies the page's own ground, near solid and exactly
+		 * as far as the title reaches, and then it falls off into the photograph for a long way, up and across.
+		 */
+		.plate h2 {
+			--fall-x: clamp(7rem, 13vw, 14rem);
+			--fall-y: clamp(4.5rem, 7vw, 7rem);
+			position: relative;
+			z-index: 1;
+			align-self: end;
+			justify-self: start;
+			isolation: isolate;
+			max-width: min(100%, calc(27ch + var(--fall-x)));
+			padding: var(--fall-y) var(--fall-x) clamp(1.1rem, 1.6vw, 1.75rem) clamp(1.25rem, 1.8vw, 2rem);
+			font-size: var(--plate-title);
+			/* A halo of the ground under every letter, as a backstop for the feather. */
+			text-shadow:
+				0 0 0.375rem var(--ground),
+				0 0 1rem var(--ground);
+			pointer-events: none;
+		}
+		.plate h2 a {
+			pointer-events: auto;
+		}
+		.plate h2::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: -1;
+			background: color-mix(in oklch, var(--ground) 94%, transparent);
+			--x: calc(100% - var(--fall-x));
+			--y: calc(100% - var(--fall-y));
+			--across: linear-gradient(to right, #000 var(--x), rgb(0 0 0 / 0.86) calc(var(--x) + var(--fall-x) * 0.12), rgb(0 0 0 / 0.6) calc(var(--x) + var(--fall-x) * 0.3), rgb(0 0 0 / 0.34) calc(var(--x) + var(--fall-x) * 0.52), rgb(0 0 0 / 0.14) calc(var(--x) + var(--fall-x) * 0.74), rgb(0 0 0 / 0.04) calc(var(--x) + var(--fall-x) * 0.9), transparent 100%);
+			--up: linear-gradient(to top, #000 var(--y), rgb(0 0 0 / 0.86) calc(var(--y) + var(--fall-y) * 0.12), rgb(0 0 0 / 0.6) calc(var(--y) + var(--fall-y) * 0.3), rgb(0 0 0 / 0.34) calc(var(--y) + var(--fall-y) * 0.52), rgb(0 0 0 / 0.14) calc(var(--y) + var(--fall-y) * 0.74), rgb(0 0 0 / 0.04) calc(var(--y) + var(--fall-y) * 0.9), transparent 100%);
+			-webkit-mask-image: var(--across), var(--up);
+			-webkit-mask-composite: source-in;
+			mask-image: var(--across), var(--up);
+			mask-composite: intersect;
+		}
 		.on {
 			--hold: 50%;
 			padding: 5.5rem 13rem 0.55rem 1.1rem;
 		}
 		.on:not(:has(.when)) {
 			padding: 4.5rem 6.5rem 0.55rem 1.1rem;
+		}
+	}
+
+	/*
+	 * Depth by motion: a plate's photograph is a little larger than its frame, and it travels a few percent
+	 * inside it as it crosses the screen. The browser reads the scroll for it, so no script runs.
+	 * A browser that cannot do this shows the photograph still.
+	 */
+	@supports (animation-timeline: view()) {
+		@media (min-width: 1100px) and (prefers-reduced-motion: no-preference) {
+			.plate .lead :global(img) {
+				scale: 1.07;
+				animation: passes linear both;
+				animation-timeline: view();
+				transition:
+					scale 1.2s var(--ease),
+					opacity 0.6s var(--ease-soft);
+			}
+			.plate .lead:hover :global(img) {
+				transform: none;
+				scale: 1.085;
+			}
+			/* A device that missed the stage's frame budget gets the photograph still. */
+			:global(.home.calm) .plate .lead :global(img) {
+				scale: none;
+				animation: none;
+			}
+		}
+	}
+	@keyframes passes {
+		from {
+			translate: 0 -2.6%;
+		}
+		to {
+			translate: 0 2.6%;
 		}
 	}
 
