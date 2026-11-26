@@ -22,13 +22,26 @@ test.beforeEach(async ({ context, baseURL }) => {
 	});
 });
 
+// The first case ends on a fresh home page, which can close while its images are still routed.
+test.afterEach(async ({ context }) => {
+	await context.unrouteAll({ behavior: 'ignoreErrors' });
+});
+
 test('default remains unchanged; same-route client navigation enables, disables and clears preference', async ({ page }) => {
 	const requests: string[] = [];
-	page.on('request', request => { if (brokerUrls.includes(request.url())) requests.push(request.url()); });
+	// Without the flag the page asks for neither the broker streams nor the map data.
+	page.on('request', request => { if (brokerUrls.includes(request.url()) || /constellation/i.test(new URL(request.url()).pathname)) requests.push(request.url()); });
 	await page.goto('/');
 	await expect(page.locator('#latest')).toBeVisible();
 	await expect(page.locator('.constellation')).toHaveCount(0);
 	expect(requests).toEqual([]);
+	// The page keeps no room for a sky: the document is not marked and the columns have the layout's own padding.
+	const room = () => page.evaluate(() => ({
+		marked: document.documentElement.hasAttribute('data-sky'),
+		main: getComputedStyle(document.querySelector('#main-content') as Element).paddingTop,
+		aside: getComputedStyle(document.querySelector('#main-content + aside') as Element).paddingTop,
+	}));
+	expect(await room()).toEqual({ marked: false, main: '0px', aside: '0px' });
 	// A real same-origin anchor exercises SvelteKit client navigation without a reload.
 	await page.evaluate(() => {
 		const link = document.createElement('a'); link.id = 'flag-navigation';
@@ -39,13 +52,20 @@ test('default remains unchanged; same-route client navigation enables, disables 
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toBeVisible();
 	await expect(page.getByTestId('home-reader-broker-state')).toContainText('Blog unavailable; Pulse unavailable.');
-	await page.getByRole('button', { name: 'Year tree', exact: true }).click();
-	await page.locator('.year-tree summary').first().click();
-	await expect(page.locator('.year-tree a[href^="/blog/"]').first()).toBeVisible();
+	// The section opens on the map, with the list one control away (RM27).
+	await expect(page.getByRole('button', { name: 'Show as a list', exact: true })).toBeVisible();
+	await expect(page.getByTestId('constellation-map').locator('a[href^="/blog/"]').first()).toBeAttached();
+	// With the flag on, the profile column starts below the sky.
+	const sky = await page.getByTestId('constellation-panel').boundingBox();
+	const aside = await page.locator('#main-content + aside > div').boundingBox();
+	if (!sky || !aside) throw new Error('no boxes');
+	expect(aside.y).toBeGreaterThanOrEqual(sky.y + sky.height);
 	await page.evaluate(() => { const link = document.querySelector<HTMLAnchorElement>('#flag-navigation'); if (link) link.href = '/?flags=none'; });
 	requests.length = 0;
 	await page.locator('#flag-navigation').click();
 	await expect(page.locator('.constellation')).toHaveCount(0);
+	// Turning the flag off gives the room back: both columns are where the layout has them.
+	expect(await room()).toEqual({ marked: false, main: '0px', aside: '0px' });
 	expect(await page.evaluate(() => (window as unknown as { navigationSentinel: string }).navigationSentinel)).toBe('same-document');
 	expect(await page.evaluate(() => localStorage.getItem('tss:flags:constellation'))).toBeNull();
 	expect(requests).toEqual([]);

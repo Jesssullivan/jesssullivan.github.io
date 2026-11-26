@@ -1,139 +1,182 @@
 /**
- * Browser-safe view of the committed posts projection (TIN-5680).
+ * Browser-safe view of the constellation layout (TIN-5680, TIN-8628).
  *
- * No fetch, no numerical work: the projection JSON is imported at build time
- * and joined with the posts the reader can already route to. A post that is
- * not routeable (held, unpublished or broker-only) is never drawn, and a
- * routeable post the projection does not know yet is reported, not invented.
+ * The layout file is built ahead of time. Here it is only joined with the
+ * posts the reader can already route to. A post that is not routeable (held,
+ * unpublished or broker-only) is never drawn, and a routeable post the layout
+ * does not know yet is reported, not invented. No numerical work happens here.
  */
 import type { Post } from '$lib/posts';
+import type { ConstellationData } from './layout';
 
-export interface ProjectionDocument {
-	schema: string;
-	note: string;
-	posts: ReadonlyArray<{ slug: string; x: number; y: number }>;
-	edges: ReadonlyArray<readonly [number, number, number]>;
-}
-
-export interface SceneNode {
+export interface Star {
 	index: number;
 	slug: string;
 	title: string;
 	date: string;
+	/** One line about the post, without web addresses. Empty when the post's own summary is only an address. */
+	description: string;
 	href: string;
+	/** Position in the unit square of the frame in use (wide, or transposed for tall). */
 	x: number;
 	y: number;
+	category: number;
+	/** Index into `groups`, or -1. */
+	group: number;
+	/** 0 to 3 by length. */
+	size: number;
+	/** 0 to 2 by recency. */
+	glow: number;
+	/** Where the title goes and from what scale, as the layout encodes it for the frame in use. 0 when it is never drawn. */
+	label: number;
+	/** The room the title takes, in pixels. */
+	labelWidth: number;
 }
 
-export interface Scene {
-	nodes: SceneNode[];
-	edges: Array<[number, number]>;
-	adjacency: number[][];
+export interface Group {
+	/** The category's label, or empty for a constellation that has a figure and no name. */
+	name: string;
+	/** Label centre, unit square. */
+	x: number;
+	y: number;
+	/** Glow centre and radii, unit square. */
+	glow: [number, number, number, number];
+	category: number;
+	members: number[];
+}
+
+export interface Sky {
+	stars: Star[];
+	groups: Group[];
+	figure: Array<[number, number]>;
+	/** Per star, the nearest posts, strongest first. */
+	near: number[][];
+	categories: Array<{ id: string; label: string; count: number }>;
 	bySlug: Map<string, number>;
-	/** Routeable posts the committed projection has not placed yet. */
+	/** Routeable posts the layout has not placed yet. */
 	unplaced: Post[];
-	note: string;
 }
 
 export type Direction = 'left' | 'right' | 'up' | 'down';
 
-const VECTORS: Record<Direction, [number, number]> = {
-	left: [-1, 0],
-	right: [1, 0],
-	up: [0, -1],
-	down: [0, 1],
-};
+const VECTORS: Record<Direction, [number, number]> = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+const GRID = 1000;
 
-export function isProjectionDocument(value: unknown): value is ProjectionDocument {
+const isIndex = (value: unknown, limit: number) => Number.isInteger(value) && (value as number) >= 0 && (value as number) < limit;
+const onGrid = (value: unknown) => Number.isFinite(value) && (value as number) >= 0 && (value as number) <= GRID;
+
+export function isConstellationData(value: unknown): value is ConstellationData {
 	if (!value || typeof value !== 'object') return false;
-	const doc = value as Partial<ProjectionDocument>;
+	const doc = value as Partial<ConstellationData>;
+	if (doc.schema !== 'constellation.v1') return false;
+	const { stars, groups, figure, near, categories, labels, titles } = doc;
+	if (!Array.isArray(stars) || !Array.isArray(groups) || !Array.isArray(figure) || !Array.isArray(near)) return false;
+	const counts = (list: unknown) => Array.isArray(list) && list.length === stars.length && list.every((value) => Number.isInteger(value) && value >= 0);
+	if (!titles || !counts(titles.width) || !counts(titles.wide) || !counts(titles.tall)) return false;
+	if (!Array.isArray(categories) || !Array.isArray(labels) || labels.length !== categories.length || near.length !== stars.length) return false;
 	return (
-		doc.schema === 'posts-projection.v1' &&
-		typeof doc.note === 'string' &&
-		Array.isArray(doc.posts) &&
-		Array.isArray(doc.edges) &&
-		doc.posts.every(
-			(post) =>
-				typeof post?.slug === 'string' &&
-				Number.isFinite(post.x) &&
-				Number.isFinite(post.y) &&
-				post.x >= 0 &&
-				post.x <= 1 &&
-				post.y >= 0 &&
-				post.y <= 1,
+		stars.every(
+			(star) =>
+				Array.isArray(star) &&
+				typeof star[0] === 'string' &&
+				onGrid(star[1]) &&
+				onGrid(star[2]) &&
+				isIndex(star[3], categories.length) &&
+				(star[4] === -1 || isIndex(star[4], groups.length)) &&
+				isIndex(star[5], 4) &&
+				isIndex(star[6], 3),
 		) &&
-		doc.edges.every(
-			(edge) =>
-				Array.isArray(edge) &&
-				Number.isInteger(edge[0]) &&
-				Number.isInteger(edge[1]) &&
-				edge[0] >= 0 &&
-				edge[1] < (doc.posts as unknown[]).length &&
-				edge[0] < edge[1],
-		)
+		groups.every((group) => typeof group?.name === 'string' && [group.wide, group.tall].every((at) => Array.isArray(at) && at.length === 2 && at.every(Number.isFinite)) && Array.isArray(group.glow) && group.glow.length === 4 && isIndex(group.category, categories.length)) &&
+		figure.every((line) => Array.isArray(line) && isIndex(line[0], stars.length) && isIndex(line[1], stars.length)) &&
+		near.every((list) => Array.isArray(list) && list.every((index) => isIndex(index, stars.length)))
 	);
 }
 
-/** Join the projection with routeable posts; nodes keep the projection's slug order. */
-export function buildScene(projection: unknown, routeablePosts: readonly Post[]): Scene | null {
-	if (!isProjectionDocument(projection)) return null;
+/**
+ * A post's summary as the map shows it. Many old summaries open with a web
+ * address or are nothing else. An address is cut out, and what is left around
+ * it is shown only when it still says something.
+ */
+export function summaryOf(description: string | undefined): string {
+	const whole = (description ?? '').replace(/\s+/g, ' ').trim();
+	const text = whole
+		.replace(/\b(?:https?:\/\/|www\.)\S+/gi, ' ')
+		.replace(/\s+/g, ' ')
+		.replace(/^[\s.,:;…-]+/, '')
+		.trim();
+	if (text === whole) return whole;
+	return (text.match(/[\p{L}\p{N}]{2,}/gu) ?? []).length >= 3 ? text : '';
+}
+
+/** Join the layout with routeable posts. Stars keep the layout's slug order. */
+export function buildSky(data: unknown, routeablePosts: readonly Post[], tall = false): Sky | null {
+	if (!isConstellationData(data)) return null;
 	const routeable = new Map(routeablePosts.map((post) => [post.slug, post]));
-	const nodes: SceneNode[] = [];
-	const projected = new Map<number, number>();
-	projection.posts.forEach((point, sourceIndex) => {
-		const post = routeable.get(point.slug);
+	const kept = new Map<number, number>();
+	const stars: Star[] = [];
+	data.stars.forEach(([slug, x, y, category, group, size, glow], source) => {
+		const post = routeable.get(slug);
 		if (!post) return;
-		projected.set(sourceIndex, nodes.length);
-		nodes.push({
-			index: nodes.length,
-			slug: post.slug,
+		kept.set(source, stars.length);
+		stars.push({
+			index: stars.length,
+			slug,
 			title: post.title,
 			date: post.date,
-			href: `/blog/${post.slug}`,
-			x: point.x,
-			y: point.y,
+			description: summaryOf(post.description),
+			href: `/blog/${slug}`,
+			x: (tall ? y : x) / GRID,
+			y: (tall ? x : y) / GRID,
+			category,
+			group,
+			size,
+			glow,
+			label: (tall ? data.titles.tall : data.titles.wide)[source],
+			labelWidth: data.titles.width[source],
 		});
 	});
-	const edges: Array<[number, number]> = [];
-	const weighted: Array<Array<[number, number]>> = nodes.map(() => []);
-	for (const [a, b, weight] of projection.edges) {
-		const from = projected.get(a);
-		const to = projected.get(b);
-		if (from === undefined || to === undefined) continue;
-		edges.push([from, to]);
-		weighted[from].push([to, weight]);
-		weighted[to].push([from, weight]);
-	}
-	// Strongest input similarity first; ties by slug order (node index).
-	const adjacency = weighted.map((list) => list.sort((p, q) => q[1] - p[1] || p[0] - q[0]).map(([i]) => i));
-	const placed = new Set(nodes.map((node) => node.slug));
+	const remap = (list: readonly number[]) => list.map((index) => kept.get(index)).filter((index): index is number => index !== undefined);
+	const groups = data.groups.map((group, g): Group => {
+		const [x, y] = tall ? group.tall : group.wide;
+		const [cx, cy, rx, ry] = group.glow;
+		return {
+			name: group.name,
+			x: x / GRID,
+			y: y / GRID,
+			glow: tall ? [cy / GRID, cx / GRID, ry / GRID, rx / GRID] : [cx / GRID, cy / GRID, rx / GRID, ry / GRID],
+			category: group.category,
+			members: stars.filter((star) => star.group === g).map((star) => star.index),
+		};
+	});
+	const placed = new Set(stars.map((star) => star.slug));
 	return {
-		nodes,
-		edges,
-		adjacency,
-		bySlug: new Map(nodes.map((node) => [node.slug, node.index])),
+		stars,
+		groups,
+		figure: data.figure.map((line) => remap(line)).filter((line): line is [number, number] => line.length === 2),
+		near: data.stars.map((_, source) => source).filter((source) => kept.has(source)).map((source) => remap(data.near[source])),
+		categories: data.categories.map((id, index) => ({ id, label: data.labels[index], count: stars.filter((star) => star.category === index).length })),
+		bySlug: new Map(stars.map((star) => [star.slug, star.index])),
 		unplaced: routeablePosts.filter((post) => !placed.has(post.slug)),
-		note: projection.note,
 	};
 }
 
 /**
- * The next node in an arrow-key direction: prefer a similarity neighbour
- * roughly that way, otherwise the nearest node within a 60-degree cone.
- * Mirrors the #288 project map's `neighborInDirection`.
+ * The next star in an arrow-key direction: prefer one of its nearest posts
+ * roughly that way, otherwise the nearest star within a 60-degree cone.
+ * `aspect` is the drawn width over height, so directions match the screen.
  */
-export function neighborInDirection(scene: Scene, from: number, dir: Direction): number {
-	const origin = scene.nodes[from];
+export function neighborInDirection(sky: Sky, from: number, dir: Direction, aspect = 1, allow: (index: number) => boolean = () => true): number {
+	const origin = sky.stars[from];
 	if (!origin) return -1;
 	const [dx, dy] = VECTORS[dir];
 	const pick = (candidates: Iterable<number>, minCos: number): number => {
 		let best = -1;
 		let bestScore = Infinity;
 		for (const i of candidates) {
-			if (i === from) continue;
-			const node = scene.nodes[i];
-			const vx = node.x - origin.x;
-			const vy = node.y - origin.y;
+			if (i === from || !allow(i)) continue;
+			const star = sky.stars[i];
+			const vx = (star.x - origin.x) * aspect;
+			const vy = star.y - origin.y;
 			const distance = Math.hypot(vx, vy);
 			if (distance === 0) continue;
 			const cos = (vx * dx + vy * dy) / distance;
@@ -146,29 +189,20 @@ export function neighborInDirection(scene: Scene, from: number, dir: Direction):
 		}
 		return best;
 	};
-	const viaEdge = pick(scene.adjacency[from] ?? [], 0.35);
-	if (viaEdge >= 0) return viaEdge;
+	const viaNear = pick(sky.near[from] ?? [], 0.35);
+	if (viaNear >= 0) return viaNear;
 	return pick(
-		scene.nodes.map((node) => node.index),
+		sky.stars.map((star) => star.index),
 		0.5,
 	);
 }
 
-/** Reading order entry point: the top-left-most node. */
-export function firstInReadingOrder(scene: Scene): number {
-	let best = -1;
-	let score = Infinity;
-	for (const node of scene.nodes) {
-		const value = node.y * 2 + node.x;
-		if (value < score) {
-			score = value;
-			best = node.index;
-		}
-	}
-	return best;
+/** Reading order: top to bottom, then left to right. The first one is the map's tab stop. */
+export function readingOrder(sky: Sky): number[] {
+	return sky.stars.map((star) => star.index).sort((a, b) => sky.stars[a].y * 2 + sky.stars[a].x - (sky.stars[b].y * 2 + sky.stars[b].x) || a - b);
 }
 
-/** Similarity neighbours of one node, strongest first. */
-export function neighboursOf(scene: Scene, index: number): SceneNode[] {
-	return (scene.adjacency[index] ?? []).map((i) => scene.nodes[i]);
+/** The nearest posts of one star, strongest first. */
+export function nearOf(sky: Sky, index: number): Star[] {
+	return (sky.near[index] ?? []).map((i) => sky.stars[i]);
 }
