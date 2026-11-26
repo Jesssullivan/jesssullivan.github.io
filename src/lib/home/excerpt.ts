@@ -112,14 +112,16 @@ export function proseOf(body: string): Prose[] {
 		const block = raw.trim();
 		if (!block) continue;
 		const lines = block.split('\n');
-		const table = block.includes('|') && lines.some((line) => /^[\s|:-]*-{2,}[\s|:-]*$/.test(line));
+		// Named so that no part of this file reads as a style class to the site's stylesheet build, which scans every source file.
+		const tabular = block.includes('|') && lines.some((line) => /^[\s|:-]*-{2,}[\s|:-]*$/.test(line));
 		const underlined = lines.length > 1 && /^(?:=+|-+)\s*$/.test(lines[lines.length - 1]);
-		const code = /^(?: {4}|\t)/.test(raw.replace(/^\n+/, ''));
+		const indented = /^(?: {4}|\t)/.test(raw.replace(/^\n+/, ''));
 		const words = plainText(block.replace(/\n/g, ' '));
 		const label = ALL_EMPHASIS.test(block) && !ENDS_IN_EMPHASIS.test(block);
 		const within = quoted;
-		if (block !== '\uE002' && !code && !table && leftOpenQuotes(words)) quoted = !quoted;
-		if (block === '\uE002' || code || table || underlined || NOT_PROSE.test(block) || COMPONENT.test(block) || LONE_LINK.test(block) || label || !/\p{L}/u.test(words)) {
+		const notText = block === '\uE002' || indented || tabular;
+		if (notText === false && leftOpenQuotes(words)) quoted = !quoted;
+		if (notText || underlined || NOT_PROSE.test(block) || COMPONENT.test(block) || LONE_LINK.test(block) || label || !/\p{L}/u.test(words)) {
 			apart = true;
 			continue;
 		}
