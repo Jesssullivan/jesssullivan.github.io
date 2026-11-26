@@ -20,6 +20,9 @@
 		scale = 1,
 		zoomed = $bindable(false),
 		picked = $bindable(false),
+		legend = 'foot',
+		hosted = false,
+		lists = true,
 		onlive = () => {},
 	}: {
 		data: unknown;
@@ -36,6 +39,12 @@
 		zoomed?: boolean;
 		/** True while a star is pinned. */
 		picked?: boolean;
+		/** Where the shell lays the legend. Along the top edge, the strip the map keeps clear of is at the head, and a picked post docks there on a phone. */
+		legend?: 'foot' | 'head' | 'none';
+		/** True when the page draws the controls in a row of its own: no control lies on the sky. */
+		hosted?: boolean;
+		/** False on a page with no Latest and Archive lists under the sky. */
+		lists?: boolean;
 		/** Called at the first frame. True when the canvas fades in over the silhouette. */
 		onlive?: (fade: boolean) => void;
 	} = $props();
@@ -116,9 +125,14 @@
 	const shown = (index: number) => filter < 0 || sky?.stars[index]?.category === filter;
 	/** The strip at the foot of the panel that holds the legend and the controls, or the docked card. */
 	const strip = () => size.h - (fieldRect.y + fieldRect.h) - 10;
-	const foot = () => (tall && selected >= 0 && dock ? dock : strip());
+	/** With the legend along the top edge, everything said of the foot is true of the head: the strip is there, and so is the docked card. */
+	const atHead = $derived(legend === 'head');
+	/** True when nothing lies along the foot of the sky, so the map only fades out there. */
+	const openFoot = $derived(hosted && legend !== 'foot');
+	const docked = () => tall && selected >= 0 && dock > 0;
+	const foot = () => (docked() && !atHead ? dock : openFoot && (!tall || atHead) ? FADE : strip());
 	/** The strip at the top: the fade on a desktop, and the controls on a phone. The map fades out under both strips, so a star never lies under a control or a word. */
-	const head = () => (tall ? fieldRect.y - 12 : FADE);
+	const head = () => (atHead ? (docked() ? Math.max(dock, fieldRect.y - 12) : fieldRect.y - (tall ? 12 : 10)) : tall ? fieldRect.y - 12 : FADE);
 
 	function schedule() {
 		if (!frameId) frameId = requestAnimationFrame(frame);
@@ -164,6 +178,8 @@
 				name.style.transform = `translate(${at.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%)`;
 			}
 		}
+		// While the keyboard is on a star its link follows the map frame by frame, so its outline stays on it.
+		if (keyboard && focused >= 0) placeLinks();
 		const fit = isFit(current);
 		if (zoomed === fit) zoomed = !fit;
 		// The link layer and the session follow once the view has been still for a moment: no style or layout work rides on a frame.
@@ -247,6 +263,18 @@
 		tipEl.style.transform = `translate(${Math.round(spot.left)}px,${Math.round(spot.top)}px)`;
 	}
 
+	/**
+	 * Put the link layer where the stars are now. The link the keyboard is on draws a real outline,
+	 * and that outline lies exactly on the ring the canvas draws: the same centre, radius and width.
+	 */
+	function placeLinks() {
+		if (!starsEl) return;
+		starsEl.style.transform = `translate(${current.x}px,${current.y}px) scale(${current.k})`;
+		starsEl.style.setProperty('--k', String(current.k));
+		const star = sky?.stars[focused];
+		if (star) starsEl.style.setProperty('--ring', `${starRadius(star.size, current.k, scale) + (focused === selected ? 9.5 : 5) - 13.5}px`);
+	}
+
 	/** Once motion stops: move the link layer under the stars, remember the view and let the card look for free space where the map now is. */
 	function settle() {
 		if (selected >= 0 && !tall && cardAt && cardFor !== cardState()) {
@@ -255,10 +283,7 @@
 			// One more frame draws the line from the card to its star.
 			schedule();
 		}
-		if (starsEl) {
-			starsEl.style.transform = `translate(${current.x}px,${current.y}px) scale(${current.k})`;
-			starsEl.style.setProperty('--k', String(current.k));
-		}
+		placeLinks();
 		if (size.w) writeSession({ view: storeView(current, size) });
 	}
 
@@ -284,7 +309,8 @@
 	function reveal(index: number) {
 		if (!sky?.stars[index] || !size.w) return;
 		const [wx, wy] = worldOf(index);
-		const target = viewToShow(current, wx, wy, size, tall ? 36 : 64, foot() + 28, lift);
+		// A star under the card docked at the top comes down clear of it.
+		const target = viewToShow(current, wx, wy, size, tall ? 36 : 64, foot() + 28, lift, atHead && tall ? head() + 28 : undefined);
 		if (Math.abs(target.x - current.x) > 0.5 || Math.abs(target.y - current.y) > 0.5) flyTo(target, 320);
 	}
 
@@ -483,7 +509,7 @@
 
 	/** Zoom about the middle of the map. The shell's zoom buttons call this. */
 	export function zoomBy(factor: number) {
-		if (size.w) flyTo(zoomAt(current, size.w / 2, (size.h - foot()) / 2, factor, size, lift), 220);
+		if (size.w) flyTo(zoomAt(current, size.w / 2, ((atHead ? head() : 0) + size.h - foot()) / 2, factor, size, lift), 220);
 	}
 
 	/** Back to the whole map with nothing pinned. */
@@ -514,8 +540,10 @@
 		const xs = points.map((p) => p[0]);
 		const ys = points.map((p) => p[1]);
 		// The figure is framed in the part of the map above the legend, the controls or the docked card.
-		const box = viewForBox([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], { w: size.w, h: size.h - foot() }, tall ? 44 : 96);
-		flyTo(box);
+		// With the legend along the top edge, the figure is framed under it as well.
+		const top = atHead ? head() : 0;
+		const box = viewForBox([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)], { w: size.w, h: size.h - foot() - top }, tall ? 44 : 96);
+		flyTo(top ? { ...box, y: box.y + top / 2 } : box);
 	}
 
 	function onStarKey(event: KeyboardEvent, index: number) {
@@ -684,7 +712,8 @@
 		if (tall && selected >= 0) {
 			dock = cardSize.h + 16;
 			// A card taller than the strip lets a zoomed map ride up by the difference, and only when the star needs it. At rest nothing moves.
-			lift = Math.max(0, dock - strip());
+			// Docked at the top, the card lies in the strip the legend keeps, and the map never has to ride.
+			lift = atHead ? 0 : Math.max(0, dock - strip());
 			reveal(selected);
 		} else lift = dock = 0;
 		// Placed before it is painted, from where the stars were in the last frame.
@@ -812,11 +841,12 @@
 				{/each}
 			</div>
 			{#if sky.unplaced.length > 0}
-				<p class="unplaced">{sky.unplaced.length} newer {sky.unplaced.length === 1 ? 'post is' : 'posts are'} not on the map yet. Latest has {sky.unplaced.length === 1 ? 'it' : 'them'}.</p>
+				<p class="unplaced">{sky.unplaced.length} newer {sky.unplaced.length === 1 ? 'post is' : 'posts are'} not on the map yet.{lists ? ` Latest has ${sky.unplaced.length === 1 ? 'it' : 'them'}.` : ''}</p>
 			{/if}
 		</div>
 	{:else}
-		<ol class="list veil" aria-label="Posts on the map, newest first, each with its nearest posts" data-testid="constellation-list">
+		<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+		<ol class="list veil" aria-label="Posts on the map, newest first, each with its nearest posts" tabindex={hosted ? -1 : undefined} data-testid="constellation-list">
 			{#each listOrder as star (star.slug)}
 				<li>
 					<a href={star.href}>{star.title}</a>
@@ -829,7 +859,7 @@
 		</ol>
 	{/if}
 {:else if sky}
-	<p class="empty">No public post is on the map yet. The Latest and Archive lists below have every public post.</p>
+	<p class="empty">No public post is on the map yet.{lists ? ' The Latest and Archive lists below have every public post.' : ''}</p>
 {/if}
 
 <style>
@@ -850,6 +880,9 @@
 	/* Real links under the stars: one roving tab stop, placed where the canvas draws each star. */
 	.stars { position: absolute; inset: 0; transform-origin: 0 0; pointer-events: none; --k: 1; }
 	.stars a { position: absolute; left: calc(var(--fx, 0px) + var(--fw, 0px) * var(--x)); top: calc(var(--fy, 0px) + var(--fh, 0px) * var(--y)); width: calc(24px / var(--k)); height: calc(24px / var(--k)); translate: -50% -50%; border-radius: 50%; outline: none; }
+
+	/* Reached by keyboard, a star's link draws its outline on the ring the canvas draws there, so the focus shows where a canvas does not. */
+	.stars a:focus-visible { outline: calc(3px / var(--k)) solid var(--sky-accent); outline-offset: calc(var(--ring, -4.5px) / var(--k)); }
 
 	.names { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s ease .45s; }
 	.assembled .names { opacity: 1; }
@@ -926,5 +959,36 @@
 	@media (prefers-reduced-motion: reduce) {
 		.names, .names button, .glow { transition: none; }
 		.stage.fade canvas { animation: none; }
+	}
+
+	/*
+	 * The sky as a page may ask for it (TIN-8657): the classes are the shell's, in ReaderConstellation.svelte, and none is set by default.
+	 * head: the legend lies along the top edge, so the map fades out under it there. bare: the page draws the controls under the sky.
+	 * With both, nothing lies along the foot and the map fades out there as it does at the top by default.
+	 */
+	:global(.constellation.head) .veil { --veil-a: 2.5rem; --veil-b: 4.25rem; }
+	:global(.constellation.bare:is(.head, .plain)) .veil { --veil-c: 28px; --veil-d: 0px; }
+	:global(.constellation.head) .list { --veil-a: 0px; --veil-b: 28px; inset: 3.25rem 0 3.5rem; padding-top: 2rem; }
+	:global(.constellation.bare) .list { bottom: 0; }
+	:global(.constellation.bare:not(.head, .plain)) .list { bottom: 3.5rem; }
+	:global(.constellation.bare) .list:focus { outline: none; }
+	:global(.constellation.bare:is(.head, .plain)) .unplaced { bottom: 1.25rem; }
+	@media (max-width: 880px) {
+		:global(.constellation.head) .veil { --veil-a: 3.75rem; --veil-b: 5.25rem; --veil-c: 3.5rem; --veil-d: 2rem; }
+		:global(.constellation.head.bare) .veil { --veil-c: 28px; --veil-d: 0px; }
+		:global(.constellation.bare:not(.head)) .veil { --veil-a: 0px; --veil-b: 28px; }
+		:global(.constellation.plain.bare) .veil { --veil-c: 5.25rem; --veil-d: 3.75rem; }
+		/* The picked post docks in the strip at the top, where the legend was. */
+		:global(.constellation.head) .card { top: .5rem; bottom: auto; }
+		:global(.constellation.head) .list { --veil-a: 0px; --veil-b: 28px; --veil-c: 28px; --veil-d: 0px; inset: 4.75rem 0 3.75rem; padding: 1.75rem 1rem 1.5rem 2.6rem; }
+		:global(.constellation.bare) .list { --veil-c: 28px; --veil-d: 0px; bottom: 0; padding-top: 1.75rem; }
+		:global(.constellation.bare:not(.head, .plain)) .list { bottom: 4.75rem; }
+		:global(.constellation.head) .unplaced { bottom: 4.25rem; }
+		:global(.constellation.head.bare) .unplaced { bottom: 1rem; }
+	}
+	@media (max-width: 350px) {
+		:global(.constellation.head) .veil { --veil-a: 5.75rem; --veil-b: 7.25rem; }
+		:global(.constellation.head) .list { top: 6.75rem; }
+		:global(.constellation.bare:not(.head, .plain)) .list { bottom: 6.75rem; }
 	}
 </style>

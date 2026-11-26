@@ -61,6 +61,11 @@ describe('constellation view', () => {
 		// A strip at the foot of the panel is kept clear: the point comes to rest above it.
 		const above = viewToShow({ k: 4, x: 0, y: 0 }, 100, 115, size, 40, 180);
 		expect(115 * above.k + above.y).toBeCloseTo(320);
+		// A strip at the top is kept clear the same way: the point comes to rest under it (TIN-8657).
+		const below = viewToShow({ k: 4, x: 0, y: -200 }, 100, 60, size, 40, 40, 0, 120);
+		expect(60 * below.k + below.y).toBeCloseTo(120);
+		// With no strip named, the margin is all the top keeps.
+		expect(viewToShow({ k: 4, x: 0, y: -200 }, 100, 60, size, 40)).toEqual({ k: 4, x: 0, y: -200 });
 	});
 
 	it('shortens a long title for the map and knows the scale titles were placed for', () => {
