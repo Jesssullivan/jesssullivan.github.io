@@ -46,6 +46,8 @@ for (const command of [
 	// The committed home stream must match the committed posts, gallery, Pulse snapshot and Music page (TIN-8657).
 	// This runs first, before a later step rewrites the gallery or shrinks an image.
 	['tsx', 'scripts/generate-home-stream.mts', '--check'],
+	// Every small picture the stream names is committed and has its source's shape (TIN-8657).
+	['tsx', 'scripts/generate-home-pictures.mts', '--check'],
 	['tsx', 'scripts/generate-search-index.mts'],
 	['tsx', 'scripts/optimize-images.mts'],
 	['tsx', 'scripts/render-mermaid.mts'],
@@ -53,6 +55,7 @@ for (const command of [
 	['tsx', 'scripts/generate-tag-graph.mts'],
 	['tsx', 'scripts/generate-photo-gallery.mts'],
 	['tsx', 'scripts/validate-pulse-snapshot.mts'],
+	['tsx', 'scripts/generate-home-pictures.mts'],
 	['tsx', 'scripts/generate-home-stream.mts'],
 	['svelte-kit', 'sync'],
 	['vite', 'build'],

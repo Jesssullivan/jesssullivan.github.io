@@ -15,6 +15,7 @@ import {
 	monthOf,
 	offeredFilters,
 	ownsImage,
+	picturesIn,
 	setTotal,
 	subjectOf,
 	tipFor,
@@ -31,7 +32,7 @@ const post = (slug: string, date: string, extra: Partial<PostInput> = {}): PostI
 	slug,
 	date,
 	title: `Title of ${slug}`,
-	description: `About ${slug}.`,
+	description: `A few words about ${slug}.`,
 	tags: ['a'],
 	minutes: 4,
 	body: '',
@@ -138,6 +139,14 @@ describe('the cover rule', () => {
 		expect(items.find((item) => item.id === 'post:gone')!.media).toEqual([]);
 	});
 
+	it('counts a drawing the text shows as SVG for its cover in the format the site serves', () => {
+		expect(ownsImage('![flow](/images/posts/flow.svg)', '/images/posts/flow.png')).toBe(true);
+		const base = sources();
+		const { items, leftOut } = buildStream({ ...base, posts: [post('drawn', '2025-01-01', { body: '![The flow](/images/posts/flow.svg)', featureImage: '/images/posts/flow.png' })] });
+		expect(items.find((item) => item.id === 'post:drawn')!.media).toEqual([{ type: 'image', src: '/images/posts/flow.png', width: 1200, height: 800, alt: 'The flow', webp: '/images/posts/flow.webp', avif: '/images/posts/flow.avif' }]);
+		expect(leftOut.coversNotOwn).toBe(0);
+	});
+
 	it('reads the alt text a post gives an image', () => {
 		expect(altIn('![A wood duck](/images/posts/IMG_2.jpg)', '/images/posts/IMG_2.jpg')).toBe('A wood duck');
 		expect(altIn('![](/images/posts/IMG_2.jpg)', '/images/posts/IMG_2.jpg')).toBe('');
@@ -145,10 +154,53 @@ describe('the cover rule', () => {
 	});
 });
 
+describe('every picture a post shows', () => {
+	it('reads Markdown images and image tags in the order of the text, and nothing inside a code block', () => {
+		const body = ['![One](/images/posts/one.jpg "a title")', '<img alt="Two" src="/images/posts/two.png" width="300">', '```md', '![Not shown](/images/posts/in-code.jpg)', '```', "<img src='https://example.org/far.jpg'>"].join('\n\n');
+		expect(picturesIn(body)).toEqual([
+			{ src: '/images/posts/one.jpg', alt: 'One' },
+			{ src: '/images/posts/two.png', alt: 'Two' },
+			{ src: 'https://example.org/far.jpg', alt: '' },
+		]);
+	});
+
+	it('gives a post the pictures its own text shows, each once, in its order, though its cover is a shared one', () => {
+		const base = sources();
+		const body = '![A](/images/posts/a.jpg) words ![B](/images/posts/b.jpg) and again ![A](/images/posts/a.jpg)';
+		const { items, leftOut } = buildStream({ ...base, posts: [post('shown', '2025-01-01', { body, featureImage: '/images/posts/IMG_5415-2.jpg' })] });
+		expect(items.find((item) => item.id === 'post:shown')!.media.map((media) => media.src)).toEqual(['/images/posts/a.jpg', '/images/posts/b.jpg']);
+		// The shared cover is still not shown, and still counted.
+		expect(leftOut.coversNotOwn).toBe(1);
+	});
+
+	it('leaves out a moving picture and a picture another site holds, and counts each', () => {
+		const base = sources();
+		const body = '![](/images/posts/loop.gif) ![](https://example.org/far.jpg) ![Still](/images/posts/still.jpg) ![](/images/posts/missing.jpg)';
+		const { items, leftOut } = buildStream({ ...base, posts: [post('mixed', '2025-01-01', { body })] });
+		expect(items.find((item) => item.id === 'post:mixed')!.media.map((media) => media.src)).toEqual(['/images/posts/still.jpg']);
+		expect(leftOut).toMatchObject({ picturesMoving: 1, picturesElsewhere: 1 });
+	});
+
+	it('shows five pictures at most, and a set of photographs of the same files adds none', () => {
+		const base = sources();
+		const names = ['IMG_1', 'IMG_2', 'IMG_3', 'IMG_4', 'IMG_5', 'IMG_6', 'IMG_7'];
+		const body = names.map((name) => `![](/images/posts/${name}.jpg)`).join(' ');
+		const { items } = buildStream({ ...base, posts: [post('many', '2025-01-01', { body })], gallery: names.map((name) => photo(name, 'many')) });
+		const many = items.find((item) => item.id === 'post:many')!;
+		expect(many.media.map((media) => media.src)).toEqual(names.slice(0, SET_SIZE).map((name) => `/images/posts/${name}.jpg`));
+		expect(many.more).toBe(2);
+		expect(setTotal(many)).toBe(7);
+		// Without a set of photographs the post shows its first five and counts nothing.
+		const plain = buildStream({ ...base, posts: [post('many', '2025-01-01', { body })], gallery: [] }).items.find((item) => item.id === 'post:many')!;
+		expect(plain.media).toHaveLength(SET_SIZE);
+		expect(plain.more).toBeUndefined();
+	});
+});
+
 describe('items left out and counted', () => {
 	it('leaves out photographs no public post uses, and videos with no date', () => {
 		const { items, leftOut, counts } = buildStream(sources());
-		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, undated: 0 });
+		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, picturesMoving: 0, picturesElsewhere: 0, undated: 0 });
 		expect(items.some((item) => item.id.includes('undated001'))).toBe(false);
 		expect(counts).toEqual({ note: 1, article: 6, announcement: 0, photos: 1, recording: 1, video: 1 });
 		// One post holds its photographs, so it is counted under both kinds: nine items, ten in the counts.
@@ -243,7 +295,7 @@ describe('the heading', () => {
 		expect(scenes[2]).toMatchObject({ id: 'post:own-cover', image: { src: '/images/posts/bench.png' } });
 		// The photographs are held by their post. The scene keeps their id and the post's title, with no summary.
 		expect(scenes[3]).toMatchObject({ id: 'photos:birds', item: { title: 'Title of birds', summary: '', url: '/blog/birds' }, image: { src: '/images/posts/IMG_2.jpg' } });
-		expect(headingItem(stream.items, 'post:own-cover')?.summary).toBe('About own-cover.');
+		expect(headingItem(stream.items, 'post:own-cover')?.summary).toBe('A few words about own-cover.');
 		expect(headingItem(stream.items, 'photos:nothing')).toBeUndefined();
 	});
 

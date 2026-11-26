@@ -19,6 +19,18 @@ export const PULSE_FILE = 'static/data/pulse/public-snapshot.v2.json';
 export const ASSET_DIR = 'src/lib/assets/home';
 export const ASSET_PREFIX = 'asset:';
 export const POSTER_DIR = `${ASSET_DIR}/video`;
+/**
+ * A small size of a picture of the stream, for a row of pictures and a narrow screen. scripts/generate-home-pictures.mts
+ * writes them. A picture has one when it is wide enough to gain from it. Its name follows from the source name.
+ */
+export const SMALL_DIR = '/images/home';
+export const SMALL_WIDTH = 640;
+/** The narrowest picture that gets a small size. Below this the small file would save little. */
+export const SMALL_FROM = 800;
+export const smallNames = (src: string) => {
+	const name = (src.split('/').pop() ?? '').replace(/\.[a-z0-9]+$/i, '');
+	return { webp: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.webp`, avif: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.avif` };
+};
 /** Under src, so the build hashes its name too. */
 export const STREAM_OUTPUT = 'src/lib/data/home-stream.v1.json';
 
@@ -91,7 +103,7 @@ export function imageSize(bytes: Uint8Array): { width: number; height: number } 
 	return null;
 }
 
-function readHead(path: string, length = 262_144): Uint8Array {
+export function readHead(path: string, length = 262_144): Uint8Array {
 	const file = openSync(path, 'r');
 	try {
 		const bytes = new Uint8Array(length);
@@ -123,10 +135,15 @@ export function imageFacts(staticDir = 'static', assetDir = ASSET_DIR): ImageFac
 		const swap = (ext: string) => src.replace(/\.(?:jpe?g|png)$/i, ext);
 		// A committed poster has its WebP beside it.
 		const beside = src.replace(/\.(?:jpe?g|png)$/i, '.webp');
+		const avif = optimized && !AVIF_DISABLED.has(src);
+		// A picture of a post that is wide enough has a small size too, as WebP, and as AVIF where the site serves AVIF for it.
+		const names = smallNames(src);
+		const small = !bundled && /^\/images\/posts\/[^/]+\.(?:jpe?g|png|webp)$/i.test(src) && size.width >= SMALL_FROM ? { small: { width: SMALL_WIDTH, webp: names.webp, ...(avif ? { avif: names.avif } : {}) } } : {};
 		return {
 			...size,
 			...(optimized ? { webp: swap('.webp') } : beside !== src && existsSync(onDisk(beside)) ? { webp: beside } : {}),
-			...(optimized && !AVIF_DISABLED.has(src) ? { avif: swap('.avif') } : {}),
+			...(avif ? { avif: swap('.avif') } : {}),
+			...small,
 		};
 	};
 }

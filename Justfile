@@ -63,6 +63,10 @@ posts-projection-check:
 home-stream:
     npx tsx scripts/generate-home-stream.mts
 
+# Home pictures (TIN-8657): write the small size of each picture the home stream shows, under static/images/home. `--check` in the build gate fails when one is missing
+home-pictures:
+    npx tsx scripts/generate-home-pictures.mts
+
 # Home stream: fail when the committed data file is stale. The CI build gate runs this before it builds
 home-stream-check:
     npx tsx scripts/generate-home-stream.mts --check

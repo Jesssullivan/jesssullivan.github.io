@@ -4,6 +4,7 @@
  * this file reads a file, a clock or the network. The generator in
  * scripts/generate-home-stream.mts supplies the sources.
  */
+import { excerptOf } from './excerpt';
 
 export const STREAM_KINDS = ['note', 'article', 'announcement', 'photos', 'recording', 'video'] as const;
 export type StreamKind = (typeof STREAM_KINDS)[number];
@@ -17,6 +18,8 @@ export interface StreamImage {
 	alt: string;
 	webp?: string;
 	avif?: string;
+	/** The same picture at a smaller size, for a row of pictures and a narrow screen. See scripts/generate-home-pictures.mts. */
+	small?: { width: number; webp?: string; avif?: string };
 }
 /** What a recording or a video keeps of its own when it is folded into another item. */
 interface OwnWords {
@@ -73,6 +76,10 @@ export interface StreamFile {
 		videosWithoutDate: number;
 		/** Posts whose cover is a shared photograph their own text never uses. */
 		coversNotOwn: number;
+		/** Moving pictures in a post's text. One would play on this page with no way to stop it. */
+		picturesMoving: number;
+		/** Pictures in a post's text that another site holds. This page asks no other site for anything. */
+		picturesElsewhere: number;
 		/** Items from any source with no usable date. */
 		undated: number;
 	};
@@ -130,7 +137,7 @@ export interface VideoInput {
 export type HubInput = (Omit<StreamItem, 'source'> & { tombstone?: false }) | { id: string; tombstone: true };
 
 /** What the caller knows about an image file: its size and its smaller formats. */
-export type ImageFacts = (src: string) => { width: number; height: number; webp?: string; avif?: string } | null;
+export type ImageFacts = (src: string) => { width: number; height: number; webp?: string; avif?: string; small?: StreamImage['small'] } | null;
 
 export interface StreamSources {
 	posts: PostInput[];
@@ -171,8 +178,27 @@ export function ownsImage(body: string, image: string | undefined): boolean {
 	if (!image) return false;
 	const name = stem(image);
 	if (!name) return false;
-	return new RegExp(`/images/posts/${escapeRe(name)}\\.(?:jpe?g|png|gif|webp|avif)\\b`, 'i').test(body);
+	return new RegExp(`/images/posts/${escapeRe(name)}\\.(?:jpe?g|png|gif|webp|avif|svg)\\b`, 'i').test(body);
 }
+
+/**
+ * Every picture a post's own text shows, in the order it shows them: a Markdown image or an image tag.
+ * Code is not text, so a picture named inside a code block is not one the post shows.
+ */
+export function picturesIn(body: string): { src: string; alt: string }[] {
+	const text = body.replace(/^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n[ \t]*\1[^\n]*(?=\n|(?![\s\S]))|(?![\s\S]))/gm, '\n');
+	const found: { src: string; alt: string }[] = [];
+	for (const match of text.matchAll(/!\[([^\]]*)\]\(\s*<?([^)\s>]+)>?[^)]*\)|<img\b[^>]*>/gi)) {
+		if (match[2]) found.push({ src: match[2], alt: match[1].trim() });
+		else {
+			const src = /\bsrc\s*=\s*["']([^"']+)["']/i.exec(match[0])?.[1];
+			if (src) found.push({ src, alt: (/\balt\s*=\s*["']([^"']*)["']/i.exec(match[0])?.[1] ?? '').trim() });
+		}
+	}
+	return found;
+}
+
+const extension = (path: string) => (/\.([a-z0-9]+)(?:[?#].*)?$/i.exec(path)?.[1] ?? '').toLowerCase();
 
 /** The alt text the post gives an image, or nothing. */
 export function altIn(body: string, image: string): string {
@@ -194,6 +220,7 @@ function picture(src: string, alt: string, image: ImageFacts, fallback?: { width
 		alt,
 		...(webp && webp !== src ? { webp } : {}),
 		...(facts?.avif ? { avif: facts.avif } : {}),
+		...(facts?.small ? { small: facts.small } : {}),
 	};
 }
 
@@ -229,10 +256,16 @@ const MEDIA_RANK: Record<StreamMedia['type'], number> = { image: 0, youtube: 1, 
 /** Puts `part` into `lead`. A recording or a video keeps its own title, day, address and note on its media. */
 function hold(lead: StreamItem, part: StreamItem): void {
 	const own = (media: StreamMedia): StreamMedia => (media.type === 'image' ? media : { ...media, title: media.title ?? part.title, date: media.date ?? part.date, url: media.url ?? part.url, ...(part.summary && !media.note ? { note: part.summary } : {}) });
-	const seen = new Set(lead.media.map((media) => media.src));
-	lead.media = [...lead.media, ...part.media.filter((media) => !seen.has(media.src)).map(own)].sort((a, b) => MEDIA_RANK[a.type] - MEDIA_RANK[b.type]);
+	// One photograph may stand in two formats. It is one picture.
+	const name = (media: StreamMedia) => (media.type === 'image' ? stem(media.src) : media.src);
+	const seen = new Set(lead.media.map(name));
+	const media = [...lead.media, ...part.media.filter((media) => !seen.has(name(media))).map(own)].sort((a, b) => MEDIA_RANK[a.type] - MEDIA_RANK[b.type]);
+	// A post's own pictures and its set of photographs are mostly the same files. Together they still show `SET_SIZE` at most.
+	const pictures = media.filter((entry) => entry.type === 'image');
+	const over = Math.max(0, pictures.length - SET_SIZE);
+	lead.media = media.filter((entry) => entry.type !== 'image' || pictures.indexOf(entry) < SET_SIZE);
 	lead.holds = [...(lead.holds ?? []), { id: part.id, kind: part.kind }, ...(part.holds ?? [])];
-	if (part.more) lead.more = (lead.more ?? 0) + part.more;
+	if (part.more || over) lead.more = (lead.more ?? 0) + (part.more ?? 0) + over;
 }
 
 /**
@@ -316,7 +349,7 @@ export function compareStream(a: Placed, b: Placed): number {
 
 export function buildStream(sources: StreamSources): StreamFile {
 	const placed: Placed[] = [];
-	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, undated: 0 };
+	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, picturesMoving: 0, picturesElsewhere: 0, undated: 0 };
 	const posts = new Map(sources.posts.map((post) => [post.slug, post]));
 
 	// Photographs: one set per post, in the order the post shows them. A photograph no public post uses has no date.
@@ -336,16 +369,49 @@ export function buildStream(sources: StreamSources): StreamFile {
 			leftOut.undated += 1;
 			continue;
 		}
-		const media: StreamMedia[] = [];
-		// The photographs of a post are its pictures, so the article does not also show a cover.
-		if (!sets.has(post.slug) && post.featureImage) {
-			const own = ownsImage(post.body, post.featureImage) ? picture(post.featureImage, altIn(post.body, post.featureImage), sources.image) : null;
-			if (own) media.push(own);
-			else leftOut.coversNotOwn += 1;
+		// A post's pictures are the ones its own text shows, in its order. The cover is one of them only when the text uses it.
+		const cover = post.featureImage && ownsImage(post.body, post.featureImage) ? post.featureImage : undefined;
+		if (post.featureImage && !cover) leftOut.coversNotOwn += 1;
+		const media: StreamImage[] = [];
+		const seen = new Set<string>();
+		for (const shown of picturesIn(post.body)) {
+			const name = stem(shown.src);
+			if (seen.has(name)) continue;
+			seen.add(name);
+			if (!shown.src.startsWith('/')) {
+				if (/^https?:/i.test(shown.src)) leftOut.picturesElsewhere += 1;
+				continue;
+			}
+			const kind = extension(shown.src);
+			if (kind === 'gif') {
+				leftOut.picturesMoving += 1;
+				continue;
+			}
+			// The cover is the same picture in the format the site serves. A drawing the text shows as SVG is shown here by its cover.
+			const src = cover && stem(cover) === name ? cover : shown.src;
+			if (extension(src) === 'svg') continue;
+			const image = picture(src, shown.alt || altIn(post.body, src), sources.image);
+			if (image) media.push(image);
+		}
+		// A cover the text uses in a way the reading above does not see, as inside a component, still counts.
+		if (cover && !media.some((image) => stem(image.src) === stem(cover))) {
+			const image = picture(cover, altIn(post.body, cover), sources.image);
+			if (image) media.unshift(image);
 		}
 		placed.push({
 			anchor: post.slug,
-			item: { id: `post:${post.slug}`, kind: 'article', date: post.date, title: post.title, summary: post.description, url: `/blog/${post.slug}`, media, tags: post.tags, source: 'posts', minutes: post.minutes },
+			item: {
+				id: `post:${post.slug}`,
+				kind: 'article',
+				date: post.date,
+				title: post.title,
+				summary: excerptOf(post),
+				url: `/blog/${post.slug}`,
+				media: media.slice(0, SET_SIZE),
+				tags: post.tags,
+				source: 'posts',
+				minutes: post.minutes,
+			},
 		});
 	}
 

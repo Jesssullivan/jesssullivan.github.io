@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { STREAM_OUTPUT, buildCommittedStream, imageSize, readPosts, serializeStream, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
+import { SMALL_FROM, SMALL_WIDTH, STREAM_OUTPUT, buildCommittedStream, imageSize, readPosts, serializeStream, smallNames, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
+import { excerptOf, plainText } from './excerpt';
 import { STREAM_KINDS, isDated, kindsOf, type StreamFile } from './stream';
 
 const committed = JSON.parse(readFileSync(STREAM_OUTPUT, 'utf-8')) as StreamFile;
@@ -44,12 +45,12 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 	});
 
 	// The posts are in every sandbox, so this runs everywhere. A post that is new, withdrawn, renamed,
-	// redated or retitled fails here until the file is rebuilt, as the constellation's projection does.
+	// redated, retitled or given new first words fails here until the file is rebuilt, as the constellation's projection does.
 	it('holds every published post and no other; otherwise run: just home-stream', () => {
 		const facts = (rows: (string | number | undefined)[][]) => rows.map((row) => row.join(' | ')).sort();
 		const posts = readPosts().filter((post) => isDated(post.date));
 		const writing = committed.items.filter((item) => item.source === 'posts');
-		expect(facts(writing.map((item) => [item.id, item.date, item.title, item.summary, item.minutes]))).toEqual(facts(posts.map((post) => [`post:${post.slug}`, post.date, post.title, post.description, post.minutes])));
+		expect(facts(writing.map((item) => [item.id, item.date, item.title, item.summary, item.minutes]))).toEqual(facts(posts.map((post) => [`post:${post.slug}`, post.date, post.title, excerptOf(post), post.minutes])));
 	});
 
 	// The whole file, byte for byte. It needs the gallery, the images and the posters on disk. A Bazel unit-test
@@ -58,6 +59,60 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 	it.skipIf(!sourcesPresent())('is current with all its sources; otherwise run: just home-stream', () => {
 		expect(existsSync(STREAM_OUTPUT)).toBe(true);
 		expect(readFileSync(STREAM_OUTPUT, 'utf-8')).toBe(serializeStream(buildCommittedStream()));
+	});
+});
+
+describe('the small sizes of the committed stream', () => {
+	const pictures = committed.items.flatMap((item) => item.media).filter((media) => media.type === 'image');
+
+	it('names a small size only for a picture of a post wide enough to gain from it', () => {
+		for (const image of pictures) {
+			expect(image.small !== undefined, image.src).toBe(image.width >= SMALL_FROM && image.src.startsWith('/images/posts/'));
+			if (!image.small) continue;
+			expect(image.small.width).toBe(SMALL_WIDTH);
+			expect(image.small.webp).toBe(smallNames(image.src).webp);
+			// The small AVIF goes with the whole one.
+			expect(image.small.avif).toBe(image.avif ? smallNames(image.src).avif : undefined);
+		}
+	});
+
+	// The small files are under static/images, which a Bazel unit-test sandbox does not hold. There the build gate checks them.
+	it.skipIf(!existsSync('static/images/home'))('has every small file it names on disk; otherwise run: just home-pictures', () => {
+		for (const image of pictures) {
+			for (const path of [image.small?.webp, image.small?.avif]) if (path) expect(existsSync(`static${path}`), path).toBe(true);
+		}
+	});
+});
+
+describe('the excerpts of the committed stream', () => {
+	const writing = committed.items.filter((item) => item.source === 'posts' && item.summary);
+
+	it('start with a letter, a figure or an opening quote, never with a stray mark', () => {
+		for (const item of writing) expect(item.summary, item.id).toMatch(/^[\p{L}\p{N}"“'‘(]/u);
+	});
+
+	it('end where a sentence ends, or as her own summary ends', () => {
+		const posts = new Map(readPosts().map((post) => [`post:${post.slug}`, post]));
+		for (const item of writing) {
+			const own = posts.get(item.id)!.description.trim().endsWith(item.summary.slice(-12));
+			if (!own) expect(item.summary, item.id).toMatch(/[.!?…]["'”’)\]]*(?:\s*(?:\p{Extended_Pictographic}\uFE0F?|[:;]-?\)))*$/u);
+		}
+	});
+
+	it('hold no address, no markup, no note of the export and no trace of a player', () => {
+		for (const item of writing) {
+			expect(item.summary, item.id).not.toMatch(/https?:\/\/|\]\(|<\/?[a-z][^>]*>|\s·\s|WordPress/i);
+			expect(item.summary.length, item.id).toBeLessThanOrEqual(300);
+		}
+	});
+
+	it('are her text: every one stands word for word in her summary or in her post', () => {
+		const letters = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+		const posts = new Map(readPosts().map((post) => [`post:${post.slug}`, post]));
+		for (const item of writing) {
+			const post = posts.get(item.id)!;
+			expect(letters(plainText(`${post.description} ${post.body}`)), item.id).toContain(letters(item.summary));
+		}
 	});
 });
 
