@@ -3,6 +3,7 @@
 	// It has no footer and no side column, and it asks the network for nothing while it runs.
 	import HomeStage from './HomeStage.svelte';
 	import HomeStream from './HomeStream.svelte';
+	import StreamFilters from './StreamFilters.svelte';
 	import { HOME_STREAM_URL } from '$lib/home/load';
 	// The three type files the first screen sets its words in. They are the files the site's stylesheet already names.
 	import bodyFace from '@fontsource/crimson-pro/files/crimson-pro-latin-400-normal.woff2?url';
@@ -28,6 +29,7 @@
 
 	const scenes = $derived(buildScenes(stream));
 	let stage = $state<ReturnType<typeof HomeStage> | null>(null);
+	let flow = $state<ReturnType<typeof HomeStream> | null>(null);
 	const focusSlug = $derived(new URLSearchParams(search).get('focus'));
 	/** True once the device missed the stage's frame budget. The stream then arrives with no blur. */
 	let calm = $state(false);
@@ -53,9 +55,14 @@
 
 <div class="home" class:calm data-testid="home-stage-stream">
 	<h1 class="sr-only">Jess Sullivan</h1>
-	<HomeStage bind:this={stage} {scenes} {archive} {focusSlug} {arrives} onstill={() => (calm = true)} />
+	<!-- One row at the foot of the stage holds the stream's filters and the stage's controls. -->
+	<HomeStage bind:this={stage} {scenes} {archive} {focusSlug} {arrives} onstill={() => (calm = true)}>
+		{#snippet lead()}
+			{#if stream}<StreamFilters counts={stream.counts} {search} onchoose={() => flow?.choose()} />{/if}
+		{/snippet}
+	</HomeStage>
 	{#if stream}
-		<HomeStream {stream} {search} {arrives} onsky={() => stage?.showFirst()} />
+		<HomeStream bind:this={flow} {stream} {search} {arrives} onsky={() => stage?.showFirst()} row={() => stage?.row() ?? null} />
 	{/if}
 </div>
 

@@ -226,8 +226,7 @@ test.describe('flag on: the heading stage', () => {
 		await page.goto('/?flags=home&show=recordings');
 		await expect(stage(page)).toBeVisible();
 		const plays = page.getByTestId('recording-play');
-		const controls = [...(await page.getByRole('group', { name: 'Heading scenes' }).getByRole('button').all()), plays.first(), plays.last()];
-		expect(controls.length).toBe(4);
+		const controls = [page.getByTestId('stage-pause'), page.getByTestId('stage-next'), plays.first(), plays.last()];
 		// A stage control and a recording of its own say what they do. A recording a post holds says what plays.
 		for (const control of controls.slice(0, 2)) await expect(control).toHaveAttribute('data-tip', /^(?:Pause|Play|Next)$/);
 		await expect(controls[2]).toHaveAttribute('data-tip', 'Morning Metal 4.22.21 "Sleepish"');
@@ -661,5 +660,399 @@ test.describe('flag on: a phone', () => {
 			const box = await button.boundingBox();
 			expect(Math.min(box!.width, box!.height)).toBeGreaterThanOrEqual(44);
 		}
+	});
+});
+
+// RM66: one row of controls. The sky draws no control of its own on this page, and its legend lies along the top edge.
+const SKY_NAMES = { reset: 'Reset', zoomOut: 'Zoom out', zoomIn: 'Zoom in', list: 'Show as a list', help: 'How it works' } as const;
+const row = (page: Page) => page.getByTestId('home-row');
+const skyControl = (page: Page, id: keyof typeof SKY_NAMES) => page.getByTestId(`stage-sky-${id}`);
+const filterWords = (page: Page) => page.getByRole('navigation', { name: 'Show' }).getByRole('link');
+const boxOf = async (locator: ReturnType<Page['locator']>) => {
+	const box = await locator.boundingBox();
+	if (!box) throw new Error('no box');
+	return { x: Math.round(box.x), y: Math.round(box.y), width: Math.round(box.width), height: Math.round(box.height) };
+};
+/** A control comes to rest at a place. The page's gutter is a fraction of the window, so a place may round one pixel either way. */
+const comesTo = (locator: ReturnType<Page['locator']>, x: number) => expect.poll(async () => Math.abs((await boxOf(locator)).x - x)).toBeLessThanOrEqual(1);
+/** The sky scene, live and held, so nothing changes under a test. */
+async function openSky(page: Page, query = '') {
+	await page.goto(`/?flags=home${query}`);
+	await expect(page.locator('.constellation.live')).toBeVisible();
+	// The map is ready once Zoom in can act. On a phone that control is in the help, so its class is read and not its place.
+	await expect(page.locator('[data-testid=stage-sky-zoomIn].can')).toHaveCount(1);
+	await page.getByTestId('stage-pause').click();
+	await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+}
+const pickStar = async (page: Page, slug: string) => {
+	const at = await page.locator(`.stars a[data-slug="${slug}"]`).evaluate(node => {
+		const box = node.getBoundingClientRect();
+		return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+	});
+	await page.mouse.click(at.x, at.y);
+};
+
+test.describe('flag on: one row of controls', () => {
+	test('the sky scene has one row: the filters, the sky\'s controls, the progress line, Pause and Next', async ({ page }) => {
+		await openSky(page);
+		// The sky draws no control of its own, and nothing greyed stands in for one.
+		await expect(page.getByRole('toolbar', { name: 'Map controls' })).toHaveCount(0);
+		await expect(page.locator('.constellation .controls')).toHaveCount(0);
+		await expect(stage(page).locator('[aria-disabled]')).toHaveCount(0);
+		await expect(skyControl(page, 'zoomOut')).toBeHidden();
+		await expect(skyControl(page, 'reset')).toBeHidden();
+		// One line, in this order from the page's left edge to its right one.
+		const line = await boxOf(row(page));
+		expect(line.height).toBe(44);
+		const parts = [...(await filterWords(page).all()), skyControl(page, 'zoomIn'), skyControl(page, 'list'), skyControl(page, 'help'), row(page).locator('.progress'), page.getByTestId('stage-pause'), page.getByTestId('stage-next')];
+		const boxes = await Promise.all(parts.map(part => boxOf(part)));
+		for (const box of boxes) {
+			expect(box.y).toBeGreaterThanOrEqual(line.y);
+			expect(box.y + box.height).toBeLessThanOrEqual(line.y + line.height);
+		}
+		for (let i = 1; i < boxes.length; i += 1) expect(boxes[i].x).toBeGreaterThanOrEqual(boxes[i - 1].x + boxes[i - 1].width - 1);
+		// It is the only line of controls: the row ends the stage, and every button of the stage outside it belongs to the map.
+		const stageBox = await boxOf(stage(page));
+		expect(line.y + line.height).toBe(stageBox.y + stageBox.height);
+		expect(await stage(page).locator('button:visible').evaluateAll(nodes => nodes.filter(node => !node.closest('[data-testid=home-row], .legend, .names')).length)).toBe(0);
+		// Each of the sky's controls says the name the sky gives it, as its label and as its tooltip.
+		for (const id of ['zoomIn', 'list', 'help'] as const) {
+			await expect(skyControl(page, id)).toHaveAttribute('aria-label', SKY_NAMES[id]);
+			await expect(skyControl(page, id)).toHaveAttribute('data-tip', SKY_NAMES[id]);
+		}
+		await skyControl(page, 'zoomIn').hover();
+		await expect.poll(() => skyControl(page, 'zoomIn').evaluate(node => getComputedStyle(node, '::after').opacity)).toBe('1');
+		await noSidewaysScroll(page);
+	});
+
+	test('the legend lies along the top edge of the stage as one line, on the page\'s left edge', async ({ page }) => {
+		await openSky(page);
+		const legend = page.getByRole('toolbar', { name: 'Show one category' });
+		const box = await boxOf(legend);
+		const top = (await boxOf(stage(page))).y;
+		expect(box.y - top).toBeLessThanOrEqual(24);
+		expect(box.height).toBeLessThanOrEqual(36);
+		// The stars start under it and run down to the row.
+		const field = await boxOf(page.locator('.constellation .field'));
+		expect(field.y).toBeGreaterThanOrEqual(box.y + box.height);
+		expect((await boxOf(row(page))).y - (field.y + field.height)).toBeLessThanOrEqual(64);
+		// Its first dot stands where the first filter word starts.
+		const dot = await boxOf(legend.locator('.dot').first());
+		const word = await filterWords(page).first().evaluate(node => {
+			const range = document.createRange();
+			range.selectNodeContents(node);
+			return Math.round(range.getBoundingClientRect().left);
+		});
+		expect(Math.abs(dot.x - word)).toBeLessThanOrEqual(2);
+		// It still filters: a press marks the category.
+		await legend.getByRole('button', { name: /^Music/ }).click();
+		await expect(legend.getByRole('button', { name: /^Music/ })).toHaveAttribute('aria-pressed', 'true');
+	});
+
+	test('Zoom out and Reset are in the row only while they can act, and nothing else moves', async ({ page }) => {
+		await openSky(page);
+		const fixed = [skyControl(page, 'zoomIn'), skyControl(page, 'list'), skyControl(page, 'help'), page.getByTestId('stage-pause'), page.getByTestId('stage-next'), filterWords(page).last()];
+		const places = () => Promise.all(fixed.map(part => boxOf(part)));
+		const atRest = await places();
+		// A picked star: Reset alone, next to Zoom in.
+		await pickStar(page, 'boutique-everything-when-the-hobby-grows-up');
+		await expect(page.getByTestId('constellation-card')).toBeVisible();
+		await expect(skyControl(page, 'reset')).toBeVisible();
+		await expect(skyControl(page, 'zoomOut')).toBeHidden();
+		await comesTo(skyControl(page, 'reset'), atRest[0].x - 44);
+		expect(await places()).toEqual(atRest);
+		// Zoomed in: Reset, Zoom out, Zoom in, from left to right.
+		await skyControl(page, 'zoomIn').click();
+		await expect(skyControl(page, 'zoomOut')).toBeVisible();
+		await comesTo(skyControl(page, 'zoomOut'), atRest[0].x - 44);
+		await comesTo(skyControl(page, 'reset'), atRest[0].x - 88);
+		for (const id of ['reset', 'zoomOut'] as const) {
+			await expect(skyControl(page, id)).toHaveAttribute('aria-label', SKY_NAMES[id]);
+			await expect(skyControl(page, id)).toHaveAttribute('data-tip', SKY_NAMES[id]);
+			expect((await boxOf(skyControl(page, id))).height).toBe(44);
+		}
+		expect(await places()).toEqual(atRest);
+		await noSidewaysScroll(page);
+		// Reset: the map is at rest, nothing is picked, and both are gone.
+		await skyControl(page, 'reset').click();
+		await expect(skyControl(page, 'reset')).toBeHidden();
+		await expect(skyControl(page, 'zoomOut')).toBeHidden();
+		await expect(page.getByTestId('constellation-card')).toHaveCount(0);
+		expect(await places()).toEqual(atRest);
+	});
+
+	test('focus runs the way the eye does, and a control that leaves hands its focus on', async ({ page }) => {
+		await openSky(page);
+		// The stage's own row comes after its scenes: the legend, then the map, then the row.
+		const order = await stage(page).evaluate(node => {
+			const at = (selector: string) => Array.from(node.querySelectorAll('*')).indexOf(node.querySelector(selector)!);
+			return [at('.legend'), at('[data-testid=constellation-map]'), at('[data-testid=home-row]')];
+		});
+		expect(order).toEqual([...order].sort((a, b) => a - b));
+		const walk = async (count: number) => {
+			const seen: Array<{ name: string; x: number }> = [];
+			for (let i = 0; i < count; i += 1) {
+				seen.push(await page.evaluate(() => ({ name: document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.textContent?.trim() ?? '', x: Math.round(document.activeElement!.getBoundingClientRect().left) })));
+				await page.keyboard.press('Tab');
+			}
+			return seen;
+		};
+		await filterWords(page).first().focus();
+		const rest = await walk(10);
+		expect(rest.map(entry => entry.name)).toEqual(['All', 'Writing', 'Photos', 'Recordings', 'Video', 'Zoom in', 'Show as a list', 'How it works', 'Play', 'Next']);
+		for (let i = 1; i < rest.length; i += 1) expect(rest[i].x).toBeGreaterThan(rest[i - 1].x);
+		// Zoomed in by keyboard: Reset and Zoom out come before Zoom in, as they stand.
+		await skyControl(page, 'zoomIn').focus();
+		await page.keyboard.press('Enter');
+		await expect(skyControl(page, 'zoomOut')).toBeVisible();
+		// Both have come to rest in their places.
+		const zoomInAt = (await boxOf(skyControl(page, 'zoomIn'))).x;
+		await comesTo(skyControl(page, 'reset'), zoomInAt - 88);
+		await comesTo(skyControl(page, 'zoomOut'), zoomInAt - 44);
+		await filterWords(page).last().focus();
+		const zoomed = await walk(4);
+		expect(zoomed.map(entry => entry.name)).toEqual(['Video', 'Reset', 'Zoom out', 'Zoom in']);
+		for (let i = 1; i < zoomed.length; i += 1) expect(zoomed[i].x).toBeGreaterThan(zoomed[i - 1].x);
+		// Zoom out, pressed until it can do no more, leaves the row. Focus goes to a control beside it.
+		await skyControl(page, 'zoomOut').focus();
+		await page.keyboard.press('Enter');
+		await expect(skyControl(page, 'zoomOut')).toBeHidden();
+		await expect(skyControl(page, 'zoomIn')).toBeFocused();
+		// Reached by keyboard, a control draws a ring.
+		await page.keyboard.press('Shift+Tab');
+		await page.keyboard.press('Tab');
+		expect(await skyControl(page, 'zoomIn').evaluate(node => getComputedStyle(node).outlineStyle)).toBe('solid');
+	});
+
+	test('the help opens from the row by keyboard, takes focus and gives it back', async ({ page }) => {
+		await openSky(page);
+		const help = page.locator('#constellation-help');
+		const control = skyControl(page, 'help');
+		await expect(control).toHaveAttribute('aria-controls', 'constellation-help');
+		await expect(control).toHaveAttribute('aria-expanded', 'false');
+		await control.focus();
+		await page.keyboard.press('Enter');
+		await expect(help).toBeVisible();
+		await expect(control).toHaveAttribute('aria-expanded', 'true');
+		await expect(help).toBeFocused();
+		await expect(help).toContainText('Each star is a post.');
+		// It opens just above the row, inside the stage.
+		const box = await boxOf(help);
+		expect(box.y + box.height).toBeLessThanOrEqual((await boxOf(row(page))).y);
+		expect(box.y).toBeGreaterThanOrEqual((await boxOf(stage(page))).y);
+		await page.keyboard.press('Escape');
+		await expect(help).toBeHidden();
+		await expect(control).toBeFocused();
+		// A press opens it and a second press closes it. A press elsewhere closes it too.
+		await control.click();
+		await expect(help).toBeVisible();
+		await control.click();
+		await expect(help).toBeHidden();
+		await control.click();
+		await expect(help).toBeVisible();
+		await page.getByTestId('constellation-map').click({ position: { x: 30, y: 200 } });
+		await expect(help).toBeHidden();
+	});
+
+	test('the list opens from the row by keyboard, takes focus at its head and gives it back on Escape', async ({ page }) => {
+		await openSky(page);
+		const list = page.getByTestId('constellation-list');
+		await skyControl(page, 'list').focus();
+		await page.keyboard.press('Enter');
+		await expect(list).toBeVisible();
+		await expect(list).toBeFocused();
+		// The same control now shows the map, and Zoom in cannot act on a list, so it is not there.
+		await expect(skyControl(page, 'list')).toHaveAttribute('aria-label', 'Show the map');
+		await expect(skyControl(page, 'list')).toHaveAttribute('data-tip', 'Show the map');
+		await expect(skyControl(page, 'zoomIn')).toBeHidden();
+		// The list lies between the legend and the row.
+		const box = await boxOf(list);
+		const legend = await boxOf(page.getByRole('toolbar', { name: 'Show one category' }));
+		expect(box.y).toBeGreaterThanOrEqual(legend.y + legend.height);
+		expect(box.y + box.height).toBeLessThanOrEqual((await boxOf(row(page))).y);
+		await page.keyboard.press('Tab');
+		await expect(list.getByRole('link').first()).toBeFocused();
+		await page.keyboard.press('Escape');
+		await expect(skyControl(page, 'list')).toBeFocused();
+		await page.keyboard.press('Enter');
+		await expect(page.getByTestId('constellation-map')).toBeVisible();
+		await expect(skyControl(page, 'list')).toHaveAttribute('aria-label', 'Show as a list');
+		await expect(skyControl(page, 'zoomIn')).toBeVisible();
+	});
+
+	test('in every other scene the row keeps the filters, the progress line, Pause and Next where they are', async ({ page }) => {
+		await openSky(page);
+		const kept = [filterWords(page).first(), filterWords(page).last(), row(page).locator('.progress'), page.getByTestId('stage-pause'), page.getByTestId('stage-next')];
+		const places = () => Promise.all(kept.map(part => boxOf(part)));
+		const onSky = await places();
+		const count = await page.locator('.scenes > .scene').count();
+		for (let i = 1; i < count; i += 1) {
+			await page.getByTestId('stage-next').click();
+			await expect(stage(page)).not.toHaveAttribute('data-scene', 'sky');
+			for (const id of ['zoomIn', 'list', 'help'] as const) await expect(skyControl(page, id)).toBeHidden();
+			await expect(page.getByTestId('stage-sky-controls')).toHaveAttribute('inert', '');
+			expect(await places()).toEqual(onSky);
+			expect((await boxOf(row(page))).height).toBe(44);
+		}
+		// Back on the sky they return.
+		await page.getByTestId('stage-next').click();
+		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+		await expect(skyControl(page, 'zoomIn')).toBeVisible();
+	});
+
+	test('a star reached by Tab draws an outline, on this page and on the constellation\'s own', async ({ page }) => {
+		// The constellation's own page first: the home flag is remembered once it is given.
+		for (const address of ['/?flags=constellation', '/?flags=home']) {
+			await page.goto(address);
+			await expect(page.locator('.constellation.live')).toBeVisible();
+			await expect(row(page)).toHaveCount(address.endsWith('home') ? 1 : 0);
+			const legend = page.getByRole('toolbar', { name: 'Show one category' });
+			await legend.getByRole('button').first().focus();
+			await page.keyboard.press('Tab');
+			const link = page.locator('.stars a:focus');
+			await expect(link).toHaveAttribute('aria-label', /^Succession, Warblers, and GIS\./);
+			const ring = await link.evaluate(node => {
+				const style = getComputedStyle(node);
+				const box = node.getBoundingClientRect();
+				return { style: style.outlineStyle, width: parseFloat(style.outlineWidth), radius: box.width / 2 + parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth) };
+			});
+			expect(ring.style).toBe('solid');
+			expect(ring.width).toBeCloseTo(3, 1);
+			// The outline is a ring around the star, not a box around the whole map: its outer edge is 8 to 20 pixels from the star's centre.
+			expect(ring.radius).toBeGreaterThan(8);
+			expect(ring.radius).toBeLessThan(20);
+		}
+	});
+
+	test('a sky that does not load says so, and names Latest and Archive only on the page that has them', async ({ page }) => {
+		await page.route(/\/constellation\.v1\.[\w-]+\.json$/, route => route.abort());
+		const notice = page.locator('.constellation .notice');
+		// The constellation's own page first: the home flag is remembered once it is given.
+		await page.goto('/?flags=constellation');
+		await expect(notice).toHaveText('The map did not load. Latest and Archive below have every post.');
+		await expect(row(page)).toHaveCount(0);
+		await page.goto('/?flags=home');
+		await expect(row(page)).toHaveCount(1);
+		await expect(notice).toHaveText('The map did not load.');
+		await expect(stage(page).getByText(/Latest|Archive/)).toHaveCount(0);
+	});
+
+	test('the constellation\'s own page keeps its five controls and its legend at the foot', async ({ page }) => {
+		await page.goto('/?flags=constellation');
+		await expect(page.locator('.constellation.live')).toBeVisible();
+		const controls = page.getByRole('toolbar', { name: 'Map controls' }).getByRole('button');
+		await expect(controls).toHaveCount(5);
+		expect(await controls.evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')))).toEqual(['Show as a list', 'Zoom in', 'Zoom out', 'Reset', 'How it works']);
+		const field = await boxOf(page.locator('.constellation .field'));
+		const legend = await boxOf(page.getByRole('toolbar', { name: 'Show one category' }));
+		expect(legend.y).toBeGreaterThanOrEqual(field.y + field.height);
+		expect((await boxOf(controls.first())).y).toBeGreaterThanOrEqual(field.y + field.height);
+		for (const name of ['head', 'bare', 'plain', 'inset']) await expect(page.locator('.constellation')).not.toHaveClass(new RegExp(`\\b${name}\\b`));
+		await expect(page.getByTestId('home-row')).toHaveCount(0);
+	});
+});
+
+test.describe('flag on: one row of controls on a phone', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('the row fits 390 pixels on one line, and every control in it is 44 pixels square or more', async ({ page }) => {
+		await openSky(page);
+		await noSidewaysScroll(page);
+		const line = await boxOf(row(page));
+		expect(line.height).toBe(44);
+		const pick = page.getByTestId('stream-filter-pick');
+		await expect(pick).toHaveText('All');
+		const shown = [pick, skyControl(page, 'list'), skyControl(page, 'help'), page.getByTestId('stage-pause'), page.getByTestId('stage-next')];
+		const check = async (parts: typeof shown) => {
+			const boxes = await Promise.all(parts.map(part => boxOf(part)));
+			for (const box of boxes) {
+				expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+				expect(box.x).toBeGreaterThanOrEqual(0);
+				expect(box.x + box.width).toBeLessThanOrEqual(390);
+				expect(box.y).toBe(line.y);
+			}
+			for (let i = 1; i < boxes.length; i += 1) expect(boxes[i].x).toBeGreaterThanOrEqual(boxes[i - 1].x + boxes[i - 1].width);
+			return boxes;
+		};
+		const atRest = await check(shown);
+		// The zoom pair is not in the row here. Two fingers zoom, and the help holds the pair by name.
+		await expect(skyControl(page, 'zoomIn')).toBeHidden();
+		await expect(skyControl(page, 'zoomOut')).toBeHidden();
+		await skyControl(page, 'help').click();
+		const folded = page.getByTestId('stage-sky-folded');
+		await expect(folded.getByRole('button', { name: 'Zoom in' })).toBeVisible();
+		await expect(folded.getByRole('button', { name: 'Zoom out' })).toBeHidden();
+		await folded.getByRole('button', { name: 'Zoom in' }).click();
+		await expect(folded.getByRole('button', { name: 'Zoom out' })).toBeVisible();
+		for (const name of ['Zoom in', 'Zoom out']) expect((await boxOf(folded.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
+		await skyControl(page, 'help').click();
+		await expect(page.locator('#constellation-help')).toBeHidden();
+		// Zoomed in, Reset is in the row, to the left of the list, and nothing else has moved.
+		await expect(skyControl(page, 'reset')).toBeVisible();
+		await comesTo(skyControl(page, 'reset'), atRest[1].x - 44);
+		expect((await check([pick, skyControl(page, 'reset'), ...shown.slice(1)])).slice(2)).toEqual(atRest.slice(1));
+		await noSidewaysScroll(page);
+		await skyControl(page, 'reset').click();
+		await expect(skyControl(page, 'reset')).toBeHidden();
+	});
+
+	test('the filter shows as its one word, and a press lays the words out across the row', async ({ page }) => {
+		await openSky(page);
+		const pick = page.getByTestId('stream-filter-pick');
+		await expect(pick).toHaveAttribute('aria-expanded', 'false');
+		await expect(filterWords(page)).toHaveCount(0);
+		await pick.click();
+		await expect(filterWords(page)).toHaveText(['All', 'Writing', 'Photos', 'Recordings', 'Video']);
+		const line = await boxOf(row(page));
+		for (const word of await filterWords(page).all()) {
+			const box = await boxOf(word);
+			expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+			expect(box.x).toBeGreaterThanOrEqual(0);
+			expect(box.x + box.width).toBeLessThanOrEqual(390);
+			expect(box.y).toBe(line.y);
+		}
+		// The controls give the words the room, and the current word has the focus.
+		await expect(page.getByTestId('stage-next')).toBeHidden();
+		await expect(filterWords(page).first()).toBeFocused();
+		await noSidewaysScroll(page);
+		// Escape puts the one word back, with the focus on it.
+		await page.keyboard.press('Escape');
+		await expect(pick).toBeVisible();
+		await expect(pick).toBeFocused();
+		await expect(page.getByTestId('stage-next')).toBeVisible();
+		// A chosen word filters the stream and becomes the one word.
+		await pick.click();
+		await filterWords(page).filter({ hasText: 'Recordings' }).click();
+		await expect(page).toHaveURL(/show=recordings/);
+		await expect(pick).toHaveText('Recordings');
+		await expect(items(page)).toHaveCount(3);
+		await expect(page.getByTestId('stage-next')).toBeVisible();
+		await noSidewaysScroll(page);
+	});
+
+	test('the legend takes the top of the stage, and a picked post docks there', async ({ page }) => {
+		await openSky(page);
+		const legend = page.getByRole('toolbar', { name: 'Show one category' });
+		const field = await boxOf(page.locator('.constellation .field'));
+		const box = await boxOf(legend);
+		expect(box.y - (await boxOf(stage(page))).y).toBeLessThanOrEqual(16);
+		expect(box.y + box.height).toBeLessThanOrEqual(field.y);
+		expect(box.x).toBeGreaterThanOrEqual(0);
+		expect(box.x + box.width).toBeLessThanOrEqual(390);
+		// Nothing lies between the stars and the row.
+		expect((await boxOf(row(page))).y - (field.y + field.height)).toBeLessThanOrEqual(48);
+		const before = await page.locator('.stars a[data-slug="mega-langdon"]').evaluate(node => Math.round(node.getBoundingClientRect().top));
+		await pickStar(page, 'mega-langdon');
+		const card = page.getByTestId('constellation-card');
+		await expect(card).toBeVisible();
+		const docked = await boxOf(card);
+		expect(docked.y + docked.height).toBeLessThanOrEqual(field.y);
+		await expect(legend).toBeHidden();
+		// At rest the map does not move for the card.
+		expect(await page.locator('.stars a[data-slug="mega-langdon"]').evaluate(node => Math.round(node.getBoundingClientRect().top))).toBe(before);
+		await expect(skyControl(page, 'reset')).toBeVisible();
+		await skyControl(page, 'reset').click();
+		await expect(card).toHaveCount(0);
+		await expect(legend).toBeVisible();
 	});
 });

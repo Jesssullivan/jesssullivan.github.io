@@ -8,8 +8,9 @@
 	// between the sky of posts, the heron heading and items placed in the heading.
 	// Only the first scene is in the first paint. The others arrive when the browser is
 	// idle or one hold before they show.
-	import { onMount } from 'svelte';
-	import ReaderConstellation from '$lib/components/reader/ReaderConstellation.svelte';
+	import { onMount, tick } from 'svelte';
+	import type { Snippet } from 'svelte';
+	import ReaderConstellation, { SKY_CONTROLS, SKY_CONTROLS_NAME, SKY_HELP_ID, type SkyControl, type SkyViewState } from '$lib/components/reader/ReaderConstellation.svelte';
 	import Picture from './Picture.svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import { HERON, type StageScene } from '$lib/home/scenes';
@@ -22,6 +23,7 @@
 		focusSlug = null,
 		arrives = false,
 		onstill = () => {},
+		lead,
 	}: {
 		scenes: StageScene[];
 		archive: ReaderCollection['archive'];
@@ -30,6 +32,8 @@
 		arrives?: boolean;
 		/** Called once, when the device missed the frame budget and the stage gave up its blur and its drift. */
 		onstill?: () => void;
+		/** What stands at the near end of the row at the foot of the stage: the stream's filters. */
+		lead?: Snippet;
 	} = $props();
 
 	let index = $state(0);
@@ -42,7 +46,11 @@
 	let armed = $state<Record<string, boolean>>({});
 	let stageEl = $state<HTMLElement | null>(null);
 	let scenesEl = $state<HTMLDivElement | null>(null);
-	let controlsEl = $state<HTMLDivElement | null>(null);
+	let rowEl = $state<HTMLDivElement | null>(null);
+	let mapEl = $state<HTMLDivElement | null>(null);
+	let sky = $state<ReturnType<typeof ReaderConstellation> | null>(null);
+	/** What the sky's controls can do now. The sky reports it, and the row shows only the ones that can act. */
+	let can = $state<SkyViewState>({ canZoomIn: false, canZoomOut: false, canReset: false, listOpen: false, helpOpen: false });
 	let clock: StageClock | null = null;
 	/** ?stage-pace=20 runs the holds twenty times faster, for tests. It is read once, when the stage comes up. */
 	let pace = 1;
@@ -51,6 +59,30 @@
 
 	const scene = $derived(scenes[Math.min(index, scenes.length - 1)]);
 	const hold = $derived(scene?.hold ?? 0);
+	const hasSky = $derived(scenes.some((entry) => entry.type === 'sky'));
+	const skyOn = $derived(scene?.type === 'sky');
+
+	const foldedControls = $derived<Array<{ name: SkyControl; able: boolean; act: () => void }>>([
+		{ name: 'zoomIn', able: can.canZoomIn, act: () => sky?.zoomIn() },
+		{ name: 'zoomOut', able: can.canZoomOut, act: () => sky?.zoomOut() },
+		{ name: 'reset', able: can.canReset, act: () => sky?.resetView() },
+	]);
+
+	/** The row at the foot of the stage. A chosen filter brings it to the top of the screen. */
+	export function row() {
+		return rowEl;
+	}
+
+	// A control that can no longer act leaves the row. If focus was on it, focus goes to one beside it that still can.
+	async function onviewstate(next: SkyViewState) {
+		can = next;
+		await tick();
+		const lost = document.activeElement;
+		if (!(lost instanceof HTMLElement) || !lost.dataset.sky || lost.classList.contains('can')) return;
+		const drawn = (button: HTMLElement) => button.getClientRects().length > 0;
+		const beside = Array.from(lost.closest('[data-sky-group]')?.querySelectorAll<HTMLElement>('button.can') ?? []).find(drawn);
+		(beside ?? Array.from(mapEl?.querySelectorAll<HTMLElement>('button.can') ?? []).find(drawn))?.focus({ preventScroll: true });
+	}
 
 	/** Show the first scene. The link at the end of the stream calls this. */
 	export function showFirst() {
@@ -158,7 +190,9 @@
 		const options = { capture: true, passive: true };
 		const onInput = (event: Event) => {
 			const target = event.target instanceof Element ? event.target : null;
-			const onControl = target?.closest('button')?.parentElement === controlsEl;
+			// The filters in the row are the stream's. A press on one is not a press on the stage.
+			if (target?.closest('nav') && rowEl?.contains(target)) return;
+			const onControl = target?.closest('[data-clock]') != null;
 			if (inputStops({ type: event.type, key: (event as KeyboardEvent).key, onControl, inScenes: scenesEl?.contains(target) === true })) stop();
 		};
 		for (const name of inputs) stageEl?.addEventListener(name, onInput, options);
@@ -233,6 +267,23 @@
 	});
 </script>
 
+{#snippet glyph(name: SkyControl)}
+	<svg class="sky-glyph" viewBox="0 0 16 16" aria-hidden="true"><path d={SKY_CONTROLS[name].lines} />{#if SKY_CONTROLS[name].dots}<path class="dots" d={SKY_CONTROLS[name].dots} />{/if}</svg>
+{/snippet}
+
+{#snippet skyControl(name: SkyControl, able: boolean, act: () => void, id: string = name)}
+	<button type="button" class:can={able} aria-label={SKY_CONTROLS[name].name} data-tip={SKY_CONTROLS[name].name} data-sky={id} onclick={act} data-testid={`stage-sky-${id}`}>{@render glyph(name)}</button>
+{/snippet}
+
+<!-- A phone has no room in the row for the zoom pair, and a pinch zooms there. The help holds them, by name. -->
+{#snippet folded()}
+	<div class="folded" role="group" aria-label={SKY_CONTROLS_NAME} data-sky-group data-testid="stage-sky-folded">
+		{#each foldedControls as { name, able, act } (name)}
+			<button type="button" class:can={able} data-sky={name} onclick={act}>{@render glyph(name)}{SKY_CONTROLS[name].name}</button>
+		{/each}
+	</div>
+{/snippet}
+
 <section
 	class="stage"
 	class:still={still || reduced}
@@ -248,34 +299,12 @@
 	data-playing={playing}
 	data-still={still || reduced}
 >
-	<!-- The controls come first, so a keyboard reaches Pause before anything that moves. -->
-	<div class="controls" role="group" aria-label="Heading scenes" bind:this={controlsEl}>
-		{#if reduced}
-			<button type="button" aria-label="Previous" data-tip="Previous" onclick={() => step(-1)} onkeydown={onControlKey} data-testid="stage-previous">
-				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
-			</button>
-		{:else}
-			<button type="button" aria-label={playing || held ? 'Pause' : 'Play'} data-tip={playing || held ? 'Pause' : 'Play'} onclick={toggle} onkeydown={onControlKey} data-testid="stage-pause">
-				<svg viewBox="0 0 24 24" aria-hidden="true">
-					{#if playing || held}<path d="M9 5v14M15 5v14" />{:else}<path d="M8 5l11 7-11 7z" />{/if}
-				</svg>
-			</button>
-		{/if}
-		<button type="button" aria-label="Next" data-tip="Next" onclick={() => step(1)} onkeydown={onControlKey} data-testid="stage-next">
-			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-		</button>
-		{#if !reduced}
-			<span class="progress" aria-hidden="true">
-				{#key index}<i class:run={playing} style={`animation-duration:${hold}ms`}></i>{/key}
-			</span>
-		{/if}
-	</div>
-
 	<div class="scenes" bind:this={scenesEl} aria-live={stepped && !playing ? 'polite' : 'off'}>
 		{#each scenes as entry, i (entry.id)}
 			<div class={`scene ${entry.type}`} class:on={i === index} class:next={i === (index + 1) % scenes.length && armed[entry.id] === true} role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${scenes.length}`} inert={i !== index} data-testid={`scene-${entry.type}`}>
 				{#if entry.type === 'sky'}
-					<ReaderConstellation {archive} {focusSlug} />
+					<!-- The sky draws no control of its own here: they are in the row below. Its legend lies along the top edge. -->
+					<ReaderConstellation bind:this={sky} {archive} {focusSlug} legend="head" controls="none" inset="var(--gutter)" lists={false} {onviewstate} helpActions={folded} />
 				{:else if i === index || armed[entry.id]}
 					{#if entry.type === 'heron'}
 						<div class="plate heron"><Picture image={HERON.image} lazy={false} /></div>
@@ -298,6 +327,47 @@
 			</div>
 		{/each}
 	</div>
+
+	<!--
+		One row at the foot, in every scene: the stream's filters at one end and the controls at the other.
+		While the sky shows, its own controls stand before the stage's. It comes after the scenes, so focus runs the way the eye does.
+	-->
+	<div class="row" bind:this={rowEl} data-testid="home-row">
+		{@render lead?.()}
+		<div class="controls" role="group" aria-label="Heading scenes">
+			{#if hasSky}
+				<div class="map" class:on={skyOn} role="group" aria-label={SKY_CONTROLS_NAME} inert={!skyOn} bind:this={mapEl} data-sky-group data-testid="stage-sky-controls">
+					<!-- Reset and Zoom out are here only while they can act. They stand outside the run of the row, so nothing else moves as they come and go. -->
+					<span class="spare" class:pair={can.canZoomOut}>
+						{@render skyControl('reset', can.canReset, () => sky?.resetView())}
+						{@render skyControl('zoomOut', can.canZoomOut, () => sky?.zoomOut())}
+					</span>
+					{@render skyControl('zoomIn', can.canZoomIn, () => sky?.zoomIn())}
+					{@render skyControl(can.listOpen ? 'map' : 'list', true, () => void sky?.toggleList(), 'list')}
+					<button type="button" class="can" aria-label={SKY_CONTROLS.help.name} data-tip={SKY_CONTROLS.help.name} aria-expanded={can.helpOpen} aria-controls={SKY_HELP_ID} data-sky="help" onclick={() => void sky?.toggleHelp()} data-testid="stage-sky-help">{@render glyph('help')}</button>
+				</div>
+			{/if}
+			{#if !reduced}
+				<span class="progress" aria-hidden="true">
+					{#key index}<i class:run={playing} style={`animation-duration:${hold}ms`}></i>{/key}
+				</span>
+			{/if}
+			{#if reduced}
+				<button type="button" aria-label="Previous" data-tip="Previous" data-clock onclick={() => step(-1)} onkeydown={onControlKey} data-testid="stage-previous">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+				</button>
+			{:else}
+				<button type="button" aria-label={playing || held ? 'Pause' : 'Play'} data-tip={playing || held ? 'Pause' : 'Play'} data-clock onclick={toggle} onkeydown={onControlKey} data-testid="stage-pause">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						{#if playing || held}<path d="M9 5v14M15 5v14" />{:else}<path d="M8 5l11 7-11 7z" />{/if}
+					</svg>
+				</button>
+			{/if}
+			<button type="button" aria-label="Next" data-tip="Next" data-clock onclick={() => step(1)} onkeydown={onControlKey} data-testid="stage-next">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+			</button>
+		</div>
+	</div>
 </section>
 
 <style>
@@ -317,7 +387,6 @@
 	}
 	.scenes {
 		position: relative;
-		order: 1;
 		flex: 1;
 		min-height: 0;
 		overflow: hidden;
@@ -428,7 +497,7 @@
 	.stage.arrives .scenes {
 		animation-name: open-late;
 	}
-	.stage.arrives .controls {
+	.stage.arrives .row {
 		animation: fade 0.9s var(--ease-soft) 0.2s backwards;
 	}
 	@keyframes open-late {
@@ -470,12 +539,11 @@
 	}
 
 	/*
-	 * The sky is the first scene. It is used as its own branch ships it, full bleed with its legend and
-	 * controls laid over it. The stage gives it the room, and lines its legend and controls up with the page's edge.
+	 * The sky is the first scene, full bleed. The stage gives it the room. By its own props its legend lies
+	 * along the top edge on the page's gutter, and it draws no control: those are in the row below.
 	 */
 	.scene.sky :global(.constellation) {
 		height: 100%;
-		--edge: var(--gutter) !important;
 	}
 	.scene.sky :global(.constellation .sky) {
 		height: 100%;
@@ -636,20 +704,29 @@
 		overflow: hidden;
 	}
 
-	/* One thin line, pause and next, on the page's ground under the scenes, at the far end from the type. */
-	.controls {
-		order: 2;
+	/*
+	 * One row on the page's ground under the scenes (RM66): the filters start on the page's left edge,
+	 * and the controls end on its right one. It is the only line of controls the stage has.
+	 */
+	.row {
+		position: relative;
 		display: flex;
 		align-items: center;
-		justify-content: flex-end;
-		gap: 0.25rem;
+		justify-content: space-between;
 		height: 2.75rem;
 		padding-inline: calc(var(--gutter) - 0.8rem);
+	}
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		margin-left: auto;
 	}
 	.controls button {
 		position: relative;
 		display: grid;
 		place-items: center;
+		flex: none;
 		width: 2.75rem;
 		height: 2.75rem;
 		color: var(--ink);
@@ -667,6 +744,23 @@
 			transform 0.3s var(--ease),
 			color 0.3s var(--ease-soft);
 	}
+	/* The sky's icons are drawn on a 16 pixel grid. Here they take the weight and the size of Pause and Next. */
+	.sky-glyph,
+	.controls .sky-glyph {
+		width: 1.05rem;
+		height: 1.05rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.35;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.sky-glyph .dots {
+		stroke-width: 2.2;
+	}
+	.sky-glyph {
+		flex: none;
+	}
 	.controls button:hover svg {
 		transform: scale(1.15);
 		color: var(--accent);
@@ -675,12 +769,81 @@
 		transform: scale(0.94);
 	}
 	.controls button:focus-visible,
+	.folded button:focus-visible,
 	.placed-title a:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}
+
+	/*
+	 * The sky's controls, while the sky shows. A control is in the row only while it can act: nothing greyed stands in for it.
+	 * Zoom in, the list and the help keep their places. Reset and Zoom out come and go to the left of them, outside the run
+	 * of the row, so no other control moves. They arrive from under Zoom in, on the stage's quick curve.
+	 */
+	.map {
+		position: relative;
+		display: flex;
+		margin-right: 0.65rem;
+	}
+	.spare {
+		position: absolute;
+		right: 100%;
+		top: 0;
+		display: flex;
+		/* Reset alone stands next to Zoom in. With Zoom out it stands one place further out. */
+		--alone: 2.75rem;
+	}
+	.spare.pair {
+		--alone: 0rem;
+	}
+	.map button {
+		--at: 0rem;
+		visibility: hidden;
+		opacity: 0;
+		transform: translate3d(calc(var(--at) + 0.6rem), 0, 0);
+		transition:
+			opacity 0.2s var(--ease-soft),
+			transform 0.3s var(--ease),
+			visibility 0s linear 0.2s;
+	}
+	.spare button[data-sky='reset'] {
+		--at: var(--alone);
+	}
+	.map.on button.can {
+		visibility: visible;
+		opacity: 1;
+		transform: translate3d(var(--at), 0, 0);
+		transition:
+			opacity 0.35s var(--ease-soft),
+			transform 0.5s var(--ease),
+			visibility 0s;
+	}
+	/* The help is open: its control takes the accent. No box is drawn behind it. */
+	.map button[aria-expanded='true'] {
+		color: var(--accent);
+	}
+
+	/* On a phone the help holds what the row has no room for, as plain words beside their icons. */
+	.folded {
+		display: none;
+	}
+	.folded button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		min-height: 2.75rem;
+		padding-right: 1.1rem;
+		font: 600 0.82rem/1 'Inter', sans-serif;
+		letter-spacing: 0.02em;
+		color: inherit;
+		cursor: pointer;
+	}
+	.folded button:not(.can),
+	.folded button[data-sky='reset'] {
+		display: none;
+	}
+
 	.progress {
-		order: -1;
 		width: clamp(4rem, 12vw, 9rem);
 		height: 2px;
 		margin-right: 0.6rem;
@@ -701,6 +864,52 @@
 	@keyframes fill {
 		to {
 			transform: scaleX(1);
+		}
+	}
+
+	/* A narrow screen: the filters show as one word. While its words are laid out across the row, the controls give them the room. */
+	@media (max-width: 900px) {
+		.row:has(:global(.filters.open)) .controls {
+			display: none;
+		}
+	}
+	/*
+	 * A phone. The row holds the one word, Reset while it can act, the list, the help, Pause and Next: each a target 44 pixels square.
+	 * Zoom in and Zoom out are in the help, because two fingers zoom here. The progress line lies under Pause and Next.
+	 */
+	@media (max-width: 560px) {
+		.controls {
+			gap: 0;
+		}
+		.map {
+			margin-right: 0.4rem;
+		}
+		.map button:is([data-sky='zoomIn'], [data-sky='zoomOut']) {
+			display: none;
+		}
+		.spare {
+			--alone: 0rem;
+		}
+		.folded {
+			display: flex;
+			flex-wrap: wrap;
+			margin: -0.5rem 0 -0.25rem;
+		}
+		.progress {
+			position: absolute;
+			right: calc(var(--gutter) - 0.8rem + 0.8rem);
+			bottom: 0.2rem;
+			width: calc(5.5rem - 1.6rem);
+			margin: 0;
+		}
+	}
+	/* A small phone has no room for Reset in the row either. The help holds it with the zoom pair. */
+	@media (max-width: 350px) {
+		.spare {
+			display: none;
+		}
+		.folded button.can[data-sky='reset'] {
+			display: inline-flex;
 		}
 	}
 
@@ -728,6 +937,12 @@
 	.controls [data-tip]::after {
 		left: auto;
 		right: 0;
+	}
+	/* A control that is not in the row says nothing. */
+	.map button:not(.can)::after,
+	.map:not(.on) button::after,
+	.map button[aria-expanded='true']::after {
+		content: none;
 	}
 	[data-tip]:focus-visible::after {
 		opacity: 1;
@@ -828,8 +1043,12 @@
 	@media (prefers-reduced-motion: reduce) {
 		.scenes,
 		.stage.arrives .scenes,
-		.stage.arrives .controls {
+		.stage.arrives .row {
 			animation: none;
+		}
+		.map button,
+		.map.on button.can {
+			transition: none;
 		}
 		.scene,
 		.scene.on,

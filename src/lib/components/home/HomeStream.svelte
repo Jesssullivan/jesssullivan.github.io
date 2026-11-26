@@ -11,6 +11,7 @@
 		search = '',
 		arrives = false,
 		onsky = () => {},
+		row = () => null,
 	}: {
 		stream: StreamFile;
 		/** The query of the address, handed down by the page. */
@@ -18,6 +19,8 @@
 		/** True when the stream is put into a page that has already painted. It then fades in with the stage. */
 		arrives?: boolean;
 		onsky?: () => void;
+		/** The row at the foot of the stage, which holds the filters. A chosen filter brings it to the top of the screen. */
+		row?: () => HTMLElement | null;
 	} = $props();
 
 	// A screen or two is in the first paint. More comes as the reader nears the end.
@@ -27,7 +30,6 @@
 	let filter = $state<FilterId>('all');
 	let visible = $state(BATCH);
 	let moreEl = $state<HTMLAnchorElement | null>(null);
-	let filtersEl = $state<HTMLElement | null>(null);
 	let flowEl = $state<HTMLOListElement | null>(null);
 
 	const offered = $derived(offeredFilters(stream.counts));
@@ -49,15 +51,13 @@
 		}
 	});
 
-	function hrefFor(id: FilterId): string {
-		const kept = mounted ? [...new URLSearchParams(search)].filter(([name]) => name !== 'show') : [];
-		const query = new URLSearchParams(id === 'all' ? kept : [...kept, ['show', id]]).toString();
-		return query ? `?${query}` : '/';
-	}
-
 	// A filter chosen from the first screen brings the stream up, so the choice shows.
 	// It waits for the address to change, because the router settles the scroll position first.
 	let chosen = false;
+	/** The filters call this as a word is pressed. */
+	export function choose() {
+		chosen = true;
+	}
 	afterNavigate(() => {
 		if (chosen) reveal();
 		chosen = false;
@@ -66,7 +66,7 @@
 		const top = flowEl?.getBoundingClientRect().top ?? 0;
 		if (top < window.innerHeight * 0.6) return;
 		const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		filtersEl?.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+		row()?.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
 	}
 
 	// The way back up: the stage shows its first scene, and the page glides to it. Focus goes with it.
@@ -118,12 +118,6 @@
 </script>
 
 <section class="stream" class:arrives id="stream" aria-label="Stream" data-testid="home-stream" data-pagefind-body>
-	<nav class="filters" class:ready={mounted} aria-label="Show" bind:this={filtersEl}>
-		{#each offered as option (option.id)}
-			<a href={hrefFor(option.id)} aria-current={filter === option.id ? 'true' : undefined} data-sveltekit-noscroll data-sveltekit-keepfocus data-sveltekit-replacestate onclick={() => (chosen = true)}>{option.label}</a>
-		{/each}
-	</nav>
-
 	<ol class="flow" bind:this={flowEl}>
 		{#each shown as item, i (item.id)}
 			{@const marker = markerFor(list, i)}
@@ -148,8 +142,6 @@
 <style>
 	/* One left edge for the whole page: the type on the stage, the controls, the filters and the stream all start on it. */
 	.stream {
-		/* The filters share one quiet line with the stage's controls: words at one end, pause and next at the other. */
-		margin-top: -2.75rem;
 		padding: 0 var(--gutter) 6rem;
 		color: var(--ink);
 		--rail: 9.5rem;
@@ -164,46 +156,6 @@
 		}
 	}
 
-	/* Plain words. The current one is marked by weight and one underline in the accent. */
-	.filters {
-		/* The row lies over the foot of the stage, so it is lifted above it to take a press. */
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0 1.6rem;
-		max-width: calc(100% - 15rem);
-		min-height: 2.75rem;
-		align-items: center;
-		font: 600 0.82rem/1 'Inter', sans-serif;
-		letter-spacing: 0.02em;
-		/* The filters need scripts. Until those run the row keeps its place and stays out of sight. Then it fades in. */
-		visibility: hidden;
-		opacity: 0;
-	}
-	.filters.ready {
-		visibility: visible;
-		opacity: 1;
-		transition: opacity 0.6s var(--ease-soft);
-	}
-	.filters a {
-		padding: 0.9rem 0;
-		color: var(--quiet);
-		text-decoration: underline transparent;
-		text-decoration-thickness: 2px;
-		text-underline-offset: 0.5em;
-		transition:
-			color 0.3s var(--ease-soft),
-			text-decoration-color 0.3s var(--ease-soft);
-	}
-	.filters a:hover {
-		color: var(--ink);
-	}
-	.filters a[aria-current] {
-		color: var(--ink);
-		font-weight: 700;
-		text-decoration-color: var(--accent);
-	}
 	a:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 3px;
@@ -279,11 +231,7 @@
 	:global(.home.calm) .item:global(.waiting) {
 		filter: none;
 	}
-	/*
-	 * Put into a page that has already painted, the stream fades in with the stage. The fade is on
-	 * the flow and not on the whole section, which shares a line with the stage's controls: a section
-	 * that fades would lie over them for that second and take their presses.
-	 */
+	/* Put into a page that has already painted, the stream fades in with the stage. */
 	.stream.arrives :is(.flow, .end) {
 		animation: stream-in 0.9s var(--ease-soft) 0.15s backwards;
 	}
@@ -321,10 +269,6 @@
 	@media (max-width: 900px) {
 		.stream {
 			--rail: 0rem;
-			margin-top: 0;
-		}
-		.filters {
-			max-width: none;
 		}
 		.item {
 			display: block;
@@ -337,8 +281,7 @@
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.item,
-		.filters.ready {
+		.item {
 			transition: none;
 		}
 		.stream.arrives :is(.flow, .end) {
