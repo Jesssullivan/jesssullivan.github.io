@@ -44,8 +44,12 @@
 
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
 		<div class="min-w-0">
-			<!-- Each note is shown whole, in the type and spacing of a post, with no card around it. -->
-			<ol class="space-y-14" data-testid="notes-list">
+			<!--
+				Each note is shown whole, in the type and spacing of a post, with no
+				card around it. Every class here is one the site already ships, so
+				the site stylesheet is the same with and without notes.
+			-->
+			<ol class="space-y-16" data-testid="notes-list">
 				{#each pageNotes as note (note.path)}
 					<li>
 						<article class="min-w-0" data-testid="notes-list-item">
