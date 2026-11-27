@@ -761,8 +761,11 @@ test.describe('flag on: the heron at its own size', () => {
 			expect(facts.now, `${width}`).toBeLessThanOrEqual(1.001);
 			expect(facts.most, `${width}`).toBeLessThanOrEqual(1.001);
 			// Every edge that lies inside the stage falls off to nothing: each gradient of the mask starts and ends clear.
-			const gradients = facts.mask.split('linear-gradient(').slice(1);
+			const [straight, round] = facts.mask.split(/,\s*radial-gradient\(/);
+			const gradients = straight.split('linear-gradient(').slice(1);
 			expect(gradients.length, `${width}`).toBeGreaterThanOrEqual(1);
+			// The ellipse that rounds the far corners, where there is one, ends clear too.
+			if (round) expect(round.trimEnd(), `${width}`).toMatch(/rgba\(0, 0, 0, 0\) 100%\)$/);
 			for (const gradient of gradients) {
 				expect(gradient, `${width}`).toMatch(/^(?:to \w+, )?rgba\(0, 0, 0, 0\) 0(?:px|%)/);
 				expect(gradient.trimEnd(), `${width}`).toMatch(/rgba\(0, 0, 0, 0\) 100%\)?,?$/);
@@ -773,6 +776,7 @@ test.describe('flag on: the heron at its own size', () => {
 				expect(facts.right, `${width}`).toBeGreaterThan(0);
 				expect(facts.wide, `${width}`).toBeLessThanOrEqual(1200);
 				expect(gradients.length, `${width}`).toBe(2);
+				expect(round, `${width}`).toBeDefined();
 				expect(facts.copy, `${width}`).toBeLessThan(facts.left);
 			} else {
 				// The stage is narrower than the file: the photograph runs from edge to edge of it, smaller than its file.
@@ -782,6 +786,26 @@ test.describe('flag on: the heron at its own size', () => {
 			// The stage itself is as wide as the window.
 			expect(Math.round((await stage(page).boundingBox())!.width)).toBe(await page.evaluate(() => document.documentElement.clientWidth));
 			await noSidewaysScroll(page);
+			// The drift keeps the bill where it is: at both ends the point 95 percent across the frame, where the bill ends, has moved less than a hundredth of the frame, and the photograph still covers its frame.
+			const ends = await photograph.locator('img').evaluate((img: HTMLImageElement) => {
+				const drift = img.getAnimations().find(animation => /drift/.test((animation as CSSAnimation).animationName ?? ''));
+				if (!drift) return null;
+				drift.pause();
+				const box = img.parentElement!.closest('[data-testid=heron-photograph]')!.getBoundingClientRect();
+				return [10, 45_990].map(at => {
+					drift.currentTime = at;
+					const style = getComputedStyle(img);
+					const m = new DOMMatrix(style.transform);
+					const origin = parseFloat(style.transformOrigin.split(' ')[0]);
+					const to = (x: number) => origin + m.a * (x - origin) + m.e;
+					return { bill: (to(0.95 * box.width) - 0.95 * box.width) / box.width, left: to(0) / box.width, right: to(box.width) / box.width };
+				});
+			});
+			for (const end of ends ?? []) {
+				expect(Math.abs(end.bill), `${width}`).toBeLessThan(0.01);
+				expect(end.left, `${width}`).toBeLessThanOrEqual(0);
+				expect(end.right, `${width}`).toBeGreaterThanOrEqual(1);
+			}
 		}
 	});
 });

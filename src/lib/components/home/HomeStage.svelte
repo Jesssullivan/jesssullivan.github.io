@@ -577,10 +577,10 @@
 	}
 	@keyframes drift {
 		from {
-			transform: scale(1.03) translate3d(-0.6%, 0.5%, 0);
+			transform: scale(1.03) translate3d(var(--drift-from, -0.6%), 0.5%, 0);
 		}
 		to {
-			transform: scale(1.075) translate3d(1.5%, -0.9%, 0);
+			transform: scale(1.075) translate3d(var(--drift-to, 1.5%), -0.9%, 0);
 		}
 	}
 	/*
@@ -670,14 +670,35 @@
 			rgb(0 0 0 / 0.06) calc(100% - var(--foot) * 0.08),
 			transparent 100%
 		);
-		-webkit-mask-image: var(--across), var(--down);
+		/*
+		 * One wide ellipse about the height of the bill rounds the two far corners, so the right edge is a curve that
+		 * closes toward the foot and no corner of a rectangle shows. The bill lies inside its solid part. It grows as
+		 * the bare stage beside the photograph shrinks, and does nothing where the photograph runs from edge to edge.
+		 */
+		--round: radial-gradient(
+			ellipse calc(70% + max(0px, (20rem - var(--spare)) * 2.2)) 110% at 38% 23%,
+			#000 84%,
+			rgb(0 0 0 / 0.82) 88.2%,
+			rgb(0 0 0 / 0.52) 92.3%,
+			rgb(0 0 0 / 0.22) 96.2%,
+			rgb(0 0 0 / 0.06) 98.7%,
+			transparent 100%
+		);
+		-webkit-mask-image: var(--across), var(--down), var(--round);
 		-webkit-mask-composite: source-in;
-		mask-image: var(--across), var(--down);
+		mask-image: var(--across), var(--down), var(--round);
 		mask-composite: intersect;
 	}
-	/* The frame is a window on the photograph: the head is a fifth of the way down the file, so the window opens near its top. */
+	/*
+	 * The frame is a window on the photograph: the head is a fifth of the way down the file, so the window opens near its top.
+	 * The camera closes on the bird's head. The drift turns about the tip of the bill and travels no way sideways, so the
+	 * bill keeps its place: about the middle of the frame it slid out to the right edge by the end, into the feather there.
+	 */
 	.plate.heron :global(img) {
 		object-position: 50% 30%;
+		transform-origin: 95% 23%;
+		--drift-from: 0%;
+		--drift-to: 0.2%;
 	}
 	/* The photograph's own left edge already falls off under the type, so the feather beyond the type is shorter here, and the bird is not left behind it. */
 	.plate.heron::after {
