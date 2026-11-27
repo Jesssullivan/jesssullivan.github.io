@@ -1818,8 +1818,8 @@ in three ways, so they are set down here.
 | `3btWzARKYKM` | Merlin AI Demos! | what this swiftui thing 10/26/20 | 640 by 480 | A poster in the post's rows |
 | `UgnuMd7HaNw` | Week Notes: Indeterminism, Passkeys, and Spring (2026-03-21) | YoungArts Week performance | 1280 by 720. A young drummer at a kit | A small poster under the post's photographs |
 | `Igg__Pmj-nk` | Week Notes: Cyborgs, Servers, and Sending (2026-03-04) | Firestarter mixtape | 1280 by 720. A record sleeve | A small poster under the post's photographs |
-| `02kRossyKMw` | Pt. 1: Reflecting on Stunt Culture (2017-04-08) | some french dudes doing unicycle ballet | 1280 by 720. A unicyclist on a stage | A small poster, inside the folded year 2017 |
-| `QmhMnQBMZ10` | The "Develop Limitless Habitual..." post (2016-12-21) | bigger flower pot | 480 by 360. A potter at a large pot | A small poster, inside the folded year 2016 |
+| `02kRossyKMw` | pt. 1: Reflecting On Stunt Culture (Theories and Frisbee) (2017-04-08) | some french dudes doing unicycle ballet | 1280 by 720. A unicyclist on a stage | A small poster, inside the folded year 2017 |
+| `QmhMnQBMZ10` | Develop A Limitless & Habitual "SoIThen_SoICould_" Ethos (2016-12-21) | bigger flower pot | 480 by 360. A potter at a large pot | A small poster, inside the folded year 2016 |
 
 The channel each video belongs to was not read. That needs a request to
 youtube.com, and this round was allowed i.ytimg.com alone. The table gives
