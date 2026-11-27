@@ -33,8 +33,9 @@ test('/notes and a note path answer the normal not-found', async ({ request }) =
 	}
 });
 
-test('no projection receipt is served, and the webfinger file is unchanged', async ({ request }) => {
+test('no projection receipt and no headers file is served, and the webfinger file is unchanged', async ({ request }) => {
 	expect((await request.get('/.well-known/projection.json')).status()).toBe(404);
+	expect((await request.get('/_headers')).status()).toBe(404);
 	const webfinger = await request.get('/.well-known/webfinger');
 	expect(webfinger.status()).toBe(200);
 	expect((await webfinger.json()).subject).toBe('acct:jess@transscendsurvival.org');

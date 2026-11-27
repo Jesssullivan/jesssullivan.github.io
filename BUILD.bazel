@@ -154,13 +154,24 @@ js_binary(
 js_test(
     name = "vitest_unit_tests",
     copy_data_to_bin = False,
+    # src/lib/notes.projection.test.ts reads the xoxd_projection module and
+    # the contract fixtures it ships (TIN-8654). It serves the fixture trees
+    # from a loopback server through projection/testing.mjs.
     data = [
         ":node_modules",
         ":vitest_srcs",
         "//packages/pulse-client:node_modules",
         "//packages/pulse-core:node_modules",
+        "//projection:contract_fixtures",
+        "//projection:seed_fixture_srcs",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
+        XOXD_PROJECTION + ":pkg",
     ],
     entry_point = "scripts/run-vitest-bazel.mjs",
+    env = {
+        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json)",
+        "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
+    },
     patch_node_fs = False,
     tags = [
         "gloriousflywheel-rbe-candidate",

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import NoteBody from '$lib/components/NoteBody.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import { NOTES_PER_PAGE } from '$lib/notes';
 	import { page } from '$app/stores';
@@ -42,18 +43,19 @@
 	</div>
 
 	<div class="grid grid-cols-1 lg:grid-cols-[1fr_250px] gap-8">
-		<div>
-			<ol class="space-y-6" data-testid="notes-list">
+		<div class="min-w-0">
+			<!-- Each note is shown whole, in the type and spacing of a post, with no card around it. -->
+			<ol class="space-y-14" data-testid="notes-list">
 				{#each pageNotes as note (note.path)}
 					<li>
-						<article class="card glass p-6 hover:ring-2 ring-primary-500 transition-all">
-							<a href={note.path} class="block">
+						<article class="min-w-0" data-testid="notes-list-item">
+							<header class="mb-4">
 								<time class="text-sm text-surface-500" datetime={note.date}>{formatDate(note.date)}</time>
-								<h2 class="text-xl font-semibold mt-1 hover:text-primary-500 transition-colors">{note.title}</h2>
-								{#if note.summary}
-									<p class="text-surface-600-400 mt-2">{note.summary}</p>
-								{/if}
-							</a>
+								<h2 class="text-2xl font-semibold mt-1">
+									<a href={note.path} class="hover:text-primary-500 transition-colors">{note.title}</a>
+								</h2>
+							</header>
+							<NoteBody cover={note.cover} html={note.html} />
 							{#if note.tags.length}
 								<ul class="flex flex-wrap gap-2 mt-3" aria-label="Tags">
 									{#each note.tags as tag (tag)}

@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { noteView } from '$lib/notes';
 import { NOTES } from '$lib/server/notes';
 import type { PageServerLoad } from './$types';
 
@@ -8,15 +9,6 @@ export const prerender = NOTES.length > 0;
 
 export const load: PageServerLoad = () => {
 	if (NOTES.length === 0) error(404, 'Not found');
-	return {
-		notes: NOTES.map(({ slug, path, date, updated, title, summary, tags }) => ({
-			slug,
-			path,
-			date,
-			updated,
-			title,
-			summary,
-			tags,
-		})),
-	};
+	// The list shows each note whole, so each one carries its body.
+	return { notes: NOTES.map(noteView) };
 };

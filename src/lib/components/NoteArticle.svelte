@@ -1,12 +1,13 @@
 <script lang="ts">
-	import type { Note } from '$lib/notes';
+	import type { NoteView } from '$lib/notes';
 	import Breadcrumbs from '$lib/components/Breadcrumbs.svelte';
+	import NoteBody from '$lib/components/NoteBody.svelte';
 	import ProfileSidebar from '$lib/components/ProfileSidebar.svelte';
 	import TableOfContents from '$lib/components/TableOfContents.svelte';
 
 	type Neighbor = { path: string; title: string } | null;
 
-	let { note, newer, older }: { note: Note; newer: Neighbor; older: Neighbor } = $props();
+	let { note, newer, older }: { note: NoteView; newer: Neighbor; older: Neighbor } = $props();
 
 	let documentRoot = $state<HTMLElement | null>(null);
 
@@ -93,14 +94,8 @@
 				{/if}
 			</header>
 
-			<div
-				bind:this={documentRoot}
-				class="prose prose-lg max-w-none overflow-x-hidden"
-				data-document-root
-				data-pagefind-body
-			>
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -- the hub's rendered HTML, verified by the xoxd_projection module before the build (signature, sha256 and no script, handler or javascript: URL) -->
-				{@html note.html}
+			<div bind:this={documentRoot} class="overflow-x-hidden" data-document-root data-pagefind-body>
+				<NoteBody cover={note.cover} html={note.html} />
 			</div>
 
 			{#if newer || older}

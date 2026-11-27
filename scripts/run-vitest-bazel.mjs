@@ -9,6 +9,20 @@ const runtimeRoot = mkdtempSync(join(tmpdir(), 'ghio-vitest-'));
 const buildRoot = join(runtimeRoot, 'workspace');
 const configPath = resolve(buildRoot, 'vitest.bazel.config.ts');
 
+// The notes projection tests read the xoxd_projection module and its contract
+// fixtures (TIN-8654). Bazel gives both paths relative to where this script
+// starts. The tests run in the copy made below, so the paths are made
+// absolute first.
+for (const name of ['XOXD_PROJECTION_PKG', 'XOXD_PROJECTION_FIXTURES']) {
+	const value = process.env[name];
+	if (!value) continue;
+	const found = [resolve(workspaceRoot, value), resolve(process.env.JS_BINARY__RUNFILES ?? workspaceRoot, '_main', value)].find(
+		(candidate) => existsSync(candidate),
+	);
+	if (!found) throw new Error(`${name} names a path that does not exist: ${value}`);
+	process.env[name] = found;
+}
+
 mkdirSync(buildRoot, { recursive: true });
 copyInputsToBuildRoot();
 linkNodeModules();
@@ -41,7 +55,8 @@ const errors = vitest.state.getUnhandledErrors().length;
 process.exit(failed > 0 || errors > 0 ? 1 : 0);
 
 function copyInputsToBuildRoot() {
-	for (const dir of ['packages', 'scripts', 'src']) {
+	// projection/ holds the fixture server the notes projection tests start.
+	for (const dir of ['packages', 'projection', 'scripts', 'src']) {
 		copyPath(resolve(workspaceRoot, dir), resolve(buildRoot, dir));
 	}
 	copyPath(resolve(workspaceRoot, 'static', 'data'), resolve(buildRoot, 'static', 'data'));
