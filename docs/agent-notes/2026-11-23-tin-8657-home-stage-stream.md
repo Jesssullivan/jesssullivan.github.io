@@ -1546,6 +1546,562 @@ under `src/lib/assets/home`.
 7. Below 1100 pixels the stream is still one column. A plate there would lay a
    title over a photograph 336 pixels wide.
 
+## Round eight: the six points she ruled on
+
+Authority: rulings RM93 to RM98, Linear TIN-8594, the comment headed
+"Thirteenth interview" (`e893a506`), and ruling RM99 (`e48aaddf`), both of
+November 27, 2026 by the ticket's clock. Receipt under
+R-HOOK-CONVERGENCE-20261004 (R-N13). The workflow that ran this round calls it
+round six, and its screenshots are in a folder named `round6`. It is the
+eighth section of this note.
+
+Her words, verbatim. She opened with: "inetview on these in phases then exec".
+
+| Id | The point, as put | Her answer |
+|---|---|---|
+| RM93 | Heron scene, a 1200 pixel file stretched to 1920 | "tue size, feathered, run anothe rpzm, neo exploration for full size version/" |
+| RM94 | Excerpt of a word-only post on a wide screen | "Under its title (Recommended)" |
+| RM95 | Long runs of word-only posts, pick any | "Tighter word rows (Recommended), Fold older years, Video posters" |
+| RM96 | `unnamed.jpg`, shown by three posts | "Purple Prius Parts (Recommended)" |
+| RM97 | The moving picture in the newest post | "Play it, with a pause" |
+| RM98 | First paint at launch | "Stage from first paint (Recommended)" |
+| RM99 | The posters for the 13 videos | "excited for golive.  we can use the 13 videos preemptively." |
+
+RM99 was written to the ticket while this round ran.
+
+The round ran in three parts. An account usage limit stopped the first at
+about 04:25Z on November 27, 2026, with five commits pushed and the small
+posters uncommitted. The second part committed them, made the third and
+fourth passes and ran the proof, and stopped before this section was written.
+The third part read every screenshot again, ran the whole proof once more on
+the same tree and wrote this section. It changed nothing of the look. It
+found and fixed one fault in the build with the stage on, under "First paint
+at launch".
+
+The search for a larger original of the heron on her other machines is not
+part of this lane. Nothing outside this repository was read for it.
+
+### The design in ten lines
+
+1. The stage stays as wide as the window. The heron photograph stands in it at
+   its own size, and all four of its edges fall off into the page.
+2. The photograph is the whole file the banner was cut from, 1200 by 1000
+   pixels. The type keeps its place, and the slow drift closes on the bird's
+   head.
+3. A post that is words alone is a tight row: a smaller title and a short
+   excerpt under it, in the one left column.
+4. The second line of the stream is for pictures only. Beside a row of words
+   it stays empty.
+5. A short excerpt is her first sentences, ended at a sentence end. Nothing
+   cuts a line.
+6. A year before 2020 is one line, the year and its count. It opens in place
+   on a press, with no script.
+7. A video a post gives a line of its own shows by its poster, in rows. A
+   video a post only points at shows small, after the post's own pictures.
+8. The printer photograph shows with "Purple Prius Parts" and with no other
+   post.
+9. The moving picture rests as its first frame, plays while it is on the
+   screen, and has one control that pauses and plays it.
+10. A visitor fetches nothing from another site until they press play. A
+    build with the stage on is held ready by a test that runs by itself.
+
+### The heron (RM93)
+
+The code is in `HomeStage.svelte`, under `.plate.heron`, and the file is named
+in one line of `src/lib/home/scenes.ts`.
+
+**The rule.** One pixel of the file never covers more than one pixel of the
+page. The frame is as wide as the stage or as the file allows, whichever is
+less, and as tall as the stage or as the file allows. The slow drift draws the
+photograph up to 7.5 percent larger than its frame, so the frame is that much
+smaller than the file: 1,116 by 930 pixels at most.
+
+| Window | Stage | Frame | Where | One file pixel covers |
+|---|---|---|---|---|
+| 2560 wide | 2560 by 980 | 1,116 by 930 | 924 pixels in, 25 from the stage's head | 0.96 of a page pixel |
+| 1920 by 1080 | 1920 by 916 | 1,116 by 916 | 514 pixels in | 0.96 |
+| 1440 by 900 | 1440 by 736 | 1,116 by 736 | 207 pixels in | 0.96 |
+| 1280 by 720 | 1280 by 556 | 1,116 by 556 | 105 pixels in | 0.96 |
+| 1100 by 800 | 1100 by 636 | 1,100 by 636 | Edge to edge | 0.94 |
+| 768 by 1024 | 768 by 860 | 768 by 516, above the type | Edge to edge | 0.66 |
+| 390 by 844 | 390 by 680 | 390 by 394, above the type | Edge to edge | 0.41 |
+
+The last column is the photograph at the far end of its drift, its largest.
+
+**The whole photograph.** Until this round the scene showed the banner's cut:
+rows 214 to 604 of the file, with the bird's head on the top edge. A feather
+on that edge would take the head. The scene now shows the file whole, so the
+head stands a fifth of the way down and the feather at the top lies on leaves.
+On a screen 1080 pixels high the frame holds the splash, the lilies and the
+reflection. The old cuts `heron-1200.avif` and `heron-1200.webp` are removed.
+The scene reads `/images/posts/img_8694.jpg` and the AVIF and WebP the site
+already makes of it.
+
+**A screen of two device pixels.** The cap is counted in the page's own
+pixels, at every density. On a laptop of two device pixels the frame is still
+1,116 page pixels wide, so one file pixel covers four device pixels. That is
+as sharp as the same photograph at the same size on an ordinary screen, and
+no sharper. The other choice was to count device pixels: 558 page pixels wide
+on that laptop, a heading the size of a postcard in a stage of 1,440. The
+stream's plates follow the same rule since round seven. On a phone of 390
+pixels at three device pixels the frame is 1,170 device pixels wide, under
+the file.
+
+**The feathers.** Each is the mask of the photograph itself, so the page's
+ground shows through in every theme and mode.
+
+| Edge | Length | Why |
+|---|---|---|
+| Left | Up to 24 rems, and 2.2 times the bare stage beside the photograph | It lies under the type. The band of ground under the type holds as before, and the falloff beyond it is 11 to 20 rems |
+| Head | 3 to 7 rems, 12 percent of the stage's height | The head starts below it |
+| Foot | 6 to 14 rems, 24 percent of the stage's height | The long one: the water gives way to the page |
+| Right | Up to 7 rems | The bill reaches to within 60 pixels of the file's right edge. A longer feather takes the tip of the bill |
+| The two far corners | One wide ellipse about the height of the bill | The right edge is a curve that closes toward the foot, so the lower right corner of a rectangle does not show. The bill lies in its solid part |
+
+The feathers at the sides are as long as the bare stage beside the photograph
+allows. On a stage narrower than 1,116 pixels there is none: the photograph
+runs from edge to edge of the window, under its file's size, and only its
+head and foot fall off. The ellipse grows as the bare stage shrinks, and does
+nothing there.
+
+**The drift.** The photograph grows from 3 to 7.5 percent larger than its
+frame over 46 seconds and back. Until the third pass it grew about its middle
+and travelled 2.1 percent to the right, so at the far end the tip of the bill
+stood on the frame's right edge, inside the feather. The drift now turns about
+the tip of the bill and travels 0.2 percent sideways. The bill keeps its
+place at every width, and the camera closes on the bird's head.
+
+**Back to full bleed in one line.** `HERON.image` in `src/lib/home/scenes.ts`
+names the file and its size. The stage reads the size from there. A file
+2,400 pixels wide fills a stage of 1,920 from edge to edge, and the side
+feathers close by themselves.
+
+**A stage that is narrow and tall**, as a tablet held upright: from 721 to
+1,000 pixels wide and at least 44 rems high, the photograph stands above and
+the type under it, as on a phone. Beside each other, the type covered the
+bird.
+
+**Measured.** In five themes, two modes and five widths, 50 sets in all, with
+the letters and their halo taken off. The lowest contrast of the type over
+what lies under it is 10.46 to 1, at 1100 wide in pine dark. The pixel just
+inside each edge of the frame differs from the page's ground by 8 of 255 at
+most, at 390 wide in rose light, at the head. At 1440 wide the left edge differs
+by 0 and the right by 3 at most.
+
+One thing was read and left. From the frame's bare left edge inward, the
+ground is one level of 255 off the ground beside it: 215, 218, 211 against
+216, 219, 212 in pine light at 1440 wide, and 28, 33, 23 against 29, 34, 24 in
+pine dark at 1920. By the numbers the photograph is under 2 percent there and
+the blend rounds to the ground itself, so it is likely the software
+renderer's rounding of a mask in eight bits. It shows in a screenshot with
+its contrast stretched eight times and not at its own. It was not checked on
+a machine with a graphics card.
+
+### Tight rows of words (RM94, RM95)
+
+| | Before | Now |
+|---|---|---|
+| Where the excerpt of a word-only post stands, from 1100 pixels wide | On the second line, beside its title | Under its title, in the left column |
+| What the second line holds beside it | The excerpt | Nothing. It is for pictures |
+| Title of a word-only post | 1.55 to 2.2 rems | 1.22 to 1.5 rems. 1.24 rems below 1100 pixels |
+| Its excerpt | Up to 240 characters at 1.16 to 1.3 rems | Up to 140 characters at 1.06 to 1.16 rems |
+| Room between two word rows | 3 rems | 1.75 rems. A new month takes 3.25 |
+| A line clamp on an excerpt | 8 lines, as a floor | None |
+
+The short excerpt is chosen where the stream is built, in
+`src/lib/home/excerpt.ts`. It is the same run of her sentences as the longer
+one, ended sooner. One first sentence may run to 215 characters, so a summary
+she wrote as one sentence still stands. A longer first sentence is not cut:
+that post shows no excerpt. A post with a picture or a video keeps the longer
+excerpt beside it.
+
+| The excerpts of the 140 posts | Round seven | Now |
+|---|---|---|
+| Her summary, whole | 22 | 21 |
+| Her summary, cut at a sentence end | 3 | 4 |
+| Her first sentences, read from the post | 101 | 95 |
+| Absent | 14 | 20 |
+
+Six posts lost their excerpt to the short length. Their first sentence runs
+from 228 to 277 characters.
+
+### The folded years (RM95)
+
+A year before 2020 is a `details` element. Its line is its `summary`: a sign
+in the accent that hangs in the rail, the year in the title's face, and the
+count small beside it. The items of the year are inside it from the first
+paint.
+
+| Year | Items | Of which show a picture |
+|---|---|---|
+| 2019 | 11 | 1 |
+| 2018 | 24 | 8 |
+| 2017 | 39 | 5 |
+| 2016 | 11 | 2 |
+
+59 items stand open, from 2020 to 2026, and 17 of them show a picture or a
+poster. 85 are in the four years.
+
+- It opens on a press, and by keyboard with Enter or Space. The browser does
+  this, so it works with no script.
+- The line stays where it is and the items show under it. They come out of
+  the same short blur once. With reduced motion they just show.
+- Inside a year a month is named alone: "November", not "November 2018".
+- A filter cuts first. A year counts and shows only what matches, and a year
+  with nothing is absent. Under Recordings no year line shows. The address
+  keeps the filter as before.
+- The tooltip says Open or Close. A screen reader hears the year, the count
+  and the word "items", and the browser says whether it is open.
+- A picture inside a closed year is not fetched.
+
+How long the stream is, from its first item to its end, in screens of the
+window's height:
+
+| Window | Round seven | Now, years closed | Now, every year open |
+|---|---|---|---|
+| 1440 by 900 | 42.2 | 18.5 | 41.6 |
+| 1920 by 1080 | 40.3 | 18.0 | 39.1 |
+| 1100 by 800 | 47.2 | 18.8 | 44.1 |
+| 768 by 1024 | 41.5 | 18.3 | 37.0 |
+| 390 by 844 | 50.2 | 20.0 | 42.2 |
+
+The round seven column is that round's page height with every part shown,
+less the height above the stream.
+
+The fold is what halves the stream. With every year open it is as long as it
+was on a wide screen, and a sixth shorter on a phone. Two things weigh against
+each other there. A row of words is shorter on a phone, where its excerpt was
+up to 240 characters under its title. On a wide screen round seven set the
+excerpt beside the title, and RM94 sets it under, so by the totals a row is no
+shorter. And
+this round adds nine posters, the moving picture, the printer photograph and
+four year lines.
+
+A row of words takes, with the room under it: 123 pixels at 1440 wide, 129 at
+1920, 134 at 1100, 126 at 768 and 153 at 390. The longest run of word rows
+with the years closed is 6. It was 35.
+
+The longest way down the open stream with no picture:
+
+| Window | Round seven | Now, years closed | Now, every year open |
+|---|---|---|---|
+| 1440 by 900 | 5.4 screens | 1.14 | 2.17 |
+| 1920 by 1080 | 5.2 | 0.96 | 1.98 |
+| 1100 by 800 | 7.5 | 1.41 | 2.79 |
+| 768 by 1024 | 6 | 1.11 | 1.93 |
+| 390 by 844 | 10 | 1.70 | 3.16 |
+
+### Video posters (RM95, RM99)
+
+**What the posts hold.** The question put to her said five posts embed 13
+YouTube videos and show no picture. Read closely, the posts differ from that
+in three ways, so they are set down here.
+
+- No post embeds a video. All 13 are links.
+- Nine are a list in one post, "Merlin AI Demos!": each a line of its own,
+  her own screen recordings. Four of those nine no longer have a poster at
+  YouTube: the video is gone or private.
+- The other four are each a link inside a sentence, in four posts, and by the
+  posts' own words they are other people's videos. Two of those four posts
+  already show pictures.
+
+| Video | Post | The words the post links | Poster | In the stream |
+|---|---|---|---|---|
+| `dxnAx0CXUqU` | Merlin AI Demos! (2021-02-17) | handling multiple annotator clients- Vue UI, 2/17/21 | 1280 by 720 | A poster in the post's rows |
+| `8aoNftMP4w8` | Merlin AI Demos! | handling multiple annotator clients- Leaflet UI, 2/7/21 | 480 by 360 | A poster in the post's rows |
+| `E1WcZ2yOC10` | Merlin AI Demos! | Jest x Puppeteer, testing annotator UI | 1280 by 720 | A poster in the post's rows |
+| `xdog2U2-c04` | Merlin AI Demos! | Bits from 1.21.21 | None at YouTube | Not shown |
+| `uxrnf8oPsF8` | Merlin AI Demos! | preformance updates to core leaflet annotator, 1/17/21 | None at YouTube | Not shown |
+| `5rsRts7-_Xs` | Merlin AI Demos! | mongodb, trust schema, drag & drop 12/7/20 | None at YouTube | Not shown |
+| `TKKjo1ypSPY` | Merlin AI Demos! | web tools, bbox classify, ridiculous CLI 12/1/20 | 1280 by 720 | A poster in the post's rows |
+| `rKzl5aQmJ-Y` | Merlin AI Demos! | audio & photo annotators 11/23/20 | None at YouTube | Not shown |
+| `3btWzARKYKM` | Merlin AI Demos! | what this swiftui thing 10/26/20 | 640 by 480 | A poster in the post's rows |
+| `UgnuMd7HaNw` | Week Notes: Indeterminism, Passkeys, and Spring (2026-03-21) | YoungArts Week performance | 1280 by 720. A young drummer at a kit | A small poster under the post's photographs |
+| `Igg__Pmj-nk` | Week Notes: Cyborgs, Servers, and Sending (2026-03-04) | Firestarter mixtape | 1280 by 720. A record sleeve | A small poster under the post's photographs |
+| `02kRossyKMw` | Pt. 1: Reflecting on Stunt Culture (2017-04-08) | some french dudes doing unicycle ballet | 1280 by 720. A unicyclist on a stage | A small poster, inside the folded year 2017 |
+| `QmhMnQBMZ10` | The "Develop Limitless Habitual..." post (2016-12-21) | bigger flower pot | 480 by 360. A potter at a large pot | A small poster, inside the folded year 2016 |
+
+The channel each video belongs to was not read. That needs a request to
+youtube.com, and this round was allowed i.ytimg.com alone. The table gives
+the post's own words and what each poster shows.
+
+**The rule the builder follows.** It reads every YouTube link in a post's
+text. A video shows only by a poster the repository holds.
+
+- A video the post gives a line of its own, as the whole of a paragraph or of
+  a list item, or as a frame, is the post's own. Its posters stand in rows of
+  two or three, on the second line beside the post's words: five are two and
+  three, and on a phone one, two and two. The post then also stands under the
+  Video filter.
+- A video the post only points at from inside a sentence stands small: one
+  poster 18 rems wide at most, after the post's own pictures and its excerpt.
+  It does not put the post under Video.
+- Every poster is a play control. A press loads the YouTube no-cookie frame
+  in the poster's own box, as the Music page's videos do. Its name and its
+  tooltip are the words the post links.
+- A video the Music page lists keeps its own item.
+
+**To strike one.** Delete its files under `src/lib/assets/home/video`, then
+run `just home-pictures` and `just home-stream`. The builder leaves out a
+video with no poster.
+
+**The fetch.** Done once, by hand, on November 26, 2026, from i.ytimg.com
+only, one request at a time, a second apart. The largest size was asked for
+first, then the next where it was missing: 13 requests for `maxresdefault`, 7
+for `sddefault`, 6 for `hqdefault`, 26 in all. Nine videos have a poster and
+four have none at any size. The JPEG files are committed as they came. Beside
+each, `scripts/generate-home-pictures.mts` writes a WebP, and a WebP 640
+pixels wide of a poster 1000 wide or more, for a row and a narrow screen. No
+build step and no visit fetches one.
+
+### The printer photograph (RM96)
+
+`static/images/posts/unnamed.jpg` now shows with "Purple Prius Parts" alone.
+The lines removed from the two other posts, and nothing else:
+
+```
+src/posts/2020-07-15-this-that-7-15.md
+-![](/images/posts/unnamed.jpg)
+
+src/posts/2017-04-02-wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount.md
+-[![](/images/posts/unnamed.jpg)](/images/posts/unnamed.jpg)
+-![unnamed](/images/posts/unnamed.jpg)
+```
+
+That is three lines, not two. The Wolf Pine post showed the photograph twice,
+once above the words "Big Dog" and once above a caption for a cougar's paw.
+With one of the two left in, the file would still be shared and the stream
+would show it with no post. Both captions stay.
+
+Both posts still name the file as `feature_image` in their front matter. That
+line is not an image line of the text and was left. The stream's cover rule
+does not show it. The card of each post on `/blog` still does.
+
+### The moving picture (RM97)
+
+The newest post shows `/images/posts/notdeadyet.gif`: 540 by 289 pixels, 24
+frames, 2.4 seconds, 1,199,569 bytes.
+
+- `scripts/generate-home-pictures.mts` writes two files of it under
+  `static/images/home`: its first frame, 13,578 bytes, and the whole of it as
+  an animated WebP, 236,940 bytes. Both are committed and checked by the
+  build gate. The GIF itself is never asked for by the home page.
+- The page shows the first frame, with its width and height set, so nothing
+  moves. It is lazy, so it is asked for as it nears the screen.
+- When two fifths of the picture are on the screen it plays. The moving file
+  is asked for then, and shown once it is decoded. Off the screen it goes
+  back to the first frame.
+- One control lies on the picture at its lower left, 44 pixels or more each
+  way, on a feather of the page's ground. Its name is "Pause" or "Play" and
+  the picture's own words, and its tooltip says Pause or Play. It works by
+  keyboard.
+- A pause the visitor made holds. Scrolled away and back, it is still paused
+  until they play it.
+- With reduced motion it does not start by itself. It is the first frame
+  with a play control, and the visitor may play it.
+- With no script it is the first frame, which links to the post.
+
+This meets WCAG 2.2.2: what moves by itself can be paused, at any time, by a
+control that is always there while it moves.
+
+| A visitor who scrolls past it | Fetches |
+|---|---|
+| At a reader's pace | 250,518 bytes: the first frame and the moving file |
+| With reduced motion | 13,578 bytes: the first frame |
+| Before this round | Nothing. The picture was not in the stream. The post itself serves the GIF, 1,199,569 bytes |
+
+The stage does not take a moving picture as a scene: it holds photographs
+still.
+
+### First paint at launch (RM98)
+
+The default build is as it was: the flag is off. A build made with
+`BLOG_HOME_STAGE=on` was made and measured on one headless Chromium with no
+graphics card. The local server answered once plain and once with brotli, as
+production does.
+
+| What | Result |
+|---|---|
+| The page as built | 181,715 bytes, 26,101 gzip. It holds the stage, 97 items of the stream and the 4 year lines. 12 items stand open before More, and 85 are inside the years. It holds no banner, no "Writing and notes.", no side column and no footer |
+| With no script, at 1440 by 900 | The stage shows, and the 12 open items take 4,912 pixels, 5.5 screens |
+| The old banner and the old sections, from before the first paint to the end | Never in the page, in every run. The page goes from empty to the stage and then the stream |
+| First paint, 1440 by 900, three runs | 220 to 456 milliseconds |
+| Largest paint, 1440 by 900 | 568 to 896 milliseconds |
+| First and largest paint, 1920 by 1080 | 260 to 328 and 672 to 740 milliseconds |
+| First and largest paint, 390 by 844 at three device pixels | 164 to 192 and 488 to 536 milliseconds |
+| The same phone with the processor four times slower, 1.6 megabits a second and 150 milliseconds of delay, brotli | First paint 1,020 to 1,032 milliseconds, largest paint 1,476 to 1,512, alive after 3.3 to 3.4 seconds. Served plain, the first paint is at 6.1 seconds and the page is alive after 8.5 |
+| What the largest paint is | In the stage in 21 runs of 24: one word of the sky's legend. In the three slowed runs served plain it is the site's name in the top bar, which paints first and is as large. Request 7 to the constellation lane stands |
+| Layout shift | 0 in 20 runs of 24. 0.0001 once at 1440 wide, the top bar's links as a type file lands. 0.0016 in the three slowed runs with brotli, the sky's legend as the sky comes alive |
+
+**One fault found and fixed.** In one slowed run of this part the page fell
+to the site's error page: "404. This page doesn't exist." The host changed
+network as the page opened, and Chromium dropped every request in flight
+with `ERR_NETWORK_CHANGED`. One of them was the stream's data file. With the
+stage on, that read is part of the page coming alive, and SvelteKit answers a
+failed load by emptying the prerendered page and drawing the error page. A
+second probe caught it again, once in three goes, with the failed requests
+written down.
+
+A phone that leaves a wireless network as the page opens does the same. The
+read is now tried up to three times, 300 and then 1,200 milliseconds apart, in
+`src/lib/home/retry.ts`. A new e2e test fails the first two requests for the
+file on a stage-on build and expects the stage alive and the stream in place.
+It failed on the build made before the fix and passes on the build made
+after. With the flag off nothing asks for the file, so nothing changes there.
+
+A script file that fails to arrive is another matter and is the same on every
+page of the site today: the page stays as built and does not come alive.
+
+**The test that holds it.** `e2e/home-stage-first-paint.spec.ts`, four tests.
+It reads the page to learn which build it is on, so it is skipped on the
+default build and runs by itself once the build setting is on. The first
+test reads the page as built, with no script: the stage, the first screens of
+the stream and the folded years. Two tests, at 1440 by 900 and at 390 by 844,
+hold that no banner and no old section is in the page at any moment, that the
+layout shift is under 0.02 and that the largest paint is in the stage. The
+fourth fails the first two asks for the stream and expects the page to
+stand.
+
+### The passes
+
+Each pass was a production build, shot whole through one headless Chromium and
+read as sheets of screens.
+
+| Pass | Seen | Changed |
+|---|---|---|
+| 1 | Her newest summary, one sentence of more than 180 characters, was absent from its row. The long names of the Merlin demos were cut off in their tooltips. "SEPTEMBER 2020" touched a play control | A first sentence may run to 215 characters. A poster's tooltip wraps inside the poster. The rail is 10.75 rems. The heron's head feather is a little longer and the feather beyond the type a little shorter |
+| 2 | Four videos that a post only points at had no place. RM99 came in while the pass ran | A small poster after the post's own pictures |
+| 3 | At the far end of its drift the photograph had slid 1.6 percent to the right, and the tip of the bill stood inside the right feather. The lower right corner of the photograph read as the corner of a rectangle | The drift turns about the tip of the bill. One wide ellipse rounds the two far corners |
+| 4 | The first screenshot showed the heron as a bare rectangle: Chromium drops a radial gradient sized as a percentage plus a length, and the whole mask with it. An excerpt of a word row took a line more than it needed | The ellipse is sized in lengths alone. A word row takes the whole left column |
+| 5 | Every screenshot of pass four read again, and a fresh set from a new build of the same tree: the stream's top is the same pixels. The dark heron's edges were read pixel by pixel. The slowed first paint fell to the error page once | The stream's read is tried three times. No change to the look |
+
+The sets: 1440 by 900 in pine light and catppuccin dark, 1920 by 1080 in rose
+light and pine dark, 1100 by 800 in catppuccin light and rose dark, 768 by
+1024 in pine light and catppuccin dark, 390 by 844 in rose light and pine
+dark. The heron also at 1440 in pride light and trans dark, at 1280 in rose
+light and at 2560 in pine light. Each set holds the heron at both ends of its
+drift, the stream's top, the moving picture playing and paused, the posters,
+a run of word rows, the years closed and one open, the small posters and the
+whole page. The screenshots are on the build host under
+`/srv/fast-local/jess/previews/blog-home/shots-work/round6/final/`.
+
+A stranger landing on the page meets the sky, then the heron whole, sharp and
+with no edge. Under them a picture or a poster comes within a screen and a
+quarter all the way to 2020, and four lines carry the 85 older items.
+
+### Measured
+
+Measured on November 27, 2026 on production builds of this tree, in one
+headless Chromium with no graphics card.
+
+| What | Result |
+|---|---|
+| Items that stand open, and inside the four years | 59 and 85. 17 of the 59 show a picture or a poster, and 2 more a player |
+| Sideways scroll at 1440, 1920, 1100, 768 and 390 pixels wide | None |
+| A picture drawn larger than its file, in ten sets | None |
+| Layout shift down the open stream, and on opening a year and reading on, at four widths | 0 |
+| Layout shift at load with `?flags=home` on the default build | 0.0685 at 1440 wide, 0.0321 at 1920, 0 at 768 and 390. It is the ordinary page's own, before the two change places. A stage-on build has none of it |
+| The moving picture, a visitor who scrolls past | 250,518 bytes: the first frame, 13,578, and the moving file, 236,940. With reduced motion 13,578 |
+| Image bytes of the stream in the first three screenfuls at 1440 by 900 | 6 files, 371,604 bytes, of which the moving file is 236,940. Round seven had 5 files and 134,664 bytes |
+| The same at 1920 by 1080 | 6 files, 507,451 bytes |
+| The same at 1440 by 900 at two device pixels | 6 files, 513,544 bytes |
+| The same on a phone of 390 by 844 at three device pixels | 6 files, 371,508 bytes |
+| Every file of the page in those three screenfuls | 1,008,198 bytes over 19 files at 1440 by 900, of which 636,594 arrive before any scrolling. 923,329 over 14 files on the phone |
+| JavaScript on the home page, flag off | 21 scripts, 165,599 bytes gzip. Round seven measured 165,558 |
+| JavaScript on the home page, flag on | 25 scripts, 199,629 bytes gzip: 35,289 above main's 164,340 with the flag off. The limit is 40 kilobytes. This round cost 2,672 bytes |
+| Requests on the home page | 44 with the flag off, as before. 55 with it on, one more than before. None leaves the site |
+| The stream's data file | 78,037 bytes, 19,415 gzip. It was 79,397 and 20,864 |
+| Posters and other new pictures in the repository | 32 files, 1,553,198 bytes. The two old cuts of the heron, 110,615 bytes, are removed |
+
+### Proof
+
+Each step ran through the host's gates on November 27, 2026, one at a time, on
+the tree of `d56f60c5`, the round's last code commit.
+
+| Step | Exit | Result |
+|---|---|---|
+| The small pictures against the stream | 0 | Current |
+| The stream's data file against its sources | 0 | Current, 144 items |
+| Lint | 0 | Clean |
+| Unit tests, `npx vitest run --config vitest.bazel.config.ts` | 0 | 49 files, 533 tests. Round seven had 47 and 506 |
+| svelte-check | 1 | 4 errors, all in `src/lib/flags/tailnet-hint.test.ts`, the 4 that main has. None added |
+| Production build, `MERMAID_PRERENDER=optional npm run build` | 0 | The prebuild ran both generators and changed no file |
+| The same build with `BLOG_HOME_STAGE=on` | 0 | Kept beside the default build |
+| e2e with one worker on the default build: this lane's two specs and the two constellation specs | 0 | 93 passed and 4 skipped in 4.5 minutes. The 4 are the stage-on spec, which this build does not answer to |
+| e2e on the stage-on build: `e2e/home-stage-first-paint.spec.ts` | 0 | 4 passed in 10.5 seconds |
+| The new test on the stage-on build made before the fix | 1 | Failed, as it should: the stage was gone |
+
+The second part of the round ran the same steps on `c7637a60` with the same
+results: 48 files and 529 unit tests, 93 e2e tests passed and 3 skipped, and 3
+passed on the stage-on build. The third part ran them again on that tree
+before the fix, with the same counts, and then on the fixed tree.
+
+The 27 new unit tests of the round hold the short excerpt, the folded years,
+a post's own videos and the ones it points at, the moving picture, the shared
+file and the retry. The e2e count is 97 where round seven had 83. This lane
+added 13: the heron at its own size, the tight rows, the years by press and
+by keyboard, the years under a filter, the rows of posters, the small poster,
+the printer photograph, the moving picture with and without reduced motion,
+and the four of the stage-on build. One came with main.
+
+The hosted gate was not waited for.
+
+### Earlier claims this round changes
+
+- Round seven's "The heron": not changed then. It is now the whole
+  photograph at its own size, and the two cuts under `src/lib/assets/home`
+  are gone.
+- Round seven's decisions 2, 3 and 4 are answered by RM96, RM97, RM95 and
+  RM99 and done.
+- Round seven, "An excerpt shows whole": a word row now shows the short
+  excerpt. No line is cut.
+- Round five, "The wide screen": the excerpt of a word-only post stood on the
+  second line. It stands under its title, and the second line is for
+  pictures.
+- Round two said a preview built with the stage on "paints the new page
+  first". It is now measured, and held by a test.
+
+### Not changed, and why
+
+- The stage's scenes, the one row of controls, the plates and the pictures
+  beside their words. She has seen them, and the round's brief kept them.
+- The default build. The flag is off, and `BLOG_HOME_STAGE` is not set
+  anywhere in the repository.
+- The sky's own files. Nothing in them was touched this round.
+- `feature_image` in the two posts that lost the printer photograph. It is
+  front matter and not an image line of the text.
+- The four Merlin demo videos with no poster at YouTube. They show nowhere.
+- The channel of each video. It was not read.
+- The one level of 255 at the dark heron's bare edge. See "The heron".
+- A row of words on a wide screen is no shorter than in round seven. Shorter
+  means a row with no excerpt.
+- The search for a larger original of the heron. It is not this lane's.
+
+### Decisions for her, round eight
+
+1. Four of the nine Merlin demos have no poster at YouTube at any size: the
+   video is gone or private. They show nowhere in the stream. The post still
+   links them.
+2. The four small posters are other people's videos, by the posts' own
+   words. RM99 lets them show. The table above says how to strike one.
+3. The channel of each video needs one request for each to youtube.com. Say
+   so and the table gains the column.
+4. The printer photograph is still the `/blog` card of "This, That, etc" and
+   "Wolf Pine @ Fox Park #11", through `feature_image`.
+5. "Ligature Test Fixture", December 2024, is a test post with `published:
+   true`. It stands in the stream between her posts, as it does on `/blog`.
+6. With the years open, a wide screen's stream is as long as in round seven.
+   A word row with a title and no excerpt would take about half the height.
+7. On a build with the stage on, the stream's data file is a second request
+   the page needs before it comes alive. It is now tried three times. The
+   other way is to write the stream into the page itself, about 19 kilobytes
+   more gzip in the HTML and one request fewer.
+8. The site's error page says "404. This page doesn't exist." for every
+   failure, a failed load among them.
+9. The posters and the moving picture add 1.55 megabytes to the repository.
+10. Whether the dark heron's edge shows on a real screen was not checked on a
+    machine with a graphics card.
+
 ## Requests for the constellation lane
 
 The constellation is on main since `759c1e80`, and round six did requests 2,
@@ -1608,3 +2164,7 @@ The stage reached into the component with two style rules, in one block in
     The stage then draws one row: the filters at one end, and at the other the
     sky's five while the sky is on show, the progress line, Pause and Next.
     Zoom out and Reset show only while they can act, as request 5 asks.
+12. On a build with the stage on, on a phone with the processor four times
+    slower, the sky's legend moves as the sky comes alive, about 3.3 seconds
+    in. The score is 0.0016, in three runs of three with brotli. The nodes
+    are the legend and two of its words.
