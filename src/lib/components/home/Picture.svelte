@@ -23,7 +23,7 @@
 	const small = $derived(sizes ? image.small : undefined);
 	// A picture kept as WebP has no other format beside it. Its small size is WebP too, so the two make one set.
 	const webpWhole = $derived(webp ?? (small?.webp && /\.webp$/i.test(image.src) ? assetUrl(image.src) : undefined));
-	const set = (whole: string | undefined, little: string | undefined) => (whole && little && small ? `${little} ${small.width}w, ${whole} ${image.width}w` : whole);
+	const set = (whole: string | undefined, little: string | undefined) => (whole && little && small ? `${assetUrl(little)} ${small.width}w, ${whole} ${image.width}w` : whole);
 
 	// A picture still on its way when the page comes alive fades in as it lands, so nothing pops.
 	// One that is already here, and any picture without scripts, just shows.

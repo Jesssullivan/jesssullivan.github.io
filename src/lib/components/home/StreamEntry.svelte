@@ -1,11 +1,13 @@
 <script lang="ts">
-	// One item of the home stream, in the form its kind has (TIN-8657, rulings RM48, RM66 and RM70).
+	// One item of the home stream, in the form its kind has (TIN-8657, rulings RM48, RM66, RM70 and RM94 to RM97).
 	// Every kind is drawn here and nowhere else. The kind shows by form: there is no label, card or rule.
 	// An item has words and it may have something to see. On a wide screen two lines run down the whole
-	// stream. Every title starts on the first. A picture starts on one of the two, by its own shape:
+	// stream. Every title starts on the first, with its excerpt under it. A picture starts on one of the two, by its own shape:
 	// a wide photograph on the first, with its title lying on it, and any other picture on the second, beside its words.
+	// The second line is for pictures only: beside a post that is words alone it stays empty.
+	import Moving from './Moving.svelte';
 	import Picture from './Picture.svelte';
-	import { formOf, leadOf, rowOf } from '$lib/home/forms';
+	import { filmRows, filmShares, formOf, leadOf, rowOf } from '$lib/home/forms';
 	import { dayOf, setTotal, shows, tipFor, type StreamFilm, type StreamImage, type StreamItem, type StreamSound } from '$lib/home/stream';
 
 	let { item }: { item: StreamItem } = $props();
@@ -24,16 +26,31 @@
 	// A recording of its own carries its play control beside its title. One a post holds sits under the post's words.
 	const lone = $derived(item.kind === 'recording' && sounds.length > 0);
 	const held = $derived(lone ? sounds.slice(1) : sounds);
+	// Three posters across at most, and two on a phone. Each takes its share of a row of six parts.
+	const FILMS_ACROSS = 3;
 	// What is to see sets its own width: never wider than its file, and a tall picture never taller than most of the screen.
 	const shape = $derived.by(() => {
 		// Small pictures in a row: the row is as wide as they are together at the height of the shortest.
 		if (form === 'small' && row) return `--natural:${Math.round(row.sum * row.cap)}px;--ar:${row.sum.toFixed(4)}`;
-		const first = lead ?? films[0]?.poster;
-		if (!first) return undefined;
-		// A row of posters is as wide as its posters together, and counts as one wide shape.
-		const across = lead ? 1 : films.length;
-		return `--natural:${first.width * across}px;--ar:${((first.width * across) / first.height).toFixed(4)}`;
+		if (lead) return `--natural:${lead.width}px;--ar:${(lead.width / lead.height).toFixed(4)}`;
+		if (!films.length) return undefined;
+		// Posters stand in rows that share one width. The whole is as wide as its narrowest poster allows, and as tall as its rows together.
+		let at = 0;
+		let natural = Infinity;
+		let tall = 0;
+		for (const size of filmRows(films.length, FILMS_ACROSS)) {
+			natural = Math.min(natural, size * Math.min(...films.slice(at, at + size).map((film) => film.poster?.width ?? 1280)));
+			tall += 9 / 16 / size;
+			at += size;
+		}
+		return `--natural:${natural}px;--ar:${(1 / tall).toFixed(4)}`;
 	});
+	const wide = $derived(filmShares(films.length, FILMS_ACROSS));
+	const narrow = $derived(filmShares(films.length, 2));
+	const filmSizes = (film: StreamFilm, n: number) => {
+		const own = `${film.poster?.width ?? 1280}px`;
+		return `(min-width: 1100px) min(calc((${LINE_ONE} - ${SAY}) * ${wide[n].toFixed(3)}), ${own}), (min-width: 721px) min(${Math.ceil(100 * wide[n])}vw, ${own}), min(${Math.ceil(100 * narrow[n])}vw, ${own})`;
+	};
 	const ratio = (image: StreamImage) => (image.width / image.height).toFixed(4);
 	// How wide each picture is drawn, as the browser reads it, so it asks for the size of file the layout needs.
 	// From the first line to the right edge of the screen, and the words' own column: as HomeStream sets them.
@@ -102,14 +119,21 @@
 		</div>
 		{#if pic}
 			<div class="show">
-				{#if lead}
+				{#if lead?.motion}
+					<div class="lead"><Moving image={lead} href={item.url} name={lead.alt || item.title} /></div>
+				{:else if lead}
 					<!-- The title is the link a keyboard reaches. The picture is a second way in for a pointer. -->
 					<a class="lead" href={item.url} tabindex="-1" aria-hidden={lead.alt ? undefined : 'true'}><Picture image={lead} sizes={leadSizes} /></a>
 				{/if}
 				{#if row}
-					<div class="rest" aria-hidden="true" style={`--sum:${row.sum.toFixed(4)};--cap:${row.cap}px;--gaps:${others.length - 1}`}>
+					<div class="rest" style={`--sum:${row.sum.toFixed(4)};--cap:${row.cap}px;--gaps:${others.length - 1}`}>
 						{#each others as image (image.src)}
-							<a href={item.url} tabindex="-1" style={`--ar:${ratio(image)}`}><Picture {image} alt="" sizes={rowSizes(image)} /></a>
+							{#if image.motion}
+								<!-- A moving picture keeps its pause control, so it is not hidden from anyone. -->
+								<Moving {image} href={item.url} name={image.alt || item.title} style={`--ar:${ratio(image)}`} />
+							{:else}
+								<a href={item.url} tabindex="-1" aria-hidden="true" style={`--ar:${ratio(image)}`}><Picture {image} alt="" sizes={rowSizes(image)} /></a>
+							{/if}
 						{/each}
 					</div>
 				{/if}
@@ -117,13 +141,13 @@
 				{#if films.length}
 					<div class="films">
 						{#each films as film, n (film.src)}
-							<div class="frame">
+							<div class="frame" style={`--wide:${Math.round(6 * wide[n])};--narrow:${Math.round(6 * narrow[n])}`}>
 								{#if playing.includes(film.src)}
 									<iframe title={film.title ?? item.title} src={filmSrc(film)} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 								{:else}
 									<!-- The poster is the play control. Its sign and its day lie straight on it, on a feather of the page's ground. -->
 									<button type="button" class="poster" aria-label={`Play ${film.title ?? item.title}${nth(n, films.length)}`} onclick={() => play(film.src)} data-testid="video-play">
-										{#if film.poster}<Picture image={film.poster} alt="" />{/if}
+										{#if film.poster}<Picture image={film.poster} alt="" sizes={filmSizes(film, n)} />{/if}
 										<span class="on">
 											<span class="play" data-tip={film.title ?? 'Play'}>{@render sign()}</span>
 											{#if film.date && item.kind !== 'video'}<time class="when" datetime={film.date}>{dayOf(film.date)}</time>{/if}
@@ -165,18 +189,27 @@
 		outline: 2px solid var(--accent);
 		outline-offset: 3px;
 	}
+	/* An excerpt is cut at a sentence end where the stream is built, and it shows whole: nothing here cuts a line. */
 	.summary {
 		margin-top: 0.5rem;
 		max-width: 29em;
 		font-size: 1.16rem;
 		line-height: 1.5;
 		color: var(--quiet);
-		display: -webkit-box;
-		/* An excerpt is cut at a sentence end where the stream is built, so it is short. The clamp is only a floor under that. */
-		-webkit-line-clamp: 8;
-		line-clamp: 8;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
+	}
+	/*
+	 * A post that is words alone is a tight row (RM95): a smaller title, which the stream sets, and a short excerpt
+	 * close under it, in the one column every title stands in. A run of them reads as a list of her writing, and a picture comes up sooner.
+	 */
+	.words.article h2 {
+		line-height: 1.22;
+		letter-spacing: -0.012em;
+	}
+	.words.article .summary {
+		margin-top: 0.3rem;
+		max-width: 33em;
+		font-size: 1.06rem;
+		line-height: 1.45;
 	}
 
 	/* A note: a few lines set plainly, its date small and quiet. */
@@ -244,7 +277,7 @@
 		gap: var(--gap);
 		margin-top: var(--gap);
 	}
-	.rest a {
+	.rest > :global(*) {
 		flex: none;
 		height: min(var(--cap), 17rem, calc((100cqw - var(--gaps) * var(--gap)) / var(--sum)));
 		aspect-ratio: var(--ar);
@@ -339,18 +372,32 @@
 		}
 	}
 
-	/* A video: its poster is its play control. The frame takes the poster's place, so nothing moves. */
+	/*
+	 * A video: its poster is its play control. The frame takes the poster's place, so nothing moves.
+	 * Several stand in rows of six parts: a row of two takes three parts each, a row of three takes two.
+	 */
 	.films {
-		display: flex;
+		display: grid;
+		grid-template-columns: repeat(6, minmax(0, 1fr));
 		gap: clamp(0.3rem, 0.6vw, 0.5rem);
 	}
 	.frame {
 		position: relative;
-		flex: 1;
+		grid-column: span var(--wide, 6);
 		min-width: 0;
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
+		container-type: inline-size;
 		background: color-mix(in oklch, var(--ink) 8%, var(--ground));
+	}
+	@media (max-width: 720px) {
+		.frame {
+			grid-column: span var(--narrow, 6);
+		}
+	}
+	/* Pictures come before posters, with the room a row of pictures has between its own. */
+	:is(.lead, .rest, .count) ~ .films {
+		margin-top: clamp(0.3rem, 0.6vw, 0.5rem);
 	}
 	.poster {
 		position: absolute;
@@ -406,6 +453,26 @@
 	.on:not(:has(.when)) {
 		padding: 3rem 4rem 0.2rem 0.7rem;
 	}
+	/* A small poster, as in a row of three: a smaller sign on less ground, so the poster still shows. */
+	@container (max-width: 17rem) {
+		.on,
+		.on:not(:has(.when)) {
+			--hold: 58%;
+			padding: 1.9rem 2.6rem 0 0.35rem;
+		}
+		.on .play {
+			width: 2.4rem;
+			height: 2.4rem;
+		}
+		.on .play svg {
+			width: 2rem;
+			height: 2rem;
+			margin-left: -0.6rem;
+		}
+		.on .when {
+			display: none;
+		}
+	}
 	.on .when {
 		color: var(--ink);
 		/* A halo of the ground under every letter, as a backstop for the feather. */
@@ -451,9 +518,9 @@
 	}
 
 	/*
-	 * A wide screen. Two lines run down the stream. The words start on the first. On the second starts
-	 * what there is to see beside its words, and it runs out to the edge of the screen. A piece with nothing
-	 * to show sets its excerpt on the second line, on the baseline of its title. One of her photographs, wide,
+	 * A wide screen. Two lines run down the stream. The words start on the first, title and excerpt in one column.
+	 * On the second starts what there is to see beside its words, and it runs out to the edge of the screen.
+	 * Beside a piece with nothing to show, the second line stays empty (RM94). One of her photographs, wide,
 	 * is a plate: it starts on the first line and carries its title.
 	 */
 	@media (min-width: 1100px) {
@@ -466,35 +533,11 @@
 			grid-column: 1;
 			padding-right: var(--between);
 		}
-		.piece:not(.pic) .say {
-			display: contents;
-		}
-		.piece:not(.pic) :is(h2, .line:not(.heard), .text) {
-			grid-column: 1;
-			padding-right: var(--between);
-		}
-		.piece:not(.pic) :is(.summary, .heard, .player, .note .when) {
-			grid-column: 2;
-			margin-top: 0;
-			margin-left: 0;
-		}
-		/* The summary's first line stands on the baseline of the title's first line: each face's own rise, from its own top. */
-		.piece:not(.pic) .summary {
-			padding-top: calc(var(--title) * 0.94 - 1.099em);
-		}
-		.piece.recording:not(.pic) .summary {
-			padding-top: 0;
-		}
-		/* A recording's line is as tall as its play control, so its note is centred on it. */
-		.piece.recording:not(.pic) {
-			align-items: center;
-		}
-		.piece:not(.pic) .player {
-			grid-row: 2;
-			margin-top: 1rem;
-		}
 		.summary {
 			font-size: clamp(1.16rem, 1.05vw, 1.3rem);
+		}
+		.words.article .summary {
+			font-size: clamp(1.06rem, 0.95vw, 1.16rem);
 		}
 		.note .text {
 			font-size: clamp(1.35rem, 1.5vw, 1.75rem);
@@ -579,6 +622,13 @@
 		}
 		.on:not(:has(.when)) {
 			padding: 4.5rem 6.5rem 0.55rem 1.1rem;
+		}
+		@container (max-width: 17rem) {
+			.on,
+			.on:not(:has(.when)) {
+				--hold: 58%;
+				padding: 1.9rem 2.6rem 0 0.35rem;
+			}
 		}
 	}
 

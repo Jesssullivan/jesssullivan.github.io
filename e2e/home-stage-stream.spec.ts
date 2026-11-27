@@ -5,7 +5,8 @@ import { test, expect, type Page } from '@playwright/test';
 
 // Everything the page brings with it is named by its content, so a browser may keep it.
 const STREAM_FILE = /^\/_app\/immutable\/assets\/home-stream\.v1\.[\w-]+\.json$/;
-const HERON_FILE = /^\/_app\/immutable\/assets\/heron-1200\.[\w-]+\.(?:avif|webp)$/;
+// The heron is the photograph the site already holds, whole, in the formats the site already makes.
+const HERON_FILE = /^\/images\/posts\/img_8694\.(?:avif|webp)$/;
 const outside: string[] = [];
 
 test.beforeEach(async ({ context, baseURL }) => {
@@ -34,6 +35,17 @@ function recordPaths(page: Page): string[] {
 	const paths: string[] = [];
 	page.on('request', request => paths.push(new URL(request.url()).pathname));
 	return paths;
+}
+
+/** Shows every part of the stream by the real More control, and opens every folded year by its own line. */
+async function showAll(page: Page, years = true) {
+	// Each press is one step in the page: find the control and press it. The control moves down as a part
+	// arrives and leaves with the last part, so a press that first waits for it to rest, or to be there, can wait for good.
+	await expect.poll(async () => {
+		await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
+		return page.getByTestId('stream-more').count();
+	}, { timeout: 25_000, intervals: [150] }).toBe(0);
+	if (years) await page.evaluate(() => document.querySelectorAll<HTMLElement>('[data-testid=stream-year]:not([open]) > summary').forEach(line => line.click()));
 }
 
 async function noSidewaysScroll(page: Page) {
@@ -165,7 +177,7 @@ test.describe('flag on: the heading stage', () => {
 		await expect(page.getByTestId('scene-heron').locator('img')).toHaveCount(1, { timeout: 8000 });
 		await expect(page.getByTestId('scene-placed').locator('img')).toHaveCount(0);
 		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
-		// The heron comes at its own size, under a name with a content hash in it.
+		// The heron comes once, in one of the two formats the site makes of it.
 		await expect.poll(() => paths.filter(path => HERON_FILE.test(path)).length).toBe(1);
 		const heron = page.getByTestId('scene-heron').locator('img');
 		await expect.poll(() => heron.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBe(1200);
@@ -442,14 +454,8 @@ test.describe('flag on: the one mixed stream', () => {
 	test('shows mixed kinds newest first, with no card, border or label', async ({ page }) => {
 		await page.goto('/?flags=home');
 		await expect(items(page).first()).toBeVisible();
-		// Reveal the stream to its end by the real More control.
-		const more = page.getByTestId('stream-more');
-		// Each press is one step in the page: find the control and press it. The control moves down as a part
-		// arrives and leaves with the last part, so a press that first waits for it to rest, or to be there, can wait for good.
-		await expect.poll(async () => {
-			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
-			return more.count();
-		}, { timeout: 25_000, intervals: [150] }).toBe(0);
+		// Reveal the stream to its end by the real More control, and open the folded years.
+		await showAll(page);
 		const kinds = await items(page).evaluateAll(nodes => nodes.map(node => node.getAttribute('data-kind')));
 		expect(new Set(kinds)).toEqual(new Set(['article', 'recording', 'video']));
 		expect(kinds.length).toBeGreaterThan(140);
@@ -590,7 +596,7 @@ test.describe('flag on: the one mixed stream', () => {
 		await expect(item.locator('.frame iframe')).toHaveAttribute('src', /^https:\/\/www\.youtube-nocookie\.com\/embed\/JVusudpKTF8\?autoplay=1$/);
 		// Two videos of one title and one day are one item with two posters.
 		await page.goto('/?flags=home&show=video');
-		await expect(items(page)).toHaveCount(3);
+		await expect(items(page)).toHaveCount(4);
 		const pair = items(page).filter({ has: page.locator('h2', { hasText: 'Shortest Morning Metal 7 8 20' }) });
 		await expect(pair).toHaveCount(1);
 		await expect(pair.getByTestId('video-play')).toHaveCount(2);
@@ -606,7 +612,8 @@ test.describe('flag on: the one mixed stream', () => {
 			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
 			await expect.poll(() => page.locator('.piece.plate').count()).toBeGreaterThan(0);
 			await page.getByTestId('home-stream').evaluate(node => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
-			const seen = await items(page).evaluateAll(nodes => nodes.map(node => {
+			// Only what stands open: an item inside a folded year has no place on the page until its year opens.
+			const seen = await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).map(node => {
 				const box = (selector: string) => node.querySelector(selector)?.getBoundingClientRect();
 				const [title, summary, show, lead] = [box('h2 a'), box('.summary'), box('.show'), box('.lead')];
 				const round = (rect: DOMRect | undefined) => rect && { left: Math.round(rect.left), right: Math.round(rect.right), top: Math.round(rect.top), bottom: Math.round(rect.bottom) };
@@ -625,10 +632,18 @@ test.describe('flag on: the one mixed stream', () => {
 				expect(plate.title!.bottom).toBeLessThanOrEqual(plate.lead!.bottom);
 				expect(plate.lead!.bottom - plate.title!.bottom).toBeLessThan(40);
 			}
-			// Any other picture starts on a second line, beside its words, and so does the excerpt of a piece with nothing to show.
-			const second = new Set([...others.filter(item => item.show).map(item => item.show!.left), ...others.filter(item => !item.show && item.summary).map(item => item.summary!.left)]);
+			// Any other picture starts on a second line, beside its words. That line is for pictures only (RM94):
+			// the excerpt of a piece with nothing to show stands under its title, in the one column every title stands in.
+			const second = new Set(others.filter(item => item.show).map(item => item.show!.left));
 			expect(second.size, `${width}`).toBe(1);
 			expect([...second][0]).toBeGreaterThan(width * 0.45);
+			const words = others.filter(item => !item.show && item.summary);
+			expect(words.length, `${width}`).toBeGreaterThan(3);
+			for (const item of words) {
+				expect(item.summary!.left, `${width}`).toBe(item.title!.left);
+				expect(item.summary!.top).toBeGreaterThanOrEqual(item.title!.bottom);
+				expect(item.summary!.right).toBeLessThan([...second][0]);
+			}
 			// A wide picture runs out to the edge of the screen. Nothing runs past it.
 			expect(Math.max(...others.filter(item => item.show).map(item => item.show!.right))).toBeGreaterThan(width - 20);
 			await noSidewaysScroll(page);
@@ -644,16 +659,15 @@ test.describe('flag on: the one mixed stream', () => {
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await page.goto('/?flags=home');
 		await expect(items(page).first()).toBeVisible();
-		await expect.poll(async () => {
-			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
-			return page.getByTestId('stream-more').count();
-		}, { timeout: 25_000, intervals: [150] }).toBe(0);
+		// Every year open, so every picture has its place and its drawn size is a real one.
+		await showAll(page);
 		const pictures = await page.locator('[data-testid=stream-item] :is(.lead, .rest) img').evaluateAll(nodes => nodes.map(node => {
 			const img = node as HTMLImageElement;
 			const small = [...(img.parentElement?.querySelectorAll('source') ?? [])].some(source => /\/images\/home\/[^ ]+-720\.(?:avif|webp) 720w/.test(source.srcset) && source.sizes !== '');
 			return { src: img.getAttribute('src')!, drawn: img.getBoundingClientRect().width, file: Number(img.getAttribute('width')), inRow: img.closest('.rest') !== null, small, lazy: img.loading, sized: img.hasAttribute('width') && img.hasAttribute('height') };
 		}));
 		expect(pictures.length).toBeGreaterThan(50);
+		expect(pictures.every(picture => picture.drawn > 0)).toBe(true);
 		// No picture stands in two places: a file that more than one post shows is shown with none of them.
 		expect(pictures.map(picture => picture.src).filter((src, index, all) => all.indexOf(src) !== index)).toEqual([]);
 		for (const picture of pictures) {
@@ -717,6 +731,309 @@ test.describe('flag on: the one mixed stream', () => {
 		await page.getByRole('link', { name: 'Back to the sky' }).click();
 		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
 		await expect.poll(() => stage(page).evaluate(node => Math.round(node.getBoundingClientRect().top))).toBeLessThan(200);
+	});
+});
+
+test.describe('flag on: the heron at its own size', () => {
+	test('is never drawn larger than its file at any width, and its edges fall off into the page', async ({ page }) => {
+		test.setTimeout(90_000);
+		for (const [width, height] of [[1920, 1080], [1440, 900], [1100, 800], [768, 1024], [390, 844]]) {
+			await page.setViewportSize({ width, height });
+			await page.goto('/?flags=home');
+			await expect(stage(page)).toBeVisible();
+			await page.getByTestId('stage-next').click();
+			await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
+			const photograph = page.getByTestId('heron-photograph');
+			await expect.poll(() => photograph.locator('img').evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth)).toBe(1200);
+			const facts = await photograph.evaluate(node => {
+				const img = node.querySelector('img')!;
+				const [frame, drawn, scenes] = [node.getBoundingClientRect(), img.getBoundingClientRect(), node.closest('.scenes')!.getBoundingClientRect()];
+				const style = getComputedStyle(node);
+				return {
+					// How many pixels of the page one pixel of the file covers, as drawn now and at the far end of the drift.
+					now: Math.max(drawn.width / img.naturalWidth, drawn.height / img.naturalHeight),
+					most: Math.max(frame.width / img.naturalWidth, frame.height / img.naturalHeight) * 1.075,
+					left: Math.round(frame.left), right: Math.round(scenes.right - frame.right), top: Math.round(frame.top - scenes.top), wide: Math.round(frame.width),
+					mask: style.maskImage || style.webkitMaskImage,
+					copy: Math.round(node.closest('.scene')!.querySelector('.copy')!.getBoundingClientRect().left),
+				};
+			});
+			expect(facts.now, `${width}`).toBeLessThanOrEqual(1.001);
+			expect(facts.most, `${width}`).toBeLessThanOrEqual(1.001);
+			// Every edge that lies inside the stage falls off to nothing: each gradient of the mask starts and ends clear.
+			const gradients = facts.mask.split('linear-gradient(').slice(1);
+			expect(gradients.length, `${width}`).toBeGreaterThanOrEqual(1);
+			for (const gradient of gradients) {
+				expect(gradient, `${width}`).toMatch(/^(?:to \w+, )?rgba\(0, 0, 0, 0\) 0(?:px|%)/);
+				expect(gradient.trimEnd(), `${width}`).toMatch(/rgba\(0, 0, 0, 0\) 100%\)?,?$/);
+			}
+			if (width >= 1280) {
+				// The stage is wider than the file: the photograph stands in it with bare stage on both sides, and the type keeps the page's left edge.
+				expect(facts.left, `${width}`).toBeGreaterThan(0);
+				expect(facts.right, `${width}`).toBeGreaterThan(0);
+				expect(facts.wide, `${width}`).toBeLessThanOrEqual(1200);
+				expect(gradients.length, `${width}`).toBe(2);
+				expect(facts.copy, `${width}`).toBeLessThan(facts.left);
+			} else {
+				// The stage is narrower than the file: the photograph runs from edge to edge of it, smaller than its file.
+				expect(facts.left, `${width}`).toBe(0);
+				expect(facts.right, `${width}`).toBe(0);
+			}
+			// The stage itself is as wide as the window.
+			expect(Math.round((await stage(page).boundingBox())!.width)).toBe(await page.evaluate(() => document.documentElement.clientWidth));
+			await noSidewaysScroll(page);
+		}
+	});
+});
+
+test.describe('flag on: tight rows, folded years, posters and a moving picture', () => {
+	test('a post that is words alone is a tight row: a smaller title and a short excerpt under it, never cut by a line clamp', async ({ page }) => {
+		for (const [width, height] of [[1440, 900], [390, 844]]) {
+			await page.setViewportSize({ width, height });
+			await page.goto('/?flags=home&show=writing');
+			await expect(items(page).first()).toBeVisible();
+			await showAll(page, false);
+			const rows = await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).map(node => {
+				const [title, summary] = [node.querySelector('h2'), node.querySelector<HTMLElement>('.summary')];
+				return {
+					words: node.querySelector('.piece.words') !== null,
+					size: title ? parseFloat(getComputedStyle(title).fontSize) : 0,
+					excerpt: summary?.textContent ?? '',
+					// Shown whole: nothing hides a part of it.
+					whole: !summary || (summary.scrollHeight <= summary.clientHeight + 1 && ['none', ''].includes(getComputedStyle(summary).webkitLineClamp)),
+					height: Math.round(node.getBoundingClientRect().height),
+				};
+			}));
+			const words = rows.filter(row => row.words);
+			const seen = rows.filter(row => !row.words);
+			expect(words.length, `${width}`).toBeGreaterThan(20);
+			expect(seen.length, `${width}`).toBeGreaterThan(5);
+			expect(Math.max(...words.map(row => row.size)), `${width}`).toBeLessThan(Math.min(...seen.map(row => row.size)));
+			for (const row of rows) expect(row.whole, row.excerpt).toBe(true);
+			for (const row of words) {
+				expect(row.excerpt.length, row.excerpt).toBeLessThanOrEqual(180);
+				if (row.excerpt) expect(row.excerpt).toMatch(/[.!?…]["'”’)\]]*(?:\s*(?:\p{Extended_Pictographic}️?|[:;]-?\)))*$|[\p{L}\p{N}]$/u);
+			}
+			// A row is a title and a few lines at most.
+			const tall = [...words.map(row => row.height)].sort((a, b) => a - b);
+			expect(tall[Math.floor(tall.length / 2)], `${width}`).toBeLessThan(width > 1000 ? 110 : 170);
+		}
+	});
+
+	test('a year before 2020 is one line, a year and its count, that opens in place on a press and by keyboard', async ({ page }) => {
+		await page.goto('/?flags=home');
+		await expect(items(page).first()).toBeVisible();
+		await showAll(page, false);
+		const years = page.getByTestId('stream-year');
+		expect(await years.evaluateAll(nodes => nodes.map(node => node.getAttribute('data-year')))).toEqual(['2019', '2018', '2017', '2016']);
+		const facts = await years.evaluateAll(nodes => nodes.map(node => {
+			const line = node.querySelector('summary')!;
+			const style = getComputedStyle(line);
+			return {
+				open: (node as HTMLDetailsElement).open,
+				year: line.querySelector('.of')?.textContent,
+				count: Number(line.querySelector('.count')?.firstChild?.textContent),
+				held: node.querySelectorAll('[data-testid=stream-item]').length,
+				years: [...node.querySelectorAll('[data-testid=stream-item] time')].every(time => time.getAttribute('datetime')!.startsWith(node.getAttribute('data-year')!)),
+				boxed: parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) > 0 || style.backgroundColor !== 'rgba(0, 0, 0, 0)' || style.boxShadow !== 'none',
+				tall: Math.round(line.getBoundingClientRect().height),
+			};
+		}));
+		for (const fact of facts) {
+			expect(fact.open).toBe(false);
+			expect(fact.count).toBe(fact.held);
+			expect(fact.count).toBeGreaterThan(0);
+			expect(fact.years).toBe(true);
+			expect(fact.boxed).toBe(false);
+			// A line is tall enough for a thumb.
+			expect(fact.tall).toBeGreaterThanOrEqual(44);
+		}
+		// Everything is in the stream once: what stands open and what the years hold.
+		const total = await items(page).count();
+		expect(await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).length) + facts.reduce((sum, fact) => sum + fact.held, 0)).toBe(total);
+
+		// A press opens the year in place: its line stays where it is, and its items show under it.
+		const first = years.first();
+		const line = first.locator('summary');
+		await expect(first.getByTestId('stream-item').first()).toBeHidden();
+		await line.scrollIntoViewIfNeeded();
+		const before = await line.evaluate(node => Math.round(node.getBoundingClientRect().top + window.scrollY));
+		expect(await line.evaluate(node => getComputedStyle(node, '::after').content)).toContain('Open');
+		await line.click();
+		await expect(first).toHaveAttribute('open', '');
+		await expect(first.getByTestId('stream-item').first()).toBeVisible();
+		expect(await line.evaluate(node => Math.round(node.getBoundingClientRect().top + window.scrollY))).toBe(before);
+		expect(await line.evaluate(node => getComputedStyle(node, '::after').content)).toContain('Close');
+		expect(await first.getByTestId('stream-item').first().evaluate(node => node.getBoundingClientRect().top)).toBeGreaterThan(await line.evaluate(node => node.getBoundingClientRect().bottom) - 1);
+		// Inside a year a month is named alone: the year is on its line.
+		await expect(first.locator('.marker').first()).toHaveText(/^[A-Z][a-z]+$/);
+
+		// By keyboard: the line takes focus, and Enter opens and closes it.
+		const second = years.nth(1);
+		await second.locator('summary').focus();
+		await page.keyboard.press('Enter');
+		await expect(second).toHaveAttribute('open', '');
+		await expect(second.getByTestId('stream-item').first()).toBeVisible();
+		await page.keyboard.press('Enter');
+		await expect(second).not.toHaveAttribute('open', '');
+		await expect(second.getByTestId('stream-item').first()).toBeHidden();
+	});
+
+	test('a filter counts and shows only what matches in a year, and a year with nothing is absent', async ({ page }) => {
+		await page.goto('/?flags=home');
+		await expect(items(page).first()).toBeVisible();
+		const all = Object.fromEntries(await page.getByTestId('stream-year').evaluateAll(nodes => nodes.map(node => [node.getAttribute('data-year'), node.querySelectorAll('[data-testid=stream-item]').length])));
+		await page.goto('/?flags=home&show=photos');
+		await expect(items(page).first()).toHaveAttribute('data-kinds', /\bphotos\b/);
+		await expect(page).toHaveURL(/show=photos/);
+		const photos = await page.getByTestId('stream-year').evaluateAll(nodes => nodes.map(node => ({
+			year: node.getAttribute('data-year')!,
+			count: Number(node.querySelector('summary .count')?.firstChild?.textContent),
+			kinds: [...node.querySelectorAll('[data-testid=stream-item]')].map(item => item.getAttribute('data-kinds') ?? ''),
+		})));
+		expect(photos.length).toBeGreaterThan(0);
+		for (const fold of photos) {
+			expect(fold.count).toBe(fold.kinds.length);
+			expect(fold.count).toBeGreaterThan(0);
+			expect(fold.count).toBeLessThan(all[fold.year]);
+			expect(fold.kinds.every(kinds => kinds.split(' ').includes('photos'))).toBe(true);
+		}
+		// The recordings are all from 2020 on, so under that filter no year line is there at all.
+		await page.goto('/?flags=home&show=recordings');
+		await expect(items(page)).toHaveCount(3);
+		await expect(page.getByTestId('stream-year')).toHaveCount(0);
+		await expect(page.locator('.end a')).toHaveText(['Back to the sky', 'All posts']);
+	});
+
+	test('a post that lists its videos shows their posters in rows, and each plays in its own frame on a press', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 });
+		await page.goto('/?flags=home&show=video');
+		const item = items(page).filter({ has: page.locator('h2', { hasText: 'Merlin AI Demos!' }) });
+		await expect(item).toHaveCount(1);
+		await expect(item).toHaveAttribute('data-kinds', 'article video');
+		const posters = item.getByTestId('video-play');
+		await expect(posters).toHaveCount(5);
+		// Each is named by the words the post gives it.
+		await expect(item.getByRole('button', { name: 'Play handling multiple annotator clients- Vue UI, 2/17/21' })).toHaveCount(1);
+		await item.scrollIntoViewIfNeeded();
+		const boxes = () => item.locator('.frame').evaluateAll(nodes => nodes.map(node => {
+			const box = node.getBoundingClientRect();
+			const img = node.querySelector('img');
+			return { top: Math.round(box.top + window.scrollY), left: Math.round(box.left), width: Math.round(box.width), file: Number(img?.getAttribute('width') ?? 0), small: [...node.querySelectorAll('source')].some(source => /-640\.[\w-]+\.webp 640w/.test(source.srcset)) };
+		}));
+		const wide = await boxes();
+		// Two and three: the first two share a row and are the larger, the last three share the next.
+		expect(new Set(wide.slice(0, 2).map(box => box.top)).size).toBe(1);
+		expect(new Set(wide.slice(2).map(box => box.top)).size).toBe(1);
+		expect(wide[2].top).toBeGreaterThan(wide[0].top);
+		expect(wide[0].width).toBeGreaterThan(wide[2].width);
+		// The two rows are one width, and no poster is drawn larger than its file.
+		expect(Math.abs(wide[1].left + wide[1].width - (wide[4].left + wide[4].width))).toBeLessThanOrEqual(1);
+		for (const box of wide) expect(box.width, JSON.stringify(box)).toBeLessThanOrEqual(box.file + 1);
+		// A large poster offers its small size to a row.
+		for (const box of wide) expect(box.small, JSON.stringify(box)).toBe(box.file >= 1000);
+		await expect(page.locator('iframe')).toHaveCount(0);
+		await page.waitForLoadState('networkidle');
+		expect(outside).toEqual([]);
+		await posters.nth(2).click();
+		await expect(item.locator('iframe')).toHaveCount(1);
+		await expect(item.locator('.frame').nth(2).locator('iframe')).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/E1WcZ2yOC10?autoplay=1');
+		expect(await boxes()).toEqual(wide.map(box => ({ ...box, ...(box === wide[2] ? { file: 0, small: false } : {}) })));
+		expect(outside.every(url => url.startsWith('https://www.youtube-nocookie.com/'))).toBe(true);
+		// A phone: one, then two and two.
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto('/?flags=home&show=video');
+		await expect(item.getByTestId('video-play')).toHaveCount(5);
+		const narrow = await boxes();
+		expect(narrow[0].width).toBeGreaterThan(narrow[1].width * 1.8);
+		expect(narrow[1].top).toBe(narrow[2].top);
+		expect(narrow[3].top).toBe(narrow[4].top);
+		expect(narrow[3].top).toBeGreaterThan(narrow[1].top);
+		await noSidewaysScroll(page);
+	});
+
+	test('the printer photograph shows with Purple Prius Parts and with no other post', async ({ page }) => {
+		await page.goto('/?flags=home&show=writing');
+		await expect(items(page).first()).toBeVisible();
+		await showAll(page);
+		const shown = await items(page).evaluateAll(nodes => nodes.filter(node => node.querySelector('img[src="/images/posts/unnamed.jpg"]')).map(node => node.querySelector('h2')?.textContent?.trim()));
+		expect(shown).toEqual(['Purple Prius Parts']);
+	});
+
+	test('a moving picture plays while it is on the screen, with a pause that holds, and its file is asked for only then', async ({ page }) => {
+		const paths = recordPaths(page);
+		await page.setViewportSize({ width: 1440, height: 900 });
+		await page.goto('/?flags=home');
+		await expect(items(page).first()).toBeVisible();
+		const moving = page.getByTestId('moving').first();
+		const img = moving.locator('img');
+		const toggle = moving.getByTestId('moving-toggle');
+		// It waits below the first screen as its first frame, with its size set, and the moving file is not asked for.
+		await expect(img).toHaveAttribute('src', /\/images\/home\/[\w-]+-still\.webp$/);
+		await expect(img).toHaveAttribute('width', /^\d+$/);
+		await expect(img).toHaveAttribute('height', /^\d+$/);
+		await expect(img).toHaveAttribute('loading', 'lazy');
+		await page.waitForLoadState('networkidle');
+		const movingFiles = () => paths.filter(path => /-moving\.webp$/.test(path));
+		expect(movingFiles()).toEqual([]);
+		expect(paths.filter(path => path.endsWith('.gif'))).toEqual([]);
+		const place = () => moving.evaluate(node => { const box = node.getBoundingClientRect(); return [Math.round(box.left), Math.round(box.top + window.scrollY), Math.round(box.width), Math.round(box.height)]; });
+		const centre = () => moving.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
+		const before = await place();
+		// On the screen it plays by itself, in the same box, and its control pauses it.
+		await centre();
+		await expect(moving).toHaveAttribute('data-playing', 'true');
+		await expect(img).toHaveAttribute('src', /-moving\.webp$/);
+		expect(movingFiles()).toHaveLength(1);
+		expect(await place()).toEqual(before);
+		expect(await img.evaluate((node: HTMLImageElement) => node.getBoundingClientRect().width <= node.naturalWidth + 1)).toBe(true);
+		await expect(toggle).toHaveAccessibleName(/^Pause \S/);
+		await expect(toggle).toHaveAttribute('data-tip', 'Pause');
+		const size = await toggle.boundingBox();
+		expect(Math.min(size!.width, size!.height)).toBeGreaterThanOrEqual(44);
+		await toggle.click();
+		await expect(moving).toHaveAttribute('data-playing', 'false');
+		await expect(img).toHaveAttribute('src', /-still\.webp$/);
+		await expect(toggle).toHaveAccessibleName(/^Play \S/);
+		// A pause the visitor made holds: off the screen and back, it is still paused.
+		await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+		await centre();
+		await page.waitForTimeout(400);
+		await expect(moving).toHaveAttribute('data-playing', 'false');
+		// By keyboard: the control takes focus and Enter plays it again.
+		await toggle.focus();
+		await page.keyboard.press('Enter');
+		await expect(moving).toHaveAttribute('data-playing', 'true');
+		// Off the screen it stops, and back on the screen it plays again.
+		await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+		await expect(moving).toHaveAttribute('data-playing', 'false');
+		await centre();
+		await expect(moving).toHaveAttribute('data-playing', 'true');
+		expect(movingFiles()).toHaveLength(1);
+	});
+
+	test('with reduced motion a moving picture is a still with a play control', async ({ browser, baseURL }) => {
+		const context = await browser.newContext({ baseURL, viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+		try {
+			const page = await context.newPage();
+			const paths = recordPaths(page);
+			await page.goto('/?flags=home');
+			await expect(page.getByTestId('stream-item').first()).toBeVisible({ timeout: 20_000 });
+			const moving = page.getByTestId('moving').first();
+			await moving.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
+			const toggle = moving.getByTestId('moving-toggle');
+			await expect(toggle).toHaveAccessibleName(/^Play \S/);
+			await page.waitForTimeout(600);
+			await expect(moving).toHaveAttribute('data-playing', 'false');
+			await expect(moving.locator('img')).toHaveAttribute('src', /-still\.webp$/);
+			expect(paths.filter(path => /-moving\.webp$|\.gif$/.test(path))).toEqual([]);
+			// The visitor may still play it.
+			await toggle.click();
+			await expect(moving).toHaveAttribute('data-playing', 'true');
+			await expect(toggle).toHaveAccessibleName(/^Pause \S/);
+		} finally {
+			await context.close();
+		}
 	});
 });
 
