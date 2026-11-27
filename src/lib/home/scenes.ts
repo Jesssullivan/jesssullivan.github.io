@@ -12,12 +12,14 @@ export const HERON = {
 	title: 'Trans Scend Survival',
 	name: 'Jess Sullivan',
 	/**
-	 * The frame the site's banner shows, cut from the photograph the repository holds at 1200 by 1000 pixels
-	 * (static/images/posts/img_8694.jpg): all 1200 columns, rows 214 to 604. No larger copy exists, so a window
-	 * wider than 1200 pixels still spreads it. The AVIF and the WebP carry a content hash in their built names.
-	 * The banner's own PNG, the same frame at 672 pixels, is what a browser with neither format falls back to.
+	 * The photograph the site's banner was cut from, whole, as the repository holds it: 1200 by 1000 pixels.
+	 * The stage never draws it larger than this file (RM93: "true size, feathered"): it stands in the stage at its
+	 * own size and all four of its edges fall off into the page. No larger copy is in the repository.
+	 *
+	 * To go back to full bleed, change this one line to a larger file and its size. The stage reads the size from here:
+	 * a file as wide as the window fills the stage, and the feathers at its sides close by themselves.
 	 */
-	image: { src: '/images/header.png', avif: 'asset:heron-1200.avif', webp: 'asset:heron-1200.webp', width: 1200, height: 391, alt: 'Great Blue Heron' },
+	image: { src: '/images/posts/img_8694.jpg', avif: '/images/posts/img_8694.avif', webp: '/images/posts/img_8694.webp', width: 1200, height: 1000, alt: 'Great Blue Heron' },
 	definitions: [
 		{ term: 'Trans:', text: 'Latin prefix implying “across” or “Beyond”, often used in gender nonconforming situations' },
 		{ term: 'Scend:', text: 'Archaic word describing a strong “surge” or “wave”, originating with 15th century english sailors' },
@@ -44,7 +46,8 @@ export function buildScenes(stream: Pick<StreamFile, 'items' | 'heading'> | null
 	if (!stream) return scenes;
 	for (const id of stream.heading) {
 		const item = headingItem(stream.items, id);
-		const image = item?.media.find((media): media is StreamImage => media.type === 'image');
+		// The stage holds a photograph still, so a moving picture is not one it stands on.
+		const image = item?.media.find((media): media is StreamImage => media.type === 'image' && !media.motion);
 		// A placed item stands on its photograph. One with no image stays in the stream.
 		if (item && image) scenes.push({ id: item.id, type: 'placed', hold: holdFor(words(item.title) + words(item.summary)), item, image });
 	}

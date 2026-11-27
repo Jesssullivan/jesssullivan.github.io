@@ -59,10 +59,9 @@ describe('scene holds', () => {
 		expect(sky.hold).toBeLessThan(10_000);
 	});
 
-	it('names the heron photograph at the size of its 1200 pixel original, in the banner\'s frame, in files the build hashes', () => {
-		expect(HERON.image).toMatchObject({ width: 1200, height: 391, avif: 'asset:heron-1200.avif', webp: 'asset:heron-1200.webp' });
-		// The frame is the banner's: 672 by 219, to within a pixel row of the larger file.
-		expect(Math.abs(HERON.image.width / HERON.image.height - 672 / 219)).toBeLessThan(0.002);
+	it('names the heron photograph whole, at the size of its file, in the formats the site already makes', () => {
+		// The stage reads this size and never draws the photograph larger. A larger file changes this one line.
+		expect(HERON.image).toMatchObject({ src: '/images/posts/img_8694.jpg', width: 1200, height: 1000, avif: '/images/posts/img_8694.avif', webp: '/images/posts/img_8694.webp' });
 	});
 
 	it('gives the heron heading, which has the most words, a longer hold than the sky', () => {

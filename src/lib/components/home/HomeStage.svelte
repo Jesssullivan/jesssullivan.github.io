@@ -307,7 +307,8 @@
 					<ReaderConstellation bind:this={sky} {archive} {focusSlug} legend="head" controls="none" inset="var(--gutter)" lists={false} {onviewstate} helpActions={folded} />
 				{:else if i === index || armed[entry.id]}
 					{#if entry.type === 'heron'}
-						<div class="plate heron"><Picture image={HERON.image} lazy={false} /></div>
+						<!-- The stage reads the photograph's size from its file, and never draws it larger (RM93). -->
+						<div class="plate heron" style={`--natural:${HERON.image.width}px;--natural-h:${HERON.image.height}px`} data-testid="heron-photograph"><Picture image={HERON.image} lazy={false} /></div>
 						<div class="copy">
 							<p class="heron-title">{HERON.title}</p>
 							<span class="rule" aria-hidden="true"></span>
@@ -621,19 +622,126 @@
 		mask-composite: intersect;
 	}
 	/*
-	 * The heron keeps the frame the site's banner has always shown: 672 by 219, as wide as the window and never taller than that.
-	 * The file is that same frame cut from the 1200 pixel photograph, so a window wider than 1200 pixels still spreads it.
+	 * The heron (RM93: "true size, feathered"). The stage is full bleed, and the photograph stands in it at its own size:
+	 * its frame is never wider or taller than the file, less the few percent the drift draws it larger, so no pixel of
+	 * the file is ever spread over more than one pixel of the page. All four edges fall off into the page's ground.
+	 * The feather at each side is as long as the bare stage beside it allows, so a file as wide as the window fills
+	 * the stage edge to edge with no feather at its sides: a larger file is full bleed again with no change here.
 	 */
 	.plate.heron {
-		inset: 50% 0 auto;
-		height: min(100%, calc(100cqw * 219 / 672));
+		--drift: 1.075;
+		--w: min(100cqw, calc(var(--natural) / var(--drift)));
+		--h: min(100cqh, calc(var(--natural-h) / var(--drift)));
+		--spare: calc(100cqw - var(--w));
+		/* More of the bare stage lies to its left, where the type is, so the bird stands clear of the words. */
+		--plate-left: calc(var(--spare) * 0.64);
+		inset: 50% auto auto var(--plate-left);
+		width: var(--w);
+		height: var(--h);
 		translate: 0 -50%;
-		/* The bird's head is at the very top of this photograph. The falloff there is a little shorter, so the head keeps its light. */
-		-webkit-mask-image: linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.5) 6%, #000 16%, #000 56%, rgb(0 0 0 / 0.7) 72%, rgb(0 0 0 / 0.3) 88%, transparent 100%);
-		mask-image: linear-gradient(to bottom, transparent 0, rgb(0 0 0 / 0.5) 6%, #000 16%, #000 56%, rgb(0 0 0 / 0.7) 72%, rgb(0 0 0 / 0.3) 88%, transparent 100%);
+		/* The long feather is at the left, under and beyond the type, and at the foot. The bird's bill reaches to within a twentieth of the file's right edge, so the feather there is short. */
+		--left: clamp(0px, calc(var(--spare) * 2.2), 24rem);
+		--right: clamp(0px, calc(var(--spare) * 0.9), 7rem);
+		--head: clamp(3rem, 10cqh, 6.5rem);
+		--foot: clamp(6rem, 24cqh, 14rem);
+		--across: linear-gradient(
+			to right,
+			transparent 0,
+			rgb(0 0 0 / 0.1) calc(var(--left) * 0.22),
+			rgb(0 0 0 / 0.36) calc(var(--left) * 0.46),
+			rgb(0 0 0 / 0.72) calc(var(--left) * 0.72),
+			#000 var(--left),
+			#000 calc(100% - var(--right)),
+			rgb(0 0 0 / 0.9) calc(100% - var(--right) * 0.72),
+			rgb(0 0 0 / 0.62) calc(100% - var(--right) * 0.44),
+			rgb(0 0 0 / 0.26) calc(100% - var(--right) * 0.2),
+			transparent 100%
+		);
+		--down: linear-gradient(
+			to bottom,
+			transparent 0,
+			rgb(0 0 0 / 0.3) calc(var(--head) * 0.3),
+			rgb(0 0 0 / 0.78) calc(var(--head) * 0.68),
+			#000 var(--head),
+			#000 calc(100% - var(--foot)),
+			rgb(0 0 0 / 0.82) calc(100% - var(--foot) * 0.74),
+			rgb(0 0 0 / 0.52) calc(100% - var(--foot) * 0.48),
+			rgb(0 0 0 / 0.22) calc(100% - var(--foot) * 0.24),
+			rgb(0 0 0 / 0.06) calc(100% - var(--foot) * 0.08),
+			transparent 100%
+		);
+		-webkit-mask-image: var(--across), var(--down);
+		-webkit-mask-composite: source-in;
+		mask-image: var(--across), var(--down);
+		mask-composite: intersect;
 	}
+	/* The frame is a window on the photograph: the head is a fifth of the way down the file, so the window opens near its top. */
 	.plate.heron :global(img) {
-		object-position: 50% 50%;
+		object-position: 50% 30%;
+	}
+	/* The photograph's own left edge already falls off under the type, so the feather beyond the type is shorter here, and the bird is not left behind it. */
+	.plate.heron::after {
+		--fall: clamp(11rem, calc((100cqw - var(--copy-end)) * 0.4), 22rem);
+		background: linear-gradient(
+			to right,
+			color-mix(in oklch, var(--ground) 96%, transparent) 0,
+			color-mix(in oklch, var(--ground) 96%, transparent) var(--f),
+			color-mix(in oklch, var(--ground) 86%, transparent) calc(var(--f) + var(--fall) * 0.083),
+			color-mix(in oklch, var(--ground) 68%, transparent) calc(var(--f) + var(--fall) * 0.2),
+			color-mix(in oklch, var(--ground) 45%, transparent) calc(var(--f) + var(--fall) * 0.367),
+			color-mix(in oklch, var(--ground) 22%, transparent) calc(var(--f) + var(--fall) * 0.6),
+			color-mix(in oklch, var(--ground) 7%, transparent) calc(var(--f) + var(--fall) * 0.833),
+			transparent calc(var(--f) + var(--fall))
+		);
+	}
+	/*
+	 * A stage that is narrow and tall, as a tablet held upright: the photograph above and the type under it,
+	 * as on a phone, so the whole bird shows. The type keeps its column.
+	 */
+	@container (min-width: 721px) and (max-width: 1000px) and (min-height: 44rem) {
+		.plate.heron {
+			inset: 0 0 auto;
+			width: auto;
+			height: 60%;
+			translate: none;
+			--head: clamp(2.5rem, 8cqh, 5rem);
+			--foot: clamp(7rem, 24cqh, 13rem);
+			-webkit-mask-image: var(--down);
+			mask-image: var(--down);
+		}
+		.plate.heron::after {
+			content: none;
+		}
+		.plate.heron :global(img) {
+			object-position: 86% 34%;
+		}
+		.scene.heron .copy {
+			top: auto;
+			bottom: 0.75rem;
+			transform: none;
+			--falloff: 13rem;
+		}
+		.scene.heron .copy::before {
+			content: '';
+			position: absolute;
+			z-index: -1;
+			top: calc(-1 * (1rem + var(--falloff)));
+			bottom: 0;
+			left: -100vw;
+			right: -100vw;
+			--f: calc(100% - var(--falloff));
+			background: linear-gradient(
+				to top,
+				color-mix(in oklch, var(--ground) 96%, transparent) 0,
+				color-mix(in oklch, var(--ground) 96%, transparent) var(--f),
+				color-mix(in oklch, var(--ground) 84%, transparent) calc(var(--f) + 1.5rem),
+				color-mix(in oklch, var(--ground) 62%, transparent) calc(var(--f) + 4rem),
+				color-mix(in oklch, var(--ground) 36%, transparent) calc(var(--f) + 7rem),
+				color-mix(in oklch, var(--ground) 12%, transparent) calc(var(--f) + 10.5rem),
+				transparent
+			);
+			pointer-events: none;
+		}
 	}
 
 	.copy {
@@ -978,16 +1086,20 @@
 		.plate.side {
 			height: 78%;
 		}
+		/* The photograph runs from edge to edge of the screen here, far under its file's size, so only its head and its foot fall off. */
 		.plate.heron {
 			inset: 0 0 auto;
+			width: auto;
 			height: 58%;
 			translate: none;
 			-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 58%, rgb(0 0 0 / 0.6) 76%, rgb(0 0 0 / 0.22) 90%, transparent 100%);
+			-webkit-mask-composite: source-over;
 			mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 58%, rgb(0 0 0 / 0.6) 76%, rgb(0 0 0 / 0.22) 90%, transparent 100%);
+			mask-composite: add;
 		}
-		/* The frame shows a third of the photograph's width here: the part that holds the bird's head, its whole bill, its neck and the near wing. */
+		/* The frame shows four fifths of the photograph's width here: the whole bird, from the wing that lifts to the tip of the bill. */
 		.plate.heron :global(img) {
-			object-position: 94% 50%;
+			object-position: 100% 42%;
 		}
 		.copy {
 			top: auto;
