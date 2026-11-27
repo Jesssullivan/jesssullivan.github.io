@@ -6,7 +6,6 @@ tags: ["Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount"
 original_url: "https://transscendsurvival.org/2017/04/02/wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount/"
-feature_image: "/images/posts/unnamed.jpg"
 category: "ecology"
 ---
 
