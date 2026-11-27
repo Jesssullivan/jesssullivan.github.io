@@ -134,11 +134,11 @@ describe('the short excerpt of a post that is words alone', () => {
 	});
 
 	it('lets one first sentence run a little longer, and is absent beyond that', () => {
-		const fits = `A first sentence of a hundred and sixty letters or so, ${'which goes on, '.repeat(6)}and then it stops.`;
+		const fits = `A first sentence of two hundred letters or so, ${'which goes on, '.repeat(9)}and then it stops.`;
 		expect(fits.length).toBeGreaterThan(SHORT_EXCERPT.max);
 		expect(fits.length).toBeLessThanOrEqual(SHORT_EXCERPT.longest);
 		expect(excerptOf(post(`${fits} And more.`), SHORT_EXCERPT)).toBe(fits);
-		const over = `A first sentence that is far too long, ${'which goes on and on, '.repeat(8)}and then it stops.`;
+		const over = `A first sentence that is far too long, ${'which goes on and on, '.repeat(9)}and then it stops.`;
 		expect(over.length).toBeGreaterThan(SHORT_EXCERPT.longest);
 		expect(excerptOf(post(`${over} And more.`), SHORT_EXCERPT)).toBe('');
 		// The longer excerpt still keeps it.

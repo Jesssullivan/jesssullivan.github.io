@@ -612,8 +612,8 @@ test.describe('flag on: the one mixed stream', () => {
 			await page.evaluate(() => document.querySelector<HTMLElement>('[data-testid=stream-more]')?.click());
 			await expect.poll(() => page.locator('.piece.plate').count()).toBeGreaterThan(0);
 			await page.getByTestId('home-stream').evaluate(node => node.scrollIntoView({ block: 'start', behavior: 'instant' }));
-			// Only what stands open: an item inside a folded year has no place on the page until its year opens.
-			const seen = await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).map(node => {
+			// Only what stands open: an item inside a folded year is not on show until its year opens.
+			const seen = await items(page).evaluateAll(nodes => nodes.filter(node => node.closest('details:not([open])') === null).map(node => {
 				const box = (selector: string) => node.querySelector(selector)?.getBoundingClientRect();
 				const [title, summary, show, lead] = [box('h2 a'), box('.summary'), box('.show'), box('.lead')];
 				const round = (rect: DOMRect | undefined) => rect && { left: Math.round(rect.left), right: Math.round(rect.right), top: Math.round(rect.top), bottom: Math.round(rect.bottom) };
@@ -793,7 +793,7 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 			await page.goto('/?flags=home&show=writing');
 			await expect(items(page).first()).toBeVisible();
 			await showAll(page, false);
-			const rows = await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).map(node => {
+			const rows = await items(page).evaluateAll(nodes => nodes.filter(node => node.closest('details:not([open])') === null).map(node => {
 				const [title, summary] = [node.querySelector('h2'), node.querySelector<HTMLElement>('.summary')];
 				return {
 					words: node.querySelector('.piece.words') !== null,
@@ -811,7 +811,7 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 			expect(Math.max(...words.map(row => row.size)), `${width}`).toBeLessThan(Math.min(...seen.map(row => row.size)));
 			for (const row of rows) expect(row.whole, row.excerpt).toBe(true);
 			for (const row of words) {
-				expect(row.excerpt.length, row.excerpt).toBeLessThanOrEqual(180);
+				expect(row.excerpt.length, row.excerpt).toBeLessThanOrEqual(215);
 				if (row.excerpt) expect(row.excerpt).toMatch(/[.!?…]["'”’)\]]*(?:\s*(?:\p{Extended_Pictographic}️?|[:;]-?\)))*$|[\p{L}\p{N}]$/u);
 			}
 			// A row is a title and a few lines at most.
@@ -850,7 +850,7 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		}
 		// Everything is in the stream once: what stands open and what the years hold.
 		const total = await items(page).count();
-		expect(await items(page).evaluateAll(nodes => nodes.filter(node => node.getClientRects().length > 0).length) + facts.reduce((sum, fact) => sum + fact.held, 0)).toBe(total);
+		expect(await items(page).evaluateAll(nodes => nodes.filter(node => node.closest('details:not([open])') === null).length) + facts.reduce((sum, fact) => sum + fact.held, 0)).toBe(total);
 
 		// A press opens the year in place: its line stays where it is, and its items show under it.
 		const first = years.first();

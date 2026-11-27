@@ -642,7 +642,7 @@
 		/* The long feather is at the left, under and beyond the type, and at the foot. The bird's bill reaches to within a twentieth of the file's right edge, so the feather there is short. */
 		--left: clamp(0px, calc(var(--spare) * 2.2), 24rem);
 		--right: clamp(0px, calc(var(--spare) * 0.9), 7rem);
-		--head: clamp(3rem, 10cqh, 6.5rem);
+		--head: clamp(3rem, 12cqh, 7rem);
 		--foot: clamp(6rem, 24cqh, 14rem);
 		--across: linear-gradient(
 			to right,
@@ -681,7 +681,7 @@
 	}
 	/* The photograph's own left edge already falls off under the type, so the feather beyond the type is shorter here, and the bird is not left behind it. */
 	.plate.heron::after {
-		--fall: clamp(11rem, calc((100cqw - var(--copy-end)) * 0.4), 22rem);
+		--fall: clamp(11rem, calc((100cqw - var(--copy-end)) * 0.36), 20rem);
 		background: linear-gradient(
 			to right,
 			color-mix(in oklch, var(--ground) 96%, transparent) 0,

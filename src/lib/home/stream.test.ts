@@ -389,7 +389,7 @@ describe('a post that is words alone takes a short excerpt', () => {
 	});
 
 	it('is absent when her first sentence is longer than a short excerpt may be: nothing cuts a sentence', () => {
-		const sentence = `${'A very long first sentence that goes on and on, '.repeat(4)}and then it ends.`;
+		const sentence = `${'A very long first sentence that goes on and on, '.repeat(5)}and then it ends.`;
 		expect(sentence.length).toBeGreaterThan(SHORT_EXCERPT.longest);
 		const { items } = buildStream({ ...sources(), posts: [post('words', '2025-01-01', { description: `${sentence} A short one.` })] });
 		expect(items.find((item) => item.id === 'post:words')!.summary).toBe('');

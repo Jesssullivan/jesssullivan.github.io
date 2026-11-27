@@ -23,8 +23,9 @@ const FULL: ExcerptLength = { max: EXCERPT_MAX, longest: LONGEST };
 /**
  * The short excerpt of a post that is words alone in the stream (RM95): about two lines beside nothing.
  * It is the same run of her sentences, ended sooner, and always at a sentence end.
+ * One first sentence may run to four lines, so a summary she wrote as one sentence still stands.
  */
-export const SHORT_EXCERPT: ExcerptLength = { max: 140, longest: 180 };
+export const SHORT_EXCERPT: ExcerptLength = { max: 140, longest: 215 };
 /** How far into a post the excerpt may start, in sentences. */
 const REACH = 12;
 

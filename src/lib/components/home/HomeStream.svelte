@@ -182,7 +182,7 @@
 		padding: 0 var(--gutter) 6rem;
 		color: var(--ink);
 		/* Wide enough for the longest month and its year, with room before a play control that hangs in the rail. */
-		--rail: 10.25rem;
+		--rail: 10.75rem;
 		--measure: 38rem;
 	}
 	/* A wide screen: the words keep a column of their own, and what there is to see starts on a second line beside it. */
@@ -369,7 +369,7 @@
 		transition: text-decoration-color 0.3s var(--ease-soft);
 	}
 	summary .count {
-		font: 600 0.78rem/1.2 'Inter', sans-serif;
+		font: 600 0.84rem/1.2 'Inter', sans-serif;
 		letter-spacing: 0.05em;
 		font-variant-numeric: tabular-nums;
 		color: var(--quiet);

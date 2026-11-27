@@ -54,7 +54,7 @@
 	const ratio = (image: StreamImage) => (image.width / image.height).toFixed(4);
 	// How wide each picture is drawn, as the browser reads it, so it asks for the size of file the layout needs.
 	// From the first line to the right edge of the screen, and the words' own column: as HomeStream sets them.
-	const LINE_ONE = '(100vw - clamp(1.25rem, 7vw, 11rem) - 10.25rem)';
+	const LINE_ONE = '(100vw - clamp(1.25rem, 7vw, 11rem) - 10.75rem)';
 	const SAY = 'clamp(27rem, 37vw, 42rem)';
 	const leadSizes = $derived.by(() => {
 		if (!lead) return undefined;
@@ -453,8 +453,8 @@
 	.on:not(:has(.when)) {
 		padding: 3rem 4rem 0.2rem 0.7rem;
 	}
-	/* A small poster, as in a row of three: a smaller sign on less ground, so the poster still shows. */
-	@container (max-width: 17rem) {
+	/* A small poster, as in a row of two or three: a smaller sign on less ground, so the poster still shows. */
+	@container (max-width: 24rem) {
 		.on,
 		.on:not(:has(.when)) {
 			--hold: 58%;
@@ -502,6 +502,14 @@
 		transition:
 			opacity 0.2s var(--ease-soft),
 			transform 0.3s var(--ease);
+	}
+	/* On a poster the tooltip names the video in the post's own words, which may be many. It stays inside the poster, on as many lines as it needs. */
+	.frame [data-tip]::after {
+		width: max-content;
+		max-width: calc(100cqw - 1.5rem);
+		line-height: 1.3;
+		white-space: normal;
+		text-align: left;
 	}
 	[data-tip]:focus-visible::after,
 	.poster:focus-visible [data-tip]::after {
@@ -623,7 +631,7 @@
 		.on:not(:has(.when)) {
 			padding: 4.5rem 6.5rem 0.55rem 1.1rem;
 		}
-		@container (max-width: 17rem) {
+		@container (max-width: 24rem) {
 			.on,
 			.on:not(:has(.when)) {
 				--hold: 58%;
