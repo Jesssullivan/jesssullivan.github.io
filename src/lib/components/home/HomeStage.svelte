@@ -674,9 +674,10 @@
 		 * One wide ellipse about the height of the bill rounds the two far corners, so the right edge is a curve that
 		 * closes toward the foot and no corner of a rectangle shows. The bill lies inside its solid part. It grows as
 		 * the bare stage beside the photograph shrinks, and does nothing where the photograph runs from edge to edge.
+		 * Its size is written in lengths alone: Chromium drops a radial gradient whose size adds a percentage to a length.
 		 */
 		--round: radial-gradient(
-			ellipse calc(70% + max(0px, (20rem - var(--spare)) * 2.2)) 110% at 38% 23%,
+			ellipse calc(var(--w) * 0.7 + max(0px, (20rem - var(--spare)) * 2.2)) calc(var(--h) * 1.1) at 38% 23%,
 			#000 84%,
 			rgb(0 0 0 / 0.82) 88.2%,
 			rgb(0 0 0 / 0.52) 92.3%,

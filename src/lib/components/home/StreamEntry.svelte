@@ -569,6 +569,10 @@
 			grid-column: 1;
 			padding-right: var(--between);
 		}
+		/* Words alone have no picture to keep clear of, so they take the whole of their column: an excerpt then takes a line less. */
+		.words.article .say {
+			padding-right: 1rem;
+		}
 		.summary {
 			font-size: clamp(1.16rem, 1.05vw, 1.3rem);
 		}
