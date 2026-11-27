@@ -4,7 +4,7 @@
  * this file reads a file, a clock or the network. The generator in
  * scripts/generate-home-stream.mts supplies the sources.
  */
-import { excerptOf } from './excerpt';
+import { excerptOf, plainText, SHORT_EXCERPT } from './excerpt';
 
 export const STREAM_KINDS = ['note', 'article', 'announcement', 'photos', 'recording', 'video'] as const;
 export type StreamKind = (typeof STREAM_KINDS)[number];
@@ -20,6 +20,11 @@ export interface StreamImage {
 	avif?: string;
 	/** The same picture at a smaller size, for a row of pictures, a picture beside its words and a narrow screen. See scripts/generate-home-pictures.mts. */
 	small?: { width: number; webp?: string; avif?: string };
+	/**
+	 * A moving picture (RM97). `src` is the file the post names. `still` is its first frame and `moving` the whole
+	 * of it, both as WebP. The page shows the still, and asks for the moving one only while it plays.
+	 */
+	motion?: { still: string; moving: string };
 }
 /** What a recording or a video keeps of its own when it is folded into another item. */
 interface OwnWords {
@@ -76,12 +81,14 @@ export interface StreamFile {
 		videosWithoutDate: number;
 		/** Posts whose cover is a shared photograph their own text never uses. */
 		coversNotOwn: number;
-		/** Moving pictures in a post's text. One would play on this page with no way to stop it. */
+		/** Moving pictures in a post's text with no still made for them. One that has a still plays, with a pause (RM97). */
 		picturesMoving: number;
 		/** Pictures in a post's text that another site holds. This page asks no other site for anything. */
 		picturesElsewhere: number;
 		/** Picture files that more than one post's text shows. Such a file is no one post's own, so none shows it. */
 		picturesShared: number;
+		/** Videos a post gives a line of its own that have no poster in the repository. The page fetches none, so they stay links in the post. */
+		videosWithoutPoster: number;
 		/** Items from any source with no usable date. */
 		undated: number;
 	};
@@ -139,7 +146,7 @@ export interface VideoInput {
 export type HubInput = (Omit<StreamItem, 'source'> & { tombstone?: false }) | { id: string; tombstone: true };
 
 /** What the caller knows about an image file: its size and its smaller formats. */
-export type ImageFacts = (src: string) => { width: number; height: number; webp?: string; avif?: string; small?: StreamImage['small'] } | null;
+export type ImageFacts = (src: string) => { width: number; height: number; webp?: string; avif?: string; small?: StreamImage['small']; motion?: StreamImage['motion'] } | null;
 
 export interface StreamSources {
 	posts: PostInput[];
@@ -155,6 +162,8 @@ export interface StreamSources {
 
 /** How many photographs of a set travel in the data file. The rest are counted in `more`. */
 export const SET_SIZE = 5;
+/** How many videos of a post travel in the data file. */
+export const FILM_SET = 6;
 
 /**
  * The count a set of photographs shows under it: every photograph of the post, and only when the
@@ -188,7 +197,7 @@ export function ownsImage(body: string, image: string | undefined): boolean {
  * Code is not text, so a picture named inside a code block is not one the post shows.
  */
 export function picturesIn(body: string): { src: string; alt: string }[] {
-	const text = body.replace(/^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n[ \t]*\1[^\n]*(?=\n|(?![\s\S]))|(?![\s\S]))/gm, '\n');
+	const text = body.replace(CODE_BLOCK, '\n');
 	const found: { src: string; alt: string }[] = [];
 	for (const match of text.matchAll(/!\[([^\]]*)\]\(\s*<?([^)\s>]+)>?[^)]*\)|<img\b[^>]*>/gi)) {
 		if (match[2]) found.push({ src: match[2], alt: match[1].trim() });
@@ -198,6 +207,30 @@ export function picturesIn(body: string): { src: string; alt: string }[] {
 		}
 	}
 	return found;
+}
+
+const CODE_BLOCK = /^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n[ \t]*\1[^\n]*(?=\n|(?![\s\S]))|(?![\s\S]))/gm;
+const FILM_ADDRESS = '(?:https?:)?\\/\\/(?:www\\.|m\\.)?(?:youtube(?:-nocookie)?\\.com\\/(?:watch\\?(?:[^)\\s#"\']*&)?v=|embed\\/|shorts\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})';
+/** A line that is one link to a video and nothing more, as a paragraph or as an item of a list. */
+const FILM_LINE = new RegExp(`^[ \\t]*(?:(?:[-*+]|\\d+[.)])[ \\t]+)?\\[((?:[^\\]\\\\]|\\\\.)+)\\]\\(\\s*<?${FILM_ADDRESS}[^)\\s]*>?\\s*\\)[ \\t]*$`, 'gm');
+/** A frame that plays one. */
+const FILM_FRAME = new RegExp(`<iframe\\b[^>]*\\bsrc\\s*=\\s*["']${FILM_ADDRESS}[^"']*["'][^>]*>`, 'gi');
+
+/**
+ * The videos a post shows (RM95): a YouTube video that the post gives a line of its own, as a link that is the whole
+ * of a paragraph or of a list item, or as a frame. Each once, in the order of the text, with the words the post gives it.
+ * A video the post only points at from inside a sentence is someone's the post talks about, and is not shown as the post's own.
+ */
+export function filmsIn(body: string): { id: string; title: string }[] {
+	const text = body.replace(CODE_BLOCK, '\n');
+	const found: { id: string; title: string; at: number }[] = [];
+	for (const match of text.matchAll(FILM_LINE)) found.push({ id: match[2], title: plainText(match[1]), at: match.index });
+	for (const match of text.matchAll(FILM_FRAME)) found.push({ id: match[1], title: (/\btitle\s*=\s*["']([^"']*)["']/i.exec(match[0])?.[1] ?? '').trim(), at: match.index });
+	const seen = new Set<string>();
+	return found
+		.sort((a, b) => a.at - b.at)
+		.filter((film) => !seen.has(film.id) && seen.add(film.id))
+		.map(({ id, title }) => ({ id, title }));
 }
 
 const extension = (path: string) => (/\.([a-z0-9]+)(?:[?#].*)?$/i.exec(path)?.[1] ?? '').toLowerCase();
@@ -223,14 +256,17 @@ function picture(src: string, alt: string, image: ImageFacts, fallback?: { width
 		...(webp && webp !== src ? { webp } : {}),
 		...(facts?.avif ? { avif: facts.avif } : {}),
 		...(facts?.small ? { small: facts.small } : {}),
+		...(facts?.motion ? { motion: facts.motion } : {}),
 	};
 }
 
 /** True when an item has something to see: a picture or a video. A recording alone is heard, so it has not. */
 export const shows = (item: Pick<StreamItem, 'media'>): boolean => item.media.some((media) => media.type !== 'soundcloud');
 
-/** Every kind an item holds: its own, and the kinds folded into it. */
-export const kindsOf = (item: Pick<StreamItem, 'kind' | 'holds'>): StreamKind[] => [...new Set([item.kind, ...(item.holds ?? []).map((part) => part.kind)])];
+/** Every kind an item holds: its own, the kinds folded into it, and video when it shows one of its own. */
+export const kindsOf = (item: Pick<StreamItem, 'kind' | 'holds'> & Partial<Pick<StreamItem, 'media'>>): StreamKind[] => [
+	...new Set<StreamKind>([item.kind, ...(item.holds ?? []).map((part) => part.kind), ...((item.media ?? []).some((media) => media.type === 'youtube') ? (['video'] as const) : [])]),
+];
 
 /**
  * What a title says it is about: the words before a day written in it, and that day.
@@ -351,7 +387,9 @@ export function compareStream(a: Placed, b: Placed): number {
 
 export function buildStream(sources: StreamSources): StreamFile {
 	const placed: Placed[] = [];
-	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, undated: 0 };
+	const leftOut = { photographsWithoutPost: 0, videosWithoutDate: 0, coversNotOwn: 0, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, videosWithoutPoster: 0, undated: 0 };
+	// A video the Music page lists has an item of its own, so a post that names it does not show it a second time.
+	const listed = new Set(sources.videos.map((video) => video.id));
 	const posts = new Map(sources.posts.map((post) => [post.slug, post]));
 
 	// A picture file that the text of more than one post shows is no one post's own. The old export gave several
@@ -396,7 +434,10 @@ export function buildStream(sources: StreamSources): StreamFile {
 			}
 			const kind = extension(shown.src);
 			if (kind === 'gif') {
-				leftOut.picturesMoving += 1;
+				// A moving picture shows when its still was made: the page then holds it still until it plays, and can stop it.
+				const moving = picture(shown.src, shown.alt || altIn(post.body, shown.src), sources.image);
+				if (moving?.motion) media.push(moving);
+				else leftOut.picturesMoving += 1;
 				continue;
 			}
 			// The cover is the same picture in the format the site serves. A drawing the text shows as SVG is shown here by its cover.
@@ -410,6 +451,15 @@ export function buildStream(sources: StreamSources): StreamFile {
 			const image = picture(cover, altIn(post.body, cover), sources.image);
 			if (image) media.unshift(image);
 		}
+		// A video shows by its poster, which the repository holds. Nothing is fetched for one, so a video with no poster stays a link in the post.
+		const films: StreamFilm[] = [];
+		for (const shown of filmsIn(post.body)) {
+			if (listed.has(shown.id)) continue;
+			const posterSrc = sources.poster?.(shown.id) ?? null;
+			const poster = posterSrc ? picture(posterSrc, '', sources.image) : null;
+			if (poster) films.push({ type: 'youtube', src: shown.id, ...(shown.title ? { title: shown.title } : {}), poster });
+			else leftOut.videosWithoutPoster += 1;
+		}
 		placed.push({
 			anchor: post.slug,
 			item: {
@@ -419,7 +469,7 @@ export function buildStream(sources: StreamSources): StreamFile {
 				title: post.title,
 				summary: excerptOf(post),
 				url: `/blog/${post.slug}`,
-				media: media.slice(0, SET_SIZE),
+				media: [...media.slice(0, SET_SIZE), ...films.slice(0, FILM_SET)],
 				tags: post.tags,
 				source: 'posts',
 				minutes: post.minutes,
@@ -527,6 +577,12 @@ export function buildStream(sources: StreamSources): StreamFile {
 	const items = foldStream(placed)
 		.sort(compareStream)
 		.map((entry) => entry.item);
+	// A post that is words alone takes a short excerpt (RM95): her first sentences still, and fewer of them.
+	const bySlug = new Map(sources.posts.map((post) => [`post:${post.slug}`, post]));
+	for (const item of items) {
+		const post = item.source === 'posts' ? bySlug.get(item.id) : undefined;
+		if (post && !shows(item)) item.summary = excerptOf(post, SHORT_EXCERPT);
+	}
 	const counts = Object.fromEntries(STREAM_KINDS.map((kind) => [kind, items.filter((item) => kindsOf(item).includes(kind)).length])) as Record<StreamKind, number>;
 	return { version: 1, items, heading: headingOf(items), counts, leftOut };
 }
@@ -539,7 +595,11 @@ export function buildStream(sources: StreamSources): StreamFile {
 export function headingOf(items: readonly StreamItem[]): string[] {
 	const marked = items.filter((item) => item.heading);
 	if (marked.length) return marked.map((item) => item.id);
-	const withImage = (item: StreamItem) => item.media[0]?.type === 'image';
+	// A moving picture is not a scene: the stage holds photographs still.
+	const withImage = (item: StreamItem) => {
+		const first = item.media[0];
+		return first?.type === 'image' && !first.motion;
+	};
 	const set = (item: StreamItem) => (item.kind === 'photos' ? item.id : item.holds?.find((part) => part.kind === 'photos')?.id);
 	const writing = items.find((item) => item.kind === 'article' && withImage(item) && !set(item));
 	const photographs = items.find((item) => withImage(item) && set(item));
@@ -589,10 +649,34 @@ export const monthOf = (date: string) => `${MONTHS[Number(date.slice(5, 7)) - 1]
 /** "Jun 8, 2026". */
 export const dayOf = (date: string) => `${SHORT[Number(date.slice(5, 7)) - 1] ?? ''} ${Number(date.slice(8, 10))}, ${date.slice(0, 4)}`.trim();
 
-/** The marker for an item: its month, only when it differs from the item before it. */
-export function markerFor(items: readonly StreamItem[], index: number): string | null {
+/** The marker for an item: its month, only when it differs from the item before it. Inside a year that names itself, the month alone. */
+export function markerFor(items: readonly StreamItem[], index: number, inYear = false): string | null {
 	const month = items[index].date.slice(0, 7);
-	return index === 0 || items[index - 1].date.slice(0, 7) !== month ? monthOf(items[index].date) : null;
+	if (index !== 0 && items[index - 1].date.slice(0, 7) === month) return null;
+	return inYear ? (MONTHS[Number(month.slice(5, 7)) - 1] ?? '') : monthOf(items[index].date);
+}
+
+/** Years before this one show as one line each, a year and its count, which opens on a press (RM95). */
+export const FOLD_BEFORE = 2020;
+export interface YearFold {
+	year: string;
+	items: StreamItem[];
+}
+
+/**
+ * The stream in two parts: the items that show as they are, and the older years, each folded into one line.
+ * It takes the list a filter has already cut, so a year counts and shows only what matches, and a year with nothing is absent.
+ */
+export function foldYears(items: readonly StreamItem[], before = FOLD_BEFORE): { open: StreamItem[]; years: YearFold[] } {
+	const open: StreamItem[] = [];
+	const years: YearFold[] = [];
+	for (const item of items) {
+		const year = item.date.slice(0, 4);
+		if (Number(year) >= before) open.push(item);
+		else if (years[years.length - 1]?.year === year) years[years.length - 1].items.push(item);
+		else years.push({ year, items: [item] });
+	}
+	return { open, years };
 }
 
 /** What a title's tooltip says: the day, and the reading time for writing. */

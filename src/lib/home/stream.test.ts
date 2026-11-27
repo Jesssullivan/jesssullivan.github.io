@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
+	FILM_SET,
+	FOLD_BEFORE,
 	SET_SIZE,
 	altIn,
 	buildStream,
 	dayOf,
+	filmsIn,
 	filterItems,
 	filterOf,
 	foldStream,
+	foldYears,
 	headingItem,
 	headingOf,
 	isDated,
@@ -27,6 +31,7 @@ import {
 	type StreamSources,
 } from './stream';
 import { buildScenes } from './scenes';
+import { SHORT_EXCERPT } from './excerpt';
 
 const post = (slug: string, date: string, extra: Partial<PostInput> = {}): PostInput => ({
 	slug,
@@ -173,12 +178,36 @@ describe('every picture a post shows', () => {
 		expect(leftOut.coversNotOwn).toBe(1);
 	});
 
-	it('leaves out a moving picture and a picture another site holds, and counts each', () => {
+	it('leaves out a moving picture that has no still and a picture another site holds, and counts each', () => {
 		const base = sources();
 		const body = '![](/images/posts/loop.gif) ![](https://example.org/far.jpg) ![Still](/images/posts/still.jpg) ![](/images/posts/missing.jpg)';
 		const { items, leftOut } = buildStream({ ...base, posts: [post('mixed', '2025-01-01', { body })] });
 		expect(items.find((item) => item.id === 'post:mixed')!.media.map((media) => media.src)).toEqual(['/images/posts/still.jpg']);
 		expect(leftOut).toMatchObject({ picturesMoving: 1, picturesElsewhere: 1 });
+	});
+
+	it('shows a moving picture that has a still, with the still and the moving file it plays', () => {
+		const motion = { still: '/images/home/loop-still.webp', moving: '/images/home/loop-moving.webp' };
+		const facts: ImageFacts = (src) => (src.endsWith('.gif') ? { width: 540, height: 289, motion } : image(src));
+		const body = 'Words. ![Not dead yet](/images/posts/loop.gif)';
+		const stream = buildStream({ ...sources(), image: facts, posts: [post('moving', '2026-06-09', { body })] });
+		expect(stream.items.find((item) => item.id === 'post:moving')!.media).toEqual([{ type: 'image', src: '/images/posts/loop.gif', width: 540, height: 289, alt: 'Not dead yet', motion }]);
+		expect(stream.leftOut.picturesMoving).toBe(0);
+		// The stage holds photographs still, so a moving picture is never a scene of the heading.
+		expect(stream.heading).not.toContain('post:moving');
+		expect(buildScenes({ items: stream.items, heading: ['post:moving'] }).map((scene) => scene.id)).toEqual(['sky', 'heron']);
+	});
+
+	it('shows a picture file with the one post whose text shows it', () => {
+		// RM96: the printer photograph belongs to one post, and the two others no longer show it. A cover alone does not count as showing.
+		const posts = [
+			post('printers', '2020-08-23', { body: '![drawing](/images/posts/unnamed.jpg) ![drawing](/images/posts/unnamed-1.jpg)' }),
+			post('snow', '2017-04-02', { body: 'Tracks in the snow.', featureImage: '/images/posts/unnamed.jpg' }),
+		];
+		const { items, leftOut } = buildStream({ ...sources(), posts });
+		expect(items.find((item) => item.id === 'post:printers')!.media.map((media) => media.src)).toEqual(['/images/posts/unnamed.jpg', '/images/posts/unnamed-1.jpg']);
+		expect(items.find((item) => item.id === 'post:snow')!.media).toEqual([]);
+		expect(leftOut.picturesShared).toBe(0);
 	});
 
 	it('shows a picture file with no post when the text of more than one post shows it', () => {
@@ -213,7 +242,7 @@ describe('every picture a post shows', () => {
 describe('items left out and counted', () => {
 	it('leaves out photographs no public post uses, and videos with no date', () => {
 		const { items, leftOut, counts } = buildStream(sources());
-		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, undated: 0 });
+		expect(leftOut).toEqual({ photographsWithoutPost: 2, videosWithoutDate: 1, coversNotOwn: 1, picturesMoving: 0, picturesElsewhere: 0, picturesShared: 0, videosWithoutPoster: 0, undated: 0 });
 		expect(items.some((item) => item.id.includes('undated001'))).toBe(false);
 		expect(counts).toEqual({ note: 1, article: 6, announcement: 0, photos: 1, recording: 1, video: 1 });
 		// One post holds its photographs, so it is counted under both kinds: nine items, ten in the counts.
@@ -296,6 +325,100 @@ describe('items from the publishing hub join through the same type', () => {
 		expect(items.filter((item) => item.id === 'post:plain')).toEqual([expect.objectContaining({ title: 'Plain, from the hub', source: 'hub', date: '2023-01-16' })]);
 		expect(items.some((item) => item.id === 'post:stock-cover')).toBe(false);
 		expect(counts.announcement).toBe(1);
+	});
+});
+
+describe('the videos a post shows', () => {
+	const list = ['Words first.', '', '  * [handling clients, 2/17/21](https://www.youtube.com/watch?v=aaaaaaaaaaa)', '  * [_Jest_ x Puppeteer](https://youtu.be/bbbbbbbbbbb)', '  * [web tools 12/1/20](https://www.youtube.com/watch?v=ccccccccccc&feature=youtu.be)'].join('\n');
+
+	it('reads a video the post gives a line of its own, in the order of the text, with the words the post gives it', () => {
+		expect(filmsIn(list)).toEqual([
+			{ id: 'aaaaaaaaaaa', title: 'handling clients, 2/17/21' },
+			{ id: 'bbbbbbbbbbb', title: 'Jest x Puppeteer' },
+			{ id: 'ccccccccccc', title: 'web tools 12/1/20' },
+		]);
+		expect(filmsIn('[A film](https://youtu.be/ddddddddddd)\n\n<iframe src="https://www.youtube-nocookie.com/embed/eeeeeeeeeee?rel=0" title="Framed"></iframe>\n\n[A film](https://youtu.be/ddddddddddd)')).toEqual([
+			{ id: 'ddddddddddd', title: 'A film' },
+			{ id: 'eeeeeeeeeee', title: 'Framed' },
+		]);
+	});
+
+	it('does not read a video the post only points at from inside a sentence, a playlist, or a line of code', () => {
+		expect(filmsIn('To [some french dudes doing unicycle ballet](https://youtu.be/fffffffffff) and on.')).toEqual([]);
+		expect(filmsIn('- [Firestarter mixtape](https://youtu.be/ggggggggggg?si=x) — a classic!')).toEqual([]);
+		expect(filmsIn('[in this playlist](https://www.youtube.com/playlist?list=PL6y8N_vP4OopcvDfwcEyvx1Nz4MVSZK7R)')).toEqual([]);
+		expect(filmsIn('```\n[x](https://youtu.be/hhhhhhhhhhh)\n```')).toEqual([]);
+	});
+
+	it('shows a video only by a poster the repository holds, and counts the ones with none', () => {
+		const held = new Set(['aaaaaaaaaaa', 'ccccccccccc']);
+		const stream = buildStream({ ...sources(), posts: [post('demos', '2021-02-17', { body: list })], poster: (id) => (held.has(id) ? `asset:video/${id}.jpg` : null) });
+		const demos = stream.items.find((item) => item.id === 'post:demos')!;
+		expect(demos.media).toEqual([
+			{ type: 'youtube', src: 'aaaaaaaaaaa', title: 'handling clients, 2/17/21', poster: expect.objectContaining({ src: 'asset:video/aaaaaaaaaaa.jpg', width: 1200, height: 800 }) },
+			{ type: 'youtube', src: 'ccccccccccc', title: 'web tools 12/1/20', poster: expect.objectContaining({ src: 'asset:video/ccccccccccc.jpg' }) },
+		]);
+		expect(stream.leftOut.videosWithoutPoster).toBe(1);
+		// The post is writing that shows video, so it stands under both.
+		expect(kindsOf(demos)).toEqual(['article', 'video']);
+		expect(filterItems(stream.items, 'video').map((item) => item.id)).toContain('post:demos');
+		expect(stream.counts.video).toBe(stream.items.filter((item) => kindsOf(item).includes('video')).length);
+	});
+
+	it('shows six at most, and leaves a video the Music page lists to its own item', () => {
+		const ids = ['k1111111111', 'k2222222222', 'k3333333333', 'k4444444444', 'k5555555555', 'k6666666666', 'k7777777777'];
+		const body = [...ids, 'dated00001'].map((id) => `[film](https://youtu.be/${id})`).join('\n\n');
+		const { items } = buildStream({ ...sources(), posts: [post('reel', '2025-01-01', { body })] });
+		const reel = items.find((item) => item.id === 'post:reel')!;
+		expect(reel.media.map((media) => media.src)).toEqual(ids.slice(0, FILM_SET));
+		expect(items.filter((item) => item.media.some((media) => media.src === 'dated00001')).map((item) => item.id)).toEqual(['video:dated00001']);
+	});
+});
+
+describe('a post that is words alone takes a short excerpt', () => {
+	const first = 'I slipped and slid my way into the park on Saturday at about four.';
+	const long = `${first} About seven inches of snow had appeared on the ground over the last day, which stifled any spring-like activity for the second time. I heard some confused titmice.`;
+
+	it('keeps her first sentences, fewer of them, and ends at a sentence end', () => {
+		const { items } = buildStream({ ...sources(), posts: [post('words', '2025-01-01', { description: long }), post('seen', '2025-01-02', { description: long, body: '![](/images/posts/a.jpg)' })] });
+		const words = items.find((item) => item.id === 'post:words')!;
+		expect(words.summary).toBe(first);
+		expect(words.summary.length).toBeLessThanOrEqual(SHORT_EXCERPT.max);
+		// A post with a picture keeps the longer run beside it.
+		expect(items.find((item) => item.id === 'post:seen')!.summary.length).toBeGreaterThan(SHORT_EXCERPT.max);
+	});
+
+	it('is absent when her first sentence is longer than a short excerpt may be: nothing cuts a sentence', () => {
+		const sentence = `${'A very long first sentence that goes on and on, '.repeat(4)}and then it ends.`;
+		expect(sentence.length).toBeGreaterThan(SHORT_EXCERPT.longest);
+		const { items } = buildStream({ ...sources(), posts: [post('words', '2025-01-01', { description: `${sentence} A short one.` })] });
+		expect(items.find((item) => item.id === 'post:words')!.summary).toBe('');
+	});
+});
+
+describe('the older years fold', () => {
+	const years = () => buildStream({ ...sources(), posts: [post('new', '2021-03-02'), post('edge', '2020-01-01'), post('a19', '2019-12-31'), post('b19', '2019-03-01', { body: '![](/images/posts/IMG_1.jpg)' }), post('a17', '2017-05-05')], gallery: [photo('IMG_1', 'b19')], pulse: [], tracks: [], videos: [] }).items;
+
+	it('keeps the years from 2020 on as they are, and gives each older year one line with its items, newest year first', () => {
+		expect(FOLD_BEFORE).toBe(2020);
+		const { open, years: folds } = foldYears(years());
+		expect(open.map((item) => item.id)).toEqual(['post:new', 'post:edge']);
+		expect(folds.map((fold) => [fold.year, fold.items.map((item) => item.id)])).toEqual([
+			['2019', ['post:a19', 'post:b19']],
+			['2017', ['post:a17']],
+		]);
+	});
+
+	it('counts and shows only what a filter leaves, and a year with nothing is absent', () => {
+		const { open, years: folds } = foldYears(filterItems(years(), 'photos'));
+		expect(open).toEqual([]);
+		expect(folds.map((fold) => [fold.year, fold.items.length])).toEqual([['2019', 1]]);
+	});
+
+	it('marks a month by its name alone inside a year, which names itself', () => {
+		const [fold] = foldYears(years()).years;
+		expect(fold.items.map((_, index) => markerFor(fold.items, index, true))).toEqual(['December', 'March']);
+		expect(markerFor(fold.items, 0)).toBe('December 2019');
 	});
 });
 

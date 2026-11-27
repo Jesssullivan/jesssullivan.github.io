@@ -35,6 +35,18 @@ export const smallNames = (src: string) => {
 	const name = (src.split('/').pop() ?? '').replace(/\.[a-z0-9]+$/i, '');
 	return { webp: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.webp`, avif: `${SMALL_DIR}/${name}-${SMALL_WIDTH}.avif` };
 };
+/**
+ * A moving picture of a post has two files made for it, beside the small sizes: its first frame, and the whole of it as an animated WebP.
+ * The page shows the first frame, and asks for the moving file only while the picture plays.
+ */
+export const motionNames = (src: string) => {
+	const name = (src.split('/').pop() ?? '').replace(/\.[a-z0-9]+$/i, '');
+	return { still: `${SMALL_DIR}/${name}-still.webp`, moving: `${SMALL_DIR}/${name}-moving.webp` };
+};
+/** A poster 1000 pixels wide or more has a small size beside it, for a row of posters and a narrow screen. */
+export const POSTER_SMALL = 640;
+export const POSTER_SMALL_FROM = 1000;
+export const posterSmallName = (src: string) => src.replace(/\.jpe?g$/i, `-${POSTER_SMALL}.webp`);
 /** Under src, so the build hashes its name too. */
 export const STREAM_OUTPUT = 'src/lib/data/home-stream.v1.json';
 
@@ -142,12 +154,16 @@ export function imageFacts(staticDir = 'static', assetDir = ASSET_DIR): ImageFac
 		const avif = optimized && !AVIF_DISABLED.has(src);
 		// A picture of a post that is wide enough has a small size too, as WebP, and as AVIF where the site serves AVIF for it.
 		const names = smallNames(src);
-		const small = !bundled && /^\/images\/posts\/[^/]+\.(?:jpe?g|png|webp)$/i.test(src) && size.width >= SMALL_FROM ? { small: { width: SMALL_WIDTH, webp: names.webp, ...(avif ? { avif: names.avif } : {}) } } : {};
+		const ofPost = !bundled && /^\/images\/posts\/[^/]+\.(?:jpe?g|png|webp)$/i.test(src) && size.width >= SMALL_FROM ? { small: { width: SMALL_WIDTH, webp: names.webp, ...(avif ? { avif: names.avif } : {}) } } : {};
+		const ofPoster = bundled && /\.jpe?g$/i.test(src) && size.width >= POSTER_SMALL_FROM ? { small: { width: POSTER_SMALL, webp: posterSmallName(src) } } : {};
+		const small = { ...ofPost, ...ofPoster };
+		const motion = !bundled && /^\/images\/posts\/[^/]+\.gif$/i.test(src) ? { motion: motionNames(src) } : {};
 		return {
 			...size,
 			...(optimized ? { webp: swap('.webp') } : beside !== src && existsSync(onDisk(beside)) ? { webp: beside } : {}),
 			...(avif ? { avif: swap('.avif') } : {}),
 			...small,
+			...motion,
 		};
 	};
 }

@@ -13,6 +13,18 @@
 /** The longest excerpt, in characters. A first sentence may be longer, up to `LONGEST`. */
 export const EXCERPT_MAX = 240;
 const LONGEST = 300;
+export interface ExcerptLength {
+	/** The longest run of sentences, in characters. */
+	max: number;
+	/** How long the first sentence may be. A longer one is not cut: the excerpt is then absent. */
+	longest: number;
+}
+const FULL: ExcerptLength = { max: EXCERPT_MAX, longest: LONGEST };
+/**
+ * The short excerpt of a post that is words alone in the stream (RM95): about two lines beside nothing.
+ * It is the same run of her sentences, ended sooner, and always at a sentence end.
+ */
+export const SHORT_EXCERPT: ExcerptLength = { max: 140, longest: 180 };
 /** How far into a post the excerpt may start, in sentences. */
 const REACH = 12;
 
@@ -201,12 +213,12 @@ function unitsOf(prose: Prose[], cutAtEnd?: boolean): Unit[] {
 }
 
 /** The first run of whole sentences that stand together, as long as it fits. */
-function runOf(units: Unit[]): string {
+function runOf(units: Unit[], length: ExcerptLength): string {
 	const start = units.slice(0, REACH).findIndex((unit) => unit.whole && !unit.points);
-	if (start < 0) return '';
+	if (start < 0 || units[start].text.length > length.longest) return '';
 	let run = units[start].text;
 	for (const unit of units.slice(start + 1)) {
-		if (unit.apart || !unit.whole || unit.points || run.length + 1 + unit.text.length > EXCERPT_MAX) break;
+		if (unit.apart || !unit.whole || unit.points || run.length + 1 + unit.text.length > length.max) break;
 		run += ` ${unit.text}`;
 	}
 	return run;
@@ -246,14 +258,14 @@ function withoutTitle(text: string, title: string): string {
 	return text;
 }
 
-export function excerptOf(post: { title: string; description: string; body: string }): string {
+export function excerptOf(post: { title: string; description: string; body: string }, length: ExcerptLength = FULL): string {
 	const description = post.description.trim();
 	const written = description !== '' && !isCutFromBody(description, post.body);
 	const cutShort = /(?:\.{3}|…)\s*$/.test(description);
 	const prose = written ? [{ text: plainText(description), apart: false }] : proseOf(post.body);
 	// The export set the title again above the text. That copy is not an excerpt of anything.
 	if (prose.length) prose[0] = { ...prose[0], text: withoutTitle(prose[0].text, post.title) };
-	const excerpt = runOf(unitsOf(prose, written ? cutShort : undefined));
+	const excerpt = runOf(unitsOf(prose, written ? cutShort : undefined), length);
 	if (wordsOf(excerpt).length < 2 || saysNothingNew(excerpt, post.title)) return '';
 	return excerpt;
 }

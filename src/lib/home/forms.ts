@@ -46,3 +46,20 @@ export function rowOf(rest: readonly Pick<StreamImage, 'width' | 'height'>[]): {
 	if (!rest.length) return null;
 	return { sum: rest.reduce((sum, image) => sum + image.width / image.height, 0), cap: Math.min(...rest.map((image) => image.height)) };
 }
+
+/**
+ * How a post's videos stand: in rows as even as they go, the fuller rows last, so the first posters are the larger ones.
+ * Five on a wide screen are two and three. Five on a phone are one, two and two.
+ */
+export function filmRows(count: number, across: number): number[] {
+	if (count <= 0) return [];
+	const rows = Math.ceil(count / across);
+	const base = Math.floor(count / rows);
+	const fuller = count % rows;
+	return Array.from({ length: rows }, (_, row) => (row < rows - fuller ? base : base + 1));
+}
+
+/** The room a row of posters has for each, as a share of the whole: one over how many stand in its row. */
+export function filmShares(count: number, across: number): number[] {
+	return filmRows(count, across).flatMap((size) => Array.from({ length: size }, () => 1 / size));
+}

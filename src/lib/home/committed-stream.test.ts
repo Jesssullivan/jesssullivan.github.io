@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { SMALL_FROM, SMALL_WIDTH, STREAM_OUTPUT, buildCommittedStream, imageSize, readPosts, serializeStream, smallNames, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
-import { excerptOf, plainText } from './excerpt';
-import { STREAM_KINDS, isDated, kindsOf, type StreamFile } from './stream';
+import { ASSET_DIR, ASSET_PREFIX, POSTER_SMALL, POSTER_SMALL_FROM, SMALL_FROM, SMALL_WIDTH, STREAM_OUTPUT, buildCommittedStream, imageSize, motionNames, posterSmallName, readPosts, serializeStream, smallNames, sourcesPresent } from '../../../scripts/lib/home-stream-sources.mjs';
+import { SHORT_EXCERPT, excerptOf, plainText } from './excerpt';
+import { FOLD_BEFORE, STREAM_KINDS, filmsIn, foldYears, isDated, kindsOf, shows, type StreamFile } from './stream';
 
 const committed = JSON.parse(readFileSync(STREAM_OUTPUT, 'utf-8')) as StreamFile;
 
@@ -50,7 +50,40 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 		const facts = (rows: (string | number | undefined)[][]) => rows.map((row) => row.join(' | ')).sort();
 		const posts = readPosts().filter((post) => isDated(post.date));
 		const writing = committed.items.filter((item) => item.source === 'posts');
-		expect(facts(writing.map((item) => [item.id, item.date, item.title, item.summary, item.minutes]))).toEqual(facts(posts.map((post) => [`post:${post.slug}`, post.date, post.title, excerptOf(post), post.minutes])));
+		// A post that is words alone carries the short excerpt, and a post with something to see the longer one.
+		const seen = new Set(writing.filter((item) => shows(item)).map((item) => item.id));
+		expect(facts(writing.map((item) => [item.id, item.date, item.title, item.summary, item.minutes]))).toEqual(
+			facts(posts.map((post) => [`post:${post.slug}`, post.date, post.title, seen.has(`post:${post.slug}`) ? excerptOf(post) : excerptOf(post, SHORT_EXCERPT), post.minutes])),
+		);
+	});
+
+	it('shows a video only where a post gives it a line of its own, and only by a poster the repository holds', () => {
+		const posts = new Map(readPosts().map((post) => [`post:${post.slug}`, post]));
+		for (const item of committed.items.filter((entry) => entry.source === 'posts')) {
+			const named = new Set(filmsIn(posts.get(item.id)!.body).map((film) => film.id));
+			for (const media of item.media) {
+				if (media.type !== 'youtube' || !named.has(media.src)) continue;
+				expect(media.poster, `${item.id} ${media.src}`).toBeDefined();
+				// A large poster names its small size, for a row of posters.
+				expect(media.poster!.small?.webp).toBe(media.poster!.width >= POSTER_SMALL_FROM ? posterSmallName(media.poster!.src) : undefined);
+				if (media.poster!.small) expect(media.poster!.small.width).toBe(POSTER_SMALL);
+			}
+		}
+	});
+
+	it('names the still and the moving file of every moving picture', () => {
+		for (const media of committed.items.flatMap((item) => item.media)) {
+			if (media.type !== 'image') continue;
+			expect(media.motion, media.src).toEqual(/\.gif$/i.test(media.src) ? motionNames(media.src) : undefined);
+		}
+	});
+
+	it('folds the years before 2020, and keeps every item in one place or the other', () => {
+		const { open, years } = foldYears(committed.items);
+		expect(open.every((item) => Number(item.date.slice(0, 4)) >= FOLD_BEFORE)).toBe(true);
+		expect(years.every((fold) => Number(fold.year) < FOLD_BEFORE && fold.items.every((item) => item.date.startsWith(fold.year)))).toBe(true);
+		expect(open.length + years.reduce((sum, fold) => sum + fold.items.length, 0)).toBe(committed.items.length);
+		expect(years.map((fold) => fold.year)).toEqual([...years.map((fold) => fold.year)].sort().reverse());
 	});
 
 	// The whole file, byte for byte. It needs the gallery, the images and the posters on disk. A Bazel unit-test
@@ -79,13 +112,26 @@ describe('the small sizes of the committed stream', () => {
 	// The small files are under static/images, which a Bazel unit-test sandbox does not hold. There the build gate checks them.
 	it.skipIf(!existsSync('static/images/home'))('has every small file it names on disk; otherwise run: just home-pictures', () => {
 		for (const image of pictures) {
-			for (const path of [image.small?.webp, image.small?.avif]) if (path) expect(existsSync(`static${path}`), path).toBe(true);
+			for (const path of [image.small?.webp, image.small?.avif, image.motion?.still, image.motion?.moving]) if (path) expect(existsSync(`static${path}`), path).toBe(true);
+		}
+	});
+
+	it.skipIf(!existsSync(`${ASSET_DIR}/video`))('has every file of every poster on disk; otherwise run: just home-pictures', () => {
+		const posters = committed.items.flatMap((item) => item.media).flatMap((media) => (media.type === 'youtube' && media.poster ? [media.poster] : []));
+		expect(posters.length).toBeGreaterThan(0);
+		for (const poster of posters) {
+			expect(poster.webp, poster.src).toBeDefined();
+			for (const name of [poster.src, poster.webp, poster.small?.webp]) if (name) expect(existsSync(`${ASSET_DIR}/${name.slice(ASSET_PREFIX.length)}`), name).toBe(true);
 		}
 	});
 });
 
 describe('the excerpts of the committed stream', () => {
 	const writing = committed.items.filter((item) => item.source === 'posts' && item.summary);
+
+	it('are short for a post that is words alone', () => {
+		for (const item of writing) if (!shows(item)) expect(item.summary.length, item.id).toBeLessThanOrEqual(SHORT_EXCERPT.longest);
+	});
 
 	it('start with a letter, a figure or an opening quote, never with a stray mark', () => {
 		for (const item of writing) expect(item.summary, item.id).toMatch(/^[\p{L}\p{N}"“'‘(]/u);

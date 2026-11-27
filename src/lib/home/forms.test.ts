@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formOf, leadOf, rowOf } from './forms';
+import { filmRows, filmShares, formOf, leadOf, rowOf } from './forms';
 import type { StreamMedia } from './stream';
 
 const image = (src: string, width: number, height: number): StreamMedia => ({ type: 'image', src, width, height, alt: '' });
@@ -51,5 +51,27 @@ describe('the form an item takes on a wide screen', () => {
 	it('sets the row under a lead to one height, never above the shortest file in it', () => {
 		expect(rowOf([])).toBeNull();
 		expect(rowOf([{ width: 1200, height: 800 }, { width: 300, height: 150 }])).toEqual({ sum: 3.5, cap: 150 });
+	});
+});
+
+describe('the rows a post\'s videos stand in', () => {
+	it('fills rows as evenly as it can, the fuller rows last', () => {
+		expect(filmRows(0, 3)).toEqual([]);
+		expect(filmRows(1, 3)).toEqual([1]);
+		expect(filmRows(2, 3)).toEqual([2]);
+		expect(filmRows(3, 3)).toEqual([3]);
+		expect(filmRows(4, 3)).toEqual([2, 2]);
+		expect(filmRows(5, 3)).toEqual([2, 3]);
+		expect(filmRows(6, 3)).toEqual([3, 3]);
+		// A phone takes two across.
+		expect(filmRows(2, 2)).toEqual([2]);
+		expect(filmRows(5, 2)).toEqual([1, 2, 2]);
+	});
+
+	it('gives each poster its share of its row, and every row adds up to the whole', () => {
+		expect(filmShares(5, 3)).toEqual([1 / 2, 1 / 2, 1 / 3, 1 / 3, 1 / 3]);
+		expect(filmShares(5, 2)).toEqual([1, 1 / 2, 1 / 2, 1 / 2, 1 / 2]);
+		// A share is a whole number of the six parts a row has.
+		for (const count of [1, 2, 3, 4, 5, 6]) for (const across of [2, 3]) for (const share of filmShares(count, across)) expect(Number.isInteger(Math.round(6 * share * 1000) / 1000)).toBe(true);
 	});
 });

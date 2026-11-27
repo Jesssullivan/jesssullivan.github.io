@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EXCERPT_MAX, excerptOf, isCutFromBody, plainText, proseOf, saysNothingNew, sentencesOf } from './excerpt';
+import { EXCERPT_MAX, SHORT_EXCERPT, excerptOf, isCutFromBody, plainText, proseOf, saysNothingNew, sentencesOf } from './excerpt';
 
 const of = (description: string, body = '', title = 'A title') => excerptOf({ title, description, body });
 /** A summary the old export cut from the top of the post by count, with its three dots. */
@@ -118,5 +118,30 @@ describe('an excerpt that says nothing', () => {
 		const excerpt = of(cut(body), body);
 		expect(excerpt).not.toBe('');
 		expect(letters(body.replace(/\(https[^)]*\)/g, ''))).toContain(letters(excerpt));
+	});
+});
+
+describe('the short excerpt of a post that is words alone', () => {
+	const post = (description: string) => ({ title: 'A title', description, body: '' });
+
+	it('is the same run of her sentences, ended sooner, at a sentence end', () => {
+		const one = 'Every device on the tailnet was tagged.';
+		const two = 'The gateway does not know tagged devices.';
+		const three = 'I was locked out of my own gateway, and a throwaway program in Go got me back in before lunch.';
+		expect(excerptOf(post(`${one} ${two} ${three}`))).toBe(`${one} ${two} ${three}`);
+		expect(excerptOf(post(`${one} ${two} ${three}`), SHORT_EXCERPT)).toBe(`${one} ${two}`);
+		expect(`${one} ${two}`.length).toBeLessThanOrEqual(SHORT_EXCERPT.max);
+	});
+
+	it('lets one first sentence run a little longer, and is absent beyond that', () => {
+		const fits = `A first sentence of a hundred and sixty letters or so, ${'which goes on, '.repeat(6)}and then it stops.`;
+		expect(fits.length).toBeGreaterThan(SHORT_EXCERPT.max);
+		expect(fits.length).toBeLessThanOrEqual(SHORT_EXCERPT.longest);
+		expect(excerptOf(post(`${fits} And more.`), SHORT_EXCERPT)).toBe(fits);
+		const over = `A first sentence that is far too long, ${'which goes on and on, '.repeat(8)}and then it stops.`;
+		expect(over.length).toBeGreaterThan(SHORT_EXCERPT.longest);
+		expect(excerptOf(post(`${over} And more.`), SHORT_EXCERPT)).toBe('');
+		// The longer excerpt still keeps it.
+		expect(excerptOf(post(`${over} And more.`))).toBe(over);
 	});
 });
