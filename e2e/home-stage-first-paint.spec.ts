@@ -120,4 +120,24 @@ test.describe('a build with the stage on: first paint', () => {
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 		});
 	}
+
+	test('the page stands when its first two asks for the stream fail, as on a phone that changes network', async ({ page }) => {
+		// The stream's data file is read as the page comes alive. A failed read used to take the prerendered page away and show the error page.
+		let failed = 0;
+		await page.route(/\/home-stream\.v1\.[^/]*\.json$/, route => {
+			if (failed < 2) {
+				failed += 1;
+				return route.abort('internetdisconnected');
+			}
+			return route.continue();
+		});
+		await watch(page);
+		await page.goto('/');
+		await expect(page.getByTestId('home-stage')).toHaveAttribute('data-playing', 'true', { timeout: 20_000 });
+		expect(failed).toBe(2);
+		await expect(page.getByTestId('stream-item').first()).toBeAttached();
+		await expect(page.getByText("This page doesn't exist")).toHaveCount(0);
+		const log = await first(page);
+		expect(log.seen[log.seen.length - 1]).toBe('0011');
+	});
 });
