@@ -38,12 +38,12 @@ bazel_dep(name = "rules_tectonic", version = "0.2.3", dev_dependency = True)
 # prepare hook's PINNED_INTEGRITY in lockstep.
 bazel_dep(name = "tummycrypt_tinyvectors", version = "0.3.7")
 
-# The xoxd-projection/v2 consumer the projection step runs (TIN-8654),
-# released to the pinned registry as xoxd_projection 1.0.0 (TIN-8643). Every
-# //projection label reaches it through XOXD_PROJECTION in projection/module.bzl.
-# It is a normal dependency, so the public graph (--ignore_dev_dependency)
-# resolves it too.
-bazel_dep(name = "xoxd_projection", version = "1.0.0")
+# The xoxd-projection/v3 consumer the projection step runs (TIN-8654),
+# released to the pinned registry as xoxd_projection 2.0.0. It reads v3 only.
+# Every //projection label reaches it through XOXD_PROJECTION in
+# projection/module.bzl. It is a normal dependency, so the public graph
+# (--ignore_dev_dependency) resolves it too.
+bazel_dep(name = "xoxd_projection", version = "2.0.0")
 
 git_override(
     module_name = "spear_resumes",

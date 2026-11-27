@@ -1,12 +1,13 @@
-"""The xoxd-projection/v2 step for target "blog" (TIN-8654)."""
+"""The xoxd-projection/v3 step for target "blog" (TIN-8654)."""
 
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 load("//projection:module.bzl", "XOXD_PROJECTION")
 
 package(default_visibility = ["//visibility:public"])
 
-# The contract fixtures as the released xoxd_projection module ships them,
-# byte for byte from the hub contract. Tests and the e2e notes build use them.
+# The xoxd-projection/v3 contract fixtures as the released xoxd_projection
+# module ships them, byte for byte from the hub contract: the valid blog and
+# firm trees and every refusal case. Tests and the e2e notes build use them.
 # The module leaves out the hub's test key pair file, since it also holds the
 # private half. The fixtures verify against the pair's public half, which
 # step.mjs holds as FIXTURE_KEY. step_test checks that the module's
@@ -16,43 +17,58 @@ filegroup(
     testonly = True,
     srcs = [
         XOXD_PROJECTION + ":test/helpers.ts",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/sources.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/approval-mismatch/projection/v2/blog/manifests/a481f6d105038486de59831dc627ba6cd12ff3b5a085c27797f7cc425361fb63.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/approval-mismatch/projection/v2/blog/manifests/a481f6d105038486de59831dc627ba6cd12ff3b5a085c27797f7cc425361fb63.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/bad-signature/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/blob-bytes-changed/projection/v2/blobs/sha256/6a467d6fa1a6e763b0da537dd7ae33b792cb53093d4537d4b2b0f6d059983f91",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/dot-segment-path/projection/v2/blog/manifests/e6dc6e0e533706cfb00f950bdc5c20b5891c0bad90af8cb5bd78f216fdddf4a5.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/dot-segment-path/projection/v2/blog/manifests/e6dc6e0e533706cfb00f950bdc5c20b5891c0bad90af8cb5bd78f216fdddf4a5.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/entry-path-is-attachment-path/projection/v2/blog/manifests/5d78dc427671d0d6dbc0e81dcd37568ffa8f989fad80a0ef55ea9139c511f9dc.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/entry-path-is-attachment-path/projection/v2/blog/manifests/5d78dc427671d0d6dbc0e81dcd37568ffa8f989fad80a0ef55ea9139c511f9dc.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/html-attachment-path/projection/v2/blog/manifests/be6ab6f0441f88e332588854a0e372ab13b0126cc490fb2b4096459839b45e02.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/html-attachment-path/projection/v2/blog/manifests/be6ab6f0441f88e332588854a0e372ab13b0126cc490fb2b4096459839b45e02.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/html-script/projection/v2/blobs/sha256/b305499425bbd307576c496008ff7b60551227c7ec5201705a6bbd16a2b848bc",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/html-script/projection/v2/blog/manifests/352f9f7db88adc341b0ff79e6eb15f9a2be79ccb1a6e9a982ab7627803a3a3a4.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/html-script/projection/v2/blog/manifests/352f9f7db88adc341b0ff79e6eb15f9a2be79ccb1a6e9a982ab7627803a3a3a4.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/manifest-bytes-changed/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/redirect-conflict/projection/v2/blog/manifests/709150e61694f1615cc03b6131aa31a82ac53f9b0b916fa44fca7e1c5d3491fc.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/redirect-conflict/projection/v2/blog/manifests/709150e61694f1615cc03b6131aa31a82ac53f9b0b916fa44fca7e1c5d3491fc.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/tampered/wrong-target/projection/v2/blog/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/0637e42a7f6e75cf123b87d0ec944eca52150f6564fe60559dcf434c26819bbf",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/0fb259e1d3cab246527ad49f1ee366395d0dcc1ab233e01a93bd2131ae2dde85",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/2e0d76e4a20c6b425fac6b3ce5a39c12049a813e178c8f5fa561a8bd11e37f62",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/324dd486aae05ebe0f20d506b80fdcab015c58252753e1effca3cd53d7907fc7",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/33f71b2992c0578f2fd92746c0ee39e0de9f8f420fb61117300ee6e13814fdec",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/6a467d6fa1a6e763b0da537dd7ae33b792cb53093d4537d4b2b0f6d059983f91",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/83ff3d88bec09df7f537e1e4f3201cdd593222b037a708cc2ee62bf65ae821ef",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/98ff93f67f20affe593fb520a2062e4dc494970a250f1befc9b3a55beae08d8c",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/b30a242247bb4c3bdecc5f008158996ac40db21283eb6dbefc45452b32bb5913",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blobs/sha256/ccc63d2a75d6308eb92d2613756d7745439e51aca89fed240584a66a3fa6194d",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blog/head.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/blog/manifests/fbce3ad37f64d9aee7cecc90a2dda1d6bba77f726bb73541b031cf08997e2ee3.sig",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/head.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.json",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/valid/projection/v2/firm/manifests/e28076a9b53f3422ba013cabc695d12da7baa17302e8904286d780eda4f77b2f.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/sources.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/approval-mismatch/projection/v3/blog/manifests/b92d5ad26e80b5f1c05a7fb03daddc3a99c2a1d8b3e834fffd4a9e06e4039b16.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/approval-mismatch/projection/v3/blog/manifests/b92d5ad26e80b5f1c05a7fb03daddc3a99c2a1d8b3e834fffd4a9e06e4039b16.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/bad-signature/projection/v3/blog/manifests/fcd2527570c858ebba8cec820b5349152507cce72c344e65a205c5c0fa97f80e.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/blob-bytes-changed/projection/v3/blobs/sha256/90af984d8119fe947174bbcfef6be0577f903e100cde45207d77a1e20987e970",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/dot-segment-path/projection/v3/blog/manifests/48671b44baef20aff6391e2ef70653a8855e94077c52f80255c4409584b2f981.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/dot-segment-path/projection/v3/blog/manifests/48671b44baef20aff6391e2ef70653a8855e94077c52f80255c4409584b2f981.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/entry-path-is-attachment-path/projection/v3/blog/manifests/831c0f102666015b9ed238d7236bed04d5e66d5637298de5491ed6fbb1a32cee.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/entry-path-is-attachment-path/projection/v3/blog/manifests/831c0f102666015b9ed238d7236bed04d5e66d5637298de5491ed6fbb1a32cee.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/html-attachment-path/projection/v3/blog/manifests/323f4891a3d699a4ae490869f518c393da10b576a113ccb328806de2281456a7.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/html-attachment-path/projection/v3/blog/manifests/323f4891a3d699a4ae490869f518c393da10b576a113ccb328806de2281456a7.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/html-script/projection/v3/blobs/sha256/ebd57991fa0d3dcad2807d4f34f0f5191d2247f86e741bfc3e480d06dd5e875b",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/html-script/projection/v3/blog/manifests/2335db491ae35f99f8a4bb704d50a0b31d1237622132993cbcd58a4d309197b1.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/html-script/projection/v3/blog/manifests/2335db491ae35f99f8a4bb704d50a0b31d1237622132993cbcd58a4d309197b1.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/manifest-bytes-changed/projection/v3/blog/manifests/fcd2527570c858ebba8cec820b5349152507cce72c344e65a205c5c0fa97f80e.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/redirect-conflict/projection/v3/blog/manifests/2cf2135b0f9b63bceb2f334607334e97151e53ac98af1faa73673413f063a0e2.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/redirect-conflict/projection/v3/blog/manifests/2cf2135b0f9b63bceb2f334607334e97151e53ac98af1faa73673413f063a0e2.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/svg-not-allowlisted/projection/v3/blobs/sha256/2451458308b635f7d931b6d342542b4002f66a30a155b5810a9eddb5f4127d4c",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/svg-not-allowlisted/projection/v3/firm/manifests/9308fec79dc3623d451babb4420483f577a94cdae7e30dc5dabd053c992c5637.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/svg-not-allowlisted/projection/v3/firm/manifests/9308fec79dc3623d451babb4420483f577a94cdae7e30dc5dabd053c992c5637.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/svg-not-diagram/projection/v3/blog/manifests/47b986901502ce0c04ef0d8db2273c87ba6806f378b30824d5e37ee8a4b72d47.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/svg-not-diagram/projection/v3/blog/manifests/47b986901502ce0c04ef0d8db2273c87ba6806f378b30824d5e37ee8a4b72d47.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/v2-manifest/projection/v3/blog/manifests/bb71d6e98d77080ee1d254e2a780c8e2cb430745e4747d377718e4924fab3e40.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/v2-manifest/projection/v3/blog/manifests/bb71d6e98d77080ee1d254e2a780c8e2cb430745e4747d377718e4924fab3e40.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/wrong-target/projection/v3/blog/manifests/8aba1c72410535298e994b432ecb537745b0fe43219dfb997eed1ceee01cd0ed.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/tampered/wrong-target/projection/v3/blog/manifests/8aba1c72410535298e994b432ecb537745b0fe43219dfb997eed1ceee01cd0ed.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/0637e42a7f6e75cf123b87d0ec944eca52150f6564fe60559dcf434c26819bbf",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/0fb259e1d3cab246527ad49f1ee366395d0dcc1ab233e01a93bd2131ae2dde85",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/22f8d8481771815a9233ad9791c81da4cded20a7329df75856927ae45a5446bc",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/2c0dd91d8ce4c4c582d4aa685e2f8cb31b737048acc0ae1888a0a30017defbea",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/2e0d76e4a20c6b425fac6b3ce5a39c12049a813e178c8f5fa561a8bd11e37f62",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/324dd486aae05ebe0f20d506b80fdcab015c58252753e1effca3cd53d7907fc7",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/33f71b2992c0578f2fd92746c0ee39e0de9f8f420fb61117300ee6e13814fdec",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/497790947d4666760ce38f3c00e852c71fdb66cae849bae8e9ede352719e1581",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/89471f8daf46ff178f077d4efeb7dad298a09d8e6c235c06d3370e94bd2d94de",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/90af984d8119fe947174bbcfef6be0577f903e100cde45207d77a1e20987e970",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/a6946076beaeb23e666cc3e268cac0b34c2c281d1497aaf7952609d31043199f",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/b30a242247bb4c3bdecc5f008158996ac40db21283eb6dbefc45452b32bb5913",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/b7f2b501fec106cc231306bde60ac19770ba20c211e3d3b10c7df32077621250",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/b89c3c6db5e07050234b956b5db3289ddb87de586c354c02b20060cc95b79bc2",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/c8c5af84ac765d911a9ab05bc9a19d15d0b1bc5cf0654eff4469ce536410654e",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/ca93d732954f28a69f23004a6ada2cd9bc2e4ad2c9b74d01e3eb460ed838dcd5",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/ccc63d2a75d6308eb92d2613756d7745439e51aca89fed240584a66a3fa6194d",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/da3c64809af8b979b9fb950d06c02b9627dc93e28f273388722e78e0d00203f0",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blobs/sha256/f1fc259214ed0f676eb16582a55711f25ea8b6bd29d60b915298e2ab1b264254",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blog/head.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blog/manifests/fcd2527570c858ebba8cec820b5349152507cce72c344e65a205c5c0fa97f80e.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/blog/manifests/fcd2527570c858ebba8cec820b5349152507cce72c344e65a205c5c0fa97f80e.sig",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/firm/head.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/firm/manifests/8aba1c72410535298e994b432ecb537745b0fe43219dfb997eed1ceee01cd0ed.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/valid/projection/v3/firm/manifests/8aba1c72410535298e994b432ecb537745b0fe43219dfb997eed1ceee01cd0ed.sig",
     ],
 )
 
@@ -79,7 +95,8 @@ filegroup(
 )
 
 # The pre-build step: bazel run //projection:step from the repository root,
-# with PROJECTION_MANIFEST, PROJECTION_SEQ and PROJECTION_BASE set or unset.
+# with PROJECTION_CONTRACT, PROJECTION_MANIFEST, PROJECTION_SEQ and
+# PROJECTION_BASE all set or all unset.
 # It writes src/lib/projection-data, the only projection input of the site
 # build, and the npm build needs no new package for it.
 js_binary(
@@ -100,14 +117,14 @@ js_test(
     data = [
         "testing.mjs",
         ":contract_fixtures",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
         XOXD_PROJECTION + ":test/helpers.ts",
         ":step_srcs",
         XOXD_PROJECTION + ":pkg",
     ],
     entry_point = "step.test.mjs",
     env = {
-        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json)",
+        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json)",
         "XOXD_PROJECTION_HELPERS": "$(rootpath " + XOXD_PROJECTION + ":test/helpers.ts)",
         "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
     },

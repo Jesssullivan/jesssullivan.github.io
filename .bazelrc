@@ -1,5 +1,5 @@
 common --enable_bzlmod
-common --registry=https://raw.githubusercontent.com/xoxd-ai/bazel-registry/4a29c5a2e2a57fea5b818e15dbb6ee015d77f9b4
+common --registry=https://raw.githubusercontent.com/xoxd-ai/bazel-registry/e6bc6a69af88973be3814c2ff38bf3fe1a844131
 common --registry=https://bcr.bazel.build
 # dsa_study_packet@0.1.0 is reached only through the root-only dev dependency
 # spear_resumes (git_override d7e854d). The registry yanked 0.1.0 on

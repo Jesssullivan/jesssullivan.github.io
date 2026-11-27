@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
  * The check the "Hub projection v2" carrier workflow runs on a hub dispatch.
- * It reads PROJECTION_MANIFEST, PROJECTION_SEQ and PROJECTION_BASE from the
- * environment and refuses, before anything is fetched or built:
+ * It reads PROJECTION_CONTRACT, PROJECTION_MANIFEST, PROJECTION_SEQ and
+ * PROJECTION_BASE from the environment and refuses, before anything is
+ * fetched or built:
  * - a run on any ref but main,
+ * - a contract other than xoxd-projection/v3, checked before the other inputs,
  * - an input that breaks its contract format,
  * - a base outside allowedBases in projection/config.json,
  * - a pinned key that is still the placeholder.
@@ -21,7 +23,7 @@ export function checkDispatch({ env, configText, keyText }) {
 		throw new StepError(`a hub dispatch must run on refs/heads/main, not ${env.GITHUB_REF ?? 'an unknown ref'}`);
 	}
 	const inputs = readInputs(env);
-	if (inputs === null) throw new StepError('a hub dispatch needs all three inputs', 2);
+	if (inputs === null) throw new StepError('a hub dispatch needs all four inputs', 2);
 	const config = parseConfig(configText);
 	if (parseKey(keyText).placeholder) {
 		throw new StepError('the pinned hub key is the placeholder, so a hub dispatch is refused');

@@ -4,14 +4,16 @@
  * leaves src/lib/projection-data either holding a verified projection or
  * absent. The site build reads only that directory.
  *
- * It takes the three dispatch inputs as environment values:
- * PROJECTION_MANIFEST, PROJECTION_SEQ and PROJECTION_BASE. All three or none.
+ * It takes the four dispatch inputs as environment values:
+ * PROJECTION_CONTRACT, PROJECTION_MANIFEST, PROJECTION_SEQ and
+ * PROJECTION_BASE. All four or none.
  *
- * With the inputs, it checks their formats and the base allowlist in
- * projection/config.json. It reads the last accepted seq from the receipt the
- * live site serves and refuses a lower seq before it fetches from the hub.
- * Then it fetches and verifies that manifest and its blobs with the
- * xoxd_projection module against the pinned key.
+ * With the inputs, it checks the contract first and refuses any value but
+ * xoxd-projection/v3 before anything else. Then it checks the other formats
+ * and the base allowlist in projection/config.json. It reads the last
+ * accepted seq from the receipt the live site serves and refuses a lower seq
+ * before it fetches from the hub. Then it fetches and verifies that manifest
+ * and its blobs with the xoxd_projection module against the pinned key.
  *
  * With no inputs, the last accepted projection is the one the live site
  * serves. The step reads the receipt at <origin>/.well-known/projection.json.
@@ -20,6 +22,10 @@
  * pinned recovery base and verifies it in full, as an equal-seq rebuild. Any
  * other answer fails the step. So no build drops live notes by accident, and
  * no build takes content that did not verify.
+ *
+ * Each contract counts its own seq. A receipt of another contract, such as
+ * xoxd-projection/v2, is refused wherever it is read: from the live site or
+ * from an output directory an older build left.
  *
  * The placeholder key verifies nothing. With it and no inputs, the step
  * removes any old output and the site builds with no notes. With it and
@@ -33,7 +39,7 @@ import { pathToFileURL } from 'node:url';
 
 export const TARGET = 'blog';
 export const ORIGIN = 'https://transscendsurvival.org';
-export const CONTRACT = 'xoxd-projection/v2';
+export const CONTRACT = 'xoxd-projection/v3';
 
 /** The committed placeholder. It is not base64 of 32 bytes, so no verifier accepts it. */
 export const PLACEHOLDER_KEY = 'PLACEHOLDER-NOT-A-KEY-replace-with-the-hub-ed25519-public-key-before-merge';
@@ -48,6 +54,7 @@ const BASE_PATTERN = /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-
 const RECEIPT_KEYS = ['contract', 'manifest', 'seq', 'target'];
 
 export const INPUT_ENV = Object.freeze({
+	contract: 'PROJECTION_CONTRACT',
 	manifest: 'PROJECTION_MANIFEST',
 	seq: 'PROJECTION_SEQ',
 	base: 'PROJECTION_BASE',
@@ -115,13 +122,19 @@ export function parseKey(text) {
 /** The dispatch inputs from the environment, or null when none is set. */
 export function readInputs(env) {
 	const raw = {
+		contract: env[INPUT_ENV.contract] ?? '',
 		manifest: env[INPUT_ENV.manifest] ?? '',
 		seq: env[INPUT_ENV.seq] ?? '',
 		base: env[INPUT_ENV.base] ?? '',
 	};
 	const given = Object.values(raw).filter((value) => value !== '').length;
 	if (given === 0) return null;
-	if (given !== 3) throw new StepError('set all three dispatch inputs or none', 2);
+	// The contract comes first. A build the hub dispatched under another
+	// contract stops here, before any other input is read or anything is fetched.
+	if (raw.contract !== '' && raw.contract !== CONTRACT) {
+		throw new StepError(`contract must be exactly ${CONTRACT}, so this dispatch is refused`, 2);
+	}
+	if (given !== 4) throw new StepError('set all four dispatch inputs or none', 2);
 	if (!MANIFEST_PATTERN.test(raw.manifest)) throw new StepError('manifest must be 64 lowercase hex characters', 2);
 	if (!SEQ_PATTERN.test(raw.seq) || !Number.isSafeInteger(Number(raw.seq))) {
 		throw new StepError('seq must be a decimal integer of 1 or more with no sign and no leading zero', 2);
@@ -129,10 +142,13 @@ export function readInputs(env) {
 	if (!isProjectionBase(raw.base)) {
 		throw new StepError('projection_base must be an https origin with no path, query, fragment or trailing slash', 2);
 	}
-	return Object.freeze({ manifest: raw.manifest, seq: Number(raw.seq), base: raw.base });
+	return Object.freeze({ contract: raw.contract, manifest: raw.manifest, seq: Number(raw.seq), base: raw.base });
 }
 
-/** Checks a receipt object as the module writes it and the site serves it. */
+/**
+ * Checks a receipt object as the module writes it and the site serves it. A
+ * receipt of another contract is refused, since its seq counts another chain.
+ */
 export function parseReceipt(value, where) {
 	const keys = Object.keys(value ?? {}).sort().join(',');
 	if (
@@ -203,10 +219,26 @@ async function verifyInto(projection, options, log) {
 /**
  * The step itself. projection is the xoxd_projection ./fetch module. fetch is
  * a WHATWG fetch that must not follow redirects. Tests pass the contract
- * fixture key and a fetch that serves the fixture tree.
+ * fixture key and serve the fixture tree from a loopback server, which the
+ * module lets through only with allowLoopbackHttpForTests. main never sets it.
  */
-export async function runProjectionStep({ config, key, inputs, outDir, projection, fetch, log = console.log }) {
+export async function runProjectionStep({
+	config,
+	key,
+	inputs,
+	outDir,
+	projection,
+	fetch,
+	log = console.log,
+	allowLoopbackHttpForTests = false,
+}) {
+	const loopback = allowLoopbackHttpForTests === true ? { allowLoopbackHttpForTests: true } : {};
 	if (inputs !== null) {
+		// readInputs already refused another contract. A caller that builds the
+		// inputs itself is held to the same rule before anything is fetched.
+		if (inputs.contract !== CONTRACT) {
+			throw new StepError(`projection: the dispatched contract is not ${CONTRACT}, so this dispatch is refused`, 2);
+		}
 		if (key.placeholder) {
 			throw new StepError('projection: the pinned hub key is the placeholder, so a dispatched projection is refused');
 		}
@@ -220,6 +252,7 @@ export async function runProjectionStep({ config, key, inputs, outDir, projectio
 		return verifyInto(
 			projection,
 			{
+				contract: inputs.contract,
 				baseUrl: inputs.base,
 				target: TARGET,
 				manifestSha256: inputs.manifest,
@@ -229,6 +262,7 @@ export async function runProjectionStep({ config, key, inputs, outDir, projectio
 				publicKey: key.key,
 				outDir,
 				fetch,
+				...loopback,
 			},
 			log,
 		);
@@ -253,6 +287,8 @@ export async function runProjectionStep({ config, key, inputs, outDir, projectio
 	return verifyInto(
 		projection,
 		{
+			// The live receipt is a receipt of this contract, or parseReceipt refused it.
+			contract: CONTRACT,
 			baseUrl: config.recoveryBase,
 			target: TARGET,
 			manifestSha256: live.manifest,
@@ -262,6 +298,7 @@ export async function runProjectionStep({ config, key, inputs, outDir, projectio
 			publicKey: key.key,
 			outDir,
 			fetch,
+			...loopback,
 		},
 		log,
 	);
@@ -271,7 +308,9 @@ export async function runProjectionStep({ config, key, inputs, outDir, projectio
  * The last accepted build: the receipt the live site serves, or the one a
  * previous run left in the output directory, whichever has the higher seq.
  * A CI checkout starts empty, so the live receipt is the one that counts
- * there. Neither one means a first build.
+ * there. Neither one means a first build, which is how the v3 chain starts.
+ * An output directory that an xoxd-projection/v2 build left holds a v2
+ * receipt. It is refused, and the message says to remove the directory.
  */
 export async function lastAccepted(projection, fetch, origin, outDir) {
 	const live = await fetchLiveReceipt(fetch, origin);
@@ -279,14 +318,19 @@ export async function lastAccepted(projection, fetch, origin, outDir) {
 	try {
 		local = await projection.readLastBuild(join(outDir, projection.OUTPUT.receipt), TARGET, true);
 	} catch (error) {
-		throw new StepError(`projection: the receipt in ${outDir} is unreadable: ${error instanceof Error ? error.message : String(error)}`);
+		throw new StepError(
+			`projection: the receipt in ${outDir} is not a ${CONTRACT} receipt this build can read (${error instanceof Error ? error.message : String(error)}). Remove that directory to start a first build`,
+		);
 	}
 	if (live !== null && live.seq >= local.lastSeq) return { lastSeq: live.seq, lastManifest: live.manifest };
 	return local;
 }
 
-/** Loads the module's ./fetch export from the Bazel-built package directory. */
-export async function loadProjectionModule(env = process.env) {
+/**
+ * Loads one export of the module from the Bazel-built package directory:
+ * ./fetch, the fetcher the step runs, or the root export, which tests read.
+ */
+export async function loadProjectionModule(env = process.env, entry = 'fetch') {
 	const pkg = env.XOXD_PROJECTION_PKG;
 	if (!pkg) throw new StepError('XOXD_PROJECTION_PKG is not set; run the step with bazel run //projection:step', 2);
 	const candidates = isAbsolute(pkg)
@@ -295,7 +339,7 @@ export async function loadProjectionModule(env = process.env) {
 	let lastError;
 	for (const dir of candidates) {
 		try {
-			return await import(pathToFileURL(join(dir, 'dist', 'fetch.js')).href);
+			return await import(pathToFileURL(join(dir, 'dist', `${entry}.js`)).href);
 		} catch (error) {
 			lastError = error;
 		}

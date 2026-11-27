@@ -49,6 +49,7 @@ jobs:
       projection_manifest: ${{ steps.source.outputs.projection_manifest }}
       projection_seq: ${{ steps.source.outputs.projection_seq }}
       projection_base: ${{ steps.source.outputs.projection_base }}
+      projection_contract: ${{ steps.source.outputs.projection_contract }}
     steps:
       - name: Resolve and verify exact source SHA
         id: source
@@ -63,7 +64,7 @@ jobs:
             let sourceSha;
             let ciUrl;
             let deploy;
-            let projection = { manifest: "", seq: "", base: "" };
+            let projection = { manifest: "", seq: "", base: "", contract: "" };
 
             async function requireAuthorityJobs(runId) {
               const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
@@ -114,12 +115,14 @@ jobs:
             // of "Hub projection v2", which checked them already. They are
             // parsed again here against the contract formats and become job
             // outputs, then environment values. They are never shell text.
+            // The last field is the contract. Only xoxd-projection/v3 matches,
+            // so a run dispatched under another contract stops here.
             function projectionFromRunTitle(title) {
-              const match = /^projection blog ([0-9a-f]{64}) ([1-9][0-9]{0,15}) (https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[1-9][0-9]{0,4})?)$/.exec(title ?? "");
+              const match = /^projection blog ([0-9a-f]{64}) ([1-9][0-9]{0,15}) (https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:[1-9][0-9]{0,4})?) (xoxd-projection\/v3)$/.exec(title ?? "");
               if (!match || !Number.isSafeInteger(Number(match[2]))) {
-                throw new Error("The Hub projection v2 run did not carry a well-formed manifest, seq and projection_base.");
+                throw new Error("The Hub projection v2 run did not carry a well-formed manifest, seq, projection_base and contract xoxd-projection/v3.");
               }
-              return { manifest: match[1], seq: match[2], base: match[3] };
+              return { manifest: match[1], seq: match[2], base: match[3], contract: match[8] };
             }
 
             if (context.eventName === "workflow_run" && context.payload.workflow_run?.name === "Hub projection v2") {
@@ -241,6 +244,7 @@ jobs:
             core.setOutput("projection_manifest", projection.manifest);
             core.setOutput("projection_seq", projection.seq);
             core.setOutput("projection_base", projection.base);
+            core.setOutput("projection_contract", projection.contract);
             await core.summary
               .addHeading("Cloudflare Pages production provenance")
               .addRaw(`Commit: \`${sourceSha}\`\n\n`)
@@ -288,6 +292,7 @@ jobs:
       # no notes when the site serves none. It fails closed on any finding.
       - name: Verify the hub projection for target blog
         env:
+          PROJECTION_CONTRACT: ${{ needs.resolve.outputs.projection_contract }}
           PROJECTION_MANIFEST: ${{ needs.resolve.outputs.projection_manifest }}
           PROJECTION_SEQ: ${{ needs.resolve.outputs.projection_seq }}
           PROJECTION_BASE: ${{ needs.resolve.outputs.projection_base }}

@@ -143,7 +143,10 @@ requireAll(
 		'run.path !== ".github/workflows/hub-projection-v2.yml"',
 		'projection = projectionFromRunTitle(run.display_title);',
 		'CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true for a hub projection publish.',
+		'PROJECTION_CONTRACT: ${{ needs.resolve.outputs.projection_contract }}',
 		'PROJECTION_MANIFEST: ${{ needs.resolve.outputs.projection_manifest }}',
+		'(xoxd-projection\\/v3)$/.exec(title ?? "")',
+		'core.setOutput("projection_contract", projection.contract);',
 		'run: bazelisk run --ignore_dev_dependency --lockfile_mode=error //projection:step',
 		'ref: ${{ needs.resolve.outputs.source_sha }}',
 		'PUBLIC_DEPLOY_TIER: production',
@@ -190,15 +193,23 @@ requireAll(
 	hubProjection,
 	[
 		'name: Hub projection v2',
-		'run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }}',
+		'run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }} ${{ inputs.contract }}',
 		'permissions: {}',
 		'      contents: read',
 		'persist-credentials: false',
+		'PROJECTION_CONTRACT: ${{ inputs.contract }}',
 		'PROJECTION_MANIFEST: ${{ inputs.manifest }}',
 		'run: node projection/check-dispatch.mjs',
 	],
 	'hub projection carrier',
 );
+// The contract gives a v3 site exactly four inputs, each required and a string.
+const carrierInputs = [...hubProjection.matchAll(/^      ([a-z_]+):\n        description: [^\n]+\n        required: true\n        type: string$/gm)].map(
+	(match) => match[1],
+);
+if (carrierInputs.join(',') !== 'manifest,seq,projection_base,contract') {
+	throw new Error(`hub projection carrier must declare exactly manifest, seq, projection_base and contract; found ${carrierInputs.join(',')}`);
+}
 forbid(hubProjection, /secrets\.|github\.token|GITHUB_TOKEN|write/, 'the hub projection carrier must hold no credential or write permission');
 requireAbsent('.github/workflows/cloudflare-pages-production.yml');
 

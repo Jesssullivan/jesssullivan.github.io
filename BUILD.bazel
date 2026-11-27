@@ -320,7 +320,7 @@ js_test(
 )
 
 # The notes e2e (TIN-8654): the same site build as playwright_chromium_e2e,
-# after the projection step verified the xoxd-projection/v2 valid blog
+# after the projection step verified the xoxd-projection/v3 valid blog
 # fixture with the contract's fixture key. It runs e2e/notes-present.spec.ts
 # only. The pinned key is never used here.
 js_test(
@@ -333,7 +333,7 @@ js_test(
         "scripts/run-playwright-e2e-bazel.mjs",
         "scripts/serve-static-build.mjs",
         "//projection:contract_fixtures",
-        XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
         "//projection:seed_fixture_srcs",
         "@tummycrypt_tinyvectors//:pkg",
         XOXD_PROJECTION + ":pkg",
@@ -342,7 +342,7 @@ js_test(
     env = {
         "E2E_NOTES_FIXTURE": "1",
         "TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)",
-        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v2/fixtures/cases.json)",
+        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json)",
         "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
     },
     patch_node_fs = False,

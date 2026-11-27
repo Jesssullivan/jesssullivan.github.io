@@ -1,13 +1,19 @@
 name: Hub projection v2
 
-# The hub starts a blog build through workflow_dispatch with the three inputs
-# of the xoxd-projection/v2 contract (Dispatch section). This carrier holds no
-# credential and publishes nothing. It checks the inputs against their
+# The hub starts a blog build through workflow_dispatch with the four inputs
+# of the xoxd-projection/v3 contract (Dispatch section). This carrier holds no
+# credential and publishes nothing. It refuses a contract other than
+# xoxd-projection/v3 first, then checks the other inputs against their
 # formats, the base allowlist and the pinned key in projection/, then ends.
 # On success on main, "Publish Cloudflare Pages production v2" runs from the
 # default branch through workflow_run, reads the inputs from this run's name,
 # checks them again and verifies the manifest before it builds (TIN-8654).
-run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }}
+#
+# The "v2" in this file's name and in the workflow name is the generation of
+# this repository's workflow set, as in every other workflow file here. It is
+# not the contract version. The hub's dispatch settings name this file, so the
+# name stays.
+run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }} ${{ inputs.contract }}
 
 on:
   workflow_dispatch:
@@ -22,6 +28,10 @@ on:
         type: string
       projection_base:
         description: https origin of the hub, with no path
+        required: true
+        type: string
+      contract:
+        description: the contract the hub built the manifest under, exactly xoxd-projection/v3
         required: true
         type: string
 
@@ -49,6 +59,7 @@ jobs:
 
       - name: Check the inputs against the contract and projection/config.json
         env:
+          PROJECTION_CONTRACT: ${{ inputs.contract }}
           PROJECTION_MANIFEST: ${{ inputs.manifest }}
           PROJECTION_SEQ: ${{ inputs.seq }}
           PROJECTION_BASE: ${{ inputs.projection_base }}

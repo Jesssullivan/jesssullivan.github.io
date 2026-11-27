@@ -112,6 +112,7 @@ assert.deepEqual(
 		projection_manifest: '',
 		projection_seq: '',
 		projection_base: '',
+		projection_contract: '',
 	},
 	'successful canonical CI run records provenance but never automatically deploys',
 );
@@ -200,8 +201,9 @@ await rejects(
 	{ eventName: 'repository_dispatch', cvRuns: [canonicalRun({ head_sha: otherSha })] },
 	/No successful private CV authority run completed for exact SHA/,
 );
-// The hub's dispatch carrier (TIN-8654). Its run name carries the three
-// xoxd-projection/v2 dispatch inputs, already checked by the carrier.
+// The hub's dispatch carrier (TIN-8654). Its run name carries the four
+// xoxd-projection/v3 dispatch inputs, already checked by the carrier. The
+// contract is the last field, and only xoxd-projection/v3 is read.
 const manifest = 'f'.repeat(64);
 function hubRun(overrides = {}) {
 	return {
@@ -214,7 +216,7 @@ function hubRun(overrides = {}) {
 		head_repository: { full_name: repository },
 		head_sha: sourceSha,
 		html_url: 'https://github.example/hub/303',
-		display_title: `projection blog ${manifest} 7 https://hub.example`,
+		display_title: `projection blog ${manifest} 7 https://hub.example xoxd-projection/v3`,
 		...overrides,
 	};
 }
@@ -227,6 +229,7 @@ assert.deepEqual(
 		projection_manifest: manifest,
 		projection_seq: '7',
 		projection_base: 'https://hub.example',
+		projection_contract: 'xoxd-projection/v3',
 	},
 	'a hub dispatch on current main with canonical CI, private CV and the gate publishes its projection',
 );
@@ -264,23 +267,30 @@ await rejects(
 	/No successful private CV authority run completed for exact SHA/,
 );
 for (const title of [
-	`projection blog ${manifest.toUpperCase()} 7 https://hub.example`,
-	`projection blog ${manifest} 07 https://hub.example`,
-	`projection blog ${manifest} 0 https://hub.example`,
-	`projection blog ${manifest} 7 http://hub.example`,
-	`projection blog ${manifest} 7 https://hub.example/`,
-	`projection blog ${manifest} 7 https://hub.example/x`,
-	`projection blog ${manifest} 7 https://u@hub.example`,
-	`projection blog ${manifest} 7 https://hub.example $(id)`,
-	`projection firm ${manifest} 7 https://hub.example`,
-	`projection blog ${manifest} 99999999999999999 https://hub.example`,
-	`projection blog ${manifest} 7`,
+	`projection blog ${manifest.toUpperCase()} 7 https://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 07 https://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 0 https://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 7 http://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 7 https://hub.example/ xoxd-projection/v3`,
+	`projection blog ${manifest} 7 https://hub.example/x xoxd-projection/v3`,
+	`projection blog ${manifest} 7 https://u@hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 7 https://hub.example $(id) xoxd-projection/v3`,
+	`projection firm ${manifest} 7 https://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 99999999999999999 https://hub.example xoxd-projection/v3`,
+	`projection blog ${manifest} 7 xoxd-projection/v3`,
+	// A run with no contract, as the v2 carrier named it, or under any other contract.
+	`projection blog ${manifest} 7 https://hub.example`,
+	`projection blog ${manifest} 7 https://hub.example xoxd-projection/v2`,
+	`projection blog ${manifest} 7 https://hub.example xoxd-projection/v4`,
+	`projection blog ${manifest} 7 https://hub.example xoxd-projection/v3 `,
+	`projection blog ${manifest} 7 https://hub.example xoxd-projection/v3 xoxd-projection/v2`,
+	`projection blog ${manifest} 7 https://hub.example v3`,
 	'',
 ]) {
 	await rejects(
 		`a hub dispatch refuses the run title ${JSON.stringify(title)}`,
 		{ eventName: 'workflow_run', run: hubRun({ display_title: title }), productionEnabled: 'true' },
-		/did not carry a well-formed manifest, seq and projection_base/,
+		/did not carry a well-formed manifest, seq, projection_base and contract xoxd-projection\/v3/,
 	);
 }
 
