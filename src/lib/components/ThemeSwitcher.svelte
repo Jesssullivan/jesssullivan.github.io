@@ -26,6 +26,10 @@
 	let showNudgeContent = $state(false);
 	let pendingNudgeClose = $state(false);
 	let prefersReducedMotion = $state(false);
+	// The nudge opens on its own and leaves focus where the reader has it, so closing it must not move focus
+	// either (TIN-8867). Without this, an Escape meant for the page also closes the nudge, and the popover
+	// sends focus to the Theme settings button. A popover the reader opened returns focus to its button.
+	let openedByNudge = $state(false);
 	let userInteracted = false;
 	const nudgeActive = $derived(isOpen && showNudgeContent);
 	const nudgeTransition = $derived(
@@ -70,6 +74,7 @@
 	function revealNudge() {
 		if (!nudge || userInteracted || !shouldAutoShowNudge()) return;
 		showNudgeContent = true;
+		openedByNudge = true;
 		window.requestAnimationFrame(() => {
 			isOpen = true;
 		});
@@ -77,6 +82,7 @@
 
 	function handleTriggerClick() {
 		userInteracted = true;
+		openedByNudge = false;
 		markNudgeShown();
 	}
 
@@ -148,6 +154,7 @@
 	closeOnInteractOutside
 	closeOnEscape
 	autoFocus={false}
+	restoreFocus={!openedByNudge}
 >
 	<Popover.Trigger
 		class="p-1.5 hover:bg-surface-200-800 transition-colors {nudgeActive
