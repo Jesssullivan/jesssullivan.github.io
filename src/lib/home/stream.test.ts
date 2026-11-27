@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+	ASIDE_SET,
 	FILM_SET,
 	FOLD_BEFORE,
 	SET_SIZE,
@@ -333,21 +334,43 @@ describe('the videos a post shows', () => {
 
 	it('reads a video the post gives a line of its own, in the order of the text, with the words the post gives it', () => {
 		expect(filmsIn(list)).toEqual([
-			{ id: 'aaaaaaaaaaa', title: 'handling clients, 2/17/21' },
-			{ id: 'bbbbbbbbbbb', title: 'Jest x Puppeteer' },
-			{ id: 'ccccccccccc', title: 'web tools 12/1/20' },
+			{ id: 'aaaaaaaaaaa', title: 'handling clients, 2/17/21', own: true },
+			{ id: 'bbbbbbbbbbb', title: 'Jest x Puppeteer', own: true },
+			{ id: 'ccccccccccc', title: 'web tools 12/1/20', own: true },
 		]);
 		expect(filmsIn('[A film](https://youtu.be/ddddddddddd)\n\n<iframe src="https://www.youtube-nocookie.com/embed/eeeeeeeeeee?rel=0" title="Framed"></iframe>\n\n[A film](https://youtu.be/ddddddddddd)')).toEqual([
-			{ id: 'ddddddddddd', title: 'A film' },
-			{ id: 'eeeeeeeeeee', title: 'Framed' },
+			{ id: 'ddddddddddd', title: 'A film', own: true },
+			{ id: 'eeeeeeeeeee', title: 'Framed', own: true },
 		]);
 	});
 
-	it('does not read a video the post only points at from inside a sentence, a playlist, or a line of code', () => {
-		expect(filmsIn('To [some french dudes doing unicycle ballet](https://youtu.be/fffffffffff) and on.')).toEqual([]);
-		expect(filmsIn('- [Firestarter mixtape](https://youtu.be/ggggggggggg?si=x) — a classic!')).toEqual([]);
+	it('tells a video the post only points at from inside a sentence, and reads no playlist, picture or line of code', () => {
+		expect(filmsIn('To [some french dudes doing unicycle ballet](https://youtu.be/fffffffffff) and on.')).toEqual([{ id: 'fffffffffff', title: 'some french dudes doing unicycle ballet', own: false }]);
+		expect(filmsIn('- [Firestarter mixtape](https://youtu.be/ggggggggggg?si=x) — a classic!')).toEqual([{ id: 'ggggggggggg', title: 'Firestarter mixtape', own: false }]);
+		// Named in a sentence and then on a line of its own, it is the post's own, at its first place.
+		expect(filmsIn('See [this](https://youtu.be/iiiiiiiiiii) now.\n\n[The film](https://youtu.be/iiiiiiiiiii)')).toEqual([{ id: 'iiiiiiiiiii', title: 'this', own: true }]);
 		expect(filmsIn('[in this playlist](https://www.youtube.com/playlist?list=PL6y8N_vP4OopcvDfwcEyvx1Nz4MVSZK7R)')).toEqual([]);
+		expect(filmsIn('![a picture](https://youtu.be/jjjjjjjjjjj)')).toEqual([]);
 		expect(filmsIn('```\n[x](https://youtu.be/hhhhhhhhhhh)\n```')).toEqual([]);
+	});
+
+	it('marks a video the post only points at, puts it after the post\'s own, and does not call the post a video for it', () => {
+		const body = 'This [YoungArts Week performance](https://youtu.be/mmmmmmmmmmm) is good. ![](/images/posts/a.jpg)\n\n[My own film](https://youtu.be/nnnnnnnnnnn)';
+		const { items } = buildStream({ ...sources(), posts: [post('notes', '2026-03-21', { body }), post('aside', '2026-03-20', { body: 'A [mixtape](https://youtu.be/ooooooooooo) to end on.' })] });
+		const notes = items.find((item) => item.id === 'post:notes')!;
+		expect(notes.media.map((media) => [media.type, media.src, media.type === 'youtube' ? (media.aside ?? false) : null])).toEqual([
+			['image', '/images/posts/a.jpg', null],
+			['youtube', 'nnnnnnnnnnn', false],
+			['youtube', 'mmmmmmmmmmm', true],
+		]);
+		expect(kindsOf(notes)).toEqual(['article', 'video']);
+		// A post that only points at a video is writing, and is not under Video.
+		const aside = items.find((item) => item.id === 'post:aside')!;
+		expect(aside.media).toEqual([{ type: 'youtube', src: 'ooooooooooo', title: 'mixtape', poster: expect.objectContaining({ src: '/images/video/ooooooooooo.jpg' }), aside: true }]);
+		expect(kindsOf(aside)).toEqual(['article']);
+		expect(filterItems(items, 'video').map((item) => item.id)).not.toContain('post:aside');
+		const many = ['p1111111111', 'p2222222222', 'p3333333333', 'p4444444444'].map((id) => `See [one](https://youtu.be/${id}) here.`).join('\n\n');
+		expect(buildStream({ ...sources(), posts: [post('many', '2025-01-01', { body: many })] }).items.find((item) => item.id === 'post:many')!.media).toHaveLength(ASIDE_SET);
 	});
 
 	it('shows a video only by a poster the repository holds, and counts the ones with none', () => {

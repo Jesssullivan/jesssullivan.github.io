@@ -43,6 +43,8 @@ export interface StreamFilm extends OwnWords {
 	type: 'youtube';
 	src: string;
 	poster?: StreamImage;
+	/** True when the post only points at the video from inside a sentence. It then stands small, after everything of the post's own. */
+	aside?: boolean;
 }
 export type StreamMedia = StreamImage | StreamSound | StreamFilm;
 
@@ -162,8 +164,9 @@ export interface StreamSources {
 
 /** How many photographs of a set travel in the data file. The rest are counted in `more`. */
 export const SET_SIZE = 5;
-/** How many videos of a post travel in the data file. */
+/** How many videos of a post travel in the data file, and how many of the ones it only points at. */
 export const FILM_SET = 6;
+export const ASIDE_SET = 3;
 
 /**
  * The count a set of photographs shows under it: every photograph of the post, and only when the
@@ -211,26 +214,37 @@ export function picturesIn(body: string): { src: string; alt: string }[] {
 
 const CODE_BLOCK = /^[ \t]*(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:\n[ \t]*\1[^\n]*(?=\n|(?![\s\S]))|(?![\s\S]))/gm;
 const FILM_ADDRESS = '(?:https?:)?\\/\\/(?:www\\.|m\\.)?(?:youtube(?:-nocookie)?\\.com\\/(?:watch\\?(?:[^)\\s#"\']*&)?v=|embed\\/|shorts\\/)|youtu\\.be\\/)([A-Za-z0-9_-]{11})';
+const FILM_WORDS = `(?<!!)\\[((?:[^\\]\\\\]|\\\\.)+)\\]\\(\\s*<?${FILM_ADDRESS}[^)\\s]*>?\\s*\\)`;
+/** A link to a video, wherever it stands. */
+const FILM_LINK = new RegExp(FILM_WORDS, 'g');
 /** A line that is one link to a video and nothing more, as a paragraph or as an item of a list. */
-const FILM_LINE = new RegExp(`^[ \\t]*(?:(?:[-*+]|\\d+[.)])[ \\t]+)?\\[((?:[^\\]\\\\]|\\\\.)+)\\]\\(\\s*<?${FILM_ADDRESS}[^)\\s]*>?\\s*\\)[ \\t]*$`, 'gm');
+const FILM_LINE = new RegExp(`^[ \\t]*(?:(?:[-*+]|\\d+[.)])[ \\t]+)?${FILM_WORDS}[ \\t]*$`);
 /** A frame that plays one. */
 const FILM_FRAME = new RegExp(`<iframe\\b[^>]*\\bsrc\\s*=\\s*["']${FILM_ADDRESS}[^"']*["'][^>]*>`, 'gi');
 
 /**
- * The videos a post shows (RM95): a YouTube video that the post gives a line of its own, as a link that is the whole
- * of a paragraph or of a list item, or as a frame. Each once, in the order of the text, with the words the post gives it.
- * A video the post only points at from inside a sentence is someone's the post talks about, and is not shown as the post's own.
+ * The YouTube videos a post's text names (RM95, RM99), each once, in the order of the text, with the words the post gives it.
+ * `own` is true for a video the post gives a line of its own: a link that is the whole of a paragraph or of a list item, or a frame.
+ * It is false for one the post only points at from inside a sentence, which is most often someone else's that the post talks about.
  */
-export function filmsIn(body: string): { id: string; title: string }[] {
+export function filmsIn(body: string): { id: string; title: string; own: boolean }[] {
 	const text = body.replace(CODE_BLOCK, '\n');
-	const found: { id: string; title: string; at: number }[] = [];
-	for (const match of text.matchAll(FILM_LINE)) found.push({ id: match[2], title: plainText(match[1]), at: match.index });
-	for (const match of text.matchAll(FILM_FRAME)) found.push({ id: match[1], title: (/\btitle\s*=\s*["']([^"']*)["']/i.exec(match[0])?.[1] ?? '').trim(), at: match.index });
+	const found: { id: string; title: string; own: boolean; at: number }[] = [];
+	let at = 0;
+	for (const line of text.split('\n')) {
+		const whole = FILM_LINE.exec(line);
+		if (whole) found.push({ id: whole[2], title: plainText(whole[1]), own: true, at });
+		else for (const match of line.matchAll(FILM_LINK)) found.push({ id: match[2], title: plainText(match[1]), own: false, at: at + match.index });
+		at += line.length + 1;
+	}
+	for (const match of text.matchAll(FILM_FRAME)) found.push({ id: match[1], title: (/\btitle\s*=\s*["']([^"']*)["']/i.exec(match[0])?.[1] ?? '').trim(), own: true, at: match.index });
+	// A video named twice is the post's own when one of the two is a line of its own.
+	const own = new Set(found.filter((film) => film.own).map((film) => film.id));
 	const seen = new Set<string>();
 	return found
 		.sort((a, b) => a.at - b.at)
 		.filter((film) => !seen.has(film.id) && seen.add(film.id))
-		.map(({ id, title }) => ({ id, title }));
+		.map(({ id, title }) => ({ id, title, own: own.has(id) }));
 }
 
 const extension = (path: string) => (/\.([a-z0-9]+)(?:[?#].*)?$/i.exec(path)?.[1] ?? '').toLowerCase();
@@ -263,9 +277,9 @@ function picture(src: string, alt: string, image: ImageFacts, fallback?: { width
 /** True when an item has something to see: a picture or a video. A recording alone is heard, so it has not. */
 export const shows = (item: Pick<StreamItem, 'media'>): boolean => item.media.some((media) => media.type !== 'soundcloud');
 
-/** Every kind an item holds: its own, the kinds folded into it, and video when it shows one of its own. */
+/** Every kind an item holds: its own, the kinds folded into it, and video when it shows one of its own. A video it only points at does not make it one. */
 export const kindsOf = (item: Pick<StreamItem, 'kind' | 'holds'> & Partial<Pick<StreamItem, 'media'>>): StreamKind[] => [
-	...new Set<StreamKind>([item.kind, ...(item.holds ?? []).map((part) => part.kind), ...((item.media ?? []).some((media) => media.type === 'youtube') ? (['video'] as const) : [])]),
+	...new Set<StreamKind>([item.kind, ...(item.holds ?? []).map((part) => part.kind), ...((item.media ?? []).some((media) => media.type === 'youtube' && !media.aside) ? (['video'] as const) : [])]),
 ];
 
 /**
@@ -457,9 +471,11 @@ export function buildStream(sources: StreamSources): StreamFile {
 			if (listed.has(shown.id)) continue;
 			const posterSrc = sources.poster?.(shown.id) ?? null;
 			const poster = posterSrc ? picture(posterSrc, '', sources.image) : null;
-			if (poster) films.push({ type: 'youtube', src: shown.id, ...(shown.title ? { title: shown.title } : {}), poster });
+			if (poster) films.push({ type: 'youtube', src: shown.id, ...(shown.title ? { title: shown.title } : {}), poster, ...(shown.own ? {} : { aside: true }) });
 			else leftOut.videosWithoutPoster += 1;
 		}
+		const own = films.filter((film) => !film.aside).slice(0, FILM_SET);
+		const asides = films.filter((film) => film.aside).slice(0, ASIDE_SET);
 		placed.push({
 			anchor: post.slug,
 			item: {
@@ -469,7 +485,7 @@ export function buildStream(sources: StreamSources): StreamFile {
 				title: post.title,
 				summary: excerptOf(post),
 				url: `/blog/${post.slug}`,
-				media: [...media.slice(0, SET_SIZE), ...films.slice(0, FILM_SET)],
+				media: [...media.slice(0, SET_SIZE), ...own, ...asides],
 				tags: post.tags,
 				source: 'posts',
 				minutes: post.minutes,

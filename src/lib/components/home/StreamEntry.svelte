@@ -15,6 +15,9 @@
 	const images = $derived(item.media.filter((media): media is StreamImage => media.type === 'image'));
 	const sounds = $derived(item.media.filter((media): media is StreamSound => media.type === 'soundcloud'));
 	const films = $derived(item.media.filter((media): media is StreamFilm => media.type === 'youtube'));
+	// A video of the post's own stands in rows of posters. One the post only points at stands small, after everything else (RM99).
+	const mains = $derived(films.filter((film) => !film.aside));
+	const asides = $derived(films.filter((film) => film.aside));
 	// The count shows only when the post holds more photographs than are on screen here.
 	const total = $derived(setTotal(item));
 	const pic = $derived(shows(item));
@@ -34,19 +37,23 @@
 		if (form === 'small' && row) return `--natural:${Math.round(row.sum * row.cap)}px;--ar:${row.sum.toFixed(4)}`;
 		if (lead) return `--natural:${lead.width}px;--ar:${(lead.width / lead.height).toFixed(4)}`;
 		if (!films.length) return undefined;
+		// Small posters alone: a row of them, each no wider than a small poster is.
+		if (!mains.length) return `--natural:${asides.reduce((sum, film) => sum + Math.min(ASIDE_WIDTH, film.poster?.width ?? ASIDE_WIDTH), 0)}px;--ar:${((asides.length * 16) / 9).toFixed(4)}`;
 		// Posters stand in rows that share one width. The whole is as wide as its narrowest poster allows, and as tall as its rows together.
 		let at = 0;
 		let natural = Infinity;
 		let tall = 0;
-		for (const size of filmRows(films.length, FILMS_ACROSS)) {
-			natural = Math.min(natural, size * Math.min(...films.slice(at, at + size).map((film) => film.poster?.width ?? 1280)));
+		for (const size of filmRows(mains.length, FILMS_ACROSS)) {
+			natural = Math.min(natural, size * Math.min(...mains.slice(at, at + size).map((film) => film.poster?.width ?? 1280)));
 			tall += 9 / 16 / size;
 			at += size;
 		}
 		return `--natural:${natural}px;--ar:${(1 / tall).toFixed(4)}`;
 	});
-	const wide = $derived(filmShares(films.length, FILMS_ACROSS));
-	const narrow = $derived(filmShares(films.length, 2));
+	/** How wide a poster stands when the post only points at its video: 18 rems, in pixels of a file. */
+	const ASIDE_WIDTH = 288;
+	const wide = $derived(filmShares(mains.length, FILMS_ACROSS));
+	const narrow = $derived(filmShares(mains.length, 2));
 	const filmSizes = (film: StreamFilm, n: number) => {
 		const own = `${film.poster?.width ?? 1280}px`;
 		return `(min-width: 1100px) min(calc((${LINE_ONE} - ${SAY}) * ${wide[n].toFixed(3)}), ${own}), (min-width: 721px) min(${Math.ceil(100 * wide[n])}vw, ${own}), min(${Math.ceil(100 * narrow[n])}vw, ${own})`;
@@ -76,6 +83,23 @@
 
 {#snippet sign()}
 	<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" /></svg>
+{/snippet}
+
+{#snippet frame(film: StreamFilm, n: number, style: string, sizes: string)}
+	<div class="frame" {style}>
+		{#if playing.includes(film.src)}
+			<iframe title={film.title ?? item.title} src={filmSrc(film)} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		{:else}
+			<!-- The poster is the play control. Its sign and its day lie straight on it, on a feather of the page's ground. -->
+			<button type="button" class="poster" aria-label={`Play ${film.title ?? item.title}${nth(n, films.length)}`} onclick={() => play(film.src)} data-testid="video-play">
+				{#if film.poster}<Picture image={film.poster} alt="" {sizes} />{/if}
+				<span class="on">
+					<span class="play" data-tip={film.title ?? 'Play'}>{@render sign()}</span>
+					{#if film.date && item.kind !== 'video'}<time class="when" datetime={film.date}>{dayOf(film.date)}</time>{/if}
+				</span>
+			</button>
+		{/if}
+	</div>
 {/snippet}
 
 {#if item.kind === 'announcement'}
@@ -138,23 +162,17 @@
 					</div>
 				{/if}
 				{#if total}<p class="count" data-testid="set-total">{total} photographs</p>{/if}
-				{#if films.length}
+				{#if mains.length}
 					<div class="films">
-						{#each films as film, n (film.src)}
-							<div class="frame" style={`--wide:${Math.round(6 * wide[n])};--narrow:${Math.round(6 * narrow[n])}`}>
-								{#if playing.includes(film.src)}
-									<iframe title={film.title ?? item.title} src={filmSrc(film)} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-								{:else}
-									<!-- The poster is the play control. Its sign and its day lie straight on it, on a feather of the page's ground. -->
-									<button type="button" class="poster" aria-label={`Play ${film.title ?? item.title}${nth(n, films.length)}`} onclick={() => play(film.src)} data-testid="video-play">
-										{#if film.poster}<Picture image={film.poster} alt="" sizes={filmSizes(film, n)} />{/if}
-										<span class="on">
-											<span class="play" data-tip={film.title ?? 'Play'}>{@render sign()}</span>
-											{#if film.date && item.kind !== 'video'}<time class="when" datetime={film.date}>{dayOf(film.date)}</time>{/if}
-										</span>
-									</button>
-								{/if}
-							</div>
+						{#each mains as film, n (film.src)}
+							{@render frame(film, n, `--wide:${Math.round(6 * wide[n])};--narrow:${Math.round(6 * narrow[n])}`, filmSizes(film, n))}
+						{/each}
+					</div>
+				{/if}
+				{#if asides.length}
+					<div class="films asides">
+						{#each asides as film, n (film.src)}
+							{@render frame(film, mains.length + n, `--own:${film.poster?.width ?? ASIDE_WIDTH}px`, `${Math.min(ASIDE_WIDTH, film.poster?.width ?? ASIDE_WIDTH)}px`)}
 						{/each}
 					</div>
 				{/if}
@@ -399,6 +417,20 @@
 	:is(.lead, .rest, .count) ~ .films {
 		margin-top: clamp(0.3rem, 0.6vw, 0.5rem);
 	}
+	/*
+	 * A video the post only points at from inside a sentence (RM99): a small poster, after everything of the post's own,
+	 * never wider than 18 rems or than its file. It plays in its own small frame on a press, as every poster does.
+	 */
+	.films.asides {
+		display: flex;
+		flex-wrap: wrap;
+	}
+	.films.asides .frame {
+		flex: 0 1 min(18rem, var(--own, 18rem));
+	}
+	:is(.lead, .rest, .count, .films) ~ .films.asides {
+		margin-top: 0.9rem;
+	}
 	.poster {
 		position: absolute;
 		inset: 0;
@@ -453,24 +485,20 @@
 	.on:not(:has(.when)) {
 		padding: 3rem 4rem 0.2rem 0.7rem;
 	}
-	/* A small poster, as in a row of two or three: a smaller sign on less ground, so the poster still shows. */
-	@container (max-width: 24rem) {
-		.on,
+	/* A smaller poster, as in a row of two or three: a smaller sign on less ground, so the poster still shows. */
+	@container (max-width: 30rem) {
 		.on:not(:has(.when)) {
 			--hold: 58%;
 			padding: 1.9rem 2.6rem 0 0.35rem;
 		}
-		.on .play {
+		.on:not(:has(.when)) .play {
 			width: 2.4rem;
 			height: 2.4rem;
 		}
-		.on .play svg {
+		.on:not(:has(.when)) .play svg {
 			width: 2rem;
 			height: 2rem;
 			margin-left: -0.6rem;
-		}
-		.on .when {
-			display: none;
 		}
 	}
 	.on .when {
@@ -572,8 +600,13 @@
 		.plate :is(.lead, h2) {
 			grid-area: 1 / 1;
 		}
-		.plate :is(.rest, .count, .summary, .heard, .player) {
+		.plate :is(.rest, .count, .summary, .heard, .player, .films) {
 			grid-column: 1;
+		}
+		/* Under a plate a poster comes last, after her excerpt. */
+		.plate .films {
+			order: 3;
+			margin-top: 1.1rem;
 		}
 		.plate .count {
 			order: 1;
@@ -631,8 +664,7 @@
 		.on:not(:has(.when)) {
 			padding: 4.5rem 6.5rem 0.55rem 1.1rem;
 		}
-		@container (max-width: 24rem) {
-			.on,
+		@container (max-width: 30rem) {
 			.on:not(:has(.when)) {
 				--hold: 58%;
 				padding: 1.9rem 2.6rem 0 0.35rem;

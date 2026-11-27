@@ -916,10 +916,12 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		// Each is named by the words the post gives it.
 		await expect(item.getByRole('button', { name: 'Play handling multiple annotator clients- Vue UI, 2/17/21' })).toHaveCount(1);
 		await item.scrollIntoViewIfNeeded();
+		// Each poster's place within its item: an item still arriving moves as a whole, and its parts keep their places in it.
 		const boxes = () => item.locator('.frame').evaluateAll(nodes => nodes.map(node => {
 			const box = node.getBoundingClientRect();
+			const own = node.closest('[data-testid=stream-item]')!.getBoundingClientRect();
 			const img = node.querySelector('img');
-			return { top: Math.round(box.top + window.scrollY), left: Math.round(box.left), width: Math.round(box.width), file: Number(img?.getAttribute('width') ?? 0), small: [...node.querySelectorAll('source')].some(source => /-640\.[\w-]+\.webp 640w/.test(source.srcset)) };
+			return { top: Math.round(box.top - own.top), left: Math.round(box.left - own.left), width: Math.round(box.width), file: Number(img?.getAttribute('width') ?? 0), small: [...node.querySelectorAll('source')].some(source => /-640\.[\w-]+\.webp 640w/.test(source.srcset)) };
 		}));
 		const wide = await boxes();
 		// Two and three: the first two share a row and are the larger, the last three share the next.
@@ -952,6 +954,32 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		await noSidewaysScroll(page);
 	});
 
+	test('a video a post only points at stands small, after the post\'s own pictures, and does not make the post a video', async ({ page }) => {
+		await page.setViewportSize({ width: 1440, height: 900 });
+		await page.goto('/?flags=home');
+		await expect(items(page).first()).toBeVisible();
+		await showAll(page, false);
+		const item = items(page).filter({ has: page.locator('h2', { hasText: 'Week Notes: Cyborgs, Servers, and Sending' }) });
+		await expect(item).toHaveCount(1);
+		await expect(item).not.toHaveAttribute('data-kinds', /video/);
+		const aside = item.locator('.films.asides .frame');
+		await expect(aside).toHaveCount(1);
+		// It is named by the words the post links.
+		const play = item.getByRole('button', { name: 'Play Firestarter mixtape' });
+		await expect(play).toHaveCount(1);
+		await item.scrollIntoViewIfNeeded();
+		const box = (await aside.boundingBox())!;
+		expect(box.width).toBeLessThanOrEqual(289);
+		expect(box.width).toBeGreaterThan(150);
+		const pictures = await item.locator('.lead, .rest').evaluateAll(nodes => Math.max(...nodes.map(node => node.getBoundingClientRect().bottom + window.scrollY)));
+		expect(box.y + (await page.evaluate(() => window.scrollY))).toBeGreaterThanOrEqual(pictures);
+		await expect(page.locator('iframe')).toHaveCount(0);
+		await play.click();
+		await expect(aside.locator('iframe')).toHaveAttribute('src', 'https://www.youtube-nocookie.com/embed/Igg__Pmj-nk?autoplay=1');
+		expect(Math.round((await aside.boundingBox())!.width)).toBe(Math.round(box.width));
+		expect(outside.every(url => url.startsWith('https://www.youtube-nocookie.com/'))).toBe(true);
+	});
+
 	test('the printer photograph shows with Purple Prius Parts and with no other post', async ({ page }) => {
 		await page.goto('/?flags=home&show=writing');
 		await expect(items(page).first()).toBeVisible();
@@ -977,7 +1005,12 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		const movingFiles = () => paths.filter(path => /-moving\.webp$/.test(path));
 		expect(movingFiles()).toEqual([]);
 		expect(paths.filter(path => path.endsWith('.gif'))).toEqual([]);
-		const place = () => moving.evaluate(node => { const box = node.getBoundingClientRect(); return [Math.round(box.left), Math.round(box.top + window.scrollY), Math.round(box.width), Math.round(box.height)]; });
+		// Its place within its item: an item still arriving moves as a whole.
+		const place = () => moving.evaluate(node => {
+			const box = node.getBoundingClientRect();
+			const own = node.closest('[data-testid=stream-item]')!.getBoundingClientRect();
+			return [Math.round(box.left - own.left), Math.round(box.top - own.top), Math.round(box.width), Math.round(box.height)];
+		});
 		const centre = () => moving.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
 		const before = await place();
 		// On the screen it plays by itself, in the same box, and its control pauses it.

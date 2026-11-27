@@ -57,13 +57,16 @@ describe('committed home stream (src/lib/data/home-stream.v1.json)', () => {
 		);
 	});
 
-	it('shows a video only where a post gives it a line of its own, and only by a poster the repository holds', () => {
+	it('shows a video a post names only by a poster the repository holds, and marks one the post only points at', () => {
 		const posts = new Map(readPosts().map((post) => [`post:${post.slug}`, post]));
 		for (const item of committed.items.filter((entry) => entry.source === 'posts')) {
-			const named = new Set(filmsIn(posts.get(item.id)!.body).map((film) => film.id));
+			const named = new Map(filmsIn(posts.get(item.id)!.body).map((film) => [film.id, film]));
 			for (const media of item.media) {
-				if (media.type !== 'youtube' || !named.has(media.src)) continue;
+				const film = media.type === 'youtube' ? named.get(media.src) : undefined;
+				if (media.type !== 'youtube' || !film) continue;
 				expect(media.poster, `${item.id} ${media.src}`).toBeDefined();
+				// A video the post only points at from inside a sentence is marked, and stands small.
+				expect(media.aside ?? false, `${item.id} ${media.src}`).toBe(!film.own);
 				// A large poster names its small size, for a row of posters.
 				expect(media.poster!.small?.webp).toBe(media.poster!.width >= POSTER_SMALL_FROM ? posterSmallName(media.poster!.src) : undefined);
 				if (media.poster!.small) expect(media.poster!.small.width).toBe(POSTER_SMALL);
