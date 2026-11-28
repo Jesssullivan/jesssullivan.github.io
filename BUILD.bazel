@@ -305,6 +305,9 @@ js_test(
         "TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)",
     },
     patch_node_fs = False,
+    # The suite outgrew one 1800 second test budget on the blog runner (TIN-8657). Each shard builds
+    # the site and runs its part of the suite through Playwright's --shard, under its own budget.
+    shard_count = 4,
     tags = [
         "chromium",
         "e2e",

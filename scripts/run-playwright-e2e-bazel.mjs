@@ -11,6 +11,7 @@ import {
 	rmSync,
 	statSync,
 	symlinkSync,
+	writeFileSync,
 } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -74,7 +75,7 @@ try {
 		run(command[0], command.slice(1));
 	}
 
-	run('playwright', ['test', '--config', 'playwright.bazel.config.ts', ...browserArgs]);
+	run('playwright', ['test', '--config', 'playwright.bazel.config.ts', ...shardArgs(), ...browserArgs]);
 
 	console.log(`Playwright Chromium e2e passed with ${chromiumExecutable}`);
 } finally {
@@ -268,6 +269,20 @@ function resolveBinEntrypoint(name) {
 		throw new Error(`Package ${packageName} does not declare bin ${name}`);
 	}
 	return resolve(dirname(packageJsonPath), bin);
+}
+
+/**
+ * Bazel's test sharding (shard_count in BUILD.bazel) maps onto Playwright's --shard, so each shard runs
+ * its own part of the suite under its own test timeout. Touching the status file tells Bazel this
+ * runner knows how to shard.
+ */
+function shardArgs() {
+	const total = Number(process.env.TEST_TOTAL_SHARDS ?? '');
+	const index = Number(process.env.TEST_SHARD_INDEX ?? '');
+	if (!Number.isInteger(total) || total < 2) return [];
+	if (!Number.isInteger(index) || index < 0 || index >= total) throw new Error(`Invalid TEST_SHARD_INDEX ${process.env.TEST_SHARD_INDEX} of ${total}`);
+	if (process.env.TEST_SHARD_STATUS_FILE) writeFileSync(process.env.TEST_SHARD_STATUS_FILE, '');
+	return [`--shard=${index + 1}/${total}`];
 }
 
 function findChromiumExecutable() {
