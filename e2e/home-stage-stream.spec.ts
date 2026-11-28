@@ -313,12 +313,17 @@ test.describe('flag on: the heading stage', () => {
 		const pause = page.getByRole('button', { name: 'Pause', exact: true });
 		await pause.click();
 		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
+		// At this pace the sky holds for three quarters of a second, so a slow machine may press Pause on a later scene.
+		// The test holds whatever scene Pause stopped on, and Next steps from there.
+		const pausedOn = await stage(page).getAttribute('data-scene');
 		await page.waitForTimeout(2500);
-		await expect(stage(page)).toHaveAttribute('data-scene', 'sky');
+		await expect(stage(page)).toHaveAttribute('data-scene', pausedOn!);
 		await page.getByRole('button', { name: 'Next', exact: true }).click();
-		await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
+		await expect(stage(page)).not.toHaveAttribute('data-scene', pausedOn!);
+		if (pausedOn === 'sky') await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
+		const steppedTo = await stage(page).getAttribute('data-scene');
 		await page.waitForTimeout(2500);
-		await expect(stage(page)).toHaveAttribute('data-scene', 'heron');
+		await expect(stage(page)).toHaveAttribute('data-scene', steppedTo!);
 		await expect(stage(page)).toHaveAttribute('data-playing', 'false');
 	});
 
@@ -1018,7 +1023,9 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		await page.goto('/?flags=home');
 		await expect(items(page).first()).toBeVisible();
 		const moving = page.getByTestId('moving').first();
-		const img = moving.locator('img');
+		const img = moving.locator('img').first();
+		// The moving file has an image of its own, over the still, from the first time it may play.
+		const file = moving.getByTestId('moving-file');
 		const toggle = moving.getByTestId('moving-toggle');
 		// It waits below the first screen as its first frame, with its size set, and the moving file is not asked for.
 		await expect(img).toHaveAttribute('src', /\/images\/home\/[\w-]+-still\.webp$/);
@@ -1040,17 +1047,21 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 		// On the screen it plays by itself, in the same box, and its control pauses it.
 		await centre();
 		await expect(moving).toHaveAttribute('data-playing', 'true');
-		await expect(img).toHaveAttribute('src', /-moving\.webp$/);
+		await expect(file).toBeVisible();
+		await expect(file).toHaveAttribute('src', /-moving\.webp$/);
+		await expect(img).toHaveAttribute('src', /-still\.webp$/);
 		expect(movingFiles()).toHaveLength(1);
 		expect(await place()).toEqual(before);
-		expect(await img.evaluate((node: HTMLImageElement) => node.getBoundingClientRect().width <= node.naturalWidth + 1)).toBe(true);
+		expect(await file.boundingBox()).toEqual(await img.boundingBox());
+		expect(await file.evaluate((node: HTMLImageElement) => node.getBoundingClientRect().width <= node.naturalWidth + 1)).toBe(true);
 		await expect(toggle).toHaveAccessibleName(/^Pause \S/);
 		await expect(toggle).toHaveAttribute('data-tip', 'Pause');
 		const size = await toggle.boundingBox();
 		expect(Math.min(size!.width, size!.height)).toBeGreaterThanOrEqual(44);
 		await toggle.click();
 		await expect(moving).toHaveAttribute('data-playing', 'false');
-		await expect(img).toHaveAttribute('src', /-still\.webp$/);
+		await expect(file).toBeHidden();
+		await expect(img).toBeVisible();
 		await expect(toggle).toHaveAccessibleName(/^Play \S/);
 		// A pause the visitor made holds: off the screen and back, it is still paused.
 		await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
@@ -1083,6 +1094,7 @@ test.describe('flag on: tight rows, folded years, posters and a moving picture',
 			await page.waitForTimeout(600);
 			await expect(moving).toHaveAttribute('data-playing', 'false');
 			await expect(moving.locator('img')).toHaveAttribute('src', /-still\.webp$/);
+			await expect(moving.getByTestId('moving-file')).toHaveCount(0);
 			expect(paths.filter(path => /-moving\.webp$|\.gif$/.test(path))).toEqual([]);
 			// The visitor may still play it.
 			await toggle.click();

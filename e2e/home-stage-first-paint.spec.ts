@@ -86,7 +86,7 @@ test.describe('a build with the stage on: first paint', () => {
 			await year.locator('summary').click();
 			await expect(year.getByTestId('stream-item').first()).toBeVisible();
 			// A moving picture is its first frame, and nothing here plays.
-			await expect(page.getByTestId('moving').first().locator('img')).toHaveAttribute('src', /-still\.webp$/);
+			await expect(page.getByTestId('moving').first().locator('img').first()).toHaveAttribute('src', /-still\.webp$/);
 			await expect(page.locator('iframe')).toHaveCount(0);
 			// An inner page has the slim top bar from its first paint, and no banner.
 			await page.goto('/about');

@@ -3,7 +3,9 @@
 	// It rests as its first frame, which is all a page without scripts shows. On the screen it plays by itself,
 	// and off the screen it stops. Its one control pauses it and plays it, and a pause the visitor made holds
 	// until they play it again (WCAG 2.2.2). With reduced motion it never starts by itself.
-	// The moving file is asked for only once the picture is on the screen and free to play.
+	// The moving file is asked for only once the picture is on the screen and free to play, and only once:
+	// it loads in its own image over the still and stays there, hidden while paused. Swapping one image's
+	// address between the two files would ask for the moving file again whenever the browser kept no copy.
 	import { onMount } from 'svelte';
 	import type { StreamImage } from '$lib/home/stream';
 
@@ -27,6 +29,8 @@
 	let reduced = $state(false);
 	/** What the visitor asked for. Until they ask, the picture plays while it is on the screen. */
 	let asked = $state<'play' | 'pause' | null>(null);
+	/** True from the first time the picture may play: its moving image then joins the page and stays. */
+	let fetched = $state(false);
 	/** True once the moving file is here and decoded, so the change from the still shows no gap. */
 	let here = $state(false);
 
@@ -48,23 +52,24 @@
 	});
 
 	$effect(() => {
-		if (!wanted || !onScreen || here || !image.motion) return;
-		let live = true;
-		const file = new Image();
-		file.src = image.motion.moving;
-		void file.decode().then(
-			() => live && (here = true),
-			() => {},
-		);
-		return () => {
-			live = false;
-		};
+		if (wanted && onScreen && image.motion) fetched = true;
 	});
+
+	function arrived(event: Event) {
+		const file = event.currentTarget as HTMLImageElement;
+		void file.decode().then(
+			() => (here = true),
+			() => (here = true),
+		);
+	}
 </script>
 
 <span class="moving" bind:this={box} {style} data-testid="moving" data-playing={playing}>
 	<a {href} tabindex="-1" aria-hidden={image.alt ? undefined : 'true'}>
-		<img src={playing ? image.motion?.moving : (image.motion?.still ?? image.src)} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
+		<img src={image.motion?.still ?? image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
+		{#if fetched && image.motion}
+			<img class="motion" src={image.motion.moving} alt="" width={image.width} height={image.height} hidden={!playing} decoding="async" onload={arrived} data-testid="moving-file" />
+		{/if}
 	</a>
 	{#if mounted}
 		<button type="button" aria-label={`${wanted ? 'Pause' : 'Play'} ${name}`} data-tip={wanted ? 'Pause' : 'Play'} onclick={() => (asked = wanted ? 'pause' : 'play')} data-testid="moving-toggle">
@@ -89,6 +94,14 @@
 	}
 	img {
 		object-fit: cover;
+	}
+	/* The moving image lies exactly over the still, in the same box, so the change between them moves nothing. */
+	.motion {
+		position: absolute;
+		inset: 0;
+	}
+	.motion[hidden] {
+		display: none;
 	}
 	/*
 	 * The control lies on the picture, at its lower left, as a video's does: the bare sign in the accent,
