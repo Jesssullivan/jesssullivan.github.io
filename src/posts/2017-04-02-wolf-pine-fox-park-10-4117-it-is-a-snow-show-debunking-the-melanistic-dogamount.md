@@ -6,7 +6,6 @@ tags: ["Nature Observations"]
 published: true
 slug: "wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount"
 original_url: "https://transscendsurvival.org/2017/04/02/wolf-pine-fox-park-10-4117-it-is-a-snow-show-debunking-the-melanistic-dogamount/"
-feature_image: "/images/posts/unnamed.jpg"
 category: "ecology"
 ---
 
@@ -14,7 +13,6 @@ I slipped and slid my way into Fox park Saturday, 4/1/17 at about 4pm. About 7 i
 
 I heard some confused titmice and a lonely Hairy woodpecker over (almost) the whole time out, though a the crow crew started up yakking away just as I left. I had really come for the tracks in the snow, but because of the rain and rapidly melting cover, I could only make out big dogs.
 
-[![](/images/posts/unnamed.jpg)](/images/posts/unnamed.jpg)
 
 "Big Dog"
 
@@ -37,7 +35,6 @@ Remember, the PSU mascot is a [melanistic jaguar](https://en.wikipedia.org/wiki/
 
 This range makes tracking a single cougar extremely difficult, and as far as I can tell, nobody has been particularly successful- thus, finding photos of actual paw prints is really, really hard, and makes the far larger melanistic jaguar prints impossible to find. Below is a cougar paw from captivity.
 
-![unnamed](/images/posts/unnamed.jpg)
 
 *Image: paw of cougar (Puma concolor). Source: "No Place for Predators?" Gross L, PLoS Biology Vol. 6, No. 2, e40*
 

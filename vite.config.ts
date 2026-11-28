@@ -21,6 +21,8 @@ export default defineConfig({
 	define: {
 		__BLOG_DEPLOY_TIER__: JSON.stringify(deployTier),
 		__BLOG_SOURCE_SHA__: JSON.stringify(sourceSha),
+		// TIN-8657: on only in a preview build, which prerenders the new home page. Production leaves it off.
+		__BLOG_HOME_STAGE__: JSON.stringify(process.env.BLOG_HOME_STAGE === 'on'),
 	},
 	plugins: [
 		tailwindcss(),

@@ -1,29 +1,10 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import SoundCloudEmbed from '$lib/components/SoundCloudEmbed.svelte';
+	import { shorts, tracks, videos } from '$lib/data/music';
 
 	let { data }: { data: PageData } = $props();
 
-	const tracks = [
-		{
-			title: 'Morning Metal 4.22.21 "Sleepish"',
-			url: 'https://soundcloud.com/jesssullivan/morning-metal-42221',
-			date: 'April 22, 2021',
-			note: 'The usual racket...',
-		},
-		{
-			title: 'Morning Metal 12.17.20',
-			url: 'https://soundcloud.com/jesssullivan/morning-metal-121720',
-			date: 'December 17, 2020',
-			note: 'Some "freezing-cold-New-Hampshire-Winter" morning metal.',
-		},
-		{
-			title: 'Evening Metal 9.14.20',
-			url: 'https://soundcloud.com/jesssullivan/evening-metal-91420',
-			date: 'September 14, 2020',
-			note: "Haven't posted any guitar for a bit, here's a recording from this evening.",
-		},
-	];
 </script>
 
 <svelte:head>
@@ -59,10 +40,7 @@
 			>YouTube channel &rarr;</a>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-			{#each [
-				{ id: 'jcdIMftYGGQ', title: 'Silly Goose Stuff' },
-				{ id: 'CcF96vq2dcY', title: 'Sleepy Saturday' },
-			] as video}
+			{#each shorts as video}
 				<div class="card overflow-hidden">
 					<div class="relative w-full" style="padding-bottom: 177%;">
 						<iframe
@@ -111,16 +89,7 @@
 			<h2 class="text-xl font-semibold">Videos</h2>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-			{#each [
-				{ id: 'HWfSMihJgJw', title: '9 String Amphibiansce' },
-				{ id: 'xGdNk7CTTTg', title: 'Drop A for Activities' },
-				{ id: 'N2haib_Ttrw', title: 'Twelve a Biggah Numbah Den Nine' },
-				{ id: 'JVusudpKTF8', title: 'Morning Metal 04.23.21' },
-				{ id: 'zCrrzdaBCsw', title: 'Morning Metal 10/28/20' },
-				{ id: 'nVkjCMmpUII', title: 'Shortest Morning Metal 7 8 20' },
-				{ id: 's_6pwdzT9ZQ', title: 'Note Feel Good Metal' },
-				{ id: 'jrxJHwmtwak', title: 'Shortest Morning Metal 7 8 20' },
-			] as video}
+			{#each videos as video}
 				<div class="card overflow-hidden">
 					<div class="relative w-full" style="padding-bottom: 56.25%;">
 						<iframe

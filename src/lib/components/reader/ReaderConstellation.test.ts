@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
 import type { Post } from '$lib/posts';
-import ReaderConstellation from './ReaderConstellation.svelte';
+import ReaderConstellation, { SKY_CONTROLS, SKY_CONTROLS_NAME, SKY_HELP_ID } from './ReaderConstellation.svelte';
 import ConstellationSky from './ConstellationSky.svelte';
 import constellation from '$lib/data/constellation.v1.json';
 import silhouette from '$lib/data/constellation-silhouette.v1.json';
@@ -147,5 +147,96 @@ describe('ConstellationSky', () => {
 		const { html } = render(ConstellationSky, { props: { ...sky, posts: [] } });
 		expect(html).not.toContain('data-star=');
 		expect(html).toContain('No public post is on the map yet.');
+	});
+});
+
+// TIN-8657, ruling RM66: a page may ask for the legend along the top edge and draw the controls in a row of its own.
+describe('the sky as a page may ask for it', () => {
+	const classes = (html: string) => (html.match(/<section class="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+	const own = (html: string) => (html.match(/class="controls/g) ?? []).length;
+
+	it('is the same sky by default as with every default spelled out', () => {
+		const plain = render(ReaderConstellation, { props: {} }).html;
+		const spelled = render(ReaderConstellation, { props: { legend: 'foot', controls: 'own', inset: null, lists: true } }).html;
+		expect(spelled).toBe(plain);
+		for (const name of ['head', 'bare', 'plain', 'inset']) expect(classes(plain)).not.toContain(name);
+		// The help keeps its place just after the controls, and is not a tab stop.
+		expect(plain.indexOf('class="pop')).toBeLessThan(plain.indexOf('class="legend'));
+		expect(plain).not.toMatch(/class="pop[^>]*tabindex/);
+	});
+
+	it('names the five controls once, and the sky draws its own from those names', () => {
+		expect(Object.fromEntries(Object.entries(SKY_CONTROLS).map(([id, control]) => [id, control.name]))).toEqual({
+			list: 'Show as a list',
+			map: 'Show the map',
+			zoomIn: 'Zoom in',
+			zoomOut: 'Zoom out',
+			reset: 'Reset',
+			help: 'How it works',
+		});
+		const { html } = render(ReaderConstellation, { props: {} });
+		for (const id of ['list', 'zoomIn', 'zoomOut', 'reset', 'help'] as const) {
+			expect(html).toContain(`aria-label="${SKY_CONTROLS[id].name}"`);
+			// The icon is drawn from the same entry.
+			expect(html).toContain(`d="${SKY_CONTROLS[id].lines}"`);
+		}
+		expect(html).toContain(`role="toolbar" aria-label="${SKY_CONTROLS_NAME}"`);
+		expect(html).toContain(`id="${SKY_HELP_ID}"`);
+	});
+
+	it('lays the legend along the top edge, or leaves it out', () => {
+		const head = render(ReaderConstellation, { props: { legend: 'head' } }).html;
+		expect(classes(head)).toContain('head');
+		expect(head).toContain('aria-label="Show one category"');
+		expect((head.match(/aria-pressed="false"/g) ?? []).length).toBe(silhouette.categories.length);
+		// Its own controls are still there.
+		expect(own(head)).toBe(1);
+		const none = render(ReaderConstellation, { props: { legend: 'none' } }).html;
+		expect(classes(none)).toContain('plain');
+		expect(none).not.toContain('aria-label="Show one category"');
+		expect(none).not.toContain('aria-pressed');
+		expect(own(none)).toBe(1);
+	});
+
+	it('draws no control of its own when the page draws them', () => {
+		const { html } = render(ReaderConstellation, { props: { controls: 'none' } });
+		expect(classes(html)).toContain('bare');
+		expect(own(html)).toBe(0);
+		for (const id of ['list', 'zoomIn', 'zoomOut', 'reset', 'help'] as const) expect(html).not.toMatch(new RegExp(`<button[^>]*aria-label="${SKY_CONTROLS[id].name}"`));
+		expect(html).not.toContain('aria-disabled');
+		// The help is still there, closed, for the page's own control to open. It comes last, after the stars, and can take focus.
+		expect(html).toMatch(new RegExp(`id="${SKY_HELP_ID}"[^>]*hidden`));
+		expect(html).toMatch(/class="pop[^>]*tabindex="-1"/);
+		expect(html.indexOf('class="pop')).toBeGreaterThan(html.indexOf('class="field'));
+		expect(html).toContain('Each star is a post. Posts that share words or tags sit together.');
+		// The legend is the first thing a keyboard reaches.
+		expect(html.search(/<(button|a)\b/)).toBe(html.indexOf('<button', html.indexOf('class="legend')));
+	});
+
+	it('takes an inset for the legend and the controls', () => {
+		expect(classes(render(ReaderConstellation, { props: { inset: '3rem' } }).html)).toContain('inset');
+		expect(classes(render(ReaderConstellation, { props: {} }).html)).not.toContain('inset');
+	});
+
+	it('does not point at Latest and Archive on a page that has neither', () => {
+		const posts = [
+			{ ...post, slug: slugOf(0), title: 'First placed post' },
+			{ ...post, slug: 'not-on-the-map-yet', title: 'Brand new post' },
+		];
+		const there = render(ConstellationSky, { props: { ...sky, posts } }).html;
+		expect(there).toContain('1 newer post is not on the map yet. Latest has it.');
+		const away = render(ConstellationSky, { props: { ...sky, posts, lists: false } }).html;
+		expect(away).toContain('1 newer post is not on the map yet.');
+		expect(away).not.toMatch(/Latest|Archive/);
+		const empty = render(ConstellationSky, { props: { ...sky, posts: [], lists: false } }).html;
+		expect(empty).toContain('No public post is on the map yet.');
+		expect(empty).not.toMatch(/Latest|Archive/);
+		expect(render(ConstellationSky, { props: { ...sky, posts: [] } }).html).toContain('The Latest and Archive lists below have every public post.');
+	});
+
+	it('lets the list take focus only when the page draws the controls', () => {
+		const posts = [{ ...post, slug: slugOf(0), title: 'First placed post' }];
+		expect(render(ConstellationSky, { props: { ...sky, posts, view: 'list' } }).html).not.toMatch(/data-testid="constellation-list"[^>]*tabindex|tabindex="-1"[^>]*data-testid="constellation-list"/);
+		expect(render(ConstellationSky, { props: { ...sky, posts, view: 'list', hosted: true } }).html).toMatch(/<ol[^>]*tabindex="-1"/);
 	});
 });

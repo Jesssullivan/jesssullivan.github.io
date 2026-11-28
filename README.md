@@ -117,7 +117,7 @@ This repo uses the npm/SvelteKit workflow for normal local development and deplo
 - `//:vitest_unit_tests` wraps the root and Pulse Vitest suites through `vitest.bazel.config.ts`.
 - `//:blog_agent_node_tests` wraps the blog-agent `node:test` suite through `tsx --test`.
 - `//:sveltekit_vite_build_smoke` runs a copied-workdir SvelteKit/Vite production build smoke. It proves the build target class, not the full npm prebuild/postbuild publication chain.
-- `//:playwright_chromium_e2e` runs the Chromium Playwright e2e suite through Bazel with one worker. The CI gate provisions the package-lock-pinned Playwright browser before Bazel starts and passes its absolute executable path into the test action.
+- `//:playwright_chromium_e2e` runs the Chromium Playwright e2e suite through Bazel with one worker, in four shards that each build the site and run a quarter of the suite. The CI gate provisions the package-lock-pinned Playwright browser before Bazel starts and passes its absolute executable path into the test action.
 - `//:playwright_chromium_smoke` remains a narrow diagnostic target for browser runtime authority, not the remote e2e gate.
 - `//:puppeteer_chromium_smoke` launches Puppeteer against the same pinned Chromium runtime path. It proves Puppeteer and Playwright consume one explicit browser authority rather than relying on an undeclared host path.
 - `package-lock.json` remains the npm dependency authority for the app. `pnpm-workspace.yaml` makes the package importers explicit for Bazel, and `pnpm-lock.yaml` is the generated `rules_js` lock consumed by Bazel.

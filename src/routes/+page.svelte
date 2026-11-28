@@ -4,7 +4,8 @@
 	import ReaderLatest from '$lib/components/reader/ReaderLatest.svelte';
 	import ReaderPulse from '$lib/components/reader/ReaderPulse.svelte';
 	import { resolveConstellationFlag } from '$lib/flags/constellation';
-	import { onMount, type Component } from 'svelte';
+	import type { HomeContext, HomeLoaded, HomeView } from '$lib/flags/home-state.svelte';
+	import { getContext, onMount, type Component } from 'svelte';
 	import { page } from '$app/state';
 	import { createHomeReaderCollection } from '$lib/reader/homeProjection';
 	import { loadTinylandBlogBrokerStream, tinylandBlogBrokerStreamToPosts } from '$lib/tinyland/blogBrokerStream';
@@ -28,12 +29,34 @@
 		mounted = true;
 		return () => document.documentElement.removeAttribute('data-sky');
 	});
+
+	// TIN-8657: the heading stage and the stream, behind ?flags=home. The layout resolves the flag.
+	// A preview build hands both over from the load, already prerendered. Otherwise the code and the
+	// data file are asked for only once the flag is on, so the default page loads nothing new.
+	// A production build keeps the ordinary page whole until both have arrived, then the two change places in one step.
+	// The layout owns the flag and hands it over in its context. Importing it here would split it into a file of its own, which every page would then ask for.
+	const { flag: homeFlag, ask: askHome, loaded: homeLoaded } = getContext<HomeContext>('tss:home');
+	// svelte-ignore state_referenced_locally
+	const prerenderedHome = data.home ? ({ Home: data.home.Home as unknown as HomeView, stream: data.home.stream } satisfies HomeLoaded) : null;
+	const home = $derived(homeFlag.on && homeFlag.ready ? (prerenderedHome ?? homeLoaded()) : null);
 	$effect(() => {
-		if (!mounted) return;
-		const enabled = resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
+		if (!homeFlag.on || homeFlag.ready) return;
+		askHome(async () => {
+			const [module, stream] = await Promise.all([import('$lib/components/home/Home.svelte'), import('$lib/home/load').then(({ loadHomeStream }) => loadHomeStream(fetch))]);
+			return { Home: module.default as unknown as HomeView, stream };
+		});
+	});
+
+	$effect(() => {
+		// The layout reads the home flag after this page has mounted. The older flag waits for its answer, so it never starts work the new page is about to replace.
+		if (!mounted || !homeFlag.known) return;
+		// The stage carries the constellation as its first scene, so the older flag stands down beside it.
+		const enabled = !homeFlag.on && resolveConstellationFlag({ search: page.url.search, getStorage: () => window.localStorage });
 		constellationEnabled = enabled;
 		// The sky's room is part of the page while the flag is on. On a fresh load the first-paint script in app.html has already set this.
-		document.documentElement.toggleAttribute('data-sky', enabled);
+		// While the new home page is still on its way, the room the first paint kept is left as it is, so the ordinary page does not move before the two change places.
+		const waiting = homeFlag.on && !homeFlag.ready && !homeFlag.failed;
+		if (!waiting) document.documentElement.toggleAttribute('data-sky', enabled);
 		experimentPosts = null;
 		experimentPulse = null;
 		blogStatus = 'loading';
@@ -63,14 +86,21 @@
 </script>
 
 <svelte:head>
-	<title>Jess Sullivan — Latest, Pulse, Archive</title>
-	<meta name="description" content="Posts and notes from Jess Sullivan." />
-	<link rel="canonical" href="https://transscendsurvival.org/" />
-	<meta property="og:title" content="Jess Sullivan — Writing and notes." />
-	<meta property="og:description" content="Posts and notes from Jess Sullivan." />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://transscendsurvival.org/" />
+	{#if !home}
+		<title>Jess Sullivan — Latest, Pulse, Archive</title>
+		<meta name="description" content="Posts and notes from Jess Sullivan." />
+		<link rel="canonical" href="https://transscendsurvival.org/" />
+		<meta property="og:title" content="Jess Sullivan — Writing and notes." />
+		<meta property="og:description" content="Posts and notes from Jess Sullivan." />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://transscendsurvival.org/" />
+	{/if}
 </svelte:head>
+
+{#if home}
+	<!-- The address query is read only once the page is up: a prerender has none to read. -->
+	<home.Home stream={home.stream} archive={data.collection.archive} search={mounted ? page.url.search : ''} arrives={!prerenderedHome} />
+{:else}
 
 {#if constellationEnabled}
 	<div class="sr-only" aria-live="polite" data-testid="home-reader-broker-state">Blog {blogStatus}; Pulse {pulseStatus}.</div>
@@ -98,6 +128,7 @@
 		<ReaderArchive archive={data.collection.archive} />
 	</div>
 </div>
+{/if}
 
 <style>
 	/*

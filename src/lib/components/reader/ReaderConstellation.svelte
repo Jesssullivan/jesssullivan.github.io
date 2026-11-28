@@ -1,3 +1,32 @@
+<script lang="ts" module>
+	/**
+	 * The sky's controls (TIN-8657): the name each one says, as its label and as its tooltip, and the lines of its icon on a 16 pixel grid.
+	 * The sky draws them from here, and so does a page that draws them in a row of its own.
+	 */
+	export const SKY_CONTROLS = {
+		list: { name: 'Show as a list', lines: 'M6 4h7.5M6 8h7.5M6 12h7.5', dots: 'M2.6 4h.01M2.6 8h.01M2.6 12h.01' },
+		map: { name: 'Show the map', lines: 'M3 12 7.2 4l5.8 4.6', dots: 'M3 12h.01M7.2 4h.01M13 8.6h.01' },
+		zoomIn: { name: 'Zoom in', lines: 'M8 3v10M3 8h10', dots: '' },
+		zoomOut: { name: 'Zoom out', lines: 'M3 8h10', dots: '' },
+		reset: { name: 'Reset', lines: 'M3.4 8.6a4.6 4.6 0 1 0 1.2-3.7M3 2.6v2.8h2.8', dots: '' },
+		help: { name: 'How it works', lines: 'M5.9 6.1a2.1 2.1 0 1 1 3.2 1.8c-.7.45-1.1.9-1.1 1.7', dots: 'M8 12.4h.01' },
+	} as const;
+	export type SkyControl = keyof typeof SKY_CONTROLS;
+	/** The name of the group the controls form. */
+	export const SKY_CONTROLS_NAME = 'Map controls';
+	/** The help's id. A control drawn outside the sky names it in aria-controls, and a press on that control does not close the help. */
+	export const SKY_HELP_ID = 'constellation-help';
+
+	/** What the controls can do now. A page that draws them reads this to show, hide and name them. */
+	export interface SkyViewState {
+		canZoomIn: boolean;
+		canZoomOut: boolean;
+		canReset: boolean;
+		listOpen: boolean;
+		helpOpen: boolean;
+	}
+</script>
+
 <script lang="ts">
 	// The constellation section (TIN-8628). This shell is all the page loads up front:
 	// a sky that already has its final size, edge to edge of the viewport, with the
@@ -5,8 +34,8 @@
 	// The interactive sky and its data arrive on their own.
 	// Type is Inter at 600 and 700 and the body face: the files the home page already loads.
 	// The section lies in the room the page keeps for it (see +page.svelte), so nothing moves when it loads.
-	import { onMount } from 'svelte';
-	import type { Component } from 'svelte';
+	import { onMount, tick } from 'svelte';
+	import type { Component, Snippet } from 'svelte';
 	import type { ReaderCollection } from '$lib/reader/collection';
 	import silhouette from '$lib/data/constellation-silhouette.v1.json';
 	// A content hash is in the emitted file name, so the data can be cached for good.
@@ -23,10 +52,28 @@
 		archive = [],
 		focusSlug = null,
 		initialView = 'map',
+		legend = 'foot',
+		controls = 'own',
+		inset = null,
+		lists = true,
+		onviewstate = () => {},
+		helpActions,
 	}: {
 		archive?: ReaderCollection['archive'];
 		focusSlug?: string | null;
 		initialView?: View;
+		/** Where the legend lies: along the foot of the sky, along its top edge at the same inset, or nowhere. */
+		legend?: 'foot' | 'head' | 'none';
+		/** 'none' draws no control here. The page then draws them from SKY_CONTROLS, calls the five actions below and reads onviewstate. */
+		controls?: 'own' | 'none';
+		/** The inset of the legend and the controls from the sides of the sky, as a CSS length. Left out, they line up with the page's column. */
+		inset?: string | null;
+		/** False on a page with no Latest and Archive lists under the sky. A notice then does not point at them. */
+		lists?: boolean;
+		/** Called at the start, and again each time one of the five values changes. */
+		onviewstate?: (state: SkyViewState) => void;
+		/** More to press, drawn at the head of the help: a page with no room for a control puts it here. */
+		helpActions?: Snippet;
 	} = $props();
 	// svelte-ignore state_referenced_locally
 	let view = $state<View>(initialView);
@@ -35,8 +82,9 @@
 	let section = $state<HTMLElement | null>(null);
 	let panel = $state<HTMLDivElement | null>(null);
 	let field = $state<HTMLDivElement | null>(null);
-	let controls = $state<HTMLDivElement | null>(null);
+	let controlsEl = $state<HTMLDivElement | null>(null);
 	let help = $state<HTMLDivElement | null>(null);
+	const hosted = $derived(controls === 'none');
 	let scale = $state(1);
 
 	const posts = $derived(archive.flatMap((group) => group.posts));
@@ -86,11 +134,11 @@
 		const width = document.documentElement.clientWidth;
 		// The section is placed against the host's padding box.
 		const left = host.getBoundingClientRect().left + host.clientLeft;
-		const below = section.nextElementSibling;
+		const below = inset === null ? section.nextElementSibling : null;
 		const edge = below instanceof HTMLElement ? below.getBoundingClientRect().left + (parseFloat(getComputedStyle(below).paddingLeft) || 0) : 16;
 		section.style.setProperty('--bleed', `${width}px`);
 		section.style.setProperty('--shift', `${-left}px`);
-		section.style.setProperty('--edge', `${Math.max(12, Math.round(edge))}px`);
+		section.style.setProperty('--edge', inset ?? `${Math.max(12, Math.round(edge))}px`);
 		scale = starScale({ w: width, h: panel.offsetHeight });
 	}
 
@@ -118,6 +166,55 @@
 	function show(next: View) {
 		view = next;
 		writeSession({ list: next === 'list' });
+	}
+
+	// The five actions, for a page that draws the controls itself. A control that cannot act now does nothing.
+	const viewState = $derived<SkyViewState>({ canZoomIn: onMap, canZoomOut: onMap && zoomed, canReset: onMap && (zoomed || picked), listOpen: view === 'list', helpOpen });
+	let told = '';
+	$effect(() => {
+		const next = JSON.stringify(viewState);
+		if (next === told) return;
+		told = next;
+		onviewstate(viewState);
+	});
+
+	/** The control that opened the list or the help from outside the sky. Focus goes back to it. */
+	let opener: HTMLElement | null = null;
+	const keepOpener = () => {
+		opener = document.activeElement instanceof HTMLElement && !section?.contains(document.activeElement) ? document.activeElement : null;
+	};
+
+	/** Swap the map for the list, or back. Opened from outside, the list takes focus at its head, and Escape gives it back. */
+	export async function toggleList() {
+		const next = view === 'map' ? 'list' : 'map';
+		show(next);
+		if (!hosted || next !== 'list') return;
+		keepOpener();
+		await tick();
+		panel?.querySelector<HTMLElement>('[data-testid="constellation-list"]')?.focus({ preventScroll: true });
+	}
+	export function zoomIn() {
+		if (viewState.canZoomIn) api?.zoomBy(1.6);
+	}
+	export function zoomOut() {
+		if (viewState.canZoomOut) api?.zoomBy(1 / 1.6);
+	}
+	export function resetView() {
+		if (viewState.canReset) api?.reset();
+	}
+	/** Open or close the help. Opened from outside, the help takes focus, and it gives focus back as it closes. */
+	export async function toggleHelp() {
+		if (helpOpen) return closeHelp();
+		helpOpen = true;
+		if (!hosted) return;
+		keepOpener();
+		await tick();
+		help?.focus({ preventScroll: true });
+	}
+	function closeHelp() {
+		const inside = help?.contains(document.activeElement) === true;
+		helpOpen = false;
+		if (hosted && inside) opener?.focus({ preventScroll: true });
 	}
 
 	function toggleFilter(index: number) {
@@ -148,59 +245,62 @@
 
 <svelte:window
 	onclick={(event) => {
-		if (helpOpen && event.target instanceof Node && !help?.contains(event.target) && !controls?.contains(event.target)) helpOpen = false;
+		// A press on a control that names the help, here or in a row the page draws, is that control's own.
+		if (helpOpen && event.target instanceof Element && !help?.contains(event.target) && !controlsEl?.contains(event.target) && !(hosted && event.target.closest(`[aria-controls="${SKY_HELP_ID}"]`))) helpOpen = false;
 	}}
 	onkeydown={(event) => {
-		if (helpOpen && event.key === 'Escape') helpOpen = false;
+		if (event.key !== 'Escape') return;
+		if (helpOpen) closeHelp();
+		// The list a page's own control opened: Escape hands focus back to that control.
+		else if (hosted && view === 'list' && opener && panel?.contains(document.activeElement)) opener.focus({ preventScroll: true });
 	}}
 />
 
-{#snippet glyph(name: string)}
+{#snippet glyph(name: SkyControl)}
 	<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-		{#if name === 'list'}
-			<path d="M6 4h7.5M6 8h7.5M6 12h7.5" /><path class="dots" d="M2.6 4h.01M2.6 8h.01M2.6 12h.01" />
-		{:else if name === 'map'}
-			<path d="M3 12 7.2 4l5.8 4.6" /><path class="dots" d="M3 12h.01M7.2 4h.01M13 8.6h.01" />
-		{:else if name === 'in'}
-			<path d="M8 3v10M3 8h10" />
-		{:else if name === 'out'}
-			<path d="M3 8h10" />
-		{:else if name === 'reset'}
-			<path d="M3.4 8.6a4.6 4.6 0 1 0 1.2-3.7M3 2.6v2.8h2.8" />
-		{:else}
-			<path d="M5.9 6.1a2.1 2.1 0 1 1 3.2 1.8c-.7.45-1.1.9-1.1 1.7" /><path class="dots" d="M8 12.4h.01" />
-		{/if}
+		<path d={SKY_CONTROLS[name].lines} />{#if SKY_CONTROLS[name].dots}<path class="dots" d={SKY_CONTROLS[name].dots} />{/if}
 	</svg>
 {/snippet}
 
-<section class="constellation" class:live class:listing={view === 'list' && Sky !== null} class:picked aria-labelledby="constellation-heading" bind:this={section} style:--star-scale={scale}>
+{#snippet helpPop()}
+	<!-- Opened from a control outside the sky it takes focus, so its words are read and its own buttons come next. -->
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	<div class="pop" id={SKY_HELP_ID} hidden={!helpOpen} tabindex={hosted ? -1 : undefined} role={hosted ? 'group' : undefined} aria-label={hosted ? SKY_CONTROLS.help.name : undefined} bind:this={help}>
+		{#if helpActions}{@render helpActions()}{/if}
+		<p id="constellation-about">Each star is a post. Posts that share words or tags sit together.</p>
+		<p>Colour is the category. Bigger stars are longer posts. The newest ones glow.</p>
+		<p>Click or tap a star to pick it, then again to open it. Click a name to go there.</p>
+		<p>Zoom with the buttons, a pinch, or Ctrl and scroll. Drag to move the map. On a touch screen a swipe up or down scrolls the page, so move the map sideways or with two fingers.</p>
+		<p>With a keyboard, arrow keys move between nearby stars. Enter opens. Space picks. Escape clears. Plus and minus zoom.</p>
+		<p class="method">Positions come from a t-SNE fit over post text and tags. Axes, distances and density are not measurements.</p>
+	</div>
+{/snippet}
+
+<section class="constellation" class:live class:listing={view === 'list' && Sky !== null} class:picked class:head={legend === 'head'} class:bare={hosted} class:plain={legend === 'none'} class:inset={inset !== null} aria-labelledby="constellation-heading" bind:this={section} style:--star-scale={scale}>
 	<!-- The landmark keeps its name. Nothing is printed above the sky. -->
 	<h2 id="constellation-heading" class="sr-only">The constellation</h2>
 	<div class="sky" id="constellation-panel" bind:this={panel} data-testid="constellation-panel">
-		<!-- First in the tab order, so the list is one tab stop away. A control that cannot act yet stays focusable and says so. -->
-		<div class="controls" role="toolbar" aria-label="Map controls" tabindex="-1" bind:this={controls} onkeydown={rove} onfocusin={stop}>
-			<button type="button" tabindex="0" aria-label={view === 'map' ? 'Show as a list' : 'Show the map'} aria-controls="constellation-panel" data-testid="constellation-view" onclick={() => show(view === 'map' ? 'list' : 'map')}>{@render glyph(view === 'map' ? 'list' : 'map')}</button>
-			<button type="button" class="apart" tabindex="-1" aria-label="Zoom in" aria-disabled={!onMap} onclick={() => onMap && api?.zoomBy(1.6)}>{@render glyph('in')}</button>
-			<button type="button" tabindex="-1" aria-label="Zoom out" aria-disabled={!onMap || !zoomed} onclick={() => onMap && zoomed && api?.zoomBy(1 / 1.6)}>{@render glyph('out')}</button>
-			<button type="button" tabindex="-1" aria-label="Reset" aria-disabled={!onMap || (!zoomed && !picked)} onclick={() => onMap && api?.reset()}>{@render glyph('reset')}</button>
-			<button type="button" class="apart" tabindex="-1" aria-label="How it works" aria-expanded={helpOpen} aria-controls="constellation-help" onclick={() => (helpOpen = !helpOpen)}>{@render glyph('help')}</button>
-		</div>
-		<div class="pop" id="constellation-help" hidden={!helpOpen} bind:this={help}>
-			<p id="constellation-about">Each star is a post. Posts that share words or tags sit together.</p>
-			<p>Colour is the category. Bigger stars are longer posts. The newest ones glow.</p>
-			<p>Click or tap a star to pick it, then again to open it. Click a name to go there.</p>
-			<p>Zoom with the buttons, a pinch, or Ctrl and scroll. Drag to move the map. On a touch screen a swipe up or down scrolls the page, so move the map sideways or with two fingers.</p>
-			<p>With a keyboard, arrow keys move between nearby stars. Enter opens. Space picks. Escape clears. Plus and minus zoom.</p>
-			<p class="method">Positions come from a t-SNE fit over post text and tags. Axes, distances and density are not measurements.</p>
-		</div>
-		<!-- The legend is the filter: the same eight words and colours as the names on the sky. -->
-		<div class="legend" role="toolbar" aria-label="Show one category" tabindex="-1" onkeydown={rove} onfocusin={stop}>
-			{#each silhouette.categories as category, index (category.id)}
-				<button type="button" tabindex={index === 0 ? 0 : -1} aria-pressed={filter === index} aria-label={`${category.label}, ${countText(category.count)}`} data-tip={countText(category.count)} onclick={() => toggleFilter(index)}>
-					<span class="dot" style={`--dot:var(--star-${index % 8})`} aria-hidden="true"></span>{category.label}
-				</button>
-			{/each}
-		</div>
+		{#if !hosted}
+			<!-- First in the tab order, so the list is one tab stop away. A control that cannot act yet stays focusable and says so. -->
+			<div class="controls" role="toolbar" aria-label={SKY_CONTROLS_NAME} tabindex="-1" bind:this={controlsEl} onkeydown={rove} onfocusin={stop}>
+				<button type="button" tabindex="0" aria-label={SKY_CONTROLS[view === 'map' ? 'list' : 'map'].name} aria-controls="constellation-panel" data-testid="constellation-view" onclick={() => show(view === 'map' ? 'list' : 'map')}>{@render glyph(view === 'map' ? 'list' : 'map')}</button>
+				<button type="button" class="apart" tabindex="-1" aria-label={SKY_CONTROLS.zoomIn.name} aria-disabled={!onMap} onclick={() => onMap && api?.zoomBy(1.6)}>{@render glyph('zoomIn')}</button>
+				<button type="button" tabindex="-1" aria-label={SKY_CONTROLS.zoomOut.name} aria-disabled={!onMap || !zoomed} onclick={() => onMap && zoomed && api?.zoomBy(1 / 1.6)}>{@render glyph('zoomOut')}</button>
+				<button type="button" tabindex="-1" aria-label={SKY_CONTROLS.reset.name} aria-disabled={!onMap || (!zoomed && !picked)} onclick={() => onMap && api?.reset()}>{@render glyph('reset')}</button>
+				<button type="button" class="apart" tabindex="-1" aria-label={SKY_CONTROLS.help.name} aria-expanded={helpOpen} aria-controls={SKY_HELP_ID} onclick={() => (helpOpen = !helpOpen)}>{@render glyph('help')}</button>
+			</div>
+			{@render helpPop()}
+		{/if}
+		{#if legend !== 'none'}
+			<!-- The legend is the filter: the same eight words and colours as the names on the sky. -->
+			<div class="legend" role="toolbar" aria-label="Show one category" tabindex="-1" onkeydown={rove} onfocusin={stop}>
+				{#each silhouette.categories as category, index (category.id)}
+					<button type="button" tabindex={index === 0 ? 0 : -1} aria-pressed={filter === index} aria-label={`${category.label}, ${countText(category.count)}`} data-tip={countText(category.count)} onclick={() => toggleFilter(index)}>
+						<span class="dot" style={`--dot:var(--star-${index % 8})`} aria-hidden="true"></span>{category.label}
+					</button>
+				{/each}
+			</div>
+		{/if}
 		<div class="field" bind:this={field}>
 			{#each frames as frame (frame.name)}
 				<svg class={`silhouette ${frame.name}`} viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false" data-testid={`constellation-silhouette-${frame.name}`}>
@@ -222,6 +322,9 @@
 				{filter}
 				{focusSlug}
 				{scale}
+				{legend}
+				{hosted}
+				{lists}
 				tallQuery={TALL_QUERY}
 				onlive={(fade: boolean) => {
 					ready = true;
@@ -230,8 +333,10 @@
 				}}
 			/>
 		{:else if failed}
-			<p class="notice">The map did not load. Latest and Archive below have every post.</p>
+			<p class="notice">The map did not load.{lists ? ' Latest and Archive below have every post.' : ''}</p>
 		{/if}
+		<!-- With the controls in a row under the sky, the help opens just above that row and comes last here, so focus runs the way the eye does. -->
+		{#if hosted}{@render helpPop()}{/if}
 	</div>
 </section>
 
@@ -386,5 +491,46 @@
 	/* A narrow phone: the legend takes three rows, and the stars keep clear of all three. ConstellationSky.svelte repeats the width. */
 	@media (max-width: 350px) {
 		.field { inset: 4rem .75rem 7.75rem; }
+	}
+
+	/*
+	 * The same sky for a page that asks for it another way (TIN-8657). Nothing below applies to the sky as it is by default.
+	 * The legend along the top edge is the mirror of the legend along the foot: the same inset, and the strip the stars keep
+	 * clear of moves to the head with it. ConstellationSky.svelte fades the map out under whichever strip is in use.
+	 */
+	.head .legend { top: 1rem; bottom: auto; max-width: calc(100% - 2 * var(--edge, 1rem)); }
+	.head .legend button::after { top: calc(100% + .1rem); bottom: auto; }
+	/* Along the top edge it is one quiet line: its words step back a little until one is pointed at or picked. They stay above 4.5 to 1 on the paper. */
+	.head .legend button { color: color-mix(in oklab, var(--sky-ink) 72%, var(--sky-paper)); }
+	.head .legend button[aria-pressed='true'] { color: var(--sky-ink); }
+	@media (hover: hover) {
+		.head .legend button:hover { color: var(--sky-ink); }
+	}
+	.head .field { top: 5rem; }
+	/* Nothing lies along the foot: the stars come down to the margin they keep at the top by default. */
+	.head.bare .field, .plain.bare .field { bottom: 3.5rem; }
+	/* The page draws the controls in a row of its own under the sky. The help opens just above that row. */
+	.bare .pop { bottom: .75rem; max-height: calc(100% - 1.5rem); }
+	.bare .pop:focus { outline: none; }
+	.bare .notice { bottom: 1.5rem; }
+	/* The site's style sheet pads anything named legend by half a rem at each side. With an inset given, the first dot stands on it exactly. */
+	.inset .legend { padding-inline: 0; }
+	@media (max-width: 880px) {
+		/* The legend takes the strip at the top, where a picked post then docks. Controls the sky draws go to the foot. */
+		.head .field { top: 5.75rem; bottom: 4rem; }
+		.head.bare .field { bottom: 2.25rem; }
+		.head .legend { top: .5rem; bottom: auto; }
+		.head .controls { top: auto; bottom: .5rem; }
+		.head .controls button::after { top: auto; bottom: calc(100% + .4rem); }
+		.head .pop { top: auto; bottom: 3.4rem; }
+		.bare .pop { top: auto; bottom: .5rem; max-height: calc(100% - 1rem); }
+		/* The legend is still at the foot and no control is at the top: the stars start higher. A picked post still docks at the foot. */
+		.bare:not(.head) .field { top: 2.25rem; }
+		.plain.bare .field { bottom: 5.75rem; }
+		/* A page that gives an inset has its legend start on it here too. */
+		.inset .legend { left: calc(var(--edge) - .4rem); right: calc(var(--edge) - .4rem); }
+	}
+	@media (max-width: 350px) {
+		.head .field { top: 7.75rem; }
 	}
 </style>

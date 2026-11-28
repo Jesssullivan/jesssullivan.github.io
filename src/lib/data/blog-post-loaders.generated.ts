@@ -123,7 +123,6 @@ export const publishedPostLoaders = import.meta.glob([
 	'/src/posts/2024-01-02-accuwix.md',
 	'/src/posts/2024-02-22-i-wrote-a-mutual-aid-mental-health-service.md',
 	'/src/posts/2024-05-22-what-have-i-been-up-to-these-last-few-months.md',
-	'/src/posts/2024-12-31-ligature-test-fixture.md',
 	'/src/posts/2026-02-26-aperture-tagged-devices-and-the-tsnet-escape-hatch.md',
 	'/src/posts/2026-03-04-from-bricked-to-recovered-the-story-of-hacking-an-nvme-ssd-back-to-life.md',
 	'/src/posts/2026-03-04-week-notes-cyborgs-servers-and-sending.md',

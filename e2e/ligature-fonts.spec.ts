@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Fira Code Ligature Verification', () => {
-	const TEST_POST = '/blog/ligature-test-fixture';
+	const TEST_POST = '/blog/aperture-tagged-devices-and-the-tsnet-escape-hatch';
 
 	test.beforeEach(async ({ page }) => {
 		await page.goto(TEST_POST, { waitUntil: 'domcontentloaded' });

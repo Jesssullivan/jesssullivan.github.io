@@ -85,11 +85,12 @@ export function viewForBox(box: readonly [number, number, number, number], size:
 /**
  * The view with the same zoom that puts a world point inside the panel, `margin` pixels from its edges
  * and `foot` pixels above its bottom edge. With `lift` the map may ride up that far to do it.
+ * `head` is the same for the top edge, for a card docked there.
  */
-export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48, foot = margin, lift = 0): View {
+export function viewToShow(view: View, wx: number, wy: number, size: Size, margin = 48, foot = margin, lift = 0, head = margin): View {
 	const sx = wx * view.k + view.x;
 	const sy = wy * view.k + view.y;
-	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, margin, size.h - Math.max(margin, foot)) - sy }, size, lift);
+	return clampView({ k: view.k, x: view.x + clamp(sx, margin, size.w - margin) - sx, y: view.y + clamp(sy, Math.max(margin, head), size.h - Math.max(margin, foot)) - sy }, size, lift);
 }
 
 /** Between two views: zoom moves geometrically, the centre of the panel moves in a straight line. */

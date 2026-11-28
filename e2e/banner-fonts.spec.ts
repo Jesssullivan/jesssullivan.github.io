@@ -49,7 +49,7 @@ test.describe('Banner + Font Stack (Week 1)', () => {
 	});
 
 	test('code blocks use Fira Code with ligature settings', async ({ page }) => {
-		await page.goto('/blog/ligature-test-fixture', { waitUntil: 'domcontentloaded' });
+		await page.goto('/blog/aperture-tagged-devices-and-the-tsnet-escape-hatch', { waitUntil: 'domcontentloaded' });
 
 		const codeBlock = page.locator('pre code').first();
 		await expect(codeBlock).toBeVisible();

@@ -3,7 +3,7 @@ title: "Ligature Test Fixture"
 date: "2024-12-31"
 description: "Test fixture post for verifying Fira Code ligatures render correctly in code blocks."
 tags: ["test"]
-published: true
+published: false
 slug: "ligature-test-fixture"
 feature_image: "/images/posts/orange-wood-ducks.jpg"
 category: "hardware"
