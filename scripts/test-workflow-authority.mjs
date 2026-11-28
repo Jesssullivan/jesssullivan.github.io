@@ -15,9 +15,10 @@ const paths = {
 	pagesRollback: '.github/workflows/github-pages-rollback-v2.yml',
 	productionHealth: '.github/workflows/production-health-v2.yml',
 	privateCv: '.github/workflows/private-cv-authority-v2.yml',
+	hubProjection: '.github/workflows/hub-projection-v2.yml',
 };
 
-const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv] =
+const [ci, production, parity, cachePurge, shadowSource, shadowPublish, pagesRollback, productionHealth, privateCv, hubProjection] =
 	await Promise.all(Object.values(paths).map(read));
 const [dockerfile, layout, vite, packageJson, stamper, validator, themeSwitcher] = await Promise.all(
 	[
@@ -119,7 +120,7 @@ requireOrder(
 requireAll(
 	production,
 	[
-		"workflows: ['CI']",
+		"workflows: ['CI', 'Hub projection v2']",
 		'types: [cloudflare-pages-production-v2]',
 		"github.event.workflow_run.conclusion == 'success'",
 		"github.event.workflow_run.event == 'push'",
@@ -136,7 +137,17 @@ requireAll(
 		'process.env.REQUEST_DEPLOY !== "true"',
 		'process.env.PRODUCTION_ENABLED !== "true"',
 		'deploy = true',
-		"if: github.event_name == 'repository_dispatch' && needs.resolve.outputs.deploy == 'true'",
+		"if: needs.resolve.outputs.deploy == 'true'",
+		"github.event.workflow_run.name == 'Hub projection v2'",
+		"github.event.workflow_run.event == 'workflow_dispatch'",
+		'run.path !== ".github/workflows/hub-projection-v2.yml"',
+		'projection = projectionFromRunTitle(run.display_title);',
+		'CLOUDFLARE_PAGES_PRODUCTION_ENABLED must be true for a hub projection publish.',
+		'PROJECTION_CONTRACT: ${{ needs.resolve.outputs.projection_contract }}',
+		'PROJECTION_MANIFEST: ${{ needs.resolve.outputs.projection_manifest }}',
+		'(xoxd-projection\\/v3)$/.exec(title ?? "")',
+		'core.setOutput("projection_contract", projection.contract);',
+		'run: bazelisk run --ignore_dev_dependency --lockfile_mode=error //projection:step',
 		'ref: ${{ needs.resolve.outputs.source_sha }}',
 		'PUBLIC_DEPLOY_TIER: production',
 		'--commit-hash=${{ needs.resolve.outputs.source_sha }} --commit-dirty=false',
@@ -165,6 +176,41 @@ forbid(
 	/deployments:\s*write|secrets\.GITHUB_TOKEN|github\.token/,
 	'production must not carry unrelated GitHub mutation authority',
 );
+requireOrder(
+	production,
+	['name: Verify the hub projection for target blog', '- run: npm run build'],
+	'the projection step must run before the site build',
+);
+forbid(production, /^\s*workflow_dispatch:/m, 'production publication must stay default-owned');
+forbid(
+	`${production}\n${hubProjection}`,
+	/run:[^\n]*\$\{\{|^\s{10,}[^:\n]*\$\{\{\s*(?:inputs|github\.event\.inputs|needs)\./m,
+	'dispatch inputs reach shell steps only as environment values',
+);
+// The hub's dispatch carrier (TIN-8654) holds no credential: it checks the
+// inputs and ends. Production reads them only through workflow_run.
+requireAll(
+	hubProjection,
+	[
+		'name: Hub projection v2',
+		'run-name: projection blog ${{ inputs.manifest }} ${{ inputs.seq }} ${{ inputs.projection_base }} ${{ inputs.contract }}',
+		'permissions: {}',
+		'      contents: read',
+		'persist-credentials: false',
+		'PROJECTION_CONTRACT: ${{ inputs.contract }}',
+		'PROJECTION_MANIFEST: ${{ inputs.manifest }}',
+		'run: node projection/check-dispatch.mjs',
+	],
+	'hub projection carrier',
+);
+// The contract gives a v3 site exactly four inputs, each required and a string.
+const carrierInputs = [...hubProjection.matchAll(/^      ([a-z_]+):\n        description: [^\n]+\n        required: true\n        type: string$/gm)].map(
+	(match) => match[1],
+);
+if (carrierInputs.join(',') !== 'manifest,seq,projection_base,contract') {
+	throw new Error(`hub projection carrier must declare exactly manifest, seq, projection_base and contract; found ${carrierInputs.join(',')}`);
+}
+forbid(hubProjection, /secrets\.|github\.token|GITHUB_TOKEN|write/, 'the hub projection carrier must hold no credential or write permission');
 requireAbsent('.github/workflows/cloudflare-pages-production.yml');
 
 requireAll(

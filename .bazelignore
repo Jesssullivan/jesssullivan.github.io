@@ -11,3 +11,6 @@ playwright-report
 coverage
 .lighthouseci
 workers/dns-guard/.wrangler
+# The projection step's output (TIN-8654). It is build input written before
+# a build, never a source. Bazel site builds start without it.
+src/lib/projection-data

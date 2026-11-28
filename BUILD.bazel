@@ -2,6 +2,7 @@
 
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 load("@jesssullivan_github_io_npm//:defs.bzl", "npm_link_all_packages")
+load("//projection:module.bzl", "XOXD_PROJECTION")
 
 npm_link_all_packages(name = "node_modules")
 
@@ -153,13 +154,24 @@ js_binary(
 js_test(
     name = "vitest_unit_tests",
     copy_data_to_bin = False,
+    # src/lib/notes.projection.test.ts reads the xoxd_projection module and
+    # the contract fixtures it ships (TIN-8654). It serves the fixture trees
+    # from a loopback server through projection/testing.mjs.
     data = [
         ":node_modules",
         ":vitest_srcs",
         "//packages/pulse-client:node_modules",
         "//packages/pulse-core:node_modules",
+        "//projection:contract_fixtures",
+        "//projection:seed_fixture_srcs",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
+        XOXD_PROJECTION + ":pkg",
     ],
     entry_point = "scripts/run-vitest-bazel.mjs",
+    env = {
+        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json)",
+        "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
+    },
     patch_node_fs = False,
     tags = [
         "gloriousflywheel-rbe-candidate",
@@ -303,6 +315,46 @@ js_test(
     entry_point = "scripts/run-playwright-e2e-bazel.mjs",
     env = {
         "TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)",
+    },
+    patch_node_fs = False,
+    tags = [
+        "chromium",
+        "e2e",
+        "gloriousflywheel-rbe-candidate",
+        "playwright",
+        "sveltekit",
+        "vite",
+        "web-browser-runtime-authority",
+    ],
+    timeout = "long",
+    visibility = ["//visibility:public"],
+)
+
+# The notes e2e (TIN-8654): the same site build as playwright_chromium_e2e,
+# after the projection step verified the xoxd-projection/v3 valid blog
+# fixture with the contract's fixture key. It runs e2e/notes-present.spec.ts
+# only. The pinned key is never used here.
+js_test(
+    name = "playwright_notes_e2e",
+    copy_data_to_bin = False,
+    data = [
+        ":node_modules",
+        ":playwright_e2e_srcs",
+        ":sveltekit_build_srcs",
+        "scripts/run-playwright-e2e-bazel.mjs",
+        "scripts/serve-static-build.mjs",
+        "//projection:contract_fixtures",
+        XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json",
+        "//projection:seed_fixture_srcs",
+        "@tummycrypt_tinyvectors//:pkg",
+        XOXD_PROJECTION + ":pkg",
+    ],
+    entry_point = "scripts/run-playwright-e2e-bazel.mjs",
+    env = {
+        "E2E_NOTES_FIXTURE": "1",
+        "TINYVECTORS_HERMETIC_PKG": "$(rootpath @tummycrypt_tinyvectors//:pkg)",
+        "XOXD_PROJECTION_FIXTURES": "$(rootpath " + XOXD_PROJECTION + ":testdata/projection-v3/fixtures/cases.json)",
+        "XOXD_PROJECTION_PKG": "$(rootpath " + XOXD_PROJECTION + ":pkg)",
     },
     patch_node_fs = False,
     tags = [

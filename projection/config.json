@@ -1,0 +1,10 @@
+{
+	"target": "blog",
+	"origin": "https://transscendsurvival.org",
+	"publicKeyFile": "hub-ed25519.pub",
+	"outDir": "src/lib/projection-data",
+	"allowedBases": [
+		"https://social.transscendsurvival.org"
+	],
+	"recoveryBase": "https://social.transscendsurvival.org"
+}
