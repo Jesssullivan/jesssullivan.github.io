@@ -33,7 +33,7 @@ export interface AttachmentRef {
 	sha256: string;
 	bytes: number;
 	alt: string;
-	/** The picture size of a video in pixels, or null. No other kind has one. */
+	/** The picture size in pixels of a video or an image, or null when the hub sends none. */
 	width: number | null;
 	height: number | null;
 }
@@ -321,6 +321,23 @@ export function attachmentHeaders(attachment: Pick<AttachmentRef, 'mediaType'>):
 	};
 }
 
+/**
+ * The file types the static adapter's precompress step writes a .br and a
+ * .gz copy of, from the list in @sveltejs/kit's builder. Of the attachment
+ * kinds only a diagram picture, an .svg, is on it.
+ */
+const PRECOMPRESSED_EXTENSIONS = ['.html', '.js', '.mjs', '.json', '.css', '.svg', '.xml', '.wasm', '.txt', '.md', '.mdx'];
+
+/**
+ * The headers of a compressed copy the precompress step wrote next to an
+ * attachment. Its bytes are brotli or gzip with no Content-Encoding, so it
+ * goes out as opaque bytes, with the same nosniff and the same policy that
+ * runs nothing as the attachment.
+ */
+function compressedCopyHeaders(): Record<string, string> {
+	return attachmentHeaders({ mediaType: 'application/octet-stream' });
+}
+
 /** The most header rules Cloudflare Pages reads from one _headers file. */
 export const HEADER_RULE_LIMIT = 100;
 
@@ -334,6 +351,8 @@ const RULE_VALUE = /^[\x20-\x7e]+$/;
  * whole, so no rule reaches a page. The build fails when a path or a value
  * could break the file's format, and when there are more rules than the
  * host reads, since an attachment must never go out without its headers.
+ * An attachment the precompress step compresses, a diagram .svg, also gets
+ * a rule for its .br and .gz copies.
  */
 export function attachmentHeaderRules(notes: readonly Pick<Note, 'attachments'>[]): string {
 	const rules = new Map<string, Record<string, string>>();
@@ -345,11 +364,15 @@ export function attachmentHeaderRules(notes: readonly Pick<Note, 'attachments'>[
 				if (!RULE_VALUE.test(value)) throw new Error(`attachment ${attachment.path} has a header value this file cannot hold`);
 			}
 			rules.set(attachment.path, headers);
+			if (PRECOMPRESSED_EXTENSIONS.some((extension) => attachment.path.endsWith(extension))) {
+				rules.set(`${attachment.path}.br`, compressedCopyHeaders());
+				rules.set(`${attachment.path}.gz`, compressedCopyHeaders());
+			}
 		}
 	}
 	if (rules.size > HEADER_RULE_LIMIT) {
 		throw new Error(
-			`the notes hold ${rules.size} attachments and the host reads ${HEADER_RULE_LIMIT} header rules, so some would be served without their headers`,
+			`the notes need ${rules.size} header rules for their attachments and the host reads ${HEADER_RULE_LIMIT}, so some would be served without their headers`,
 		);
 	}
 	return [...rules.keys()]

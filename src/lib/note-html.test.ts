@@ -26,6 +26,26 @@ describe('a body whose HTML and blocks disagree', () => {
 		expect(() => feedHtml('<p>Words.</p>', [clip], ORIGIN, PAGE)).toThrow(NoteHtmlError);
 	});
 
+	it.each([
+		[
+			'recording',
+			{ type: 'recording', audio: { path: '/notes/a/sound.mp3' }, title: 'A sound', description: null } as MediaBlock,
+			'<figure class="embed-recording"><audio controls preload="metadata"><source src="/notes/a/sound.mp3" type="audio/mpeg" /></audio></figure>',
+			/recordings/,
+		],
+		[
+			'video file',
+			{ type: 'video', video: { path: '/notes/a/film.mp4' }, host: 'file', title: 'A film' } as MediaBlock,
+			'<figure class="embed-video"><video controls preload="metadata"><source src="/notes/a/film.mp4" type="video/mp4" /></video></figure>',
+			/video files/,
+		],
+	])('counts each %s on the page as the feed does', (_name, block, html, what) => {
+		expect(() => pageHtml(html, [block])).not.toThrow();
+		expect(() => pageHtml('<p>Words.</p>', [block])).toThrow(what);
+		expect(() => pageHtml(html, [])).toThrow(what);
+		expect(() => feedHtml('<p>Words.</p>', [block], ORIGIN, PAGE)).toThrow(what);
+	});
+
 	it('does not count a clip whose attachment is missing, since the hub renders a notice for it', () => {
 		const missing: MediaBlock = { type: 'clip', video: null, alt: 'Water moves', caption: null };
 		const notice = '<p class="embed-missing" data-embed="clip">Missing attachment <code>loop</code></p>';

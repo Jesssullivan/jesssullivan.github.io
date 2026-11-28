@@ -111,7 +111,9 @@ beside it: `cover`, `heading`, `blocks` and the attachment refs.
   page and the notes list use the same component, so the list shows each
   note whole.
 - A cover is shown above the body. A decorative cover has an empty `alt` and
-  no figure, so a screen reader skips it.
+  no figure, so a screen reader skips it. When its ref carries an integer
+  `width` and `height`, the cover `img` carries them too. An image in the
+  body is the hub's HTML, so its size comes from the hub's renderer.
 - A figure with a label carries its number before its caption, and the prose
   links to it.
 - A diagram is an `img` of the static SVG with its `alt`. The page never
@@ -171,9 +173,13 @@ build output is static, so the headers a route returns never reach a reader.
   build output. The route `src/routes/_headers` writes it when a note has an
   attachment: one rule per attachment path, matched whole, so no rule
   reaches a page. With no note attachment no `_headers` file is written.
+- The static adapter's precompress step writes a `.br` and a `.gz` copy of
+  each `.svg`, so a diagram picture has two more files beside it. Each copy
+  gets its own rule: `Content-Type: application/octet-stream`, since its
+  bytes are compressed, with the same nosniff and the same policy.
 - Cloudflare Pages reads at most 100 header rules, and one rule covers one
-  file. The build fails when the notes hold more than 100 attachments,
-  since an attachment must never go out without its headers. A wider rule
+  file. The build fails when the notes need more than 100 rules, since an
+  attachment must never go out without its headers. A wider rule
   would also match the pages under `/notes/`, so it is not used. Lifting the
   limit needs a Pages Function for `/notes/*/*`, which is a later change.
 - GitHub Pages, the manual rollback target, cannot set a header per file.

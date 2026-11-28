@@ -229,6 +229,10 @@ export function pageHtml(html: string, blocks: readonly MediaBlock[]): string {
 			continue;
 		}
 		if (token.name === 'audio' || token.name === 'video') playerEnd = Math.max(playerEnd, closeOf(tokens, index));
+		// Each recording and video file is counted against its block, as the
+		// feed body counts them, so a body and blocks that disagree fail here too.
+		if (token.name === 'figure' && hasClass(token, 'embed-recording')) queues.recordings.take();
+		if (token.name === 'figure' && hasClass(token, 'embed-video')) queues.videos.take();
 		if (token.name === 'video' && token.attributes.has('data-clip')) {
 			queues.clips.take();
 			out += withAttributes(token, 'data-pagefind-index-attrs="aria-label"');
@@ -255,6 +259,8 @@ export function pageHtml(html: string, blocks: readonly MediaBlock[]): string {
 		}
 	}
 	queues.clips.done();
+	queues.recordings.done();
+	queues.videos.done();
 	queues.pendingDiagrams.done();
 	return out;
 }

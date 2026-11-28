@@ -1,4 +1,6 @@
+import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
+import NoteBody from './components/NoteBody.svelte';
 import {
 	HEADER_RULE_LIMIT,
 	attachmentHeaderRules,
@@ -202,6 +204,29 @@ describe('the heading placement', () => {
 	});
 });
 
+describe('the cover image size', () => {
+	const cover = (width: number | null, height: number | null, decorative: boolean) => ({
+		image: { ...ref('/notes/a/cover.png'), width, height },
+		alt: decorative ? '' : 'A field',
+		decorative,
+	});
+	const img = (props: ReturnType<typeof cover>): string => /<img [^>]*>/.exec(render(NoteBody, { props: { cover: props, html: '' } }).body)?.[0] ?? '';
+
+	it('puts the integer width and height the hub sends on the img', () => {
+		for (const decorative of [true, false]) {
+			const tag = img(cover(640, 480, decorative));
+			expect(tag).toContain('width="640"');
+			expect(tag).toContain('height="480"');
+		}
+	});
+
+	it('writes no size when the ref has none', () => {
+		const tag = img(cover(null, null, false));
+		expect(tag).not.toContain('width=');
+		expect(tag).not.toContain('height=');
+	});
+});
+
 describe('the attachment headers file', () => {
 	it('writes one rule per attachment path, sorted, with the three headers', () => {
 		const text = attachmentHeaderRules([
@@ -214,6 +239,16 @@ describe('the attachment headers file', () => {
 				'  X-Content-Type-Options: nosniff',
 				"  Content-Security-Policy: default-src 'none'; sandbox",
 				'',
+				'/notes/a/diagram-0123456789abcdef01234567.svg.br',
+				'  Content-Type: application/octet-stream',
+				'  X-Content-Type-Options: nosniff',
+				"  Content-Security-Policy: default-src 'none'; sandbox",
+				'',
+				'/notes/a/diagram-0123456789abcdef01234567.svg.gz',
+				'  Content-Type: application/octet-stream',
+				'  X-Content-Type-Options: nosniff',
+				"  Content-Security-Policy: default-src 'none'; sandbox",
+				'',
 				'/notes/b/sound.mp3',
 				'  Content-Type: audio/mpeg',
 				'  X-Content-Type-Options: nosniff',
@@ -221,6 +256,30 @@ describe('the attachment headers file', () => {
 				'',
 			].join('\n'),
 		);
+	});
+
+	it('covers the .br and .gz copies the precompress step writes of a diagram, and only those', () => {
+		const text = attachmentHeaderRules([
+			{ attachments: [ref('/notes/a/diagram-0123456789abcdef01234567.svg', 'image/svg+xml'), ref('/notes/a/photo.png')] },
+		]);
+		const paths = text.split('\n').filter((line) => line.startsWith('/'));
+		expect(paths).toEqual([
+			'/notes/a/diagram-0123456789abcdef01234567.svg',
+			'/notes/a/diagram-0123456789abcdef01234567.svg.br',
+			'/notes/a/diagram-0123456789abcdef01234567.svg.gz',
+			'/notes/a/photo.png',
+		]);
+		for (const block of text.split('\n\n')) {
+			expect(block).toContain('X-Content-Type-Options: nosniff');
+			expect(block).toContain("Content-Security-Policy: default-src 'none'; sandbox");
+		}
+	});
+
+	it('counts the compressed copies against the rule limit', () => {
+		const diagrams = Array.from({ length: Math.ceil(HEADER_RULE_LIMIT / 3) + 1 }, (_, index) =>
+			ref(`/notes/a/diagram-${index}.svg`, 'image/svg+xml'),
+		);
+		expect(() => attachmentHeaderRules([{ attachments: diagrams }])).toThrow(/served without their headers/);
 	});
 
 	it('fails the build on a path or a value that could break the file', () => {

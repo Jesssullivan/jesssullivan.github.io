@@ -23,14 +23,15 @@
 	}
 </script>
 
+<!-- A cover image carries the size the hub sends on its ref, so the page keeps its place before the file loads. A null size writes no attribute. -->
 {#if cover}
 	{#if cover.image === null}
 		<p class="embed-missing">The cover image is missing.</p>
 	{:else if cover.decorative}
 		<!-- A decorative cover has an empty alt and no figure, so a screen reader skips it. -->
-		<div class="note-cover"><img src={cover.image.path} alt="" decoding="async" /></div>
+		<div class="note-cover"><img src={cover.image.path} alt="" width={cover.image.width} height={cover.image.height} decoding="async" /></div>
 	{:else}
-		<figure class="note-cover"><img src={cover.image.path} alt={cover.alt} decoding="async" /></figure>
+		<figure class="note-cover"><img src={cover.image.path} alt={cover.alt} width={cover.image.width} height={cover.image.height} decoding="async" /></figure>
 	{/if}
 {/if}
 <div class="prose prose-lg max-w-none note-body" use:media={html}>

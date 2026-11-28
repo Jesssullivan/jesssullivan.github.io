@@ -348,7 +348,10 @@ describe.skipIf(!hasModule)('notes from the contract fixtures', () => {
 		expect(text).toContain(rule('/blog/marsh-dawn/dawn.mp3', 'audio/mpeg'));
 		expect(text).toContain(rule('/blog/marsh-dawn/ripple.mp4', 'video/mp4'));
 		expect(text).toMatch(/\/writing\/signed-pictures\/diagram-[0-9a-f]{24}\.svg\n {2}Content-Type: image\/svg\+xml\n {2}X-Content-Type-Options: nosniff\n/);
-		expect(text.split('\n\n')).toHaveLength(8);
+		// The diagram picture's .br and .gz copies from the precompress step get the same nosniff and policy.
+		expect(text).toMatch(/\/writing\/signed-pictures\/diagram-[0-9a-f]{24}\.svg\.br\n {2}Content-Type: application\/octet-stream\n {2}X-Content-Type-Options: nosniff\n/);
+		expect(text).toMatch(/\/writing\/signed-pictures\/diagram-[0-9a-f]{24}\.svg\.gz\n {2}Content-Type: application\/octet-stream\n {2}X-Content-Type-Options: nosniff\n/);
+		expect(text.split('\n\n')).toHaveLength(10);
 	});
 
 	it('gives the site search the text alternative of each block and none of the controls', async () => {
